@@ -4,55 +4,17 @@ import logging
 import os
 import traceback
 
-import optuna
-from bottle import response, static_file, redirect, Bottle, request
+from bottle import Bottle, redirect, request, response, static_file
+from optuna import storages
 from optuna.study import StudyDirection
 
 from . import serializer
 
+logger = logging.getLogger(__name__)
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "public")
-
-
-_logger = logging.getLogger(__name__)
-
-
-def catch_api_internal_error(view):
-    @functools.wraps(view)
-    def decorated(*args, **kwargs):
-        try:
-            response_body = view(*args, **kwargs)
-            return response_body
-        except Exception as e:
-            response.status = 500
-            response.content_type = "application/json"
-            stacktrace = "\n".join(traceback.format_tb(e.__traceback__))
-            _logger.error(f"Exception: {e}\n{stacktrace}")
-            return json.dumps({"reason": "internal server error"})
-
-    return decorated
-
-
-def get_study_summary(storage, study_id):
-    summaries = storage.get_all_study_summaries()
-    for summary in summaries:
-        if summary._study_id != study_id:
-            continue
-        return summary
-
-
-def create_app(storage):
-    app = Bottle()
-    storage = optuna.storages.get_storage(storage)
-
-    @app.get("/")
-    def index():
-        return redirect("/dashboard", 302)  # Found
-
-    @app.get("/dashboard<:re:(/.*)?>")
-    def dashboard():
-        response.content_type = "text/html"
-        return """<!DOCTYPE html>
+INDEX_HTML = """<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -75,10 +37,49 @@ def create_app(storage):
          <p>Now loading...</p>
     </div>
 </body>
-</html>"""
+</html>
+"""
+
+
+def handle_json_api_exception(view):
+    @functools.wraps(view)
+    def decorated(*args, **kwargs):
+        try:
+            response_body = view(*args, **kwargs)
+            return response_body
+        except Exception as e:
+            response.status = 500
+            response.content_type = "application/json"
+            stacktrace = "\n".join(traceback.format_tb(e.__traceback__))
+            logger.error(f"Exception: {e}\n{stacktrace}")
+            return json.dumps({"reason": "internal server error"})
+
+    return decorated
+
+
+def get_study_summary(storage, study_id):
+    summaries = storage.get_all_study_summaries()
+    for summary in summaries:
+        if summary._study_id != study_id:
+            continue
+        return summary
+
+
+def create_app(storage):
+    app = Bottle()
+    storage = storages.get_storage(storage)
+
+    @app.get("/")
+    def index():
+        return redirect("/dashboard", 302)  # Found
+
+    @app.get("/dashboard<:re:(/.*)?>")
+    def dashboard():
+        response.content_type = "text/html"
+        return INDEX_HTML
 
     @app.get("/api/studies")
-    @catch_api_internal_error
+    @handle_json_api_exception
     def list_study_summaries():
         response.content_type = "application/json"
         summaries = [
@@ -92,7 +93,7 @@ def create_app(storage):
         )
 
     @app.post("/api/studies")
-    @catch_api_internal_error
+    @handle_json_api_exception
     def create_study():
         response.content_type = "application/json"
 
@@ -115,7 +116,7 @@ def create_app(storage):
         )
 
     @app.get("/api/studies/<study_id:int>")
-    @catch_api_internal_error
+    @handle_json_api_exception
     def get_study_detail(study_id: int):
         response.content_type = "application/json"
         summary = get_study_summary(storage, study_id)
