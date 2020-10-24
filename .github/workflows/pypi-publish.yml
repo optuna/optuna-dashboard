@@ -1,0 +1,51 @@
+name: Publish distributions to TestPyPI and PyPI
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  build-n-publish:
+    name: Build and publish Python distributions to TestPyPI and PyPI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node v14
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14'
+      - run: npm install
+      - run: npm run build:prd
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools
+          pip install --progress-bar off .[release]
+      - name: Build distribution packages
+        run: python setup.py sdist bdist_wheel
+      - name: Verify the distributions
+        run: twine check dist/*
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: distribution
+          path: dist/
+
+      - name: Publish distribution to Test PyPI
+        uses: pypa/gh-action-pypi-publish@v1.4.1
+        with:
+          user: __token__
+          password: ${{ secrets.TEST_PYPI_PASSWORD }}
+          repository_url: https://test.pypi.org/legacy/
+
+      - name: Publish distribution to PyPI
+        uses: pypa/gh-action-pypi-publish@v1.4.1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_PASSWORD }}
