@@ -1,6 +1,10 @@
 *.pyc
 __pycache__/
 venv/
+.eggs/
+*.egg-info
+dist/
+build/
 
 node_modules/
 public/
