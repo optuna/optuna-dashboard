@@ -25,10 +25,11 @@ def catch_api_internal_error(view):
             return response_body
         except Exception as e:
             response.status = 500
-            response.content_type = 'application/json'
-            stacktrace = '\n'.join(traceback.format_tb(e.__traceback__))
+            response.content_type = "application/json"
+            stacktrace = "\n".join(traceback.format_tb(e.__traceback__))
             _logger.error(f"Exception: {e}\n{stacktrace}")
             return json.dumps({"reason": "internal server error"})
+
     return decorated
 
 
@@ -52,29 +53,29 @@ def create_app(storage):
     def dashboard():
         response.content_type = "text/html"
         return """<!DOCTYPE html>
-    <html lang="en">
-    
-    <head>
-        <title>Optuna Dashboard</title>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <style>
-        body {
-            min-height: 100vh;
-            margin: 0;
-            padding: 0;
-        }
-        </style>
-        <script defer src="/static/bundle.js"></script>
-    </head>
-    
-    <body>
-        <noscript>You need to enable JavaScript to run this dashboard.</noscript>
-        <div id="dashboard">
-             <p>Now loading...</p>
-        </div>
-    </body>
-    </html>"""
+<html lang="en">
+
+<head>
+    <title>Optuna Dashboard</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+    body {
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+    }
+    </style>
+    <script defer src="/static/bundle.js"></script>
+</head>
+
+<body>
+    <noscript>You need to enable JavaScript to run this dashboard.</noscript>
+    <div id="dashboard">
+         <p>Now loading...</p>
+    </div>
+</body>
+</html>"""
 
     @app.get("/api/studies")
     @catch_api_internal_error
@@ -84,22 +85,22 @@ def create_app(storage):
             serializer.serialize_study_summary(summary)
             for summary in storage.get_all_study_summaries()
         ]
-        return json.dumps({
-            "study_summaries": summaries,
-        })
+        return json.dumps(
+            {
+                "study_summaries": summaries,
+            }
+        )
 
     @app.post("/api/studies")
     @catch_api_internal_error
     def create_study():
-        response.content_type = 'application/json'
+        response.content_type = "application/json"
 
         study_name = request.json.get("study_name", None)
         direction = request.json.get("direction", None)
         if study_name is None or direction not in ("minimize", "maximize"):
             response.status = 400
-            return {
-                "reason": "You need to set study_name and direction"
-            }
+            return {"reason": "You need to set study_name and direction"}
 
         study_id = storage.create_new_study(study_name)
         if direction.lower() == "maximize":
@@ -107,9 +108,9 @@ def create_app(storage):
 
         summary = get_study_summary(storage, study_id)
         response.status = 201
-        return json.dumps({
-            "study_summary": serializer.serialize_study_summary(summary)
-        })
+        return json.dumps(
+            {"study_summary": serializer.serialize_study_summary(summary)}
+        )
 
     @app.get("/api/studies/<study_id:int>")
     @catch_api_internal_error
@@ -117,9 +118,7 @@ def create_app(storage):
         response.content_type = "application/json"
         summary = get_study_summary(storage, study_id)
         trials = storage.get_all_trials(study_id)
-        return json.dumps(serializer.serialize_study_detail(
-            summary, trials
-        ))
+        return json.dumps(serializer.serialize_study_detail(summary, trials))
 
     @app.get("/static/<filename:path>")
     def send_static(filename):
