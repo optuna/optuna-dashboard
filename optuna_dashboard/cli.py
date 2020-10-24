@@ -1,7 +1,7 @@
 import argparse
 from bottle import run
 
-from dashboard.app import create_app
+from .app import create_app
 
 
 def main():

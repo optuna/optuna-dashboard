@@ -5,7 +5,7 @@
   "description": "Dashboard for Goptuna",
   "main": "index.js",
   "scripts": {
-    "fmt": "prettier --write \"dashboard/static/**/*.{ts,tsx}\"",
+    "fmt": "prettier --write \"optuna_dashboard/static/**/*.{ts,tsx}\"",
     "watch": "webpack --watch",
     "build": "webpack",
     "build:dev": "NODE_ENV=development webpack",

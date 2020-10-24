@@ -14,9 +14,9 @@ if (isDev) {
 
 var config = {
     mode,
-    entry: [__dirname + '/dashboard/static/index.tsx'],
+    entry: [__dirname + '/optuna_dashboard/static/index.tsx'],
     output: {
-        path: __dirname + '/dashboard/public/',
+        path: __dirname + '/optuna_dashboard/public/',
         filename: 'bundle.js',
         publicPath: '/public/'
     },
