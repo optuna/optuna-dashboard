@@ -16,10 +16,10 @@ import {
 } from "@material-ui/core"
 import { Home } from "@material-ui/icons"
 
-import { DataGridColumn, DataGrid } from "./dataGrid"
-import { GraphParallelCoordinate } from "./graphParallelCoordinate"
-import { GraphIntermediateValues } from "./graphIntermediateValues"
-import { GraphHistory } from "./graphHistory"
+import { DataGridColumn, DataGrid } from "./DataGrid"
+import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
+import { GraphIntermediateValues } from "./GraphIntermediateValues"
+import { GraphHistory } from "./GraphHistory"
 import { Action, actionCreator } from "../action"
 import { studyDetailsState } from "../state"
 

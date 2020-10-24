@@ -24,7 +24,7 @@ import {
 import { AddBox, Refresh } from "@material-ui/icons"
 
 import { actionCreator } from "../action"
-import { DataGrid, DataGridColumn } from "./dataGrid"
+import { DataGrid, DataGridColumn } from "./DataGrid"
 import { studySummariesState } from "../state"
 
 const useStyles = makeStyles((theme: Theme) =>
