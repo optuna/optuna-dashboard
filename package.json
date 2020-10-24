@@ -17,7 +17,6 @@
     "@material-ui/core": "^4.11.0",
     "@material-ui/icons": "^4.9.1",
     "axios": "^0.20.0",
-    "dayjs": "^1.9.3",
     "notistack": "^1.0.1",
     "plotly.js-dist": "^1.57.0",
     "react": "^16.14.0",
