@@ -1,9 +1,9 @@
 name: Publish distributions to TestPyPI and PyPI
 
 on:
-  release:
-    types:
-      - published
+  create:
+    tags:
+      - v*.*.*
 
 jobs:
   build-n-publish:
@@ -32,17 +32,16 @@ jobs:
       - name: Verify the distributions
         run: twine check dist/*
 
-      - uses: actions/upload-artifact@v2
-        with:
-          name: distribution
-          path: dist/
-
-      - name: Publish distribution to Test PyPI
-        uses: pypa/gh-action-pypi-publish@v1.4.1
-        with:
-          user: __token__
-          password: ${{ secrets.TEST_PYPI_PASSWORD }}
-          repository_url: https://test.pypi.org/legacy/
+      - name: Install ghr
+        run: |
+          wget https://github.com/tcnksm/ghr/releases/download/v0.13.0/ghr_v0.13.0_linux_amd64.tar.gz
+          tar -xzf ghr_v*_linux_amd64.tar.gz
+      - name: Create GitHub release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          export TAGNAME=$(jq --raw-output .ref "$GITHUB_EVENT_PATH")
+          ./ghr_v0.13.0_linux_amd64/ghr -n ${TAGNAME} -b ${TAGNAME} -draft ${TAGNAME} dist/
 
       - name: Publish distribution to PyPI
         uses: pypa/gh-action-pypi-publish@v1.4.1
