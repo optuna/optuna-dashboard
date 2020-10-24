@@ -105,6 +105,8 @@ def create_app(storage):
         study_id = storage.create_new_study(study_name)
         if direction.lower() == "maximize":
             storage.set_study_direction(study_id, StudyDirection.MAXIMIZE)
+        else:
+            storage.set_study_direction(study_id, StudyDirection.MINIMIZE)
 
         summary = get_study_summary(storage, study_id)
         response.status = 201
