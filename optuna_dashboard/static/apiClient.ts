@@ -83,7 +83,7 @@ interface StudySummariesResponse {
     }
     user_attrs: Attribute[]
     system_attrs: Attribute[]
-    datetime_start: string
+    datetime_start?: string
   }[]
 }
 
@@ -103,7 +103,9 @@ export const getStudySummariesAPI = (): Promise<StudySummary[]> => {
             best_trial: best_trial,
             user_attrs: study.user_attrs,
             system_attrs: study.system_attrs,
-            datetime_start: new Date(study.datetime_start),
+            datetime_start: study.datetime_start
+              ? new Date(study.datetime_start)
+              : undefined,
           }
         }
       )
@@ -111,7 +113,27 @@ export const getStudySummariesAPI = (): Promise<StudySummary[]> => {
 }
 
 interface CreateNewStudyResponse {
-  study_summary: StudySummary
+  study_summary: {
+    study_id: number
+    study_name: string
+    direction: StudyDirection
+    best_trial?: {
+      trial_id: number
+      study_id: number
+      number: number
+      state: TrialState
+      value?: number
+      intermediate_values: TrialIntermediateValue[]
+      datetime_start: string
+      datetime_complete?: string
+      params: TrialParam[]
+      user_attrs: Attribute[]
+      system_attrs: Attribute[]
+    }
+    user_attrs: Attribute[]
+    system_attrs: Attribute[]
+    datetime_start?: string
+  }
 }
 
 export const createNewStudyAPI = (
@@ -132,7 +154,9 @@ export const createNewStudyAPI = (
         // best_trial: undefined,
         user_attrs: study_summary.user_attrs,
         system_attrs: study_summary.system_attrs,
-        datetime_start: new Date(study_summary.datetime_start),
+        datetime_start: study_summary.datetime_start
+          ? new Date(study_summary.datetime_start)
+          : undefined,
       }
     })
 }

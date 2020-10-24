@@ -46,7 +46,7 @@ declare interface StudySummary {
   best_trial?: Trial
   user_attrs: Attribute[]
   system_attrs: Attribute[]
-  datetime_start: Date
+  datetime_start?: Date
 }
 
 declare interface StudyDetail {

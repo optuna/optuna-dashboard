@@ -30,7 +30,9 @@ def serialize_study_summary(summary: StudySummary) -> Dict[str, Any]:
         serialized["datetime_start"] = (summary.datetime_start.isoformat(),)
 
     if summary.best_trial:  # Make undefined if None
-        serialized["best_trial"] = serialize_frozen_trial(summary.best_trial)
+        serialized["best_trial"] = serialize_frozen_trial(
+            summary._study_id, summary.best_trial
+        )
 
     return serialized
 
@@ -46,15 +48,20 @@ def serialize_study_detail(
         serialized["datetime_start"] = summary.datetime_start.isoformat()
 
     if summary.best_trial is not None:
-        serialized["best_trial"] = serialize_frozen_trial(summary.best_trial)
+        serialized["best_trial"] = serialize_frozen_trial(
+            summary._study_id, summary.best_trial
+        )
 
-    serialized["trials"] = [serialize_frozen_trial(trial) for trial in trials]
+    serialized["trials"] = [
+        serialize_frozen_trial(summary._study_id, trial) for trial in trials
+    ]
     return serialized
 
 
-def serialize_frozen_trial(trial: FrozenTrial) -> Dict[str, Any]:
+def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
     serialized = {
         "trial_id": trial._trial_id,
+        "study_id": study_id,
         "number": trial.number,
         "state": trial.state.name.capitalize(),
         "intermediate_values": serialize_intermediate_values(trial.intermediate_values),
