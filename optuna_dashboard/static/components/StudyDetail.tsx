@@ -129,14 +129,14 @@ const TrialTable: FC<{ trials: Trial[] }> = ({ trials = [] }) => {
     {
       field: "state",
       label: "State",
-      sortable: false,
+      sortable: true,
+      filterable: true,
       toCellValue: (i) => trials[i].state.toString(),
     },
     { field: "value", label: "Value", sortable: true },
     {
       field: "params",
       label: "Params",
-      sortable: false,
       toCellValue: (i) =>
         trials[i].params.map((p) => p.name + ": " + p.value).join(", "),
     },
