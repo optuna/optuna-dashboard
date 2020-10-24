@@ -3,14 +3,13 @@ from setuptools import setup, find_packages
 
 
 def get_long_description() -> str:
-
     readme_filepath = os.path.join(os.path.dirname(__file__), "README.md")
     with open(readme_filepath) as f:
         return f.read()
 
 setup(
     name="optuna-dashboard",
-    version="0.0.1",
+    version="0.0.2",
     description="Web dashboard for Optuna.",
     long_description=get_long_description(),
     long_description_content_type="text/markdown",
