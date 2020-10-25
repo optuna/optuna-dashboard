@@ -1,8 +1,6 @@
 # optuna-dashboard
 
-Realtime Web dashboard for Optuna. Code files were originally taken from [Goptuna](https://github.com/c-bata/goptuna).
-
-![demo](https://user-images.githubusercontent.com/5564044/97078684-ba98a180-1628-11eb-8245-7cb8c76647f5.gif)
+Web dashboard for Optuna. Code files were originally taken from [Goptuna](https://github.com/c-bata/goptuna).
 
 ## Usage
 
@@ -43,6 +41,26 @@ optional arguments:
 ```
 
 </details>
+
+## Features
+
+### Interactive realtime graphs
+
+You can check graphs of optimization history, parallel coordinate and intermediate values.
+
+![optuna-realtime-graph](https://user-images.githubusercontent.com/5564044/97099797-66e19300-16d0-11eb-826c-6977e3941fb0.gif)
+
+### Rich trials data grid
+
+You can walk-through trials with filtering and sorting.
+
+![optuna-trial-table](https://user-images.githubusercontent.com/5564044/97099599-36005e80-16ce-11eb-929c-8498f6ea09da.gif)
+
+### Create and delete study
+
+You can create and delete a study from Dashboard.
+
+![optuna-create-delete-study](https://user-images.githubusercontent.com/5564044/97099702-4107be80-16cf-11eb-9d97-f5ceec98ce52.gif)
 
 ## Alternatives
 
