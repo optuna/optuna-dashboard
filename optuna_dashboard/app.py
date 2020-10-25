@@ -1,11 +1,15 @@
+from datetime import datetime, timedelta
 import functools
 import json
 import logging
 import os
+import threading
 import traceback
+from typing import Union, Dict, List
 
 from bottle import Bottle, redirect, request, response, static_file
 from optuna import storages
+from optuna.trial import FrozenTrial
 from optuna.study import StudyDirection
 
 from . import serializer
@@ -39,6 +43,11 @@ INDEX_HTML = """<!DOCTYPE html>
 </body>
 </html>
 """
+# In-memory trials cache
+TRIALS_TTL = timedelta(seconds=10)
+trials_cache_lock = threading.Lock()
+trials_cache: Dict[int, List[FrozenTrial]] = {}
+trials_last_fetched_at: Dict[int, datetime] = {}
 
 
 def handle_json_api_exception(view):
@@ -65,16 +74,34 @@ def get_study_summary(storage, study_id):
         return summary
 
 
-def create_app(storage):
+def get_trials(storage: storages.BaseStorage, study_id: int) -> List[FrozenTrial]:
+    with trials_cache_lock:
+        trials = trials_cache.get(study_id, None)
+        last_fetched_at = trials_last_fetched_at.get(study_id, None)
+        if (
+            trials is not None
+            and last_fetched_at is not None
+            and datetime.now() - last_fetched_at < TRIALS_TTL
+        ):
+            return trials
+    trials = storage.get_all_trials(study_id)
+    with trials_cache_lock:
+        trials_last_fetched_at[study_id] = datetime.now()
+        trials_cache[study_id] = trials
+    return trials
+
+
+def create_app(storage: Union[None, str, storages.BaseStorage]) -> Bottle:
     app = Bottle()
     storage = storages.get_storage(storage)
 
     @app.get("/")
     def index():
-        return redirect("/dashboard", 302)  # Found
+        return redirect("/dashboard", 302)  # Status found
 
     @app.get("/dashboard<:re:(/.*)?>")
     def dashboard():
+        # Accept any following paths for client-side routing
         response.content_type = "text/html"
         return INDEX_HTML
 
@@ -129,7 +156,7 @@ def create_app(storage):
     def get_study_detail(study_id: int):
         response.content_type = "application/json"
         summary = get_study_summary(storage, study_id)
-        trials = storage.get_all_trials(study_id)
+        trials = get_trials(storage, study_id)
         return json.dumps(serializer.serialize_study_detail(summary, trials))
 
     @app.get("/static/<filename:path>")
