@@ -1,6 +1,6 @@
 # optuna-dashboard
 
-Web dashboard for Optuna. Code files were originally taken from [Goptuna](https://github.com/c-bata/goptuna).
+Real-time dashboard for Optuna. Code files were originally taken from [Goptuna](https://github.com/c-bata/goptuna).
 
 ## Usage
 
@@ -22,13 +22,13 @@ Hit Ctrl-C to quit.
 
 <details>
 
-<summary>More command line options</summary>
+<summary>more command line options</summary>
 
 ```console
 $ optuna-dashboard -h
 usage: optuna-dashboard [-h] [--port PORT] [--host HOST] [--version] [--quiet] storage
 
-Web dashboard for optuna.
+Real-time dashboard for Optuna.
 
 positional arguments:
   storage        Optuna Storage URL
@@ -45,9 +45,15 @@ optional arguments:
 
 ## Features
 
-### Interactive realtime graphs
+### Create and delete study
 
-You can check graphs of optimization history, parallel coordinate and intermediate values.
+You can create and delete a study from Dashboard.
+
+![optuna-create-delete-study](https://user-images.githubusercontent.com/5564044/97099702-4107be80-16cf-11eb-9d97-f5ceec98ce52.gif)
+
+### Interactive live-updating graphs
+
+Interactive live-updating graphs for optimization history, parallel coordinate and intermediate values.
 
 ![optuna-realtime-graph](https://user-images.githubusercontent.com/5564044/97099797-66e19300-16d0-11eb-826c-6977e3941fb0.gif)
 
@@ -56,12 +62,6 @@ You can check graphs of optimization history, parallel coordinate and intermedia
 You can walk-through trials with filtering and sorting.
 
 ![optuna-trial-table](https://user-images.githubusercontent.com/5564044/97099599-36005e80-16ce-11eb-929c-8498f6ea09da.gif)
-
-### Create and delete study
-
-You can create and delete a study from Dashboard.
-
-![optuna-create-delete-study](https://user-images.githubusercontent.com/5564044/97099702-4107be80-16cf-11eb-9d97-f5ceec98ce52.gif)
 
 ## Alternatives
 
