@@ -60,7 +60,7 @@ Interactive live-updating graphs for optimization history, parallel coordinate a
 
 ### Rich trials data grid
 
-You can walk-through trials with filtering and sorting.
+You can walk-through trials by filtering and sorting.
 
 ![optuna-trial-table](https://user-images.githubusercontent.com/5564044/97099599-36005e80-16ce-11eb-929c-8498f6ea09da.gif)
 
