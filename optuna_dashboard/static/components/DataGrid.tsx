@@ -50,6 +50,7 @@ interface DataGridColumn<T> {
   sortable?: boolean
   filterable?: boolean
   toCellValue?: (rowIndex: number) => string | React.ReactNode
+  padding?: "default" | "checkbox" | "none"
 }
 
 interface RowFilter<T> {
@@ -152,6 +153,7 @@ function DataGrid<T>(props: {
               {columns.map((column, index) => (
                 <TableCell
                   key={index}
+                  padding={column.padding || "default"}
                   sortDirection={orderBy === column.field ? order : false}
                 >
                   {column.sortable ? (
@@ -241,7 +243,7 @@ function DataGridRow<T>(props: {
 
   return (
     <React.Fragment>
-      <TableRow hover role="checkbox" tabIndex={-1}>
+      <TableRow hover tabIndex={-1}>
         {collapseBody ? (
           <TableCell>
             <IconButton
@@ -253,14 +255,15 @@ function DataGridRow<T>(props: {
             </IconButton>
           </TableCell>
         ) : null}
-        {columns.map((column) => {
+        {columns.map((column, columnIndex) => {
           const cellItem = column.toCellValue
             ? column.toCellValue(rowIndex)
             : row[column.field]
 
           return column.filterable ? (
             <TableCell
-              key={`${row[keyField]}:${column.field}`}
+              key={`${row[keyField]}:${column.field}:${columnIndex}`}
+              padding={column.padding || "default"}
               onClick={(e) => {
                 handleClickFilterCell(column.field, row[column.field])
               }}
@@ -268,7 +271,10 @@ function DataGridRow<T>(props: {
               <div className={classes.filterable}>{cellItem}</div>
             </TableCell>
           ) : (
-            <TableCell key={`${row[keyField]}:${column.field}`}>
+            <TableCell
+              key={`${row[keyField]}:${column.field}:${columnIndex}`}
+              padding={column.padding || "default"}
+            >
               {cellItem}
             </TableCell>
           )

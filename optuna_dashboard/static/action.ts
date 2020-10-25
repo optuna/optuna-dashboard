@@ -4,6 +4,7 @@ import {
   getStudyDetailAPI,
   getStudySummariesAPI,
   createNewStudyAPI,
+  deleteStudyAPI,
 } from "./apiClient"
 import { studyDetailsState, studySummariesState } from "./state"
 
@@ -65,10 +66,27 @@ export const actionCreator = () => {
       })
   }
 
+  const deleteStudy = (studyId: number) => {
+    deleteStudyAPI(studyId)
+      .then((study) => {
+        setStudySummaries(studySummaries.filter((s) => s.study_id !== studyId))
+        enqueueSnackbar(`Success to delete a study (study_name=${studyId})`, {
+          variant: "success",
+        })
+      })
+      .catch((err) => {
+        enqueueSnackbar(`Failed to delete study (id=${studyId})`, {
+          variant: "error",
+        })
+        console.log(err)
+      })
+  }
+
   return {
     updateStudyDetail,
     updateStudySummaries,
     createNewStudy,
+    deleteStudy,
   }
 }
 

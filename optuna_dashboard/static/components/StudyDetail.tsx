@@ -125,12 +125,13 @@ export const StudyDetail: FC<{}> = () => {
 
 const TrialTable: FC<{ trials: Trial[] }> = ({ trials = [] }) => {
   const columns: DataGridColumn<Trial>[] = [
-    { field: "number", label: "Number", sortable: true },
+    { field: "number", label: "Number", sortable: true, padding: "none" },
     {
       field: "state",
       label: "State",
       sortable: true,
       filterable: true,
+      padding: "none",
       toCellValue: (i) => trials[i].state.toString(),
     },
     { field: "value", label: "Value", sortable: true },
@@ -141,9 +142,7 @@ const TrialTable: FC<{ trials: Trial[] }> = ({ trials = [] }) => {
         trials[i].params.map((p) => p.name + ": " + p.value).join(", "),
     },
   ]
-  const collapseParamColumns: DataGridColumn<
-    TrialParam
-    >[] = [
+  const collapseParamColumns: DataGridColumn<TrialParam>[] = [
     { field: "name", label: "Name", sortable: true },
     { field: "value", label: "Value", sortable: true },
   ]

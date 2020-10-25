@@ -115,6 +115,15 @@ def create_app(storage):
             {"study_summary": serializer.serialize_study_summary(summary)}
         )
 
+    @app.delete("/api/studies/<study_id:int>")
+    @handle_json_api_exception
+    def create_study(study_id: int):
+        response.content_type = "application/json"
+
+        storage.delete_study(study_id)
+        response.status = 204  # No content
+        return ""
+
     @app.get("/api/studies/<study_id:int>")
     @handle_json_api_exception
     def get_study_detail(study_id: int):
