@@ -141,6 +141,12 @@ const TrialTable: FC<{ trials: Trial[] }> = ({ trials = [] }) => {
         trials[i].params.map((p) => p.name + ": " + p.value).join(", "),
     },
   ]
+  const collapseParamColumns: DataGridColumn<
+    TrialParam
+    >[] = [
+    { field: "name", label: "Name", sortable: true },
+    { field: "value", label: "Value", sortable: true },
+  ]
   const collapseIntermediateValueColumns: DataGridColumn<
     TrialIntermediateValue
   >[] = [
@@ -158,20 +164,15 @@ const TrialTable: FC<{ trials: Trial[] }> = ({ trials = [] }) => {
         <Grid item xs={6}>
           <Box margin={1}>
             <Typography variant="h6" gutterBottom component="div">
-              Intermediate values
+              Parameters
             </Typography>
-            <DataGrid<TrialIntermediateValue>
-              columns={collapseIntermediateValueColumns}
-              rows={trials[index].intermediate_values}
-              keyField={"step"}
+            <DataGrid<TrialParam>
+              columns={collapseParamColumns}
+              rows={trials[index].params}
+              keyField={"name"}
               dense={true}
-              initialRowsPerPage={5}
               rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
             />
-          </Box>
-        </Grid>
-        <Grid item xs={6}>
-          <Box margin={1}>
             <Typography variant="h6" gutterBottom component="div">
               Trial user attributes
             </Typography>
@@ -180,7 +181,30 @@ const TrialTable: FC<{ trials: Trial[] }> = ({ trials = [] }) => {
               rows={trials[index].user_attrs}
               keyField={"key"}
               dense={true}
-              initialRowsPerPage={5}
+              rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
+            />
+          </Box>
+        </Grid>
+        <Grid item xs={6}>
+          <Box margin={1}>
+            <Typography variant="h6" gutterBottom component="div">
+              Intermediate values
+            </Typography>
+            <DataGrid<TrialIntermediateValue>
+              columns={collapseIntermediateValueColumns}
+              rows={trials[index].intermediate_values}
+              keyField={"step"}
+              dense={true}
+              rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
+            />
+            <Typography variant="h6" gutterBottom component="div">
+              Trial system attributes
+            </Typography>
+            <DataGrid<Attribute>
+              columns={collapseAttrColumns}
+              rows={trials[index].system_attrs}
+              keyField={"key"}
+              dense={true}
               rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
             />
           </Box>
