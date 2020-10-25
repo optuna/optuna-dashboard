@@ -7,7 +7,7 @@ from importlib.machinery import SourceFileLoader
 BASE_PATH = os.path.dirname(__file__)
 
 
-def get_long_description() -> str:
+def get_long_description():
     readme_filepath = os.path.join(BASE_PATH, "README.md")
     with open(readme_filepath) as f:
         return f.read()

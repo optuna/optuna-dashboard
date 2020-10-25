@@ -32,7 +32,7 @@ usage: optuna-dashboard [-h] [--port PORT] [--host HOST] [--version] [--quiet] s
 Real-time dashboard for Optuna.
 
 positional arguments:
-  storage        Optuna Storage URL
+  storage        DB URL (e.g. sqlite:///example.db)
 
 optional arguments:
   -h, --help     show this help message and exit

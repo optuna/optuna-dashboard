@@ -7,7 +7,7 @@ from .version import __version__
 
 def main():
     parser = argparse.ArgumentParser(description="Real-time dashboard for Optuna.")
-    parser.add_argument("storage", help="Optuna Storage URL", type=str)
+    parser.add_argument("storage", help="DB URL (e.g. sqlite:///example.db)", type=str)
     parser.add_argument(
         "--port", help="port number (default: %(default)s)", type=int, default=8080
     )
