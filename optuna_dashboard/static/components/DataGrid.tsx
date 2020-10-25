@@ -174,9 +174,10 @@ function DataGrid<T>(props: {
                   ) : (
                     column.label
                   )}
-                  {fieldAlreadyFiltered(column.field) ? (
+                  {column.filterable ? (
                     <IconButton
                       size={dense ? "small" : "medium"}
+                      style={fieldAlreadyFiltered(column.field) ? {} : { visibility: "hidden"}}
                       color="inherit"
                       onClick={(e) => {
                         clearFilter(column.field)
