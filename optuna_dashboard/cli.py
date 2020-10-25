@@ -2,18 +2,20 @@ import argparse
 from bottle import run
 
 from .app import create_app
+from .version import __version__
 
 
 def main():
-    parser = argparse.ArgumentParser(description="A third-party dashboard for optuna.")
+    parser = argparse.ArgumentParser(description="Web dashboard for optuna.")
     parser.add_argument("storage", help="Optuna Storage URL", type=str)
     parser.add_argument(
-        "--port", help="port number (default: 8080)", type=int, default=8080
+        "--port", help="port number (default: %(default)s)", type=int, default=8080
     )
     parser.add_argument(
-        "--host", help="hostname (default: 'localhost')", default="localhost"
+        "--host", help="hostname (default: %(default)s)", default="127.0.0.1"
     )
-    parser.add_argument("--quiet", help="quiet", action="store_true")
+    parser.add_argument("--version", "-v", action="version", version=__version__)
+    parser.add_argument("--quiet", "-q", help="quiet", action="store_true")
     args = parser.parse_args()
 
     app = create_app(args.storage)

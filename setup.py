@@ -1,15 +1,30 @@
 import os
+import types
+
 from setuptools import setup, find_packages
+from importlib.machinery import SourceFileLoader
+
+BASE_PATH = os.path.dirname(__file__)
 
 
 def get_long_description() -> str:
-    readme_filepath = os.path.join(os.path.dirname(__file__), "README.md")
+    readme_filepath = os.path.join(BASE_PATH, "README.md")
     with open(readme_filepath) as f:
         return f.read()
 
+
+def get_version():
+    version_filepath = os.path.join(BASE_PATH, "optuna_dashboard", "version.py")
+    module_name = "version"
+    target_module = types.ModuleType(module_name)
+    loader = SourceFileLoader(module_name, version_filepath)
+    loader.exec_module(target_module)
+    return getattr(target_module, "__version__")
+
+
 setup(
     name="optuna-dashboard",
-    version="0.0.2",
+    version=get_version(),
     description="Web dashboard for Optuna.",
     long_description=get_long_description(),
     long_description_content_type="text/markdown",

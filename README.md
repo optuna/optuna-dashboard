@@ -24,20 +24,21 @@ Hit Ctrl-C to quit.
 
 <summary>More command line options</summary>
 
-```
-$ optuna-dashboard --help
-usage: optuna-dashboard [-h] [--port PORT] [--host HOST] [--quiet] storage
+```console
+$ optuna-dashboard -h
+usage: optuna-dashboard [-h] [--port PORT] [--host HOST] [--version] [--quiet] storage
 
-A third-party dashboard for optuna.
+Web dashboard for optuna.
 
 positional arguments:
-  storage      Optuna Storage URL
+  storage        Optuna Storage URL
 
 optional arguments:
-  -h, --help   show this help message and exit
-  --port PORT  port number (default: 8080)
-  --host HOST  hostname (default: 'localhost')
-  --quiet      quiet
+  -h, --help     show this help message and exit
+  --port PORT    port number (default: 8080)
+  --host HOST    hostname (default: 127.0.0.1)
+  --version, -v  show program's version number and exit
+  --quiet, -q    quiet
 ```
 
 </details>
