@@ -8,7 +8,7 @@ import traceback
 from typing import Union, Dict, List
 
 from bottle import Bottle, redirect, request, response, static_file
-from optuna import storages
+from optuna.storages import BaseStorage, get_storage
 from optuna.trial import FrozenTrial
 from optuna.study import StudyDirection
 
@@ -41,7 +41,6 @@ INDEX_HTML = """<!DOCTYPE html>
 </html>
 """
 # In-memory trials cache
-TRIALS_TTL = timedelta(seconds=10)
 trials_cache_lock = threading.Lock()
 trials_cache: Dict[int, List[FrozenTrial]] = {}
 trials_last_fetched_at: Dict[int, datetime] = {}
@@ -71,14 +70,16 @@ def get_study_summary(storage, study_id):
         return summary
 
 
-def get_trials(storage: storages.BaseStorage, study_id: int) -> List[FrozenTrial]:
+def get_trials(
+    storage: BaseStorage, study_id: int, ttl_seconds=10
+) -> List[FrozenTrial]:
     with trials_cache_lock:
         trials = trials_cache.get(study_id, None)
         last_fetched_at = trials_last_fetched_at.get(study_id, None)
         if (
             trials is not None
             and last_fetched_at is not None
-            and datetime.now() - last_fetched_at < TRIALS_TTL
+            and datetime.now() - last_fetched_at < timedelta(ttl_seconds)
         ):
             return trials
     trials = storage.get_all_trials(study_id)
@@ -88,17 +89,17 @@ def get_trials(storage: storages.BaseStorage, study_id: int) -> List[FrozenTrial
     return trials
 
 
-def create_app(storage: Union[None, str, storages.BaseStorage]) -> Bottle:
+def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
     app = Bottle()
-    storage = storages.get_storage(storage)
+    storage = get_storage(storage_or_url)
 
     @app.get("/")
     def index():
-        return redirect("/dashboard", 302)  # Status found
+        return redirect("/dashboard", 302)  # Status Found
 
+    # Accept any following paths for client-side routing
     @app.get("/dashboard<:re:(/.*)?>")
     def dashboard():
-        # Accept any following paths for client-side routing
         response.content_type = "text/html"
         return INDEX_HTML
 
@@ -124,7 +125,7 @@ def create_app(storage: Union[None, str, storages.BaseStorage]) -> Bottle:
         study_name = request.json.get("study_name", None)
         direction = request.json.get("direction", None)
         if study_name is None or direction not in ("minimize", "maximize"):
-            response.status = 400
+            response.status = 400  # Bad request
             return {"reason": "You need to set study_name and direction"}
 
         study_id = storage.create_new_study(study_name)
@@ -134,7 +135,7 @@ def create_app(storage: Union[None, str, storages.BaseStorage]) -> Bottle:
             storage.set_study_direction(study_id, StudyDirection.MINIMIZE)
 
         summary = get_study_summary(storage, study_id)
-        response.status = 201
+        response.status = 201  # Created
         return json.dumps(
             {"study_summary": serializer.serialize_study_summary(summary)}
         )
