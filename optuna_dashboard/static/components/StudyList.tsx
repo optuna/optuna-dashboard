@@ -276,7 +276,7 @@ export const StudyList: FC<{}> = () => {
         <DialogTitle id="delete-study-dialog-title">Delete study</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure to delete a study (study_id={deleteStudyID})?
+            Are you sure you want to delete a study (id={deleteStudyID})?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
