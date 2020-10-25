@@ -10,7 +10,7 @@ from typing import Union, Dict, List
 from bottle import Bottle, redirect, request, response, static_file
 from optuna.storages import BaseStorage, get_storage
 from optuna.trial import FrozenTrial
-from optuna.study import StudyDirection
+from optuna.study import StudyDirection, StudySummary
 
 from . import serializer
 
@@ -62,7 +62,7 @@ def handle_json_api_exception(view):
     return decorated
 
 
-def get_study_summary(storage, study_id):
+def get_study_summary(storage: BaseStorage, study_id: int) -> StudySummary:
     summaries = storage.get_all_study_summaries()
     for summary in summaries:
         if summary._study_id != study_id:
@@ -71,7 +71,7 @@ def get_study_summary(storage, study_id):
 
 
 def get_trials(
-    storage: BaseStorage, study_id: int, ttl_seconds=10
+    storage: BaseStorage, study_id: int, ttl_seconds: int = 10
 ) -> List[FrozenTrial]:
     with trials_cache_lock:
         trials = trials_cache.get(study_id, None)
@@ -142,7 +142,7 @@ def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
 
     @app.delete("/api/studies/<study_id:int>")
     @handle_json_api_exception
-    def create_study(study_id: int):
+    def delete_study(study_id: int):
         response.content_type = "application/json"
 
         storage.delete_study(study_id)

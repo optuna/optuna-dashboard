@@ -34,7 +34,7 @@ setup(
     packages=find_packages(),
     install_requires=["optuna", "bottle"],
     extras_require={
-        "lint": ["black", "flake8"],
+        "lint": ["black"],
         "release": ["wheel", "twine"],
     },
     package_data={"optuna_dashboard": ["public/*"]},
