@@ -20,7 +20,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "public")
 INDEX_HTML = """<!DOCTYPE html>
 <html lang="en">
-
 <head>
     <title>Optuna Dashboard</title>
     <meta charset="UTF-8" />
@@ -34,9 +33,7 @@ INDEX_HTML = """<!DOCTYPE html>
     </style>
     <script defer src="/static/bundle.js"></script>
 </head>
-
 <body>
-    <noscript>You need to enable JavaScript to run this dashboard.</noscript>
     <div id="dashboard">
          <p>Now loading...</p>
     </div>
