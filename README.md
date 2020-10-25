@@ -1,6 +1,7 @@
 # optuna-dashboard
 
-Real-time dashboard for Optuna. Code files were originally taken from [Goptuna](https://github.com/c-bata/goptuna).
+Real-time dashboard for [Optuna](https://github.com/optuna/optuna).
+Code files were originally taken from [Goptuna](https://github.com/c-bata/goptuna).
 
 ## Usage
 
