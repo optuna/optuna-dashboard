@@ -4,16 +4,44 @@ from typing import Any, Dict, List
 from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
 
+try:
+    from typing import TypedDict
+except ImportError:
+    from typing_extensions import TypedDict
 
-def serialize_attrs(attrs: Dict[str, Any]) -> List[Dict[str, Any]]:
+
+Attribute = TypedDict(
+    "Attribute",
+    {
+        "key": str,
+        "value": str,
+    },
+)
+IntermediateValue = TypedDict(
+    "IntermediateValue",
+    {
+        "step": int,
+        "value": float,
+    },
+)
+TrialParam = TypedDict(
+    "TrialParam",
+    {
+        "name": str,
+        "value": str,
+    },
+)
+
+
+def serialize_attrs(attrs: Dict[str, Any]) -> List[Attribute]:
     return [{"key": k, "value": json.dumps(v)} for k, v in attrs.items()]
 
 
-def serialize_intermediate_values(values: Dict[int, float]) -> List[Dict[int, float]]:
+def serialize_intermediate_values(values: Dict[int, float]) -> List[IntermediateValue]:
     return [{"step": step, "value": value} for step, value in values.items()]
 
 
-def serialize_trial_params(params: Dict[str, Any]) -> List[Dict[str, str]]:
+def serialize_trial_params(params: Dict[str, Any]) -> List[TrialParam]:
     return [{"name": name, "value": str(value)} for name, value in params.items()]
 
 
@@ -40,7 +68,7 @@ def serialize_study_summary(summary: StudySummary) -> Dict[str, Any]:
 def serialize_study_detail(
     summary: StudySummary, trials: List[FrozenTrial]
 ) -> Dict[str, Any]:
-    serialized = {
+    serialized: Dict[str, Any] = {
         "name": summary.study_name,
         "direction": summary.direction.name.lower(),
     }
@@ -65,7 +93,6 @@ def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
         "number": trial.number,
         "state": trial.state.name.capitalize(),
         "intermediate_values": serialize_intermediate_values(trial.intermediate_values),
-        "datetime_start": trial.datetime_start.isoformat(),
         "params": serialize_trial_params(trial.params),
         "user_attrs": serialize_attrs(trial.user_attrs),
         "system_attrs": serialize_attrs(trial.system_attrs),
@@ -73,6 +100,9 @@ def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
 
     if trial.value is not None:
         serialized["value"] = trial.value
+
+    if trial.datetime_start is not None:
+        serialized["datetime_start"] = trial.datetime_start.isoformat()
 
     if trial.datetime_complete is not None:
         serialized["datetime_complete"] = trial.datetime_complete.isoformat()

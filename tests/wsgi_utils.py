@@ -1,8 +1,8 @@
 import io
 from typing import Dict, Optional, Union, Any, Tuple, List, Callable, Iterable
 
-WSGIEnv = Dict[str, Any]
-StartResponse = Callable[[bytes, List[Tuple[str, str]]], None]
+WSGIEnv = Dict[str, Any]  # Cannot use TypedDict because of 'HTTP_' variables
+StartResponse = Callable[[str, List[Tuple[str, str]]], None]
 WSGIApp = Callable[[WSGIEnv, StartResponse], Iterable[bytes]]
 
 

@@ -5,7 +5,7 @@ from .app import create_app
 from .version import __version__
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description="Real-time dashboard for Optuna.")
     parser.add_argument("storage", help="DB URL (e.g. sqlite:///example.db)", type=str)
     parser.add_argument(
