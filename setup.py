@@ -7,13 +7,13 @@ from importlib.machinery import SourceFileLoader
 BASE_PATH = os.path.dirname(__file__)
 
 
-def get_long_description():
+def get_long_description() -> str:
     readme_filepath = os.path.join(BASE_PATH, "README.md")
     with open(readme_filepath) as f:
         return f.read()
 
 
-def get_version():
+def get_version() -> int:
     version_filepath = os.path.join(BASE_PATH, "optuna_dashboard", "version.py")
     module_name = "version"
     target_module = types.ModuleType(module_name)
@@ -34,7 +34,7 @@ setup(
     packages=find_packages(),
     install_requires=["optuna", "bottle"],
     extras_require={
-        "lint": ["black", "flake8"],
+        "lint": ["black", "flake8", "mypy"],
         "release": ["wheel", "twine"],
     },
     package_data={"optuna_dashboard": ["public/*"]},
