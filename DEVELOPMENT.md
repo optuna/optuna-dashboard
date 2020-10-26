@@ -37,7 +37,7 @@ $ optuna-dashboard sqlite:///db.sqlite3
 ```
 
 
-## Running formatters
+## Running tests and formatters
 
 ### Auto-formatting TypeScript files
 
@@ -50,6 +50,17 @@ $ npm run fmt
 ```
 $ pip install .[lint]
 $ black .
+```
+
+### Running tests
+
+```
+$ python setup.py test
+...
+
+Ran 4 tests in 0.004s
+
+OK
 ```
 
 
