@@ -45,7 +45,9 @@ def create_wsgi_env(
     return env
 
 
-def send_request(app: WSGIApp, env: WSGIEnv) -> Tuple[str, List[Tuple[str, str]], bytes]:
+def send_request(
+    app: WSGIApp, env: WSGIEnv
+) -> Tuple[str, List[Tuple[str, str]], bytes]:
     status: str = ""
     headers: List[Tuple[str, str]] = []
 
@@ -54,7 +56,7 @@ def send_request(app: WSGIApp, env: WSGIEnv) -> Tuple[str, List[Tuple[str, str]]
         status = status_
         headers = headers_
 
-    body = b''
+    body = b""
     iterable_body = app(env, start_response)
     for b in iterable_body:
         body += b
