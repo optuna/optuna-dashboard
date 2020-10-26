@@ -5,7 +5,7 @@ import logging
 import os
 import threading
 import traceback
-from typing import Union, Dict, List
+from typing import Union, Dict, List, Optional
 
 from bottle import Bottle, redirect, request, response, static_file
 from optuna.exceptions import DuplicatedStudyError
@@ -63,12 +63,13 @@ def handle_json_api_exception(view):
     return decorated
 
 
-def get_study_summary(storage: BaseStorage, study_id: int) -> StudySummary:
+def get_study_summary(storage: BaseStorage, study_id: int) -> Optional[StudySummary]:
     summaries = storage.get_all_study_summaries()
     for summary in summaries:
         if summary._study_id != study_id:
             continue
         return summary
+    return None
 
 
 def get_trials(
@@ -140,6 +141,9 @@ def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
             storage.set_study_direction(study_id, StudyDirection.MINIMIZE)
 
         summary = get_study_summary(storage, study_id)
+        if summary is None:
+            response.status = 500  # Internal server error
+            return {"reason": "Failed to create study"}
         response.status = 201  # Created
         return json.dumps(
             {"study_summary": serializer.serialize_study_summary(summary)}
@@ -163,6 +167,9 @@ def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
     def get_study_detail(study_id: int):
         response.content_type = "application/json"
         summary = get_study_summary(storage, study_id)
+        if summary is None:
+            response.status = 404  # Not found
+            return {"reason": f"study_id={study_id} is not found"}
         trials = get_trials(storage, study_id)
         return json.dumps(serializer.serialize_study_detail(summary, trials))
 
