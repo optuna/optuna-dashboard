@@ -2,7 +2,7 @@ import io
 from typing import Dict, Optional, Union, Any, Tuple, List, Callable, Iterable
 
 WSGIEnv = Dict[str, Any]
-StartResponse = Callable[[bytes, List[Tuple[str, str]]], None]
+StartResponse = Callable[[str, List[Tuple[str, str]]], None]
 WSGIApp = Callable[[WSGIEnv, StartResponse], Iterable[bytes]]
 
 
