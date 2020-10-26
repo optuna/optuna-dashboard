@@ -4,10 +4,17 @@ import json
 import logging
 import os
 import threading
-import traceback
 from typing import Union, Dict, List, Optional, TypeVar, Callable, Any, cast
 
-from bottle import Bottle, Response, redirect, request, response, static_file, hook
+from bottle import (
+    Bottle,
+    BaseResponse,
+    HTTPError,
+    redirect,
+    request,
+    response,
+    static_file,
+)
 from optuna.exceptions import DuplicatedStudyError
 from optuna.storages import BaseStorage, get_storage
 from optuna.trial import FrozenTrial
@@ -15,7 +22,7 @@ from optuna.study import StudyDirection, StudySummary
 
 from . import serializer
 
-BottleViewReturn = Union[str, bytes, Dict[str, Any], Response]
+BottleViewReturn = Union[str, bytes, Dict[str, Any], BaseResponse]
 BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])
 
 logger = logging.getLogger(__name__)
@@ -50,6 +57,14 @@ trials_cache: Dict[int, List[FrozenTrial]] = {}
 trials_last_fetched_at: Dict[int, datetime] = {}
 
 
+class JSONError(HTTPError):
+    default_content_type = "application/json"
+
+    def __init__(self, reason: str, status: int = 500) -> None:
+        body = json.dumps({"reason": reason})
+        super().__init__(body=body, status=status)
+
+
 def handle_json_api_exception(view: BottleView) -> BottleView:
     @functools.wraps(view)
     def decorated(*args: List[Any], **kwargs: Dict[str, Any]) -> BottleViewReturn:
@@ -57,11 +72,7 @@ def handle_json_api_exception(view: BottleView) -> BottleView:
             response_body = view(*args, **kwargs)
             return response_body
         except Exception as e:
-            response.status = 500
-            response.content_type = "application/json"
-            stacktrace = "\n".join(traceback.format_tb(e.__traceback__))
-            logger.error(f"Exception: {e}\n{stacktrace}")
-            return json.dumps({"reason": "internal server error"})
+            raise JSONError("internal server error") from e
 
     return cast(BottleView, decorated)
 
@@ -98,7 +109,7 @@ def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
     app = Bottle()
     storage = get_storage(storage_or_url)
 
-    @hook("before_request")
+    @app.hook("before_request")
     def remove_trailing_slashes_hook() -> None:
         request.environ["PATH_INFO"] = request.environ["PATH_INFO"].rstrip("/")
 
@@ -132,14 +143,12 @@ def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
         study_name = request.json.get("study_name", None)
         direction = request.json.get("direction", None)
         if study_name is None or direction not in ("minimize", "maximize"):
-            response.status = 400  # Bad request
-            return {"reason": "You need to set study_name and direction"}
+            return JSONError("You need to set study_name and direction", status=400)
 
         try:
             study_id = storage.create_new_study(study_name)
         except DuplicatedStudyError:
-            response.status = 400  # Bad request
-            return {"reason": f"'{study_name}' is already exists"}
+            return JSONError(f"'{study_name}' is already exists", status=400)
         if direction.lower() == "maximize":
             storage.set_study_direction(study_id, StudyDirection.MAXIMIZE)
         else:
@@ -147,8 +156,7 @@ def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
 
         summary = get_study_summary(storage, study_id)
         if summary is None:
-            response.status = 500  # Internal server error
-            return {"reason": "Failed to create study"}
+            return JSONError(f"Failed to create a study ({study_name})", status=500)
         response.status = 201  # Created
         return {"study_summary": serializer.serialize_study_summary(summary)}
 
@@ -160,8 +168,7 @@ def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
         try:
             storage.delete_study(study_id)
         except KeyError:
-            response.status = 404  # Not found
-            return {"reason": f"study_id={study_id} is not found"}
+            return JSONError(f"study_id={study_id} is not found", status=404)
         response.status = 204  # No content
         return ""
 
@@ -171,8 +178,7 @@ def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
         response.content_type = "application/json"
         summary = get_study_summary(storage, study_id)
         if summary is None:
-            response.status = 404  # Not found
-            return {"reason": f"study_id={study_id} is not found"}
+            return JSONError(f"study_id={study_id} is not found", status=404)
         trials = get_trials(storage, study_id)
         return serializer.serialize_study_detail(summary, trials)
 
