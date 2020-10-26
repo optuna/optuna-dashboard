@@ -8,6 +8,7 @@ import traceback
 from typing import Union, Dict, List
 
 from bottle import Bottle, redirect, request, response, static_file
+from optuna.exceptions import DuplicatedStudyError
 from optuna.storages import BaseStorage, get_storage
 from optuna.trial import FrozenTrial
 from optuna.study import StudyDirection, StudySummary
@@ -128,7 +129,11 @@ def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
             response.status = 400  # Bad request
             return {"reason": "You need to set study_name and direction"}
 
-        study_id = storage.create_new_study(study_name)
+        try:
+            study_id = storage.create_new_study(study_name)
+        except DuplicatedStudyError:
+            response.status = 400  # Bad request
+            return {"reason": f"'{study_name}' is already exists"}
         if direction.lower() == "maximize":
             storage.set_study_direction(study_id, StudyDirection.MAXIMIZE)
         else:
@@ -145,7 +150,11 @@ def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
     def delete_study(study_id: int):
         response.content_type = "application/json"
 
-        storage.delete_study(study_id)
+        try:
+            storage.delete_study(study_id)
+        except KeyError:
+            response.status = 404  # Not found
+            return {"reason": f"study_id={study_id} is not found"}
         response.status = 204  # No content
         return ""
 
