@@ -21,6 +21,8 @@ def create_wsgi_env(
 
     # 'key1=value1&key2=value2'
     query_string = "&".join([f"{k}={v}" for k, v in queries.items()]) if queries else ""
+
+    # See https://www.python.org/dev/peps/pep-3333/#environ-variables
     env = {
         "PATH_INFO": path,
         "REQUEST_METHOD": request_method,
