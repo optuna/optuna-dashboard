@@ -1,7 +1,7 @@
 name: Build Python distributions and publish to PyPI
 
 on:
-  create:
+  push:
     tags:
     - v*.*.*
 
