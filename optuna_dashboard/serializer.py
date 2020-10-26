@@ -6,7 +6,7 @@ from optuna.trial import FrozenTrial
 
 try:
     from typing import TypedDict
-except:
+except ImportError:
     from typing_extensions import TypedDict
 
 
