@@ -1,8 +1,13 @@
 import json
-from typing import Any, Dict, List, TypedDict
+from typing import Any, Dict, List
 
 from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
+
+try:
+    from typing import TypedDict
+except:
+    from typing_extensions import TypedDict
 
 
 Attribute = TypedDict(

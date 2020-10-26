@@ -1,6 +1,7 @@
 import os
+import sys
 import types
-
+from typing import List
 from setuptools import setup, find_packages
 from importlib.machinery import SourceFileLoader
 
@@ -22,6 +23,13 @@ def get_version() -> int:
     return getattr(target_module, "__version__")
 
 
+def get_install_requires() -> List[str]:
+    deps = ["optuna", "bottle"]
+    if sys.version_info[:2] < (3, 8):
+        deps.append("typing-extensions")
+    return deps
+
+
 setup(
     name="optuna-dashboard",
     version=get_version(),
@@ -32,7 +40,7 @@ setup(
     author_email="m.shibata1020@gmail.com",
     url="https://github.com/c-bata/optuna-dashboard",
     packages=find_packages(),
-    install_requires=["optuna", "bottle"],
+    install_requires=get_install_requires(),
     extras_require={
         "lint": ["black", "flake8", "mypy"],
         "release": ["wheel", "twine"],
