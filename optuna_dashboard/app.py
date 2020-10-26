@@ -7,7 +7,7 @@ import threading
 import traceback
 from typing import Union, Dict, List, Optional
 
-from bottle import Bottle, redirect, request, response, static_file
+from bottle import Bottle, redirect, request, response, static_file, hook
 from optuna.exceptions import DuplicatedStudyError
 from optuna.storages import BaseStorage, get_storage
 from optuna.trial import FrozenTrial
@@ -94,6 +94,10 @@ def get_trials(
 def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
     app = Bottle()
     storage = get_storage(storage_or_url)
+
+    @hook('before_request')
+    def remove_trailing_slashes_hook():
+        request.environ['PATH_INFO'] = request.environ['PATH_INFO'].rstrip('/')
 
     @app.get("/")
     def index():
