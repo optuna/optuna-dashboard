@@ -37,6 +37,9 @@ jobs:
         wget https://github.com/tcnksm/ghr/releases/download/v0.13.0/ghr_v0.13.0_linux_amd64.tar.gz
         tar -xzf ghr_v*_linux_amd64.tar.gz
         export TAGNAME=$(jq --raw-output .ref "$GITHUB_EVENT_PATH")
+
+        cp ./optuna_dashboard/public/bundle.js ./dist/
+        cp ./optuna_dashboard/public/bundle.js.LICENSE.txt ./dist/
         ./ghr_v0.13.0_linux_amd64/ghr -n ${TAGNAME} -b ${TAGNAME} -draft ${TAGNAME} dist/
 
     - name: Publish distribution to PyPI
