@@ -5,7 +5,7 @@ import logging
 import os
 import threading
 import traceback
-from typing import Union, Dict, List, Optional
+from typing import Union, Dict, List, Optional, TypeVar, Callable, Any, cast
 
 from bottle import Bottle, redirect, request, response, static_file, hook
 from optuna.exceptions import DuplicatedStudyError
@@ -14,6 +14,8 @@ from optuna.trial import FrozenTrial
 from optuna.study import StudyDirection, StudySummary
 
 from . import serializer
+
+F = TypeVar('F', bound=Callable[..., Any])
 
 logger = logging.getLogger(__name__)
 
@@ -47,9 +49,9 @@ trials_cache: Dict[int, List[FrozenTrial]] = {}
 trials_last_fetched_at: Dict[int, datetime] = {}
 
 
-def handle_json_api_exception(view):
+def handle_json_api_exception(view: F) -> F:
     @functools.wraps(view)
-    def decorated(*args, **kwargs):
+    def decorated(*args: List[Any], **kwargs: Dict[str, Any]) -> Any:
         try:
             response_body = view(*args, **kwargs)
             return response_body
@@ -60,7 +62,7 @@ def handle_json_api_exception(view):
             logger.error(f"Exception: {e}\n{stacktrace}")
             return json.dumps({"reason": "internal server error"})
 
-    return decorated
+    return cast(F, decorated)
 
 
 def get_study_summary(storage: BaseStorage, study_id: int) -> Optional[StudySummary]:
@@ -96,36 +98,34 @@ def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
     storage = get_storage(storage_or_url)
 
     @hook("before_request")
-    def remove_trailing_slashes_hook():
+    def remove_trailing_slashes_hook() -> None:
         request.environ["PATH_INFO"] = request.environ["PATH_INFO"].rstrip("/")
 
     @app.get("/")
-    def index():
+    def index() -> Any:
         return redirect("/dashboard", 302)  # Status Found
 
     # Accept any following paths for client-side routing
     @app.get("/dashboard<:re:(/.*)?>")
-    def dashboard():
+    def dashboard() -> str:
         response.content_type = "text/html"
         return INDEX_HTML
 
     @app.get("/api/studies")
     @handle_json_api_exception
-    def list_study_summaries():
+    def list_study_summaries() -> Dict[str, Any]:
         response.content_type = "application/json"
         summaries = [
             serializer.serialize_study_summary(summary)
             for summary in storage.get_all_study_summaries()
         ]
-        return json.dumps(
-            {
-                "study_summaries": summaries,
-            }
-        )
+        return {
+            "study_summaries": summaries,
+        }
 
     @app.post("/api/studies")
     @handle_json_api_exception
-    def create_study():
+    def create_study() -> Dict[str, Any]:
         response.content_type = "application/json"
 
         study_name = request.json.get("study_name", None)
@@ -149,13 +149,11 @@ def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
             response.status = 500  # Internal server error
             return {"reason": "Failed to create study"}
         response.status = 201  # Created
-        return json.dumps(
-            {"study_summary": serializer.serialize_study_summary(summary)}
-        )
+        return {"study_summary": serializer.serialize_study_summary(summary)}
 
     @app.delete("/api/studies/<study_id:int>")
     @handle_json_api_exception
-    def delete_study(study_id: int):
+    def delete_study(study_id: int) -> Union[str, Dict[str, Any]]:
         response.content_type = "application/json"
 
         try:
@@ -168,17 +166,17 @@ def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
 
     @app.get("/api/studies/<study_id:int>")
     @handle_json_api_exception
-    def get_study_detail(study_id: int):
+    def get_study_detail(study_id: int) -> Dict[str, Any]:
         response.content_type = "application/json"
         summary = get_study_summary(storage, study_id)
         if summary is None:
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
         trials = get_trials(storage, study_id)
-        return json.dumps(serializer.serialize_study_detail(summary, trials))
+        return serializer.serialize_study_detail(summary, trials)
 
     @app.get("/static/<filename:path>")
-    def send_static(filename):
+    def send_static(filename: str) -> Any:
         return static_file(filename, root=STATIC_DIR)
 
     return app
