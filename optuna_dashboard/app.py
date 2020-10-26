@@ -7,7 +7,7 @@ import threading
 import traceback
 from typing import Union, Dict, List, Optional, TypeVar, Callable, Any, cast
 
-from bottle import Bottle, Response, redirect, request, response, static_file, hook
+from bottle import Bottle, BaseResponse, redirect, request, response, static_file
 from optuna.exceptions import DuplicatedStudyError
 from optuna.storages import BaseStorage, get_storage
 from optuna.trial import FrozenTrial
@@ -15,7 +15,7 @@ from optuna.study import StudyDirection, StudySummary
 
 from . import serializer
 
-BottleViewReturn = Union[str, bytes, Dict[str, Any], Response]
+BottleViewReturn = Union[str, bytes, Dict[str, Any], BaseResponse]
 BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])
 
 logger = logging.getLogger(__name__)
@@ -98,7 +98,7 @@ def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
     app = Bottle()
     storage = get_storage(storage_or_url)
 
-    @hook("before_request")
+    @app.hook("before_request")
     def remove_trailing_slashes_hook() -> None:
         request.environ["PATH_INFO"] = request.environ["PATH_INFO"].rstrip("/")
 

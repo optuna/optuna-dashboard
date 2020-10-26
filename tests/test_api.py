@@ -21,6 +21,21 @@ def create_json_api_wsgi_env(
 
 
 class APITestCase(TestCase):
+    def test_get_study_summaries(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        storage.create_new_study("foo1")
+        storage.create_new_study("foo2")
+
+        app = create_app(storage)
+        env = create_json_api_wsgi_env(
+            "/api/studies/",
+            "GET",
+        )
+        status, _, body = send_request(app, env)
+        self.assertEqual(status, "200 OK")
+        study_summaries = json.loads(body)["study_summaries"]
+        self.assertEqual(len(study_summaries), 2)
+
     def test_create_study(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         self.assertEqual(len(storage.get_all_study_summaries()), 0)
