@@ -1,6 +1,6 @@
 # Developers Guide
 
-## Running dashboard server
+## Building source and running dashboard
 
 ### Building TypeScript files
 
@@ -29,7 +29,7 @@ $ npm run build:prd
 
 </details>
 
-### Running servers
+### Running dashboard server
 
 ```
 $ pip install .
@@ -37,22 +37,11 @@ $ optuna-dashboard sqlite:///db.sqlite3
 ```
 
 
-## Running tests and formatters
+## Submitting patches
 
-### Auto-formatting TypeScript files
+Before you submitting patches, I recommend you to run tests, linters and auto-formatters.
 
-```
-$ npm run fmt
-```
-
-### Auto-formatting Python files
-
-```
-$ pip install .[lint]
-$ black .
-```
-
-### Running tests
+### Running Python tests
 
 ```
 $ python setup.py test
@@ -63,12 +52,31 @@ Ran 4 tests in 0.004s
 OK
 ```
 
+### Linters
 
-## Release process
+```
+$ flake8
+$ black --check .
+```
+
+### Auto-formatting TypeScript files (by prettier)
+
+```
+$ npm run fmt
+```
+
+### Auto-formatting Python files (by black)
+
+```
+$ pip install .[lint]
+$ black .
+```
+
+
+## How to release the new version
 
 The release process is fully automated by GitHub Actions.
-GitHub Actions will be automatically building TypeScript, packaging the distributions and uploading to PyPI
-after you pushed the new git tag to the GitHub.
+GitHub Actions will be automatically building TypeScript, packaging Python distributions and uploading to PyPI after you push the git tag.
 
 1. Replace 'optuna_dashboard.version.__version__' to the next version.
 2. Create a git tag (e.g. `$ git tag v0.X.Y`).
