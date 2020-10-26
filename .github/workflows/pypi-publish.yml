@@ -10,37 +10,37 @@ jobs:
     name: Build and publish Python distributions to TestPyPI and PyPI
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+    - uses: actions/checkout@v2
 
-      - name: Set up Node v14
-        uses: actions/setup-node@v2-beta
-        with:
-          node-version: '14'
-      - run: npm install
-      - run: npm run build:prd
+    - name: Set up Node v14
+      uses: actions/setup-node@v2-beta
+      with:
+        node-version: '14'
+    - run: npm install
+    - run: npm run build:prd
 
-      - name: Set up Python 3.8
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip setuptools
-          pip install --progress-bar off .[release]
-      - run: python setup.py sdist bdist_wheel
-      - run: twine check dist/*
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools
+        pip install --progress-bar off .[release]
+    - run: python setup.py sdist bdist_wheel
+    - run: twine check dist/*
 
-      - name: Create GitHub release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          wget https://github.com/tcnksm/ghr/releases/download/v0.13.0/ghr_v0.13.0_linux_amd64.tar.gz
-          tar -xzf ghr_v*_linux_amd64.tar.gz
-          export TAGNAME=$(jq --raw-output .ref "$GITHUB_EVENT_PATH")
-          ./ghr_v0.13.0_linux_amd64/ghr -n ${TAGNAME} -b ${TAGNAME} -draft ${TAGNAME} dist/
+    - name: Create GitHub release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        wget https://github.com/tcnksm/ghr/releases/download/v0.13.0/ghr_v0.13.0_linux_amd64.tar.gz
+        tar -xzf ghr_v*_linux_amd64.tar.gz
+        export TAGNAME=$(jq --raw-output .ref "$GITHUB_EVENT_PATH")
+        ./ghr_v0.13.0_linux_amd64/ghr -n ${TAGNAME} -b ${TAGNAME} -draft ${TAGNAME} dist/
 
-      - name: Publish distribution to PyPI
-        uses: pypa/gh-action-pypi-publish@v1.4.1
-        with:
-          user: __token__
-          password: ${{ secrets.PYPI_PASSWORD }}
+    - name: Publish distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@v1.4.1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_PASSWORD }}
