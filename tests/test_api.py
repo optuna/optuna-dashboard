@@ -3,7 +3,7 @@ from typing import Dict, Optional, Tuple, List, Any
 from unittest import TestCase
 
 import optuna
-from .wsgi_utils import create_wsgi_env
+from .wsgi_utils import create_wsgi_env, send_request
 from optuna_dashboard.app import create_app
 
 
@@ -21,14 +21,6 @@ def create_json_api_wsgi_env(
 
 
 class APITestCase(TestCase):
-    def setUp(self):
-        self.status: Optional[str] = None
-        self.headers: Optional[List[Tuple[str, str]]] = None
-
-    def _start_response(self, status, headers):
-        self.status = status
-        self.headers = headers
-
     def test_create_study(self):
         storage = optuna.storages.InMemoryStorage()
         self.assertEqual(len(storage.get_all_study_summaries()), 0)
@@ -42,8 +34,8 @@ class APITestCase(TestCase):
                 "direction": "minimize",
             },
         )
-        _ = app(env, self._start_response)
-        self.assertEqual(self.status, "201 Created")
+        status, _, _ = send_request(app, env)
+        self.assertEqual(status, "201 Created")
         self.assertEqual(len(storage.get_all_study_summaries()), 1)
 
     def test_create_study_duplicated(self):
@@ -60,8 +52,8 @@ class APITestCase(TestCase):
                 "direction": "minimize",
             },
         )
-        _ = app(env, self._start_response)
-        self.assertEqual(self.status, "400 Bad Request")
+        status, _, _ = send_request(app, env)
+        self.assertEqual(status, "400 Bad Request")
         self.assertEqual(len(storage.get_all_study_summaries()), 1)
 
     def test_delete_study(self):
@@ -75,8 +67,8 @@ class APITestCase(TestCase):
             "/api/studies/1",
             "DELETE",
         )
-        _ = app(env, self._start_response)
-        self.assertEqual(self.status, "204 No Content")
+        status, _, _ = send_request(app, env)
+        self.assertEqual(status, "204 No Content")
         self.assertEqual(len(storage.get_all_study_summaries()), 1)
 
     def test_delete_study_not_found(self):
@@ -86,5 +78,5 @@ class APITestCase(TestCase):
             "/api/studies/1",
             "DELETE",
         )
-        _ = app(env, self._start_response)
-        self.assertEqual(self.status, "404 Not Found")
+        status, _, _ = send_request(app, env)
+        self.assertEqual(status, "404 Not Found")
