@@ -15,7 +15,7 @@ from optuna.study import StudyDirection, StudySummary
 
 from . import serializer
 
-F = TypeVar('F', bound=Callable[..., Any])
+F = TypeVar("F", bound=Callable[..., Any])
 
 logger = logging.getLogger(__name__)
 

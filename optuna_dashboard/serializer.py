@@ -5,18 +5,27 @@ from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
 
 
-Attribute = TypedDict("Attribute", {
-    "key": str,
-    "value": str,
-})
-IntermediateValue = TypedDict("IntermediateValue", {
-    "step": int,
-    "value": float,
-})
-TrialParam = TypedDict("TrialParam", {
-    "name": str,
-    "value": str,
-})
+Attribute = TypedDict(
+    "Attribute",
+    {
+        "key": str,
+        "value": str,
+    },
+)
+IntermediateValue = TypedDict(
+    "IntermediateValue",
+    {
+        "step": int,
+        "value": float,
+    },
+)
+TrialParam = TypedDict(
+    "TrialParam",
+    {
+        "name": str,
+        "value": str,
+    },
+)
 
 
 def serialize_attrs(attrs: Dict[str, Any]) -> List[Attribute]:
