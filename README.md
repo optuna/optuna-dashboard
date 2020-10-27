@@ -67,7 +67,12 @@ You can walk-through trials by filtering and sorting.
 
 ![optuna-trial-table](https://user-images.githubusercontent.com/5564044/97099599-36005e80-16ce-11eb-929c-8498f6ea09da.gif)
 
+## Submitting patches
+
+If you want to contribute, please check [Developer Guide](./DEVELOPMENT.md).
+
+
 ## Alternatives
 
 * ['optuna dashboard' subcommand](https://optuna.readthedocs.io/en/stable/reference/cli.html#dashboard): Official Optuna dashboard based on Bokeh CLI.
-* [optdash](https://github.com/ytsmiling/optdash): a third-party dashboard for optuna.
+* [ytsmiling/optdash](https://github.com/ytsmiling/optdash): a third-party dashboard for optuna.
