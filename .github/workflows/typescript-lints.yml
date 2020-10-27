@@ -1,0 +1,23 @@
+name: typescript-lints
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/typescript-lints.yml'
+      - '**.ts'
+      - '**.tsx'
+jobs:
+  lint:
+    name: Lint checking on Ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@master
+
+      - name: Set up Node v14
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14'
+      - run: |
+          npm install
+          npm run lint

@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "fmt": "prettier --write \"optuna_dashboard/static/**/*.{ts,tsx}\"",
+    "lint": "prettier --list-different \"optuna_dashboard/static/**/*.{ts,tsx}\"",
     "watch": "webpack --watch",
     "build": "webpack",
     "build:dev": "NODE_ENV=development webpack",
