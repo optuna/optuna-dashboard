@@ -14,8 +14,7 @@ You can install optuna-dashboard via pip.
 $ pip install optuna-dashboard
 ```
 
-After you installed, `optuna-dashboard` command is available.
-Please execute it with Optuna storage URL.
+Then please execute `optuna-dashboard` command with Optuna storage URL.
 
 ```
 $ optuna-dashboard sqlite:///db.sqlite3
@@ -69,7 +68,7 @@ You can walk-through trials by filtering and sorting.
 
 ## Submitting patches
 
-If you want to contribute, please check [Developer Guide](./DEVELOPMENT.md).
+If you want to contribute, please check [Developers Guide](./DEVELOPMENT.md).
 
 
 ## Alternatives
