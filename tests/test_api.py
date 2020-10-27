@@ -88,3 +88,20 @@ class APITestCase(TestCase):
             content_type="application/json",
         )
         self.assertEqual(status, "404 Not Found")
+
+
+class BottleRequestHookTestCase(TestCase):
+    def test_ignore_trailing_slashes(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        app = create_app(storage)
+
+        endpoints = ["/api/studies", "/api/studies/"]
+        for endpoint in endpoints:
+            with self.subTest(msg=endpoint):
+                status, _, body = send_request(
+                    app,
+                    endpoint,
+                    "GET",
+                    content_type="application/json",
+                )
+                self.assertEqual(status, "200 OK")
