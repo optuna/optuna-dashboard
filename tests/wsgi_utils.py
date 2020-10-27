@@ -47,7 +47,7 @@ def send_request(
     queries: Optional[Dict[str, str]] = None,
     headers: Optional[Dict[str, str]] = None,
     content_type: str = "text/plain; charset=utf-8",
-) -> Tuple[str, List[Tuple[str, str]], bytes]:
+) -> Tuple[int, List[Tuple[str, str]], bytes]:
     status: str = ""
     response_headers: List[Tuple[str, str]] = []
 
@@ -65,4 +65,5 @@ def send_request(
     for b in iterable_body:
         body += b
 
-    return status, response_headers, body
+    status_code = int(status.split()[0])
+    return status_code, response_headers, body

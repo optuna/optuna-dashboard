@@ -19,7 +19,7 @@ class APITestCase(TestCase):
             "GET",
             content_type="application/json",
         )
-        self.assertEqual(status, "200 OK")
+        self.assertEqual(status, 200)
         study_summaries = json.loads(body)["study_summaries"]
         self.assertEqual(len(study_summaries), 2)
 
@@ -39,7 +39,7 @@ class APITestCase(TestCase):
             content_type="application/json",
             body=json.dumps(request_body),
         )
-        self.assertEqual(status, "201 Created")
+        self.assertEqual(status, 201)
         self.assertEqual(len(storage.get_all_study_summaries()), 1)
 
     def test_create_study_duplicated(self) -> None:
@@ -59,7 +59,7 @@ class APITestCase(TestCase):
             content_type="application/json",
             body=json.dumps(request_body),
         )
-        self.assertEqual(status, "400 Bad Request")
+        self.assertEqual(status, 400)
         self.assertEqual(len(storage.get_all_study_summaries()), 1)
 
     def test_delete_study(self) -> None:
@@ -75,7 +75,7 @@ class APITestCase(TestCase):
             "DELETE",
             content_type="application/json",
         )
-        self.assertEqual(status, "204 No Content")
+        self.assertEqual(status, 204)
         self.assertEqual(len(storage.get_all_study_summaries()), 1)
 
     def test_delete_study_not_found(self) -> None:
@@ -87,7 +87,7 @@ class APITestCase(TestCase):
             "DELETE",
             content_type="application/json",
         )
-        self.assertEqual(status, "404 Not Found")
+        self.assertEqual(status, 404)
 
 
 class BottleRequestHookTestCase(TestCase):
@@ -104,4 +104,4 @@ class BottleRequestHookTestCase(TestCase):
                     "GET",
                     content_type="application/json",
                 )
-                self.assertEqual(status, "200 OK")
+                self.assertEqual(status, 200)
