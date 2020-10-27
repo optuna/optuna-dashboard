@@ -46,19 +46,26 @@ def create_wsgi_env(
 
 
 def send_request(
-    app: WSGIApp, env: WSGIEnv
+    app: WSGIApp,
+    path: str,
+    method: str,
+    body: Union[str, bytes] = b"",
+    queries: Optional[Dict[str, str]] = None,
+    headers: Optional[Dict[str, str]] = None,
+    content_type: str = "text/plain; charset=utf-8",
 ) -> Tuple[str, List[Tuple[str, str]], bytes]:
     status: str = ""
-    headers: List[Tuple[str, str]] = []
+    response_headers: List[Tuple[str, str]] = []
 
     def start_response(status_: str, headers_: List[Tuple[str, str]]) -> None:
-        nonlocal status, headers
+        nonlocal status, response_headers
         status = status_
-        headers = headers_
+        response_headers = headers_
 
+    env = create_wsgi_env(path, method, body=body, queries=queries, headers=headers, content_type=content_type)
     body = b""
     iterable_body = app(env, start_response)
     for b in iterable_body:
         body += b
 
-    return status, headers, body
+    return status, response_headers, body
