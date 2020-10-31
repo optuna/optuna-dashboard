@@ -250,7 +250,7 @@ export const StudyList: FC<{}> = () => {
                 color="primary"
               />
             }
-            label="Set maximize direction"
+            label="Set maximize direction (default: minimize)"
           />
         </DialogContent>
         <DialogActions>
