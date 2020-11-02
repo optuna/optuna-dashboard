@@ -1,7 +1,6 @@
 # optuna-dashboard
 
 ![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)
-![tests](https://github.com/c-bata/optuna-dashboard/workflows/tests/badge.svg)
 
 Real-time dashboard for [Optuna](https://github.com/optuna/optuna).
 Code files were originally taken from [Goptuna](https://github.com/c-bata/goptuna).
