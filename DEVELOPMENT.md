@@ -2,9 +2,9 @@
 
 ## How to run
 
-### Building TypeScript files
+### Compiling TypeScript files
 
-Node.js v14.14.0 is required to build TypeScript files.
+Node.js v14.14.0 is required to compile TypeScript files.
 
 ```
 $ npm install
@@ -39,7 +39,7 @@ $ optuna-dashboard sqlite:///db.sqlite3
 
 ## Running tests, lint checks and formatters
 
-### Run all tests and lint
+### Run all tests and lint checks
 
 ```
 $ tox -e ALL
@@ -89,7 +89,7 @@ $ black .
 
 ## Release the new version
 
-The release process(building TypeScript files, packaging Python distributions and uploading to PyPI) is fully automated by GitHub Actions.
+The release process(compiling TypeScript files, packaging Python distributions and uploading to PyPI) is fully automated by GitHub Actions.
 
 1. Replace `optuna_dashboard.version.__version__` to the next version.
 2. Create a git tag and push it to GitHub.
