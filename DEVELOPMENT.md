@@ -42,7 +42,7 @@ $ optuna-dashboard sqlite:///db.sqlite3
 ### Running Python unit tests
 
 ```
-$ python setup.py test
+$ python -m unittest
 ```
 
 ### Linters (flake8, black and mypy)

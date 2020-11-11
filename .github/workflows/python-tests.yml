@@ -37,4 +37,4 @@ jobs:
           architecture: x64
       - name: Install dependencies
         run: pip install --progress-bar off .
-      - run: python setup.py test
+      - run: python -m unittest
