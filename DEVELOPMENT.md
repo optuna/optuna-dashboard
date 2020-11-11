@@ -39,10 +39,23 @@ $ optuna-dashboard sqlite:///db.sqlite3
 
 ## Running tests, lint checks and formatters
 
+### Run all tests and lint
+
+```
+$ tox -e ALL
+```
+
 ### Running Python unit tests
 
 ```
 $ python -m unittest
+```
+
+or
+
+```
+$ pip install tox
+$ tox -e py39
 ```
 
 ### Linters (flake8, black and mypy)
@@ -52,6 +65,13 @@ $ pip install .[lint]
 $ flake8
 $ black --check .
 $ mypy .
+```
+
+or
+
+```
+$ pip install tox
+$ tox -e flake8 -e black -e mypy
 ```
 
 ### Auto-formatting TypeScript files (by prettier)

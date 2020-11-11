@@ -8,6 +8,7 @@ build/
 
 node_modules/
 public/
+.tox/
 
 *.sqlite3
 *.db
