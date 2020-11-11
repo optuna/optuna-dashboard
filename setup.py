@@ -46,7 +46,6 @@ setup(
         "release": ["wheel", "twine"],
     },
     package_data={"optuna_dashboard": ["public/*"]},
-    test_suite="tests",
     entry_points={
         "console_scripts": [
             "optuna-dashboard = optuna_dashboard.cli:main",
