@@ -1,16 +1,7 @@
 const webpack = require('webpack');
 
-const externals = [];
-var mode = 'development';
-if (process.env.NODE_ENV === 'production') {
-    mode = 'production';
-}
+const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development';
 const isDev = mode === 'development';
-
-if (isDev) {
-    const _externals = {};
-    externals.push(_externals);
-}
 
 var config = {
     mode,
@@ -24,41 +15,11 @@ var config = {
         rules: [{
             oneOf: [
                 {
-                    test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
-                    loader: require.resolve('url-loader'),
-                    options: {
-                        limit: 10000,
-                        name: 'media/[name].[hash:8].[ext]',
-                        publicPath: '/public/'
-                    },
-                },
-                {
                     test: /\.tsx?$/,
                     exclude: [/node_modules/],
                     loader: 'ts-loader',
                     options: {
                         configFile: __dirname + '/tsconfig.json'
-                    }
-                },
-                {
-                    test: /\.p?css$/,
-                    use: [
-                        'style-loader',
-                        {
-                            loader: require.resolve('css-loader'),
-                            options: {
-                                importLoaders: 1,
-                                sourceMap: isDev
-                            },
-                        }
-                    ]
-                },
-                {
-                    exclude: [/\.(ts|tsx|js)$/, /\.html$/, /\.json$/],
-                    loader: require.resolve('file-loader'),
-                    options: {
-                        name: 'media/[name].[hash:8].[ext]',
-                        publicPath: '/public/'
                     }
                 }
             ]}]
@@ -73,8 +34,7 @@ var config = {
             'API_ENDPOINT': JSON.stringify(process.env.API_ENDPOINT),
             'URL_PREFIX': JSON.stringify(process.env.URL_PREFIX || "/dashboard")
         })
-    ],
-    externals
+    ]
 };
 
 if (isDev) {
