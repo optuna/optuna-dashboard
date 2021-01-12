@@ -7,12 +7,12 @@ export const GraphParallelCoordinate: FC<{
   trials: Trial[]
 }> = ({ trials = [] }) => {
   useEffect(() => {
-    plotCoordinate(trials)
+    plotCoordinate(trials, 0) // TODO(c-bata): Support multi-objective studies.
   }, [trials])
   return <div id={plotDomId} />
 }
 
-const plotCoordinate = (trials: Trial[]) => {
+const plotCoordinate = (trials: Trial[], objectiveId: number) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
@@ -47,7 +47,9 @@ const plotCoordinate = (trials: Trial[]) => {
     return
   }
 
-  const objectiveValues: number[] = filteredTrials.map((t) => t.value!)
+  const objectiveValues: number[] = filteredTrials.map(
+    (t) => t.values![objectiveId]
+  )
   let dimensions = [
     {
       label: "Objective value",

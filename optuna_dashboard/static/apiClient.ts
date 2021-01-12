@@ -7,7 +7,7 @@ interface TrialResponse {
   study_id: number
   number: number
   state: TrialState
-  value?: number
+  values?: number[]
   intermediate_values: TrialIntermediateValue[]
   datetime_start: string
   datetime_complete?: string
@@ -22,7 +22,7 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
     study_id: res.study_id,
     number: res.number,
     state: res.state,
-    value: res.value,
+    values: res.values,
     intermediate_values: res.intermediate_values,
     datetime_start: new Date(res.datetime_start),
     datetime_complete: res.datetime_complete
@@ -37,7 +37,7 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
 interface StudyDetailResponse {
   name: string
   datetime_start: string
-  direction: StudyDirection
+  directions: StudyDirection[]
   best_trial?: TrialResponse
   trials: TrialResponse[]
 }
@@ -54,7 +54,7 @@ export const getStudyDetailAPI = (studyId: number): Promise<StudyDetail> => {
       return {
         name: res.data.name,
         datetime_start: new Date(res.data.datetime_start),
-        direction: res.data.direction,
+        directions: res.data.directions,
         best_trial: res.data.best_trial
           ? convertTrialResponse(res.data.best_trial)
           : undefined,
@@ -67,7 +67,7 @@ interface StudySummariesResponse {
   study_summaries: {
     study_id: number
     study_name: string
-    direction: StudyDirection
+    directions: StudyDirection[]
     best_trial?: {
       trial_id: number
       study_id: number
@@ -99,7 +99,7 @@ export const getStudySummariesAPI = (): Promise<StudySummary[]> => {
           return {
             study_id: study.study_id,
             study_name: study.study_name,
-            direction: study.direction,
+            directions: study.directions,
             best_trial: best_trial,
             user_attrs: study.user_attrs,
             system_attrs: study.system_attrs,
@@ -116,7 +116,7 @@ interface CreateNewStudyResponse {
   study_summary: {
     study_id: number
     study_name: string
-    direction: StudyDirection
+    directions: StudyDirection[]
     best_trial?: {
       trial_id: number
       study_id: number
@@ -150,7 +150,7 @@ export const createNewStudyAPI = (
       return {
         study_id: study_summary.study_id,
         study_name: study_summary.study_name,
-        direction: study_summary.direction,
+        directions: study_summary.directions,
         // best_trial: undefined,
         user_attrs: study_summary.user_attrs,
         system_attrs: study_summary.system_attrs,

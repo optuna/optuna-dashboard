@@ -44,6 +44,7 @@ export const GraphHistory: FC<{
     if (study !== null) {
       plotHistory(
         study,
+        0, // TODO(c-bata): Support multi-objective studies.
         xAxis,
         logScale,
         filterCompleteTrial,
@@ -121,6 +122,7 @@ export const GraphHistory: FC<{
 
 const plotHistory = (
   study: StudyDetail,
+  objectiveId: number,
   xAxis: string,
   logScale: boolean,
   filterCompleteTrial: boolean,
@@ -163,13 +165,19 @@ const plotHistory = (
   let currentBest: number | null = null
   filteredTrials.forEach((item) => {
     if (currentBest === null) {
-      currentBest = item.value!
+      currentBest = item.values![objectiveId]
       trialsForLinePlot.push(item)
-    } else if (study.direction === "maximize" && item.value! > currentBest) {
-      currentBest = item.value!
+    } else if (
+      study.directions[objectiveId] === "maximize" &&
+      item.values![objectiveId] > currentBest
+    ) {
+      currentBest = item.values![objectiveId]
       trialsForLinePlot.push(item)
-    } else if (study.direction === "minimize" && item.value! < currentBest) {
-      currentBest = item.value!
+    } else if (
+      study.directions[objectiveId] === "minimize" &&
+      item.values![objectiveId] < currentBest
+    ) {
+      currentBest = item.values![objectiveId]
       trialsForLinePlot.push(item)
     }
   })
@@ -184,13 +192,15 @@ const plotHistory = (
 
   let xForLinePlot = trialsForLinePlot.map(getAxisX)
   xForLinePlot.push(getAxisX(filteredTrials[filteredTrials.length - 1]))
-  let yForLinePlot = trialsForLinePlot.map((t: Trial): number => t.value!)
+  let yForLinePlot = trialsForLinePlot.map(
+    (t: Trial): number => t.values![objectiveId]
+  )
   yForLinePlot.push(yForLinePlot[yForLinePlot.length - 1])
 
   const plotData: Partial<plotly.PlotData>[] = [
     {
       x: filteredTrials.map(getAxisX),
-      y: filteredTrials.map((t: Trial): number => t.value!),
+      y: filteredTrials.map((t: Trial): number => t.values![objectiveId]),
       mode: "markers",
       type: "scatter",
     },

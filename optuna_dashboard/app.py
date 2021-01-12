@@ -140,10 +140,12 @@ def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
         except DuplicatedStudyError:
             response.status = 400  # Bad request
             return {"reason": f"'{study_name}' is already exists"}
+
+        # TODO(c-bata): Support multi-objective study.
         if direction.lower() == "maximize":
-            storage.set_study_direction(study_id, StudyDirection.MAXIMIZE)
+            storage.set_study_directions(study_id, [StudyDirection.MAXIMIZE])
         else:
-            storage.set_study_direction(study_id, StudyDirection.MINIMIZE)
+            storage.set_study_directions(study_id, [StudyDirection.MINIMIZE])
 
         summary = get_study_summary(storage, study_id)
         if summary is None:

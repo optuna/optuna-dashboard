@@ -30,7 +30,7 @@ declare interface Trial {
   study_id: number
   number: number
   state: TrialState
-  value?: number
+  values?: number[]
   intermediate_values: TrialIntermediateValue[]
   datetime_start: Date
   datetime_complete?: Date
@@ -42,7 +42,7 @@ declare interface Trial {
 declare interface StudySummary {
   study_id: number
   study_name: string
-  direction: StudyDirection
+  directions: StudyDirection[]
   best_trial?: Trial
   user_attrs: Attribute[]
   system_attrs: Attribute[]
@@ -51,7 +51,7 @@ declare interface StudySummary {
 
 declare interface StudyDetail {
   name: string
-  direction: StudyDirection
+  directions: StudyDirection[]
   datetime_start: Date
   best_trial?: Trial
   trials: Trial[]
