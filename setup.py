@@ -24,7 +24,7 @@ def get_version() -> int:
 
 
 def get_install_requires() -> List[str]:
-    deps = ["optuna", "bottle"]
+    deps = ["optuna>=2.4", "bottle"]
     if sys.version_info[:2] < (3, 8):
         deps.append("typing-extensions")
     return deps

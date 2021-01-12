@@ -42,6 +42,10 @@ interface ParamTypes {
   studyId: string
 }
 
+const isSingleObjectiveStudy = (studyDetail: StudyDetail): boolean => {
+  return studyDetail.directions.length === 1
+}
+
 export const useStudyDetail = (
   action: Action,
   studyId: number
@@ -98,22 +102,24 @@ export const StudyDetail: FC<{}> = () => {
               <GraphHistory study={studyDetail} />
             </CardContent>
           </Card>
-          <Grid container direction="row">
-            <Grid item xs={6}>
-              <Card className={classes.card}>
-                <CardContent>
-                  <GraphParallelCoordinate trials={trials} />
-                </CardContent>
-              </Card>
+          {studyDetail !== null && isSingleObjectiveStudy(studyDetail) ? (
+            <Grid container direction="row">
+              <Grid item xs={6}>
+                <Card className={classes.card}>
+                  <CardContent>
+                    <GraphParallelCoordinate trials={trials} />
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={6}>
+                <Card className={classes.card}>
+                  <CardContent>
+                    <GraphIntermediateValues trials={trials} />
+                  </CardContent>
+                </Card>
+              </Grid>
             </Grid>
-            <Grid item xs={6}>
-              <Card className={classes.card}>
-                <CardContent>
-                  <GraphIntermediateValues trials={trials} />
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
+          ) : null}
           <Card className={classes.card}>
             <TrialTable trials={trials} />
           </Card>
@@ -134,7 +140,12 @@ const TrialTable: FC<{ trials: Trial[] }> = ({ trials = [] }) => {
       padding: "none",
       toCellValue: (i) => trials[i].state.toString(),
     },
-    { field: "value", label: "Value", sortable: true },
+    {
+      field: "values",
+      label: "Value",
+      sortable: true,
+      toCellValue: (i) => trials[i].values?.join() || null,
+    },
     {
       field: "params",
       label: "Params",

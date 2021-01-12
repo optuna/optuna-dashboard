@@ -49,8 +49,8 @@ export const actionCreator = () => {
       })
   }
 
-  const createNewStudy = (studyName: string, direction: StudyDirection) => {
-    createNewStudyAPI(studyName, direction)
+  const createNewStudy = (studyName: string, directions: StudyDirection[]) => {
+    createNewStudyAPI(studyName, directions)
       .then((study_summary) => {
         const newVal = [...studySummaries, study_summary]
         setStudySummaries(newVal)

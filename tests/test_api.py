@@ -24,23 +24,33 @@ class APITestCase(TestCase):
         self.assertEqual(len(study_summaries), 2)
 
     def test_create_study(self) -> None:
-        storage = optuna.storages.InMemoryStorage()
-        self.assertEqual(len(storage.get_all_study_summaries()), 0)
+        for name, directions, expected_status in [
+            ("single-objective success", ["minimize"], 201),
+            ("multi-objective success", ["minimize", "maximize"], 201),
+            ("invalid direction name", ["invalid-direction", "maximize"], 400),
+        ]:
+            with self.subTest(name):
+                storage = optuna.storages.InMemoryStorage()
+                self.assertEqual(len(storage.get_all_study_summaries()), 0)
 
-        app = create_app(storage)
-        request_body = {
-            "study_name": "foo",
-            "direction": "minimize",
-        }
-        status, _, _ = send_request(
-            app,
-            "/api/studies",
-            "POST",
-            content_type="application/json",
-            body=json.dumps(request_body),
-        )
-        self.assertEqual(status, 201)
-        self.assertEqual(len(storage.get_all_study_summaries()), 1)
+                app = create_app(storage)
+                request_body = {
+                    "study_name": "foo",
+                    "directions": directions,
+                }
+                status, _, _ = send_request(
+                    app,
+                    "/api/studies",
+                    "POST",
+                    content_type="application/json",
+                    body=json.dumps(request_body),
+                )
+                self.assertEqual(status, expected_status)
+
+                if expected_status == 201:
+                    self.assertEqual(len(storage.get_all_study_summaries()), 1)
+                else:
+                    self.assertEqual(len(storage.get_all_study_summaries()), 0)
 
     def test_create_study_duplicated(self) -> None:
         storage = optuna.storages.InMemoryStorage()

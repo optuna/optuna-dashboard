@@ -49,7 +49,7 @@ def serialize_study_summary(summary: StudySummary) -> Dict[str, Any]:
     serialized = {
         "study_id": summary._study_id,
         "study_name": summary.study_name,
-        "direction": summary.direction.name.lower(),
+        "directions": [d.name.lower() for d in summary.directions],
         "user_attrs": serialize_attrs(summary.user_attrs),
         "system_attrs": serialize_attrs(summary.system_attrs),
     }
@@ -70,7 +70,7 @@ def serialize_study_detail(
 ) -> Dict[str, Any]:
     serialized: Dict[str, Any] = {
         "name": summary.study_name,
-        "direction": summary.direction.name.lower(),
+        "directions": [d.name.lower() for d in summary.directions],
     }
     if summary.datetime_start is not None:
         serialized["datetime_start"] = summary.datetime_start.isoformat()
@@ -98,8 +98,8 @@ def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
         "system_attrs": serialize_attrs(trial.system_attrs),
     }
 
-    if trial.value is not None:
-        serialized["value"] = trial.value
+    if trial.values is not None:
+        serialized["values"] = trial.values
 
     if trial.datetime_start is not None:
         serialized["datetime_start"] = trial.datetime_start.isoformat()
