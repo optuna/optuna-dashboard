@@ -30,6 +30,12 @@ jobs:
     - run: python setup.py sdist bdist_wheel
     - run: twine check dist/*
 
+    - name: Publish distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@v1.4.1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_PASSWORD }}
+
     - name: Create GitHub release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -41,9 +47,3 @@ jobs:
         cp ./optuna_dashboard/public/bundle.js ./dist/
         cp ./optuna_dashboard/public/bundle.js.LICENSE.txt ./dist/
         ./ghr_v0.13.0_linux_amd64/ghr -n ${TAGNAME} -b ${TAGNAME} -draft ${TAGNAME} dist/
-
-    - name: Publish distribution to PyPI
-      uses: pypa/gh-action-pypi-publish@v1.4.1
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_PASSWORD }}
