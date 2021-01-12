@@ -6,20 +6,39 @@ import {
   FormLabel,
   FormControlLabel,
   Checkbox,
+  MenuItem,
   Switch,
+  Select,
   Radio,
   RadioGroup,
 } from "@material-ui/core"
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
 
 const plotDomId = "graph-history"
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    formControl: {
+      marginBottom: theme.spacing(2),
+    },
+  })
+)
 
 export const GraphHistory: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  const classes = useStyles()
   const [xAxis, setXAxis] = useState<string>("number")
+  const [objectiveId, setObjectiveId] = useState<number>(0)
   const [logScale, setLogScale] = useState<boolean>(false)
   const [filterCompleteTrial, setFilterCompleteTrial] = useState<boolean>(false)
   const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
+
+  const handleObjectiveChange = (
+    event: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    setObjectiveId(event.target.value as number)
+  }
 
   const handleXAxisChange = (e: ChangeEvent<HTMLInputElement>) => {
     setXAxis(e.target.value)
@@ -44,7 +63,7 @@ export const GraphHistory: FC<{
     if (study !== null) {
       plotHistory(
         study,
-        0, // TODO(c-bata): Support multi-objective studies.
+        objectiveId,
         xAxis,
         logScale,
         filterCompleteTrial,
@@ -57,7 +76,19 @@ export const GraphHistory: FC<{
     <Grid container direction="row">
       <Grid item xs={3}>
         <Grid container direction="column">
-          <FormControl component="fieldset">
+          {study !== null && study.directions.length !== 1 ? (
+            <FormControl component="fieldset" className={classes.formControl}>
+              <FormLabel component="legend">Objective ID:</FormLabel>
+              <Select value={objectiveId} onChange={handleObjectiveChange}>
+                {study.directions.map((d, i) => (
+                  <MenuItem value={i} key={i}>
+                    {i}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          ) : null}
+          <FormControl component="fieldset" className={classes.formControl}>
             <FormLabel component="legend">Log scale:</FormLabel>
             <Switch
               checked={logScale}
@@ -65,7 +96,7 @@ export const GraphHistory: FC<{
               value="enable"
             />
           </FormControl>
-          <FormControl component="fieldset">
+          <FormControl component="fieldset" className={classes.formControl}>
             <FormLabel component="legend">Filter state:</FormLabel>
             <FormControlLabel
               control={
@@ -86,7 +117,7 @@ export const GraphHistory: FC<{
               label="Pruned"
             />
           </FormControl>
-          <FormControl component="fieldset">
+          <FormControl component="fieldset" className={classes.formControl}>
             <FormLabel component="legend">X-axis:</FormLabel>
             <RadioGroup
               aria-label="gender"

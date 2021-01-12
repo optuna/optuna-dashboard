@@ -97,30 +97,28 @@ export const StudyDetail: FC<{}> = () => {
           <Paper className={classes.paper}>
             <Typography variant="h6">{title}</Typography>
           </Paper>
+          <Card className={classes.card}>
+            <CardContent>
+              <GraphHistory study={studyDetail} />
+            </CardContent>
+          </Card>
           {studyDetail !== null && isSingleObjectiveStudy(studyDetail) ? (
-            <div>
-              <Card className={classes.card}>
-                <CardContent>
-                  <GraphHistory study={studyDetail} />
-                </CardContent>
-              </Card>
-              <Grid container direction="row">
-                <Grid item xs={6}>
-                  <Card className={classes.card}>
-                    <CardContent>
-                      <GraphParallelCoordinate trials={trials} />
-                    </CardContent>
-                  </Card>
-                </Grid>
-                <Grid item xs={6}>
-                  <Card className={classes.card}>
-                    <CardContent>
-                      <GraphIntermediateValues trials={trials} />
-                    </CardContent>
-                  </Card>
-                </Grid>
+            <Grid container direction="row">
+              <Grid item xs={6}>
+                <Card className={classes.card}>
+                  <CardContent>
+                    <GraphParallelCoordinate trials={trials} />
+                  </CardContent>
+                </Card>
               </Grid>
-            </div>
+              <Grid item xs={6}>
+                <Card className={classes.card}>
+                  <CardContent>
+                    <GraphIntermediateValues trials={trials} />
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
           ) : null}
           <Card className={classes.card}>
             <TrialTable trials={trials} />
