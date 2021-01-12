@@ -130,8 +130,12 @@ def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
         response.content_type = "application/json"
 
         study_name = request.json.get("study_name", None)
-        direction = request.json.get("direction", None)
-        if study_name is None or direction not in ("minimize", "maximize"):
+        directions = request.json.get("directions", [])
+        if (
+            study_name is None
+            or len(directions) == 0
+            or not all([d in ("minimize", "maximize") for d in directions])
+        ):
             response.status = 400  # Bad request
             return {"reason": "You need to set study_name and direction"}
 
@@ -141,11 +145,15 @@ def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
             response.status = 400  # Bad request
             return {"reason": f"'{study_name}' is already exists"}
 
-        # TODO(c-bata): Support multi-objective study.
-        if direction.lower() == "maximize":
-            storage.set_study_directions(study_id, [StudyDirection.MAXIMIZE])
-        else:
-            storage.set_study_directions(study_id, [StudyDirection.MINIMIZE])
+        storage.set_study_directions(
+            study_id,
+            [
+                StudyDirection.MAXIMIZE
+                if d.lower() == "maximize"
+                else StudyDirection.MINIMIZE
+                for d in directions
+            ],
+        )
 
         summary = get_study_summary(storage, study_id)
         if summary is None:

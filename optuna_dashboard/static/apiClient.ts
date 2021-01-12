@@ -138,12 +138,12 @@ interface CreateNewStudyResponse {
 
 export const createNewStudyAPI = (
   studyName: string,
-  direction: StudyDirection
+  directions: StudyDirection[]
 ): Promise<StudySummary> => {
   return axiosInstance
     .post<CreateNewStudyResponse>(`/api/studies`, {
       study_name: studyName,
-      direction,
+      directions,
     })
     .then((res) => {
       const study_summary = res.data.study_summary
