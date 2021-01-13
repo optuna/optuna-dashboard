@@ -36,6 +36,18 @@ $ pip install .
 $ optuna-dashboard sqlite:///db.sqlite3
 ```
 
+<details>
+
+<summary>Environment variables for development</summary>
+
+If you set `OPTUNA_DASHBOARD_AUTO_RELOAD=1`, the server will automatically restart when the source codes are changed.
+
+```
+$ OPTUNA_DASHBOARD_AUTO_RELOAD=1 optuna-dashboard sqlite:///db.sqlite3
+```
+
+</details>
+
 
 ## Running tests, lint checks and formatters
 
