@@ -1,8 +1,13 @@
 import argparse
+import os
+
 from bottle import run
 
 from .app import create_app
 from .version import __version__
+
+
+AUTO_RELOAD = os.environ.get("OPTUNA_DASHBOARD_AUTO_RELOAD") == "1"
 
 
 def main() -> None:
@@ -19,7 +24,7 @@ def main() -> None:
     args = parser.parse_args()
 
     app = create_app(args.storage)
-    run(app, host=args.host, port=args.port, quiet=args.quiet)
+    run(app, host=args.host, port=args.port, quiet=args.quiet, reloader=AUTO_RELOAD)
 
 
 if __name__ == "__main__":
