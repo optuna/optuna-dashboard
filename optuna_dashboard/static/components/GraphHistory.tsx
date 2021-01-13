@@ -70,7 +70,14 @@ export const GraphHistory: FC<{
         filterPrunedTrial
       )
     }
-  }, [study, objectiveId, logScale, xAxis, filterPrunedTrial, filterCompleteTrial])
+  }, [
+    study,
+    objectiveId,
+    logScale,
+    xAxis,
+    filterPrunedTrial,
+    filterCompleteTrial,
+  ])
 
   return (
     <Grid container direction="row">
