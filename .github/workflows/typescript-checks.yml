@@ -2,7 +2,7 @@ name: typescript-checks
 on:
   pull_request:
     paths:
-      - '.github/workflows/typescript-lints.yml'
+      - '.github/workflows/typescript-checks.yml'
       - '**.ts'
       - '**.tsx'
 jobs:
