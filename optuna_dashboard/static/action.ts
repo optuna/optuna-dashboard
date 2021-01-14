@@ -70,7 +70,7 @@ export const actionCreator = () => {
     deleteStudyAPI(studyId)
       .then((study) => {
         setStudySummaries(studySummaries.filter((s) => s.study_id !== studyId))
-        enqueueSnackbar(`Success to delete a study (study_name=${studyId})`, {
+        enqueueSnackbar(`Success to delete a study (id=${studyId})`, {
           variant: "success",
         })
       })
