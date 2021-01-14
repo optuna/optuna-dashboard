@@ -121,7 +121,7 @@ export const StudyDetail: FC<{}> = () => {
             </Grid>
           ) : null}
           <Card className={classes.card}>
-            <TrialTable trials={trials} />
+            <TrialTable studyDetail={studyDetail} />
           </Card>
         </div>
       </Container>
@@ -129,8 +129,12 @@ export const StudyDetail: FC<{}> = () => {
   )
 }
 
-const TrialTable: FC<{ trials: Trial[] }> = ({ trials = [] }) => {
-  const columns: DataGridColumn<Trial>[] = [
+const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
+  studyDetail,
+}) => {
+  const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
+
+  let columns: DataGridColumn<Trial>[] = [
     { field: "number", label: "Number", sortable: true, padding: "none" },
     {
       field: "state",
@@ -140,19 +144,32 @@ const TrialTable: FC<{ trials: Trial[] }> = ({ trials = [] }) => {
       padding: "none",
       toCellValue: (i) => trials[i].state.toString(),
     },
-    {
+  ]
+  if (studyDetail === null || isSingleObjectiveStudy(studyDetail)) {
+    columns.push({
       field: "values",
       label: "Value",
       sortable: true,
-      toCellValue: (i) => trials[i].values?.join() || null,
-    },
-    {
-      field: "params",
-      label: "Params",
-      toCellValue: (i) =>
-        trials[i].params.map((p) => p.name + ": " + p.value).join(", "),
-    },
-  ]
+      toCellValue: (i) => trials[i].values?.[0] || null,
+    })
+  } else {
+    const objectiveColumns: DataGridColumn<
+      Trial
+    >[] = studyDetail.directions.map((s, objectiveId) => ({
+      field: "values",
+      label: `Objective ${objectiveId}`,
+      sortable: true,
+      toCellValue: (i) => trials[i].values?.[objectiveId] || null,
+    }))
+    columns.push(...objectiveColumns)
+  }
+  columns.push({
+    field: "params",
+    label: "Params",
+    toCellValue: (i) =>
+      trials[i].params.map((p) => p.name + ": " + p.value).join(", "),
+  })
+
   const collapseParamColumns: DataGridColumn<TrialParam>[] = [
     { field: "name", label: "Name", sortable: true },
     { field: "value", label: "Value", sortable: true },
