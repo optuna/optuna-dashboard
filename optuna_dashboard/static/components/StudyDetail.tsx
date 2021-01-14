@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { useRecoilValue } from "recoil"
 import { Link, useParams } from "react-router-dom"
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
@@ -13,6 +13,9 @@ import {
   Paper,
   Box,
   IconButton,
+  FormControl,
+  FormLabel,
+  Switch,
 } from "@material-ui/core"
 import { Home } from "@material-ui/icons"
 
@@ -20,7 +23,7 @@ import { DataGridColumn, DataGrid } from "./DataGrid"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphHistory } from "./GraphHistory"
-import { Action, actionCreator } from "../action"
+import { actionCreator } from "../action"
 import { studyDetailsState } from "../state"
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -46,20 +49,8 @@ const isSingleObjectiveStudy = (studyDetail: StudyDetail): boolean => {
   return studyDetail.directions.length === 1
 }
 
-export const useStudyDetail = (
-  action: Action,
-  studyId: number
-): StudyDetail | null => {
+export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
-
-  useEffect(() => {
-    action.updateStudyDetail(studyId)
-    const intervalId = setInterval(function () {
-      action.updateStudyDetail(studyId)
-    }, 10 * 1000)
-    return () => clearInterval(intervalId)
-  }, [])
-
   return studyDetails[studyId] || null
 }
 
@@ -68,7 +59,22 @@ export const StudyDetail: FC<{}> = () => {
   const action = actionCreator()
   const { studyId } = useParams<ParamTypes>()
   const studyIdNumber = parseInt(studyId, 10)
-  const studyDetail = useStudyDetail(action, studyIdNumber)
+  const studyDetail = useStudyDetailValue(studyIdNumber)
+  const [autoReload, setAutoReload] = useState<boolean>(false)
+
+  useEffect(() => {
+    action.updateStudyDetail(studyIdNumber)
+  }, [])
+
+  useEffect(() => {
+    if (!autoReload) {
+      return
+    }
+    const intervalId = setInterval(function () {
+      action.updateStudyDetail(studyIdNumber)
+    }, 10 * 1000)
+    return () => clearInterval(intervalId)
+  }, [autoReload])
 
   const title = studyDetail !== null ? studyDetail.name : `Study #${studyId}`
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
@@ -96,6 +102,16 @@ export const StudyDetail: FC<{}> = () => {
         <div>
           <Paper className={classes.paper}>
             <Typography variant="h6">{title}</Typography>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Auto-reload:</FormLabel>
+              <Switch
+                checked={autoReload}
+                onChange={(e) => {
+                  setAutoReload(!autoReload)
+                }}
+                value="enable"
+              />
+            </FormControl>
           </Paper>
           <Card className={classes.card}>
             <CardContent>
