@@ -47,13 +47,13 @@ optional arguments:
 
 ## Features
 
-### Create and delete study
+### Manage studies
 
 You can create and delete a study from Dashboard.
 
 ![optuna-create-delete-study](https://user-images.githubusercontent.com/5564044/97099702-4107be80-16cf-11eb-9d97-f5ceec98ce52.gif)
 
-### Interactive live-updating graphs
+### Visualize with interactive graphs
 
 Interactive live-updating graphs for optimization history, parallel coordinate and intermediate values.
 
