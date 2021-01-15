@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from "react"
 import { useRecoilValue } from "recoil"
 import { Link, useParams } from "react-router-dom"
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
+import { createStyles, fade, makeStyles, Theme } from "@material-ui/core/styles"
 import {
   AppBar,
   Card,
@@ -13,11 +13,10 @@ import {
   Paper,
   Box,
   IconButton,
-  FormControl,
-  FormLabel,
-  Switch,
+  Select,
+  MenuItem,
 } from "@material-ui/core"
-import { Home } from "@material-ui/icons"
+import { Home, Cached } from "@material-ui/icons"
 
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
@@ -34,6 +33,43 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     card: {
       margin: theme.spacing(2),
+    },
+    reload: {
+      position: "relative",
+      borderRadius: theme.shape.borderRadius,
+      backgroundColor: fade(theme.palette.common.white, 0.15),
+      "&:hover": {
+        backgroundColor: fade(theme.palette.common.white, 0.25),
+      },
+      marginLeft: 0,
+      width: "100%",
+      [theme.breakpoints.up("sm")]: {
+        marginLeft: theme.spacing(1),
+        width: "auto",
+      },
+    },
+    reloadIcon: {
+      padding: theme.spacing(0, 2),
+      height: "100%",
+      position: "absolute",
+      pointerEvents: "none",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    reloadSelect: {
+      color: "inherit",
+      padding: theme.spacing(1, 1, 1, 0),
+      // vertical padding + font size from searchIcon
+      paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+      transition: theme.transitions.create("width"),
+      width: "100%",
+      [theme.breakpoints.up("sm")]: {
+        width: "14ch",
+        "&:focus": {
+          width: "20ch",
+        },
+      },
     },
     grow: {
       flexGrow: 1,
@@ -60,21 +96,24 @@ export const StudyDetail: FC<{}> = () => {
   const { studyId } = useParams<ParamTypes>()
   const studyIdNumber = parseInt(studyId, 10)
   const studyDetail = useStudyDetailValue(studyIdNumber)
-  const [autoReload, setAutoReload] = useState<boolean>(false)
+  const [openReloadIntervalSelect, setOpenReloadIntervalSelect] = useState<
+    boolean
+  >(false)
+  const [reloadInterval, setReloadInterval] = useState<number>(10)
 
   useEffect(() => {
     action.updateStudyDetail(studyIdNumber)
   }, [])
 
   useEffect(() => {
-    if (!autoReload) {
+    if (reloadInterval < 0) {
       return
     }
     const intervalId = setInterval(function () {
       action.updateStudyDetail(studyIdNumber)
-    }, 10 * 1000)
+    }, reloadInterval * 1000)
     return () => clearInterval(intervalId)
-  }, [autoReload])
+  }, [reloadInterval])
 
   const title = studyDetail !== null ? studyDetail.name : `Study #${studyId}`
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
@@ -86,6 +125,36 @@ export const StudyDetail: FC<{}> = () => {
           <Toolbar>
             <Typography variant="h6">{APP_BAR_TITLE}</Typography>
             <div className={classes.grow} />
+            <div
+              className={classes.reload}
+              onClick={(e) => {
+                setOpenReloadIntervalSelect(!openReloadIntervalSelect)
+              }}
+            >
+              <div className={classes.reloadIcon}>
+                <Cached />
+              </div>
+              <Select
+                value={reloadInterval}
+                className={classes.reloadSelect}
+                open={openReloadIntervalSelect}
+                onOpen={() => {
+                  setOpenReloadIntervalSelect(true)
+                }}
+                onClose={() => {
+                  setOpenReloadIntervalSelect(false)
+                }}
+                onChange={(e) => {
+                  setReloadInterval(e.target.value as number)
+                }}
+              >
+                <MenuItem value={-1}>stop</MenuItem>
+                <MenuItem value={5}>5s</MenuItem>
+                <MenuItem value={10}>10s</MenuItem>
+                <MenuItem value={30}>30s</MenuItem>
+                <MenuItem value={60}>60s</MenuItem>
+              </Select>
+            </div>
             <IconButton
               aria-controls="menu-appbar"
               aria-haspopup="true"
@@ -102,16 +171,6 @@ export const StudyDetail: FC<{}> = () => {
         <div>
           <Paper className={classes.paper}>
             <Typography variant="h6">{title}</Typography>
-            <FormControl component="fieldset">
-              <FormLabel component="legend">Auto-reload:</FormLabel>
-              <Switch
-                checked={autoReload}
-                onChange={(e) => {
-                  setAutoReload(!autoReload)
-                }}
-                value="enable"
-              />
-            </FormControl>
           </Paper>
           <Card className={classes.card}>
             <CardContent>
