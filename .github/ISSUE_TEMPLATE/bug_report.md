@@ -18,11 +18,13 @@ assignees: ''
 ## Current Behavior and Steps to Reproduce
 
 *What is the current behavior? Please provide detailed steps or example for reproducing.*
+*A picture or video tells a thousand words.*
 
 ## Context
 
 Please provide any relevant information about your setup.
 This is important in case the issue is not reproducible except for under certain conditions.
 
-* Optuna version
-* optuna-dashboard version or commit revision:
+* `python -c 'import optuna; print(optuna.__version__)'`:
+* `optuna-dashboard --version`:
+
