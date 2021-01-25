@@ -2,6 +2,7 @@ import argparse
 import os
 
 from bottle import run
+from optuna.storages import RDBStorage
 
 from .app import create_app
 from .version import __version__
@@ -23,7 +24,8 @@ def main() -> None:
     parser.add_argument("--quiet", "-q", help="quiet", action="store_true")
     args = parser.parse_args()
 
-    app = create_app(args.storage)
+    storage = RDBStorage(args.storage)
+    app = create_app(storage)
     run(app, host=args.host, port=args.port, quiet=args.quiet, reloader=AUTO_RELOAD)
 
 
