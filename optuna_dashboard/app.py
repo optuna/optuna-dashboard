@@ -9,7 +9,7 @@ from typing import Union, Dict, List, Optional, TypeVar, Callable, Any, cast
 
 from bottle import Bottle, BaseResponse, redirect, request, response, static_file
 from optuna.exceptions import DuplicatedStudyError
-from optuna.storages import BaseStorage, get_storage
+from optuna.storages import BaseStorage
 from optuna.trial import FrozenTrial
 from optuna.study import StudyDirection, StudySummary
 
@@ -84,7 +84,7 @@ def get_trials(
         if (
             trials is not None
             and last_fetched_at is not None
-            and datetime.now() - last_fetched_at < timedelta(ttl_seconds)
+            and datetime.now() - last_fetched_at < timedelta(seconds=ttl_seconds)
         ):
             return trials
     trials = storage.get_all_trials(study_id)
@@ -94,9 +94,8 @@ def get_trials(
     return trials
 
 
-def create_app(storage_or_url: Union[str, BaseStorage]) -> Bottle:
+def create_app(storage: BaseStorage) -> Bottle:
     app = Bottle()
-    storage = get_storage(storage_or_url)
 
     @app.hook("before_request")
     def remove_trailing_slashes_hook() -> None:
