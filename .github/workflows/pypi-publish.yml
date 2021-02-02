@@ -42,7 +42,7 @@ jobs:
       run: |
         wget https://github.com/tcnksm/ghr/releases/download/v0.13.0/ghr_v0.13.0_linux_amd64.tar.gz
         tar -xzf ghr_v*_linux_amd64.tar.gz
-        export TAGNAME=$(jq --raw-output .ref "$GITHUB_EVENT_PATH")
+        export TAGNAME=$(jq --raw-output .ref "$GITHUB_EVENT_PATH" | sed -e "s/refs\/tags\///")
 
         cp ./optuna_dashboard/public/bundle.js ./dist/
         cp ./optuna_dashboard/public/bundle.js.LICENSE.txt ./dist/
