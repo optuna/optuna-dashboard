@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export const StudyList: FC<{}> = () => {
+export const StudyList: FC = () => {
   const classes = useStyles()
 
   const [
@@ -384,7 +384,7 @@ export const StudyList: FC<{}> = () => {
               <Select
                 value={directions[i]}
                 onChange={(e) => {
-                  let newVal: StudyDirection[] = [...directions]
+                  const newVal: StudyDirection[] = [...directions]
                   newVal[i] = e.target.value as StudyDirection
                   setDirections(newVal)
                 }}
@@ -413,7 +413,7 @@ export const StudyList: FC<{}> = () => {
             className={classes.objectiveButton}
             disabled={directions.length <= 1}
             onClick={(e) => {
-              let newVal: StudyDirection[] = [...directions]
+              const newVal: StudyDirection[] = [...directions]
               newVal.pop()
               setDirections(newVal)
             }}

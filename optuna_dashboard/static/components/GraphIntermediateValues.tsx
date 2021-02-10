@@ -30,7 +30,7 @@ const plotIntermediateValue = (trials: Trial[]) => {
     return
   }
 
-  let filteredTrials = trials.filter(
+  const filteredTrials = trials.filter(
     (t) => t.state === "Complete" || t.state === "Pruned"
   )
   const plotData: Partial<plotly.PlotData>[] = filteredTrials.map((trial) => {
