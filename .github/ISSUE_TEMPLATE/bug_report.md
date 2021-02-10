@@ -1,7 +1,7 @@
 ---
 name: "Bug report"
 about: Create a bug report to improve optuna-dashboard
-title: "[Bug]"
+title: ""
 labels: bug
 assignees: ''
 
