@@ -90,7 +90,7 @@ export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   return studyDetails[studyId] || null
 }
 
-export const StudyDetail: FC<{}> = () => {
+export const StudyDetail: FC = () => {
   const classes = useStyles()
   const action = actionCreator()
   const { studyId } = useParams<ParamTypes>()
@@ -209,7 +209,7 @@ const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
 }) => {
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
 
-  let columns: DataGridColumn<Trial>[] = [
+  const columns: DataGridColumn<Trial>[] = [
     { field: "number", label: "Number", sortable: true, padding: "none" },
     {
       field: "state",
