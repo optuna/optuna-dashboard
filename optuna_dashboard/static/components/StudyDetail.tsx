@@ -21,6 +21,7 @@ import { Home, Cached } from "@material-ui/icons"
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
+import {GraphSlice} from "./GraphSlice"
 import { GraphHistory } from "./GraphHistory"
 import { actionCreator } from "../action"
 import { studyDetailsState } from "../state"
@@ -190,6 +191,14 @@ export const StudyDetail: FC<{}> = () => {
                 <Card className={classes.card}>
                   <CardContent>
                     <GraphIntermediateValues trials={trials} />
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={6}>
+                <Card className={classes.card}>
+                  <CardContent>
+                    <GraphSlice trials={trials} />
+                    {/* <p>Hi</p> */}
                   </CardContent>
                 </Card>
               </Grid>
