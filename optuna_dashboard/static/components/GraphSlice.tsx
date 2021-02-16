@@ -44,6 +44,7 @@ export const GraphSlice: FC<{
     
 
     if (paramNames.size === 0) {
+        
         plotly.react(plotDomId, [])
         return 
     }
@@ -78,14 +79,16 @@ export const GraphSlice: FC<{
     }
     else{
       let i=0
-      let  trace =  {
+      let  trace: Partial<plotly.PlotData> =  {
         type: "scatter",
+        //@ts-ignore
         dimensions :dimensions, 
         mode :"markers",
         xaxis : "x"
       }
 
-       let traces :{type: string, dimensions: { label: string; values: number[]; range: number[]; }[], mode: string, xaxis: string} [] = undefined
+      //  let traces :{type: string, dimensions: { label: string; values: number[]; range: number[]; }[], mode: string, xaxis: string} [] = []
+      let traces: Partial<plotly.PlotData>[]= []
       
       paramNames.forEach((paramName) => {
         const valueStrings = filteredTrials.map((t) => {
@@ -105,12 +108,14 @@ export const GraphSlice: FC<{
         } 
         trace = {
           type: "scatter",
+          //@ts-ignore
           dimensions: dimensions,
           mode:"markers",
           xaxis: `x ${i}`
         }
 
-        traces.push(trace)           
+        traces.push(trace) 
+        i++          
 
       })
       const plotData: Partial<plotly.PlotData>[] = traces
@@ -119,7 +124,5 @@ export const GraphSlice: FC<{
     }
 
   }
-
-
-    
+  
     
