@@ -75,6 +75,7 @@ export const GraphSlice: FC<{
           // xpad: 40
         },
       ]
+      console.log(dimensions)
       return plotly.react(plotDomId, plotData, layout)
     }
     else{
@@ -87,7 +88,7 @@ export const GraphSlice: FC<{
         xaxis : "x"
       }
 
-      //  let traces :{type: string, dimensions: { label: string; values: number[]; range: number[]; }[], mode: string, xaxis: string} [] = []
+      
       let traces: Partial<plotly.PlotData>[]= []
       
       paramNames.forEach((paramName) => {
@@ -115,7 +116,7 @@ export const GraphSlice: FC<{
         }
 
         traces.push(trace) 
-        i++          
+        i++         
 
       })
       const plotData: Partial<plotly.PlotData>[] = traces
