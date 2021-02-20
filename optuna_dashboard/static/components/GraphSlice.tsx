@@ -41,88 +41,108 @@ export const GraphSlice: FC<{
         t.params.filter((p) => paramNames.has(p.name)).map((p) => p.name)
        )
     })
-    
+
+    const objectiveValues: number[] = filteredTrials.map(
+      (t) => t.values![objectiveId]
+   )
 
     if (paramNames.size === 0) {
         
         plotly.react(plotDomId, [])
         return 
     }
-    
-    const objectiveValues: number[] = filteredTrials.map(
-       (t) => t.values![objectiveId]
-    )
-    
-    let dimensions = [
-      {
-        label: "Objective value",
-        values: objectiveValues,
-        range: [Math.min(...objectiveValues), Math.max(...objectiveValues)]
-      }
-    ]
-    if(paramNames.size ===1){
-      dimensions = [{
-        label: "objective values",
-        values: objectiveValues,
-        range: [Math.min(...objectiveValues), Math.max(...objectiveValues)],
-      }]
-      const plotData: Partial<plotly.PlotData>[] = [
-        {
-          type: "scatter",
-          //@ts-ignore
-          dimensions: dimensions,
-          mode: "markers",
-          // xpad: 40
-        },
-      ]
-      console.log(dimensions)
-      return plotly.react(plotDomId, plotData, layout)
-    }
     else{
-      let i=0
       let  trace: Partial<plotly.PlotData> =  {
         type: "scatter",
-        //@ts-ignore
-        dimensions :dimensions, 
+        x:[],
+        y:objectiveValues,
         mode :"markers",
-        xaxis : "x"
+        xaxis : "x",
+        marker:{
+          color: "#185799"
+        }
       }
-
-      
+      let updatelayout: Partial<plotly.Layout> = {
+        title: "Slice",
+        margin: {
+          l: 50,
+          r: 50,
+          b: 0,
+        },
+        grid: {
+          rows: 1,
+          columns: paramNames.size,
+          pattern:'coupled'
+        },
+        xaxis : {
+          title:"x",
+          zerolinecolor: "#f2f5fa",
+          zerolinewidth: 1.5,
+          linecolor: "#f2f5fa",
+          linewidth: 5,
+          gridcolor: "#f2f5fa",
+          gridwidth:1,
+        },
+        yaxis:{
+          title:"Objective Values",
+          zerolinecolor: "#f2f5fa",
+          zerolinewidth: 2,
+          linecolor: "#f2f5fa",
+          linewidth: 5,
+          gridcolor: "#f2f5fa",
+          gridwidth:1
+        },
+        plot_bgcolor: "#E5ecf6",
+        showlegend: false
+      } 
       let traces: Partial<plotly.PlotData>[]= []
-      
+      let i=1
       paramNames.forEach((paramName) => {
         const valueStrings = filteredTrials.map((t) => {
           const param = t.params.find((p) => p.name == paramName)
           return param!.value
         })
-        const isnum = valueStrings.every((v) => {
-          return /^-?\d+\.\d+$/.test(v)
-        })
-        if (isnum) {
-          const values: number[] = valueStrings.map((v) => parseFloat(v))
-          dimensions = [{
-            label: paramName,
-            values: values,
-            range: [Math.min(...values), Math.max(...values)],
-          }]
-        } 
-        trace = {
-          type: "scatter",
-          //@ts-ignore
-          dimensions: dimensions,
-          mode:"markers",
-          xaxis: `x ${i}`
+        const values: number[] = valueStrings.map((v) => parseFloat(v))
+          
+        const axisx: string = `x${i}`
+        if(i==1){
+          trace = {
+            type: "scatter",
+            x: values,
+            y: objectiveValues,
+            mode :"markers",
+            xaxis : "x"
+          }
         }
-
-        traces.push(trace) 
-        i++         
-
+        else{
+          trace  = {
+            type: "scatter",
+            x: values,
+            y: objectiveValues, 
+            mode :"markers",
+            xaxis : axisx,
+            marker: {
+              color: "#185799"
+            }
+          }
+          updatelayout["xaxis2"] = {
+              title: paramName,
+              zerolinecolor: "#f2f5fa",
+              zerolinewidth: 1.5,
+              linecolor: "#f2f5fa",
+              linewidth: 5,
+              gridcolor: "#f2f5fa",
+              gridwidth:1,
+              
+            }
+        }
+        traces.push(trace)
+        i++
       })
       const plotData: Partial<plotly.PlotData>[] = traces
-    
-      plotly.react(plotDomId, plotData, layout)
-    }
+      plotly.react(plotDomId, plotData, updatelayout)
+
+    } 
 
   }
   
