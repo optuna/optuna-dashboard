@@ -45,7 +45,8 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 interface DataGridColumn<T> {
-  field: keyof T
+  field: keyof T  // TODO(c-bata): remove this or optional?
+  // TODO(c-bata): add comparator(or less function) field? see https://golang.org/pkg/sort/#Slice
   label: string
   sortable?: boolean
   filterable?: boolean
@@ -71,7 +72,7 @@ function DataGrid<T>(props: {
   const { columns, rows, keyField, dense, collapseBody } = props
   let { initialRowsPerPage, rowsPerPageOption } = props
   const [order, setOrder] = React.useState<Order>("asc")
-  const [orderBy, setOrderBy] = React.useState<keyof T>(keyField)
+  const [orderBy, setOrderBy] = React.useState<number>(0)  // index of columns
   const [page, setPage] = React.useState(0)
   const [filters, setFilters] = React.useState<RowFilter<T>[]>([])
 
@@ -124,14 +125,14 @@ function DataGrid<T>(props: {
   )
 
   // Sorting
-  const createSortHandler = (property: keyof T) => (
+  const createSortHandler = (columnId: number) => (
     event: React.MouseEvent<unknown>
   ) => {
-    const isAsc = orderBy === property && order === "asc"
+    const isAsc = orderBy === columnId && order === "asc"
     setOrder(isAsc ? "desc" : "asc")
-    setOrderBy(property)
+    setOrderBy(columnId)
   }
-  const sortedRows = stableSort<T>(filteredRows, getComparator(order, orderBy))
+  const sortedRows = stableSort<T>(filteredRows, getComparator(order, columns, orderBy))
   const currentPageRows =
     rowsPerPage > 0
       ? sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
@@ -160,7 +161,7 @@ function DataGrid<T>(props: {
                     <TableSortLabel
                       active={orderBy === column.field}
                       direction={orderBy === column.field ? order : "asc"}
-                      onClick={createSortHandler(column.field)}
+                      onClick={createSortHandler(index)}
                     >
                       {column.label}
                       {orderBy === column.field ? (
@@ -300,18 +301,25 @@ function DataGridRow<T>(props: {
 
 function getComparator<T>(
   order: Order,
-  orderBy: keyof T
+  columns: DataGridColumn<T>[],
+  orderBy: number
 ): (a: T, b: T) => number {
   return order === "desc"
-    ? (a, b) => descendingComparator<T>(a, b, orderBy)
-    : (a, b) => -descendingComparator<T>(a, b, orderBy)
+    ? (a, b) => descendingComparator<T>(a, b, columns, orderBy)
+    : (a, b) => -descendingComparator<T>(a, b, columns, orderBy)
 }
 
-function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
-  if (b[orderBy] < a[orderBy]) {
+function descendingComparator<T>(
+    a: T,
+    b: T,
+    columns: DataGridColumn<T>[],
+    orderBy: number
+): number {
+  const field = columns[orderBy].field
+  if (b[field] < a[field]) {
     return -1
   }
-  if (b[orderBy] > a[orderBy]) {
+  if (b[field] > a[field]) {
     return 1
   }
   return 0
