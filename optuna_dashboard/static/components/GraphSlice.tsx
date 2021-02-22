@@ -125,16 +125,21 @@ export const GraphSlice: FC<{
               color: "#185799"
             }
           }
-          updatelayout["xaxis2"] = {
-              title: paramName,
-              zerolinecolor: "#f2f5fa",
-              zerolinewidth: 1.5,
-              linecolor: "#f2f5fa",
-              linewidth: 5,
-              gridcolor: "#f2f5fa",
-              gridwidth:1,
-              
-            }
+          
+          type foo = keyof plotly.Layout
+          //@ts-ignore
+          const axisname:foo = `xaxis${i}`
+          //@ts-ignore
+          updatelayout[axisname] = {
+          title: paramName,
+          zerolinecolor: "#f2f5fa",
+          zerolinewidth: 1.5,
+          linecolor: "#f2f5fa",
+          linewidth: 5,
+          gridcolor: "#f2f5fa",
+          gridwidth:1,
+          }
+          
         }
         traces.push(trace)
         i++
