@@ -45,10 +45,10 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 interface DataGridColumn<T> {
-  field: keyof T  // TODO(c-bata): remove this or optional?
-  // TODO(c-bata): add comparator(or less function) field? see https://golang.org/pkg/sort/#Slice
+  field: keyof T
   label: string
   sortable?: boolean
+  less?: (i: number, j: number) => number
   filterable?: boolean
   toCellValue?: (rowIndex: number) => string | React.ReactNode
   padding?: "default" | "checkbox" | "none"
@@ -132,7 +132,8 @@ function DataGrid<T>(props: {
     setOrder(isAsc ? "desc" : "asc")
     setOrderBy(columnId)
   }
-  const sortedRows = stableSort<T>(filteredRows, getComparator(order, columns, orderBy))
+  const lessFunc = columns[orderBy].less
+  const sortedRows = stableSort<T>(filteredRows, getComparator(order, columns, orderBy), order, lessFunc)
   const currentPageRows =
     rowsPerPage > 0
       ? sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
@@ -325,11 +326,21 @@ function descendingComparator<T>(
   return 0
 }
 
-function stableSort<T>(array: T[], comparator: (a: T, b: T) => number) {
+function stableSort<T>(
+    array: T[],
+    comparator: (a: T, b: T) => number,
+    order: Order,
+    less?: (i: number, j: number) => number
+) {
   const stabilizedThis = array.map((el, index) => [el, index] as [T, number])
   stabilizedThis.sort((a, b) => {
-    const order = comparator(a[0], b[0])
-    if (order !== 0) return order
+    if (less) {
+      const result = order == "asc" ? -less(a[1], b[1]) : less(a[1], b[1])
+      if (result !== 0) return result
+    } else {
+      const result = comparator(a[0], b[0])
+      if (result !== 0) return result
+    }
     return a[1] - b[1]
   })
   return stabilizedThis.map((el) => el[0])
