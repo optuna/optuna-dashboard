@@ -235,7 +235,12 @@ const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
         }
         return trials[i].values![0] < trials[j].values![0] ? 1 : -1
       },
-      toCellValue: (i) => trials[i].values?.[0] || null,
+      toCellValue: (i) => {
+        if (trials[i].values === undefined) {
+          return null
+        }
+        return trials[i].values?.[0]
+      },
     })
   } else {
     const objectiveColumns: DataGridColumn<
@@ -258,7 +263,12 @@ const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
           ? 1
           : -1
       },
-      toCellValue: (i) => trials[i].values?.[objectiveId] || null,
+      toCellValue: (i) => {
+        if (trials[i].values === undefined) {
+          return null
+        }
+        return trials[i].values?.[objectiveId]
+      },
     }))
     columns.push(...objectiveColumns)
   }
