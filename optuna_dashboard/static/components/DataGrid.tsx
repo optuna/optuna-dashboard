@@ -132,13 +132,7 @@ function DataGrid<T>(props: {
     setOrder(isAsc ? "desc" : "asc")
     setOrderBy(columnId)
   }
-  const lessFunc = columns[orderBy].less
-  const sortedRows = stableSort<T>(
-    filteredRows,
-    getComparator(order, columns, orderBy),
-    order,
-    lessFunc
-  )
+  const sortedRows = stableSort<T>(filteredRows, order, orderBy, columns)
   const currentPageRows =
     rowsPerPage > 0
       ? sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
@@ -333,10 +327,13 @@ function descendingComparator<T>(
 
 function stableSort<T>(
   array: T[],
-  comparator: (a: T, b: T) => number,
   order: Order,
-  less?: (i: number, j: number) => number
+  orderBy: number,
+  columns: DataGridColumn<T>[]
 ) {
+  // TODO(c-bata): Refactor here by implementing as the same comparator interface.
+  const less = columns[orderBy].less
+  const comparator = getComparator(order, columns, orderBy)
   const stabilizedThis = array.map((el, index) => [el, index] as [T, number])
   stabilizedThis.sort((a, b) => {
     if (less) {
