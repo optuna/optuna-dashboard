@@ -245,14 +245,18 @@ const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
       label: `Objective ${objectiveId}`,
       sortable: true,
       less: (i, j): number => {
-        if (trials[i].values?.[objectiveId] === trials[j].values?.[objectiveId]) {
+        if (
+          trials[i].values?.[objectiveId] === trials[j].values?.[objectiveId]
+        ) {
           return 0
         } else if (trials[i].values === undefined) {
           return -1
         } else if (trials[j].values === undefined) {
           return 1
         }
-        return trials[i].values![objectiveId] < trials[j].values![objectiveId] ? 1 : -1
+        return trials[i].values![objectiveId] < trials[j].values![objectiveId]
+          ? 1
+          : -1
       },
       toCellValue: (i) => trials[i].values?.[objectiveId] || null,
     }))

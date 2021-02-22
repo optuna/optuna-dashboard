@@ -72,7 +72,7 @@ function DataGrid<T>(props: {
   const { columns, rows, keyField, dense, collapseBody } = props
   let { initialRowsPerPage, rowsPerPageOption } = props
   const [order, setOrder] = React.useState<Order>("asc")
-  const [orderBy, setOrderBy] = React.useState<number>(0)  // index of columns
+  const [orderBy, setOrderBy] = React.useState<number>(0) // index of columns
   const [page, setPage] = React.useState(0)
   const [filters, setFilters] = React.useState<RowFilter<T>[]>([])
 
@@ -133,7 +133,12 @@ function DataGrid<T>(props: {
     setOrderBy(columnId)
   }
   const lessFunc = columns[orderBy].less
-  const sortedRows = stableSort<T>(filteredRows, getComparator(order, columns, orderBy), order, lessFunc)
+  const sortedRows = stableSort<T>(
+    filteredRows,
+    getComparator(order, columns, orderBy),
+    order,
+    lessFunc
+  )
   const currentPageRows =
     rowsPerPage > 0
       ? sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
@@ -311,10 +316,10 @@ function getComparator<T>(
 }
 
 function descendingComparator<T>(
-    a: T,
-    b: T,
-    columns: DataGridColumn<T>[],
-    orderBy: number
+  a: T,
+  b: T,
+  columns: DataGridColumn<T>[],
+  orderBy: number
 ): number {
   const field = columns[orderBy].field
   if (b[field] < a[field]) {
@@ -327,10 +332,10 @@ function descendingComparator<T>(
 }
 
 function stableSort<T>(
-    array: T[],
-    comparator: (a: T, b: T) => number,
-    order: Order,
-    less?: (i: number, j: number) => number
+  array: T[],
+  comparator: (a: T, b: T) => number,
+  order: Order,
+  less?: (i: number, j: number) => number
 ) {
   const stabilizedThis = array.map((el, index) => [el, index] as [T, number])
   stabilizedThis.sort((a, b) => {
