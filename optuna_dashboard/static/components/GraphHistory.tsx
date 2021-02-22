@@ -1,18 +1,16 @@
 import * as plotly from "plotly.js-dist"
 import React, { ChangeEvent, FC, useEffect, useState } from "react"
-import {
-  Grid,
-  FormControl,
-  FormLabel,
-  FormControlLabel,
-  Checkbox,
-  MenuItem,
-  Switch,
-  Select,
-  Radio,
-  RadioGroup,
-} from "@material-ui/core"
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
+import Grid from "@material-ui/core/Grid";
+import FormControl from "@material-ui/core/FormControl";
+import FormLabel from "@material-ui/core/FormLabel";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
+import MenuItem from "@material-ui/core/MenuItem";
+import Switch from "@material-ui/core/Switch";
+import Select from "@material-ui/core/Select";
+import Radio from "@material-ui/core/Radio";
+import RadioGroup from "@material-ui/core/RadioGroup";
 
 const plotDomId = "graph-history"
 

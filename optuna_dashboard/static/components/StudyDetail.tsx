@@ -2,21 +2,20 @@ import React, { FC, useEffect, useState } from "react"
 import { useRecoilValue } from "recoil"
 import { Link, useParams } from "react-router-dom"
 import { createStyles, fade, makeStyles, Theme } from "@material-ui/core/styles"
-import {
-  AppBar,
-  Card,
-  Typography,
-  CardContent,
-  Container,
-  Grid,
-  Toolbar,
-  Paper,
-  Box,
-  IconButton,
-  Select,
-  MenuItem,
-} from "@material-ui/core"
-import { Home, Cached } from "@material-ui/icons"
+import AppBar from "@material-ui/core/AppBar";
+import Card from "@material-ui/core/Card";
+import Typography from "@material-ui/core/Typography";
+import CardContent from "@material-ui/core/CardContent";
+import Container from "@material-ui/core/Container";
+import Toolbar from "@material-ui/core/Toolbar";
+import Grid from "@material-ui/core/Grid";
+import Paper from "@material-ui/core/Paper";
+import Box from "@material-ui/core/Box";
+import IconButton from "@material-ui/core/IconButton";
+import Select from "@material-ui/core/Select";
+import MenuItem from "@material-ui/core/MenuItem";
+import Home from "@material-ui/icons/Home"
+import Cached from "@material-ui/icons/Cached"
 
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
