@@ -159,8 +159,8 @@ function DataGrid<T>(props: {
                 >
                   {column.sortable ? (
                     <TableSortLabel
-                      active={orderBy === column.field}
-                      direction={orderBy === column.field ? order : "asc"}
+                      active={orderBy === index}
+                      direction={orderBy === index ? order : "asc"}
                       onClick={createSortHandler(index)}
                     >
                       {column.label}
