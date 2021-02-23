@@ -72,8 +72,7 @@ const plotCoordinate = (trials: Trial[], objectiveId: number) => {
         values: values,
         range: [Math.min(...values), Math.max(...values)],
       })
-    }
-     else {
+    } else {
       // categorical
       const vocabSet = new Set<string>(valueStrings)
       const vocabArr = Array.from<string>(vocabSet)

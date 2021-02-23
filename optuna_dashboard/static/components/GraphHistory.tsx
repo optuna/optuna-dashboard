@@ -78,7 +78,7 @@ export const GraphHistory: FC<{
     filterPrunedTrial,
     filterCompleteTrial,
   ])
-  
+
   return (
     <Grid container direction="row">
       <Grid item xs={3}>
