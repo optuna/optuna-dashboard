@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/typescript-checks.yml'
+      - '.eslintrc.js'
       - '**.ts'
       - '**.tsx'
 jobs:

@@ -1,4 +1,4 @@
-import * as plotly from "plotly.js-dist"
+import * as plotly from "plotly.js-basic-dist"
 import React, { FC, useEffect } from "react"
 
 const plotDomId = "graph-parallel-coordinate"
@@ -30,7 +30,7 @@ const plotCoordinate = (trials: Trial[], objectiveId: number) => {
     plotly.react(plotDomId, [])
     return
   }
-  let filteredTrials = trials.filter(
+  const filteredTrials = trials.filter(
     (t) => t.state === "Complete" || t.state === "Pruned"
   )
 
@@ -50,7 +50,7 @@ const plotCoordinate = (trials: Trial[], objectiveId: number) => {
   const objectiveValues: number[] = filteredTrials.map(
     (t) => t.values![objectiveId]
   )
-  let dimensions = [
+  const dimensions = [
     {
       label: "Objective value",
       values: objectiveValues,

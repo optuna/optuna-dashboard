@@ -1,4 +1,4 @@
-import * as plotly from "plotly.js-dist"
+import * as plotly from "plotly.js-basic-dist"
 import React, { FC, useEffect } from "react"
 
 const plotDomId = "graph-intermediate-values"
@@ -30,7 +30,7 @@ const plotIntermediateValue = (trials: Trial[]) => {
     return
   }
 
-  let filteredTrials = trials.filter(
+  const filteredTrials = trials.filter(
     (t) => t.state === "Complete" || t.state === "Pruned"
   )
   const plotData: Partial<plotly.PlotData>[] = filteredTrials.map((trial) => {

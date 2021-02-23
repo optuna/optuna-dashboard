@@ -92,7 +92,7 @@ export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   return studyDetails[studyId] || null
 }
 
-export const StudyDetail: FC<{}> = () => {
+export const StudyDetail: FC = () => {
   const classes = useStyles()
   const action = actionCreator()
   const { studyId } = useParams<ParamTypes>()
@@ -129,7 +129,7 @@ export const StudyDetail: FC<{}> = () => {
             <div className={classes.grow} />
             <div
               className={classes.reload}
-              onClick={(e) => {
+              onClick={() => {
                 setOpenReloadIntervalSelect(!openReloadIntervalSelect)
               }}
             >
@@ -221,7 +221,7 @@ const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
 }) => {
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
 
-  let columns: DataGridColumn<Trial>[] = [
+  const columns: DataGridColumn<Trial>[] = [
     { field: "number", label: "Number", sortable: true, padding: "none" },
     {
       field: "state",
@@ -237,7 +237,26 @@ const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
       field: "values",
       label: "Value",
       sortable: true,
-      toCellValue: (i) => trials[i].values?.[0] || null,
+      less: (i, j): number => {
+        const firstVal = trials[i].values?.[0]
+        const secondVal = trials[j].values?.[0]
+
+        if (firstVal === secondVal) {
+          return 0
+        } else if (firstVal && secondVal) {
+          return firstVal < secondVal ? 1 : -1
+        } else if (firstVal) {
+          return -1
+        } else {
+          return 1
+        }
+      },
+      toCellValue: (i) => {
+        if (trials[i].values === undefined) {
+          return null
+        }
+        return trials[i].values?.[0]
+      },
     })
   } else {
     const objectiveColumns: DataGridColumn<
@@ -246,7 +265,26 @@ const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
       field: "values",
       label: `Objective ${objectiveId}`,
       sortable: true,
-      toCellValue: (i) => trials[i].values?.[objectiveId] || null,
+      less: (i, j): number => {
+        const firstVal = trials[i].values?.[objectiveId]
+        const secondVal = trials[j].values?.[objectiveId]
+
+        if (firstVal === secondVal) {
+          return 0
+        } else if (firstVal && secondVal) {
+          return firstVal < secondVal ? 1 : -1
+        } else if (firstVal) {
+          return -1
+        } else {
+          return 1
+        }
+      },
+      toCellValue: (i) => {
+        if (trials[i].values === undefined) {
+          return null
+        }
+        return trials[i].values?.[objectiveId]
+      },
     }))
     columns.push(...objectiveColumns)
   }

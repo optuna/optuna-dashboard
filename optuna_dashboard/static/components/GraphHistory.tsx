@@ -1,4 +1,4 @@
-import * as plotly from "plotly.js-dist"
+import * as plotly from "plotly.js-basic-dist"
 import React, { ChangeEvent, FC, useEffect, useState } from "react"
 import {
   Grid,
@@ -199,7 +199,7 @@ const plotHistory = (
     plotly.react(plotDomId, [])
     return
   }
-  let trialsForLinePlot: Trial[] = []
+  const trialsForLinePlot: Trial[] = []
   let currentBest: number | null = null
   filteredTrials.forEach((item) => {
     if (currentBest === null) {
@@ -228,9 +228,9 @@ const plotHistory = (
       : trial.datetime_complete!
   }
 
-  let xForLinePlot = trialsForLinePlot.map(getAxisX)
+  const xForLinePlot = trialsForLinePlot.map(getAxisX)
   xForLinePlot.push(getAxisX(filteredTrials[filteredTrials.length - 1]))
-  let yForLinePlot = trialsForLinePlot.map(
+  const yForLinePlot = trialsForLinePlot.map(
     (t: Trial): number => t.values![objectiveId]
   )
   yForLinePlot.push(yForLinePlot[yForLinePlot.length - 1])

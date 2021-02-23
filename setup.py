@@ -38,7 +38,7 @@ setup(
     long_description_content_type="text/markdown",
     author="Masashi Shibata",
     author_email="m.shibata1020@gmail.com",
-    url="https://github.com/c-bata/optuna-dashboard",
+    url="https://github.com/optuna/optuna-dashboard",
     packages=find_packages(),
     install_requires=get_install_requires(),
     extras_require={

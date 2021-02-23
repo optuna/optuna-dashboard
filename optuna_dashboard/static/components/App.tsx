@@ -6,7 +6,7 @@ import { SnackbarProvider } from "notistack"
 import { StudyDetail } from "./StudyDetail"
 import { StudyList } from "./StudyList"
 
-export const App: FC<{}> = () => {
+export const App: FC = () => {
   return (
     <RecoilRoot>
       <SnackbarProvider maxSnack={3}>

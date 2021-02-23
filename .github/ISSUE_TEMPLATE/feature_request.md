@@ -1,7 +1,7 @@
 ---
 name: "Feature request"
 about: Suggest an idea for new features in optuna-dashboard.
-title: "[Feature]"
+title: ""
 labels: enhancement
 assignees: ''
 

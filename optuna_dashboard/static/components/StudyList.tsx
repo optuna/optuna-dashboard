@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-export const StudyList: FC<{}> = () => {
+export const StudyList: FC = () => {
   const classes = useStyles()
 
   const [
@@ -127,7 +127,7 @@ export const StudyList: FC<{}> = () => {
           aria-label="delete study"
           size="small"
           color="inherit"
-          onClick={(e) => {
+          onClick={() => {
             setDeleteStudyID(studies[i].study_id)
             setOpenDeleteStudyDialog(true)
           }}
@@ -226,7 +226,7 @@ export const StudyList: FC<{}> = () => {
             <IconButton
               aria-controls="menu-appbar"
               aria-haspopup="true"
-              onClick={(e) => {
+              onClick={() => {
                 action.updateStudySummaries("Success to reload")
               }}
               color="inherit"
@@ -256,12 +256,12 @@ export const StudyList: FC<{}> = () => {
                 horizontal: "right",
               }}
               open={openNewStudySelection}
-              onClose={(e) => {
+              onClose={() => {
                 setNewStudySelectionAnchorEl(null)
               }}
             >
               <MenuItem
-                onClick={(e) => {
+                onClick={() => {
                   setNewStudySelectionAnchorEl(null)
                   setOpenNewSingleObjectiveStudyDialog(true)
                 }}
@@ -269,7 +269,7 @@ export const StudyList: FC<{}> = () => {
                 Single-objective
               </MenuItem>
               <MenuItem
-                onClick={(e) => {
+                onClick={() => {
                   setNewStudySelectionAnchorEl(null)
                   setOpenNewMultiObjectiveStudyDialog(true)
                 }}
@@ -294,7 +294,7 @@ export const StudyList: FC<{}> = () => {
       </Container>
       <Dialog
         open={openNewSingleObjectiveStudyDialog}
-        onClose={(e) => {
+        onClose={() => {
           handleCloseNewSingleObjectiveStudyDialog()
         }}
         aria-labelledby="create-single-objective-study-form-dialog-title"
@@ -323,7 +323,7 @@ export const StudyList: FC<{}> = () => {
             control={
               <Checkbox
                 checked={maximize}
-                onChange={(e) => {
+                onChange={() => {
                   setMaximize(!maximize)
                 }}
                 color="primary"
@@ -350,7 +350,7 @@ export const StudyList: FC<{}> = () => {
       </Dialog>
       <Dialog
         open={openNewMultiObjectiveStudyDialog}
-        onClose={(e) => {
+        onClose={() => {
           handleCloseNewMultiObjectiveStudyDialog()
         }}
         aria-labelledby="create-multi-objective-study-form-dialog-title"
@@ -384,7 +384,7 @@ export const StudyList: FC<{}> = () => {
               <Select
                 value={directions[i]}
                 onChange={(e) => {
-                  let newVal: StudyDirection[] = [...directions]
+                  const newVal: StudyDirection[] = [...directions]
                   newVal[i] = e.target.value as StudyDirection
                   setDirections(newVal)
                 }}
@@ -400,7 +400,7 @@ export const StudyList: FC<{}> = () => {
             variant="outlined"
             startIcon={<Add />}
             className={classes.objectiveButton}
-            onClick={(e) => {
+            onClick={() => {
               const newVal: StudyDirection[] = [...directions, "minimize"]
               setDirections(newVal)
             }}
@@ -412,8 +412,8 @@ export const StudyList: FC<{}> = () => {
             startIcon={<Remove />}
             className={classes.objectiveButton}
             disabled={directions.length <= 1}
-            onClick={(e) => {
-              let newVal: StudyDirection[] = [...directions]
+            onClick={() => {
+              const newVal: StudyDirection[] = [...directions]
               newVal.pop()
               setDirections(newVal)
             }}
@@ -443,7 +443,7 @@ export const StudyList: FC<{}> = () => {
       </Dialog>
       <Dialog
         open={openDeleteStudyDialog}
-        onClose={(e) => {
+        onClose={() => {
           handleCloseDeleteStudyDialog()
         }}
         aria-labelledby="delete-study-dialog-title"
