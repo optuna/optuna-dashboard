@@ -1,4 +1,4 @@
-import * as plotly from "plotly.js-dist"
+import * as plotly from "plotly.js-basic-dist"
 import React, { ChangeEvent, FC, useEffect, useState } from "react"
 import {
   Grid,
