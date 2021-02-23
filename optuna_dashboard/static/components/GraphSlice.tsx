@@ -1,16 +1,18 @@
 import * as plotly from "plotly.js-dist"
 import React, { FC, useEffect } from "react"
 
+
 const plotDomId = "graph-slice"
 
+
 export const GraphSlice: FC<{
-    trials: Trial[]
-  }> = ({ trials = [] }) => {
-    useEffect(() => {
-      plotSlice(trials, 0) 
-    }, [trials])
-    return <div id={plotDomId} />
-  }
+  trials: Trial[]
+}> = ({ trials = [] }) => {
+  useEffect(() => {
+    plotSlice(trials, 0)
+  }, [trials])
+  return <div id={plotDomId} />
+}
 
   const plotSlice = (trials: Trial[], objectiveId: number) => {
     if (document.getElementById(plotDomId) === null) {
@@ -46,8 +48,7 @@ export const GraphSlice: FC<{
       (t) => t.values![objectiveId]
    )
 
-    if (paramNames.size === 0) {
-        
+    if (paramNames.size === 0) {        
         plotly.react(plotDomId, [])
         return 
     }
@@ -55,7 +56,7 @@ export const GraphSlice: FC<{
       let  trace: Partial<plotly.PlotData> =  {
         type: "scatter",
         x:[],
-        y:objectiveValues,
+        y:[],
         mode :"markers",
         xaxis : "x",
         marker:{
@@ -75,8 +76,8 @@ export const GraphSlice: FC<{
           pattern:'coupled'
         },
         xaxis : {
-          title:"x",
-          zerolinecolor: "#f2f5fa",
+          title: "x",
+          zerolinecolor: "white",
           zerolinewidth: 1.5,
           linecolor: "#f2f5fa",
           linewidth: 5,
@@ -111,7 +112,10 @@ export const GraphSlice: FC<{
             x: values,
             y: objectiveValues,
             mode :"markers",
-            xaxis : "x"
+            xaxis : "x",
+            marker:{
+              color:"#185799"
+            }
           }
         }
         else{
@@ -133,17 +137,22 @@ export const GraphSlice: FC<{
           updatelayout[axisname] = {
           title: paramName,
           zerolinecolor: "#f2f5fa",
-          zerolinewidth: 1.5,
+          zerolinewidth: 2,
           linecolor: "#f2f5fa",
           linewidth: 5,
           gridcolor: "#f2f5fa",
-          gridwidth:1,
+          gridwidth:1
           }
           
         }
         traces.push(trace)
         i++
       })
+      if(i==2){
+        updatelayout["width"] = 400
+      }
+        
+      
       const plotData: Partial<plotly.PlotData>[] = traces
       plotly.react(plotDomId, plotData, updatelayout)
 

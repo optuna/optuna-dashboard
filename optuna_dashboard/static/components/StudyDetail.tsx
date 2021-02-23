@@ -22,6 +22,7 @@ import { DataGridColumn, DataGrid } from "./DataGrid"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphSlice } from "./GraphSlice"
+import { GraphSlice2} from "./GraphSlice2"
 import { GraphHistory } from "./GraphHistory"
 import { actionCreator } from "../action"
 import { studyDetailsState } from "../state"
@@ -194,15 +195,13 @@ export const StudyDetail: FC<{}> = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              <Grid item xs={6}>
-                <Card className={classes.card}>
-                  <CardContent>
-                    <GraphSlice trials={trials} />
-                  </CardContent>
-                </Card>
-              </Grid>
             </Grid>
           ) : null}
+          <Card className={classes.card}>
+            <CardContent>
+              <GraphSlice trials={trials} />
+            </CardContent>
+          </Card>
           <Card className={classes.card}>
             <TrialTable studyDetail={studyDetail} />
           </Card>
