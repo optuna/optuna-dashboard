@@ -1,5 +1,5 @@
 import * as plotly from "plotly.js-basic-dist"
-import React, { ChangeEvent , FC, useEffect, useState } from "react"
+import React, { ChangeEvent, FC, useEffect, useState } from "react"
 import {
   Grid, 
   FormControl,
@@ -13,14 +13,14 @@ const plotDomId = "graph-slice"
 
 const useStyles = makeStyles((theme: Theme) =>
 createStyles({
-  formControl :{
+  formControl: {
     marginBottom: theme.spacing(2)
   },
 })
 )
 
 export const GraphSlice: FC<{
-    trials : Trial[]
+    trials: Trial[]
 }> = ({ trials = [] }) => {
     const classes = useStyles()
     const [xAxis, setXAxis] = useState<string>("x")
@@ -29,7 +29,7 @@ export const GraphSlice: FC<{
       e: ChangeEvent<{value: unknown}>) => {
       setXAxis(e.target.value as string)
     }
-    let filteredTrials = trials.filter(
+    const filteredTrials = trials.filter(
         (t) => t.state === "Complete" || t.state === "Pruned"
     )
     
@@ -39,7 +39,7 @@ export const GraphSlice: FC<{
             t.params.filter((p) => paramNames.has(p.name)).map((p) => p.name)
            )
     })
-    let paramnames = Array.from(paramNames)
+    const paramnames = Array.from(paramNames)
   
     useEffect(() => {
     if(trials!=null){
@@ -96,7 +96,7 @@ const plotSlice = (trials: Trial[], objectiveId: number, xAxis: string) => {
         return
     }
 
-    let filteredTrials = trials.filter(
+    const filteredTrials = trials.filter(
         (t) => t.state === "Complete" || t.state === "Pruned"
       )
         
@@ -118,38 +118,38 @@ const plotSlice = (trials: Trial[], objectiveId: number, xAxis: string) => {
     else{
         let trace: Partial<plotly.PlotData>[] =  [{
             type: "scatter",
-            x:[],
-            y:[],
-            mode :"markers",
-            xaxis : "x",
-            marker:{
+            x: [],
+            y: [],
+            mode: "markers",
+            xaxis: "x",
+            marker: {
               color: "#185799"
             }
         }]
-        let updatelayout: Partial<plotly.Layout> = {
+        const updateLayout: Partial<plotly.Layout> = {
             title: "Slice",
             margin: {
               l: 50,
               r: 50,
               b: 0,
             },
-            xaxis : {
+            xaxis: {
               title: "x",
               zerolinecolor: "#f2f5fa",
               zerolinewidth: 1.5,
               linecolor: "#f2f5fa",
               linewidth: 5,
               gridcolor: "#f2f5fa",
-              gridwidth:1,
+              gridwidth: 1,
             },
-            yaxis:{
-              title:"Objective Values",
+            yaxis: {
+              title: "Objective Values",
               zerolinecolor: "#f2f5fa",
               zerolinewidth: 2,
               linecolor: "#f2f5fa",
               linewidth: 5,
               gridcolor: "#f2f5fa",
-              gridwidth:1
+              gridwidth: 1
             },
             plot_bgcolor: "#E5ecf6",
             showlegend: false
@@ -171,16 +171,16 @@ const plotSlice = (trials: Trial[], objectiveId: number, xAxis: string) => {
                         color: "#185799"
                     }
                 }]
-                updatelayout["xaxis"]= {
+                updateLayout["xaxis"]= {
                     title: paramName,
                     zerolinecolor: "#f2f5fa",
                     zerolinewidth: 1.5,
                     linecolor: "#f2f5fa",
                     linewidth: 5,
                     gridcolor: "#f2f5fa",
-                    gridwidth:1,
+                    gridwidth: 1,
                 }
-                plotly.react(plotDomId, trace, updatelayout)
+                plotly.react(plotDomId, trace, updateLayout)
             }
         })
     }
