@@ -127,7 +127,7 @@ export const StudyDetail: FC = () => {
             <div className={classes.grow} />
             <div
               className={classes.reload}
-              onClick={(e) => {
+              onClick={() => {
                 setOpenReloadIntervalSelect(!openReloadIntervalSelect)
               }}
             >
@@ -226,14 +226,18 @@ const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
       label: "Value",
       sortable: true,
       less: (i, j): number => {
-        if (trials[i].values?.[0] === trials[j].values?.[0]) {
+        const firstVal = trials[i].values?.[0]
+        const secondVal = trials[j].values?.[0]
+
+        if (firstVal === secondVal) {
           return 0
-        } else if (trials[i].values === undefined) {
+        } else if (firstVal && secondVal) {
+          return firstVal < secondVal ? 1 : -1
+        } else if (firstVal) {
           return -1
-        } else if (trials[j].values === undefined) {
+        } else {
           return 1
         }
-        return trials[i].values![0] < trials[j].values![0] ? 1 : -1
       },
       toCellValue: (i) => {
         if (trials[i].values === undefined) {
@@ -250,18 +254,18 @@ const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
       label: `Objective ${objectiveId}`,
       sortable: true,
       less: (i, j): number => {
-        if (
-          trials[i].values?.[objectiveId] === trials[j].values?.[objectiveId]
-        ) {
+        const firstVal = trials[i].values?.[objectiveId]
+        const secondVal = trials[j].values?.[objectiveId]
+
+        if (firstVal === secondVal) {
           return 0
-        } else if (trials[i].values === undefined) {
+        } else if (firstVal && secondVal) {
+          return firstVal < secondVal ? 1 : -1
+        } else if (firstVal) {
           return -1
-        } else if (trials[j].values === undefined) {
+        } else {
           return 1
         }
-        return trials[i].values![objectiveId] < trials[j].values![objectiveId]
-          ? 1
-          : -1
       },
       toCellValue: (i) => {
         if (trials[i].values === undefined) {
