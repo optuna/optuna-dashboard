@@ -22,7 +22,7 @@ import { DataGridColumn, DataGrid } from "./DataGrid"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphSlice } from "./GraphSlice"
-import { GraphSlice2} from "./GraphSlice2"
+import { GraphSlice2} from "./GraphSlice"
 import { GraphHistory } from "./GraphHistory"
 import { actionCreator } from "../action"
 import { studyDetailsState } from "../state"
@@ -195,18 +195,15 @@ export const StudyDetail: FC = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              <Grid>
-                <Card className={classes.card}>
-                  <GraphSlice trials= {trials} />
-                </Card>
-              </Grid>
             </Grid>
           ) : null}
-          {/* <Card className={classes.card}>
+          {studyDetail !== null && isSingleObjectiveStudy(studyDetail) ? (
+            <Card className={classes.card}>
             <CardContent>
-              <GraphSlice2 trials={trials} />
+              <GraphSlice trials ={trials} />
             </CardContent>
-          </Card> */}
+          </Card>
+          ) : null}          
           <Card className={classes.card}>
             <TrialTable studyDetail={studyDetail} />
           </Card>
