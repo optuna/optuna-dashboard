@@ -147,11 +147,7 @@ export const GraphSlice: FC<{
         }
         traces.push(trace)
         i++
-      })
-      if(i==2){
-        updatelayout["width"] = 400
-      }
-        
+      })       
       
       const plotData: Partial<plotly.PlotData>[] = traces
       plotly.react(plotDomId, plotData, updatelayout)

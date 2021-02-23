@@ -10,7 +10,7 @@ import {
 } from "@material-ui/core"
 import { createStyles, makeStyles, Theme} from "@material-ui/core/styles"
 
-const plotDomId = "graph-slice"
+const plotDomId = "graph-slice2"
 
 const useStyles = makeStyles((theme: Theme) =>
 createStyles({
@@ -24,7 +24,7 @@ export const GraphSlice2: FC<{
     trials: Trial[]
 }> = ({ trials = [] }) => {
     const classes = useStyles()
-    const [xAxis, setXAxis] = useState<String>("number")
+    const [xAxis, setXAxis] = useState<string>("x")
     const [objectiveId, setObjectiveId] = useState<number>(0)
   
     const handleObjectiveChange = (
@@ -39,11 +39,11 @@ export const GraphSlice2: FC<{
     }
   
     useEffect(() => {
-      plotSlice(trials, 0)
+      plotSlice(trials, 0, xAxis)
     } ,
      [trials,
-      xAxis,
-      objectiveId
+      objectiveId,
+      xAxis
     ])
   
     let filteredTrials = trials.filter(
@@ -172,12 +172,28 @@ const plotSlice = (trials: Trial[], objectiveId: number, xAxis: string) => {
             showlegend: false
         } 
         paramNames.forEach((paramName) => {
-
-
+            const valueStrings = filteredTrials.map((t) => {
+                const param = t.params.find((p) => p.name == paramName)
+                return param!.value
+              })
+            const values: number[] = valueStrings.map((v) => parseFloat(v))
+            if(paramName === xAxis){
+                trace = [{
+                    type: "scatter",
+                    x: values,
+                    y: objectiveValues,
+                    mode: "markers",
+                    xaxis: paramName,
+                    marker: {
+                        color: "#185799"
+                    }
+                }]
+                updatelayout["xaxis"] = {
+                    title: paramName
+                }
+                plotly.react(plotDomId, trace, updatelayout)
+            }
         })
-
-
-
     }
 
 

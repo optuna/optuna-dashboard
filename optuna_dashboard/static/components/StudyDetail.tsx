@@ -195,13 +195,18 @@ export const StudyDetail: FC<{}> = () => {
                   </CardContent>
                 </Card>
               </Grid>
+              <Grid>
+                <Card className={classes.card}>
+                  <GraphSlice trials= {trials} />
+                </Card>
+              </Grid>
             </Grid>
           ) : null}
-          <Card className={classes.card}>
+          {/* <Card className={classes.card}>
             <CardContent>
-              <GraphSlice trials={trials} />
+              <GraphSlice2 trials={trials} />
             </CardContent>
-          </Card>
+          </Card> */}
           <Card className={classes.card}>
             <TrialTable studyDetail={studyDetail} />
           </Card>
