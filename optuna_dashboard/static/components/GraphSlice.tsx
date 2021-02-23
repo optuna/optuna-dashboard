@@ -184,6 +184,4 @@ const plotSlice = (trials: Trial[], objectiveId: number, xAxis: string) => {
             }
         })
     }
-
-
 }
