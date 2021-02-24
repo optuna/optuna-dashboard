@@ -19,7 +19,6 @@
     "@material-ui/icons": "^4.9.1",
     "axios": "^0.21.1",
     "notistack": "^1.0.1",
-    "plotly.js": "^1.58.4",
     "plotly.js-basic-dist": "^1.58.4",
     "react": "^16.14.0",
     "react-dom": "^16.14.0",
