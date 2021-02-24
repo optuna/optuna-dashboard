@@ -163,8 +163,13 @@ const plotSlice = (trials: Trial[], objectiveId: number, xAxis: string) => {
                 const param = t.params.find((p) => p.name == paramName)
                 return param!.value
               })
-            const values: number[] = valueStrings.map((v) => parseFloat(v))
-            if(paramName === xAxis){
+            const isnum = valueStrings.every((v) => {
+              return !isNaN(parseFloat(v))
+            })
+            let values: number[] = []
+            if(isnum){
+              values = valueStrings.map((v) => parseFloat(v))
+              if(paramName === xAxis){
                 trace = [{
                     type: "scatter",
                     x: values,
@@ -185,7 +190,42 @@ const plotSlice = (trials: Trial[], objectiveId: number, xAxis: string) => {
                     gridwidth: 1,
                 }
                 plotly.react(plotDomId, trace, updateLayout)
+              }
             }
-        })
+            else{
+              const vocabSet = new Set<string>(valueStrings)
+              const vocabArr = Array.from<string>(vocabSet)
+              const values: number[] = valueStrings.map((v) =>
+                vocabArr.findIndex((vocab) => v === vocab)
+              )
+              const tickvals: number[] = vocabArr.map((v, i) => i)
+              trace = [{
+                type: "scatter",
+                x: values,
+                y: objectiveValues,
+                mode: "markers",
+                xaxis: paramName,
+                marker: {
+                  color: "#185799"
+                }
+              }]
+              updateLayout["xaxis"]= {
+                title: paramName,
+                zerolinecolor: "#f2f5fa",
+                zerolinewidth: 1.5,
+                linecolor: "#f2f5fa",
+                linewidth: 5,
+                gridcolor: "#f2f5fa",
+                gridwidth: 1,
+                showticklabels: true,
+                tickvals: tickvals,
+                ticktext: vocabArr,
+                tickfont: {
+                  color: "#000000"
+                }
+              }
+              plotly.react(plotDomId, trace, updateLayout)
+            }
+         })
     }
 }
