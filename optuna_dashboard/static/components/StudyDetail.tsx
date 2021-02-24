@@ -198,11 +198,11 @@ export const StudyDetail: FC = () => {
           ) : null}
           {studyDetail !== null && isSingleObjectiveStudy(studyDetail) ? (
             <Card className={classes.card}>
-            <CardContent>
-              <GraphSlice trials ={trials} />
-            </CardContent>
-          </Card>
-          ) : null}          
+              <CardContent>
+                <GraphSlice trials={trials} />
+              </CardContent>
+            </Card>
+          ) : null}
           <Card className={classes.card}>
             <TrialTable studyDetail={studyDetail} />
           </Card>
