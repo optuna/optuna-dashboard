@@ -34,7 +34,6 @@ export const GraphSlice: FC<{
             t.params.filter((p) => paramNames.has(p.name)).map((p) => p.name)
            )
     })
-    console.log(trials[0].params)
     const paramnames = Array.from(paramNames)
 
     const classes = useStyles()
@@ -130,12 +129,11 @@ const plotSlice = (trials: Trial[], objectiveId: number, xAxis: string) => {
               color: "#185799"
             }
         }]
-        const updateLayout: Partial<plotly.Layout> = {
+        let updateLayout: Partial<plotly.Layout> = {
             title: "Slice",
             margin: {
               l: 50,
               r: 50,
-              b: 0,
             },
             xaxis: {
               title: "x",
@@ -152,7 +150,7 @@ const plotSlice = (trials: Trial[], objectiveId: number, xAxis: string) => {
               zerolinewidth: 2,
               linecolor: "#f2f5fa",
               linewidth: 5,
-              gridcolor: "#f2f5fa",
+              gridcolor: "#f2f5fa",     
               gridwidth: 1
             },
             plot_bgcolor: "#E5ecf6",
@@ -204,25 +202,42 @@ const plotSlice = (trials: Trial[], objectiveId: number, xAxis: string) => {
                 x: values,
                 y: objectiveValues,
                 mode: "markers",
-                xaxis: paramName,
+                // xaxis: paramName,
                 marker: {
                   color: "#185799"
-                }
+                }                
               }]
-              updateLayout["xaxis"]= {
-                title: paramName,
-                zerolinecolor: "#f2f5fa",
-                zerolinewidth: 1.5,
-                linecolor: "#f2f5fa",
-                linewidth: 5,
-                gridcolor: "#f2f5fa",
-                gridwidth: 1,
-                showticklabels: true,
-                tickvals: tickvals,
-                ticktext: vocabArr,
-                tickfont: {
-                  color: "#000000"
-                }
+              updateLayout = {
+                title: "Slice",
+                margin: {
+                  l: 50,
+                  r: 50,
+                },
+                xaxis: {
+                  title: paramName,
+                  zerolinecolor: "#f2f5fa",
+                  zerolinewidth: 1.5,
+                  linecolor: "#f2f5fa",
+                  linewidth: 5,
+                  gridcolor: "#f2f5fa",
+                  gridwidth: 1,
+                  tickfont: {
+                    color: "#000000"
+                  },
+                  tickvals: tickvals,
+                  ticktext: vocabArr,
+                },
+                yaxis: {
+                  title: "Objective Values",
+                  zerolinecolor: "#f2f5fa",
+                  zerolinewidth: 2,
+                  linecolor: "#f2f5fa",
+                  linewidth: 5,
+                  gridcolor: "#f2f5fa",     
+                  gridwidth: 1
+                },
+                plot_bgcolor: "#E5ecf6",
+                showlegend: false
               }
               plotly.react(plotDomId, trace, updateLayout)
             }
