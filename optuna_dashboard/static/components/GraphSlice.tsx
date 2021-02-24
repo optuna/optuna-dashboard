@@ -14,7 +14,9 @@ const plotDomId = "graph-slice"
 const useStyles = makeStyles((theme: Theme) =>
 createStyles({
   formControl: {
-    marginBottom: theme.spacing(2)
+    marginBottom: theme.spacing(2),
+    marginRight: theme.spacing(5),
+    marginTop: theme.spacing(10)
   },
 })
 )
@@ -22,13 +24,6 @@ createStyles({
 export const GraphSlice: FC<{
     trials: Trial[]
 }> = ({ trials = [] }) => {
-    const classes = useStyles()
-    const [xAxis, setXAxis] = useState<string>("x")
-  
-    const handleXAxisChange = (
-      e: ChangeEvent<{value: unknown}>) => {
-      setXAxis(e.target.value as string)
-    }
     const filteredTrials = trials.filter(
         (t) => t.state === "Complete" || t.state === "Pruned"
     )
@@ -39,7 +34,16 @@ export const GraphSlice: FC<{
             t.params.filter((p) => paramNames.has(p.name)).map((p) => p.name)
            )
     })
+    console.log(trials[0].params)
     const paramnames = Array.from(paramNames)
+
+    const classes = useStyles()
+    const [xAxis, setXAxis] = useState<string>(paramnames[0])
+  
+    const handleXAxisChange = (
+      e: ChangeEvent<{value: unknown}>) => {
+      setXAxis(e.target.value as string)
+    }
   
     useEffect(() => {
     if(trials!=null){
@@ -55,10 +59,7 @@ export const GraphSlice: FC<{
     ])
 
     return (    
-      <Grid container direction="row">
-        <Grid item xs={6}>
-          <div id = {plotDomId} />
-        </Grid>
+      <Grid container direction="row">         
         <Grid item xs = {3}>
           <Grid container direction="column">
             <FormControl component="fieldset" className={classes.formControl}>
@@ -73,6 +74,9 @@ export const GraphSlice: FC<{
             </FormControl>
           </Grid>
         </Grid>
+        <Grid item xs={6}>
+          <div id = {plotDomId} />
+        </Grid>               
       </Grid>  
     )
 }
