@@ -157,14 +157,13 @@ const plotSlice = (trials: Trial[], objectiveId: number, xAxis: string) => {
       const isnum = valueStrings.every((v) => {
         return !isNaN(parseFloat(v))
       })
-      let values: number[] = []
-      if (isnum) {
-        values = valueStrings.map((v) => parseFloat(v))
-        if (paramName === xAxis) {
+      if (paramName === xAxis) {
+        if (isnum) {
+          const valuesNum: number[] = valueStrings.map((v) => parseFloat(v))
           trace = [
             {
               type: "scatter",
-              x: values,
+              x: valuesNum,
               y: objectiveValues,
               mode: "markers",
               xaxis: paramName,
@@ -183,59 +182,59 @@ const plotSlice = (trials: Trial[], objectiveId: number, xAxis: string) => {
             gridwidth: 1,
           }
           plotly.react(plotDomId, trace, updateLayout)
-        }
-      } else {
-        const vocabSet = new Set<string>(valueStrings)
-        const vocabArr = Array.from<string>(vocabSet)
-        const values: number[] = valueStrings.map((v) =>
-          vocabArr.findIndex((vocab) => v === vocab)
-        )
-        const tickvals: number[] = vocabArr.map((v, i) => i)
-        trace = [
-          {
-            type: "scatter",
-            x: values,
-            y: objectiveValues,
-            mode: "markers",
-            // xaxis: paramName,
-            marker: {
-              color: "#185799",
+        } else {
+          const vocabSet = new Set<string>(valueStrings)
+          const vocabArr = Array.from<string>(vocabSet)
+          const valuesCategorical: number[] = valueStrings.map((v) =>
+            vocabArr.findIndex((vocab) => v === vocab)
+          )
+          const tickvals: number[] = vocabArr.map((v, i) => i)
+          trace = [
+            {
+              type: "scatter",
+              x: valuesCategorical,
+              y: objectiveValues,
+              mode: "markers",
+              // xaxis: paramName,
+              marker: {
+                color: "#185799",
+              },
             },
-          },
-        ]
-        updateLayout = {
-          title: "Slice",
-          margin: {
-            l: 50,
-            r: 50,
-          },
-          xaxis: {
-            title: paramName,
-            zerolinecolor: "#f2f5fa",
-            zerolinewidth: 1.5,
-            linecolor: "#f2f5fa",
-            linewidth: 5,
-            gridcolor: "#f2f5fa",
-            gridwidth: 1,
-            tickfont: {
-              color: "#000000",
+          ]
+          updateLayout = {
+            title: "Slice",
+            margin: {
+              l: 50,
+              r: 50,
             },
-            tickvals: tickvals,
-            ticktext: vocabArr,
-          },
-          yaxis: {
-            title: "Objective Values",
-            zerolinecolor: "#f2f5fa",
-            zerolinewidth: 2,
-            linecolor: "#f2f5fa",
-            linewidth: 5,
-            gridcolor: "#f2f5fa",
-            gridwidth: 1,
-          },
-          plot_bgcolor: "#E5ecf6",
-          showlegend: false,
+            xaxis: {
+              title: paramName,
+              zerolinecolor: "#f2f5fa",
+              zerolinewidth: 1.5,
+              linecolor: "#f2f5fa",
+              linewidth: 5,
+              gridcolor: "#f2f5fa",
+              gridwidth: 1,
+              tickfont: {
+                color: "#000000",
+              },
+              tickvals: tickvals,
+              ticktext: vocabArr,
+            },
+            yaxis: {
+              title: "Objective Values",
+              zerolinecolor: "#f2f5fa",
+              zerolinewidth: 2,
+              linecolor: "#f2f5fa",
+              linewidth: 5,
+              gridcolor: "#f2f5fa",
+              gridwidth: 1,
+            },
+            plot_bgcolor: "#E5ecf6",
+            showlegend: false,
+          }
+          plotly.react(plotDomId, trace, updateLayout)
         }
-        plotly.react(plotDomId, trace, updateLayout)
       }
     })
   }
