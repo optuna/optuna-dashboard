@@ -34,17 +34,11 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
   }
 }
 
-const convertTrialResponseList = (res: TrialResponse[]): Trial[] => {
-    return res.map((trial): Trial => convertTrialResponse(trial))
-}
-
-
 interface StudyDetailResponse {
   name: string
   datetime_start: string
   directions: StudyDirection[]
   best_trial?: TrialResponse
-  best_trials?: TrialResponse[]
   trials: TrialResponse[]
 }
 
@@ -63,9 +57,6 @@ export const getStudyDetailAPI = (studyId: number): Promise<StudyDetail> => {
         directions: res.data.directions,
         best_trial: res.data.best_trial
           ? convertTrialResponse(res.data.best_trial)
-          : undefined,
-        best_trials: res.data.best_trials
-          ? convertTrialResponseList(res.data.best_trials)
           : undefined,
         trials: trials,
       }

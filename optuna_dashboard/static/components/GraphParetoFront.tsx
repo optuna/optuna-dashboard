@@ -21,7 +21,8 @@ const plotParetoFront = (study: StudyDetail) => {
     return
   }
 
-  if (study.directions.length != 2) {
+  const dim: number = study.directions.length
+  if (dim != 2) {
     return
   }
 
@@ -34,21 +35,50 @@ const plotParetoFront = (study: StudyDetail) => {
     },
   }
 
-  const trials: Trial[] = (study !== null) && study.best_trials ? study.best_trials : []
-  console.log(study.best_trials)
-  console.log('length', trials.length)
-  if (trials.length === 0) {
+  const trials: Trial[] = study !== null ? study.trials : []
+  const completedTrials = trials.filter(
+    (t) => t.state === "Complete"
+  )
+
+  if (completedTrials.length === 0) {
     plotly.react(plotDomId, [], layout)
     return
   }
 
-  const pointColors = Array(trials.length).fill("blue")
+  const normalizedValues: number[][] = []
+  completedTrials.forEach((t) => {
+    if (t.values && t.values.length == dim) {
+      let values: number[] = t.values
+      values.forEach((v: number, i: number) => {
+        if (study.directions[i] === "maximize") {
+          values[i] = -v
+        }
+      })
+      normalizedValues.push(values)
+    }
+  })
+
+  const pointColors: string[] = []
+  normalizedValues.forEach((values0: number[], i: number) => {
+    let dominated: boolean = false
+
+    dominated = normalizedValues.some((values1: number[], j: number) => {
+      if (i === j) {
+        return false
+      }
+      return values0.every((value0: number, k: number) => {
+        return value0 <= values1[k]
+      })
+    })
+
+    if (dominated) { pointColors.push("blue") } else { pointColors.push("red") }
+  })
 
   const plotData: Partial<plotly.PlotData>[] = [
     {
         type: "scatter",
-        x: trials.map((t: Trial): number => t.values![0]),
-        y: trials.map((t: Trial): number => t.values![1]),
+        x: completedTrials.map((t: Trial): number => t.values![0]),
+        y: completedTrials.map((t: Trial): number => t.values![1]),
         mode: "markers",
         marker: {
           color: pointColors,
