@@ -1,4 +1,4 @@
-import * as plotly from "plotly.js-basic-dist"
+import * as plotly from "plotly.js-dist"
 import React, { FC, useEffect } from "react"
 
 const plotDomId = "graph-parallel-coordinate"
