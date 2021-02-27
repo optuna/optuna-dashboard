@@ -54,6 +54,7 @@ declare interface StudyDetail {
   directions: StudyDirection[]
   datetime_start: Date
   best_trial?: Trial
+  best_trials?: Trial[]
   trials: Trial[]
 }
 
