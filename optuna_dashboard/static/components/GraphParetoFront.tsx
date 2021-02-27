@@ -44,7 +44,7 @@ const plotParetoFront = (study: StudyDetail) => {
     return
   }
 
-  let normalizedValues: number[][] = []
+  const normalizedValues: number[][] = []
   completedTrials.forEach((t) => {
     if (t.values && t.values.length == dim) {
       const trialValues = t.values.map(
