@@ -25,7 +25,6 @@ const plotParetoFront = (study: StudyDetail) => {
   if (dim != 2) {
     return
   }
-
   const layout: Partial<plotly.Layout> = {
     title: "Pareto-front plot",
     margin: {
@@ -45,29 +44,28 @@ const plotParetoFront = (study: StudyDetail) => {
     return
   }
 
-  const normalizedValues: number[][] = []
+  let normalizedValues: number[][] = []
   completedTrials.forEach((t) => {
     if (t.values && t.values.length == dim) {
-      let values: number[] = t.values
-      values.forEach((v: number, i: number) => {
-        if (study.directions[i] === "maximize") {
-          values[i] = -v
+      const trialValues = t.values.map(
+        (v: number, i: number) => {
+          return (study.directions[i] === "minimize") ? v : -v
         }
-      })
-      normalizedValues.push(values)
+      )
+      normalizedValues.push(trialValues)
     }
   })
 
   const pointColors: string[] = []
   normalizedValues.forEach((values0: number[], i: number) => {
-    let dominated: boolean = false
+    let dominated = false
 
     dominated = normalizedValues.some((values1: number[], j: number) => {
       if (i === j) {
         return false
       }
       return values0.every((value0: number, k: number) => {
-        return value0 <= values1[k]
+        return values1[k] <= value0
       })
     })
 
@@ -77,12 +75,22 @@ const plotParetoFront = (study: StudyDetail) => {
   const plotData: Partial<plotly.PlotData>[] = [
     {
         type: "scatter",
-        x: completedTrials.map((t: Trial): number => t.values![0]),
-        y: completedTrials.map((t: Trial): number => t.values![1]),
+        x: completedTrials.map((t: Trial): number => { return t.values![0]}),
+        y: completedTrials.map((t: Trial): number => { return t.values![1]}),
         mode: "markers",
+        xaxis: "Objective 0",
+        yaxis: "Objective 1",
         marker: {
-          color: pointColors,
+          color: pointColors
         },
+        text: completedTrials.map((t: Trial): string => {
+          return JSON.stringify({
+            "number": t.number,
+            "values": t.values,
+            "params": t.params,
+          }, null, 2).replaceAll("\n", "<br>")
+	}),
+        hovertemplate: "%{text}<extra></extra>",
     },
   ]
 
