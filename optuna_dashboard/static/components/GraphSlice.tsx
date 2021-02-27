@@ -3,6 +3,7 @@ import React, { ChangeEvent, FC, useEffect, useState } from "react"
 import {
   Grid,
   FormControl,
+  FormLabel,
   InputLabel,
   MenuItem,
   Select,
@@ -22,8 +23,9 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 export const GraphSlice: FC<{
-  trials: Trial[]
-}> = ({ trials = [] }) => {
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  const trials: Trial[] = study !== null ? study.trials : []
   const filteredTrials = trials.filter(
     (t) => t.state === "Complete" || t.state === "Pruned"
   )
@@ -37,22 +39,41 @@ export const GraphSlice: FC<{
   const paramnames = Array.from(paramNames)
 
   const classes = useStyles()
+  const [objectiveId, setObjectiveId] = useState<number>(0)
   const [xAxis, setXAxis] = useState<string>(paramnames[0])
+
+  const handleObjectiveChange = (
+    event: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    setObjectiveId(event.target.value as number)
+  }
 
   const handleXAxisChange = (e: ChangeEvent<{ value: unknown }>) => {
     setXAxis(e.target.value as string)
   }
 
   useEffect(() => {
-    if (trials != null) {
-      plotSlice(trials, 0, xAxis)
+    if (study != null) {
+      plotSlice(study, objectiveId, xAxis)
     }
-  }, [trials, xAxis])
+  }, [study, objectiveId, xAxis])
 
   return (
     <Grid container direction="row">
       <Grid item xs={3}>
         <Grid container direction="column">
+          {study !== null && study.directions.length !== 1 ? (
+            <FormControl component="fieldset" className={classes.formControl}>
+              <FormLabel component="legend">Objective ID:</FormLabel>
+              <Select value={objectiveId} onChange={handleObjectiveChange}>
+                {study.directions.map((d, i) => (
+                  <MenuItem value={i} key={i}>
+                    {i}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          ) : null}
           <FormControl component="fieldset" className={classes.formControl}>
             <InputLabel id="parameter">Parameter</InputLabel>
             <Select value={xAxis} onChange={handleXAxisChange}>
@@ -72,7 +93,7 @@ export const GraphSlice: FC<{
   )
 }
 
-const plotSlice = (trials: Trial[], objectiveId: number, xAxis: string) => {
+const plotSlice = (study: StudyDetail, objectiveId: number, xAxis: string) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
@@ -86,6 +107,7 @@ const plotSlice = (trials: Trial[], objectiveId: number, xAxis: string) => {
     },
   }
 
+  const trials: Trial[] = study !== null ? study.trials : []
   if (trials.length === 0) {
     plotly.react(plotDomId, [], layout)
     return

@@ -196,10 +196,10 @@ export const StudyDetail: FC = () => {
               </Grid>
             </Grid>
           ) : null}
-          {studyDetail !== null && isSingleObjectiveStudy(studyDetail) ? (
+          {studyDetail !== null ? (
             <Card className={classes.card}>
               <CardContent>
-                <GraphSlice trials={trials} />
+                <GraphSlice study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}
