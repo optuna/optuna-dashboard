@@ -30,6 +30,7 @@ const plotCoordinate = (trials: Trial[], objectiveId: number) => {
     plotly.react(plotDomId, [])
     return
   }
+
   const filteredTrials = trials.filter(
     (t) => t.state === "Complete" || t.state === "Pruned"
   )
@@ -63,7 +64,7 @@ const plotCoordinate = (trials: Trial[], objectiveId: number) => {
       return param!.value
     })
     const isnum = valueStrings.every((v) => {
-      return /^-?\d+\.\d+$/.test(v)
+      return !isNaN(parseFloat(v))
     })
     if (isnum) {
       const values: number[] = valueStrings.map((v) => parseFloat(v))
