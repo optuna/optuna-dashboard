@@ -223,37 +223,19 @@ const plotSlice = (study: StudyDetail, objectiveId: number, xAxis: string) => {
               },
             },
           ]
-          updateLayout = {
-            title: "Slice",
-            margin: {
-              l: 50,
-              r: 50,
+          updateLayout["xaxis"] = {
+            title: paramName,
+            zerolinecolor: "#f2f5fa",
+            zerolinewidth: 1.5,
+            linecolor: "#f2f5fa",
+            linewidth: 5,
+            gridcolor: "#f2f5fa",
+            gridwidth: 1,
+            tickfont: {
+              color: "#000000",
             },
-            xaxis: {
-              title: paramName,
-              zerolinecolor: "#f2f5fa",
-              zerolinewidth: 1.5,
-              linecolor: "#f2f5fa",
-              linewidth: 5,
-              gridcolor: "#f2f5fa",
-              gridwidth: 1,
-              tickfont: {
-                color: "#000000",
-              },
-              tickvals: tickvals,
-              ticktext: vocabArr,
-            },
-            yaxis: {
-              title: "Objective Values",
-              zerolinecolor: "#f2f5fa",
-              zerolinewidth: 2,
-              linecolor: "#f2f5fa",
-              linewidth: 5,
-              gridcolor: "#f2f5fa",
-              gridwidth: 1,
-            },
-            plot_bgcolor: "#E5ecf6",
-            showlegend: false,
+            tickvals: tickvals,
+            ticktext: vocabArr,
           }
           plotly.react(plotDomId, trace, updateLayout)
         }
