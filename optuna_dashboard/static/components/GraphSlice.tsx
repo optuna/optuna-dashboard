@@ -144,7 +144,7 @@ const plotSlice = (study: StudyDetail, objectiveId: number, xAxis: string) => {
         },
       },
     ]
-    let updateLayout: Partial<plotly.Layout> = {
+    const updateLayout: Partial<plotly.Layout> = {
       title: "Slice",
       margin: {
         l: 50,
