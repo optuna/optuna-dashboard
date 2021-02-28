@@ -41,6 +41,9 @@ const useStyles = makeStyles((theme: Theme) =>
       textDecoration: "underline",
       cursor: "pointer",
     },
+    tableHeaderCell: {
+      display: "inline-flex",
+    },
   })
 )
 
@@ -157,40 +160,42 @@ function DataGrid<T>(props: {
                   padding={column.padding || "default"}
                   sortDirection={orderBy === column.field ? order : false}
                 >
-                  {column.sortable ? (
-                    <TableSortLabel
-                      active={orderBy === index}
-                      direction={orderBy === index ? order : "asc"}
-                      onClick={createSortHandler(index)}
-                    >
-                      {column.label}
-                      {orderBy === column.field ? (
-                        <span className={classes.visuallyHidden}>
-                          {order === "desc"
-                            ? "sorted descending"
-                            : "sorted ascending"}
-                        </span>
-                      ) : null}
-                    </TableSortLabel>
-                  ) : (
-                    column.label
-                  )}
-                  {column.filterable ? (
-                    <IconButton
-                      size={dense ? "small" : "medium"}
-                      style={
-                        fieldAlreadyFiltered(column.field)
-                          ? {}
-                          : { visibility: "hidden" }
-                      }
-                      color="inherit"
-                      onClick={(e) => {
-                        clearFilter(column.field)
-                      }}
-                    >
-                      <Clear />
-                    </IconButton>
-                  ) : null}
+                  <span className={classes.tableHeaderCell}>
+                    {column.sortable ? (
+                      <TableSortLabel
+                        active={orderBy === index}
+                        direction={orderBy === index ? order : "asc"}
+                        onClick={createSortHandler(index)}
+                      >
+                        {column.label}
+                        {orderBy === column.field ? (
+                          <span className={classes.visuallyHidden}>
+                            {order === "desc"
+                              ? "sorted descending"
+                              : "sorted ascending"}
+                          </span>
+                        ) : null}
+                      </TableSortLabel>
+                    ) : (
+                      column.label
+                    )}
+                    {column.filterable ? (
+                      <IconButton
+                        size={dense ? "small" : "medium"}
+                        style={
+                          fieldAlreadyFiltered(column.field)
+                            ? {}
+                            : { visibility: "hidden" }
+                        }
+                        color="inherit"
+                        onClick={(e) => {
+                          clearFilter(column.field)
+                        }}
+                      >
+                        <Clear />
+                      </IconButton>
+                    ) : null}
+                  </span>
                 </TableCell>
               ))}
             </TableRow>
