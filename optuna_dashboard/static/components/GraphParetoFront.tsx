@@ -6,7 +6,6 @@ const plotDomId = "graph-pareto-front"
 export const GraphParetoFront: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-
   useEffect(() => {
     if (study != null) {
       plotParetoFront(study)
@@ -35,9 +34,7 @@ const plotParetoFront = (study: StudyDetail) => {
   }
 
   const trials: Trial[] = study !== null ? study.trials : []
-  const completedTrials = trials.filter(
-    (t) => t.state === "Complete"
-  )
+  const completedTrials = trials.filter((t) => t.state === "Complete")
 
   if (completedTrials.length === 0) {
     plotly.react(plotDomId, [], layout)
@@ -47,11 +44,9 @@ const plotParetoFront = (study: StudyDetail) => {
   const normalizedValues: number[][] = []
   completedTrials.forEach((t) => {
     if (t.values && t.values.length == dim) {
-      const trialValues = t.values.map(
-        (v: number, i: number) => {
-          return (study.directions[i] === "minimize") ? v : -v
-        }
-      )
+      const trialValues = t.values.map((v: number, i: number) => {
+        return study.directions[i] === "minimize" ? v : -v
+      })
       normalizedValues.push(trialValues)
     }
   })
@@ -69,28 +64,40 @@ const plotParetoFront = (study: StudyDetail) => {
       })
     })
 
-    if (dominated) { pointColors.push("blue") } else { pointColors.push("red") }
+    if (dominated) {
+      pointColors.push("blue")
+    } else {
+      pointColors.push("red")
+    }
   })
 
   const plotData: Partial<plotly.PlotData>[] = [
     {
-        type: "scatter",
-        x: completedTrials.map((t: Trial): number => { return t.values![0]}),
-        y: completedTrials.map((t: Trial): number => { return t.values![1]}),
-        mode: "markers",
-        xaxis: "Objective 0",
-        yaxis: "Objective 1",
-        marker: {
-          color: pointColors
-        },
-        text: completedTrials.map((t: Trial): string => {
-          return JSON.stringify({
-            "number": t.number,
-            "values": t.values,
-            "params": t.params,
-          }, null, 2).replaceAll("\n", "<br>")
-	}),
-        hovertemplate: "%{text}<extra></extra>",
+      type: "scatter",
+      x: completedTrials.map((t: Trial): number => {
+        return t.values![0]
+      }),
+      y: completedTrials.map((t: Trial): number => {
+        return t.values![1]
+      }),
+      mode: "markers",
+      xaxis: "Objective 0",
+      yaxis: "Objective 1",
+      marker: {
+        color: pointColors,
+      },
+      text: completedTrials.map((t: Trial): string => {
+        return JSON.stringify(
+          {
+            number: t.number,
+            values: t.values,
+            params: t.params,
+          },
+          null,
+          2
+        ).replaceAll("\n", "<br>")
+      }),
+      hovertemplate: "%{text}<extra></extra>",
     },
   ]
 
