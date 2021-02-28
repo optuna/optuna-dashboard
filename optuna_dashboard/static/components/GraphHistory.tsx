@@ -224,7 +224,7 @@ const plotHistory = (
     return xAxis === "number"
       ? trial.number
       : xAxis === "datetime_start"
-      ? trial.datetime_start
+      ? trial.datetime_start!
       : trial.datetime_complete!
   }
 
