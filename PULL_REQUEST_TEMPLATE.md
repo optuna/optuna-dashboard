@@ -4,8 +4,9 @@ Thank you for creating a pull request!
 
 ## Contributor License Agreement
 
-The code files of ``optuna-dashboard`` are originally taken from [Goptuna](https://github.com/c-bata/goptuna),
-so that please place a check to improve both of libraries.
+This repository (``optuna-dashboard``) and [Goptuna](https://github.com/c-bata/goptuna) share common code.
+This pull request may therefore be ported to Goptuna.
+Make sure that you understand the consequences concerning licenses and check the box below if you accept the term before creating this pull request.
 
 * [ ] I agree this patch may be ported to [Goptuna](https://github.com/c-bata/goptuna) by other Goptuna contributors.
 
