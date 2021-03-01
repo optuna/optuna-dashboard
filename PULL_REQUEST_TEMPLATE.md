@@ -1,5 +1,5 @@
 <!--
-Thank you for creating a pull request! Please ensure you have agreed a contributor license agreement
+Thank you for creating a pull request!
 -->
 
 ## Contributor License Agreement
