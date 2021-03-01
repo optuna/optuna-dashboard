@@ -23,6 +23,7 @@ import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphSlice } from "./GraphSlice"
 import { GraphHistory } from "./GraphHistory"
+import { GraphContour } from "./GraphContour"
 import { actionCreator } from "../action"
 import { studyDetailsState } from "../state"
 
@@ -194,6 +195,13 @@ export const StudyDetail: FC = () => {
                   </CardContent>
                 </Card>
               </Grid>
+              <Grid item xs={12}>
+                 <Card className={classes.card}>
+                   <CardContent>
+                     <GraphContour trials={trials} />
+                   </CardContent>
+                 </Card>
+               </Grid>
             </Grid>
           ) : null}
           {studyDetail !== null && isSingleObjectiveStudy(studyDetail) ? (
@@ -203,6 +211,7 @@ export const StudyDetail: FC = () => {
               </CardContent>
             </Card>
           ) : null}
+          
           <Card className={classes.card}>
             <TrialTable studyDetail={studyDetail} />
           </Card>
