@@ -9,6 +9,13 @@ declare const URL_PREFIX: string
 
 type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting"
 type StudyDirection = "maximize" | "minimize" | "not_set"
+type Distribution =
+  | "UniformDistribution"
+  | "LogUniformDistribution"
+  | "DiscreteUniformDistribution"
+  | "IntUniformDistribution"
+  | "IntLogUniformDistribution"
+  | "CategoricalDistribution"
 
 declare interface TrialIntermediateValue {
   step: number
@@ -18,6 +25,12 @@ declare interface TrialIntermediateValue {
 declare interface TrialParam {
   name: string
   value: string
+}
+
+declare interface ParamImportance {
+  name: string
+  importance: number
+  distribution: Distribution
 }
 
 declare interface Attribute {
@@ -59,4 +72,9 @@ declare interface StudyDetail {
 
 declare interface StudyDetails {
   [study_id: string]: StudyDetail
+}
+
+declare interface ParamImportances {
+  target_name: string
+  param_importances: ParamImportance[]
 }
