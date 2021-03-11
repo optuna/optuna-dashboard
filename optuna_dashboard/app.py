@@ -99,7 +99,7 @@ def get_distribution_name(param_name: str, study: Study) -> str:
     for trial in study.trials:
         if param_name in trial.distributions:
             return trial.distributions[param_name].__class__.__name__
-    assert False
+    assert False, "Must not reach here."
 
 
 def create_app(storage: BaseStorage) -> Bottle:
