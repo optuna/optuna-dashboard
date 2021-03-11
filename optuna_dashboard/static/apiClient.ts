@@ -186,5 +186,3 @@ export const getParamImportances = (
       return res.data
     })
 }
-
-export default getParamImportances
