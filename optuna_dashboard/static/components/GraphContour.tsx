@@ -3,6 +3,7 @@ import React, { ChangeEvent, FC, useEffect, useState } from "react"
 import {
   Grid,
   FormControl,
+  FormLabel,
   InputLabel,
   MenuItem,
   Select,
@@ -21,8 +22,9 @@ const useStyles = makeStyles((theme: Theme) =>
 )
 
 export const GraphContour: FC<{
-  trials: Trial[]
-}> = ({ trials = [] }) => {
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  const trials: Trial[] = study !== null ? study.trials : []
   const filteredTrials = trials.filter(
     (t) => t.state === "Complete" || t.state === "Pruned"
   )
@@ -37,8 +39,15 @@ export const GraphContour: FC<{
   const paramnames = Array.from(paramNames)
 
   const classes = useStyles()
+  const [objectiveId, setObjectiveId] = useState<number>(0)
   const [xAxis, setXAxis] = useState<string>(paramnames[0])
   const [yAxis, setYAxis] = useState<string>(paramnames[1])
+
+  const handleObjectiveChange = (
+    event: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    setObjectiveId(event.target.value as number)
+  }
 
   const handleXAxisChange = (e: ChangeEvent<{ value: unknown }>) => {
     setXAxis(e.target.value as string)
@@ -49,15 +58,27 @@ export const GraphContour: FC<{
   }
 
   useEffect(() => {
-    if (trials != null) {
-      plotContour(trials, 0, xAxis, yAxis)
+    if (study !== null) {
+      plotContour(study, objectiveId, xAxis, yAxis)
     }
-  }, [trials, xAxis, yAxis])
+  }, [study, objectiveId, xAxis, yAxis])
 
   return (
     <Grid container direction="row">
       <Grid item xs={3}>
         <Grid container direction="column">
+          {study !== null && study.directions.length !== 1 ? (
+            <FormControl component="fieldset" className={classes.formControl}>
+              <FormLabel component="legend">Objective ID:</FormLabel>
+              <Select value={objectiveId} onChange={handleObjectiveChange}>
+                {study.directions.map((d, i) => (
+                  <MenuItem value={i} key={i}>
+                    {i}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          ) : null}
           <FormControl component="fieldset" className={classes.formControl}>
             <InputLabel id="parameter1">X Axis Parameter</InputLabel>
             <Select value={xAxis} onChange={handleXAxisChange}>
@@ -88,7 +109,7 @@ export const GraphContour: FC<{
 }
 
 const plotContour = (
-  trials: Trial[],
+  study: StudyDetail,
   objectiveId: number,
   xAxis: string,
   yAxis: string
@@ -104,6 +125,8 @@ const plotContour = (
       r: 50,
     },
   }
+
+  const trials: Trial[] = study !== null ? study.trials : []
 
   if (trials.length === 0) {
     plotly.react(plotDomId, [], layout)
