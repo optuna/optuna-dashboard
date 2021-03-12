@@ -195,13 +195,6 @@ export const StudyDetail: FC = () => {
                   </CardContent>
                 </Card>
               </Grid>
-              <Grid item xs={12}>
-                <Card className={classes.card}>
-                  <CardContent>
-                    <GraphContour trials={trials} />
-                  </CardContent>
-                </Card>
-              </Grid>
             </Grid>
           ) : null}
           {studyDetail !== null && isSingleObjectiveStudy(studyDetail) ? (
@@ -211,7 +204,13 @@ export const StudyDetail: FC = () => {
               </CardContent>
             </Card>
           ) : null}
-
+          {studyDetail !== null && isSingleObjectiveStudy(studyDetail) ? (
+            <Card className={classes.card}>
+              <CardContent>
+                <GraphContour trials={trials} />
+              </CardContent>
+            </Card>
+          ) : null}
           <Card className={classes.card}>
             <TrialTable studyDetail={studyDetail} />
           </Card>
