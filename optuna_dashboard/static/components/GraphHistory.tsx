@@ -1,4 +1,4 @@
-import * as plotly from "plotly.js-basic-dist"
+import * as plotly from "plotly.js-dist"
 import React, { ChangeEvent, FC, useEffect, useState } from "react"
 import {
   Grid,
@@ -224,7 +224,7 @@ const plotHistory = (
     return xAxis === "number"
       ? trial.number
       : xAxis === "datetime_start"
-      ? trial.datetime_start
+      ? trial.datetime_start!
       : trial.datetime_complete!
   }
 

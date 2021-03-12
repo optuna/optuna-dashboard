@@ -9,7 +9,7 @@ interface TrialResponse {
   state: TrialState
   values?: number[]
   intermediate_values: TrialIntermediateValue[]
-  datetime_start: string
+  datetime_start?: string
   datetime_complete?: string
   params: TrialParam[]
   user_attrs: Attribute[]
@@ -24,7 +24,9 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
     state: res.state,
     values: res.values,
     intermediate_values: res.intermediate_values,
-    datetime_start: new Date(res.datetime_start),
+    datetime_start: res.datetime_start
+      ? new Date(res.datetime_start)
+      : undefined,
     datetime_complete: res.datetime_complete
       ? new Date(res.datetime_complete)
       : undefined,

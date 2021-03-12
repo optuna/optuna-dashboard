@@ -197,10 +197,10 @@ export const StudyDetail: FC = () => {
               </Grid>
             </Grid>
           ) : null}
-          {studyDetail !== null && isSingleObjectiveStudy(studyDetail) ? (
+          {studyDetail !== null ? (
             <Card className={classes.card}>
               <CardContent>
-                <GraphSlice trials={trials} />
+                <GraphSlice study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}
@@ -292,6 +292,46 @@ const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
     }))
     columns.push(...objectiveColumns)
   }
+  columns.push({
+    field: "datetime_start",
+    label: "Duration(ms)",
+    toCellValue: (i) => {
+      const startMs = trials[i].datetime_start?.getTime()
+      const completeMs = trials[i].datetime_complete?.getTime()
+      if (startMs !== undefined && completeMs !== undefined) {
+        return (completeMs - startMs).toString()
+      }
+      return null
+    },
+    sortable: true,
+    less: (i, j): number => {
+      const firstStartMs = trials[i].datetime_start?.getTime()
+      const firstCompleteMs = trials[i].datetime_complete?.getTime()
+      const firstDurationMs =
+        firstStartMs !== undefined && firstCompleteMs !== undefined
+          ? firstCompleteMs - firstStartMs
+          : undefined
+      const secondStartMs = trials[j].datetime_start?.getTime()
+      const secondCompleteMs = trials[j].datetime_complete?.getTime()
+      const secondDurationMs =
+        secondStartMs !== undefined && secondCompleteMs !== undefined
+          ? secondCompleteMs - secondStartMs
+          : undefined
+
+      if (firstDurationMs === secondDurationMs) {
+        return 0
+      } else if (
+        firstDurationMs !== undefined &&
+        secondDurationMs !== undefined
+      ) {
+        return firstDurationMs < secondDurationMs ? 1 : -1
+      } else if (firstDurationMs !== undefined) {
+        return -1
+      } else {
+        return 1
+      }
+    },
+  })
   columns.push({
     field: "params",
     label: "Params",

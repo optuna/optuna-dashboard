@@ -32,7 +32,7 @@ $ npm run build:prd
 ### Running dashboard server
 
 ```
-$ pip install .
+$ pip install -e .
 $ optuna-dashboard sqlite:///db.sqlite3
 ```
 
