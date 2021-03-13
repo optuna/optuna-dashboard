@@ -202,7 +202,7 @@ export const StudyDetail: FC = () => {
               <Grid item xs={6}>
                 <Card className={classes.card}>
                   <CardContent>
-                    <HyperparameterImportances studyId={studyIdNumber} />
+                    <HyperparameterImportances studyId={studyIdNumber} numOfTrials={trials.length}/>
                   </CardContent>
                 </Card>
               </Grid>

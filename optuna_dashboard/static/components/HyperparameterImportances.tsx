@@ -26,15 +26,15 @@ const distributionColors = {
 }
 
 export const HyperparameterImportances: FC<{
-  studyId: number
-}> = ({ studyId }) => {
+  studyId: number, numOfTrials: number
+}> = ({ studyId, numOfTrials = 0 }) => {
   useEffect(() => {
     async function fetchAndPlotParamImportances(studyId: number) {
       const paramsImportanceData = await getParamImportances(studyId)
       plotParamImportances(paramsImportanceData)
     }
     fetchAndPlotParamImportances(studyId)
-  })
+  }, [numOfTrials])
   return <div id={plotDomId} />
 }
 
