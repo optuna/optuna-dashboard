@@ -51,7 +51,6 @@ const plotParamImportances = (paramsImportanceData: ParamImportances) => {
   const param_hover_templates = param_importances.map(
     (p) => `${p.name} (${p.distribution}): ${p.importance} <extra></extra>`
   )
-  console.log("param_colors", param_colors)
 
   const layout: Partial<plotly.Layout> = {
     title: "Hyperparameter Importance",
