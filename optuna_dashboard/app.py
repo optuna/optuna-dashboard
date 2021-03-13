@@ -217,11 +217,11 @@ def create_app(storage: BaseStorage) -> Bottle:
             "target_name": target_name,
             "param_importances": [
                 {
-                    "name": i[0],
-                    "importance": i[1],
-                    "distribution": get_distribution_name(i[0], study),
+                    "name": name,
+                    "importance": importance,
+                    "distribution": get_distribution_name(name, study),
                 }
-                for i in importances.items()
+                for name, importance in importances.items()
             ],
         }
 
