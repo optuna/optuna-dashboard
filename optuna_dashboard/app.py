@@ -14,6 +14,7 @@ from optuna.trial import FrozenTrial
 from optuna.study import StudyDirection, StudySummary
 
 from . import serializer
+from .search_space import get_search_space
 
 BottleViewReturn = Union[str, bytes, Dict[str, Any], BaseResponse]
 BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])
@@ -183,7 +184,8 @@ def create_app(storage: BaseStorage) -> Bottle:
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
         trials = get_trials(storage, study_id)
-        return serializer.serialize_study_detail(summary, trials)
+        intersection, union = get_search_space(study_id, trials)
+        return serializer.serialize_study_detail(summary, trials, intersection, union)
 
     @app.get("/static/<filename:path>")
     def send_static(filename: str) -> BottleViewReturn:

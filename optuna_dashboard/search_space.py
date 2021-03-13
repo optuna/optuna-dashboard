@@ -15,7 +15,9 @@ search_space_cache: Dict[int, "_SearchSpace"] = {}
 states_of_interest = [TrialState.COMPLETE, TrialState.PRUNED]
 
 
-def get_search_space(study_id: int, trials: List[FrozenTrial]) -> Tuple[SearchSpaceListT, SearchSpaceListT]:
+def get_search_space(
+    study_id: int, trials: List[FrozenTrial]
+) -> Tuple[SearchSpaceListT, SearchSpaceListT]:
     with search_space_cache_lock:
         search_space = search_space_cache.get(study_id, None)
         if search_space is None:

@@ -1,6 +1,7 @@
 import json
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
+from optuna.distributions import BaseDistribution
 from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
 
@@ -66,7 +67,10 @@ def serialize_study_summary(summary: StudySummary) -> Dict[str, Any]:
 
 
 def serialize_study_detail(
-    summary: StudySummary, trials: List[FrozenTrial]
+    summary: StudySummary,
+    trials: List[FrozenTrial],
+    intersection: List[Tuple[str, BaseDistribution]],
+    union: List[Tuple[str, BaseDistribution]],
 ) -> Dict[str, Any]:
     serialized: Dict[str, Any] = {
         "name": summary.study_name,
@@ -83,6 +87,9 @@ def serialize_study_detail(
     serialized["trials"] = [
         serialize_frozen_trial(summary._study_id, trial) for trial in trials
     ]
+
+    serialized["intersection_search_space"] = serialize_search_space(intersection)
+    serialized["union_search_space"] = serialize_search_space(union)
     return serialized
 
 
@@ -107,4 +114,19 @@ def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
     if trial.datetime_complete is not None:
         serialized["datetime_complete"] = trial.datetime_complete.isoformat()
 
+    return serialized
+
+
+def serialize_search_space(
+    search_space: List[Tuple[str, BaseDistribution]]
+) -> List[Dict[str, Any]]:
+    serialized = []
+    for param_name, distribution in search_space:
+        serialized.append(
+            {
+                "name": param_name,
+                "type": distribution.__class__.__name__,
+                "attributes": distribution._asdict(),
+            }
+        )
     return serialized
