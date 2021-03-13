@@ -1,21 +1,91 @@
 import * as plotly from "plotly.js-dist"
-import React, { FC, useEffect } from "react"
+import React, { FC, useEffect, useState } from "react"
+import {
+  Grid,
+  FormControl,
+  FormLabel,
+  MenuItem,
+  Select,
+} from "@material-ui/core"
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
 
 const plotDomId = "graph-pareto-front"
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    formControl: {
+      marginBottom: theme.spacing(2),
+      marginRight: theme.spacing(5),
+      marginTop: theme.spacing(10),
+    },
+  })
+)
 
 export const GraphParetoFront: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  const classes = useStyles()
+  const [objectiveXId, setObjectiveXId] = useState<number>(0)
+  const [objectiveYId, setObjectiveYId] = useState<number>(1)
+
+  const handleObjectiveXChange = (
+    event: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    setObjectiveXId(event.target.value as number)
+  }
+
+  const handleObjectiveYChange = (
+    event: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    setObjectiveYId(event.target.value as number)
+  }
+
   useEffect(() => {
     if (study != null) {
-      plotParetoFront(study)
+      plotParetoFront(study, objectiveXId, objectiveYId)
     }
-  }, [study])
+  }, [study, objectiveXId, objectiveYId])
 
-  return <div id={plotDomId} />
+  return (
+    <Grid container direction="row">
+      {study !== null && study.directions.length !== 1 ? (
+        <Grid item xs={3}>
+          <Grid container direction="column">
+            <FormControl component="fieldset" className={classes.formControl}>
+              <FormLabel component="legend">Objective X ID:</FormLabel>
+              <Select value={objectiveXId} onChange={handleObjectiveXChange}>
+                {study.directions.map((d, i) => (
+                  <MenuItem value={i} key={i}>
+                    {i}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <FormControl component="fieldset" className={classes.formControl}>
+              <FormLabel component="legend">Objective Y ID:</FormLabel>
+              <Select value={objectiveYId} onChange={handleObjectiveYChange}>
+                {study.directions.map((d, i) => (
+                  <MenuItem value={i} key={i}>
+                    {i}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+      ) : null}
+      <Grid item xs={6}>
+        <div id={plotDomId} />
+      </Grid>
+    </Grid>
+  )
 }
 
-const plotParetoFront = (study: StudyDetail) => {
+const plotParetoFront = (
+  study: StudyDetail,
+  objectiveXId: number,
+  objectiveYId: number
+) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
@@ -75,14 +145,14 @@ const plotParetoFront = (study: StudyDetail) => {
     {
       type: "scatter",
       x: completedTrials.map((t: Trial): number => {
-        return t.values![0]
+        return t.values![objectiveXId]
       }),
       y: completedTrials.map((t: Trial): number => {
-        return t.values![1]
+        return t.values![objectiveYId]
       }),
       mode: "markers",
-      xaxis: "Objective 0",
-      yaxis: "Objective 1",
+      xaxis: "Objective X",
+      yaxis: "Objective Y",
       marker: {
         color: pointColors,
       },
