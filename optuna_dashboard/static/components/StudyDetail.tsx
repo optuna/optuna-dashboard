@@ -23,6 +23,7 @@ import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphSlice } from "./GraphSlice"
 import { GraphHistory } from "./GraphHistory"
+import { GraphParetoFront } from "./GraphParetoFront"
 import { actionCreator } from "../action"
 import { studyDetailsState } from "../state"
 
@@ -200,6 +201,13 @@ export const StudyDetail: FC = () => {
             <Card className={classes.card}>
               <CardContent>
                 <GraphSlice study={studyDetail} />
+              </CardContent>
+            </Card>
+          ) : null}
+          {studyDetail !== null && !isSingleObjectiveStudy(studyDetail) ? (
+            <Card className={classes.card}>
+              <CardContent>
+                <GraphParetoFront study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}
