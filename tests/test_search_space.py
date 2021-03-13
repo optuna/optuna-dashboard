@@ -16,7 +16,6 @@ class SearchSpaceTestCase(TestCase):
         warnings.simplefilter("ignore", category=ExperimentalWarning)
 
     def test_same_distributions(self) -> None:
-        study = optuna.create_study()
         distributions = [
             {
                 "x0": UniformDistribution(low=0, high=10),
@@ -41,16 +40,13 @@ class SearchSpaceTestCase(TestCase):
             create_trial(state=TrialState.COMPLETE, value=0, distributions=d, params=p)
             for d, p in zip(distributions, params)
         ]
-        study.add_trials(trials=trials)
-
         search_space = _SearchSpace()
-        search_space.update(study)
+        search_space.update(trials)
 
         self.assertEqual(len(search_space.intersection), 2)
         self.assertEqual(len(search_space.union), 2)
 
     def test_different_distributions(self) -> None:
-        study = optuna.create_study()
         distributions = [
             {
                 "x0": UniformDistribution(low=0, high=10),
@@ -75,16 +71,13 @@ class SearchSpaceTestCase(TestCase):
             create_trial(state=TrialState.COMPLETE, value=0, distributions=d, params=p)
             for d, p in zip(distributions, params)
         ]
-        study.add_trials(trials=trials)
-
         search_space = _SearchSpace()
-        search_space.update(study)
+        search_space.update(trials)
 
         self.assertEqual(len(search_space.intersection), 1)
         self.assertEqual(len(search_space.union), 3)
 
     def test_dynamic_search_space(self) -> None:
-        study = optuna.create_study()
         distributions = [
             {
                 "x0": UniformDistribution(low=0, high=10),
@@ -115,10 +108,8 @@ class SearchSpaceTestCase(TestCase):
             create_trial(state=TrialState.COMPLETE, value=0, distributions=d, params=p)
             for d, p in zip(distributions, params)
         ]
-        study.add_trials(trials=trials)
-
         search_space = _SearchSpace()
-        search_space.update(study)
+        search_space.update(trials)
 
         self.assertEqual(len(search_space.intersection), 0)
         self.assertEqual(len(search_space.union), 3)
