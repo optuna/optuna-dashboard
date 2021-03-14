@@ -226,7 +226,7 @@ export const StudyDetail: FC = () => {
                 <GraphContour study={studyDetail} />
               </CardContent>
             </Card>
-          ): null}
+          ) : null}
           {studyDetail !== null && !isSingleObjectiveStudy(studyDetail) ? (
             <Card className={classes.card}>
               <CardContent>
