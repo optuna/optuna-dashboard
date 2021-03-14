@@ -20,6 +20,7 @@ import { Home, Cached } from "@material-ui/icons"
 
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
+import { HyperparameterImportances } from "./HyperparameterImportances"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphSlice } from "./GraphSlice"
 import { GraphHistory } from "./GraphHistory"
@@ -192,6 +193,20 @@ export const StudyDetail: FC = () => {
                 <Card className={classes.card}>
                   <CardContent>
                     <GraphIntermediateValues trials={trials} />
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          ) : null}
+          {studyDetail !== null && isSingleObjectiveStudy(studyDetail) ? (
+            <Grid container direction="row">
+              <Grid item xs={6}>
+                <Card className={classes.card}>
+                  <CardContent>
+                    <HyperparameterImportances
+                      studyId={studyIdNumber}
+                      numOfTrials={trials.length}
+                    />
                   </CardContent>
                 </Card>
               </Grid>

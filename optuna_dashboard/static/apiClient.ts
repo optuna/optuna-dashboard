@@ -168,3 +168,21 @@ export const deleteStudyAPI = (studyId: number) => {
     return {}
   })
 }
+
+interface ParamImportancesResponse {
+  target_name: string
+  param_importances: ParamImportance[]
+}
+
+export const getParamImportances = (
+  studyId: number
+): Promise<ParamImportances> => {
+  return axiosInstance
+    .get<ParamImportancesResponse>(
+      `/api/studies/${studyId}/param_importances`,
+      {}
+    )
+    .then((res) => {
+      return res.data
+    })
+}
