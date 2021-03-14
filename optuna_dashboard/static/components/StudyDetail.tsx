@@ -20,10 +20,12 @@ import { Home, Cached } from "@material-ui/icons"
 
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
+import { HyperparameterImportances } from "./HyperparameterImportances"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphSlice } from "./GraphSlice"
 import { GraphHistory } from "./GraphHistory"
 import { GraphContour } from "./GraphContour"
+import { GraphParetoFront } from "./GraphParetoFront"
 import { actionCreator } from "../action"
 import { studyDetailsState } from "../state"
 
@@ -197,6 +199,20 @@ export const StudyDetail: FC = () => {
               </Grid>
             </Grid>
           ) : null}
+          {studyDetail !== null && isSingleObjectiveStudy(studyDetail) ? (
+            <Grid container direction="row">
+              <Grid item xs={6}>
+                <Card className={classes.card}>
+                  <CardContent>
+                    <HyperparameterImportances
+                      studyId={studyIdNumber}
+                      numOfTrials={trials.length}
+                    />
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+          ) : null}
           {studyDetail !== null ? (
             <Card className={classes.card}>
               <CardContent>
@@ -208,6 +224,13 @@ export const StudyDetail: FC = () => {
             <Card className={classes.card}>
               <CardContent>
                 <GraphContour study={studyDetail} />
+              </CardContent>
+            </Card>
+          ): null}
+          {studyDetail !== null && !isSingleObjectiveStudy(studyDetail) ? (
+            <Card className={classes.card}>
+              <CardContent>
+                <GraphParetoFront study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}

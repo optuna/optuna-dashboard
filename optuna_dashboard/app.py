@@ -8,12 +8,14 @@ import traceback
 from typing import Union, Dict, List, Optional, TypeVar, Callable, Any, cast
 
 from bottle import Bottle, BaseResponse, redirect, request, response, static_file
+import optuna
 from optuna.exceptions import DuplicatedStudyError
 from optuna.storages import BaseStorage
-from optuna.trial import FrozenTrial
-from optuna.study import StudyDirection, StudySummary
+from optuna.trial import FrozenTrial, TrialState
+from optuna.study import StudyDirection, StudySummary, Study
 
 from . import serializer
+from .search_space import get_search_space
 
 BottleViewReturn = Union[str, bytes, Dict[str, Any], BaseResponse]
 BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])
@@ -92,6 +94,13 @@ def get_trials(
         trials_last_fetched_at[study_id] = datetime.now()
         trials_cache[study_id] = trials
     return trials
+
+
+def get_distribution_name(param_name: str, study: Study) -> str:
+    for trial in study.trials:
+        if param_name in trial.distributions:
+            return trial.distributions[param_name].__class__.__name__
+    assert False, "Must not reach here."
 
 
 def create_app(storage: BaseStorage) -> Bottle:
@@ -183,7 +192,40 @@ def create_app(storage: BaseStorage) -> Bottle:
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
         trials = get_trials(storage, study_id)
-        return serializer.serialize_study_detail(summary, trials)
+        intersection, union = get_search_space(study_id, trials)
+        return serializer.serialize_study_detail(summary, trials, intersection, union)
+
+    @app.get("/api/studies/<study_id:int>/param_importances")
+    @handle_json_api_exception
+    def get_param_importances(study_id: int) -> BottleViewReturn:
+        # TODO(chenghuzi): add support for selecting params and targets via query parameters.
+        response.content_type = "application/json"
+        study_name = storage.get_study_name_from_id(study_id)
+        study = Study(study_name=study_name, storage=storage)
+
+        trials = [trial for trial in study.trials if trial.state == TrialState.COMPLETE]
+        if len(trials) == 0:
+            return ""
+        evaluator = None
+        params = None
+        target = None
+        importances = optuna.importance.get_param_importances(
+            study, evaluator=evaluator, params=params, target=target
+        )
+        if target is None:
+            target_name = "Objective Value"
+
+        return {
+            "target_name": target_name,
+            "param_importances": [
+                {
+                    "name": name,
+                    "importance": importance,
+                    "distribution": get_distribution_name(name, study),
+                }
+                for name, importance in importances.items()
+            ],
+        }
 
     @app.get("/static/<filename:path>")
     def send_static(filename: str) -> BottleViewReturn:
