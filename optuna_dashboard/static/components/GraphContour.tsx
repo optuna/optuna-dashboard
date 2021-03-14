@@ -118,7 +118,7 @@ const plotContour = (
     return
   }
 
-  let layout: Partial<plotly.Layout> = {
+  const layout: Partial<plotly.Layout> = {
     title: "Contour",
     margin: {
       l: 50,
@@ -192,40 +192,40 @@ const plotContour = (
     const xIndex = paramIndices.indexOf(xAxis)
     const yIndex = paramIndices.indexOf(yAxis)
 
-    const x_indice = paramCategorical[xIndex].sort((a, b) => (a > b ? 1 : -1))
-    const y_indice = paramCategorical[yIndex].sort((a, b) => (a > b ? 1 : -1))
+    const xIndice = paramCategorical[xIndex].sort((a, b) => (a > b ? 1 : -1))
+    const yIndice = paramCategorical[yIndex].sort((a, b) => (a > b ? 1 : -1))
 
-    const x_indices: string[] = []
-    const y_indices: string[] = []
+    const xIndices: string[] = []
+    const yIndices: string[] = []
 
-    x_indice.forEach((element) => {
-      if (!x_indices.includes(element)) {
-        x_indices.push(element)
+    xIndice.forEach((element) => {
+      if (!xIndices.includes(element)) {
+        xIndices.push(element)
       }
     })
 
-    y_indice.forEach((element) => {
-      if (!y_indices.includes(element)) {
-        y_indices.push(element)
+    yIndice.forEach((element) => {
+      if (!yIndices.includes(element)) {
+        yIndices.push(element)
       }
     })
 
     const z: number[][] = []
-    for (let j = 0; j < y_indices.length; j++) {
+    for (let j = 0; j < yIndices.length; j++) {
       z[j] = []
     }
     for (let j = 0; j < filteredTrials.length; j++) {
-      const x_i = x_indices.indexOf(paramValues[xIndex][j])
-      const y_i = y_indices.indexOf(paramValues[yIndex][j])
-      z[y_i][x_i] = objectiveValues[j]
+      const xI = xIndices.indexOf(paramValues[xIndex][j])
+      const yI = yIndices.indexOf(paramValues[yIndex][j])
+      z[yI][xI] = objectiveValues[j]
     }
 
     const data: Partial<plotly.PlotData>[] = [
       {
         type: "contour",
         z: z,
-        x: x_indices,
-        y: y_indices,
+        x: xIndices,
+        y: yIndices,
         mode: "markers",
         marker: {
           color: "#000",
@@ -253,7 +253,6 @@ const plotContour = (
         },
       },
     ]
-    
 
     plotly.react(plotDomId, data, layout)
   }
