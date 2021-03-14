@@ -118,12 +118,25 @@ const plotContour = (
     return
   }
 
-  const layout: Partial<plotly.Layout> = {
+  let layout: Partial<plotly.Layout> = {
     title: "Contour",
     margin: {
       l: 50,
       r: 50,
     },
+    xaxis: {
+      gridcolor: "#f2f5fa",
+      gridwidth: 1,
+      zerolinecolor: "#f2f5fa",
+      zerolinewidth: 1.5,
+    },
+    yaxis: {
+      gridcolor: "#f2f5fa",
+      gridwidth: 1,
+      zerolinecolor: "#f2f5fa",
+      zerolinewidth: 1.5,
+    },
+    plot_bgcolor: "#E5ecf6",
   }
 
   const trials: Trial[] = study !== null ? study.trials : []
@@ -144,25 +157,11 @@ const plotContour = (
   })
 
   if (paramNames.size === 0 || paramNames.size === 1) {
-    plotly.react(plotDomId, [])
+    plotly.react(plotDomId, [], layout)
     return
   }
   if (xAxis === yAxis) {
-    plotly.react(plotDomId, [], {
-      xaxis: {
-        gridcolor: "#f2f5fa",
-        gridwidth: 1,
-        zerolinecolor: "#f2f5fa",
-        zerolinewidth: 1.5,
-      },
-      yaxis: {
-        gridcolor: "#f2f5fa",
-        gridwidth: 1,
-        zerolinecolor: "#f2f5fa",
-        zerolinewidth: 1.5,
-      },
-      plot_bgcolor: "#E5ecf6",
-    })
+    plotly.react(plotDomId, [], layout)
     return
   }
 
@@ -254,27 +253,8 @@ const plotContour = (
         },
       },
     ]
-    const updateLayout: Partial<plotly.Layout> = {
-      title: "Contour",
-      margin: {
-        l: 50,
-        r: 50,
-      },
-      xaxis: {
-        gridcolor: "#f2f5fa",
-        gridwidth: 1,
-        zerolinecolor: "#f2f5fa",
-        zerolinewidth: 1.5,
-      },
-      yaxis: {
-        gridcolor: "#f2f5fa",
-        gridwidth: 1,
-        zerolinecolor: "#f2f5fa",
-        zerolinewidth: 1.5,
-      },
-      plot_bgcolor: "#E5ecf6",
-    }
+    
 
-    plotly.react(plotDomId, data, updateLayout)
+    plotly.react(plotDomId, data, layout)
   }
 }
