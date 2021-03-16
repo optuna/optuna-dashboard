@@ -21,6 +21,15 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
+const getParamNames = (trials: Trial[]): string[] => {
+  const paramSet = new Set<string>(
+    ...trials.map<string[]>((t) => t.params.map((p) => p.name))
+  )
+  return Array.from(paramSet)
+}
+
+
+
 export const GraphContour: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
@@ -28,17 +37,8 @@ export const GraphContour: FC<{
   const filteredTrials = trials.filter(
     (t) => t.state === "Complete" || t.state === "Pruned"
   )
-
-  let paramSet =new Set<string>(trials[0].params.map((p) => p.name))
-  filteredTrials.forEach((t) => {
-    paramSet = new Set<string>(
-      t.params.filter((p) => paramSet.has(p.name)).map((p) => p.name)
-    )
-  })
-
-  const paramArray = Array.from(paramSet)
-
   
+  const paramArray = getParamNames(filteredTrials)  
 
   const classes = useStyles()
   const [objectiveId, setObjectiveId] = useState<number>(0)
@@ -151,14 +151,9 @@ const plotContour = (
     (t) => t.state === "Complete" || t.state === "Pruned"
   )
 
-  let paramNames = new Set<string>(trials[0].params.map((p) => p.name))
-  filteredTrials.forEach((t) => {
-    paramNames = new Set<string>(
-      t.params.filter((p) => paramNames.has(p.name)).map((p) => p.name)
-    )
-  })
+  const paramNames = getParamNames(filteredTrials)
 
-  if (paramNames.size === 0 || paramNames.size === 1) {
+  if (paramNames.length === 0 || paramNames.length === 1) {
     plotly.react(plotDomId, [], layout)
     return
   }
@@ -174,7 +169,7 @@ const plotContour = (
   const paramValues: { [key: number]: string[] } = []
   const paramIndices: Array<string> = []
 
-  if (paramNames.size >= 2) {
+  if (paramNames.length >= 2) {
     let i = 0
     paramNames.forEach((paramName) => {
       const valueStrings = filteredTrials.map((t) => {
