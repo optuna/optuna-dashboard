@@ -29,19 +29,21 @@ export const GraphContour: FC<{
     (t) => t.state === "Complete" || t.state === "Pruned"
   )
 
-  let paramNames = new Set<string>(trials[0].params.map((p) => p.name))
+  let paramSet =new Set<string>(trials[0].params.map((p) => p.name))
   filteredTrials.forEach((t) => {
-    paramNames = new Set<string>(
-      t.params.filter((p) => paramNames.has(p.name)).map((p) => p.name)
+    paramSet = new Set<string>(
+      t.params.filter((p) => paramSet.has(p.name)).map((p) => p.name)
     )
   })
 
-  const paramnames = Array.from(paramNames)
+  const paramArray = Array.from(paramSet)
+
+  
 
   const classes = useStyles()
   const [objectiveId, setObjectiveId] = useState<number>(0)
-  const [xAxis, setXAxis] = useState<string>(paramnames[0])
-  const [yAxis, setYAxis] = useState<string>(paramnames[1])
+  const [xAxis, setXAxis] = useState<string>(paramArray[0])
+  const [yAxis, setYAxis] = useState<string>(paramArray[1])
 
   const handleObjectiveChange = (
     event: React.ChangeEvent<{ value: unknown }>
@@ -82,7 +84,7 @@ export const GraphContour: FC<{
           <FormControl component="fieldset" className={classes.formControl}>
             <InputLabel id="parameter1">X Axis Parameter</InputLabel>
             <Select value={xAxis} onChange={handleXAxisChange}>
-              {paramnames.map((x) => (
+              {paramArray.map((x) => (
                 <MenuItem value={x} key={x}>
                   {x}
                 </MenuItem>
@@ -92,7 +94,7 @@ export const GraphContour: FC<{
           <FormControl component="fieldset" className={classes.formControl}>
             <InputLabel id="parameter2">Y Axis Parameter</InputLabel>
             <Select value={yAxis} onChange={handleYAxisChange}>
-              {paramnames.map((x) => (
+              {paramArray.map((x) => (
                 <MenuItem value={x} key={x}>
                   {x}
                 </MenuItem>
