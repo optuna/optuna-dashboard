@@ -28,8 +28,6 @@ const getParamNames = (trials: Trial[]): string[] => {
   return Array.from(paramSet)
 }
 
-
-
 export const GraphContour: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
@@ -37,8 +35,8 @@ export const GraphContour: FC<{
   const filteredTrials = trials.filter(
     (t) => t.state === "Complete" || t.state === "Pruned"
   )
-  
-  const paramArray = getParamNames(filteredTrials)  
+
+  const paramArray = getParamNames(filteredTrials)
 
   const classes = useStyles()
   const [objectiveId, setObjectiveId] = useState<number>(0)
@@ -177,14 +175,10 @@ const plotContour = (
         return param!.value
       })
       paramValues[i] = valueStrings
+      paramIndices[i] = paramName
       i++
     })
 
-    let k = 0
-    paramNames.forEach((paramName) => {
-      paramIndices[k] = paramName
-      k++
-    })
     const paramCategorical = { ...paramValues }
     const xIndex = paramIndices.indexOf(xAxis)
     const yIndex = paramIndices.indexOf(yAxis)
