@@ -168,15 +168,13 @@ const plotContour = (
   const paramIndices: Array<string> = []
 
   if (paramNames.length >= 2) {
-    let i = 0
-    paramNames.forEach((paramName) => {
+    paramNames.forEach((paramName, index) => {
       const valueStrings = filteredTrials.map((t) => {
         const param = t.params.find((p) => p.name == paramName)
         return param!.value
       })
-      paramValues[i] = valueStrings
-      paramIndices[i] = paramName
-      i++
+      paramValues[index] = valueStrings
+      paramIndices[index] = paramName
     })
 
     const paramCategorical = { ...paramValues }
