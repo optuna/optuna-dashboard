@@ -36,12 +36,12 @@ export const GraphContour: FC<{
     (t) => t.state === "Complete" || t.state === "Pruned"
   )
 
-  const paramArray = getParamNames(filteredTrials)
+  const paramNames = getParamNames(filteredTrials)
 
   const classes = useStyles()
   const [objectiveId, setObjectiveId] = useState<number>(0)
-  const [xAxis, setXAxis] = useState<string>(paramArray[0])
-  const [yAxis, setYAxis] = useState<string>(paramArray[1])
+  const [xAxis, setXAxis] = useState<string>(paramNames[0])
+  const [yAxis, setYAxis] = useState<string>(paramNames[1])
 
   const handleObjectiveChange = (
     event: React.ChangeEvent<{ value: unknown }>
@@ -59,9 +59,9 @@ export const GraphContour: FC<{
 
   useEffect(() => {
     if (study !== null) {
-      plotContour(study, objectiveId, xAxis, yAxis)
+      plotContour(study, objectiveId, xAxis, yAxis, paramNames)
     }
-  }, [study, objectiveId, xAxis, yAxis])
+  }, [study, objectiveId, xAxis, yAxis, paramNames])
 
   return (
     <Grid container direction="row">
@@ -82,7 +82,7 @@ export const GraphContour: FC<{
           <FormControl component="fieldset" className={classes.formControl}>
             <InputLabel id="parameter1">X Axis Parameter</InputLabel>
             <Select value={xAxis} onChange={handleXAxisChange}>
-              {paramArray.map((x) => (
+              {paramNames.map((x) => (
                 <MenuItem value={x} key={x}>
                   {x}
                 </MenuItem>
@@ -92,7 +92,7 @@ export const GraphContour: FC<{
           <FormControl component="fieldset" className={classes.formControl}>
             <InputLabel id="parameter2">Y Axis Parameter</InputLabel>
             <Select value={yAxis} onChange={handleYAxisChange}>
-              {paramArray.map((x) => (
+              {paramNames.map((x) => (
                 <MenuItem value={x} key={x}>
                   {x}
                 </MenuItem>
@@ -112,7 +112,8 @@ const plotContour = (
   study: StudyDetail,
   objectiveId: number,
   xAxis: string,
-  yAxis: string
+  yAxis: string,
+  paramNames: string[]
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -141,15 +142,13 @@ const plotContour = (
 
   const trials: Trial[] = study !== null ? study.trials : []
 
-  if (trials.length === 0) {
-    plotly.react(plotDomId, [], layout)
-  }
-
   const filteredTrials = trials.filter(
     (t) => t.state === "Complete" || t.state === "Pruned"
   )
 
-  const paramNames = getParamNames(filteredTrials)
+  if (filteredTrials.length === 0) {
+    plotly.react(plotDomId, [], layout)
+  }
 
   if (paramNames.length === 0 || paramNames.length === 1) {
     plotly.react(plotDomId, [], layout)
