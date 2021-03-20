@@ -40,8 +40,15 @@ export const GraphContour: FC<{
 
   const classes = useStyles()
   const [objectiveId, setObjectiveId] = useState<number>(0)
-  const [xAxis, setXAxis] = useState<string>(paramNames[0])
-  const [yAxis, setYAxis] = useState<string>(paramNames[1])
+  const [xAxis, setXAxis] = useState<string | null>(null)
+  const [yAxis, setYAxis] = useState<string | null>(null)
+
+  if (xAxis === null && paramNames.length !== 0) {
+    setXAxis(paramNames[0])
+  }
+  if (yAxis === null && paramNames.length !== 0) {
+    setYAxis(paramNames[0])
+  }
 
   const handleObjectiveChange = (
     event: React.ChangeEvent<{ value: unknown }>
@@ -111,8 +118,8 @@ export const GraphContour: FC<{
 const plotContour = (
   study: StudyDetail,
   objectiveId: number,
-  xAxis: string,
-  yAxis: string,
+  xAxis: string | null,
+  yAxis: string | null,
   paramNames: string[]
 ) => {
   if (document.getElementById(plotDomId) === null) {
@@ -146,7 +153,7 @@ const plotContour = (
     (t) => t.state === "Complete" || t.state === "Pruned"
   )
 
-  if (filteredTrials.length === 0) {
+  if (filteredTrials.length === 0 || xAxis === null || yAxis === null) {
     plotly.react(plotDomId, [], layout)
   }
 
@@ -177,8 +184,12 @@ const plotContour = (
     })
 
     const paramCategorical = { ...paramValues }
-    const xIndex = paramIndices.indexOf(xAxis)
-    const yIndex = paramIndices.indexOf(yAxis)
+    let xIndex = 0
+    let yIndex = 0
+    if (typeof xAxis === "string" && typeof yAxis === "string") {
+      xIndex = paramIndices.indexOf(xAxis)
+      yIndex = paramIndices.indexOf(yAxis)
+    }
 
     const xIndice = paramCategorical[xIndex].sort((a, b) => (a > b ? 1 : -1))
     const yIndice = paramCategorical[yIndex].sort((a, b) => (a > b ? 1 : -1))
