@@ -49,6 +49,9 @@ export const GraphContour: FC<{
   if (yAxis === null && paramNames.length !== 0) {
     setYAxis(paramNames[0])
   }
+  if (yAxis === null && paramNames.length > 1) {
+    setYAxis(paramNames[1])
+  }
 
   const handleObjectiveChange = (
     event: React.ChangeEvent<{ value: unknown }>
