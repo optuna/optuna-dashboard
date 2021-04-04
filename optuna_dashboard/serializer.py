@@ -35,7 +35,7 @@ TrialParam = TypedDict(
 
 
 def serialize_attrs(attrs: Dict[str, Any]) -> List[Attribute]:
-    serialized = []
+    serialized: List[Attribute] = []
     for k, v in attrs.items():
         value: str
         if isinstance(v, str):
