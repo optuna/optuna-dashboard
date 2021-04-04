@@ -1,4 +1,3 @@
-import json
 from typing import Any, Dict, List, Tuple
 
 from optuna.distributions import BaseDistribution
@@ -11,6 +10,7 @@ except ImportError:
     from typing_extensions import TypedDict
 
 
+MAX_ATTR_LENGTH = 128
 Attribute = TypedDict(
     "Attribute",
     {
@@ -35,7 +35,21 @@ TrialParam = TypedDict(
 
 
 def serialize_attrs(attrs: Dict[str, Any]) -> List[Attribute]:
-    return [{"key": k, "value": json.dumps(v)} for k, v in attrs.items()]
+    serialized = []
+    for k, v in attrs.items():
+        value: str
+        if isinstance(v, str):
+            value = v[:MAX_ATTR_LENGTH] if len(v) > MAX_ATTR_LENGTH else v
+        elif isinstance(v, (bool, float, int)):
+            value = str(v)
+        elif isinstance(v, bytes):
+            value = "<binary object>"
+        elif v is None:
+            value = "None"
+        else:  # unsupported type
+            continue
+        serialized.append({"key": k, "value": value})
+    return serialized
 
 
 def serialize_intermediate_values(values: Dict[int, float]) -> List[IntermediateValue]:
