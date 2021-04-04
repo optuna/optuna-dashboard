@@ -11,7 +11,9 @@ class SerializeAttrsTestCase(TestCase):
         for length in [100, 128, 150]:
             with self.subTest(f"length: {length}"):
                 value = "a" * length
-                serialized = serialize_attrs({
-                    "key": value,
-                })
+                serialized = serialize_attrs(
+                    {
+                        "key": value,
+                    }
+                )
                 self.assertLessEqual(len(serialized[0]["value"]), 128)
