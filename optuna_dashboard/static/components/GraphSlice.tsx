@@ -140,7 +140,8 @@ const plotSlice = (
 
   const filteredTrials = trials.filter(
     (t) =>
-      (t.state === "Complete" || (t.state === "Pruned" && t.values && t.values.length > 0)) &&
+      (t.state === "Complete" ||
+        (t.state === "Pruned" && t.values && t.values.length > 0)) &&
       t.params.find((p) => p.name == selected) !== undefined
   )
 
