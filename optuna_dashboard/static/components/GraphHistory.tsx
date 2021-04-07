@@ -187,7 +187,7 @@ const plotHistory = (
   }
 
   let filteredTrials = study.trials.filter(
-    (t) => t.state === "Complete" || t.state === "Pruned"
+    (t) => t.state === "Complete" || (t.state === "Pruned" && t.values && t.values.length > 0)
   )
   if (filterCompleteTrial) {
     filteredTrials = filteredTrials.filter((t) => t.state !== "Complete")

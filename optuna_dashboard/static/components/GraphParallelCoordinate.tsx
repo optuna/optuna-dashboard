@@ -32,7 +32,7 @@ const plotCoordinate = (trials: Trial[], objectiveId: number) => {
   }
 
   const filteredTrials = trials.filter(
-    (t) => t.state === "Complete" || t.state === "Pruned"
+    (t) => t.state === "Complete" || (t.state === "Pruned" && t.values && t.values.length > 0)
   )
 
   // Intersection param names
