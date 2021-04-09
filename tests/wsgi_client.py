@@ -1,5 +1,13 @@
 import io
-from typing import Dict, Optional, Union, Any, Tuple, List, Callable, Iterable
+from typing import Any
+from typing import Callable
+from typing import Dict
+from typing import Iterable
+from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
+
 
 WSGIEnv = Dict[str, Any]  # Cannot use TypedDict because of 'HTTP_' variables
 StartResponse = Callable[[str, List[Tuple[str, str]]], None]

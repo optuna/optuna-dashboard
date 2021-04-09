@@ -1,13 +1,16 @@
 import asyncio
+import os
 import threading
 import time
+from typing import List
+from typing import Tuple
+from wsgiref.simple_server import make_server
+
 import optuna
-import os
+from pyppeteer import launch
 
 from optuna_dashboard.app import create_app
-from pyppeteer import launch
-from typing import List, Tuple
-from wsgiref.simple_server import make_server
+
 
 host = "127.0.0.1"
 port = 8080

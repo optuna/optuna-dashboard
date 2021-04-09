@@ -1,5 +1,5 @@
-import warnings
 from unittest import TestCase
+import warnings
 
 import optuna
 from optuna import create_trial

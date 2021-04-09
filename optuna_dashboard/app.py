@@ -1,21 +1,38 @@
-from datetime import datetime, timedelta
+from datetime import datetime
+from datetime import timedelta
 import functools
 import json
 import logging
 import os
 import threading
 import traceback
-from typing import Union, Dict, List, Optional, TypeVar, Callable, Any, cast
+from typing import Any
+from typing import Callable
+from typing import cast
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import TypeVar
+from typing import Union
 
-from bottle import Bottle, BaseResponse, redirect, request, response, static_file
+from bottle import BaseResponse
+from bottle import Bottle
+from bottle import redirect
+from bottle import request
+from bottle import response
+from bottle import static_file
 import optuna
 from optuna.exceptions import DuplicatedStudyError
 from optuna.storages import BaseStorage
-from optuna.trial import FrozenTrial, TrialState
-from optuna.study import StudyDirection, StudySummary, Study
+from optuna.study import Study
+from optuna.study import StudyDirection
+from optuna.study import StudySummary
+from optuna.trial import FrozenTrial
+from optuna.trial import TrialState
 
 from . import serializer
 from .search_space import get_search_space
+
 
 BottleViewReturn = Union[str, bytes, Dict[str, Any], BaseResponse]
 BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])

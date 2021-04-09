@@ -1,9 +1,15 @@
 import copy
 import threading
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict
+from typing import List
+from typing import Optional
+from typing import Set
+from typing import Tuple
 
 from optuna.distributions import BaseDistribution
-from optuna.trial import TrialState, FrozenTrial
+from optuna.trial import FrozenTrial
+from optuna.trial import TrialState
+
 
 SearchSpaceSetT = Set[Tuple[str, BaseDistribution]]
 SearchSpaceListT = List[Tuple[str, BaseDistribution]]
