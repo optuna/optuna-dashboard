@@ -221,16 +221,16 @@ def create_app(storage: BaseStorage) -> Bottle:
         study = Study(study_name=study_name, storage=storage)
 
         trials = [trial for trial in study.trials if trial.state == TrialState.COMPLETE]
-        if len(trials) == 0:
-            return ""
         evaluator = None
         params = None
         target = None
-        importances = optuna.importance.get_param_importances(
-            study, evaluator=evaluator, params=params, target=target
-        )
-        if target is None:
-            target_name = "Objective Value"
+        if len(trials) > 0:
+            importances = optuna.importance.get_param_importances(
+                study, evaluator=evaluator, params=params, target=target
+            )
+        else:
+            importances = {}
+        target_name = "Objective Value"
 
         return {
             "target_name": target_name,
