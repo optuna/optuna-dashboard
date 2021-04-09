@@ -9,6 +9,7 @@ build/
 node_modules/
 public/
 .tox/
+tmp/
 
 *.sqlite3
 *.db

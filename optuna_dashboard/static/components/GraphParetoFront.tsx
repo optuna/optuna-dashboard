@@ -103,7 +103,7 @@ const plotParetoFront = (
     },
   }
 
-  const trials: Trial[] = study !== null ? study.trials : []
+  const trials: Trial[] = study ? study.trials : []
   const completedTrials = trials.filter((t) => t.state === "Complete")
 
   if (completedTrials.length === 0) {

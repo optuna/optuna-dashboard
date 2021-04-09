@@ -21,6 +21,8 @@ import { Home, Cached } from "@material-ui/icons"
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { HyperparameterImportances } from "./HyperparameterImportances"
+import { Edf } from "./GraphEdf"
+
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphSlice } from "./GraphSlice"
 import { GraphHistory } from "./GraphHistory"
@@ -208,6 +210,13 @@ export const StudyDetail: FC = () => {
                       studyId={studyIdNumber}
                       numOfTrials={trials.length}
                     />
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={6}>
+                <Card className={classes.card}>
+                  <CardContent>
+                    <Edf trials={trials} />
                   </CardContent>
                 </Card>
               </Grid>
