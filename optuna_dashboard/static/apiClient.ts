@@ -42,6 +42,8 @@ interface StudyDetailResponse {
   directions: StudyDirection[]
   best_trial?: TrialResponse
   trials: TrialResponse[]
+  intersection_search_space: SearchSpace[]
+  union_search_space: SearchSpace[]
 }
 
 export const getStudyDetailAPI = (studyId: number): Promise<StudyDetail> => {
@@ -61,6 +63,8 @@ export const getStudyDetailAPI = (studyId: number): Promise<StudyDetail> => {
           ? convertTrialResponse(res.data.best_trial)
           : undefined,
         trials: trials,
+        union_search_space: res.data.union_search_space,
+        intersection_search_space: res.data.intersection_search_space,
       }
     })
 }
