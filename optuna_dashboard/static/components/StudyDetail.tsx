@@ -194,7 +194,7 @@ export const StudyDetail: FC = () => {
               <Grid item xs={6}>
                 <Card className={classes.card}>
                   <CardContent>
-                    <GraphParallelCoordinate trials={trials} />
+                    <GraphParallelCoordinate study={studyDetail} />
                   </CardContent>
                 </Card>
               </Grid>

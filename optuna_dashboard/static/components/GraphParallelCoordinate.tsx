@@ -4,15 +4,17 @@ import React, { FC, useEffect } from "react"
 const plotDomId = "graph-parallel-coordinate"
 
 export const GraphParallelCoordinate: FC<{
-  trials: Trial[]
-}> = ({ trials = [] }) => {
+  study: StudyDetail | null
+}> = ({ study = null }) => {
   useEffect(() => {
-    plotCoordinate(trials, 0) // TODO(c-bata): Support multi-objective studies.
-  }, [trials])
+    if (study !== null) {
+      plotCoordinate(study, 0) // TODO(c-bata): Support multi-objective studies.
+    }
+  }, [study])
   return <div id={plotDomId} />
 }
 
-const plotCoordinate = (trials: Trial[], objectiveId: number) => {
+const plotCoordinate = (study: StudyDetail, objectiveId: number) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
@@ -26,30 +28,18 @@ const plotCoordinate = (trials: Trial[], objectiveId: number) => {
     },
   }
 
-  if (trials.length === 0) {
-    plotly.react(plotDomId, [])
+  if (study.trials.length === 0) {
+    plotly.react(plotDomId, [], layout)
     return
   }
 
-  const filteredTrials = trials.filter(
+  const filteredTrials = study.trials.filter(
     (t) =>
       t.state === "Complete" ||
       (t.state === "Pruned" && t.values && t.values.length > 0)
   )
 
   // Intersection param names
-  let paramNames = new Set<string>(trials[0].params.map((p) => p.name))
-  filteredTrials.forEach((t) => {
-    paramNames = new Set<string>(
-      t.params.filter((p) => paramNames.has(p.name)).map((p) => p.name)
-    )
-  })
-
-  if (paramNames.size === 0) {
-    plotly.react(plotDomId, [])
-    return
-  }
-
   const objectiveValues: number[] = filteredTrials.map(
     (t) => t.values![objectiveId]
   )
@@ -60,9 +50,9 @@ const plotCoordinate = (trials: Trial[], objectiveId: number) => {
       range: [Math.min(...objectiveValues), Math.max(...objectiveValues)],
     },
   ]
-  paramNames.forEach((paramName) => {
+  study.intersection_search_space.forEach((s) => {
     const valueStrings = filteredTrials.map((t) => {
-      const param = t.params.find((p) => p.name == paramName)
+      const param = t.params.find((p) => p.name === s.name)
       return param!.value
     })
     const isnum = valueStrings.every((v) => {
@@ -71,7 +61,7 @@ const plotCoordinate = (trials: Trial[], objectiveId: number) => {
     if (isnum) {
       const values: number[] = valueStrings.map((v) => parseFloat(v))
       dimensions.push({
-        label: paramName,
+        label: s.name,
         values: values,
         range: [Math.min(...values), Math.max(...values)],
       })
@@ -84,7 +74,7 @@ const plotCoordinate = (trials: Trial[], objectiveId: number) => {
       )
       const tickvals: number[] = vocabArr.map((v, i) => i)
       dimensions.push({
-        label: paramName,
+        label: s.name,
         values: values,
         range: [Math.min(...values), Math.max(...values)],
         // @ts-ignore
