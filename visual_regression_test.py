@@ -25,7 +25,16 @@ def create_optuna_storage() -> optuna.storages.InMemoryStorage:
         x2 = trial.suggest_float("x2", 0, 10)
         return (x1 - 2) ** 2 + (x2 - 5) ** 2
 
-    study.optimize(objective_single, n_trials=100)
+    study.optimize(objective_single, n_trials=50)
+
+    # Single-objective study with 1 parameter
+    study = optuna.create_study(study_name="single-objective-1-param", storage=storage, direction="maximize")
+
+    def objective_single_with_1param(trial: optuna.Trial) -> float:
+        x1 = trial.suggest_float("x1", 0, 10)
+        return - (x1 - 2) ** 2
+
+    study.optimize(objective_single_with_1param, n_trials=50)
 
     # Multi-objective study
     study = optuna.create_study(
@@ -58,15 +67,18 @@ def create_optuna_storage() -> optuna.storages.InMemoryStorage:
 
     study.optimize(objective_prune_with_no_trials, n_trials=100)
 
-    # No trials
-    optuna.create_study(study_name="no trials", storage=storage)
+    # No trials single-objective study
+    optuna.create_study(study_name="single-objective study with no trials", storage=storage)
+
+    # No trials multi-objective study
+    optuna.create_study(study_name="multi-objective study with no trials", storage=storage, directions=["minimize", "maximize"])
     return storage
 
 
 async def take_screenshots(study_ids: List[int]) -> None:
     browser = await launch()
     page = await browser.newPage()
-    await page.setViewport({"width": 1200, "height": 3000})
+    await page.setViewport({"width": 1000, "height": 3000})
 
     await page.goto(f"http://{host}:{port}/dashboard/")
     time.sleep(1)
@@ -74,7 +86,7 @@ async def take_screenshots(study_ids: List[int]) -> None:
 
     for study_id in study_ids:
         await page.goto(f"http://{host}:{port}/dashboard/studies/{study_id}")
-        time.sleep(5)
+        time.sleep(10)
         await page.screenshot(
             {"path": os.path.join(output_dir, f"study-{study_id}.png")}
         )
