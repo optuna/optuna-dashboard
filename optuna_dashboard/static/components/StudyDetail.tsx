@@ -26,7 +26,6 @@ import { Edf } from "./GraphEdf"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphSlice } from "./GraphSlice"
 import { GraphHistory } from "./GraphHistory"
-import { GraphContour } from "./GraphContour"
 import { GraphParetoFront } from "./GraphParetoFront"
 import { actionCreator } from "../action"
 import { studyDetailsState } from "../state"
@@ -233,13 +232,6 @@ export const StudyDetail: FC = () => {
             <Card className={classes.card}>
               <CardContent>
                 <GraphSlice study={studyDetail} />
-              </CardContent>
-            </Card>
-          ) : null}
-          {studyDetail !== null ? (
-            <Card className={classes.card}>
-              <CardContent>
-                <GraphContour study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}
