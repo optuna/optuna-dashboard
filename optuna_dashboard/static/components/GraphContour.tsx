@@ -118,7 +118,7 @@ export const GraphContour: FC<{
           </FormControl>
         </Grid>
       </Grid>
-      <Grid item xs={6}>
+      <Grid item xs={9}>
         <div id={plotDomId} />
       </Grid>
     </Grid>
@@ -137,10 +137,11 @@ const plotContour = (
   }
 
   const layout: Partial<plotly.Layout> = {
-    title: "Contour",
     margin: {
       l: 50,
+      t: 0,
       r: 50,
+      b: 0,
     },
     xaxis: {
       gridcolor: "#f2f5fa",
