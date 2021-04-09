@@ -164,6 +164,7 @@ async def take_screenshots(storage: optuna.storages.BaseStorage) -> None:
 
 def main() -> None:
     os.makedirs(args.output_dir, exist_ok=True)
+    storage: optuna.storages.BaseStorage
     if args.storage:
         storage = optuna.storages.RDBStorage(args.storage)
     else:
