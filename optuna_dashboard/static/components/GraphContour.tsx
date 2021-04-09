@@ -153,7 +153,7 @@ const plotContour = (
   const trials: Trial[] = study !== null ? study.trials : []
 
   const filteredTrials = trials.filter(
-    (t) => t.state === "Complete" || t.state === "Pruned"
+    (t) => t.state === "Complete" || (t.state === "Pruned" && t.values && t.values.length > 0)
   )
 
   if (filteredTrials.length === 0 || xAxis === null || yAxis === null) {
