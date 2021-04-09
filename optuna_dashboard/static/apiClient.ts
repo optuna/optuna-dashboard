@@ -64,7 +64,7 @@ export const getStudyDetailAPI = (studyId: number): Promise<StudyDetail> => {
           : undefined,
         trials: trials,
         union_search_space: res.data.union_search_space,
-        intersection_search_space: res.data.union_search_space,
+        intersection_search_space: res.data.intersection_search_space,
       }
     })
 }
