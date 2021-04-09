@@ -73,7 +73,7 @@ $ tox -e py39
 ### Linters (flake8, black and mypy)
 
 ```
-$ pip install .[lint]
+$ pip install -r requirements.txt
 $ flake8
 $ black --check .
 $ isort . --check
