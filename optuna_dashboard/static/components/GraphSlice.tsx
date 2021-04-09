@@ -32,7 +32,7 @@ export const GraphSlice: FC<{
   const trials: Trial[] = study !== null ? study.trials : []
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const [selected, setSelected] = useState<string | null>(null)
-  const paramNames = study?.union_search_space.map(s => s.name)
+  const paramNames = study?.union_search_space.map((s) => s.name)
   if (selected === null && paramNames && paramNames.length > 0) {
     setSelected(paramNames[0])
   }
