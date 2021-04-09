@@ -7,6 +7,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  Typography,
 } from "@material-ui/core"
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
 
@@ -14,6 +15,9 @@ const plotDomId = "graph-contour"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    title: {
+      margin: "1em 0",
+    },
     formControl: {
       marginBottom: theme.spacing(2),
       marginRight: theme.spacing(2),
@@ -84,6 +88,7 @@ export const GraphContour: FC<{
     <Grid container direction="row">
       <Grid item xs={3}>
         <Grid container direction="column">
+          <Typography variant="h6" className={classes.title}>Contour</Typography>
           {study !== null && study.directions.length !== 1 ? (
             <FormControl component="fieldset" className={classes.formControl}>
               <FormLabel component="legend">Objective ID:</FormLabel>
