@@ -156,7 +156,9 @@ const plotParetoFront = (
       marker: {
         color: pointColors,
       },
-      text: completedTrials.map((t: Trial): string => `Trial (number=${t.number})`),
+      text: completedTrials.map(
+        (t: Trial): string => `Trial (number=${t.number})`
+      ),
       hovertemplate: "%{text}<extra></extra>",
     },
   ]
