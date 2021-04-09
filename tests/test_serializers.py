@@ -1,4 +1,5 @@
 from unittest import TestCase
+
 from optuna_dashboard.serializer import serialize_attrs
 
 
