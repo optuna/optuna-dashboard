@@ -28,11 +28,13 @@ def create_optuna_storage() -> optuna.storages.InMemoryStorage:
     study.optimize(objective_single, n_trials=50)
 
     # Single-objective study with 1 parameter
-    study = optuna.create_study(study_name="single-objective-1-param", storage=storage, direction="maximize")
+    study = optuna.create_study(
+        study_name="single-objective-1-param", storage=storage, direction="maximize"
+    )
 
     def objective_single_with_1param(trial: optuna.Trial) -> float:
         x1 = trial.suggest_float("x1", 0, 10)
-        return - (x1 - 2) ** 2
+        return -((x1 - 2) ** 2)
 
     study.optimize(objective_single_with_1param, n_trials=50)
 
@@ -68,10 +70,16 @@ def create_optuna_storage() -> optuna.storages.InMemoryStorage:
     study.optimize(objective_prune_with_no_trials, n_trials=100)
 
     # No trials single-objective study
-    optuna.create_study(study_name="single-objective study with no trials", storage=storage)
+    optuna.create_study(
+        study_name="single-objective study with no trials", storage=storage
+    )
 
     # No trials multi-objective study
-    optuna.create_study(study_name="multi-objective study with no trials", storage=storage, directions=["minimize", "maximize"])
+    optuna.create_study(
+        study_name="multi-objective study with no trials",
+        storage=storage,
+        directions=["minimize", "maximize"],
+    )
     return storage
 
 
