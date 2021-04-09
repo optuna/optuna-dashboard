@@ -11,6 +11,7 @@ import {
   Select,
   Radio,
   RadioGroup,
+  Typography,
 } from "@material-ui/core"
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
 
@@ -18,6 +19,9 @@ const plotDomId = "graph-history"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    title: {
+      margin: "1em 0",
+    },
     formControl: {
       marginBottom: theme.spacing(2),
     },
@@ -83,6 +87,9 @@ export const GraphHistory: FC<{
     <Grid container direction="row">
       <Grid item xs={3}>
         <Grid container direction="column">
+          <Typography variant="h6" className={classes.title}>
+            History
+          </Typography>
           {study !== null && study.directions.length !== 1 ? (
             <FormControl component="fieldset" className={classes.formControl}>
               <FormLabel component="legend">Objective ID:</FormLabel>

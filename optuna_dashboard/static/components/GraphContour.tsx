@@ -88,7 +88,9 @@ export const GraphContour: FC<{
     <Grid container direction="row">
       <Grid item xs={3}>
         <Grid container direction="column">
-          <Typography variant="h6" className={classes.title}>Contour</Typography>
+          <Typography variant="h6" className={classes.title}>
+            Contour
+          </Typography>
           {study !== null && study.directions.length !== 1 ? (
             <FormControl component="fieldset" className={classes.formControl}>
               <FormLabel component="legend">Objective ID:</FormLabel>
