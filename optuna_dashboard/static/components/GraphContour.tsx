@@ -32,26 +32,33 @@ export const GraphContour: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const trials: Trial[] = study !== null ? study.trials : []
-  const filteredTrials = trials.filter(
-    (t) => t.state === "Complete" || t.state === "Pruned"
-  )
-
-  const paramNames = getParamNames(filteredTrials)
-
   const classes = useStyles()
+  const [paramNames, setParamNames] = useState<string[]>([])
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const [xAxis, setXAxis] = useState<string | null>(null)
   const [yAxis, setYAxis] = useState<string | null>(null)
 
-  if (xAxis === null && paramNames.length !== 0) {
-    setXAxis(paramNames[0])
-  }
-  if (yAxis === null && paramNames.length !== 0) {
-    setYAxis(paramNames[0])
-  }
-  if (yAxis === null && paramNames.length > 1) {
-    setYAxis(paramNames[1])
-  }
+  useEffect(() => {
+    if (trials.length === 0 || paramNames.length !== 0) {
+      return
+    }
+    const filteredTrials = trials.filter(
+      (t) =>
+        t.state === "Complete" ||
+        (t.state === "Pruned" && t.values && t.values.length > 0)
+    )
+
+    const p = getParamNames(filteredTrials)
+    if (p.length === 0 || p.length === paramNames.length) {
+      return
+    }
+    setParamNames(p)
+    if (p.length < 2 && xAxis !== null && yAxis !== null) {
+      return
+    }
+    setXAxis(p[0])
+    setYAxis(p[1])
+  }, [trials])
 
   const handleObjectiveChange = (
     event: React.ChangeEvent<{ value: unknown }>
@@ -91,7 +98,7 @@ export const GraphContour: FC<{
           ) : null}
           <FormControl component="fieldset" className={classes.formControl}>
             <InputLabel id="parameter1">X Axis Parameter</InputLabel>
-            <Select value={xAxis} onChange={handleXAxisChange}>
+            <Select value={xAxis || ""} onChange={handleXAxisChange}>
               {paramNames.map((x) => (
                 <MenuItem value={x} key={x}>
                   {x}
@@ -101,7 +108,7 @@ export const GraphContour: FC<{
           </FormControl>
           <FormControl component="fieldset" className={classes.formControl}>
             <InputLabel id="parameter2">Y Axis Parameter</InputLabel>
-            <Select value={yAxis} onChange={handleYAxisChange}>
+            <Select value={yAxis || ""} onChange={handleYAxisChange}>
               {paramNames.map((x) => (
                 <MenuItem value={x} key={x}>
                   {x}
@@ -153,7 +160,9 @@ const plotContour = (
   const trials: Trial[] = study !== null ? study.trials : []
 
   const filteredTrials = trials.filter(
-    (t) => t.state === "Complete" || (t.state === "Pruned" && t.values && t.values.length > 0)
+    (t) =>
+      t.state === "Complete" ||
+      (t.state === "Pruned" && t.values && t.values.length > 0)
   )
 
   if (filteredTrials.length === 0 || xAxis === null || yAxis === null) {
