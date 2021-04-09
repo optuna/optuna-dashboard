@@ -96,10 +96,6 @@ const plotParetoFront = (
     return
   }
 
-  const dim: number = study.directions.length
-  if (dim != 2) {
-    return
-  }
   const layout: Partial<plotly.Layout> = {
     margin: {
       l: 50,
@@ -119,7 +115,7 @@ const plotParetoFront = (
 
   const normalizedValues: number[][] = []
   completedTrials.forEach((t) => {
-    if (t.values && t.values.length == dim) {
+    if (t.values && t.values.length === study.directions.length) {
       const trialValues = t.values.map((v: number, i: number) => {
         return study.directions[i] === "minimize" ? v : -v
       })
@@ -129,9 +125,7 @@ const plotParetoFront = (
 
   const pointColors: string[] = []
   normalizedValues.forEach((values0: number[], i: number) => {
-    let dominated = false
-
-    dominated = normalizedValues.some((values1: number[], j: number) => {
+    const dominated = normalizedValues.some((values1: number[], j: number) => {
       if (i === j) {
         return false
       }
@@ -162,17 +156,7 @@ const plotParetoFront = (
       marker: {
         color: pointColors,
       },
-      text: completedTrials.map((t: Trial): string => {
-        return JSON.stringify(
-          {
-            number: t.number,
-            values: t.values,
-            params: t.params,
-          },
-          null,
-          2
-        ).replaceAll("\n", "<br>")
-      }),
+      text: completedTrials.map((t: Trial): string => `Trial (number=${t.number})`),
       hovertemplate: "%{text}<extra></extra>",
     },
   ]
