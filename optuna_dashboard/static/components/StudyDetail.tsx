@@ -265,9 +265,9 @@ const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
       field: "values",
       label: "Value",
       sortable: true,
-      less: (i, j): number => {
-        const firstVal = trials[i].values?.[0]
-        const secondVal = trials[j].values?.[0]
+      less: (firstEl, secondEl): number => {
+        const firstVal = firstEl.values?.[0]
+        const secondVal = secondEl.values?.[0]
 
         if (firstVal === secondVal) {
           return 0
@@ -293,9 +293,9 @@ const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
       field: "values",
       label: `Objective ${objectiveId}`,
       sortable: true,
-      less: (i, j): number => {
-        const firstVal = trials[i].values?.[objectiveId]
-        const secondVal = trials[j].values?.[objectiveId]
+      less: (firstEl, secondEl): number => {
+        const firstVal = firstEl.values?.[objectiveId]
+        const secondVal = secondEl.values?.[objectiveId]
 
         if (firstVal === secondVal) {
           return 0
@@ -328,15 +328,15 @@ const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
       return null
     },
     sortable: true,
-    less: (i, j): number => {
-      const firstStartMs = trials[i].datetime_start?.getTime()
-      const firstCompleteMs = trials[i].datetime_complete?.getTime()
+    less: (firstEl, secondEl): number => {
+      const firstStartMs = firstEl.datetime_start?.getTime()
+      const firstCompleteMs = firstEl.datetime_complete?.getTime()
       const firstDurationMs =
         firstStartMs !== undefined && firstCompleteMs !== undefined
           ? firstCompleteMs - firstStartMs
           : undefined
-      const secondStartMs = trials[j].datetime_start?.getTime()
-      const secondCompleteMs = trials[j].datetime_complete?.getTime()
+      const secondStartMs = secondEl.datetime_start?.getTime()
+      const secondCompleteMs = secondEl.datetime_complete?.getTime()
       const secondDurationMs =
         secondStartMs !== undefined && secondCompleteMs !== undefined
           ? secondCompleteMs - secondStartMs
