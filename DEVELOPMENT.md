@@ -70,6 +70,17 @@ $ pip install tox
 $ tox -e py39
 ```
 
+### Running visual regression tests using pyppeteer
+
+Please run following commands, then check screenshots in `tmp/` directory.
+
+```
+$ pip install -r requirements.txt
+$ python visual_regression_test.py --output-dir tmp
+```
+
+Note: When you run pyppeteer for the first time, it downloads the latest version of Chromium (~150MB) if it is not found on your system.
+
 ### Linters (flake8, black and mypy)
 
 ```
