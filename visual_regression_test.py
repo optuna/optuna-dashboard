@@ -28,10 +28,19 @@ parser.add_argument(
 parser.add_argument(
     "--output-dir", help="output directory (default: %(default)s)", default="tmp"
 )
+parser.add_argument(
+    "--width", help="window width (default: %(default)s)", type=int, default=1000
+)
+parser.add_argument(
+    "--height", help="window height (default: %(default)s)", type=int, default=3000
+)
+parser.add_argument(
+    "--storage", help="storage url (default: %(default)s)", default=None
+)
 args = parser.parse_args()
 
 
-def create_optuna_storage() -> optuna.storages.InMemoryStorage:
+def create_dummy_storage() -> optuna.storages.InMemoryStorage:
     storage = optuna.storages.InMemoryStorage()
 
     # Single-objective study
@@ -137,7 +146,7 @@ def create_optuna_storage() -> optuna.storages.InMemoryStorage:
 async def take_screenshots(storage: optuna.storages.BaseStorage) -> None:
     browser = await launch()
     page = await browser.newPage()
-    await page.setViewport({"width": 1000, "height": 3000})
+    await page.setViewport({"width": args.width, "height": args.height})
 
     await page.goto(f"http://{args.host}:{args.port}/dashboard/")
     time.sleep(1)
@@ -155,7 +164,10 @@ async def take_screenshots(storage: optuna.storages.BaseStorage) -> None:
 
 def main() -> None:
     os.makedirs(args.output_dir, exist_ok=True)
-    storage = create_optuna_storage()
+    if args.storage:
+        storage = optuna.storages.RDBStorage(args.storage)
+    else:
+        storage = create_dummy_storage()
     app = create_app(storage)
     httpd = make_server(args.host, args.port, app)
     thread = threading.Thread(target=httpd.serve_forever)
