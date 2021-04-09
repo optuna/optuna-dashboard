@@ -183,6 +183,13 @@ export const StudyDetail: FC = () => {
               <GraphHistory study={studyDetail} />
             </CardContent>
           </Card>
+          {studyDetail !== null && !isSingleObjectiveStudy(studyDetail) ? (
+            <Card className={classes.card}>
+              <CardContent>
+                <GraphParetoFront study={studyDetail} />
+              </CardContent>
+            </Card>
+          ) : null}
           {studyDetail !== null && isSingleObjectiveStudy(studyDetail) ? (
             <Grid container direction="row">
               <Grid item xs={6}>
@@ -233,13 +240,6 @@ export const StudyDetail: FC = () => {
             <Card className={classes.card}>
               <CardContent>
                 <GraphContour study={studyDetail} />
-              </CardContent>
-            </Card>
-          ) : null}
-          {studyDetail !== null && !isSingleObjectiveStudy(studyDetail) ? (
-            <Card className={classes.card}>
-              <CardContent>
-                <GraphParetoFront study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}

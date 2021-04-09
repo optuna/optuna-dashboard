@@ -6,6 +6,7 @@ import {
   FormLabel,
   MenuItem,
   Select,
+  Typography,
 } from "@material-ui/core"
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
 
@@ -13,10 +14,12 @@ const plotDomId = "graph-pareto-front"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
+    title: {
+      margin: "1em 0",
+    },
     formControl: {
       marginBottom: theme.spacing(2),
       marginRight: theme.spacing(5),
-      marginTop: theme.spacing(10),
     },
   })
 )
@@ -51,6 +54,9 @@ export const GraphParetoFront: FC<{
       {study !== null && study.directions.length !== 1 ? (
         <Grid item xs={3}>
           <Grid container direction="column">
+            <Typography variant="h6" className={classes.title}>
+              Pareto Front
+            </Typography>
             <FormControl component="fieldset" className={classes.formControl}>
               <FormLabel component="legend">Objective X ID:</FormLabel>
               <Select value={objectiveXId} onChange={handleObjectiveXChange}>
@@ -74,7 +80,7 @@ export const GraphParetoFront: FC<{
           </Grid>
         </Grid>
       ) : null}
-      <Grid item xs={6}>
+      <Grid item xs={9}>
         <div id={plotDomId} />
       </Grid>
     </Grid>
@@ -95,9 +101,9 @@ const plotParetoFront = (
     return
   }
   const layout: Partial<plotly.Layout> = {
-    title: "Pareto-front plot",
     margin: {
       l: 50,
+      t: 0,
       r: 50,
       b: 0,
     },
