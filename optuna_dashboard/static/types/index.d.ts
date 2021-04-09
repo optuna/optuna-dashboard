@@ -33,6 +33,11 @@ declare interface ParamImportance {
   distribution: Distribution
 }
 
+declare interface SearchSpace {
+  name: string
+  type: string
+}
+
 declare interface Attribute {
   key: string
   value: string
@@ -68,6 +73,8 @@ declare interface StudyDetail {
   datetime_start: Date
   best_trial?: Trial
   trials: Trial[]
+  intersection_search_space: SearchSpace[]
+  union_search_space: SearchSpace[]
 }
 
 declare interface StudyDetails {
