@@ -21,7 +21,8 @@ jobs:
           python -m pip install --upgrade pip setuptools
           pip install --progress-bar off .[lint]
       - run: flake8 . --show-source
-      - run: black --check .
+      - run: black --check --diff .
+      - run: isort --check --diff .
       - run: mypy .
   test:
     runs-on: ubuntu-latest

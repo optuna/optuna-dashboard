@@ -76,6 +76,7 @@ $ tox -e py39
 $ pip install .[lint]
 $ flake8
 $ black --check .
+$ isort . --check
 $ mypy .
 ```
 
