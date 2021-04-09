@@ -25,33 +25,17 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-const getParamNames = (trials: Trial[]): string[] => {
-  const paramSet = new Set<string>(
-    ...trials.map<string[]>((t) => t.params.map((p) => p.name))
-  )
-  return Array.from(paramSet)
-}
-
 export const GraphSlice: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const classes = useStyles()
   const trials: Trial[] = study !== null ? study.trials : []
-  const [paramNames, setParamNames] = useState<string[]>([])
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const [selected, setSelected] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (trials.length === 0 || paramNames.length !== 0) {
-      return
-    }
-
-    const p = getParamNames(trials)
-    setParamNames(p)
-    if (selected === null && p.length !== 0) {
-      setSelected(p[0])
-    }
-  }, [trials])
+  const paramNames = study?.union_search_space.map(s => s.name)
+  if (selected === null && paramNames && paramNames.length > 0) {
+    setSelected(paramNames[0])
+  }
 
   useEffect(() => {
     plotSlice(trials, objectiveId, selected)
@@ -86,18 +70,16 @@ export const GraphSlice: FC<{
               </Select>
             </FormControl>
           ) : null}
-          {paramNames.length !== 0 && selected !== null ? (
-            <FormControl component="fieldset" className={classes.formControl}>
-              <InputLabel id="parameter">Parameter</InputLabel>
-              <Select value={selected || ""} onChange={handleSelectedParam}>
-                {paramNames.map((p, i) => (
-                  <MenuItem value={p} key={i}>
-                    {p}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          ) : null}
+          <FormControl component="fieldset" className={classes.formControl}>
+            <InputLabel id="parameter">Parameter</InputLabel>
+            <Select value={selected || ""} onChange={handleSelectedParam}>
+              {paramNames?.map((p, i) => (
+                <MenuItem value={p} key={i}>
+                  {p}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Grid>
       </Grid>
       <Grid item xs={9}>
