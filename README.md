@@ -49,21 +49,22 @@ optional arguments:
 
 ### Manage studies
 
-You can create and delete a study from Dashboard.
+You can create and delete studies from Dashboard.
 
-![optuna-create-delete-study](https://user-images.githubusercontent.com/5564044/97099702-4107be80-16cf-11eb-9d97-f5ceec98ce52.gif)
+![optuna-dashboard-create-delete-study](https://user-images.githubusercontent.com/5564044/114265534-40b87100-9a2c-11eb-947f-02448809d8cd.gif)
 
 ### Visualize with interactive graphs
 
-Interactive live-updating graphs for optimization history, parallel coordinate and intermediate values.
+Interactive live-updating graphs for optimization history, parallel coordinate, intermediate values and hyperparameter importances.
 
-![optuna-realtime-graph](https://user-images.githubusercontent.com/5564044/97099797-66e19300-16d0-11eb-826c-6977e3941fb0.gif)
+![optuna-dashboard-realtime-graph](https://user-images.githubusercontent.com/5564044/114265619-d81dc400-9a2c-11eb-9a26-a4577574312e.gif)
 
 ### Rich trials data grid
 
 You can walk-through trials by filtering and sorting.
 
-![optuna-trial-table](https://user-images.githubusercontent.com/5564044/97099599-36005e80-16ce-11eb-929c-8498f6ea09da.gif)
+![optuna-dashboard-trials-datagrid](https://user-images.githubusercontent.com/5564044/114265667-20d57d00-9a2d-11eb-8b9c-69541c9b4a28.gif)
+
 
 ## Submitting patches
 
