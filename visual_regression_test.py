@@ -165,9 +165,10 @@ async def take_screenshots(storage: optuna.storages.BaseStorage) -> List[str]:
     page = await browser.newPage()
     await page.setViewport({"width": args.width, "height": args.height})
 
-    await page.goto(f"http://{args.host}:{args.port}/dashboard/")
-    time.sleep(1)
-    await page.screenshot({"path": os.path.join(args.output_dir, "study-list.png")})
+    if not args.skip_screenshot:
+        await page.goto(f"http://{args.host}:{args.port}/dashboard/")
+        time.sleep(1)
+        await page.screenshot({"path": os.path.join(args.output_dir, "study-list.png")})
 
     study_ids = {s._study_id: s.study_name for s in storage.get_all_study_summaries()}
     for study_id, study_name in study_ids.items():

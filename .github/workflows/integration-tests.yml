@@ -46,6 +46,6 @@ jobs:
         env:
           PYPPETEER_HOME: ./local-chromium
 
-      - run: python visual_regression_test.py --no-screenshot --sleep 3
+      - run: python visual_regression_test.py --skip-screenshot --sleep 3
         env:
           PYPPETEER_HOME: ./local-chromium
