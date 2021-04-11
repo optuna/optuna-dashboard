@@ -1,13 +1,16 @@
 import argparse
 import asyncio
 import os
+import sys
 import threading
 import time
+from typing import List
 from typing import Tuple
 from wsgiref.simple_server import make_server
 
 import optuna
 from pyppeteer import launch
+from pyppeteer.page import Page
 
 from optuna_dashboard.app import create_app
 
@@ -23,7 +26,7 @@ parser.add_argument(
     "--sleep",
     help="sleep seconds on each page open (default: %(default)s)",
     type=int,
-    default="10",
+    default=5,
 )
 parser.add_argument(
     "--output-dir", help="output directory (default: %(default)s)", default="tmp"
@@ -36,6 +39,9 @@ parser.add_argument(
 )
 parser.add_argument(
     "--storage", help="storage url (default: %(default)s)", default=None
+)
+parser.add_argument(
+    "--skip-screenshot", help="skip to take screenshot", action="store_true"
 )
 args = parser.parse_args()
 
@@ -143,7 +149,18 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
     return storage
 
 
-async def take_screenshots(storage: optuna.storages.BaseStorage) -> None:
+async def contains_study_name(page: Page, study_name: str) -> bool:
+    h6_elements = await page.querySelectorAll("h6")
+    for element in h6_elements:
+        title = await page.evaluate("(element) => element.textContent", element)
+        if title == study_name:
+            return True
+    return False
+
+
+async def take_screenshots(storage: optuna.storages.BaseStorage) -> List[str]:
+    validation_errors: List[str] = []
+
     browser = await launch()
     page = await browser.newPage()
     await page.setViewport({"width": args.width, "height": args.height})
@@ -156,10 +173,20 @@ async def take_screenshots(storage: optuna.storages.BaseStorage) -> None:
     for study_id, study_name in study_ids.items():
         await page.goto(f"http://{args.host}:{args.port}/dashboard/studies/{study_id}")
         time.sleep(args.sleep)
-        await page.screenshot(
-            {"path": os.path.join(args.output_dir, f"study-{study_name}.png")}
-        )
+
+        if not args.skip_screenshot:
+            await page.screenshot(
+                {"path": os.path.join(args.output_dir, f"study-{study_name}.png")}
+            )
+
+        is_crashed = not await contains_study_name(page, study_name)
+        if is_crashed:
+            validation_errors.append(
+                f"Page is crashed at study_name='{study_name}' (id={study_id})"
+            )
+
     await browser.close()
+    return validation_errors
 
 
 def main() -> None:
@@ -179,11 +206,16 @@ def main() -> None:
     thread.start()
 
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(take_screenshots(storage))
+    error_messages = loop.run_until_complete(take_screenshots(storage))
+    for msg in error_messages:
+        print(msg)
 
     httpd.shutdown()
     httpd.server_close()
     thread.join()
+
+    if error_messages:
+        sys.exit(1)
 
 
 if __name__ == "__main__":
