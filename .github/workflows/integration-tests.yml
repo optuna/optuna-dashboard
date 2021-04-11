@@ -1,0 +1,51 @@
+name: integration-tests
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/integration-tests.yml'
+      - '**.py'
+      - '**.ts'
+      - '**.tsx'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Node v14
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14'
+      - run: npm install
+      - run: npm run build:dev
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+          architecture: x64
+      - name: Install dependencies
+        run: |
+          python -m pip install --progress-bar off --upgrade pip setuptools
+          pip install --progress-bar off .
+          pip install --progress-bar off pyppeteer
+
+      - name: Cache headless chromium
+        id: cache-chromium
+        uses: actions/cache@v2
+        with:
+          path: ./local-chromium
+          key: chromium
+      - run: pyppeteer-install
+        if: steps.cache-chromium.outputs.cache-hit != 'true'
+        env:
+          PYPPETEER_HOME: ./local-chromium
+
+      - run: python visual_regression_test.py
+        env:
+          PYPPETEER_HOME: ./local-chromium --no-screenshot --sleep 3
