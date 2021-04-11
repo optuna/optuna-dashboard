@@ -164,11 +164,15 @@ async def take_screenshots(storage: optuna.storages.BaseStorage) -> None:
 
 def main() -> None:
     os.makedirs(args.output_dir, exist_ok=True)
+
     storage: optuna.storages.BaseStorage
-    if args.storage:
-        storage = optuna.storages.RDBStorage(args.storage)
-    else:
+    if not args.storage:
         storage = create_dummy_storage()
+    elif args.storage.startswith("redis"):
+        storage = optuna.storages.RedisStorage(args.storage)
+    else:
+        storage = optuna.storages.RDBStorage(args.storage)
+
     app = create_app(storage)
     httpd = make_server(args.host, args.port, app)
     thread = threading.Thread(target=httpd.serve_forever)

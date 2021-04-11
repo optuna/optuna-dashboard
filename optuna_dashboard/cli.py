@@ -2,7 +2,9 @@ import argparse
 import os
 
 from bottle import run
+from optuna.storages import BaseStorage
 from optuna.storages import RDBStorage
+from optuna.storages import RedisStorage
 
 from .app import create_app
 from .version import __version__
@@ -24,7 +26,12 @@ def main() -> None:
     parser.add_argument("--quiet", "-q", help="quiet", action="store_true")
     args = parser.parse_args()
 
-    storage = RDBStorage(args.storage)
+    storage: BaseStorage
+    if args.storage.startswith("redis"):
+        storage = RedisStorage(args.storage)
+    else:
+        storage = RDBStorage(args.storage)
+
     app = create_app(storage)
     run(app, host=args.host, port=args.port, quiet=args.quiet, reloader=AUTO_RELOAD)
 
