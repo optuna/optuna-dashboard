@@ -6,6 +6,9 @@ on:
       - '.eslintrc.js'
       - '**.ts'
       - '**.tsx'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
 jobs:
   lint:
     name: Lint checking on Ubuntu
