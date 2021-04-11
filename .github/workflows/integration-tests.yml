@@ -12,7 +12,7 @@ on:
       - 'package-lock.json'
       - 'tsconfig.json'
 jobs:
-  lint:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -46,6 +46,6 @@ jobs:
         env:
           PYPPETEER_HOME: ./local-chromium
 
-      - run: python visual_regression_test.py
+      - run: python visual_regression_test.py --no-screenshot --sleep 3
         env:
-          PYPPETEER_HOME: ./local-chromium --no-screenshot --sleep 3
+          PYPPETEER_HOME: ./local-chromium
