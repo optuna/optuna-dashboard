@@ -7,10 +7,16 @@ Code files were originally taken from [Goptuna](https://github.com/c-bata/goptun
 
 ## Usage
 
-You can install optuna-dashboard via pip.
+You can install optuna-dashboard via [PyPI](https://pypi.org/project/optuna-dashboard/) or [conda-forge](https://anaconda.org/conda-forge/optuna-dashboard).
 
-```console
+```
 $ pip install optuna-dashboard
+```
+
+or
+
+```
+$ conda install -c conda-forge optuna-dashboard
 ```
 
 Then please execute `optuna-dashboard` command with Optuna storage URL.
