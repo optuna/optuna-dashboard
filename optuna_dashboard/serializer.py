@@ -1,3 +1,4 @@
+import json
 from typing import Any
 from typing import Dict
 from typing import List
@@ -14,7 +15,7 @@ except ImportError:
     from typing_extensions import TypedDict
 
 
-MAX_ATTR_LENGTH = 128
+MAX_ATTR_LENGTH = 1024
 Attribute = TypedDict(
     "Attribute",
     {
@@ -42,16 +43,11 @@ def serialize_attrs(attrs: Dict[str, Any]) -> List[Attribute]:
     serialized: List[Attribute] = []
     for k, v in attrs.items():
         value: str
-        if isinstance(v, str):
-            value = v[:MAX_ATTR_LENGTH] if len(v) > MAX_ATTR_LENGTH else v
-        elif isinstance(v, (bool, float, int)):
-            value = str(v)
-        elif isinstance(v, bytes):
+        if isinstance(v, bytes):
             value = "<binary object>"
-        elif v is None:
-            value = "None"
-        else:  # unsupported type
-            continue
+        else:
+            value = json.dumps(v)
+            value = value[:MAX_ATTR_LENGTH] if len(value) > MAX_ATTR_LENGTH else value
         serialized.append({"key": k, "value": value})
     return serialized
 
