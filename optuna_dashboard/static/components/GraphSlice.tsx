@@ -6,6 +6,7 @@ import {
   FormLabel,
   InputLabel,
   MenuItem,
+  Switch,
   Select,
   Typography,
 } from "@material-ui/core"
@@ -32,14 +33,15 @@ export const GraphSlice: FC<{
   const trials: Trial[] = study !== null ? study.trials : []
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const [selected, setSelected] = useState<string | null>(null)
+  const [logScale, setLogScale] = useState<boolean>(false)
   const paramNames = study?.union_search_space.map((s) => s.name)
   if (selected === null && paramNames && paramNames.length > 0) {
     setSelected(paramNames[0])
   }
 
   useEffect(() => {
-    plotSlice(trials, objectiveId, selected)
-  }, [trials, objectiveId, selected])
+    plotSlice(trials, objectiveId, selected, logScale)
+  }, [trials, objectiveId, selected, logScale])
 
   const handleObjectiveChange = (
     event: React.ChangeEvent<{ value: unknown }>
@@ -49,6 +51,11 @@ export const GraphSlice: FC<{
 
   const handleSelectedParam = (e: ChangeEvent<{ value: unknown }>) => {
     setSelected(e.target.value as string)
+  }
+
+  const handleLogScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    setLogScale(!logScale)
   }
 
   return (
@@ -80,6 +87,14 @@ export const GraphSlice: FC<{
               ))}
             </Select>
           </FormControl>
+          <FormControl component="fieldset" className={classes.formControl}>
+            <FormLabel component="legend">Log scale:</FormLabel>
+            <Switch
+              checked={logScale}
+              onChange={handleLogScaleChange}
+              value="enable"
+            />
+          </FormControl>
         </Grid>
       </Grid>
       <Grid item xs={9}>
@@ -92,7 +107,8 @@ export const GraphSlice: FC<{
 const plotSlice = (
   trials: Trial[],
   objectiveId: number,
-  selected: string | null
+  selected: string | null,
+  logScale: boolean
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -113,15 +129,18 @@ const plotSlice = (
       linewidth: 5,
       gridcolor: "#f2f5fa",
       gridwidth: 1,
+      automargin: true,
     },
     yaxis: {
       title: "Objective Values",
+      type: logScale ? "log" : "linear",
       zerolinecolor: "#f2f5fa",
       zerolinewidth: 2,
       linecolor: "#f2f5fa",
       linewidth: 5,
       gridcolor: "#f2f5fa",
       gridwidth: 1,
+      automargin: true,
     },
     plot_bgcolor: "#E5ecf6",
     showlegend: false,
@@ -157,7 +176,6 @@ const plotSlice = (
         x: valuesNum,
         y: objectiveValues,
         mode: "markers",
-        xaxis: selected,
         marker: {
           color: "#185799",
         },
@@ -171,6 +189,10 @@ const plotSlice = (
       linewidth: 5,
       gridcolor: "#f2f5fa",
       gridwidth: 1,
+      tickfont: {
+        color: "#000000",
+      },
+      automargin: true, // Otherwise the label is outside of the plot
     }
     plotly.react(plotDomId, trace, layout)
   } else {
@@ -186,7 +208,6 @@ const plotSlice = (
         x: valuesCategorical,
         y: objectiveValues,
         mode: "markers",
-        // xaxis: paramName,
         marker: {
           color: "#185799",
         },
@@ -205,6 +226,7 @@ const plotSlice = (
       },
       tickvals: tickvals,
       ticktext: vocabArr,
+      automargin: true, // Otherwise the label is outside of the plot
     }
     plotly.react(plotDomId, trace, layout)
   }
