@@ -108,7 +108,7 @@ const plotSlice = (
   trials: Trial[],
   objectiveId: number,
   selected: string | null,
-  log: boolean
+  logScale: boolean
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -132,7 +132,7 @@ const plotSlice = (
     },
     yaxis: {
       title: "Objective Values",
-      type: log ? "log" : "linear",
+      type: logScale ? "log" : "linear",
       zerolinecolor: "#f2f5fa",
       zerolinewidth: 2,
       linecolor: "#f2f5fa",
