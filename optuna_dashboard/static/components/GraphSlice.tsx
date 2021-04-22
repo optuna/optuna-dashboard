@@ -205,6 +205,7 @@ const plotSlice = (
       },
       tickvals: tickvals,
       ticktext: vocabArr,
+      automargin: true
     }
     plotly.react(plotDomId, trace, layout)
   }
