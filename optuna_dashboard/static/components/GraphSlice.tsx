@@ -6,6 +6,7 @@ import {
   FormLabel,
   InputLabel,
   MenuItem,
+  Switch,
   Select,
   Typography,
 } from "@material-ui/core"
@@ -32,15 +33,15 @@ export const GraphSlice: FC<{
   const trials: Trial[] = study !== null ? study.trials : []
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const [selected, setSelected] = useState<string | null>(null)
-  const [log, setLog] = useState<boolean>(false)
+  const [logScale, setLogScale] = useState<boolean>(false)
   const paramNames = study?.union_search_space.map((s) => s.name)
   if (selected === null && paramNames && paramNames.length > 0) {
     setSelected(paramNames[0])
   }
 
   useEffect(() => {
-    plotSlice(trials, objectiveId, selected, log)
-  }, [trials, objectiveId, selected, log])
+    plotSlice(trials, objectiveId, selected, logScale)
+  }, [trials, objectiveId, selected, logScale])
 
   const handleObjectiveChange = (
     event: React.ChangeEvent<{ value: unknown }>
@@ -50,6 +51,11 @@ export const GraphSlice: FC<{
 
   const handleSelectedParam = (e: ChangeEvent<{ value: unknown }>) => {
     setSelected(e.target.value as string)
+  }
+
+  const handleLogScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    setLogScale(!logScale)
   }
 
   return (
@@ -80,6 +86,14 @@ export const GraphSlice: FC<{
                 </MenuItem>
               ))}
             </Select>
+          </FormControl>
+          <FormControl component="fieldset" className={classes.formControl}>
+            <FormLabel component="legend">Log scale:</FormLabel>
+            <Switch
+              checked={logScale}
+              onChange={handleLogScaleChange}
+              value="enable"
+            />
           </FormControl>
         </Grid>
       </Grid>
