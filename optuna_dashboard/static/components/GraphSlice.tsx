@@ -129,6 +129,7 @@ const plotSlice = (
       linewidth: 5,
       gridcolor: "#f2f5fa",
       gridwidth: 1,
+      automargin: true,
     },
     yaxis: {
       title: "Objective Values",
@@ -139,6 +140,7 @@ const plotSlice = (
       linewidth: 5,
       gridcolor: "#f2f5fa",
       gridwidth: 1,
+      automargin: true,
     },
     plot_bgcolor: "#E5ecf6",
     showlegend: false,
@@ -174,7 +176,6 @@ const plotSlice = (
         x: valuesNum,
         y: objectiveValues,
         mode: "markers",
-        xaxis: selected,
         marker: {
           color: "#185799",
         },
@@ -207,7 +208,6 @@ const plotSlice = (
         x: valuesCategorical,
         y: objectiveValues,
         mode: "markers",
-        // xaxis: paramName,
         marker: {
           color: "#185799",
         },
