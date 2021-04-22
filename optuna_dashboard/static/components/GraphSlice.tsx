@@ -32,14 +32,15 @@ export const GraphSlice: FC<{
   const trials: Trial[] = study !== null ? study.trials : []
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const [selected, setSelected] = useState<string | null>(null)
+  const [log, setLog] = useState<boolean>(false)
   const paramNames = study?.union_search_space.map((s) => s.name)
   if (selected === null && paramNames && paramNames.length > 0) {
     setSelected(paramNames[0])
   }
 
   useEffect(() => {
-    plotSlice(trials, objectiveId, selected)
-  }, [trials, objectiveId, selected])
+    plotSlice(trials, objectiveId, selected, log)
+  }, [trials, objectiveId, selected, log])
 
   const handleObjectiveChange = (
     event: React.ChangeEvent<{ value: unknown }>
@@ -92,7 +93,8 @@ export const GraphSlice: FC<{
 const plotSlice = (
   trials: Trial[],
   objectiveId: number,
-  selected: string | null
+  selected: string | null,
+  log: boolean
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -116,6 +118,7 @@ const plotSlice = (
     },
     yaxis: {
       title: "Objective Values",
+      type: log ? "log" : "linear",
       zerolinecolor: "#f2f5fa",
       zerolinewidth: 2,
       linecolor: "#f2f5fa",
@@ -171,6 +174,10 @@ const plotSlice = (
       linewidth: 5,
       gridcolor: "#f2f5fa",
       gridwidth: 1,
+      tickfont: {
+        "color": "#000000"
+      },
+      automargin: true  // Otherwise the label is outside of the plot
     }
     plotly.react(plotDomId, trace, layout)
   } else {
@@ -189,7 +196,7 @@ const plotSlice = (
         // xaxis: paramName,
         marker: {
           color: "#185799",
-        },
+        }
       },
     ]
     layout["xaxis"] = {
@@ -205,7 +212,7 @@ const plotSlice = (
       },
       tickvals: tickvals,
       ticktext: vocabArr,
-      automargin: true
+      automargin: true  // Otherwise the label is outside of the plot
     }
     plotly.react(plotDomId, trace, layout)
   }
