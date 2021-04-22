@@ -189,9 +189,9 @@ const plotSlice = (
       gridcolor: "#f2f5fa",
       gridwidth: 1,
       tickfont: {
-        "color": "#000000"
+        color: "#000000",
       },
-      automargin: true  // Otherwise the label is outside of the plot
+      automargin: true, // Otherwise the label is outside of the plot
     }
     plotly.react(plotDomId, trace, layout)
   } else {
@@ -210,7 +210,7 @@ const plotSlice = (
         // xaxis: paramName,
         marker: {
           color: "#185799",
-        }
+        },
       },
     ]
     layout["xaxis"] = {
@@ -226,7 +226,7 @@ const plotSlice = (
       },
       tickvals: tickvals,
       ticktext: vocabArr,
-      automargin: true  // Otherwise the label is outside of the plot
+      automargin: true, // Otherwise the label is outside of the plot
     }
     plotly.react(plotDomId, trace, layout)
   }
