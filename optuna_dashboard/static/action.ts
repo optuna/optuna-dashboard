@@ -8,7 +8,7 @@ import {
 } from "./apiClient"
 import { studyDetailsState, studySummariesState } from "./state"
 
-export const actionCreator = () => {
+export const actionCreator = (): any => {
   const { enqueueSnackbar } = useSnackbar()
   const [studySummaries, setStudySummaries] = useRecoilState<StudySummary[]>(
     studySummariesState
@@ -68,7 +68,7 @@ export const actionCreator = () => {
 
   const deleteStudy = (studyId: number) => {
     deleteStudyAPI(studyId)
-      .then((study) => {
+      .then(() => {
         setStudySummaries(studySummaries.filter((s) => s.study_id !== studyId))
         enqueueSnackbar(`Success to delete a study (id=${studyId})`, {
           variant: "success",

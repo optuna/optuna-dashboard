@@ -167,8 +167,8 @@ export const createNewStudyAPI = (
     })
 }
 
-export const deleteStudyAPI = (studyId: number) => {
-  return axiosInstance.delete(`/api/studies/${studyId}`).then((res) => {
+export const deleteStudyAPI = (studyId: number): Promise<unknown> => {
+  return axiosInstance.delete(`/api/studies/${studyId}`).then(() => {
     return {}
   })
 }

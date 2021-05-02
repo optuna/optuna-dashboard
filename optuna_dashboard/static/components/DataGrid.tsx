@@ -70,7 +70,7 @@ function DataGrid<T>(props: {
   collapseBody?: (rowIndex: number) => React.ReactNode
   initialRowsPerPage?: number
   rowsPerPageOption?: Array<number | { value: number; label: string }>
-}) {
+}): any {
   const classes = useStyles()
   const { columns, rows, keyField, dense, collapseBody } = props
   let { initialRowsPerPage, rowsPerPageOption } = props
@@ -128,9 +128,7 @@ function DataGrid<T>(props: {
   )
 
   // Sorting
-  const createSortHandler = (columnId: number) => (
-    event: React.MouseEvent<unknown>
-  ) => {
+  const createSortHandler = (columnId: number) => () => {
     const isAsc = orderBy === columnId && order === "asc"
     setOrder(isAsc ? "desc" : "asc")
     setOrderBy(columnId)
@@ -188,7 +186,7 @@ function DataGrid<T>(props: {
                             : { visibility: "hidden" }
                         }
                         color="inherit"
-                        onClick={(e) => {
+                        onClick={() => {
                           clearFilter(column.field)
                         }}
                       >
@@ -201,7 +199,7 @@ function DataGrid<T>(props: {
             </TableRow>
           </TableHead>
           <TableBody>
-            {currentPageRows.map((row, index) => (
+            {currentPageRows.map((row) => (
               <DataGridRow<T>
                 columns={columns}
                 rowIndex={getRowIndex(row)}
@@ -275,7 +273,7 @@ function DataGridRow<T>(props: {
             <TableCell
               key={`${row[keyField]}:${column.field}:${columnIndex}`}
               padding={column.padding || "default"}
-              onClick={(e) => {
+              onClick={() => {
                 handleClickFilterCell(column.field, row[column.field])
               }}
             >

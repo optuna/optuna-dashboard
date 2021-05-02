@@ -48,7 +48,7 @@ declare interface Trial {
   study_id: number
   number: number
   state: TrialState
-  values?: number[]
+  values?: number[] | any
   intermediate_values: TrialIntermediateValue[]
   datetime_start?: Date
   datetime_complete?: Date

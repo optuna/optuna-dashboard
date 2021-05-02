@@ -145,10 +145,10 @@ const plotParetoFront = (
     {
       type: "scatter",
       x: completedTrials.map((t: Trial): number => {
-        return t.values![objectiveXId]
+        return t && t.values && t.values[objectiveXId]
       }),
       y: completedTrials.map((t: Trial): number => {
-        return t.values![objectiveYId]
+        return t && t.values && t.values[objectiveYId]
       }),
       mode: "markers",
       xaxis: "Objective X",

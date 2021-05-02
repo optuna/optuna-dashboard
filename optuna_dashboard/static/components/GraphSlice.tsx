@@ -159,10 +159,11 @@ const plotSlice = (
   }
 
   const objectiveValues: number[] = filteredTrials.map(
-    (t) => t.values![objectiveId]
+    (t) => t && t.values && t.values[objectiveId]
   )
   const valueStrings = filteredTrials.map((t) => {
-    return t.params.find((p) => p.name == selected)!.value
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return t && t.params && t.params.find((p) => p.name == selected)!.value
   })
 
   const isnum = valueStrings.every((v) => {

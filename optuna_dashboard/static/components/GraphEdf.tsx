@@ -26,7 +26,7 @@ const plotEdf = (trials: Trial[]) => {
   const target_name = "Objective Value"
 
   const _target = (t: Trial): number => {
-    return t.values![0]
+    return t && t.values && t.values[0]
   }
 
   const target = _target

@@ -41,7 +41,7 @@ const plotCoordinate = (study: StudyDetail, objectiveId: number) => {
 
   // Intersection param names
   const objectiveValues: number[] = filteredTrials.map(
-    (t) => t.values![objectiveId]
+    (t) => t && t.values && t.values[objectiveId]
   )
   const dimensions = [
     {
@@ -53,13 +53,15 @@ const plotCoordinate = (study: StudyDetail, objectiveId: number) => {
   study.intersection_search_space.forEach((s) => {
     const valueStrings = filteredTrials.map((t) => {
       const param = t.params.find((p) => p.name === s.name)
-      return param!.value
+      return param && param.value
     })
     const isnum = valueStrings.every((v) => {
-      return !isNaN(parseFloat(v))
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return !isNaN(parseFloat(v!))
     })
     if (isnum) {
-      const values: number[] = valueStrings.map((v) => parseFloat(v))
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const values: number[] = valueStrings.map((v) => parseFloat(v!))
       dimensions.push({
         label: s.name,
         values: values,
@@ -67,7 +69,7 @@ const plotCoordinate = (study: StudyDetail, objectiveId: number) => {
       })
     } else {
       // categorical
-      const vocabSet = new Set<string>(valueStrings)
+      const vocabSet = new Set<any>(valueStrings)
       const vocabArr = Array.from<string>(vocabSet)
       const values: number[] = valueStrings.map((v) =>
         vocabArr.findIndex((vocab) => v === vocab)
