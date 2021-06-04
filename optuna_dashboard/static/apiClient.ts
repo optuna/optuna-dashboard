@@ -180,7 +180,7 @@ interface ParamImportancesResponse {
 
 export const getParamImportances = (
   studyId: number,
-  objectiveId: number = 0
+  objectiveId = 0
 ): Promise<ParamImportances> => {
   return axiosInstance
     .get<ParamImportancesResponse>(

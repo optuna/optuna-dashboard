@@ -214,7 +214,9 @@ def create_app(storage: BaseStorage) -> Bottle:
 
     @app.get("/api/studies/<study_id:int>/param_importances")
     @handle_json_api_exception
-    def get_param_importances(study_id: int,) -> BottleViewReturn:
+    def get_param_importances(
+        study_id: int,
+    ) -> BottleViewReturn:
         # TODO(chenghuzi): add support for selecting params via query parameters.
         response.content_type = "application/json"
         objective_id = int(request.params.get("objective_id", 0))
@@ -228,15 +230,22 @@ def create_app(storage: BaseStorage) -> Bottle:
         n_directions = len(study.directions)
         if objective_id >= n_directions:
             response.status = 400  # Bad request
-            return {"reason": f"study_id={study_id} has only {n_directions} direction(s)."}
+            return {
+                "reason": f"study_id={study_id} has only {n_directions} direction(s)."
+            }
 
-        completed_trials = [trial for trial in study.trials if trial.state == TrialState.COMPLETE]
+        completed_trials = [
+            trial for trial in study.trials if trial.state == TrialState.COMPLETE
+        ]
         evaluator = None
         params = None
 
         if len(completed_trials) > 0:
             importances = optuna.importance.get_param_importances(
-                study, evaluator=evaluator, params=params, target=lambda t: t.values[objective_id]
+                study,
+                evaluator=evaluator,
+                params=params,
+                target=lambda t: t.values[objective_id],
             )
         else:
             importances = {}
