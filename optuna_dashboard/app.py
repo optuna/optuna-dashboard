@@ -214,9 +214,7 @@ def create_app(storage: BaseStorage) -> Bottle:
 
     @app.get("/api/studies/<study_id:int>/param_importances")
     @handle_json_api_exception
-    def get_param_importances(
-        study_id: int,
-    ) -> BottleViewReturn:
+    def get_param_importances(study_id: int) -> BottleViewReturn:
         # TODO(chenghuzi): add support for selecting params via query parameters.
         response.content_type = "application/json"
         objective_id = int(request.params.get("objective_id", 0))
