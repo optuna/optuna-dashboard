@@ -83,7 +83,7 @@ export const GraphHyperparameterImportances: FC<{
       <Grid item xs={3}>
         <Grid container direction="column">
           <Typography variant="h6" className={classes.title}>
-            Hyperparameter Importance
+            Hyperparameter importance
           </Typography>
           {study !== null && study.directions.length !== 1 ? (
             <FormControl component="fieldset" className={classes.formControl}>

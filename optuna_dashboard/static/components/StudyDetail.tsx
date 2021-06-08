@@ -195,13 +195,11 @@ export const StudyDetail: FC = () => {
             </CardContent>
           </Card>
           {studyDetail !== null && isSingleObjectiveStudy(studyDetail) ? (
-            <Grid item xs={12}>
-              <Card className={classes.card}>
-                <CardContent>
-                  <GraphIntermediateValues trials={trials} />
-                </CardContent>
-              </Card>
-            </Grid>
+            <Card className={classes.card}>
+              <CardContent>
+                <GraphIntermediateValues trials={trials} />
+              </CardContent>
+            </Card>
           ) : null}
           <Card className={classes.card}>
             <CardContent>
