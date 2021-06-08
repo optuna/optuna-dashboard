@@ -1,0 +1,26 @@
+{
+  "extends": [
+    "config:base",
+    "schedule:monthly",
+    ":maintainLockFilesMonthly",
+  ],
+  "packageRules": [
+    {
+      "extends": [
+        "group:definitelyTyped",
+        "group:materialMonorepo",
+        "group:reactMonorepo",
+        "group:reactrouterMonorepo"
+      ],
+      "groupName": "javascript",
+      "separateMajorMinor": false,
+      "schedule": ["before 3am on the first day of the month"],
+    },
+    {
+      "matchPaths": [".github/**"],
+      "separateMajorMinor": false,
+      "groupName": "github-actions",
+      "schedule": ["before 3am on the first day of the month"],
+    }
+  ]
+}
