@@ -4,7 +4,7 @@
 
 ### Compiling TypeScript files
 
-Node.js v14.14.0 is required to compile TypeScript files.
+Node.js v14 is required to compile TypeScript files.
 
 ```
 $ npm install
