@@ -122,7 +122,6 @@ const plotParamImportances = (paramsImportanceData: ParamImportances) => {
   )
 
   const layout: Partial<plotly.Layout> = {
-    title: "Hyperparameter Importance",
     xaxis: {
       title: `Importance for ${paramsImportanceData.target_name}`,
     },

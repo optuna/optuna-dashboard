@@ -90,7 +90,6 @@ const plotEdf = (study: StudyDetail, objectiveId: number) => {
   }
 
   const layout: Partial<plotly.Layout> = {
-    title: "Empirical Distribution Function Plot",
     xaxis: {
       title: target_name,
     },

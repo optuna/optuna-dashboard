@@ -77,7 +77,6 @@ const plotCoordinate = (study: StudyDetail, objectiveId: number) => {
   }
 
   const layout: Partial<plotly.Layout> = {
-    title: "Parallel coordinate",
     margin: {
       l: 50,
       r: 50,
