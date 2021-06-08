@@ -128,13 +128,12 @@ function DataGrid<T>(props: {
   )
 
   // Sorting
-  const createSortHandler = (columnId: number) => (
-    event: React.MouseEvent<unknown>
-  ) => {
-    const isAsc = orderBy === columnId && order === "asc"
-    setOrder(isAsc ? "desc" : "asc")
-    setOrderBy(columnId)
-  }
+  const createSortHandler =
+    (columnId: number) => (event: React.MouseEvent<unknown>) => {
+      const isAsc = orderBy === columnId && order === "asc"
+      setOrder(isAsc ? "desc" : "asc")
+      setOrderBy(columnId)
+    }
   const sortedRows = stableSort<T>(filteredRows, order, orderBy, columns)
   const currentPageRows =
     rowsPerPage > 0

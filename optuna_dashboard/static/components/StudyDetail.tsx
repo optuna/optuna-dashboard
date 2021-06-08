@@ -101,9 +101,8 @@ export const StudyDetail: FC = () => {
   const { studyId } = useParams<ParamTypes>()
   const studyIdNumber = parseInt(studyId, 10)
   const studyDetail = useStudyDetailValue(studyIdNumber)
-  const [openReloadIntervalSelect, setOpenReloadIntervalSelect] = useState<
-    boolean
-  >(false)
+  const [openReloadIntervalSelect, setOpenReloadIntervalSelect] =
+    useState<boolean>(false)
   const [reloadInterval, setReloadInterval] = useState<number>(10)
 
   useEffect(() => {
@@ -287,33 +286,32 @@ const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
       },
     })
   } else {
-    const objectiveColumns: DataGridColumn<
-      Trial
-    >[] = studyDetail.directions.map((s, objectiveId) => ({
-      field: "values",
-      label: `Objective ${objectiveId}`,
-      sortable: true,
-      less: (firstEl, secondEl): number => {
-        const firstVal = firstEl.values?.[objectiveId]
-        const secondVal = secondEl.values?.[objectiveId]
+    const objectiveColumns: DataGridColumn<Trial>[] =
+      studyDetail.directions.map((s, objectiveId) => ({
+        field: "values",
+        label: `Objective ${objectiveId}`,
+        sortable: true,
+        less: (firstEl, secondEl): number => {
+          const firstVal = firstEl.values?.[objectiveId]
+          const secondVal = secondEl.values?.[objectiveId]
 
-        if (firstVal === secondVal) {
-          return 0
-        } else if (firstVal && secondVal) {
-          return firstVal < secondVal ? 1 : -1
-        } else if (firstVal) {
-          return -1
-        } else {
-          return 1
-        }
-      },
-      toCellValue: (i) => {
-        if (trials[i].values === undefined) {
-          return null
-        }
-        return trials[i].values?.[objectiveId]
-      },
-    }))
+          if (firstVal === secondVal) {
+            return 0
+          } else if (firstVal && secondVal) {
+            return firstVal < secondVal ? 1 : -1
+          } else if (firstVal) {
+            return -1
+          } else {
+            return 1
+          }
+        },
+        toCellValue: (i) => {
+          if (trials[i].values === undefined) {
+            return null
+          }
+          return trials[i].values?.[objectiveId]
+        },
+      }))
     columns.push(...objectiveColumns)
   }
   columns.push({
@@ -367,12 +365,11 @@ const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
     { field: "name", label: "Name", sortable: true },
     { field: "value", label: "Value", sortable: true },
   ]
-  const collapseIntermediateValueColumns: DataGridColumn<
-    TrialIntermediateValue
-  >[] = [
-    { field: "step", label: "Step", sortable: true },
-    { field: "value", label: "Value", sortable: true },
-  ]
+  const collapseIntermediateValueColumns: DataGridColumn<TrialIntermediateValue>[] =
+    [
+      { field: "step", label: "Step", sortable: true },
+      { field: "value", label: "Value", sortable: true },
+    ]
   const collapseAttrColumns: DataGridColumn<Attribute>[] = [
     { field: "key", label: "Key", sortable: true },
     { field: "value", label: "Value", sortable: true },

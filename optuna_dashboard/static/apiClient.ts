@@ -50,11 +50,9 @@ export const getStudyDetailAPI = (studyId: number): Promise<StudyDetail> => {
   return axiosInstance
     .get<StudyDetailResponse>(`/api/studies/${studyId}`, {})
     .then((res) => {
-      const trials = res.data.trials.map(
-        (trial): Trial => {
-          return convertTrialResponse(trial)
-        }
-      )
+      const trials = res.data.trials.map((trial): Trial => {
+        return convertTrialResponse(trial)
+      })
       return {
         name: res.data.name,
         datetime_start: new Date(res.data.datetime_start),
@@ -97,24 +95,22 @@ export const getStudySummariesAPI = (): Promise<StudySummary[]> => {
   return axiosInstance
     .get<StudySummariesResponse>(`/api/studies`, {})
     .then((res) => {
-      return res.data.study_summaries.map(
-        (study): StudySummary => {
-          const best_trial = study.best_trial
-            ? convertTrialResponse(study.best_trial)
-            : undefined
-          return {
-            study_id: study.study_id,
-            study_name: study.study_name,
-            directions: study.directions,
-            best_trial: best_trial,
-            user_attrs: study.user_attrs,
-            system_attrs: study.system_attrs,
-            datetime_start: study.datetime_start
-              ? new Date(study.datetime_start)
-              : undefined,
-          }
+      return res.data.study_summaries.map((study): StudySummary => {
+        const best_trial = study.best_trial
+          ? convertTrialResponse(study.best_trial)
+          : undefined
+        return {
+          study_id: study.study_id,
+          study_name: study.study_name,
+          directions: study.directions,
+          best_trial: best_trial,
+          user_attrs: study.user_attrs,
+          system_attrs: study.system_attrs,
+          datetime_start: study.datetime_start
+            ? new Date(study.datetime_start)
+            : undefined,
         }
-      )
+      })
     })
 }
 
