@@ -49,10 +49,8 @@ const useStyles = makeStyles((theme: Theme) =>
 export const StudyList: FC = () => {
   const classes = useStyles()
 
-  const [
-    newStudySelectionAnchorEl,
-    setNewStudySelectionAnchorEl,
-  ] = React.useState<null | HTMLElement>(null)
+  const [newStudySelectionAnchorEl, setNewStudySelectionAnchorEl] =
+    React.useState<null | HTMLElement>(null)
   const openNewStudySelection = Boolean(newStudySelectionAnchorEl)
   const [
     openNewSingleObjectiveStudyDialog,
@@ -62,9 +60,8 @@ export const StudyList: FC = () => {
     openNewMultiObjectiveStudyDialog,
     setOpenNewMultiObjectiveStudyDialog,
   ] = React.useState(false)
-  const [openDeleteStudyDialog, setOpenDeleteStudyDialog] = React.useState(
-    false
-  )
+  const [openDeleteStudyDialog, setOpenDeleteStudyDialog] =
+    React.useState(false)
   const [deleteStudyID, setDeleteStudyID] = React.useState(-1)
   const [newStudyName, setNewStudyName] = React.useState("")
 

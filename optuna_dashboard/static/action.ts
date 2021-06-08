@@ -10,12 +10,10 @@ import { studyDetailsState, studySummariesState } from "./state"
 
 export const actionCreator = () => {
   const { enqueueSnackbar } = useSnackbar()
-  const [studySummaries, setStudySummaries] = useRecoilState<StudySummary[]>(
-    studySummariesState
-  )
-  const [studyDetails, setStudyDetails] = useRecoilState<StudyDetails>(
-    studyDetailsState
-  )
+  const [studySummaries, setStudySummaries] =
+    useRecoilState<StudySummary[]>(studySummariesState)
+  const [studyDetails, setStudyDetails] =
+    useRecoilState<StudyDetails>(studyDetailsState)
 
   const updateStudySummaries = (successMsg?: string) => {
     getStudySummariesAPI()

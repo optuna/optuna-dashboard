@@ -15,12 +15,15 @@
       "groupName": "javascript",
       "separateMajorMinor": false,
       "schedule": ["before 3am on the first day of the month"],
+      "ignoreDeps": [
+        "prettier"
+      ]
     },
     {
       "matchPaths": [".github/**"],
       "separateMajorMinor": false,
       "groupName": "github-actions",
-      "schedule": ["before 3am on the first day of the month"],
+      "schedule": ["before 3am on the first day of the month"]
     }
   ]
 }
