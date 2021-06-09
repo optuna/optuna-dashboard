@@ -20,7 +20,7 @@ import { Home, Cached } from "@material-ui/icons"
 
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
-import { HyperparameterImportances } from "./HyperparameterImportances"
+import { GraphHyperparameterImportances } from "./GraphHyperparameterImportances"
 import { Edf } from "./GraphEdf"
 
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
@@ -188,45 +188,31 @@ export const StudyDetail: FC = () => {
               </CardContent>
             </Card>
           ) : null}
+          <Card className={classes.card}>
+            <CardContent>
+              <GraphParallelCoordinate study={studyDetail} />
+            </CardContent>
+          </Card>
           {studyDetail !== null && isSingleObjectiveStudy(studyDetail) ? (
-            <Grid container direction="row">
-              <Grid item xs={6}>
-                <Card className={classes.card}>
-                  <CardContent>
-                    <GraphParallelCoordinate study={studyDetail} />
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid item xs={6}>
-                <Card className={classes.card}>
-                  <CardContent>
-                    <GraphIntermediateValues trials={trials} />
-                  </CardContent>
-                </Card>
-              </Grid>
-            </Grid>
+            <Card className={classes.card}>
+              <CardContent>
+                <GraphIntermediateValues trials={trials} />
+              </CardContent>
+            </Card>
           ) : null}
-          {studyDetail !== null && isSingleObjectiveStudy(studyDetail) ? (
-            <Grid container direction="row">
-              <Grid item xs={6}>
-                <Card className={classes.card}>
-                  <CardContent>
-                    <HyperparameterImportances
-                      studyId={studyIdNumber}
-                      numOfTrials={trials.length}
-                    />
-                  </CardContent>
-                </Card>
-              </Grid>
-              <Grid item xs={6}>
-                <Card className={classes.card}>
-                  <CardContent>
-                    <Edf trials={trials} />
-                  </CardContent>
-                </Card>
-              </Grid>
-            </Grid>
-          ) : null}
+          <Card className={classes.card}>
+            <CardContent>
+              <Edf study={studyDetail} />
+            </CardContent>
+          </Card>
+          <Card className={classes.card}>
+            <CardContent>
+              <GraphHyperparameterImportances
+                study={studyDetail}
+                studyId={studyIdNumber}
+              />
+            </CardContent>
+          </Card>
           {studyDetail !== null ? (
             <Card className={classes.card}>
               <CardContent>

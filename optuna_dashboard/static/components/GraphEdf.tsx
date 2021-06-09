@@ -1,38 +1,95 @@
 import * as plotly from "plotly.js-dist"
-import React, { FC, useEffect } from "react"
+import React, { FC, useEffect, useState } from "react"
+import {
+  Grid,
+  FormControl,
+  FormLabel,
+  MenuItem,
+  Select,
+  Typography,
+} from "@material-ui/core"
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    title: {
+      margin: "1em 0",
+    },
+    formControl: {
+      marginBottom: theme.spacing(2),
+      marginRight: theme.spacing(5),
+    },
+  })
+)
 
 const plotDomId = "graph-edf"
 
 export const Edf: FC<{
-  trials: Trial[]
-}> = ({ trials = [] }) => {
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  const classes = useStyles()
+  const [objectiveId, setObjectiveId] = useState<number>(0)
+
+  const handleObjectiveChange = (
+    event: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    setObjectiveId(event.target.value as number)
+  }
+
   useEffect(() => {
-    plotEdf(trials) // TODO(chenghuzi): Support multi-objective studies.
-  }, [trials])
-  return <div id={plotDomId} />
+    if (study != null) {
+      plotEdf(study, objectiveId)
+    }
+  }, [study, objectiveId])
+  return (
+    <Grid container direction="row">
+      <Grid item xs={3}>
+        <Grid container direction="column">
+          <Typography variant="h6" className={classes.title}>
+            EDF
+          </Typography>
+          {study !== null && study.directions.length !== 1 ? (
+            <FormControl component="fieldset" className={classes.formControl}>
+              <FormLabel component="legend">Objective ID:</FormLabel>
+              <Select value={objectiveId} onChange={handleObjectiveChange}>
+                {study.directions.map((d, i) => (
+                  <MenuItem value={i} key={i}>
+                    {i}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          ) : null}
+        </Grid>
+      </Grid>
+
+      <Grid item xs={9}>
+        <div id={plotDomId} />
+      </Grid>
+    </Grid>
+  )
 }
 
-const plotEdf = (trials: Trial[]) => {
-  // Notice that this implementation is only for single study case
-  // as it's designed for single study details.
+const plotEdf = (study: StudyDetail, objectiveId: number) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
-  if (trials.length === 0) {
+
+  const trials: Trial[] = study ? study.trials : []
+  const completedTrials = trials.filter((t) => t.state === "Complete")
+
+  if (completedTrials.length === 0) {
     plotly.react(plotDomId, [])
     return
   }
 
   const target_name = "Objective Value"
 
-  const _target = (t: Trial): number => {
-    return t.values![0]
+  const target = (t: Trial): number => {
+    return t.values![objectiveId]
   }
 
-  const target = _target
-
   const layout: Partial<plotly.Layout> = {
-    title: "Empirical Distribution Function Plot",
     xaxis: {
       title: target_name,
     },
@@ -44,13 +101,6 @@ const plotEdf = (trials: Trial[]) => {
       r: 50,
       b: 50,
     },
-  }
-
-  const completedTrials = trials.filter((t) => t.state === "Complete")
-
-  if (completedTrials.length === 0) {
-    plotly.react(plotDomId, [])
-    return
   }
 
   const values = completedTrials.map((t) => target(t))
@@ -75,6 +125,5 @@ const plotEdf = (trials: Trial[]) => {
       y: yValues,
     },
   ]
-
   plotly.react(plotDomId, plotData, layout)
 }

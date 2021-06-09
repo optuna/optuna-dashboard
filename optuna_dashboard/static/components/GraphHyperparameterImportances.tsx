@@ -1,5 +1,27 @@
 import * as plotly from "plotly.js-dist"
-import React, { FC, useEffect } from "react"
+import React, { FC, useEffect, useState } from "react"
+import {
+  Grid,
+  FormControl,
+  FormLabel,
+  MenuItem,
+  Select,
+  Typography,
+} from "@material-ui/core"
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    title: {
+      margin: "1em 0",
+    },
+    formControl: {
+      marginBottom: theme.spacing(2),
+      marginRight: theme.spacing(5),
+    },
+  })
+)
+
 import { getParamImportances } from "../apiClient"
 const plotDomId = "graph-hyperparameter-importances"
 
@@ -25,18 +47,64 @@ const distributionColors = {
   CategoricalDistribution: plotlyColorsSequentialBlues.slice(-4)[0],
 }
 
-export const HyperparameterImportances: FC<{
+export const GraphHyperparameterImportances: FC<{
+  study: StudyDetail | null
   studyId: number
-  numOfTrials: number
-}> = ({ studyId, numOfTrials = 0 }) => {
+}> = ({ study = null, studyId }) => {
+  const classes = useStyles()
+  const [objectiveId, setObjectiveId] = useState<number>(0)
+  const numOfTrials = study?.trials.length || 0
+
+  const handleObjectiveChange = (
+    event: React.ChangeEvent<{ value: unknown }>
+  ) => {
+    setObjectiveId(event.target.value as number)
+  }
+
   useEffect(() => {
-    async function fetchAndPlotParamImportances(studyId: number) {
-      const paramsImportanceData = await getParamImportances(studyId)
+    async function fetchAndPlotParamImportances(
+      studyId: number,
+      objectiveId: number
+    ) {
+      const paramsImportanceData = await getParamImportances(
+        studyId,
+        objectiveId
+      )
       plotParamImportances(paramsImportanceData)
     }
-    fetchAndPlotParamImportances(studyId)
-  }, [numOfTrials])
-  return <div id={plotDomId} />
+
+    if (numOfTrials > 0) {
+      fetchAndPlotParamImportances(studyId, objectiveId)
+    }
+  }, [numOfTrials, objectiveId])
+
+  return (
+    <Grid container direction="row">
+      <Grid item xs={3}>
+        <Grid container direction="column">
+          <Typography variant="h6" className={classes.title}>
+            Hyperparameter importance
+          </Typography>
+          {study !== null && study.directions.length !== 1 ? (
+            <FormControl component="fieldset" className={classes.formControl}>
+              <FormLabel component="legend">Objective ID:</FormLabel>
+              <Select value={objectiveId} onChange={handleObjectiveChange}>
+                {study.directions.map((d, i) => (
+                  <MenuItem value={i} key={i}>
+                    {i}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          ) : null}
+        </Grid>
+      </Grid>
+
+      <Grid item xs={9}>
+        <div id={plotDomId} />
+      </Grid>
+    </Grid>
+  )
 }
 
 const plotParamImportances = (paramsImportanceData: ParamImportances) => {
@@ -54,7 +122,6 @@ const plotParamImportances = (paramsImportanceData: ParamImportances) => {
   )
 
   const layout: Partial<plotly.Layout> = {
-    title: "Hyperparameter Importance",
     xaxis: {
       title: `Importance for ${paramsImportanceData.target_name}`,
     },

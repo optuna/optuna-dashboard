@@ -175,12 +175,17 @@ interface ParamImportancesResponse {
 }
 
 export const getParamImportances = (
-  studyId: number
+  studyId: number,
+  objectiveId = 0
 ): Promise<ParamImportances> => {
   return axiosInstance
     .get<ParamImportancesResponse>(
       `/api/studies/${studyId}/param_importances`,
-      {}
+      {
+        params: {
+          objective_id: objectiveId,
+        },
+      }
     )
     .then((res) => {
       return res.data
