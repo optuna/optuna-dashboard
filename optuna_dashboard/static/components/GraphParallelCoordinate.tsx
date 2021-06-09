@@ -79,6 +79,7 @@ const plotCoordinate = (study: StudyDetail, objectiveId: number) => {
   const layout: Partial<plotly.Layout> = {
     margin: {
       l: 50,
+      t: 50,
       r: 50,
       b: 0,
     },

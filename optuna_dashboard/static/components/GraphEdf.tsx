@@ -98,6 +98,7 @@ const plotEdf = (study: StudyDetail, objectiveId: number) => {
     },
     margin: {
       l: 50,
+      t: 0,
       r: 50,
       b: 50,
     },

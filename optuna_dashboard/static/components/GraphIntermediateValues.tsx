@@ -45,6 +45,7 @@ const plotIntermediateValue = (trials: Trial[]) => {
   const layout: Partial<plotly.Layout> = {
     margin: {
       l: 50,
+      t: 0,
       r: 50,
       b: 0,
     },
