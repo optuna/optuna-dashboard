@@ -1,7 +1,7 @@
 ---
 name: "Question"
-about: Please use GitHub Discussions.
-title: Please use GitHub Discussions.
+about: Don’t use GitHub Issues to ask support questions.
+title: Don’t use GitHub Issues to ask support questions.
 labels: ''
 assignees: ''
 
@@ -9,5 +9,5 @@ assignees: ''
 
 # PLEASE USE GITHUB DISCUSSIONS
 
-https://github.com/optuna/optuna-dashboard/discussions/categories/q-a
+Don’t use GitHub Issues to ask support questions. Use the [GitHub Discussions](https://github.com/optuna/optuna-dashboard/discussions/categories/q-a) for that.
 
