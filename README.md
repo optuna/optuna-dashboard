@@ -1,6 +1,7 @@
 # optuna-dashboard
 
-![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)
+![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square) [![PyPI - Downloads](https://img.shields.io/pypi/dm/optuna-dashboard)](https://pypistats.org/packages/optuna-dashboard)
+
 
 Real-time dashboard for [Optuna](https://github.com/optuna/optuna).
 Code files were originally taken from [Goptuna](https://github.com/c-bata/goptuna).
