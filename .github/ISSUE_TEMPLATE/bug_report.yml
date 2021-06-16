@@ -1,0 +1,42 @@
+name: Bug report
+description: Create a bug report to improve optuna-dashboard
+labels: bug
+
+body:
+  - type: textarea
+    attributes:
+      label: Description
+    validations:
+      required: true
+
+  - type: textarea
+    attributes:
+      label: How to Reproduce
+      description: >-
+        Please provide steps to reproduce this bug.
+        A video or picture tells a thousand words.
+      value: |
+        1. Optuna's objective function is '...'.
+        2. Run optuna-dashboard with '...'
+        3. Open '...' page, then click '...'.
+        4. An error occurs.
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Python version
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Optuna version (Output of `$ python -c 'import optuna; print(optuna.__version__)'`)
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Optuna-dashboard version or revision (Output of `$ optuna-dashboard --version`)
+    validations:
+      required: true
