@@ -37,6 +37,12 @@ body:
 
   - type: input
     attributes:
-      label: Optuna-dashboard version or revision (Output of `$ optuna-dashboard --version`)
+      label: optuna-dashboard version or git revision (Output of `$ optuna-dashboard --version`)
     validations:
       required: true
+
+  - type: input
+    attributes:
+      label: Web browser
+    validations:
+      required: false
