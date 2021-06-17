@@ -11,6 +11,7 @@ interface TrialResponse {
   intermediate_values: TrialIntermediateValue[]
   datetime_start?: string
   datetime_complete?: string
+  duration: number
   params: TrialParam[]
   user_attrs: Attribute[]
   system_attrs: Attribute[]
@@ -30,6 +31,7 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
     datetime_complete: res.datetime_complete
       ? new Date(res.datetime_complete)
       : undefined,
+    duration: res.duration,
     params: res.params,
     user_attrs: res.user_attrs,
     system_attrs: res.system_attrs,
@@ -81,6 +83,7 @@ interface StudySummariesResponse {
       intermediate_values: TrialIntermediateValue[]
       datetime_start: string
       datetime_complete?: string
+      duration: number
       params: TrialParam[]
       user_attrs: Attribute[]
       system_attrs: Attribute[]
@@ -128,6 +131,7 @@ interface CreateNewStudyResponse {
       intermediate_values: TrialIntermediateValue[]
       datetime_start: string
       datetime_complete?: string
+      duration: number
       params: TrialParam[]
       user_attrs: Attribute[]
       system_attrs: Attribute[]

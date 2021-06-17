@@ -244,6 +244,32 @@ const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
       padding: "none",
       toCellValue: (i) => trials[i].state.toString(),
     },
+    {
+      field: "datetime_start",
+      label: "Start",
+      sortable: true,
+      padding: "none",
+      toCellValue: (i) => {
+        const datetime_start = trials[i].datetime_start
+        if (datetime_start !== undefined) {
+          return datetime_start.toLocaleString()
+        }
+        return null
+      },
+    },
+    {
+      field: "datetime_complete",
+      label: "Complete",
+      sortable: true,
+      padding: "none",
+      toCellValue: (i) => {
+        const datetime_complete = trials[i].datetime_complete
+        if (datetime_complete !== undefined) {
+          return datetime_complete.toLocaleString()
+        }
+        return null
+      },
+    },
   ]
   if (studyDetail === null || isSingleObjectiveStudy(studyDetail)) {
     columns.push({
@@ -301,7 +327,7 @@ const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
     columns.push(...objectiveColumns)
   }
   columns.push({
-    field: "datetime_start",
+    field: "duration",
     label: "Duration(ms)",
     toCellValue: (i) => {
       const startMs = trials[i].datetime_start?.getTime()
