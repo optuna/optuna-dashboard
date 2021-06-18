@@ -5,12 +5,13 @@
   "description": "Dashboard for Optuna",
   "main": "index.js",
   "scripts": {
-    "fmt": "prettier --write \"optuna_dashboard/static/**/*.{ts,tsx}\"",
-    "lint": "eslint . --ext .ts,.tsx && prettier --list-different \"optuna_dashboard/static/**/*.{ts,tsx}\"",
+    "fmt": "prettier --write \"optuna_dashboard/static/**/*.{ts,tsx}\" \"frontend_tests/*.{ts,tsx}\"",
+    "lint": "eslint . --ext .ts,.tsx && prettier --list-different \"optuna_dashboard/static/**/*.{ts,tsx}\" \"frontend_tests/*.{ts,tsx}\"",
     "watch": "webpack --watch",
     "build": "webpack",
     "build:dev": "NODE_ENV=development webpack",
-    "build:prd": "NODE_ENV=production webpack"
+    "build:prd": "NODE_ENV=production webpack",
+    "test": "jest frontend_tests"
   },
   "author": "Masashi Shibata",
   "license": "MIT",
@@ -27,6 +28,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",
+    "@babel/preset-env": "^7.14.5",
+    "@testing-library/react": "^12.0.0",
+    "@types/jest": "^26.0.23",
     "@types/plotly.js": "^1.54.10",
     "@types/react": "^17.0.9",
     "@types/react-dom": "^17.0.6",
@@ -34,7 +38,10 @@
     "@typescript-eslint/eslint-plugin": "^4.26.1",
     "@typescript-eslint/parser": "^4.26.1",
     "eslint": "^7.28.0",
+    "jest": "^27.0.4",
+    "jest-canvas-mock": "^2.3.1",
     "prettier": "^2.3.1",
+    "ts-jest": "^27.0.3",
     "ts-loader": "^8.3.0",
     "typescript": "^4.3.2",
     "webpack": "^5.38.1",

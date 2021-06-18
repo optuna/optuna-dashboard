@@ -395,7 +395,7 @@ export const StudyDetail: FC = () => {
   )
 }
 
-const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
+export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
   studyDetail,
 }) => {
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
