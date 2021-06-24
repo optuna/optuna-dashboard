@@ -31,18 +31,21 @@ body:
 
   - type: input
     attributes:
-      label: Optuna version (Output of `$ python -c 'import optuna; print(optuna.__version__)'`)
+      label: Optuna version
+      value: Output of `$ python -c 'import optuna; print(optuna.__version__)'`
     validations:
       required: true
 
   - type: input
     attributes:
-      label: optuna-dashboard version or git revision (Output of `$ optuna-dashboard --version`)
+      label: optuna-dashboard version or git revision
+      value: Output of `$ optuna-dashboard --version`
     validations:
       required: true
 
   - type: input
     attributes:
       label: Web browser
+      value: Google Chrome, Firefox, etc.
     validations:
       required: false
