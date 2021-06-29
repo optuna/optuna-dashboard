@@ -117,7 +117,7 @@ export const StudyDetail: FC = () => {
       action.updateStudyDetail(studyIdNumber)
     }, reloadInterval * 1000)
     return () => clearInterval(intervalId)
-  }, [reloadInterval])
+  }, [reloadInterval, studyDetail])
 
   const title = studyDetail !== null ? studyDetail.name : `Study #${studyId}`
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []

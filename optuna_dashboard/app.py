@@ -204,11 +204,12 @@ def create_app(storage: BaseStorage) -> Bottle:
     @handle_json_api_exception
     def get_study_detail(study_id: int) -> BottleViewReturn:
         response.content_type = "application/json"
+        ntrials_client = int(request.params["ntrials_client"])
         summary = get_study_summary(storage, study_id)
         if summary is None:
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
-        trials = get_trials(storage, study_id)
+        trials = get_trials(storage, study_id)[ntrials_client:]
         intersection, union = get_search_space(study_id, trials)
         return serializer.serialize_study_detail(summary, trials, intersection, union)
 

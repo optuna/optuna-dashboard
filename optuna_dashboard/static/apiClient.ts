@@ -46,9 +46,16 @@ interface StudyDetailResponse {
   union_search_space: SearchSpace[]
 }
 
-export const getStudyDetailAPI = (studyId: number): Promise<StudyDetail> => {
+export const getStudyDetailAPI = (
+  studyId: number,
+  nLocalTrials: number
+): Promise<StudyDetail> => {
   return axiosInstance
-    .get<StudyDetailResponse>(`/api/studies/${studyId}`, {})
+    .get<StudyDetailResponse>(`/api/studies/${studyId}`, {
+      params: {
+        ntrials_client: nLocalTrials,
+      },
+    })
     .then((res) => {
       const trials = res.data.trials.map((trial): Trial => {
         return convertTrialResponse(trial)

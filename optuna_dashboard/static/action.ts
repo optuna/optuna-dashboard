@@ -33,8 +33,14 @@ export const actionCreator = () => {
   }
 
   const updateStudyDetail = (studyId: number) => {
-    getStudyDetailAPI(studyId)
+    getStudyDetailAPI(
+      studyId,
+      studyId in studyDetails ? studyDetails[studyId].trials.length : 0
+    )
       .then((study) => {
+        const currentTrials =
+          studyId in studyDetails ? studyDetails[studyId].trials : []
+        study.trials = study.trials.concat(currentTrials)
         const newVal = Object.assign({}, studyDetails)
         newVal[studyId] = study
         setStudyDetails(newVal)
