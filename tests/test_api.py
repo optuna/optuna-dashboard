@@ -26,7 +26,7 @@ class APITestCase(TestCase):
         self.assertEqual(len(study_summaries), 2)
 
     def test_get_study_details(self) -> None:
-        def objective(trial):
+        def objective(trial: optuna.trial.Trial) -> float:
             x = trial.suggest_float("x", -1, 1)
             return x
 
@@ -51,7 +51,7 @@ class APITestCase(TestCase):
             app,
             f"/api/studies/{study_id}",
             "GET",
-            queries={"before": 5},
+            queries={"before": "5"},
             content_type="application/json",
         )
         self.assertEqual(status, 200)
@@ -62,7 +62,7 @@ class APITestCase(TestCase):
             app,
             f"/api/studies/{study_id}",
             "GET",
-            queries={"before": 10},
+            queries={"before": "10"},
             content_type="application/json",
         )
         self.assertEqual(status, 200)
@@ -73,7 +73,7 @@ class APITestCase(TestCase):
             app,
             f"/api/studies/{study_id}",
             "GET",
-            queries={"before": -1},
+            queries={"before": "-1"},
             content_type="application/json",
         )
         self.assertEqual(status, 400)
