@@ -35,13 +35,12 @@ export const actionCreator = () => {
   const updateStudyDetail = (studyId: number) => {
     let nLocalFixedTrials = 0
     if (studyId in studyDetails) {
-      for (const trial of studyDetails[studyId].trials) {
-        if (!["Running", "Waiting"].includes(trial.state)) {
-          nLocalFixedTrials += 1
-        } else {
-          break
-        }
-      }
+      const currentTrials = studyDetails[studyId].trials
+      const firstUpdatable = currentTrials.findIndex((trial) =>
+        ["Running", "Waiting"].includes(trial.state)
+      )
+      nLocalFixedTrials =
+        firstUpdatable === -1 ? currentTrials.length : firstUpdatable
     }
     getStudyDetailAPI(studyId, nLocalFixedTrials)
       .then((study) => {

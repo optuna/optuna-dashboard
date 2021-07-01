@@ -8,6 +8,11 @@ from optuna_dashboard.app import create_app
 from .wsgi_client import send_request
 
 
+def objective(trial: optuna.trial.Trial) -> float:
+    x = trial.suggest_float("x", -1, 1)
+    return x
+
+
 class APITestCase(TestCase):
     def test_get_study_summaries(self) -> None:
         storage = optuna.storages.InMemoryStorage()
@@ -25,17 +30,12 @@ class APITestCase(TestCase):
         study_summaries = json.loads(body)["study_summaries"]
         self.assertEqual(len(study_summaries), 2)
 
-    def test_get_study_details(self) -> None:
-        def objective(trial: optuna.trial.Trial) -> float:
-            x = trial.suggest_float("x", -1, 1)
-            return x
-
+    def test_get_study_details_without_after_param(self) -> None:
         study = optuna.create_study()
         study_id = study._study_id
-        study.optimize(objective, n_trials=10)
+        study.optimize(objective, n_trials=2)
         app = create_app(study._storage)
 
-        # query without before parameter
         status, _, body = send_request(
             app,
             f"/api/studies/{study_id}",
@@ -44,36 +44,53 @@ class APITestCase(TestCase):
         )
         self.assertEqual(status, 200)
         all_trials = json.loads(body)["trials"]
-        self.assertEqual(len(all_trials), 10)
+        self.assertEqual(len(all_trials), 2)
 
-        # query with before parameter
+    def test_get_study_details_with_after_param_partial(self) -> None:
+        study = optuna.create_study()
+        study_id = study._study_id
+        study.optimize(objective, n_trials=2)
+        app = create_app(study._storage)
+
         status, _, body = send_request(
             app,
             f"/api/studies/{study_id}",
             "GET",
-            queries={"before": "5"},
+            queries={"after": "1"},
             content_type="application/json",
         )
         self.assertEqual(status, 200)
         all_trials = json.loads(body)["trials"]
-        self.assertEqual(len(all_trials), 5)
+        self.assertEqual(len(all_trials), 1)
+
+    def test_get_study_details_with_after_param_full(self) -> None:
+        study = optuna.create_study()
+        study_id = study._study_id
+        study.optimize(objective, n_trials=2)
+        app = create_app(study._storage)
 
         status, _, body = send_request(
             app,
             f"/api/studies/{study_id}",
             "GET",
-            queries={"before": "10"},
+            queries={"after": "2"},
             content_type="application/json",
         )
         self.assertEqual(status, 200)
         all_trials = json.loads(body)["trials"]
         self.assertEqual(len(all_trials), 0)
 
+    def test_get_study_details_with_after_param_illegal(self) -> None:
+        study = optuna.create_study()
+        study_id = study._study_id
+        study.optimize(objective, n_trials=2)
+        app = create_app(study._storage)
+
         status, _, body = send_request(
             app,
             f"/api/studies/{study_id}",
             "GET",
-            queries={"before": "-1"},
+            queries={"after": "-1"},
             content_type="application/json",
         )
         self.assertEqual(status, 400)

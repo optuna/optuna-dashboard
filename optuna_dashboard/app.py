@@ -205,18 +205,18 @@ def create_app(storage: BaseStorage) -> Bottle:
     def get_study_detail(study_id: int) -> BottleViewReturn:
         response.content_type = "application/json"
         try:
-            before = int(request.params["before"])
-            assert before >= 0
+            after = int(request.params["after"])
+            assert after >= 0
         except AssertionError:
             response.status = 400  # Bad parameter
-            return {"reason": "`before` should be larger or equal 0."}
+            return {"reason": "`after` should be larger or equal 0."}
         except KeyError:
-            before = 0
+            after = 0
         summary = get_study_summary(storage, study_id)
         if summary is None:
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
-        trials = get_trials(storage, study_id)[before:]
+        trials = get_trials(storage, study_id)[after:]
         intersection, union = get_search_space(study_id, trials)
         return serializer.serialize_study_detail(summary, trials, intersection, union)
 
