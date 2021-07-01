@@ -25,6 +25,59 @@ class APITestCase(TestCase):
         study_summaries = json.loads(body)["study_summaries"]
         self.assertEqual(len(study_summaries), 2)
 
+    def test_get_study_details(self) -> None:
+        def objective(trial):
+            x = trial.suggest_float("x", -1, 1)
+            return x
+
+        study = optuna.create_study()
+        study_id = study._study_id
+        study.optimize(objective, n_trials=10)
+        app = create_app(study._storage)
+
+        # query without before parameter
+        status, _, body = send_request(
+            app,
+            f"/api/studies/{study_id}",
+            "GET",
+            content_type="application/json",
+        )
+        self.assertEqual(status, 200)
+        all_trials = json.loads(body)["trials"]
+        self.assertEqual(len(all_trials), 10)
+
+        # query with before parameter
+        status, _, body = send_request(
+            app,
+            f"/api/studies/{study_id}",
+            "GET",
+            queries={"before": 5},
+            content_type="application/json",
+        )
+        self.assertEqual(status, 200)
+        all_trials = json.loads(body)["trials"]
+        self.assertEqual(len(all_trials), 5)
+
+        status, _, body = send_request(
+            app,
+            f"/api/studies/{study_id}",
+            "GET",
+            queries={"before": 10},
+            content_type="application/json",
+        )
+        self.assertEqual(status, 200)
+        all_trials = json.loads(body)["trials"]
+        self.assertEqual(len(all_trials), 0)
+
+        status, _, body = send_request(
+            app,
+            f"/api/studies/{study_id}",
+            "GET",
+            queries={"before": -1},
+            content_type="application/json",
+        )
+        self.assertEqual(status, 400)
+
     def test_create_study(self) -> None:
         for name, directions, expected_status in [
             ("single-objective success", ["minimize"], 201),

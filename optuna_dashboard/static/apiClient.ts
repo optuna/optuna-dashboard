@@ -53,7 +53,7 @@ export const getStudyDetailAPI = (
   return axiosInstance
     .get<StudyDetailResponse>(`/api/studies/${studyId}`, {
       params: {
-        ntrials_client: nLocalTrials,
+        before: nLocalTrials,
       },
     })
     .then((res) => {
