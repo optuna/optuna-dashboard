@@ -117,7 +117,8 @@ export const StudyDetail: FC = () => {
       action.updateStudyDetail(studyIdNumber)
     }, reloadInterval * 1000)
     return () => clearInterval(intervalId)
-  }, [reloadInterval])
+  }, [reloadInterval, studyDetail])
+  // TODO(chenghuzi): Reduce the number of calls to setInterval and clearInterval.
 
   const title = studyDetail !== null ? studyDetail.name : `Study #${studyId}`
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []

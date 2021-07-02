@@ -33,8 +33,22 @@ export const actionCreator = () => {
   }
 
   const updateStudyDetail = (studyId: number) => {
-    getStudyDetailAPI(studyId)
+    let nLocalFixedTrials = 0
+    if (studyId in studyDetails) {
+      const currentTrials = studyDetails[studyId].trials
+      const firstUpdatable = currentTrials.findIndex((trial) =>
+        ["Running", "Waiting"].includes(trial.state)
+      )
+      nLocalFixedTrials =
+        firstUpdatable === -1 ? currentTrials.length : firstUpdatable
+    }
+    getStudyDetailAPI(studyId, nLocalFixedTrials)
       .then((study) => {
+        const currentFixedTrials =
+          studyId in studyDetails
+            ? studyDetails[studyId].trials.slice(0, nLocalFixedTrials)
+            : []
+        study.trials = study.trials.concat(currentFixedTrials)
         const newVal = Object.assign({}, studyDetails)
         newVal[studyId] = study
         setStudyDetails(newVal)
