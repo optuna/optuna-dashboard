@@ -1,8 +1,8 @@
 {
-  "name": "goptuna-dashboard",
+  "name": "optuna-dashboard",
   "private": true,
   "version": "0.0.1",
-  "description": "Dashboard for Goptuna",
+  "description": "Dashboard for Optuna",
   "main": "index.js",
   "scripts": {
     "fmt": "prettier --write \"optuna_dashboard/static/**/*.{ts,tsx}\"",
