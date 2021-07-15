@@ -4,6 +4,8 @@ import { Link, useParams } from "react-router-dom"
 import { createStyles, fade, makeStyles, Theme } from "@material-ui/core/styles"
 import {
   AppBar,
+  Dialog,
+  Checkbox,
   Card,
   Typography,
   CardContent,
@@ -15,9 +17,10 @@ import {
   IconButton,
   Select,
   MenuItem,
+  FormGroup,
 } from "@material-ui/core"
-import { Home, Cached } from "@material-ui/icons"
-
+import { Home, Cached, Settings } from "@material-ui/icons"
+import CloseIcon from "@material-ui/icons/Close"
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { GraphHyperparameterImportances } from "./GraphHyperparameterImportances"
@@ -29,6 +32,9 @@ import { GraphHistory } from "./GraphHistory"
 import { GraphParetoFront } from "./GraphParetoFront"
 import { actionCreator } from "../action"
 import { studyDetailsState } from "../state"
+import FormControlLabel from "@material-ui/core/FormControlLabel"
+import MuiDialogTitle from "@material-ui/core/DialogTitle"
+import MuiDialogContent from "@material-ui/core/DialogContent"
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -79,6 +85,17 @@ const useStyles = makeStyles((theme: Theme) =>
     grow: {
       flexGrow: 1,
     },
+    dialogTitle: {
+      margin: 0,
+      padding: theme.spacing(2),
+      minWidth: 300,
+    },
+    dialogCloseButton: {
+      position: "absolute",
+      right: theme.spacing(1),
+      top: theme.spacing(1),
+      color: theme.palette.grey[500],
+    },
   })
 )
 
@@ -101,9 +118,42 @@ export const StudyDetail: FC = () => {
   const { studyId } = useParams<ParamTypes>()
   const studyIdNumber = parseInt(studyId, 10)
   const studyDetail = useStudyDetailValue(studyIdNumber)
-  const [openReloadIntervalSelect, setOpenReloadIntervalSelect] =
+  const [openReloadIntervalSelect, setPrefOpenReloadIntervalSelect] =
     useState<boolean>(false)
   const [reloadInterval, setReloadInterval] = useState<number>(10)
+  const savedPref = localStorage.getItem("savedPref")
+  const graphsChecked =
+    savedPref !== null
+      ? JSON.parse(savedPref)
+      : {
+          graphHistoryChecked: true,
+          graphParetoFrontChecked: true,
+          graphParallelCoordinateChecked: true,
+          graphIntermediateValuesChecked: true,
+          edfChecked: true,
+          graphHyperparameterImportancesChecked: true,
+          graphSliceChecked: true,
+        }
+
+  const [prefOpen, setPrefOpen] = React.useState(false)
+  const handleClickOpen = () => {
+    setPrefOpen(true)
+  }
+  const handleClose = () => {
+    setPrefOpen(false)
+  }
+  const [chartsShown, setChartsShown] = React.useState(graphsChecked)
+  useEffect(() => {
+    localStorage.setItem("savedPref", JSON.stringify(chartsShown))
+  }, [chartsShown])
+  const handleChartShownChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setChartsShown({
+      ...chartsShown,
+      [event.target.name]: event.target.checked,
+    })
+  }
 
   useEffect(() => {
     action.updateStudyDetail(studyIdNumber)
@@ -125,6 +175,102 @@ export const StudyDetail: FC = () => {
 
   return (
     <div>
+      <Dialog onClose={handleClose} aria-labelledby="vis-pref" open={prefOpen}>
+        <MuiDialogTitle disableTypography className={classes.dialogTitle}>
+          <div>
+            <Typography variant="h6">Visualization Preference</Typography>
+          </div>
+
+          <IconButton
+            aria-label="close"
+            className={classes.dialogCloseButton}
+            onClick={handleClose}
+          >
+            <CloseIcon />
+          </IconButton>
+        </MuiDialogTitle>
+
+        <MuiDialogContent dividers>
+          <FormGroup>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={chartsShown.graphHistoryChecked}
+                  onChange={handleChartShownChange}
+                  name="graphHistoryChecked"
+                />
+              }
+              label="History"
+            />
+            <FormControlLabel
+              disabled={
+                studyDetail !== null && isSingleObjectiveStudy(studyDetail)
+              }
+              control={
+                <Checkbox
+                  checked={chartsShown.graphParetoFrontChecked}
+                  onChange={handleChartShownChange}
+                  name="graphParetoFrontChecked"
+                />
+              }
+              label="Pareto Front"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={chartsShown.graphParallelCoordinateChecked}
+                  onChange={handleChartShownChange}
+                  name="graphParallelCoordinateChecked"
+                />
+              }
+              label="Parallel Coordinate"
+            />
+            <FormControlLabel
+              disabled={
+                studyDetail !== null && !isSingleObjectiveStudy(studyDetail)
+              }
+              control={
+                <Checkbox
+                  checked={chartsShown.graphIntermediateValuesChecked}
+                  onChange={handleChartShownChange}
+                  name="graphIntermediateValuesChecked"
+                />
+              }
+              label="Intermediate Values"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={chartsShown.edfChecked}
+                  onChange={handleChartShownChange}
+                  name="edfChecked"
+                />
+              }
+              label="Edf"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={chartsShown.graphHyperparameterImportancesChecked}
+                  onChange={handleChartShownChange}
+                  name="graphHyperparameterImportancesChecked"
+                />
+              }
+              label="Hyperparameter Importances"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={chartsShown.graphSliceChecked}
+                  onChange={handleChartShownChange}
+                  name="graphSliceChecked"
+                />
+              }
+              label="Slice"
+            />
+          </FormGroup>
+        </MuiDialogContent>
+      </Dialog>
       <AppBar position="static">
         <Container>
           <Toolbar>
@@ -133,7 +279,7 @@ export const StudyDetail: FC = () => {
             <div
               className={classes.reload}
               onClick={() => {
-                setOpenReloadIntervalSelect(!openReloadIntervalSelect)
+                setPrefOpenReloadIntervalSelect(!openReloadIntervalSelect)
               }}
             >
               <div className={classes.reloadIcon}>
@@ -144,10 +290,10 @@ export const StudyDetail: FC = () => {
                 className={classes.reloadSelect}
                 open={openReloadIntervalSelect}
                 onOpen={() => {
-                  setOpenReloadIntervalSelect(true)
+                  setPrefOpenReloadIntervalSelect(true)
                 }}
                 onClose={() => {
-                  setOpenReloadIntervalSelect(false)
+                  setPrefOpenReloadIntervalSelect(false)
                 }}
                 onChange={(e) => {
                   setReloadInterval(e.target.value as number)
@@ -160,6 +306,10 @@ export const StudyDetail: FC = () => {
                 <MenuItem value={60}>60s</MenuItem>
               </Select>
             </div>
+
+            <IconButton color="inherit" onClick={handleClickOpen}>
+              <Settings />
+            </IconButton>
             <IconButton
               aria-controls="menu-appbar"
               aria-haspopup="true"
@@ -177,44 +327,59 @@ export const StudyDetail: FC = () => {
           <Paper className={classes.paper}>
             <Typography variant="h6">{title}</Typography>
           </Paper>
-          <Card className={classes.card}>
-            <CardContent>
-              <GraphHistory study={studyDetail} />
-            </CardContent>
-          </Card>
-          {studyDetail !== null && !isSingleObjectiveStudy(studyDetail) ? (
+          {chartsShown.graphHistoryChecked ? (
+            <Card className={classes.card}>
+              <CardContent>
+                <GraphHistory study={studyDetail} />
+              </CardContent>
+            </Card>
+          ) : null}
+
+          {studyDetail !== null &&
+          !isSingleObjectiveStudy(studyDetail) &&
+          chartsShown.graphParetoFrontChecked ? (
             <Card className={classes.card}>
               <CardContent>
                 <GraphParetoFront study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}
-          <Card className={classes.card}>
-            <CardContent>
-              <GraphParallelCoordinate study={studyDetail} />
-            </CardContent>
-          </Card>
-          {studyDetail !== null && isSingleObjectiveStudy(studyDetail) ? (
+          {chartsShown.graphParallelCoordinateChecked ? (
+            <Card className={classes.card}>
+              <CardContent>
+                <GraphParallelCoordinate study={studyDetail} />
+              </CardContent>
+            </Card>
+          ) : null}
+
+          {studyDetail !== null &&
+          isSingleObjectiveStudy(studyDetail) &&
+          chartsShown.graphIntermediateValuesChecked ? (
             <Card className={classes.card}>
               <CardContent>
                 <GraphIntermediateValues trials={trials} />
               </CardContent>
             </Card>
           ) : null}
-          <Card className={classes.card}>
-            <CardContent>
-              <Edf study={studyDetail} />
-            </CardContent>
-          </Card>
-          <Card className={classes.card}>
-            <CardContent>
-              <GraphHyperparameterImportances
-                study={studyDetail}
-                studyId={studyIdNumber}
-              />
-            </CardContent>
-          </Card>
-          {studyDetail !== null ? (
+          {chartsShown.edfChecked ? (
+            <Card className={classes.card}>
+              <CardContent>
+                <Edf study={studyDetail} />
+              </CardContent>
+            </Card>
+          ) : null}
+          {chartsShown.graphHyperparameterImportancesChecked ? (
+            <Card className={classes.card}>
+              <CardContent>
+                <GraphHyperparameterImportances
+                  study={studyDetail}
+                  studyId={studyIdNumber}
+                />
+              </CardContent>
+            </Card>
+          ) : null}
+
+          {studyDetail !== null && chartsShown.graphSliceChecked ? (
             <Card className={classes.card}>
               <CardContent>
                 <GraphSlice study={studyDetail} />
