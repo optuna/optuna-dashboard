@@ -54,7 +54,7 @@ interface DataGridColumn<T> {
   less?: (a: T, b: T) => number
   filterable?: boolean
   toCellValue?: (rowIndex: number) => string | React.ReactNode
-  padding?: "default" | "checkbox" | "none"
+  padding?: "normal" | "checkbox" | "none"
 }
 
 interface RowFilter<T> {
@@ -156,7 +156,7 @@ function DataGrid<T>(props: {
               {columns.map((column, index) => (
                 <TableCell
                   key={index}
-                  padding={column.padding || "default"}
+                  padding={column.padding || "normal"}
                   sortDirection={orderBy === column.field ? order : false}
                 >
                   <span className={classes.tableHeaderCell}>
@@ -225,8 +225,8 @@ function DataGrid<T>(props: {
         count={filteredRows.length}
         rowsPerPage={rowsPerPage}
         page={page}
-        onChangePage={handleChangePage}
-        onChangeRowsPerPage={handleChangeRowsPerPage}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </div>
   )
@@ -273,7 +273,7 @@ function DataGridRow<T>(props: {
           return column.filterable ? (
             <TableCell
               key={`${row[keyField]}:${column.field}:${columnIndex}`}
-              padding={column.padding || "default"}
+              padding={column.padding || "normal"}
               onClick={(e) => {
                 handleClickFilterCell(column.field, row[column.field])
               }}
@@ -283,7 +283,7 @@ function DataGridRow<T>(props: {
           ) : (
             <TableCell
               key={`${row[keyField]}:${column.field}:${columnIndex}`}
-              padding={column.padding || "default"}
+              padding={column.padding || "normal"}
             >
               {cellItem}
             </TableCell>
