@@ -24,7 +24,8 @@
     "./optuna_dashboard/static/index.tsx"
   ],
   "include": [
-    "./optuna_dashboard/static/types/**/*"
+    "./optuna_dashboard/static/types/**/*",
+    "./frontend_tests/**/*"
   ],
   "types": ["node"]
 }
