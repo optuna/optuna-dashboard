@@ -33,15 +33,16 @@ export const GraphSlice: FC<{
   const trials: Trial[] = study !== null ? study.trials : []
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const [selected, setSelected] = useState<string | null>(null)
-  const [logScale, setLogScale] = useState<boolean>(false)
+  const [logXScale, setLogXScale] = useState<boolean>(false)
+  const [logYScale, setLogYScale] = useState<boolean>(false)
   const paramNames = study?.union_search_space.map((s) => s.name)
   if (selected === null && paramNames && paramNames.length > 0) {
     setSelected(paramNames[0])
   }
 
   useEffect(() => {
-    plotSlice(trials, objectiveId, selected, logScale)
-  }, [trials, objectiveId, selected, logScale])
+    plotSlice(trials, objectiveId, selected, logXScale, logYScale)
+  }, [trials, objectiveId, selected, logXScale, logYScale])
 
   const handleObjectiveChange = (
     event: React.ChangeEvent<{ value: unknown }>
@@ -53,9 +54,14 @@ export const GraphSlice: FC<{
     setSelected(e.target.value as string)
   }
 
-  const handleLogScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleLogXScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault()
-    setLogScale(!logScale)
+    setLogXScale(!logXScale)
+  }
+
+  const handleLogYScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    setLogYScale(!logYScale)
   }
 
   return (
@@ -88,10 +94,18 @@ export const GraphSlice: FC<{
             </Select>
           </FormControl>
           <FormControl component="fieldset" className={classes.formControl}>
-            <FormLabel component="legend">Log scale:</FormLabel>
+            <FormLabel component="legend">Log x scale:</FormLabel>
             <Switch
-              checked={logScale}
-              onChange={handleLogScaleChange}
+              checked={logXScale}
+              onChange={handleLogXScaleChange}
+              value="enable"
+            />
+          </FormControl>
+          <FormControl component="fieldset" className={classes.formControl}>
+            <FormLabel component="legend">Log y scale:</FormLabel>
+            <Switch
+              checked={logYScale}
+              onChange={handleLogYScaleChange}
               value="enable"
             />
           </FormControl>
@@ -108,7 +122,8 @@ const plotSlice = (
   trials: Trial[],
   objectiveId: number,
   selected: string | null,
-  logScale: boolean
+  logXScale: boolean,
+  logYScale: boolean
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -123,6 +138,7 @@ const plotSlice = (
     },
     xaxis: {
       title: selected || "",
+      type: logXScale ? "log" : "linear",
       zerolinecolor: "#f2f5fa",
       zerolinewidth: 1.5,
       linecolor: "#f2f5fa",
@@ -133,7 +149,7 @@ const plotSlice = (
     },
     yaxis: {
       title: "Objective Values",
-      type: logScale ? "log" : "linear",
+      type: logYScale ? "log" : "linear",
       zerolinecolor: "#f2f5fa",
       zerolinewidth: 2,
       linecolor: "#f2f5fa",
@@ -183,6 +199,7 @@ const plotSlice = (
     ]
     layout["xaxis"] = {
       title: selected,
+      type: logXScale ? "log" : "linear",
       zerolinecolor: "#f2f5fa",
       zerolinewidth: 1.5,
       linecolor: "#f2f5fa",
@@ -215,6 +232,7 @@ const plotSlice = (
     ]
     layout["xaxis"] = {
       title: selected,
+      type: logXScale ? "log" : "linear",
       zerolinecolor: "#f2f5fa",
       zerolinewidth: 1.5,
       linecolor: "#f2f5fa",
