@@ -128,6 +128,9 @@ def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
     if trial.datetime_complete is not None:
         serialized["datetime_complete"] = trial.datetime_complete.isoformat()
 
+    if trial.datetime_start is not None and trial.datetime_complete is not None:
+        serialized["duration"] = int((trial.datetime_complete - trial.datetime_start).microseconds)
+
     return serialized
 
 

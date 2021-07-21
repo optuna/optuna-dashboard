@@ -52,6 +52,7 @@ declare interface Trial {
   intermediate_values: TrialIntermediateValue[]
   datetime_start?: Date
   datetime_complete?: Date
+  duration: number
   params: TrialParam[]
   user_attrs: Attribute[]
   system_attrs: Attribute[]
