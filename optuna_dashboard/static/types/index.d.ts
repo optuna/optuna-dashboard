@@ -35,7 +35,8 @@ declare interface ParamImportance {
 
 declare interface SearchSpace {
   name: string
-  type: string
+  distribution: Distribution
+  attributes: Attribute[]
 }
 
 declare interface Attribute {

@@ -26,6 +26,11 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
+const logDistributions = [
+  "LogUniformDistribution",
+  "IntLogUniformDistribution"
+]
+
 export const GraphSlice: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
@@ -36,8 +41,12 @@ export const GraphSlice: FC<{
   const [logXScale, setLogXScale] = useState<boolean>(false)
   const [logYScale, setLogYScale] = useState<boolean>(false)
   const paramNames = study?.union_search_space.map((s) => s.name)
+  const distributions  = new Map(
+    study?.union_search_space.map((s) => [s.name, s.distribution]))
   if (selected === null && paramNames && paramNames.length > 0) {
+    const distribution = distributions.get(paramNames[0]) || ""
     setSelected(paramNames[0])
+    setLogXScale(logDistributions.includes(distribution))
   }
 
   useEffect(() => {
@@ -51,12 +60,10 @@ export const GraphSlice: FC<{
   }
 
   const handleSelectedParam = (e: ChangeEvent<{ value: unknown }>) => {
-    setSelected(e.target.value as string)
-  }
-
-  const handleLogXScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault()
-    setLogXScale(!logXScale)
+    const paramName = e.target.value as string
+    const distribution = distributions.get(paramName) || ""
+    setSelected(paramName)
+    setLogXScale(logDistributions.includes(distribution))
   }
 
   const handleLogYScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -94,15 +101,7 @@ export const GraphSlice: FC<{
             </Select>
           </FormControl>
           <FormControl component="fieldset" className={classes.formControl}>
-            <FormLabel component="legend">Log x scale:</FormLabel>
-            <Switch
-              checked={logXScale}
-              onChange={handleLogXScaleChange}
-              value="enable"
-            />
-          </FormControl>
-          <FormControl component="fieldset" className={classes.formControl}>
-            <FormLabel component="legend">Log y scale:</FormLabel>
+            <FormLabel component="legend">Log scale:</FormLabel>
             <Switch
               checked={logYScale}
               onChange={handleLogYScaleChange}
