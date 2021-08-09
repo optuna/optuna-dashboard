@@ -26,10 +26,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
-const logDistributions = [
-  "LogUniformDistribution",
-  "IntLogUniformDistribution"
-]
+const logDistributions = ["LogUniformDistribution", "IntLogUniformDistribution"]
 
 export const GraphSlice: FC<{
   study: StudyDetail | null
@@ -41,8 +38,9 @@ export const GraphSlice: FC<{
   const [logXScale, setLogXScale] = useState<boolean>(false)
   const [logYScale, setLogYScale] = useState<boolean>(false)
   const paramNames = study?.union_search_space.map((s) => s.name)
-  const distributions  = new Map(
-    study?.union_search_space.map((s) => [s.name, s.distribution]))
+  const distributions = new Map(
+    study?.union_search_space.map((s) => [s.name, s.distribution])
+  )
   if (selected === null && paramNames && paramNames.length > 0) {
     const distribution = distributions.get(paramNames[0]) || ""
     setSelected(paramNames[0])
