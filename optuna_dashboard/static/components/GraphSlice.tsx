@@ -226,7 +226,7 @@ const plotSlice = (
       },
       tickvals: tickvals,
       ticktext: vocabArr,
-      automargin: true, // Otherwise the label is outside of the plot
+      automargin: true, // Otherwise, the label is outside of the plot
     }
     plotly.react(plotDomId, trace, layout)
   }
