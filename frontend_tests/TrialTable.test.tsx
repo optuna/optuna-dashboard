@@ -52,24 +52,24 @@ const study_detail = {
   intersection_search_space: [
     {
       name: "x",
-      type: "UniformDistribution",
+      distribution: "UniformDistribution" as Distribution,
       attributes: { low: -3, high: 3 },
     },
     {
       name: "y",
-      type: "UniformDistribution",
+      distribution: "UniformDistribution" as Distribution,
       attributes: { low: -3, high: 3 },
     },
   ],
   union_search_space: [
     {
       name: "x",
-      type: "UniformDistribution",
+      distribution: "UniformDistribution" as Distribution,
       attributes: { low: -3, high: 3 },
     },
     {
       name: "y",
-      type: "UniformDistribution",
+      distribution: "UniformDistribution" as Distribution,
       attributes: { low: -3, high: 3 },
     },
   ],
