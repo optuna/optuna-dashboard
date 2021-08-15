@@ -116,5 +116,7 @@ $ black .
 The release process(compiling TypeScript files, packaging Python distributions and uploading to PyPI) is fully automated by GitHub Actions.
 
 1. Replace `optuna_dashboard.version.__version__` to the next version.
-2. Create a git tag and push it to GitHub.
+2. Create a git tag and push it to GitHub. If succeeded, GitHub Action will publish the new version to PyPI and create a draft GitHub release.
+3. Edit a GitHub release and add change logs. Then make it publish.
+4. Post an annoucement on [GitHub Discussions](https://github.com/optuna/optuna-dashboard/discussions/categories/announcements).
 
