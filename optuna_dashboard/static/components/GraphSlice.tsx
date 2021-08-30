@@ -26,6 +26,8 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
+const logDistributions = ["LogUniformDistribution", "IntLogUniformDistribution"]
+
 export const GraphSlice: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
@@ -33,15 +35,21 @@ export const GraphSlice: FC<{
   const trials: Trial[] = study !== null ? study.trials : []
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const [selected, setSelected] = useState<string | null>(null)
-  const [logScale, setLogScale] = useState<boolean>(false)
+  const [logXScale, setLogXScale] = useState<boolean>(false)
+  const [logYScale, setLogYScale] = useState<boolean>(false)
   const paramNames = study?.union_search_space.map((s) => s.name)
+  const distributions = new Map(
+    study?.union_search_space.map((s) => [s.name, s.distribution])
+  )
   if (selected === null && paramNames && paramNames.length > 0) {
+    const distribution = distributions.get(paramNames[0]) || ""
     setSelected(paramNames[0])
+    setLogXScale(logDistributions.includes(distribution))
   }
 
   useEffect(() => {
-    plotSlice(trials, objectiveId, selected, logScale)
-  }, [trials, objectiveId, selected, logScale])
+    plotSlice(trials, objectiveId, selected, logXScale, logYScale)
+  }, [trials, objectiveId, selected, logXScale, logYScale])
 
   const handleObjectiveChange = (
     event: React.ChangeEvent<{ value: unknown }>
@@ -50,12 +58,15 @@ export const GraphSlice: FC<{
   }
 
   const handleSelectedParam = (e: ChangeEvent<{ value: unknown }>) => {
-    setSelected(e.target.value as string)
+    const paramName = e.target.value as string
+    const distribution = distributions.get(paramName) || ""
+    setSelected(paramName)
+    setLogXScale(logDistributions.includes(distribution))
   }
 
-  const handleLogScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleLogYScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
     e.preventDefault()
-    setLogScale(!logScale)
+    setLogYScale(!logYScale)
   }
 
   return (
@@ -90,8 +101,8 @@ export const GraphSlice: FC<{
           <FormControl component="fieldset" className={classes.formControl}>
             <FormLabel component="legend">Log scale:</FormLabel>
             <Switch
-              checked={logScale}
-              onChange={handleLogScaleChange}
+              checked={logYScale}
+              onChange={handleLogYScaleChange}
               value="enable"
             />
           </FormControl>
@@ -108,7 +119,8 @@ const plotSlice = (
   trials: Trial[],
   objectiveId: number,
   selected: string | null,
-  logScale: boolean
+  logXScale: boolean,
+  logYScale: boolean
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -123,6 +135,7 @@ const plotSlice = (
     },
     xaxis: {
       title: selected || "",
+      type: logXScale ? "log" : "linear",
       zerolinecolor: "#f2f5fa",
       zerolinewidth: 1.5,
       linecolor: "#f2f5fa",
@@ -133,7 +146,7 @@ const plotSlice = (
     },
     yaxis: {
       title: "Objective Values",
-      type: logScale ? "log" : "linear",
+      type: logYScale ? "log" : "linear",
       zerolinecolor: "#f2f5fa",
       zerolinewidth: 2,
       linecolor: "#f2f5fa",
@@ -183,6 +196,7 @@ const plotSlice = (
     ]
     layout["xaxis"] = {
       title: selected,
+      type: logXScale ? "log" : "linear",
       zerolinecolor: "#f2f5fa",
       zerolinewidth: 1.5,
       linecolor: "#f2f5fa",
@@ -215,6 +229,7 @@ const plotSlice = (
     ]
     layout["xaxis"] = {
       title: selected,
+      type: logXScale ? "log" : "linear",
       zerolinecolor: "#f2f5fa",
       zerolinewidth: 1.5,
       linecolor: "#f2f5fa",

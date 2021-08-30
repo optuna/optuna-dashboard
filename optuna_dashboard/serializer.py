@@ -139,7 +139,7 @@ def serialize_search_space(
         serialized.append(
             {
                 "name": param_name,
-                "type": distribution.__class__.__name__,
+                "distribution": distribution.__class__.__name__,
                 "attributes": distribution._asdict(),
             }
         )
