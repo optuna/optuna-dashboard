@@ -78,8 +78,8 @@ const plotCoordinate = (study: StudyDetail, objectiveId: number) => {
 
   const layout: Partial<plotly.Layout> = {
     margin: {
-      l: 50,
-      t: 50,
+      l: 70,
+      t: 100,
       r: 50,
       b: 0,
     },
@@ -95,6 +95,24 @@ const plotCoordinate = (study: StudyDetail, objectiveId: number) => {
       t.state === "Complete" ||
       (t.state === "Pruned" && t.values && t.values.length > 0)
   )
+
+  const maxLabelLength = 40
+  const breakLength = maxLabelLength / 2
+  const ellipsis = "…"
+  const truncateLabelIfTooLong = (originalLabel: string): string => {
+    return originalLabel.length > maxLabelLength
+      ? originalLabel.substring(0, maxLabelLength - ellipsis.length) + ellipsis
+      : originalLabel
+  }
+  const breakLabelIfTooLong = (originalLabel: string): string => {
+    const truncated = truncateLabelIfTooLong(originalLabel)
+    return truncated
+      .split("")
+      .map((c, i) => {
+        return (i + 1) % breakLength == 0 ? c + "<br>" : c
+      })
+      .join("")
+  }
 
   // Intersection param names
   const objectiveValues: number[] = filteredTrials.map(
@@ -118,7 +136,7 @@ const plotCoordinate = (study: StudyDetail, objectiveId: number) => {
     if (isnum) {
       const values: number[] = valueStrings.map((v) => parseFloat(v))
       dimensions.push({
-        label: s.name,
+        label: breakLabelIfTooLong(s.name),
         values: values,
         range: [Math.min(...values), Math.max(...values)],
       })
@@ -131,7 +149,7 @@ const plotCoordinate = (study: StudyDetail, objectiveId: number) => {
       )
       const tickvals: number[] = vocabArr.map((v, i) => i)
       dimensions.push({
-        label: s.name,
+        label: breakLabelIfTooLong(s.name),
         values: values,
         range: [Math.min(...values), Math.max(...values)],
         // @ts-ignore
@@ -145,6 +163,7 @@ const plotCoordinate = (study: StudyDetail, objectiveId: number) => {
       type: "parcoords",
       // @ts-ignore
       dimensions: dimensions,
+      labelangle: 30,
     },
   ]
 
