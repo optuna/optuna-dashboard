@@ -127,6 +127,7 @@ const plotParamImportances = (paramsImportanceData: ParamImportances) => {
     },
     yaxis: {
       title: "Hyperparameter",
+      automargin: true,
     },
     margin: {
       l: 50,
