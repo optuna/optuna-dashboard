@@ -39,7 +39,7 @@ def create_wsgi_env(
         "wsgi.version": (1, 0),
         "wsgi.errors": io.StringIO(""),
         "wsgi.multithread": True,
-        "wsgi.multitprocess": True,
+        "wsgi.multiprocess": True,
         "wsgi.run_once": False,
     }
     for k, v in headers.items():
