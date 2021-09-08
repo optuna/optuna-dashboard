@@ -134,3 +134,15 @@ it("Sort TrialTable by state", () => {
   expect(within(rows_updated[1]).getByText("Fail")).toBeTruthy()
   expect(within(rows_updated[3]).getByText("Complete")).toBeTruthy()
 })
+
+it("Filter trials by state", () => {
+  const { queryAllByText } = render(<TrialTable studyDetail={study_detail} />)
+  expect(queryAllByText("Fail").length).toBe(1)
+
+  // Click 'Complete' state
+  const completedRows = queryAllByText("Complete")
+  expect(completedRows.length).toBe(1)
+  fireEvent.click(completedRows[0])
+
+  expect(queryAllByText("Fail").length).toBe(0)
+})
