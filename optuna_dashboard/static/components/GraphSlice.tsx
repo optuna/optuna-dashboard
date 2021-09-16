@@ -99,7 +99,7 @@ export const GraphSlice: FC<{
             </Select>
           </FormControl>
           <FormControl component="fieldset" className={classes.formControl}>
-            <FormLabel component="legend">Log scale:</FormLabel>
+            <FormLabel component="legend">Log y scale:</FormLabel>
             <Switch
               checked={logYScale}
               onChange={handleLogYScaleChange}

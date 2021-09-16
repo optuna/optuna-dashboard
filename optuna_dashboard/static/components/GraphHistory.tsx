@@ -103,7 +103,7 @@ export const GraphHistory: FC<{
             </FormControl>
           ) : null}
           <FormControl component="fieldset" className={classes.formControl}>
-            <FormLabel component="legend">Log scale:</FormLabel>
+            <FormLabel component="legend">Log y scale:</FormLabel>
             <Switch
               checked={logScale}
               onChange={handleLogScaleChange}
