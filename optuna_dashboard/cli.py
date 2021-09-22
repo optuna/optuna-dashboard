@@ -1,5 +1,7 @@
 import argparse
 import os
+import pymysql
+pymysql.install_as_MySQLdb() # ModuleNotFoundError: No module named 'MySQLdb'
 
 from bottle import run
 from optuna.storages import BaseStorage
