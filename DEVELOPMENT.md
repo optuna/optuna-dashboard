@@ -29,6 +29,19 @@ $ npm run build:prd
 
 </details>
 
+### Building a Docker image
+
+```
+$ docker build -t <IMAGE_NAME> .
+```
+
+When failed above command due to the out of heap memory error (Exit code: 137), please check "Resources" tab on your Docker engine's preference since it requires a lot of memory to compile TypeScript files.
+You can use the Docker image like below:
+
+```
+$ docker run -it --rm -p 8080:8080 <IMAGE_NAME> sqlite:///db.sqlite3
+```
+
 ### Running dashboard server
 
 ```
