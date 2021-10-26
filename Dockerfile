@@ -11,17 +11,22 @@ ADD ./optuna_dashboard/static/ /usr/src/optuna_dashboard/static
 RUN mkdir -p /usr/src/optuna_dashboard/public
 RUN npm run build:prd
 
-FROM python:3.8
+FROM python:3.8-buster AS python-builder
 
 WORKDIR /usr/src
 RUN pip install --upgrade pip setuptools
-RUN pip install --no-cache-dir --progress-bar off PyMySQL cryptography psycopg2-binary
+RUN pip install --progress-bar off PyMySQL cryptography psycopg2-binary
 
 ADD ./setup.cfg /usr/src/setup.cfg
 ADD ./setup.py /usr/src/setup.py
 ADD ./optuna_dashboard /usr/src/optuna_dashboard
 COPY --from=front-builder /usr/src/optuna_dashboard/public/ /usr/src/optuna_dashboard/public/
-RUN pip install --no-cache-dir --progress-bar off .
+RUN pip install --progress-bar off .
+
+FROM python:3.8-slim-buster as runner
+
+COPY --from=python-builder /usr/local/lib/python3.8/site-packages /usr/local/lib/python3.8/site-packages
+COPY --from=python-builder /usr/local/bin/optuna-dashboard /usr/local/bin/optuna-dashboard
 
 EXPOSE 8080
 ENTRYPOINT ["optuna-dashboard", "--port", "8080", "--host", "0.0.0.0"]
