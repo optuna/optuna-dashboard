@@ -24,7 +24,7 @@ jobs:
       - run: flake8 . --show-source
       - run: black --check --diff .
       - run: isort --check --diff .
-      - run: mypy .
+      - run: mypy optuna_dashboard python_tests
   test:
     runs-on: ubuntu-latest
     strategy:
