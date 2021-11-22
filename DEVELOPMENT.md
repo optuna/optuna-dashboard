@@ -39,7 +39,7 @@ When failed above command due to the out of heap memory error (Exit code: 137), 
 You can use the Docker image like below:
 
 ```
-$ docker run -it --rm -p 8080:8080 <IMAGE_NAME> sqlite:///db.sqlite3
+$ docker run -it --rm -p 8080:8080 cbata/optuna-dashboard sqlite:///db.sqlite3
 ```
 
 ### Running dashboard server
