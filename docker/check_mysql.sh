@@ -1,7 +1,7 @@
 #!/bin/sh
 
 DIR=$(cd $(dirname $0); pwd)
-OPTUNA_DASHBOARD_IMAGE=${OPTUNA_DASHBOARD_IMAGE:-optuna-dashboard}
+OPTUNA_DASHBOARD_IMAGE=${OPTUNA_DASHBOARD_IMAGE:-cbata/optuna-dashboard}
 
 echo ""
 echo "1. Prepare MYSQL 8.0 Server using Docker."

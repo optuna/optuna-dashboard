@@ -32,7 +32,7 @@ $ npm run build:prd
 ### Building a Docker image
 
 ```
-$ docker build -t <IMAGE_NAME> .
+$ docker build -t cbata/optuna-dashboard .
 ```
 
 When failed above command due to the out of heap memory error (Exit code: 137), please check "Resources" tab on your Docker engine's preference since it requires a lot of memory to compile TypeScript files.
