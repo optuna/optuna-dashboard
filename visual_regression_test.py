@@ -206,7 +206,7 @@ def main() -> None:
     thread = threading.Thread(target=httpd.serve_forever)
     thread.start()
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.new_event_loop()
     error_messages = loop.run_until_complete(take_screenshots(storage))
     for msg in error_messages:
         print(msg)
