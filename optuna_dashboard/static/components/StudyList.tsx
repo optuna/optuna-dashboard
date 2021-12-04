@@ -43,6 +43,11 @@ const useStyles = makeStyles((theme: Theme) =>
     objectiveButton: {
       marginRight: theme.spacing(1),
     },
+    containerStyle: {
+      ["@media (min-width: 1280px)"]: {
+        maxWidth: "100%"
+      }
+    }
   })
 )
 
@@ -216,7 +221,7 @@ export const StudyList: FC = () => {
   return (
     <div>
       <AppBar position="static">
-        <Container>
+        <Container className={classes.containerStyle}>
           <Toolbar>
             <Typography variant="h6">{APP_BAR_TITLE}</Typography>
             <div className={classes.grow} />
@@ -277,7 +282,7 @@ export const StudyList: FC = () => {
           </Toolbar>
         </Container>
       </AppBar>
-      <Container>
+      <Container className={classes.containerStyle}>
         <Card className={classes.card}>
           <DataGrid<StudySummary>
             columns={columns}
