@@ -97,10 +97,10 @@ const useStyles = makeStyles((theme: Theme) =>
       color: theme.palette.grey[500],
     },
     containerStyle: {
-			["@media (min-width: 1280px)"]: {
-				maxWidth: "100%"
-			}
-    }
+      ["@media (min-width: 1280px)"]: {
+        maxWidth: "100%",
+      },
+    },
   })
 )
 

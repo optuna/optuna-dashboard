@@ -45,9 +45,9 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     containerStyle: {
       ["@media (min-width: 1280px)"]: {
-        maxWidth: "100%"
-      }
-    }
+        maxWidth: "100%",
+      },
+    },
   })
 )
 
