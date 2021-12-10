@@ -96,6 +96,11 @@ const useStyles = makeStyles((theme: Theme) =>
       top: theme.spacing(1),
       color: theme.palette.grey[500],
     },
+    containerStyle: {
+      ["@media (min-width: 1280px)"]: {
+        maxWidth: "100%",
+      },
+    },
   })
 )
 
@@ -272,7 +277,7 @@ export const StudyDetail: FC = () => {
         </MuiDialogContent>
       </Dialog>
       <AppBar position="static">
-        <Container>
+        <Container className={classes.containerStyle}>
           <Toolbar>
             <Typography variant="h6">{APP_BAR_TITLE}</Typography>
             <div className={classes.grow} />
@@ -322,7 +327,7 @@ export const StudyDetail: FC = () => {
           </Toolbar>
         </Container>
       </AppBar>
-      <Container>
+      <Container className={classes.containerStyle}>
         <div>
           <Paper className={classes.paper}>
             <Typography variant="h6">{title}</Typography>
