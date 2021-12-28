@@ -32,14 +32,25 @@ $ npm run build:prd
 ### Building a Docker image
 
 ```
-$ docker build -t cbata/optuna-dashboard .
+$ docker build -t optuna-dashboard .
 ```
 
 When failed above command due to the out of heap memory error (Exit code: 137), please check "Resources" tab on your Docker engine's preference since it requires a lot of memory to compile TypeScript files.
 You can use the Docker image like below:
 
 ```
-$ docker run -it --rm -p 8080:8080 cbata/optuna-dashboard sqlite:///db.sqlite3
+# SQLite3
+$ docker run -it --rm -p 8080:8080 -v `PWD`:/app optuna-dashboard sqlite:///db.sqlite3
+```
+
+```
+# MySQL (PyMySQL)
+$ docker run -it --rm -p 8080:8080 optuna-dashboard mysql+pymysql://username:password@hostname:3306/dbname
+```
+
+```
+# PostgreSQL (Psycopg2)
+$ docker run -it --rm -p 8080:8080 optuna-dashboard postgresql+psycopg2://username:password@hostname:5432/dbname
 ```
 
 ### Running dashboard server

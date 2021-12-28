@@ -8,15 +8,15 @@ Code files were originally taken from [Goptuna](https://github.com/c-bata/goptun
 
 ## Usage
 
-You can install optuna-dashboard via [PyPI](https://pypi.org/project/optuna-dashboard/) or [conda-forge](https://anaconda.org/conda-forge/optuna-dashboard).
+You can install optuna-dashboard via [PyPI](https://pypi.org/project/optuna-dashboard/) or [Anaconda Cloud](https://anaconda.org/conda-forge/optuna-dashboard).
 
 ```
+# PyPI
 $ pip install optuna-dashboard
 ```
 
-or
-
 ```
+# Anaconda Cloud
 $ conda install -c conda-forge optuna-dashboard
 ```
 
@@ -31,7 +31,7 @@ Hit Ctrl-C to quit.
 
 <details>
 
-<summary>more command line options</summary>
+<summary>More command line options</summary>
 
 ```console
 $ optuna-dashboard -h
