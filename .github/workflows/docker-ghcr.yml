@@ -1,8 +1,8 @@
 name: Publish a Docker image to ghcr.io
 on:
-  pull_request:
-    branches:
-      - main
+  push:
+    tags:
+      - v*.*.*
 jobs:
   build:
     runs-on: ubuntu-latest
