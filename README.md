@@ -52,6 +52,30 @@ optional arguments:
 
 </details>
 
+
+## Usage (Docker)
+
+You can also use a Docker image to run optuna-dashboard.
+The image only supports SQLite3, MySQL(PyMySQL), and PostgreSQL(Psycopg2).
+
+```
+# SQLite3
+$ docker run -it --rm -p 8080:8080 -v `PWD`:/app ghcr.io/optuna/optuna-dashboard sqlite:///db.sqlite3
+```
+
+```
+# MySQL (PyMySQL)
+$ docker run -it --rm -p 8080:8080 ghcr.io/optuna/optuna-dashboard mysql+pymysql://username:password@hostname:3306/dbname
+```
+
+```
+# PostgreSQL (Psycopg2)
+$ docker run -it --rm -p 8080:8080 ghcr.io/optuna/optuna-dashboard postgresql+psycopg2://username:password@hostname:5432/dbname
+```
+
+https://github.com/optuna/optuna-dashboard/pkgs/container/optuna-dashboard
+
+
 ## Features
 
 ### Manage studies
