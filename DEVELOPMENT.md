@@ -40,17 +40,7 @@ You can use the Docker image like below:
 
 ```
 # SQLite3
-$ docker run -it --rm -p 8080:8080 -v `PWD`:/app optuna-dashboard sqlite:///db.sqlite3
-```
-
-```
-# MySQL (PyMySQL)
-$ docker run -it --rm -p 8080:8080 optuna-dashboard mysql+pymysql://username:password@hostname:3306/dbname
-```
-
-```
-# PostgreSQL (Psycopg2)
-$ docker run -it --rm -p 8080:8080 optuna-dashboard postgresql+psycopg2://username:password@hostname:5432/dbname
+$ docker run -it --rm -p 8080:8080 -v `PWD`:/app -w /app optuna-dashboard sqlite:///db.sqlite3
 ```
 
 ### Running dashboard server
