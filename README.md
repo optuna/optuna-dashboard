@@ -6,7 +6,7 @@
 Real-time dashboard for [Optuna](https://github.com/optuna/optuna).
 Code files were originally taken from [Goptuna](https://github.com/c-bata/goptuna).
 
-## Usage
+## Getting Started
 
 You can install optuna-dashboard via [PyPI](https://pypi.org/project/optuna-dashboard/) or [Anaconda Cloud](https://anaconda.org/conda-forge/optuna-dashboard).
 
@@ -53,27 +53,33 @@ optional arguments:
 </details>
 
 
-## Usage (Docker)
+## Using an official Docker image
 
-You can also use a Docker image to run optuna-dashboard.
-The image only supports SQLite3, MySQL(PyMySQL), and PostgreSQL(Psycopg2).
-
-```
-# SQLite3
-$ docker run -it --rm -p 8080:8080 -v `PWD`:/app ghcr.io/optuna/optuna-dashboard sqlite:///db.sqlite3
-```
+You can also use [an official Docker image](https://github.com/optuna/optuna-dashboard/pkgs/container/optuna-dashboard) instead of setting up your Python environment.
+The Docker image only supports SQLite3, MySQL(PyMySQL), and PostgreSQL(Psycopg2).
 
 ```
-# MySQL (PyMySQL)
+$ docker run -it --rm -p 8080:8080 -v `PWD`:/app -w /app \
+> ghcr.io/optuna/optuna-dashboard sqlite:///db.sqlite3
+```
+
+<details>
+<summary>MySQL (PyMySQL)</summary>
+
+```
 $ docker run -it --rm -p 8080:8080 ghcr.io/optuna/optuna-dashboard mysql+pymysql://username:password@hostname:3306/dbname
 ```
 
+</details>
+
+<details>
+<summary>PostgreSQL (Psycopg2)</summary>
+
 ```
-# PostgreSQL (Psycopg2)
 $ docker run -it --rm -p 8080:8080 ghcr.io/optuna/optuna-dashboard postgresql+psycopg2://username:password@hostname:5432/dbname
 ```
 
-https://github.com/optuna/optuna-dashboard/pkgs/container/optuna-dashboard
+</details>
 
 
 ## Features
