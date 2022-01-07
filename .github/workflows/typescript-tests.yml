@@ -18,10 +18,10 @@ jobs:
       - name: Check out code
         uses: actions/checkout@master
 
-      - name: Set up Node v14
+      - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '16'
       - run: |
           npm install
           npm run lint
@@ -34,10 +34,10 @@ jobs:
       - name: Check out code
         uses: actions/checkout@master
 
-      - name: Set up Node v14
+      - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '16'
       - run: |
           npm install
           npm run build:dev
@@ -51,10 +51,10 @@ jobs:
       - name: Check out code
         uses: actions/checkout@master
 
-      - name: Set up Node v14
+      - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '14'
+          node-version: '16'
       - run: |
           npm install
           npm run test
