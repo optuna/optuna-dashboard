@@ -1,4 +1,4 @@
-FROM node:14 AS front-builder
+FROM node:16 AS front-builder
 WORKDIR /usr/src
 
 ADD ./package.json /usr/src/package.json
