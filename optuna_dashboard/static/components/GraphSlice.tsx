@@ -26,6 +26,7 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 )
 
+// TODO(c-bata): Check `log` field of IntDistribution and FloatDistribution.
 const logDistributions = ["LogUniformDistribution", "IntLogUniformDistribution"]
 
 export const GraphSlice: FC<{
