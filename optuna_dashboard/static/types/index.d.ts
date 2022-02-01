@@ -10,6 +10,8 @@ declare const URL_PREFIX: string
 type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting"
 type StudyDirection = "maximize" | "minimize" | "not_set"
 type Distribution =
+  | "FloatDistribution"
+  | "IntDistribution"
   | "UniformDistribution"
   | "LogUniformDistribution"
   | "DiscreteUniformDistribution"
