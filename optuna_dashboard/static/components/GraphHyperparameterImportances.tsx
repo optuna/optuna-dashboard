@@ -39,9 +39,11 @@ const plotlyColorsSequentialBlues = [
 ]
 
 const distributionColors = {
+  FloatDistribution: plotlyColorsSequentialBlues.slice(-1)[0],
   UniformDistribution: plotlyColorsSequentialBlues.slice(-1)[0],
   LogUniformDistribution: plotlyColorsSequentialBlues.slice(-1)[0],
   DiscreteUniformDistribution: plotlyColorsSequentialBlues.slice(-1)[0],
+  IntDistribution: plotlyColorsSequentialBlues.slice(-2)[0],
   IntUniformDistribution: plotlyColorsSequentialBlues.slice(-2)[0],
   IntLogUniformDistribution: plotlyColorsSequentialBlues.slice(-2)[0],
   CategoricalDistribution: plotlyColorsSequentialBlues.slice(-4)[0],
