@@ -6,11 +6,13 @@ import logging
 import os
 import threading
 import traceback
+import typing
 from typing import Any
 from typing import Callable
 from typing import cast
 from typing import Dict
 from typing import List
+from typing import NoReturn
 from typing import Optional
 from typing import TypeVar
 from typing import Union
@@ -20,10 +22,13 @@ from bottle import Bottle
 from bottle import redirect
 from bottle import request
 from bottle import response
+from bottle import run
 from bottle import static_file
 import optuna
 from optuna.exceptions import DuplicatedStudyError
 from optuna.storages import BaseStorage
+from optuna.storages import RedisStorage
+from optuna.storages import RDBStorage
 from optuna.study import Study
 from optuna.study import StudyDirection
 from optuna.study import StudySummary
@@ -33,6 +38,8 @@ from optuna.trial import TrialState
 from . import serializer
 from .search_space import get_search_space
 
+if typing.TYPE_CHECKING:
+    from _typeshed.wsgi import WSGIApplication
 
 BottleViewReturn = Union[str, bytes, Dict[str, Any], BaseResponse]
 BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])
@@ -274,3 +281,31 @@ def create_app(storage: BaseStorage) -> Bottle:
         return static_file(filename, root=STATIC_DIR)
 
     return app
+
+
+def get_storage(storage: Union[str, BaseStorage]) -> BaseStorage:
+    if isinstance(storage, str):
+        if storage.startswith("redis"):
+            return RedisStorage(storage)
+        else:
+            return RDBStorage(storage)
+    return storage
+
+
+def run_server(  # type: ignore
+    storage: Union[str, BaseStorage], host: str = "localhost", port: int = 8080
+) -> NoReturn:
+    """Start running optuna-dashboard and blocks until the server terminates.
+    This function uses wsgiref module which is not intended for the production
+    use. If you want to run optuna-dashboard more secure and/or more fast,
+    please use WSGI server like Gunicorn or uWSGI via `wsgi()` function.
+    """
+    app = create_app(get_storage(storage))
+    run(app, host=host, port=port)
+
+
+def wsgi(storage: Union[str, BaseStorage]) -> "WSGIApplication":
+    """This function exposes WSGI interface for people who want to run on the
+    production-class WSGI servers like Gunicorn or uWSGI.
+    """
+    return create_app(get_storage(storage))
