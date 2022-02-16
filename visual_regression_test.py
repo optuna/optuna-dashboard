@@ -12,7 +12,7 @@ import optuna
 from pyppeteer import launch
 from pyppeteer.page import Page
 
-from optuna_dashboard.app import create_app
+from optuna_dashboard import wsgi
 
 
 parser = argparse.ArgumentParser()
@@ -201,7 +201,7 @@ def main() -> None:
     else:
         storage = optuna.storages.RDBStorage(args.storage)
 
-    app = create_app(storage)
+    app = wsgi(storage)
     httpd = make_server(args.host, args.port, app)
     thread = threading.Thread(target=httpd.serve_forever)
     thread.start()
