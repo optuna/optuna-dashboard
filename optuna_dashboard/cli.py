@@ -1,6 +1,8 @@
 import argparse
 import os
+from typing import NoReturn
 
+from bottle import Bottle
 from bottle import run
 from optuna.storages import BaseStorage
 from optuna.storages import RDBStorage
@@ -14,7 +16,35 @@ AUTO_RELOAD = os.environ.get("OPTUNA_DASHBOARD_AUTO_RELOAD") == "1"
 SERVER_CHOICES = ["wsgiref", "gunicorn"]
 
 
-def main() -> None:
+def run_wsgiref(app: Bottle, host: str, port: int, quiet: bool) -> NoReturn:  # type: ignore
+    run(
+        app,
+        host=host,
+        port=port,
+        server="wsgiref",
+        quiet=quiet,
+        reloader=AUTO_RELOAD,
+    )
+
+
+def run_gunicorn(app: Bottle, host: str, port: int, quiet: bool) -> NoReturn:  # type: ignore
+    # See https://docs.gunicorn.org/en/latest/custom.html
+
+    from gunicorn.app.base import BaseApplication
+
+    class _Application(BaseApplication):
+        def load_config(self) -> None:
+            self.cfg.set("bind", f"{host}:{port}")
+            if quiet:
+                self.cfg.set("loglevel", "error")
+
+        def load(self) -> Bottle:
+            return app
+
+    _Application().run()
+
+
+def main() -> NoReturn:
     parser = argparse.ArgumentParser(description="Real-time dashboard for Optuna.")
     parser.add_argument("storage", help="DB URL (e.g. sqlite:///example.db)", type=str)
     parser.add_argument(
@@ -40,14 +70,12 @@ def main() -> None:
         storage = RDBStorage(args.storage)
 
     app = create_app(storage)
-    run(
-        app,
-        host=args.host,
-        port=args.port,
-        server=args.server,
-        quiet=args.quiet,
-        reloader=AUTO_RELOAD,
-    )
+    if args.server == "wsgiref":
+        run_wsgiref(app, args.host, args.port, args.quiet)
+    elif args.server == "gunicorn":
+        run_gunicorn(app, args.host, args.port, args.quiet)
+    else:
+        raise Exception("must not reach here")
 
 
 if __name__ == "__main__":
