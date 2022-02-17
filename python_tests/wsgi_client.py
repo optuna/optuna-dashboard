@@ -8,6 +8,7 @@ from typing import Union
 
 from bottle import Bottle
 
+
 if typing.TYPE_CHECKING:
     from _typeshed.wsgi import WSGIEnvironment
 

@@ -27,8 +27,8 @@ from bottle import static_file
 import optuna
 from optuna.exceptions import DuplicatedStudyError
 from optuna.storages import BaseStorage
-from optuna.storages import RedisStorage
 from optuna.storages import RDBStorage
+from optuna.storages import RedisStorage
 from optuna.study import Study
 from optuna.study import StudyDirection
 from optuna.study import StudySummary
@@ -37,6 +37,7 @@ from optuna.trial import TrialState
 
 from . import serializer
 from .search_space import get_search_space
+
 
 if typing.TYPE_CHECKING:
     from _typeshed.wsgi import WSGIApplication
