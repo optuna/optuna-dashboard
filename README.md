@@ -31,6 +31,23 @@ Hit Ctrl-C to quit.
 
 <details>
 
+<summary>Running optuna-dashboard with Gunicorn</summary>
+
+optuna-dashboard uses [wsgiref](https://docs.python.org/3/library/wsgiref.html) module
+which is provided as a Python standard library. But it has not been reviewed for security
+issues, so not suitable for the production use. You can run optuna-dashboard with Gunicorn
+more secure and/or more fast.
+
+```console
+$ pip install gunicorn
+$ optuna-dashboard sqlite:///db.sqlite3 --server gunicorn
+```
+
+</details>
+
+
+<details>
+
 <summary>More command line options</summary>
 
 ```console
@@ -43,15 +60,32 @@ positional arguments:
   storage        DB URL (e.g. sqlite:///example.db)
 
 optional arguments:
-  -h, --help     show this help message and exit
-  --port PORT    port number (default: 8080)
-  --host HOST    hostname (default: 127.0.0.1)
-  --version, -v  show program's version number and exit
-  --quiet, -q    quiet
+  -h, --help            show this help message and exit
+  --port PORT           port number (default: 8080)
+  --host HOST           hostname (default: 127.0.0.1)
+  --server {wsgiref,gunicorn}
+                        server (default: wsgiref)
+  --version, -v         show program's version number and exit
+  --quiet, -q           quiet
 ```
 
 </details>
 
+<details>
+
+<summary>Python Interface</summary>
+
+**`run_server(storage: Union[str, BaseStorage], host: str = 'localhost', port: int = 8080) -> NoReturn`**
+
+Start running optuna-dashboard and blocks until the server terminates.
+This function uses wsgiref module which is not intended for the production use.
+
+**`wsgi(storage: Union[str, BaseStorage]) -> WSGIApplication`**
+
+This function exposes WSGI interface for people who want to run on the
+production-class WSGI servers like Gunicorn or uWSGI.
+
+</details>
 
 ## Using an official Docker image
 
@@ -101,20 +135,6 @@ Interactive live-updating graphs for optimization history, parallel coordinate, 
 You can walk-through trials by filtering and sorting.
 
 ![optuna-dashboard-trials-datagrid](https://user-images.githubusercontent.com/5564044/114265667-20d57d00-9a2d-11eb-8b9c-69541c9b4a28.gif)
-
-## Python Interface
-
-### `run_server(storage: Union[str, BaseStorage], host: str = 'localhost', port: int = 8080) -> NoReturn`
-
-Start running optuna-dashboard and blocks until the server terminates.
-This function uses wsgiref module which is not intended for the production
-use. If you want to run optuna-dashboard more secure and/or more fast,
-please use WSGI server like Gunicorn or uWSGI via `wsgi()` function.
-
-### `wsgi(storage: Union[str, BaseStorage]) -> WSGIApplication`
-
-This function exposes WSGI interface for people who want to run on the
-production-class WSGI servers like Gunicorn or uWSGI.
 
 ## Submitting patches
 
