@@ -15,7 +15,7 @@ FROM python:3.8-buster AS python-builder
 
 WORKDIR /usr/src
 RUN pip install --upgrade pip setuptools
-RUN pip install --progress-bar off PyMySQL[rsa] psycopg2-binary
+RUN pip install --progress-bar off PyMySQL[rsa] psycopg2-binary gunicorn
 
 ADD ./setup.cfg /usr/src/setup.cfg
 ADD ./setup.py /usr/src/setup.py
@@ -32,5 +32,5 @@ RUN mkdir /app
 WORKDIR /app
 
 EXPOSE 8080
-ENTRYPOINT ["optuna-dashboard", "--port", "8080", "--host", "0.0.0.0"]
+ENTRYPOINT ["optuna-dashboard", "--port", "8080", "--host", "0.0.0.0", "--server", "gunicorn"]
 

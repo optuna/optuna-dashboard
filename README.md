@@ -43,11 +43,13 @@ positional arguments:
   storage        DB URL (e.g. sqlite:///example.db)
 
 optional arguments:
-  -h, --help     show this help message and exit
-  --port PORT    port number (default: 8080)
-  --host HOST    hostname (default: 127.0.0.1)
-  --version, -v  show program's version number and exit
-  --quiet, -q    quiet
+  -h, --help            show this help message and exit
+  --port PORT           port number (default: 8080)
+  --host HOST           hostname (default: 127.0.0.1)
+  --server {wsgiref,gunicorn}
+                        server (default: wsgiref)
+  --version, -v         show program's version number and exit
+  --quiet, -q           quiet
 ```
 
 </details>

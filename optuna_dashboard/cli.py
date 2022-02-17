@@ -11,6 +11,7 @@ from .app import create_app
 
 
 AUTO_RELOAD = os.environ.get("OPTUNA_DASHBOARD_AUTO_RELOAD") == "1"
+SERVER_CHOICES = ["wsgiref", "gunicorn"]
 
 
 def main() -> None:
@@ -21,6 +22,9 @@ def main() -> None:
     )
     parser.add_argument(
         "--host", help="hostname (default: %(default)s)", default="127.0.0.1"
+    )
+    parser.add_argument(
+        "--server", help="server (default: %(default)s)", default="wsgiref", choices=SERVER_CHOICES
     )
     parser.add_argument("--version", "-v", action="version", version=__version__)
     parser.add_argument("--quiet", "-q", help="quiet", action="store_true")
@@ -33,7 +37,7 @@ def main() -> None:
         storage = RDBStorage(args.storage)
 
     app = create_app(storage)
-    run(app, host=args.host, port=args.port, quiet=args.quiet, reloader=AUTO_RELOAD)
+    run(app, host=args.host, port=args.port, server=args.server, quiet=args.quiet, reloader=AUTO_RELOAD)
 
 
 if __name__ == "__main__":
