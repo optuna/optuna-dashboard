@@ -6,8 +6,8 @@ from optuna.storages import BaseStorage
 from optuna.storages import RDBStorage
 from optuna.storages import RedisStorage
 
+from . import __version__
 from .app import create_app
-from .version import __version__
 
 
 AUTO_RELOAD = os.environ.get("OPTUNA_DASHBOARD_AUTO_RELOAD") == "1"

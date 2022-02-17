@@ -12,7 +12,7 @@ import optuna
 from pyppeteer import launch
 from pyppeteer.page import Page
 
-from optuna_dashboard.app import create_app
+from optuna_dashboard import wsgi
 
 
 parser = argparse.ArgumentParser()
@@ -94,7 +94,7 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
     def objective_multi(trial: optuna.Trial) -> Tuple[float, float]:
         x = trial.suggest_float("x", 0, 5)
         y = trial.suggest_float("y", 0, 3)
-        v0 = 4 * x ** 2 + 4 * y ** 2
+        v0 = 4 * x**2 + 4 * y**2
         v1 = (x - 5) ** 2 + (y - 5) ** 2
         return v0, v1
 
@@ -110,13 +110,13 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
         if category == "foo":
             x = trial.suggest_float("x1", 0, 5)
             y = trial.suggest_float("y1", 0, 3)
-            v0 = 4 * x ** 2 + 4 * y ** 2
+            v0 = 4 * x**2 + 4 * y**2
             v1 = (x - 5) ** 2 + (y - 5) ** 2
             return v0, v1
         else:
             x = trial.suggest_float("x2", 0, 5)
             y = trial.suggest_float("y2", 0, 3)
-            v0 = 2 * x ** 2 + 2 * y ** 2
+            v0 = 2 * x**2 + 2 * y**2
             v1 = (x - 2) ** 2 + (y - 3) ** 2
             return v0, v1
 
@@ -130,7 +130,7 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
     def objective_prune_without_report(trial: optuna.Trial) -> float:
         x = trial.suggest_float("x", -15, 30)
         y = trial.suggest_float("y", -15, 30)
-        v = x ** 2 + y ** 2
+        v = x**2 + y**2
         if v > 100:
             raise optuna.TrialPruned()
         return v
@@ -201,7 +201,7 @@ def main() -> None:
     else:
         storage = optuna.storages.RDBStorage(args.storage)
 
-    app = create_app(storage)
+    app = wsgi(storage)
     httpd = make_server(args.host, args.port, app)
     thread = threading.Thread(target=httpd.serve_forever)
     thread.start()

@@ -1,17 +1,16 @@
 import io
-from typing import Any
-from typing import Callable
+import typing
 from typing import Dict
-from typing import Iterable
 from typing import List
 from typing import Optional
 from typing import Tuple
 from typing import Union
 
+from bottle import Bottle
 
-WSGIEnv = Dict[str, Any]  # Cannot use TypedDict because of 'HTTP_' variables
-StartResponse = Callable[[str, List[Tuple[str, str]]], None]
-WSGIApp = Callable[[WSGIEnv, StartResponse], Iterable[bytes]]
+
+if typing.TYPE_CHECKING:
+    from _typeshed.wsgi import WSGIEnvironment
 
 
 def create_wsgi_env(
@@ -21,7 +20,7 @@ def create_wsgi_env(
     body: bytes,
     queries: Dict[str, str],
     headers: Dict[str, str],
-) -> WSGIEnv:
+) -> "WSGIEnvironment":
     # 'key1=value1&key2=value2'
     query_string = "&".join([f"{k}={v}" for k, v in queries.items()])
 
@@ -48,7 +47,7 @@ def create_wsgi_env(
 
 
 def send_request(
-    app: WSGIApp,
+    app: Bottle,
     path: str,
     method: str,
     body: Union[str, bytes] = b"",
@@ -68,10 +67,10 @@ def send_request(
     headers = headers or {}
     queries = queries or {}
     env = create_wsgi_env(path, method, content_type, bytes_body, queries, headers)
-    body = b""
+    response_body = b""
     iterable_body = app(env, start_response)
     for b in iterable_body:
-        body += b
+        response_body += b
 
     status_code = int(status.split()[0])
-    return status_code, response_headers, body
+    return status_code, response_headers, response_body

@@ -102,6 +102,19 @@ You can walk-through trials by filtering and sorting.
 
 ![optuna-dashboard-trials-datagrid](https://user-images.githubusercontent.com/5564044/114265667-20d57d00-9a2d-11eb-8b9c-69541c9b4a28.gif)
 
+## Python Interface
+
+### `run_server(storage: Union[str, BaseStorage], host: str = 'localhost', port: int = 8080) -> NoReturn`
+
+Start running optuna-dashboard and blocks until the server terminates.
+This function uses wsgiref module which is not intended for the production
+use. If you want to run optuna-dashboard more secure and/or more fast,
+please use WSGI server like Gunicorn or uWSGI via `wsgi()` function.
+
+### `wsgi(storage: Union[str, BaseStorage]) -> WSGIApplication`
+
+This function exposes WSGI interface for people who want to run on the
+production-class WSGI servers like Gunicorn or uWSGI.
 
 ## Submitting patches
 
