@@ -12,7 +12,6 @@ from typing import Callable
 from typing import cast
 from typing import Dict
 from typing import List
-from typing import NoReturn
 from typing import Optional
 from typing import TypeVar
 from typing import Union
@@ -294,9 +293,9 @@ def get_storage(storage: Union[str, BaseStorage]) -> BaseStorage:
     return storage
 
 
-def run_server(  # type: ignore
+def run_server(
     storage: Union[str, BaseStorage], host: str = "localhost", port: int = 8080
-) -> NoReturn:
+) -> None:
     """Start running optuna-dashboard and blocks until the server terminates.
     This function uses wsgiref module which is not intended for the production
     use. If you want to run optuna-dashboard more secure and/or more fast,

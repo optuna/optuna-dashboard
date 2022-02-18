@@ -1,6 +1,5 @@
 import argparse
 import os
-from typing import NoReturn
 
 from bottle import Bottle
 from bottle import run
@@ -16,7 +15,7 @@ AUTO_RELOAD = os.environ.get("OPTUNA_DASHBOARD_AUTO_RELOAD") == "1"
 SERVER_CHOICES = ["wsgiref", "gunicorn"]
 
 
-def run_wsgiref(app: Bottle, host: str, port: int, quiet: bool) -> NoReturn:  # type: ignore
+def run_wsgiref(app: Bottle, host: str, port: int, quiet: bool) -> None:
     run(
         app,
         host=host,
@@ -27,12 +26,12 @@ def run_wsgiref(app: Bottle, host: str, port: int, quiet: bool) -> NoReturn:  # 
     )
 
 
-def run_gunicorn(app: Bottle, host: str, port: int, quiet: bool) -> NoReturn:  # type: ignore
+def run_gunicorn(app: Bottle, host: str, port: int, quiet: bool) -> None:
     # See https://docs.gunicorn.org/en/latest/custom.html
 
     from gunicorn.app.base import BaseApplication
 
-    class _Application(BaseApplication):
+    class Application(BaseApplication):
         def load_config(self) -> None:
             self.cfg.set("bind", f"{host}:{port}")
             if quiet:
@@ -41,10 +40,10 @@ def run_gunicorn(app: Bottle, host: str, port: int, quiet: bool) -> NoReturn:  #
         def load(self) -> Bottle:
             return app
 
-    _Application().run()
+    Application().run()
 
 
-def main() -> NoReturn:
+def main() -> None:
     parser = argparse.ArgumentParser(description="Real-time dashboard for Optuna.")
     parser.add_argument("storage", help="DB URL (e.g. sqlite:///example.db)", type=str)
     parser.add_argument(

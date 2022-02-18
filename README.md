@@ -29,22 +29,14 @@ Listening on http://localhost:8080/
 Hit Ctrl-C to quit.
 ```
 
-<details>
-
-<summary>Running optuna-dashboard with Gunicorn</summary>
-
-optuna-dashboard uses [wsgiref](https://docs.python.org/3/library/wsgiref.html) module
-which is provided as a Python standard library. But it has not been reviewed for security
-issues, so not suitable for the production use. You can run optuna-dashboard with Gunicorn
-more secure and/or more fast.
+Note that optuna-dashboard uses [wsgiref](https://docs.python.org/3/library/wsgiref.html) module by default.
+Although it requires no additional dependencies, it is NOT suitable for the production use.
+You can use [Gunicorn](https://gunicorn.org/) via "--server gunicorn" option.
 
 ```console
 $ pip install gunicorn
 $ optuna-dashboard sqlite:///db.sqlite3 --server gunicorn
 ```
-
-</details>
-
 
 <details>
 
@@ -75,7 +67,7 @@ optional arguments:
 
 <summary>Python Interface</summary>
 
-**`run_server(storage: Union[str, BaseStorage], host: str = 'localhost', port: int = 8080) -> NoReturn`**
+**`run_server(storage: Union[str, BaseStorage], host: str = 'localhost', port: int = 8080) -> None`**
 
 Start running optuna-dashboard and blocks until the server terminates.
 This function uses wsgiref module which is not intended for the production use.
