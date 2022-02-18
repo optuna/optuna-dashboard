@@ -3,7 +3,7 @@ from unittest import TestCase
 
 import optuna
 
-from optuna_dashboard.app import create_app
+from optuna_dashboard._app import create_app
 
 from .wsgi_client import send_request
 

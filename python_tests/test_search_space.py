@@ -7,7 +7,7 @@ from optuna.distributions import UniformDistribution
 from optuna.exceptions import ExperimentalWarning
 from optuna.trial import TrialState
 
-from optuna_dashboard.search_space import _SearchSpace
+from optuna_dashboard._search_space import _SearchSpace
 
 
 class SearchSpaceTestCase(TestCase):
