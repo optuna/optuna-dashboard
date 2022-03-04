@@ -17,14 +17,12 @@ import {
   Select,
   MenuItem,
   FormGroup,
-  useTheme,
+  useTheme, FormLabel, FormControl
 } from "@mui/material"
-import { Home, Cached, Settings } from "@mui/icons-material"
-import { alpha } from '@mui/material/styles';
+import { Home, Settings } from "@mui/icons-material"
 import FormControlLabel from "@mui/material/FormControlLabel"
 import MuiDialogTitle from "@mui/material/DialogTitle"
 import MuiDialogContent from "@mui/material/DialogContent"
-import {styled} from "@mui/system";
 import CloseIcon from "@mui/icons-material/Close"
 
 import { DataGridColumn, DataGrid } from "./DataGrid"
@@ -57,39 +55,40 @@ export const StudyDetail: FC = () => {
   const { studyId } = useParams<ParamTypes>()
   const studyIdNumber = parseInt(studyId, 10)
   const studyDetail = useStudyDetailValue(studyIdNumber)
-  const [openReloadIntervalSelect, setPrefOpenReloadIntervalSelect] =
-    useState<boolean>(false)
-  const [reloadInterval, setReloadInterval] = useState<number>(10)
-  const savedPref = localStorage.getItem("savedPref")
-  const graphsChecked =
-    savedPref !== null
-      ? JSON.parse(savedPref)
-      : {
-          graphHistoryChecked: true,
-          graphParetoFrontChecked: true,
-          graphParallelCoordinateChecked: true,
-          graphIntermediateValuesChecked: true,
-          edfChecked: true,
-          graphHyperparameterImportancesChecked: true,
-          graphSliceChecked: true,
-        }
 
-  const [prefOpen, setPrefOpen] = React.useState(false)
+  const [preferences, setPreferences] = useState({
+    graphHistoryChecked: true,
+    graphParetoFrontChecked: true,
+    graphParallelCoordinateChecked: true,
+    graphIntermediateValuesChecked: true,
+    edfChecked: true,
+    graphHyperparameterImportancesChecked: true,
+    graphSliceChecked: true,
+    reloadInterval: 10,
+  })
+  useEffect(() => {
+    const localStoragePreferences = localStorage.getItem("savedPref")
+    if (localStoragePreferences !== null) {
+      const merged = {...preferences, ...JSON.parse(localStoragePreferences)}
+      setPreferences(merged)
+    }
+  }, [])
+  useEffect(() => {
+    localStorage.setItem("savedPref", JSON.stringify(preferences))
+  }, [preferences])
+
+  const [prefOpen, setPrefOpen] = useState(false)
   const handleClickOpen = () => {
     setPrefOpen(true)
   }
   const handleClose = () => {
     setPrefOpen(false)
   }
-  const [chartsShown, setChartsShown] = React.useState(graphsChecked)
-  useEffect(() => {
-    localStorage.setItem("savedPref", JSON.stringify(chartsShown))
-  }, [chartsShown])
   const handleChartShownChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setChartsShown({
-      ...chartsShown,
+    setPreferences({
+      ...preferences,
       [event.target.name]: event.target.checked,
     })
   }
@@ -99,45 +98,19 @@ export const StudyDetail: FC = () => {
   }, [])
 
   useEffect(() => {
-    if (reloadInterval < 0) {
+    if (preferences.reloadInterval < 0) {
       return
     }
     const intervalId = setInterval(function () {
       action.updateStudyDetail(studyIdNumber)
-    }, reloadInterval * 1000)
+    }, preferences.reloadInterval * 1000)
     return () => clearInterval(intervalId)
-  }, [reloadInterval, studyDetail])
+  }, [preferences.reloadInterval, studyDetail])
   // TODO(chenghuzi): Reduce the number of calls to setInterval and clearInterval.
 
   const title = studyDetail !== null ? studyDetail.name : `Study #${studyId}`
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
 
-  const ReloadDiv = styled('div')({
-    position: "relative",
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
-    "&:hover": {
-      backgroundColor: alpha(theme.palette.common.white, 0.25),
-    },
-    marginLeft: 0,
-    width: "100%",
-    [theme.breakpoints.up("sm")]: {
-      marginLeft: theme.spacing(1),
-      width: "auto",
-    },
-  })
-  const ReloadIconDiv = styled('div')({
-    padding: theme.spacing(0, 2),
-    height: "100%",
-    position: "absolute",
-    pointerEvents: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  })
-  const GrowDiv = styled('div')({
-    flexGrow: 1,
-  })
   return (
     <div>
       <Dialog onClose={handleClose} aria-labelledby="vis-pref" open={prefOpen}>
@@ -146,10 +119,7 @@ export const StudyDetail: FC = () => {
           padding: theme.spacing(2),
           minWidth: 300,
         }}>
-          <div>
-            <Typography variant="h6">Visualization Preference</Typography>
-          </div>
-
+          <Typography variant="h6">Preferences</Typography>
           <IconButton
             aria-label="close"
             sx={{
@@ -163,13 +133,13 @@ export const StudyDetail: FC = () => {
             <CloseIcon />
           </IconButton>
         </MuiDialogTitle>
-
         <MuiDialogContent dividers>
+          <FormLabel component="legend">Charts</FormLabel>
           <FormGroup>
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={chartsShown.graphHistoryChecked}
+                  checked={preferences.graphHistoryChecked}
                   onChange={handleChartShownChange}
                   name="graphHistoryChecked"
                 />
@@ -182,7 +152,7 @@ export const StudyDetail: FC = () => {
               }
               control={
                 <Checkbox
-                  checked={chartsShown.graphParetoFrontChecked}
+                  checked={preferences.graphParetoFrontChecked}
                   onChange={handleChartShownChange}
                   name="graphParetoFrontChecked"
                 />
@@ -192,7 +162,7 @@ export const StudyDetail: FC = () => {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={chartsShown.graphParallelCoordinateChecked}
+                  checked={preferences.graphParallelCoordinateChecked}
                   onChange={handleChartShownChange}
                   name="graphParallelCoordinateChecked"
                 />
@@ -205,7 +175,7 @@ export const StudyDetail: FC = () => {
               }
               control={
                 <Checkbox
-                  checked={chartsShown.graphIntermediateValuesChecked}
+                  checked={preferences.graphIntermediateValuesChecked}
                   onChange={handleChartShownChange}
                   name="graphIntermediateValuesChecked"
                 />
@@ -215,17 +185,17 @@ export const StudyDetail: FC = () => {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={chartsShown.edfChecked}
+                  checked={preferences.edfChecked}
                   onChange={handleChartShownChange}
                   name="edfChecked"
                 />
               }
-              label="Edf"
+              label="EDF"
             />
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={chartsShown.graphHyperparameterImportancesChecked}
+                  checked={preferences.graphHyperparameterImportancesChecked}
                   onChange={handleChartShownChange}
                   name="graphHyperparameterImportancesChecked"
                 />
@@ -235,7 +205,7 @@ export const StudyDetail: FC = () => {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={chartsShown.graphSliceChecked}
+                  checked={preferences.graphSliceChecked}
                   onChange={handleChartShownChange}
                   name="graphSliceChecked"
                 />
@@ -243,6 +213,25 @@ export const StudyDetail: FC = () => {
               label="Slice"
             />
           </FormGroup>
+          <FormLabel component="legend" sx={{marginTop: theme.spacing(2) }}>Reload Interval</FormLabel>
+          <FormControl variant="standard">
+            <Select
+                labelId="pref-reload-interval"
+                value={preferences.reloadInterval}
+                onChange={(e) => {
+                  setPreferences({
+                    ...preferences,
+                    ["reloadInterval"]: e.target.value as number,
+                  })
+                }}
+            >
+              <MenuItem value={-1}>stop</MenuItem>
+              <MenuItem value={5}>5s</MenuItem>
+              <MenuItem value={10}>10s</MenuItem>
+              <MenuItem value={30}>30s</MenuItem>
+              <MenuItem value={60}>60s</MenuItem>
+            </Select>
+          </FormControl>
         </MuiDialogContent>
       </Dialog>
       <AppBar position="static">
@@ -253,50 +242,7 @@ export const StudyDetail: FC = () => {
         }}>
           <Toolbar>
             <Typography variant="h6">{APP_BAR_TITLE}</Typography>
-            <GrowDiv />
-            <ReloadDiv
-              onClick={() => {
-                setPrefOpenReloadIntervalSelect(!openReloadIntervalSelect)
-              }}
-            >
-              <ReloadIconDiv>
-                <Cached />
-              </ReloadIconDiv>
-              <Select
-                value={reloadInterval}
-                sx={{
-                  color: "inherit",
-                  padding: theme.spacing(1, 1, 1, 0),
-                  // vertical padding + font size from searchIcon
-                  paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
-                  transition: theme.transitions.create("width"),
-                  width: "100%",
-                  [theme.breakpoints.up("sm")]: {
-                    width: "14ch",
-                    "&:focus": {
-                      width: "20ch",
-                    },
-                  },
-                }}
-                open={openReloadIntervalSelect}
-                onOpen={() => {
-                  setPrefOpenReloadIntervalSelect(true)
-                }}
-                onClose={() => {
-                  setPrefOpenReloadIntervalSelect(false)
-                }}
-                onChange={(e) => {
-                  setReloadInterval(e.target.value as number)
-                }}
-              >
-                <MenuItem value={-1}>stop</MenuItem>
-                <MenuItem value={5}>5s</MenuItem>
-                <MenuItem value={10}>10s</MenuItem>
-                <MenuItem value={30}>30s</MenuItem>
-                <MenuItem value={60}>60s</MenuItem>
-              </Select>
-            </ReloadDiv>
-
+            <Box sx={{flexGrow: 1}} />
             <IconButton color="inherit" onClick={handleClickOpen}>
               <Settings />
             </IconButton>
@@ -324,7 +270,7 @@ export const StudyDetail: FC = () => {
           }}>
             <Typography variant="h6">{title}</Typography>
           </Paper>
-          {chartsShown.graphHistoryChecked ? (
+          {preferences.graphHistoryChecked ? (
               <Card sx={{
                 margin: theme.spacing(2),
               }}>
@@ -336,14 +282,14 @@ export const StudyDetail: FC = () => {
 
           {studyDetail !== null &&
           !isSingleObjectiveStudy(studyDetail) &&
-          chartsShown.graphParetoFrontChecked ? (
+          preferences.graphParetoFrontChecked ? (
             <Card sx={{margin: theme.spacing(2)}}>
               <CardContent>
                 <GraphParetoFront study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}
-          {chartsShown.graphParallelCoordinateChecked ? (
+          {preferences.graphParallelCoordinateChecked ? (
             <Card sx={{margin: theme.spacing(2)}}>
               <CardContent>
                 <GraphParallelCoordinate study={studyDetail} />
@@ -353,21 +299,21 @@ export const StudyDetail: FC = () => {
 
           {studyDetail !== null &&
           isSingleObjectiveStudy(studyDetail) &&
-          chartsShown.graphIntermediateValuesChecked ? (
+          preferences.graphIntermediateValuesChecked ? (
             <Card sx={{margin: theme.spacing(2)}}>
               <CardContent>
                 <GraphIntermediateValues trials={trials} />
               </CardContent>
             </Card>
           ) : null}
-          {chartsShown.edfChecked ? (
+          {preferences.edfChecked ? (
             <Card sx={{margin: theme.spacing(2)}}>
               <CardContent>
                 <Edf study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}
-          {chartsShown.graphHyperparameterImportancesChecked ? (
+          {preferences.graphHyperparameterImportancesChecked ? (
             <Card sx={{margin: theme.spacing(2)}}>
               <CardContent>
                 <GraphHyperparameterImportances
@@ -378,7 +324,7 @@ export const StudyDetail: FC = () => {
             </Card>
           ) : null}
 
-          {studyDetail !== null && chartsShown.graphSliceChecked ? (
+          {studyDetail !== null && preferences.graphSliceChecked ? (
             <Card sx={{margin: theme.spacing(2)}}>
               <CardContent>
                 <GraphSlice study={studyDetail} />

@@ -31,7 +31,6 @@ import { Add, AddBox, Delete, Refresh, Remove } from "@mui/icons-material"
 import { actionCreator } from "../action"
 import { DataGrid, DataGridColumn } from "./DataGrid"
 import { studySummariesState } from "../state"
-import {styled} from "@mui/system";
 
 export const StudyList: FC = () => {
   const theme = useTheme()
@@ -200,9 +199,6 @@ export const StudyList: FC = () => {
     )
   }
 
-  const GrowDiv = styled('div')({
-    flexGrow: 1
-  })
   return (
     <div>
       <AppBar position="static">
@@ -213,7 +209,7 @@ export const StudyList: FC = () => {
         }}>
           <Toolbar>
             <Typography variant="h6">{APP_BAR_TITLE}</Typography>
-            <GrowDiv />
+            <Box sx={{flexGrow: 1}} />
             <IconButton
               aria-controls="menu-appbar"
               aria-haspopup="true"
