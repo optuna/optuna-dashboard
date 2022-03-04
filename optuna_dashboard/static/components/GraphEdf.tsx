@@ -6,7 +6,9 @@ import {
   FormLabel,
   MenuItem,
   Select,
-  Typography, SelectChangeEvent, useTheme,
+  Typography,
+  SelectChangeEvent,
+  useTheme,
 } from "@mui/material"
 
 const plotDomId = "graph-edf"
@@ -14,12 +16,10 @@ const plotDomId = "graph-edf"
 export const Edf: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  const theme = useTheme();
+  const theme = useTheme()
   const [objectiveId, setObjectiveId] = useState<number>(0)
 
-  const handleObjectiveChange = (
-    event: SelectChangeEvent<number>
-  ) => {
+  const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
     setObjectiveId(event.target.value as number)
   }
 
@@ -36,10 +36,13 @@ export const Edf: FC<{
             EDF
           </Typography>
           {study !== null && study.directions.length !== 1 ? (
-            <FormControl component="fieldset" sx={{
-              marginBottom: theme.spacing(2),
-              marginRight: theme.spacing(5),
-            }}>
+            <FormControl
+              component="fieldset"
+              sx={{
+                marginBottom: theme.spacing(2),
+                marginRight: theme.spacing(5),
+              }}
+            >
               <FormLabel component="legend">Objective ID:</FormLabel>
               <Select value={objectiveId} onChange={handleObjectiveChange}>
                 {study.directions.map((d, i) => (

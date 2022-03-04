@@ -6,7 +6,9 @@ import {
   FormLabel,
   MenuItem,
   Select,
-  Typography, SelectChangeEvent, useTheme,
+  Typography,
+  SelectChangeEvent,
+  useTheme,
 } from "@mui/material"
 
 import { getParamImportances } from "../apiClient"
@@ -40,13 +42,11 @@ export const GraphHyperparameterImportances: FC<{
   study: StudyDetail | null
   studyId: number
 }> = ({ study = null, studyId }) => {
-  const theme = useTheme();
+  const theme = useTheme()
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const numOfTrials = study?.trials.length || 0
 
-  const handleObjectiveChange = (
-    event: SelectChangeEvent<number>
-  ) => {
+  const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
     setObjectiveId(event.target.value as number)
   }
 
@@ -71,14 +71,17 @@ export const GraphHyperparameterImportances: FC<{
     <Grid container direction="row">
       <Grid item xs={3}>
         <Grid container direction="column">
-          <Typography variant="h6" sx={{margin: "1em 0"}}>
+          <Typography variant="h6" sx={{ margin: "1em 0" }}>
             Hyperparameter importance
           </Typography>
           {study !== null && study.directions.length !== 1 ? (
-              <FormControl component="fieldset" sx={{
+            <FormControl
+              component="fieldset"
+              sx={{
                 marginBottom: theme.spacing(2),
                 marginRight: theme.spacing(5),
-              }}>
+              }}
+            >
               <FormLabel component="legend">Objective ID:</FormLabel>
               <Select value={objectiveId} onChange={handleObjectiveChange}>
                 {study.directions.map((d, i) => (

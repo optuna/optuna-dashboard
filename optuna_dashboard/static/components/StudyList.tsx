@@ -24,7 +24,7 @@ import {
   FormControl,
   FormLabel,
   Select,
-    useTheme,
+  useTheme,
 } from "@mui/material"
 import { Add, AddBox, Delete, Refresh, Remove } from "@mui/icons-material"
 
@@ -202,14 +202,16 @@ export const StudyList: FC = () => {
   return (
     <div>
       <AppBar position="static">
-        <Container sx={{
-          ["@media (min-width: 1280px)"]: {
-            maxWidth: "100%",
-          },
-        }}>
+        <Container
+          sx={{
+            ["@media (min-width: 1280px)"]: {
+              maxWidth: "100%",
+            },
+          }}
+        >
           <Toolbar>
             <Typography variant="h6">{APP_BAR_TITLE}</Typography>
-            <Box sx={{flexGrow: 1}} />
+            <Box sx={{ flexGrow: 1 }} />
             <IconButton
               aria-controls="menu-appbar"
               aria-haspopup="true"
@@ -267,12 +269,14 @@ export const StudyList: FC = () => {
           </Toolbar>
         </Container>
       </AppBar>
-      <Container sx={{
-        ["@media (min-width: 1280px)"]: {
-          maxWidth: "100%",
-        },
-      }}>
-        <Card sx={{margin: theme.spacing(2)}}>
+      <Container
+        sx={{
+          ["@media (min-width: 1280px)"]: {
+            maxWidth: "100%",
+          },
+        }}
+      >
+        <Card sx={{ margin: theme.spacing(2) }}>
           <DataGrid<StudySummary>
             columns={columns}
             rows={studies}
@@ -390,7 +394,7 @@ export const StudyList: FC = () => {
           <Button
             variant="outlined"
             startIcon={<Add />}
-            sx={{marginRight: theme.spacing(1)}}
+            sx={{ marginRight: theme.spacing(1) }}
             onClick={() => {
               const newVal: StudyDirection[] = [...directions, "minimize"]
               setDirections(newVal)
@@ -401,7 +405,7 @@ export const StudyList: FC = () => {
           <Button
             variant="outlined"
             startIcon={<Remove />}
-            sx={{marginRight: theme.spacing(1)}}
+            sx={{ marginRight: theme.spacing(1) }}
             disabled={directions.length <= 1}
             onClick={() => {
               const newVal: StudyDirection[] = [...directions]

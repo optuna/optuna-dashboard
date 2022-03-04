@@ -9,9 +9,10 @@ import {
   TableRow,
   TableSortLabel,
   Collapse,
-  IconButton, useTheme,
+  IconButton,
+  useTheme,
 } from "@mui/material"
-import { styled } from "@mui/system";
+import { styled } from "@mui/system"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp"
 import { Clear } from "@mui/icons-material"
@@ -114,10 +115,10 @@ function DataGrid<T>(props: {
   const emptyRows =
     rowsPerPage - Math.min(rowsPerPage, sortedRows.length - page * rowsPerPage)
 
-  const RootDiv = styled('div')({
+  const RootDiv = styled("div")({
     width: "100%",
   })
-  const HiddenSpan = styled('span')({
+  const HiddenSpan = styled("span")({
     border: 0,
     clip: "rect(0 0 0 0)",
     height: 1,
@@ -128,7 +129,7 @@ function DataGrid<T>(props: {
     top: 20,
     width: 1,
   })
-  const TableHeaderCellSpan = styled('span')({
+  const TableHeaderCellSpan = styled("span")({
     display: "inline-flex",
   })
   return (
@@ -238,9 +239,9 @@ function DataGridRow<T>(props: {
     handleClickFilterCell,
   } = props
   const [open, setOpen] = React.useState(false)
-  const theme = useTheme();
+  const theme = useTheme()
 
-  const FilterableDiv = styled('div')({
+  const FilterableDiv = styled("div")({
     color: theme.palette.primary.main,
     textDecoration: "underline",
     cursor: "pointer",

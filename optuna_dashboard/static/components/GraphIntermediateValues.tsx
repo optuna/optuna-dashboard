@@ -14,7 +14,7 @@ export const GraphIntermediateValues: FC<{
     <Grid container direction="row">
       <Grid item xs={3}>
         <Grid container direction="column">
-          <Typography variant="h6" sx={{margin: "1em 0"}}>
+          <Typography variant="h6" sx={{ margin: "1em 0" }}>
             Intermediate values
           </Typography>
         </Grid>

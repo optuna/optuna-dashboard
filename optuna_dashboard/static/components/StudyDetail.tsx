@@ -17,7 +17,9 @@ import {
   Select,
   MenuItem,
   FormGroup,
-  useTheme, FormLabel, FormControl
+  useTheme,
+  FormLabel,
+  FormControl,
 } from "@mui/material"
 import { Home, Settings } from "@mui/icons-material"
 import FormControlLabel from "@mui/material/FormControlLabel"
@@ -50,7 +52,7 @@ export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
 }
 
 export const StudyDetail: FC = () => {
-  const theme = useTheme();
+  const theme = useTheme()
   const action = actionCreator()
   const { studyId } = useParams<ParamTypes>()
   const studyIdNumber = parseInt(studyId, 10)
@@ -69,7 +71,7 @@ export const StudyDetail: FC = () => {
   useEffect(() => {
     const localStoragePreferences = localStorage.getItem("savedPref")
     if (localStoragePreferences !== null) {
-      const merged = {...preferences, ...JSON.parse(localStoragePreferences)}
+      const merged = { ...preferences, ...JSON.parse(localStoragePreferences) }
       setPreferences(merged)
     }
   }, [])
@@ -114,11 +116,13 @@ export const StudyDetail: FC = () => {
   return (
     <div>
       <Dialog onClose={handleClose} aria-labelledby="vis-pref" open={prefOpen}>
-        <MuiDialogTitle sx={{
-          margin: 0,
-          padding: theme.spacing(2),
-          minWidth: 300,
-        }}>
+        <MuiDialogTitle
+          sx={{
+            margin: 0,
+            padding: theme.spacing(2),
+            minWidth: 300,
+          }}
+        >
           <Typography variant="h6">Preferences</Typography>
           <IconButton
             aria-label="close"
@@ -213,17 +217,19 @@ export const StudyDetail: FC = () => {
               label="Slice"
             />
           </FormGroup>
-          <FormLabel component="legend" sx={{marginTop: theme.spacing(2) }}>Reload Interval</FormLabel>
+          <FormLabel component="legend" sx={{ marginTop: theme.spacing(2) }}>
+            Reload Interval
+          </FormLabel>
           <FormControl variant="standard">
             <Select
-                labelId="pref-reload-interval"
-                value={preferences.reloadInterval}
-                onChange={(e) => {
-                  setPreferences({
-                    ...preferences,
-                    ["reloadInterval"]: e.target.value as number,
-                  })
-                }}
+              labelId="pref-reload-interval"
+              value={preferences.reloadInterval}
+              onChange={(e) => {
+                setPreferences({
+                  ...preferences,
+                  ["reloadInterval"]: e.target.value as number,
+                })
+              }}
             >
               <MenuItem value={-1}>stop</MenuItem>
               <MenuItem value={5}>5s</MenuItem>
@@ -235,14 +241,16 @@ export const StudyDetail: FC = () => {
         </MuiDialogContent>
       </Dialog>
       <AppBar position="static">
-        <Container sx={{
-          ["@media (min-width: 1280px)"]: {
-            maxWidth: "100%",
-          },
-        }}>
+        <Container
+          sx={{
+            ["@media (min-width: 1280px)"]: {
+              maxWidth: "100%",
+            },
+          }}
+        >
           <Toolbar>
             <Typography variant="h6">{APP_BAR_TITLE}</Typography>
-            <Box sx={{flexGrow: 1}} />
+            <Box sx={{ flexGrow: 1 }} />
             <IconButton color="inherit" onClick={handleClickOpen}>
               <Settings />
             </IconButton>
@@ -258,22 +266,28 @@ export const StudyDetail: FC = () => {
           </Toolbar>
         </Container>
       </AppBar>
-      <Container sx={{
+      <Container
+        sx={{
           ["@media (min-width: 1280px)"]: {
             maxWidth: "100%",
           },
-        }}>
+        }}
+      >
         <div>
-          <Paper sx={{
-            margin: theme.spacing(2),
-            padding: theme.spacing(2),
-          }}>
+          <Paper
+            sx={{
+              margin: theme.spacing(2),
+              padding: theme.spacing(2),
+            }}
+          >
             <Typography variant="h6">{title}</Typography>
           </Paper>
           {preferences.graphHistoryChecked ? (
-              <Card sx={{
+            <Card
+              sx={{
                 margin: theme.spacing(2),
-              }}>
+              }}
+            >
               <CardContent>
                 <GraphHistory study={studyDetail} />
               </CardContent>
@@ -283,14 +297,14 @@ export const StudyDetail: FC = () => {
           {studyDetail !== null &&
           !isSingleObjectiveStudy(studyDetail) &&
           preferences.graphParetoFrontChecked ? (
-            <Card sx={{margin: theme.spacing(2)}}>
+            <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>
                 <GraphParetoFront study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}
           {preferences.graphParallelCoordinateChecked ? (
-            <Card sx={{margin: theme.spacing(2)}}>
+            <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>
                 <GraphParallelCoordinate study={studyDetail} />
               </CardContent>
@@ -300,21 +314,21 @@ export const StudyDetail: FC = () => {
           {studyDetail !== null &&
           isSingleObjectiveStudy(studyDetail) &&
           preferences.graphIntermediateValuesChecked ? (
-            <Card sx={{margin: theme.spacing(2)}}>
+            <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>
                 <GraphIntermediateValues trials={trials} />
               </CardContent>
             </Card>
           ) : null}
           {preferences.edfChecked ? (
-            <Card sx={{margin: theme.spacing(2)}}>
+            <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>
                 <Edf study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}
           {preferences.graphHyperparameterImportancesChecked ? (
-            <Card sx={{margin: theme.spacing(2)}}>
+            <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>
                 <GraphHyperparameterImportances
                   study={studyDetail}
@@ -325,13 +339,13 @@ export const StudyDetail: FC = () => {
           ) : null}
 
           {studyDetail !== null && preferences.graphSliceChecked ? (
-            <Card sx={{margin: theme.spacing(2)}}>
+            <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>
                 <GraphSlice study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}
-          <Card sx={{margin: theme.spacing(2)}}>
+          <Card sx={{ margin: theme.spacing(2) }}>
             <TrialTable studyDetail={studyDetail} />
           </Card>
         </div>

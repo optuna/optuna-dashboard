@@ -6,7 +6,9 @@ import {
   FormLabel,
   MenuItem,
   Select,
-  Typography, SelectChangeEvent, useTheme
+  Typography,
+  SelectChangeEvent,
+  useTheme,
 } from "@mui/material"
 
 const plotDomId = "graph-parallel-coordinate"
@@ -14,12 +16,10 @@ const plotDomId = "graph-parallel-coordinate"
 export const GraphParallelCoordinate: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  const theme = useTheme();
+  const theme = useTheme()
   const [objectiveId, setObjectiveId] = useState<number>(0)
 
-  const handleObjectiveChange = (
-    event: SelectChangeEvent<number>
-  ) => {
+  const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
     setObjectiveId(event.target.value as number)
   }
 
@@ -33,14 +33,17 @@ export const GraphParallelCoordinate: FC<{
     <Grid container direction="row">
       <Grid item xs={3}>
         <Grid container direction="column">
-          <Typography variant="h6" sx={{margin: "1em 0"}}>
+          <Typography variant="h6" sx={{ margin: "1em 0" }}>
             Parallel coordinate
           </Typography>
           {study !== null && study.directions.length !== 1 ? (
-            <FormControl component="fieldset" sx={{
-              marginBottom: theme.spacing(2),
-              marginRight: theme.spacing(5),
-            }}>
+            <FormControl
+              component="fieldset"
+              sx={{
+                marginBottom: theme.spacing(2),
+                marginRight: theme.spacing(5),
+              }}
+            >
               <FormLabel component="legend">Objective ID:</FormLabel>
               <Select value={objectiveId} onChange={handleObjectiveChange}>
                 {study.directions.map((d, i) => (

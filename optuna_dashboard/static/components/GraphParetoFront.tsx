@@ -6,7 +6,9 @@ import {
   FormLabel,
   MenuItem,
   Select,
-  Typography, SelectChangeEvent, useTheme
+  Typography,
+  SelectChangeEvent,
+  useTheme,
 } from "@mui/material"
 
 const plotDomId = "graph-pareto-front"
@@ -14,19 +16,15 @@ const plotDomId = "graph-pareto-front"
 export const GraphParetoFront: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  const theme = useTheme();
+  const theme = useTheme()
   const [objectiveXId, setObjectiveXId] = useState<number>(0)
   const [objectiveYId, setObjectiveYId] = useState<number>(1)
 
-  const handleObjectiveXChange = (
-    event: SelectChangeEvent<number>
-  ) => {
+  const handleObjectiveXChange = (event: SelectChangeEvent<number>) => {
     setObjectiveXId(event.target.value as number)
   }
 
-  const handleObjectiveYChange = (
-    event: SelectChangeEvent<number>
-  ) => {
+  const handleObjectiveYChange = (event: SelectChangeEvent<number>) => {
     setObjectiveYId(event.target.value as number)
   }
 
@@ -41,13 +39,16 @@ export const GraphParetoFront: FC<{
       {study !== null && study.directions.length !== 1 ? (
         <Grid item xs={3}>
           <Grid container direction="column">
-            <Typography variant="h6" sx={{margin: "1em 0"}}>
+            <Typography variant="h6" sx={{ margin: "1em 0" }}>
               Pareto Front
             </Typography>
-            <FormControl component="fieldset" sx={{
-              marginBottom: theme.spacing(2),
-              marginRight: theme.spacing(5),
-            }}>
+            <FormControl
+              component="fieldset"
+              sx={{
+                marginBottom: theme.spacing(2),
+                marginRight: theme.spacing(5),
+              }}
+            >
               <FormLabel component="legend">Objective X ID:</FormLabel>
               <Select value={objectiveXId} onChange={handleObjectiveXChange}>
                 {study.directions.map((d, i) => (
@@ -57,10 +58,13 @@ export const GraphParetoFront: FC<{
                 ))}
               </Select>
             </FormControl>
-            <FormControl component="fieldset" sx={{
-              marginBottom: theme.spacing(2),
-              marginRight: theme.spacing(5),
-            }}>
+            <FormControl
+              component="fieldset"
+              sx={{
+                marginBottom: theme.spacing(2),
+                marginRight: theme.spacing(5),
+              }}
+            >
               <FormLabel component="legend">Objective Y ID:</FormLabel>
               <Select value={objectiveYId} onChange={handleObjectiveYChange}>
                 {study.directions.map((d, i) => (

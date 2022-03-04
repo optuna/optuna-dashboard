@@ -8,7 +8,9 @@ import {
   MenuItem,
   Switch,
   Select,
-  Typography, SelectChangeEvent, useTheme
+  Typography,
+  SelectChangeEvent,
+  useTheme,
 } from "@mui/material"
 
 const plotDomId = "graph-slice"
@@ -19,7 +21,7 @@ const logDistributions = ["LogUniformDistribution", "IntLogUniformDistribution"]
 export const GraphSlice: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  const theme = useTheme();
+  const theme = useTheme()
   const trials: Trial[] = study !== null ? study.trials : []
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const [selected, setSelected] = useState<string | null>(null)
@@ -39,9 +41,7 @@ export const GraphSlice: FC<{
     plotSlice(trials, objectiveId, selected, logXScale, logYScale)
   }, [trials, objectiveId, selected, logXScale, logYScale])
 
-  const handleObjectiveChange = (
-    event: SelectChangeEvent<number>
-  ) => {
+  const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
     setObjectiveId(event.target.value as number)
   }
 
@@ -61,14 +61,17 @@ export const GraphSlice: FC<{
     <Grid container direction="row">
       <Grid item xs={3}>
         <Grid container direction="column">
-          <Typography variant="h6" sx={{margin: "1em 0"}}>
+          <Typography variant="h6" sx={{ margin: "1em 0" }}>
             Slice
           </Typography>
           {study !== null && study.directions.length !== 1 ? (
-            <FormControl component="fieldset" sx={{
-              marginBottom: theme.spacing(2),
-              marginRight: theme.spacing(5),
-            }}>
+            <FormControl
+              component="fieldset"
+              sx={{
+                marginBottom: theme.spacing(2),
+                marginRight: theme.spacing(5),
+              }}
+            >
               <FormLabel component="legend">Objective ID:</FormLabel>
               <Select value={objectiveId} onChange={handleObjectiveChange}>
                 {study.directions.map((d, i) => (
@@ -79,10 +82,13 @@ export const GraphSlice: FC<{
               </Select>
             </FormControl>
           ) : null}
-          <FormControl component="fieldset" sx={{
-            marginBottom: theme.spacing(2),
-            marginRight: theme.spacing(5),
-          }}>
+          <FormControl
+            component="fieldset"
+            sx={{
+              marginBottom: theme.spacing(2),
+              marginRight: theme.spacing(5),
+            }}
+          >
             <InputLabel id="parameter">Parameter</InputLabel>
             <Select value={selected || ""} onChange={handleSelectedParam}>
               {paramNames?.map((p, i) => (
@@ -92,10 +98,13 @@ export const GraphSlice: FC<{
               ))}
             </Select>
           </FormControl>
-          <FormControl component="fieldset" sx={{
-            marginBottom: theme.spacing(2),
-            marginRight: theme.spacing(5),
-          }}>
+          <FormControl
+            component="fieldset"
+            sx={{
+              marginBottom: theme.spacing(2),
+              marginRight: theme.spacing(5),
+            }}
+          >
             <FormLabel component="legend">Log y scale:</FormLabel>
             <Switch
               checked={logYScale}
