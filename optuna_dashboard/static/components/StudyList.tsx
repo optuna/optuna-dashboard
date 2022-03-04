@@ -1,7 +1,6 @@
 import React, { FC, useEffect } from "react"
 import { useRecoilValue } from "recoil"
 import { Link } from "react-router-dom"
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
 import {
   AppBar,
   Toolbar,
@@ -25,34 +24,17 @@ import {
   FormControl,
   FormLabel,
   Select,
-} from "@material-ui/core"
-import { Add, AddBox, Delete, Refresh, Remove } from "@material-ui/icons"
+    useTheme,
+} from "@mui/material"
+import { Add, AddBox, Delete, Refresh, Remove } from "@mui/icons-material"
 
 import { actionCreator } from "../action"
 import { DataGrid, DataGridColumn } from "./DataGrid"
 import { studySummariesState } from "../state"
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    card: {
-      margin: theme.spacing(2),
-    },
-    grow: {
-      flexGrow: 1,
-    },
-    objectiveButton: {
-      marginRight: theme.spacing(1),
-    },
-    containerStyle: {
-      ["@media (min-width: 1280px)"]: {
-        maxWidth: "100%",
-      },
-    },
-  })
-)
+import {styled} from "@mui/system";
 
 export const StudyList: FC = () => {
-  const classes = useStyles()
+  const theme = useTheme()
 
   const [newStudySelectionAnchorEl, setNewStudySelectionAnchorEl] =
     React.useState<null | HTMLElement>(null)
@@ -218,13 +200,20 @@ export const StudyList: FC = () => {
     )
   }
 
+  const GrowDiv = styled('div')({
+    flexGrow: 1
+  })
   return (
     <div>
       <AppBar position="static">
-        <Container className={classes.containerStyle}>
+        <Container sx={{
+          ["@media (min-width: 1280px)"]: {
+            maxWidth: "100%",
+          },
+        }}>
           <Toolbar>
             <Typography variant="h6">{APP_BAR_TITLE}</Typography>
-            <div className={classes.grow} />
+            <GrowDiv />
             <IconButton
               aria-controls="menu-appbar"
               aria-haspopup="true"
@@ -282,8 +271,12 @@ export const StudyList: FC = () => {
           </Toolbar>
         </Container>
       </AppBar>
-      <Container className={classes.containerStyle}>
-        <Card className={classes.card}>
+      <Container sx={{
+        ["@media (min-width: 1280px)"]: {
+          maxWidth: "100%",
+        },
+      }}>
+        <Card sx={{margin: theme.spacing(2)}}>
           <DataGrid<StudySummary>
             columns={columns}
             rows={studies}
@@ -401,7 +394,7 @@ export const StudyList: FC = () => {
           <Button
             variant="outlined"
             startIcon={<Add />}
-            className={classes.objectiveButton}
+            sx={{marginRight: theme.spacing(1)}}
             onClick={() => {
               const newVal: StudyDirection[] = [...directions, "minimize"]
               setDirections(newVal)
@@ -412,7 +405,7 @@ export const StudyList: FC = () => {
           <Button
             variant="outlined"
             startIcon={<Remove />}
-            className={classes.objectiveButton}
+            sx={{marginRight: theme.spacing(1)}}
             disabled={directions.length <= 1}
             onClick={() => {
               const newVal: StudyDirection[] = [...directions]

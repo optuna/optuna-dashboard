@@ -1,5 +1,4 @@
 import React from "react"
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
 import {
   Table,
   TableBody,
@@ -10,42 +9,16 @@ import {
   TableRow,
   TableSortLabel,
   Collapse,
-  IconButton,
-} from "@material-ui/core"
-import KeyboardArrowDownIcon from "@material-ui/icons/KeyboardArrowDown"
-import KeyboardArrowUpIcon from "@material-ui/icons/KeyboardArrowUp"
-import { Clear } from "@material-ui/icons"
+  IconButton, useTheme,
+} from "@mui/material"
+import { styled } from "@mui/system";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp"
+import { Clear } from "@mui/icons-material"
 
 type Order = "asc" | "desc"
 
 const defaultRowsPerPageOption = [10, 50, 100, { label: "All", value: -1 }]
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      width: "100%",
-    },
-    visuallyHidden: {
-      border: 0,
-      clip: "rect(0 0 0 0)",
-      height: 1,
-      margin: -1,
-      overflow: "hidden",
-      padding: 0,
-      position: "absolute",
-      top: 20,
-      width: 1,
-    },
-    filterable: {
-      color: theme.palette.primary.main,
-      textDecoration: "underline",
-      cursor: "pointer",
-    },
-    tableHeaderCell: {
-      display: "inline-flex",
-    },
-  })
-)
 
 interface DataGridColumn<T> {
   field: keyof T
@@ -71,7 +44,6 @@ function DataGrid<T>(props: {
   initialRowsPerPage?: number
   rowsPerPageOption?: Array<number | { value: number; label: string }>
 }) {
-  const classes = useStyles()
   const { columns, rows, keyField, dense, collapseBody } = props
   let { initialRowsPerPage, rowsPerPageOption } = props
   const [order, setOrder] = React.useState<Order>("asc")
@@ -142,8 +114,25 @@ function DataGrid<T>(props: {
   const emptyRows =
     rowsPerPage - Math.min(rowsPerPage, sortedRows.length - page * rowsPerPage)
 
+  const RootDiv = styled('div')({
+    width: "100%",
+  })
+  const HiddenSpan = styled('span')({
+    border: 0,
+    clip: "rect(0 0 0 0)",
+    height: 1,
+    margin: -1,
+    overflow: "hidden",
+    padding: 0,
+    position: "absolute",
+    top: 20,
+    width: 1,
+  })
+  const TableHeaderCellSpan = styled('span')({
+    display: "inline-flex",
+  })
   return (
-    <div className={classes.root}>
+    <RootDiv>
       <TableContainer>
         <Table
           aria-labelledby="tableTitle"
@@ -159,7 +148,7 @@ function DataGrid<T>(props: {
                   padding={column.padding || "normal"}
                   sortDirection={orderBy === column.field ? order : false}
                 >
-                  <span className={classes.tableHeaderCell}>
+                  <TableHeaderCellSpan>
                     {column.sortable ? (
                       <TableSortLabel
                         active={orderBy === index}
@@ -168,11 +157,11 @@ function DataGrid<T>(props: {
                       >
                         {column.label}
                         {orderBy === column.field ? (
-                          <span className={classes.visuallyHidden}>
+                          <HiddenSpan>
                             {order === "desc"
                               ? "sorted descending"
                               : "sorted ascending"}
-                          </span>
+                          </HiddenSpan>
                         ) : null}
                       </TableSortLabel>
                     ) : (
@@ -194,7 +183,7 @@ function DataGrid<T>(props: {
                         <Clear />
                       </IconButton>
                     ) : null}
-                  </span>
+                  </TableHeaderCellSpan>
                 </TableCell>
               ))}
             </TableRow>
@@ -228,7 +217,7 @@ function DataGrid<T>(props: {
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
-    </div>
+    </RootDiv>
   )
 }
 
@@ -240,7 +229,6 @@ function DataGridRow<T>(props: {
   collapseBody?: (rowIndex: number) => React.ReactNode
   handleClickFilterCell: (field: keyof T, value: any) => void
 }) {
-  const classes = useStyles()
   const {
     columns,
     rowIndex,
@@ -250,7 +238,13 @@ function DataGridRow<T>(props: {
     handleClickFilterCell,
   } = props
   const [open, setOpen] = React.useState(false)
+  const theme = useTheme();
 
+  const FilterableDiv = styled('div')({
+    color: theme.palette.primary.main,
+    textDecoration: "underline",
+    cursor: "pointer",
+  })
   return (
     <React.Fragment>
       <TableRow hover tabIndex={-1}>
@@ -278,7 +272,7 @@ function DataGridRow<T>(props: {
                 handleClickFilterCell(column.field, row[column.field])
               }}
             >
-              <div className={classes.filterable}>{cellItem}</div>
+              <FilterableDiv>{cellItem}</FilterableDiv>
             </TableCell>
           ) : (
             <TableCell

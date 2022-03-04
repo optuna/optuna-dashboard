@@ -1,7 +1,6 @@
 import React, { FC, useEffect, useState } from "react"
 import { useRecoilValue } from "recoil"
 import { Link, useParams } from "react-router-dom"
-import { createStyles, fade, makeStyles, Theme } from "@material-ui/core/styles"
 import {
   AppBar,
   Dialog,
@@ -18,91 +17,26 @@ import {
   Select,
   MenuItem,
   FormGroup,
-} from "@material-ui/core"
-import { Home, Cached, Settings } from "@material-ui/icons"
-import CloseIcon from "@material-ui/icons/Close"
+  useTheme,
+} from "@mui/material"
+import { Home, Cached, Settings } from "@mui/icons-material"
+import { alpha } from '@mui/material/styles';
+import FormControlLabel from "@mui/material/FormControlLabel"
+import MuiDialogTitle from "@mui/material/DialogTitle"
+import MuiDialogContent from "@mui/material/DialogContent"
+import {styled} from "@mui/system";
+import CloseIcon from "@mui/icons-material/Close"
+
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { GraphHyperparameterImportances } from "./GraphHyperparameterImportances"
 import { Edf } from "./GraphEdf"
-
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphSlice } from "./GraphSlice"
 import { GraphHistory } from "./GraphHistory"
 import { GraphParetoFront } from "./GraphParetoFront"
 import { actionCreator } from "../action"
 import { studyDetailsState } from "../state"
-import FormControlLabel from "@material-ui/core/FormControlLabel"
-import MuiDialogTitle from "@material-ui/core/DialogTitle"
-import MuiDialogContent from "@material-ui/core/DialogContent"
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    paper: {
-      margin: theme.spacing(2),
-      padding: theme.spacing(2),
-    },
-    card: {
-      margin: theme.spacing(2),
-    },
-    reload: {
-      position: "relative",
-      borderRadius: theme.shape.borderRadius,
-      backgroundColor: fade(theme.palette.common.white, 0.15),
-      "&:hover": {
-        backgroundColor: fade(theme.palette.common.white, 0.25),
-      },
-      marginLeft: 0,
-      width: "100%",
-      [theme.breakpoints.up("sm")]: {
-        marginLeft: theme.spacing(1),
-        width: "auto",
-      },
-    },
-    reloadIcon: {
-      padding: theme.spacing(0, 2),
-      height: "100%",
-      position: "absolute",
-      pointerEvents: "none",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    reloadSelect: {
-      color: "inherit",
-      padding: theme.spacing(1, 1, 1, 0),
-      // vertical padding + font size from searchIcon
-      paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
-      transition: theme.transitions.create("width"),
-      width: "100%",
-      [theme.breakpoints.up("sm")]: {
-        width: "14ch",
-        "&:focus": {
-          width: "20ch",
-        },
-      },
-    },
-    grow: {
-      flexGrow: 1,
-    },
-    dialogTitle: {
-      margin: 0,
-      padding: theme.spacing(2),
-      minWidth: 300,
-    },
-    dialogCloseButton: {
-      position: "absolute",
-      right: theme.spacing(1),
-      top: theme.spacing(1),
-      color: theme.palette.grey[500],
-    },
-    containerStyle: {
-      ["@media (min-width: 1280px)"]: {
-        maxWidth: "100%",
-      },
-    },
-  })
-)
 
 interface ParamTypes {
   studyId: string
@@ -118,7 +52,7 @@ export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
 }
 
 export const StudyDetail: FC = () => {
-  const classes = useStyles()
+  const theme = useTheme();
   const action = actionCreator()
   const { studyId } = useParams<ParamTypes>()
   const studyIdNumber = parseInt(studyId, 10)
@@ -178,17 +112,52 @@ export const StudyDetail: FC = () => {
   const title = studyDetail !== null ? studyDetail.name : `Study #${studyId}`
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
 
+  const ReloadDiv = styled('div')({
+    position: "relative",
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
+    "&:hover": {
+      backgroundColor: alpha(theme.palette.common.white, 0.25),
+    },
+    marginLeft: 0,
+    width: "100%",
+    [theme.breakpoints.up("sm")]: {
+      marginLeft: theme.spacing(1),
+      width: "auto",
+    },
+  })
+  const ReloadIconDiv = styled('div')({
+    padding: theme.spacing(0, 2),
+    height: "100%",
+    position: "absolute",
+    pointerEvents: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  })
+  const GrowDiv = styled('div')({
+    flexGrow: 1,
+  })
   return (
     <div>
       <Dialog onClose={handleClose} aria-labelledby="vis-pref" open={prefOpen}>
-        <MuiDialogTitle disableTypography className={classes.dialogTitle}>
+        <MuiDialogTitle sx={{
+          margin: 0,
+          padding: theme.spacing(2),
+          minWidth: 300,
+        }}>
           <div>
             <Typography variant="h6">Visualization Preference</Typography>
           </div>
 
           <IconButton
             aria-label="close"
-            className={classes.dialogCloseButton}
+            sx={{
+              position: "absolute",
+              right: theme.spacing(1),
+              top: theme.spacing(1),
+              color: theme.palette.grey[500],
+            }}
             onClick={handleClose}
           >
             <CloseIcon />
@@ -277,22 +246,38 @@ export const StudyDetail: FC = () => {
         </MuiDialogContent>
       </Dialog>
       <AppBar position="static">
-        <Container className={classes.containerStyle}>
+        <Container sx={{
+          ["@media (min-width: 1280px)"]: {
+            maxWidth: "100%",
+          },
+        }}>
           <Toolbar>
             <Typography variant="h6">{APP_BAR_TITLE}</Typography>
-            <div className={classes.grow} />
-            <div
-              className={classes.reload}
+            <GrowDiv />
+            <ReloadDiv
               onClick={() => {
                 setPrefOpenReloadIntervalSelect(!openReloadIntervalSelect)
               }}
             >
-              <div className={classes.reloadIcon}>
+              <ReloadIconDiv>
                 <Cached />
-              </div>
+              </ReloadIconDiv>
               <Select
                 value={reloadInterval}
-                className={classes.reloadSelect}
+                sx={{
+                  color: "inherit",
+                  padding: theme.spacing(1, 1, 1, 0),
+                  // vertical padding + font size from searchIcon
+                  paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+                  transition: theme.transitions.create("width"),
+                  width: "100%",
+                  [theme.breakpoints.up("sm")]: {
+                    width: "14ch",
+                    "&:focus": {
+                      width: "20ch",
+                    },
+                  },
+                }}
                 open={openReloadIntervalSelect}
                 onOpen={() => {
                   setPrefOpenReloadIntervalSelect(true)
@@ -310,7 +295,7 @@ export const StudyDetail: FC = () => {
                 <MenuItem value={30}>30s</MenuItem>
                 <MenuItem value={60}>60s</MenuItem>
               </Select>
-            </div>
+            </ReloadDiv>
 
             <IconButton color="inherit" onClick={handleClickOpen}>
               <Settings />
@@ -327,13 +312,22 @@ export const StudyDetail: FC = () => {
           </Toolbar>
         </Container>
       </AppBar>
-      <Container className={classes.containerStyle}>
+      <Container sx={{
+          ["@media (min-width: 1280px)"]: {
+            maxWidth: "100%",
+          },
+        }}>
         <div>
-          <Paper className={classes.paper}>
+          <Paper sx={{
+            margin: theme.spacing(2),
+            padding: theme.spacing(2),
+          }}>
             <Typography variant="h6">{title}</Typography>
           </Paper>
           {chartsShown.graphHistoryChecked ? (
-            <Card className={classes.card}>
+              <Card sx={{
+                margin: theme.spacing(2),
+              }}>
               <CardContent>
                 <GraphHistory study={studyDetail} />
               </CardContent>
@@ -343,14 +337,14 @@ export const StudyDetail: FC = () => {
           {studyDetail !== null &&
           !isSingleObjectiveStudy(studyDetail) &&
           chartsShown.graphParetoFrontChecked ? (
-            <Card className={classes.card}>
+            <Card sx={{margin: theme.spacing(2)}}>
               <CardContent>
                 <GraphParetoFront study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}
           {chartsShown.graphParallelCoordinateChecked ? (
-            <Card className={classes.card}>
+            <Card sx={{margin: theme.spacing(2)}}>
               <CardContent>
                 <GraphParallelCoordinate study={studyDetail} />
               </CardContent>
@@ -360,21 +354,21 @@ export const StudyDetail: FC = () => {
           {studyDetail !== null &&
           isSingleObjectiveStudy(studyDetail) &&
           chartsShown.graphIntermediateValuesChecked ? (
-            <Card className={classes.card}>
+            <Card sx={{margin: theme.spacing(2)}}>
               <CardContent>
                 <GraphIntermediateValues trials={trials} />
               </CardContent>
             </Card>
           ) : null}
           {chartsShown.edfChecked ? (
-            <Card className={classes.card}>
+            <Card sx={{margin: theme.spacing(2)}}>
               <CardContent>
                 <Edf study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}
           {chartsShown.graphHyperparameterImportancesChecked ? (
-            <Card className={classes.card}>
+            <Card sx={{margin: theme.spacing(2)}}>
               <CardContent>
                 <GraphHyperparameterImportances
                   study={studyDetail}
@@ -385,13 +379,13 @@ export const StudyDetail: FC = () => {
           ) : null}
 
           {studyDetail !== null && chartsShown.graphSliceChecked ? (
-            <Card className={classes.card}>
+            <Card sx={{margin: theme.spacing(2)}}>
               <CardContent>
                 <GraphSlice study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}
-          <Card className={classes.card}>
+          <Card sx={{margin: theme.spacing(2)}}>
             <TrialTable studyDetail={studyDetail} />
           </Card>
         </div>

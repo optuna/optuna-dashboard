@@ -11,27 +11,15 @@ import {
   Select,
   Radio,
   RadioGroup,
-  Typography,
-} from "@material-ui/core"
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
+  Typography, SelectChangeEvent, useTheme,
+} from "@mui/material"
 
 const plotDomId = "graph-history"
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    title: {
-      margin: "1em 0",
-    },
-    formControl: {
-      marginBottom: theme.spacing(2),
-    },
-  })
-)
 
 export const GraphHistory: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  const classes = useStyles()
+  const theme = useTheme();
   const [xAxis, setXAxis] = useState<string>("number")
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const [logScale, setLogScale] = useState<boolean>(false)
@@ -39,7 +27,7 @@ export const GraphHistory: FC<{
   const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
 
   const handleObjectiveChange = (
-    event: React.ChangeEvent<{ value: unknown }>
+    event: SelectChangeEvent<number>
   ) => {
     setObjectiveId(event.target.value as number)
   }
@@ -87,11 +75,11 @@ export const GraphHistory: FC<{
     <Grid container direction="row">
       <Grid item xs={3}>
         <Grid container direction="column">
-          <Typography variant="h6" className={classes.title}>
+          <Typography variant="h6" sx={{ margin: "1em 0" }}>
             History
           </Typography>
           {study !== null && study.directions.length !== 1 ? (
-            <FormControl component="fieldset" className={classes.formControl}>
+            <FormControl component="fieldset" sx={{ marginBottom: theme.spacing(2) }}>
               <FormLabel component="legend">Objective ID:</FormLabel>
               <Select value={objectiveId} onChange={handleObjectiveChange}>
                 {study.directions.map((d, i) => (
@@ -102,7 +90,7 @@ export const GraphHistory: FC<{
               </Select>
             </FormControl>
           ) : null}
-          <FormControl component="fieldset" className={classes.formControl}>
+          <FormControl component="fieldset" sx={{ marginBottom: theme.spacing(2) }}>
             <FormLabel component="legend">Log y scale:</FormLabel>
             <Switch
               checked={logScale}
@@ -110,7 +98,7 @@ export const GraphHistory: FC<{
               value="enable"
             />
           </FormControl>
-          <FormControl component="fieldset" className={classes.formControl}>
+          <FormControl component="fieldset" sx={{ marginBottom: theme.spacing(2) }}>
             <FormLabel component="legend">Filter state:</FormLabel>
             <FormControlLabel
               control={
@@ -131,7 +119,7 @@ export const GraphHistory: FC<{
               label="Pruned"
             />
           </FormControl>
-          <FormControl component="fieldset" className={classes.formControl}>
+          <FormControl component="fieldset" sx={{ marginBottom: theme.spacing(2) }}>
             <FormLabel component="legend">X-axis:</FormLabel>
             <RadioGroup
               aria-label="gender"

@@ -6,32 +6,19 @@ import {
   FormLabel,
   MenuItem,
   Select,
-  Typography,
-} from "@material-ui/core"
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    title: {
-      margin: "1em 0",
-    },
-    formControl: {
-      marginBottom: theme.spacing(2),
-      marginRight: theme.spacing(5),
-    },
-  })
-)
+  Typography, SelectChangeEvent, useTheme,
+} from "@mui/material"
 
 const plotDomId = "graph-edf"
 
 export const Edf: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  const classes = useStyles()
+  const theme = useTheme();
   const [objectiveId, setObjectiveId] = useState<number>(0)
 
   const handleObjectiveChange = (
-    event: React.ChangeEvent<{ value: unknown }>
+    event: SelectChangeEvent<number>
   ) => {
     setObjectiveId(event.target.value as number)
   }
@@ -45,11 +32,14 @@ export const Edf: FC<{
     <Grid container direction="row">
       <Grid item xs={3}>
         <Grid container direction="column">
-          <Typography variant="h6" className={classes.title}>
+          <Typography variant="h6" sx={{ margin: "1em 0" }}>
             EDF
           </Typography>
           {study !== null && study.directions.length !== 1 ? (
-            <FormControl component="fieldset" className={classes.formControl}>
+            <FormControl component="fieldset" sx={{
+              marginBottom: theme.spacing(2),
+              marginRight: theme.spacing(5),
+            }}>
               <FormLabel component="legend">Objective ID:</FormLabel>
               <Select value={objectiveId} onChange={handleObjectiveChange}>
                 {study.directions.map((d, i) => (
