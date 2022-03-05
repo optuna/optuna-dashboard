@@ -16,10 +16,10 @@
   "author": "Masashi Shibata",
   "license": "MIT",
   "dependencies": {
-    "@material-ui/core": "^4.11.4",
-    "@material-ui/icons": "^4.11.2",
+    "@mui/icons-material": "^5.4.4",
+    "@mui/material": "^5.4.4",
     "axios": "^0.21.2",
-    "notistack": "^1.0.9",
+    "notistack": "^2.0.3",
     "plotly.js-dist": "^2.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",

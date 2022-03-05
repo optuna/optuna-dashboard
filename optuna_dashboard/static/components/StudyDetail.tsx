@@ -1,7 +1,6 @@
 import React, { FC, useEffect, useState } from "react"
 import { useRecoilValue } from "recoil"
 import { Link, useParams } from "react-router-dom"
-import { createStyles, fade, makeStyles, Theme } from "@material-ui/core/styles"
 import {
   AppBar,
   Dialog,
@@ -18,91 +17,26 @@ import {
   Select,
   MenuItem,
   FormGroup,
-} from "@material-ui/core"
-import { Home, Cached, Settings } from "@material-ui/icons"
-import CloseIcon from "@material-ui/icons/Close"
+  useTheme,
+  FormLabel,
+  FormControl,
+} from "@mui/material"
+import { Home, Settings } from "@mui/icons-material"
+import FormControlLabel from "@mui/material/FormControlLabel"
+import MuiDialogTitle from "@mui/material/DialogTitle"
+import MuiDialogContent from "@mui/material/DialogContent"
+import CloseIcon from "@mui/icons-material/Close"
+
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { GraphHyperparameterImportances } from "./GraphHyperparameterImportances"
 import { Edf } from "./GraphEdf"
-
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphSlice } from "./GraphSlice"
 import { GraphHistory } from "./GraphHistory"
 import { GraphParetoFront } from "./GraphParetoFront"
 import { actionCreator } from "../action"
 import { studyDetailsState } from "../state"
-import FormControlLabel from "@material-ui/core/FormControlLabel"
-import MuiDialogTitle from "@material-ui/core/DialogTitle"
-import MuiDialogContent from "@material-ui/core/DialogContent"
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    paper: {
-      margin: theme.spacing(2),
-      padding: theme.spacing(2),
-    },
-    card: {
-      margin: theme.spacing(2),
-    },
-    reload: {
-      position: "relative",
-      borderRadius: theme.shape.borderRadius,
-      backgroundColor: fade(theme.palette.common.white, 0.15),
-      "&:hover": {
-        backgroundColor: fade(theme.palette.common.white, 0.25),
-      },
-      marginLeft: 0,
-      width: "100%",
-      [theme.breakpoints.up("sm")]: {
-        marginLeft: theme.spacing(1),
-        width: "auto",
-      },
-    },
-    reloadIcon: {
-      padding: theme.spacing(0, 2),
-      height: "100%",
-      position: "absolute",
-      pointerEvents: "none",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    reloadSelect: {
-      color: "inherit",
-      padding: theme.spacing(1, 1, 1, 0),
-      // vertical padding + font size from searchIcon
-      paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
-      transition: theme.transitions.create("width"),
-      width: "100%",
-      [theme.breakpoints.up("sm")]: {
-        width: "14ch",
-        "&:focus": {
-          width: "20ch",
-        },
-      },
-    },
-    grow: {
-      flexGrow: 1,
-    },
-    dialogTitle: {
-      margin: 0,
-      padding: theme.spacing(2),
-      minWidth: 300,
-    },
-    dialogCloseButton: {
-      position: "absolute",
-      right: theme.spacing(1),
-      top: theme.spacing(1),
-      color: theme.palette.grey[500],
-    },
-    containerStyle: {
-      ["@media (min-width: 1280px)"]: {
-        maxWidth: "100%",
-      },
-    },
-  })
-)
 
 interface ParamTypes {
   studyId: string
@@ -118,44 +52,45 @@ export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
 }
 
 export const StudyDetail: FC = () => {
-  const classes = useStyles()
+  const theme = useTheme()
   const action = actionCreator()
   const { studyId } = useParams<ParamTypes>()
   const studyIdNumber = parseInt(studyId, 10)
   const studyDetail = useStudyDetailValue(studyIdNumber)
-  const [openReloadIntervalSelect, setPrefOpenReloadIntervalSelect] =
-    useState<boolean>(false)
-  const [reloadInterval, setReloadInterval] = useState<number>(10)
-  const savedPref = localStorage.getItem("savedPref")
-  const graphsChecked =
-    savedPref !== null
-      ? JSON.parse(savedPref)
-      : {
-          graphHistoryChecked: true,
-          graphParetoFrontChecked: true,
-          graphParallelCoordinateChecked: true,
-          graphIntermediateValuesChecked: true,
-          edfChecked: true,
-          graphHyperparameterImportancesChecked: true,
-          graphSliceChecked: true,
-        }
 
-  const [prefOpen, setPrefOpen] = React.useState(false)
+  const [preferences, setPreferences] = useState({
+    graphHistoryChecked: true,
+    graphParetoFrontChecked: true,
+    graphParallelCoordinateChecked: true,
+    graphIntermediateValuesChecked: true,
+    edfChecked: true,
+    graphHyperparameterImportancesChecked: true,
+    graphSliceChecked: true,
+    reloadInterval: 10,
+  })
+  useEffect(() => {
+    const localStoragePreferences = localStorage.getItem("savedPref")
+    if (localStoragePreferences !== null) {
+      const merged = { ...preferences, ...JSON.parse(localStoragePreferences) }
+      setPreferences(merged)
+    }
+  }, [])
+  useEffect(() => {
+    localStorage.setItem("savedPref", JSON.stringify(preferences))
+  }, [preferences])
+
+  const [prefOpen, setPrefOpen] = useState(false)
   const handleClickOpen = () => {
     setPrefOpen(true)
   }
   const handleClose = () => {
     setPrefOpen(false)
   }
-  const [chartsShown, setChartsShown] = React.useState(graphsChecked)
-  useEffect(() => {
-    localStorage.setItem("savedPref", JSON.stringify(chartsShown))
-  }, [chartsShown])
   const handleChartShownChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setChartsShown({
-      ...chartsShown,
+    setPreferences({
+      ...preferences,
       [event.target.name]: event.target.checked,
     })
   }
@@ -165,14 +100,14 @@ export const StudyDetail: FC = () => {
   }, [])
 
   useEffect(() => {
-    if (reloadInterval < 0) {
+    if (preferences.reloadInterval < 0) {
       return
     }
     const intervalId = setInterval(function () {
       action.updateStudyDetail(studyIdNumber)
-    }, reloadInterval * 1000)
+    }, preferences.reloadInterval * 1000)
     return () => clearInterval(intervalId)
-  }, [reloadInterval, studyDetail])
+  }, [preferences.reloadInterval, studyDetail])
   // TODO(chenghuzi): Reduce the number of calls to setInterval and clearInterval.
 
   const title = studyDetail !== null ? studyDetail.name : `Study #${studyId}`
@@ -181,26 +116,34 @@ export const StudyDetail: FC = () => {
   return (
     <div>
       <Dialog onClose={handleClose} aria-labelledby="vis-pref" open={prefOpen}>
-        <MuiDialogTitle disableTypography className={classes.dialogTitle}>
-          <div>
-            <Typography variant="h6">Visualization Preference</Typography>
-          </div>
-
+        <MuiDialogTitle
+          sx={{
+            margin: 0,
+            padding: theme.spacing(2),
+            minWidth: 300,
+          }}
+        >
+          <Typography variant="h6">Preferences</Typography>
           <IconButton
             aria-label="close"
-            className={classes.dialogCloseButton}
+            sx={{
+              position: "absolute",
+              right: theme.spacing(1),
+              top: theme.spacing(1),
+              color: theme.palette.grey[500],
+            }}
             onClick={handleClose}
           >
             <CloseIcon />
           </IconButton>
         </MuiDialogTitle>
-
         <MuiDialogContent dividers>
+          <FormLabel component="legend">Charts</FormLabel>
           <FormGroup>
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={chartsShown.graphHistoryChecked}
+                  checked={preferences.graphHistoryChecked}
                   onChange={handleChartShownChange}
                   name="graphHistoryChecked"
                 />
@@ -213,7 +156,7 @@ export const StudyDetail: FC = () => {
               }
               control={
                 <Checkbox
-                  checked={chartsShown.graphParetoFrontChecked}
+                  checked={preferences.graphParetoFrontChecked}
                   onChange={handleChartShownChange}
                   name="graphParetoFrontChecked"
                 />
@@ -223,7 +166,7 @@ export const StudyDetail: FC = () => {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={chartsShown.graphParallelCoordinateChecked}
+                  checked={preferences.graphParallelCoordinateChecked}
                   onChange={handleChartShownChange}
                   name="graphParallelCoordinateChecked"
                 />
@@ -236,7 +179,7 @@ export const StudyDetail: FC = () => {
               }
               control={
                 <Checkbox
-                  checked={chartsShown.graphIntermediateValuesChecked}
+                  checked={preferences.graphIntermediateValuesChecked}
                   onChange={handleChartShownChange}
                   name="graphIntermediateValuesChecked"
                 />
@@ -246,17 +189,17 @@ export const StudyDetail: FC = () => {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={chartsShown.edfChecked}
+                  checked={preferences.edfChecked}
                   onChange={handleChartShownChange}
                   name="edfChecked"
                 />
               }
-              label="Edf"
+              label="EDF"
             />
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={chartsShown.graphHyperparameterImportancesChecked}
+                  checked={preferences.graphHyperparameterImportancesChecked}
                   onChange={handleChartShownChange}
                   name="graphHyperparameterImportancesChecked"
                 />
@@ -266,7 +209,7 @@ export const StudyDetail: FC = () => {
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={chartsShown.graphSliceChecked}
+                  checked={preferences.graphSliceChecked}
                   onChange={handleChartShownChange}
                   name="graphSliceChecked"
                 />
@@ -274,44 +217,40 @@ export const StudyDetail: FC = () => {
               label="Slice"
             />
           </FormGroup>
+          <FormLabel component="legend" sx={{ marginTop: theme.spacing(2) }}>
+            Reload Interval
+          </FormLabel>
+          <FormControl variant="standard">
+            <Select
+              labelId="pref-reload-interval"
+              value={preferences.reloadInterval}
+              onChange={(e) => {
+                setPreferences({
+                  ...preferences,
+                  ["reloadInterval"]: e.target.value as number,
+                })
+              }}
+            >
+              <MenuItem value={-1}>stop</MenuItem>
+              <MenuItem value={5}>5s</MenuItem>
+              <MenuItem value={10}>10s</MenuItem>
+              <MenuItem value={30}>30s</MenuItem>
+              <MenuItem value={60}>60s</MenuItem>
+            </Select>
+          </FormControl>
         </MuiDialogContent>
       </Dialog>
       <AppBar position="static">
-        <Container className={classes.containerStyle}>
+        <Container
+          sx={{
+            ["@media (min-width: 1280px)"]: {
+              maxWidth: "100%",
+            },
+          }}
+        >
           <Toolbar>
             <Typography variant="h6">{APP_BAR_TITLE}</Typography>
-            <div className={classes.grow} />
-            <div
-              className={classes.reload}
-              onClick={() => {
-                setPrefOpenReloadIntervalSelect(!openReloadIntervalSelect)
-              }}
-            >
-              <div className={classes.reloadIcon}>
-                <Cached />
-              </div>
-              <Select
-                value={reloadInterval}
-                className={classes.reloadSelect}
-                open={openReloadIntervalSelect}
-                onOpen={() => {
-                  setPrefOpenReloadIntervalSelect(true)
-                }}
-                onClose={() => {
-                  setPrefOpenReloadIntervalSelect(false)
-                }}
-                onChange={(e) => {
-                  setReloadInterval(e.target.value as number)
-                }}
-              >
-                <MenuItem value={-1}>stop</MenuItem>
-                <MenuItem value={5}>5s</MenuItem>
-                <MenuItem value={10}>10s</MenuItem>
-                <MenuItem value={30}>30s</MenuItem>
-                <MenuItem value={60}>60s</MenuItem>
-              </Select>
-            </div>
-
+            <Box sx={{ flexGrow: 1 }} />
             <IconButton color="inherit" onClick={handleClickOpen}>
               <Settings />
             </IconButton>
@@ -327,13 +266,28 @@ export const StudyDetail: FC = () => {
           </Toolbar>
         </Container>
       </AppBar>
-      <Container className={classes.containerStyle}>
+      <Container
+        sx={{
+          ["@media (min-width: 1280px)"]: {
+            maxWidth: "100%",
+          },
+        }}
+      >
         <div>
-          <Paper className={classes.paper}>
+          <Paper
+            sx={{
+              margin: theme.spacing(2),
+              padding: theme.spacing(2),
+            }}
+          >
             <Typography variant="h6">{title}</Typography>
           </Paper>
-          {chartsShown.graphHistoryChecked ? (
-            <Card className={classes.card}>
+          {preferences.graphHistoryChecked ? (
+            <Card
+              sx={{
+                margin: theme.spacing(2),
+              }}
+            >
               <CardContent>
                 <GraphHistory study={studyDetail} />
               </CardContent>
@@ -342,15 +296,15 @@ export const StudyDetail: FC = () => {
 
           {studyDetail !== null &&
           !isSingleObjectiveStudy(studyDetail) &&
-          chartsShown.graphParetoFrontChecked ? (
-            <Card className={classes.card}>
+          preferences.graphParetoFrontChecked ? (
+            <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>
                 <GraphParetoFront study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}
-          {chartsShown.graphParallelCoordinateChecked ? (
-            <Card className={classes.card}>
+          {preferences.graphParallelCoordinateChecked ? (
+            <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>
                 <GraphParallelCoordinate study={studyDetail} />
               </CardContent>
@@ -359,22 +313,22 @@ export const StudyDetail: FC = () => {
 
           {studyDetail !== null &&
           isSingleObjectiveStudy(studyDetail) &&
-          chartsShown.graphIntermediateValuesChecked ? (
-            <Card className={classes.card}>
+          preferences.graphIntermediateValuesChecked ? (
+            <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>
                 <GraphIntermediateValues trials={trials} />
               </CardContent>
             </Card>
           ) : null}
-          {chartsShown.edfChecked ? (
-            <Card className={classes.card}>
+          {preferences.edfChecked ? (
+            <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>
                 <Edf study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}
-          {chartsShown.graphHyperparameterImportancesChecked ? (
-            <Card className={classes.card}>
+          {preferences.graphHyperparameterImportancesChecked ? (
+            <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>
                 <GraphHyperparameterImportances
                   study={studyDetail}
@@ -384,14 +338,14 @@ export const StudyDetail: FC = () => {
             </Card>
           ) : null}
 
-          {studyDetail !== null && chartsShown.graphSliceChecked ? (
-            <Card className={classes.card}>
+          {studyDetail !== null && preferences.graphSliceChecked ? (
+            <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>
                 <GraphSlice study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}
-          <Card className={classes.card}>
+          <Card sx={{ margin: theme.spacing(2) }}>
             <TrialTable studyDetail={studyDetail} />
           </Card>
         </div>

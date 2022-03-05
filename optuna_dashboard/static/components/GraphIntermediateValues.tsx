@@ -1,22 +1,12 @@
 import * as plotly from "plotly.js-dist"
 import React, { FC, useEffect } from "react"
-import { Grid, Typography } from "@material-ui/core"
-import { createStyles, makeStyles, Theme } from "@material-ui/core/styles"
-
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    title: {
-      margin: "1em 0",
-    },
-  })
-)
+import { Grid, Typography } from "@mui/material"
 
 const plotDomId = "graph-intermediate-values"
 
 export const GraphIntermediateValues: FC<{
   trials: Trial[]
 }> = ({ trials = [] }) => {
-  const classes = useStyles()
   useEffect(() => {
     plotIntermediateValue(trials)
   }, [trials])
@@ -24,7 +14,7 @@ export const GraphIntermediateValues: FC<{
     <Grid container direction="row">
       <Grid item xs={3}>
         <Grid container direction="column">
-          <Typography variant="h6" className={classes.title}>
+          <Typography variant="h6" sx={{ margin: "1em 0" }}>
             Intermediate values
           </Typography>
         </Grid>
