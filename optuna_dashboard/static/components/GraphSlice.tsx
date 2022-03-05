@@ -12,6 +12,7 @@ import {
   SelectChangeEvent,
   useTheme,
 } from "@mui/material"
+import {plotlyDarkTemplate} from "./PlotlyDarkMode";
 
 const plotDomId = "graph-slice"
 
@@ -163,6 +164,7 @@ const plotSlice = (
     },
     plot_bgcolor: "#E5ecf6",
     showlegend: false,
+    template: plotlyDarkTemplate,
   }
 
   const filteredTrials = trials.filter(

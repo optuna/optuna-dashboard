@@ -12,6 +12,7 @@ import {
 } from "@mui/material"
 
 import { getParamImportances } from "../apiClient"
+import {plotlyDarkTemplate} from "./PlotlyDarkMode";
 const plotDomId = "graph-hyperparameter-importances"
 
 // To match colors used by plot_param_importances in optuna.
@@ -131,6 +132,7 @@ const plotParamImportances = (paramsImportanceData: ParamImportances) => {
       b: 50,
     },
     showlegend: false,
+    template: plotlyDarkTemplate,
   }
 
   const plotData: Partial<plotly.PlotData>[] = [

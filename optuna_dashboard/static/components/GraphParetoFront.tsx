@@ -10,6 +10,7 @@ import {
   SelectChangeEvent,
   useTheme,
 } from "@mui/material"
+import {plotlyDarkTemplate} from "./PlotlyDarkMode";
 
 const plotDomId = "graph-pareto-front"
 
@@ -100,6 +101,7 @@ const plotParetoFront = (
       r: 50,
       b: 0,
     },
+    template: plotlyDarkTemplate,
   }
 
   const trials: Trial[] = study ? study.trials : []

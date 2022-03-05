@@ -1,6 +1,7 @@
 import * as plotly from "plotly.js-dist"
 import React, { FC, useEffect } from "react"
 import { Grid, Typography } from "@mui/material"
+import {plotlyDarkTemplate} from "./PlotlyDarkMode";
 
 const plotDomId = "graph-intermediate-values"
 
@@ -39,6 +40,7 @@ const plotIntermediateValue = (trials: Trial[]) => {
       r: 50,
       b: 0,
     },
+    template: plotlyDarkTemplate,
   }
   if (trials.length === 0) {
     plotly.react(plotDomId, [], layout)

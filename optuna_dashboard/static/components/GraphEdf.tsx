@@ -10,6 +10,7 @@ import {
   SelectChangeEvent,
   useTheme,
 } from "@mui/material"
+import {plotlyDarkTemplate} from "./PlotlyDarkMode";
 
 const plotDomId = "graph-edf"
 
@@ -95,6 +96,7 @@ const plotEdf = (study: StudyDetail, objectiveId: number) => {
       r: 50,
       b: 50,
     },
+    template: plotlyDarkTemplate,
   }
 
   const values = completedTrials.map((t) => target(t))

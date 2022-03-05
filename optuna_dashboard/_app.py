@@ -61,6 +61,11 @@ INDEX_HTML = """<!DOCTYPE html>
         margin: 0;
         padding: 0;
     }
+    @media (prefers-color-scheme: dark) {
+        body {
+            background-color: #121212;
+        }
+    }
     </style>
     <script defer src="/static/bundle.js"></script>
 </head>

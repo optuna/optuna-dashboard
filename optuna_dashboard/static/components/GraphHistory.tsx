@@ -15,6 +15,7 @@ import {
   SelectChangeEvent,
   useTheme,
 } from "@mui/material"
+import {plotlyDarkTemplate} from "./PlotlyDarkMode";
 
 const plotDomId = "graph-history"
 
@@ -191,6 +192,7 @@ const plotHistory = (
       type: xAxis === "number" ? "linear" : "date",
     },
     showlegend: false,
+    template: plotlyDarkTemplate,
   }
 
   let filteredTrials = study.trials.filter(
