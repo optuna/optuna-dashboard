@@ -26,6 +26,8 @@ import FormControlLabel from "@mui/material/FormControlLabel"
 import MuiDialogTitle from "@mui/material/DialogTitle"
 import MuiDialogContent from "@mui/material/DialogContent"
 import CloseIcon from "@mui/icons-material/Close"
+import Brightness4Icon from "@mui/icons-material/Brightness4"
+import Brightness7Icon from "@mui/icons-material/Brightness7"
 
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
@@ -51,7 +53,9 @@ export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   return studyDetails[studyId] || null
 }
 
-export const StudyDetail: FC = () => {
+export const StudyDetail: FC<{
+  toggleColorMode: () => void
+}> = ({ toggleColorMode }) => {
   const theme = useTheme()
   const action = actionCreator()
   const { studyId } = useParams<ParamTypes>()
@@ -251,6 +255,18 @@ export const StudyDetail: FC = () => {
           <Toolbar>
             <Typography variant="h6">{APP_BAR_TITLE}</Typography>
             <Box sx={{ flexGrow: 1 }} />
+            <IconButton
+              onClick={() => {
+                toggleColorMode()
+              }}
+              color="inherit"
+            >
+              {theme.palette.mode === "dark" ? (
+                <Brightness7Icon />
+              ) : (
+                <Brightness4Icon />
+              )}
+            </IconButton>
             <IconButton color="inherit" onClick={handleClickOpen}>
               <Settings />
             </IconButton>

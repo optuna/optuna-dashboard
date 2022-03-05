@@ -10,6 +10,7 @@ import {
   SelectChangeEvent,
   useTheme,
 } from "@mui/material"
+import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-pareto-front"
 
@@ -30,9 +31,9 @@ export const GraphParetoFront: FC<{
 
   useEffect(() => {
     if (study != null) {
-      plotParetoFront(study, objectiveXId, objectiveYId)
+      plotParetoFront(study, objectiveXId, objectiveYId, theme.palette.mode)
     }
-  }, [study, objectiveXId, objectiveYId])
+  }, [study, objectiveXId, objectiveYId, theme.palette.mode])
 
   return (
     <Grid container direction="row">
@@ -87,7 +88,8 @@ export const GraphParetoFront: FC<{
 const plotParetoFront = (
   study: StudyDetail,
   objectiveXId: number,
-  objectiveYId: number
+  objectiveYId: number,
+  mode: string
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -100,6 +102,7 @@ const plotParetoFront = (
       r: 50,
       b: 0,
     },
+    template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
   const trials: Trial[] = study ? study.trials : []

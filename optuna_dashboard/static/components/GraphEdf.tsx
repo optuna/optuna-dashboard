@@ -10,6 +10,7 @@ import {
   SelectChangeEvent,
   useTheme,
 } from "@mui/material"
+import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-edf"
 
@@ -25,9 +26,9 @@ export const Edf: FC<{
 
   useEffect(() => {
     if (study != null) {
-      plotEdf(study, objectiveId)
+      plotEdf(study, objectiveId, theme.palette.mode)
     }
-  }, [study, objectiveId])
+  }, [study, objectiveId, theme.palette.mode])
   return (
     <Grid container direction="row">
       <Grid item xs={3}>
@@ -63,7 +64,7 @@ export const Edf: FC<{
   )
 }
 
-const plotEdf = (study: StudyDetail, objectiveId: number) => {
+const plotEdf = (study: StudyDetail, objectiveId: number, mode: string) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
@@ -95,6 +96,7 @@ const plotEdf = (study: StudyDetail, objectiveId: number) => {
       r: 50,
       b: 50,
     },
+    template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
   const values = completedTrials.map((t) => target(t))

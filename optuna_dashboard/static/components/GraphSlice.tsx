@@ -12,6 +12,7 @@ import {
   SelectChangeEvent,
   useTheme,
 } from "@mui/material"
+import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-slice"
 
@@ -38,8 +39,15 @@ export const GraphSlice: FC<{
   }
 
   useEffect(() => {
-    plotSlice(trials, objectiveId, selected, logXScale, logYScale)
-  }, [trials, objectiveId, selected, logXScale, logYScale])
+    plotSlice(
+      trials,
+      objectiveId,
+      selected,
+      logXScale,
+      logYScale,
+      theme.palette.mode
+    )
+  }, [trials, objectiveId, selected, logXScale, logYScale, theme.palette.mode])
 
   const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
     setObjectiveId(event.target.value as number)
@@ -126,7 +134,8 @@ const plotSlice = (
   objectiveId: number,
   selected: string | null,
   logXScale: boolean,
-  logYScale: boolean
+  logYScale: boolean,
+  mode: string
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -142,27 +151,17 @@ const plotSlice = (
     xaxis: {
       title: selected || "",
       type: logXScale ? "log" : "linear",
-      zerolinecolor: "#f2f5fa",
-      zerolinewidth: 1.5,
-      linecolor: "#f2f5fa",
-      linewidth: 5,
-      gridcolor: "#f2f5fa",
       gridwidth: 1,
       automargin: true,
     },
     yaxis: {
       title: "Objective Values",
       type: logYScale ? "log" : "linear",
-      zerolinecolor: "#f2f5fa",
-      zerolinewidth: 2,
-      linecolor: "#f2f5fa",
-      linewidth: 5,
-      gridcolor: "#f2f5fa",
       gridwidth: 1,
       automargin: true,
     },
-    plot_bgcolor: "#E5ecf6",
     showlegend: false,
+    template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
   const filteredTrials = trials.filter(
@@ -195,23 +194,12 @@ const plotSlice = (
         x: valuesNum,
         y: objectiveValues,
         mode: "markers",
-        marker: {
-          color: "#185799",
-        },
       },
     ]
     layout["xaxis"] = {
       title: selected,
       type: logXScale ? "log" : "linear",
-      zerolinecolor: "#f2f5fa",
-      zerolinewidth: 1.5,
-      linecolor: "#f2f5fa",
-      linewidth: 5,
-      gridcolor: "#f2f5fa",
       gridwidth: 1,
-      tickfont: {
-        color: "#000000",
-      },
       automargin: true, // Otherwise the label is outside of the plot
     }
     plotly.react(plotDomId, trace, layout)
@@ -228,23 +216,12 @@ const plotSlice = (
         x: valuesCategorical,
         y: objectiveValues,
         mode: "markers",
-        marker: {
-          color: "#185799",
-        },
       },
     ]
     layout["xaxis"] = {
       title: selected,
       type: logXScale ? "log" : "linear",
-      zerolinecolor: "#f2f5fa",
-      zerolinewidth: 1.5,
-      linecolor: "#f2f5fa",
-      linewidth: 5,
-      gridcolor: "#f2f5fa",
       gridwidth: 1,
-      tickfont: {
-        color: "#000000",
-      },
       tickvals: tickvals,
       ticktext: vocabArr,
       automargin: true, // Otherwise the label is outside of the plot

@@ -10,6 +10,7 @@ import {
   SelectChangeEvent,
   useTheme,
 } from "@mui/material"
+import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-parallel-coordinate"
 
@@ -25,16 +26,16 @@ export const GraphParallelCoordinate: FC<{
 
   useEffect(() => {
     if (study !== null) {
-      plotCoordinate(study, objectiveId)
+      plotCoordinate(study, objectiveId, theme.palette.mode)
     }
-  }, [study, objectiveId])
+  }, [study, objectiveId, theme.palette.mode])
 
   return (
     <Grid container direction="row">
       <Grid item xs={3}>
         <Grid container direction="column">
           <Typography variant="h6" sx={{ margin: "1em 0" }}>
-            Parallel coordinate
+            Parallel Coordinate
           </Typography>
           {study !== null && study.directions.length !== 1 ? (
             <FormControl
@@ -64,7 +65,11 @@ export const GraphParallelCoordinate: FC<{
   )
 }
 
-const plotCoordinate = (study: StudyDetail, objectiveId: number) => {
+const plotCoordinate = (
+  study: StudyDetail,
+  objectiveId: number,
+  mode: string
+) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
@@ -76,6 +81,7 @@ const plotCoordinate = (study: StudyDetail, objectiveId: number) => {
       r: 50,
       b: 0,
     },
+    template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
   if (study.trials.length === 0) {
