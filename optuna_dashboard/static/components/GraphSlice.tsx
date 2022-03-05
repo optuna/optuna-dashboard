@@ -12,7 +12,7 @@ import {
   SelectChangeEvent,
   useTheme,
 } from "@mui/material"
-import {plotlyDarkTemplate} from "./PlotlyDarkMode";
+import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-slice"
 
@@ -39,7 +39,14 @@ export const GraphSlice: FC<{
   }
 
   useEffect(() => {
-    plotSlice(trials, objectiveId, selected, logXScale, logYScale, theme.palette.mode)
+    plotSlice(
+      trials,
+      objectiveId,
+      selected,
+      logXScale,
+      logYScale,
+      theme.palette.mode
+    )
   }, [trials, objectiveId, selected, logXScale, logYScale, theme.palette.mode])
 
   const handleObjectiveChange = (event: SelectChangeEvent<number>) => {

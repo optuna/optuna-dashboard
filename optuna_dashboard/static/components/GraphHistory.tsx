@@ -15,7 +15,7 @@ import {
   SelectChangeEvent,
   useTheme,
 } from "@mui/material"
-import {plotlyDarkTemplate} from "./PlotlyDarkMode";
+import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-history"
 
@@ -61,7 +61,7 @@ export const GraphHistory: FC<{
         logScale,
         filterCompleteTrial,
         filterPrunedTrial,
-          theme.palette.mode
+        theme.palette.mode
       )
     }
   }, [

@@ -10,7 +10,7 @@ import {
   SelectChangeEvent,
   useTheme,
 } from "@mui/material"
-import {plotlyDarkTemplate} from "./PlotlyDarkMode";
+import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-parallel-coordinate"
 
@@ -65,7 +65,11 @@ export const GraphParallelCoordinate: FC<{
   )
 }
 
-const plotCoordinate = (study: StudyDetail, objectiveId: number, mode: string) => {
+const plotCoordinate = (
+  study: StudyDetail,
+  objectiveId: number,
+  mode: string
+) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }

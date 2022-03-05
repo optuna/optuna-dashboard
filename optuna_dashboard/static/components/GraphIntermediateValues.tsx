@@ -1,7 +1,7 @@
 import * as plotly from "plotly.js-dist"
 import React, { FC, useEffect } from "react"
-import {Grid, Typography, useTheme} from "@mui/material"
-import {plotlyDarkTemplate} from "./PlotlyDarkMode";
+import { Grid, Typography, useTheme } from "@mui/material"
+import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-intermediate-values"
 

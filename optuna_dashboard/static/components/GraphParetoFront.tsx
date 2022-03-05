@@ -10,7 +10,7 @@ import {
   SelectChangeEvent,
   useTheme,
 } from "@mui/material"
-import {plotlyDarkTemplate} from "./PlotlyDarkMode";
+import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-pareto-front"
 

@@ -1,4 +1,4 @@
-import React, {FC, useEffect, useMemo} from "react"
+import React, { FC, useEffect, useMemo } from "react"
 import { useRecoilValue } from "recoil"
 import { Link } from "react-router-dom"
 import {
@@ -31,8 +31,12 @@ import { Add, AddBox, Delete, Refresh, Remove } from "@mui/icons-material"
 import { actionCreator } from "../action"
 import { DataGrid, DataGridColumn } from "./DataGrid"
 import { studySummariesState } from "../state"
+import Brightness7Icon from "@mui/icons-material/Brightness7"
+import Brightness4Icon from "@mui/icons-material/Brightness4"
 
-export const StudyList: FC = () => {
+export const StudyList: FC<{
+  toggleColorMode: () => void
+}> = ({ toggleColorMode }) => {
   const theme = useTheme()
 
   const [newStudySelectionAnchorEl, setNewStudySelectionAnchorEl] =
@@ -55,10 +59,13 @@ export const StudyList: FC = () => {
   const [directions, setDirections] = React.useState<StudyDirection[]>([
     "minimize",
   ])
-  const linkColor= useMemo(
-      () => theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark,
-      [theme.palette.mode],
-  );
+  const linkColor = useMemo(
+    () =>
+      theme.palette.mode === "dark"
+        ? theme.palette.primary.light
+        : theme.palette.primary.dark,
+    [theme.palette.mode]
+  )
 
   const action = actionCreator()
   const studies = useRecoilValue<StudySummary[]>(studySummariesState)
@@ -82,7 +89,10 @@ export const StudyList: FC = () => {
       label: "Name",
       sortable: true,
       toCellValue: (i) => (
-        <Link to={`${URL_PREFIX}/studies/${studies[i].study_id}`} style={{color: linkColor}}>
+        <Link
+          to={`${URL_PREFIX}/studies/${studies[i].study_id}`}
+          style={{ color: linkColor }}
+        >
           {studies[i].study_name}
         </Link>
       ),
@@ -216,6 +226,18 @@ export const StudyList: FC = () => {
           <Toolbar>
             <Typography variant="h6">{APP_BAR_TITLE}</Typography>
             <Box sx={{ flexGrow: 1 }} />
+            <IconButton
+              onClick={() => {
+                toggleColorMode()
+              }}
+              color="inherit"
+            >
+              {theme.palette.mode === "dark" ? (
+                <Brightness7Icon />
+              ) : (
+                <Brightness4Icon />
+              )}
+            </IconButton>
             <IconButton
               aria-controls="menu-appbar"
               aria-haspopup="true"
