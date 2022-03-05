@@ -1,6 +1,6 @@
 import * as plotly from "plotly.js-dist"
 import React, { FC, useEffect } from "react"
-import { Grid, Typography } from "@mui/material"
+import {Grid, Typography, useTheme} from "@mui/material"
 import {plotlyDarkTemplate} from "./PlotlyDarkMode";
 
 const plotDomId = "graph-intermediate-values"
@@ -8,9 +8,10 @@ const plotDomId = "graph-intermediate-values"
 export const GraphIntermediateValues: FC<{
   trials: Trial[]
 }> = ({ trials = [] }) => {
+  const theme = useTheme()
   useEffect(() => {
-    plotIntermediateValue(trials)
-  }, [trials])
+    plotIntermediateValue(trials, theme.palette.mode)
+  }, [trials, theme.palette.mode])
   return (
     <Grid container direction="row">
       <Grid item xs={3}>
@@ -28,7 +29,7 @@ export const GraphIntermediateValues: FC<{
   )
 }
 
-const plotIntermediateValue = (trials: Trial[]) => {
+const plotIntermediateValue = (trials: Trial[], mode: string) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
@@ -40,7 +41,7 @@ const plotIntermediateValue = (trials: Trial[]) => {
       r: 50,
       b: 0,
     },
-    template: plotlyDarkTemplate,
+    template: mode === "dark" ? plotlyDarkTemplate : {},
   }
   if (trials.length === 0) {
     plotly.react(plotDomId, [], layout)

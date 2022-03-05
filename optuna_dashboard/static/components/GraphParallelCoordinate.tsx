@@ -26,9 +26,9 @@ export const GraphParallelCoordinate: FC<{
 
   useEffect(() => {
     if (study !== null) {
-      plotCoordinate(study, objectiveId)
+      plotCoordinate(study, objectiveId, theme.palette.mode)
     }
-  }, [study, objectiveId])
+  }, [study, objectiveId, theme.palette.mode])
 
   return (
     <Grid container direction="row">
@@ -65,7 +65,7 @@ export const GraphParallelCoordinate: FC<{
   )
 }
 
-const plotCoordinate = (study: StudyDetail, objectiveId: number) => {
+const plotCoordinate = (study: StudyDetail, objectiveId: number, mode: string) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
@@ -77,7 +77,7 @@ const plotCoordinate = (study: StudyDetail, objectiveId: number) => {
       r: 50,
       b: 0,
     },
-    template: plotlyDarkTemplate,
+    template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
   if (study.trials.length === 0) {

@@ -60,7 +60,8 @@ export const GraphHistory: FC<{
         xAxis,
         logScale,
         filterCompleteTrial,
-        filterPrunedTrial
+        filterPrunedTrial,
+          theme.palette.mode
       )
     }
   }, [
@@ -70,6 +71,7 @@ export const GraphHistory: FC<{
     xAxis,
     filterPrunedTrial,
     filterCompleteTrial,
+    theme.palette.mode,
   ])
 
   return (
@@ -172,7 +174,8 @@ const plotHistory = (
   xAxis: string,
   logScale: boolean,
   filterCompleteTrial: boolean,
-  filterPrunedTrial: boolean
+  filterPrunedTrial: boolean,
+  mode: string
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -192,7 +195,7 @@ const plotHistory = (
       type: xAxis === "number" ? "linear" : "date",
     },
     showlegend: false,
-    template: plotlyDarkTemplate,
+    template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
   let filteredTrials = study.trials.filter(

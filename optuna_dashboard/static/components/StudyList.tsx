@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react"
+import React, {FC, useEffect, useMemo} from "react"
 import { useRecoilValue } from "recoil"
 import { Link } from "react-router-dom"
 import {
@@ -55,6 +55,10 @@ export const StudyList: FC = () => {
   const [directions, setDirections] = React.useState<StudyDirection[]>([
     "minimize",
   ])
+  const linkColor= useMemo(
+      () => theme.palette.mode === 'dark' ? theme.palette.primary.light : theme.palette.primary.dark,
+      [theme.palette.mode],
+  );
 
   const action = actionCreator()
   const studies = useRecoilValue<StudySummary[]>(studySummariesState)
@@ -78,7 +82,7 @@ export const StudyList: FC = () => {
       label: "Name",
       sortable: true,
       toCellValue: (i) => (
-        <Link to={`${URL_PREFIX}/studies/${studies[i].study_id}`}>
+        <Link to={`${URL_PREFIX}/studies/${studies[i].study_id}`} style={{color: linkColor}}>
           {studies[i].study_name}
         </Link>
       ),

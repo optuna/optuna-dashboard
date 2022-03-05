@@ -39,8 +39,8 @@ export const GraphSlice: FC<{
   }
 
   useEffect(() => {
-    plotSlice(trials, objectiveId, selected, logXScale, logYScale)
-  }, [trials, objectiveId, selected, logXScale, logYScale])
+    plotSlice(trials, objectiveId, selected, logXScale, logYScale, theme.palette.mode)
+  }, [trials, objectiveId, selected, logXScale, logYScale, theme.palette.mode])
 
   const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
     setObjectiveId(event.target.value as number)
@@ -127,7 +127,8 @@ const plotSlice = (
   objectiveId: number,
   selected: string | null,
   logXScale: boolean,
-  logYScale: boolean
+  logYScale: boolean,
+  mode: string
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -143,21 +144,17 @@ const plotSlice = (
     xaxis: {
       title: selected || "",
       type: logXScale ? "log" : "linear",
-      zerolinewidth: 1.5,
-      linewidth: 5,
       gridwidth: 1,
       automargin: true,
     },
     yaxis: {
       title: "Objective Values",
       type: logYScale ? "log" : "linear",
-      zerolinewidth: 2,
-      linewidth: 5,
       gridwidth: 1,
       automargin: true,
     },
     showlegend: false,
-    template: plotlyDarkTemplate,
+    template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
   const filteredTrials = trials.filter(
@@ -195,8 +192,6 @@ const plotSlice = (
     layout["xaxis"] = {
       title: selected,
       type: logXScale ? "log" : "linear",
-      zerolinewidth: 1.5,
-      linewidth: 5,
       gridwidth: 1,
       automargin: true, // Otherwise the label is outside of the plot
     }
@@ -219,8 +214,6 @@ const plotSlice = (
     layout["xaxis"] = {
       title: selected,
       type: logXScale ? "log" : "linear",
-      zerolinewidth: 1.5,
-      linewidth: 5,
       gridwidth: 1,
       tickvals: tickvals,
       ticktext: vocabArr,
