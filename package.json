@@ -20,18 +20,18 @@
     "@mui/material": "^5.4.4",
     "axios": "^0.21.2",
     "notistack": "^2.0.3",
-    "plotly.js-dist": "^2.0.0",
+    "plotly.js-dist": "^2.10.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-router-dom": "^5.2.0",
-    "recoil": "^0.3.1"
+    "recoil": "^0.6.1"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",
     "@babel/preset-env": "^7.14.5",
     "@testing-library/react": "^12.0.0",
     "@types/jest": "^26.0.23",
-    "@types/plotly.js": "^1.54.10",
+    "@types/plotly.js": "^1.54.20",
     "@types/react": "^17.0.9",
     "@types/react-dom": "^17.0.6",
     "@types/react-router-dom": "^5.1.7",
