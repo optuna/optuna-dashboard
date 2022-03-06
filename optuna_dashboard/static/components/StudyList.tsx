@@ -231,6 +231,11 @@ export const StudyList: FC<{
                 toggleColorMode()
               }}
               color="inherit"
+              title={
+                theme.palette.mode === "dark"
+                  ? "Switch to light mode"
+                  : "Switch to dark mode"
+              }
             >
               {theme.palette.mode === "dark" ? (
                 <Brightness7Icon />
@@ -245,6 +250,7 @@ export const StudyList: FC<{
                 action.updateStudySummaries("Success to reload")
               }}
               color="inherit"
+              title="Reload studies"
             >
               <Refresh />
             </IconButton>
@@ -255,6 +261,7 @@ export const StudyList: FC<{
                 setNewStudySelectionAnchorEl(e.currentTarget)
               }}
               color="inherit"
+              title="Create new study"
             >
               <AddBox />
             </IconButton>

@@ -260,6 +260,11 @@ export const StudyDetail: FC<{
                 toggleColorMode()
               }}
               color="inherit"
+              title={
+                theme.palette.mode === "dark"
+                  ? "Switch to light mode"
+                  : "Switch to dark mode"
+              }
             >
               {theme.palette.mode === "dark" ? (
                 <Brightness7Icon />
@@ -267,7 +272,11 @@ export const StudyDetail: FC<{
                 <Brightness4Icon />
               )}
             </IconButton>
-            <IconButton color="inherit" onClick={handleClickOpen}>
+            <IconButton
+              color="inherit"
+              onClick={handleClickOpen}
+              title="Open preference panel"
+            >
               <Settings />
             </IconButton>
             <IconButton
@@ -276,6 +285,7 @@ export const StudyDetail: FC<{
               component={Link}
               to={URL_PREFIX + "/"}
               color="inherit"
+              title="Go to the top"
             >
               <Home />
             </IconButton>
