@@ -7,7 +7,7 @@
   "scripts": {
     "fmt": "prettier --write \"optuna_dashboard/static/**/*.{ts,tsx}\" \"frontend_tests/*.{ts,tsx}\"",
     "lint": "eslint . --ext .ts,.tsx && prettier --list-different \"optuna_dashboard/static/**/*.{ts,tsx}\" \"frontend_tests/*.{ts,tsx}\"",
-    "watch": "webpack --watch",
+    "watch": "NODE_ENV=development SKIP_TYPE_CHECK=true webpack --watch",
     "build": "webpack",
     "build:dev": "NODE_ENV=development webpack",
     "build:prd": "NODE_ENV=production webpack",
@@ -37,6 +37,7 @@
     "@types/react-router-dom": "^5.1.7",
     "@typescript-eslint/eslint-plugin": "^4.26.1",
     "@typescript-eslint/parser": "^4.26.1",
+    "esbuild-loader": "^2.18.0",
     "eslint": "^7.28.0",
     "jest": "^27.0.4",
     "jest-canvas-mock": "^2.3.1",
