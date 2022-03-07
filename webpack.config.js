@@ -39,6 +39,12 @@ var config = {
 
 if (isDev) {
     config.devtool = 'source-map';
+    config.cache = {
+        type: 'filesystem',
+        buildDependencies: {
+            config: [__filename],
+        }
+    }
     console.log('= = = = = = = = = = = = = = = = = = =');
     console.log('DEVELOPMENT BUILD');
     console.log('= = = = = = = = = = = = = = = = = = =');
