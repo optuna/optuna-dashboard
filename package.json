@@ -7,9 +7,9 @@
   "scripts": {
     "fmt": "prettier --write \"optuna_dashboard/static/**/*.{ts,tsx}\" \"frontend_tests/*.{ts,tsx}\"",
     "lint": "eslint . --ext .ts,.tsx && prettier --list-different \"optuna_dashboard/static/**/*.{ts,tsx}\" \"frontend_tests/*.{ts,tsx}\"",
-    "watch": "NODE_ENV=development SKIP_TYPE_CHECK=true webpack --watch",
+    "watch": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack --watch",
     "build": "webpack",
-    "build:dev": "NODE_ENV=development webpack",
+    "build:dev": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack",
     "build:prd": "NODE_ENV=production webpack",
     "test": "jest frontend_tests"
   },

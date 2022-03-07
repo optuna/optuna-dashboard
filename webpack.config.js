@@ -2,7 +2,25 @@ const webpack = require('webpack');
 
 const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development';
 const isDev = mode === 'development';
-const skipTypeCheck = process.env.SKIP_TYPE_CHECK === 'true';
+
+const typeScriptLoader = process.env.TYPESCRIPT_LOADER === "esbuild-loader" ? {
+    test: /\.tsx?$/,
+    exclude: [/node_modules/],
+    loader: 'esbuild-loader',
+    options: {
+        loader: 'tsx',
+        tsconfigRaw: require('./tsconfig.json')
+    }
+} : {
+    test: /\.tsx?$/,
+    exclude: [/node_modules/],
+    loader: 'ts-loader',
+    options: {
+        configFile: __dirname + '/tsconfig.json',
+        transpileOnly: isDev,
+        happyPackMode: true
+    }
+}
 
 var config = {
     mode,
@@ -13,17 +31,7 @@ var config = {
         publicPath: '/public/'
     },
     module: {
-        rules: [{
-            oneOf: [
-                {
-                    test: /\.tsx?$/,
-                    exclude: [/node_modules/],
-                    loader: 'ts-loader',
-                    options: {
-                        configFile: __dirname + '/tsconfig.json'
-                    }
-                }
-            ]}]
+        rules: [{oneOf: [typeScriptLoader]}]
     },
     resolve: {
         extensions: ['.ts', '.tsx', '.js']
@@ -47,20 +55,7 @@ if (isDev) {
     }
     console.log('= = = = = = = = = = = = = = = = = = =');
     console.log('DEVELOPMENT BUILD');
-    console.log('= = = = = = = = = = = = = = = = = = =');
-}
-if (skipTypeCheck) {
-    config.module.rules = [{
-        test: /\.tsx?$/,
-        exclude: [/node_modules/],
-        loader: 'esbuild-loader',
-        options: {
-            loader: 'tsx',
-            tsconfigRaw: require('./tsconfig.json')
-        }
-    }]
-    console.log('= = = = = = = = = = = = = = = = = = =');
-    console.log('Use esbuild-loader instead of ts-loader');
+    console.log(process.env.TYPESCRIPT_LOADER === 'esbuild-loader' ? 'esbuild-loader' : 'ts-loader');
     console.log('= = = = = = = = = = = = = = = = = = =');
 }
 
