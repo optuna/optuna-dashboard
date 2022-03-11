@@ -93,7 +93,7 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
         if x > 0:
             return math.inf
         else:
-            return x ** 2
+            return x**2
 
     study.optimize(objective_single_inf, n_trials=50)
 
