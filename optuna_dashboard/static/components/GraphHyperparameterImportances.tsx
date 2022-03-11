@@ -13,6 +13,7 @@ import {
 
 import { getParamImportances } from "../apiClient"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import { useSnackbar } from "notistack"
 const plotDomId = "graph-hyperparameter-importances"
 
 // To match colors used by plot_param_importances in optuna.
@@ -46,27 +47,40 @@ export const GraphHyperparameterImportances: FC<{
   const theme = useTheme()
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const numOfTrials = study?.trials.length || 0
+  const [importances, setImportances] = useState<ParamImportances | null>(null)
+  const { enqueueSnackbar } = useSnackbar()
 
   const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
     setObjectiveId(event.target.value as number)
   }
 
   useEffect(() => {
-    async function fetchAndPlotParamImportances(
-      studyId: number,
-      objectiveId: number
-    ) {
-      const paramsImportanceData = await getParamImportances(
-        studyId,
-        objectiveId
-      )
-      plotParamImportances(paramsImportanceData, theme.palette.mode)
+    async function fetchParamImportances(studyId: number, objectiveId: number) {
+      await getParamImportances(studyId, objectiveId)
+        .then((p) => {
+          setImportances(p)
+        })
+        .catch((err) => {
+          const reason = err.response?.data.reason
+          enqueueSnackbar(
+            `Failed to load hyperparameter importance (reason=${reason})`,
+            {
+              variant: "error",
+            }
+          )
+        })
     }
 
     if (numOfTrials > 0) {
-      fetchAndPlotParamImportances(studyId, objectiveId)
+      fetchParamImportances(studyId, objectiveId)
     }
   }, [numOfTrials, objectiveId, theme.palette.mode])
+
+  useEffect(() => {
+    if (importances !== null) {
+      plotParamImportances(importances, theme.palette.mode)
+    }
+  }, [importances, theme.palette.mode])
 
   return (
     <Grid container direction="row">
@@ -110,7 +124,11 @@ const plotParamImportances = (
   if (document.getElementById(plotDomId) === null) {
     return
   }
-  const param_importances = paramsImportanceData.param_importances.reverse()
+  console.log("debug")
+  console.dir(paramsImportanceData)
+  const param_importances = [
+    ...paramsImportanceData.param_importances,
+  ].reverse()
   const importance_values = param_importances.map((p) => p.importance)
   const param_names = param_importances.map((p) => p.name)
   const param_colors = param_importances.map(
