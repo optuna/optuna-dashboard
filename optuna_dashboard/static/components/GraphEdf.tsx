@@ -67,7 +67,7 @@ export const Edf: FC<{
 const filterFunc = (trial: Trial, objectiveId: number): boolean => {
   return (
     trial.state === "Complete" &&
-    trial.values &&
+    trial.values !== undefined &&
     trial.values[objectiveId] !== "inf"
   )
 }
