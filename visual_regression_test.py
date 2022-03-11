@@ -150,6 +150,19 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
 
     study.optimize(objective_prune_without_report, n_trials=100)
 
+    # Single objective pruned after reported 'inf' value
+    study = optuna.create_study(study_name="single-inf-report", storage=storage)
+
+    def objective_single_inf_report(trial: optuna.Trial) -> float:
+        x = trial.suggest_float("x", -10, 10)
+        if x > 0:
+            trial.report(math.inf, 1)
+            raise optuna.TrialPruned()
+        else:
+            return x**2
+
+    study.optimize(objective_single_inf_report, n_trials=50)
+
     # No trials single-objective study
     optuna.create_study(study_name="single-no-trials", storage=storage)
 

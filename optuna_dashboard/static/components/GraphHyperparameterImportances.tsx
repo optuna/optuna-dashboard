@@ -124,8 +124,6 @@ const plotParamImportances = (
   if (document.getElementById(plotDomId) === null) {
     return
   }
-  console.log("debug")
-  console.dir(paramsImportanceData)
   const param_importances = [
     ...paramsImportanceData.param_importances,
   ].reverse()

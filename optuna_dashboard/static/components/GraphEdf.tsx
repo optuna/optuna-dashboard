@@ -65,7 +65,11 @@ export const Edf: FC<{
 }
 
 const filterFunc = (trial: Trial, objectiveId: number): boolean => {
-  return trial.state !== "Complete" || trial.values![objectiveId] !== "inf"
+  return (
+    trial.state === "Complete" &&
+    trial.values &&
+    trial.values[objectiveId] !== "inf"
+  )
 }
 
 const plotEdf = (study: StudyDetail, objectiveId: number, mode: string) => {
