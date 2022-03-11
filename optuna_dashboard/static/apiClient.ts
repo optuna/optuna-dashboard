@@ -7,7 +7,7 @@ interface TrialResponse {
   study_id: number
   number: number
   state: TrialState
-  values?: number[]
+  values?: (number | "inf")[]
   intermediate_values: TrialIntermediateValue[]
   datetime_start?: string
   datetime_complete?: string

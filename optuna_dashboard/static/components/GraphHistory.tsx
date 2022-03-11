@@ -168,6 +168,18 @@ export const GraphHistory: FC<{
   )
 }
 
+const filterFunc = (trial: Trial, objectiveId: number): boolean => {
+  if (trial.state !== "Complete" && trial.state !== "Pruned") {
+    return false
+  }
+  if (trial.values === undefined) {
+    return false
+  }
+  return (
+    trial.values.length > objectiveId && trial.values[objectiveId] !== "inf"
+  )
+}
+
 const plotHistory = (
   study: StudyDetail,
   objectiveId: number,
@@ -198,11 +210,7 @@ const plotHistory = (
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
-  let filteredTrials = study.trials.filter(
-    (t) =>
-      t.state === "Complete" ||
-      (t.state === "Pruned" && t.values && t.values.length > 0)
-  )
+  let filteredTrials = study.trials.filter((t) => filterFunc(t, objectiveId))
   if (filterCompleteTrial) {
     filteredTrials = filteredTrials.filter((t) => t.state !== "Complete")
   }
@@ -215,22 +223,22 @@ const plotHistory = (
   }
   const trialsForLinePlot: Trial[] = []
   let currentBest: number | null = null
-  filteredTrials.forEach((item) => {
+  filteredTrials.forEach((t) => {
     if (currentBest === null) {
-      currentBest = item.values![objectiveId]
-      trialsForLinePlot.push(item)
+      currentBest = t.values![objectiveId] as number
+      trialsForLinePlot.push(t)
     } else if (
       study.directions[objectiveId] === "maximize" &&
-      item.values![objectiveId] > currentBest
+      t.values![objectiveId] > currentBest
     ) {
-      currentBest = item.values![objectiveId]
-      trialsForLinePlot.push(item)
+      currentBest = t.values![objectiveId] as number
+      trialsForLinePlot.push(t)
     } else if (
       study.directions[objectiveId] === "minimize" &&
-      item.values![objectiveId] < currentBest
+      t.values![objectiveId] < currentBest
     ) {
-      currentBest = item.values![objectiveId]
-      trialsForLinePlot.push(item)
+      currentBest = t.values![objectiveId] as number
+      trialsForLinePlot.push(t)
     }
   })
 
@@ -245,14 +253,16 @@ const plotHistory = (
   const xForLinePlot = trialsForLinePlot.map(getAxisX)
   xForLinePlot.push(getAxisX(filteredTrials[filteredTrials.length - 1]))
   const yForLinePlot = trialsForLinePlot.map(
-    (t: Trial): number => t.values![objectiveId]
+    (t: Trial): number => t.values![objectiveId] as number
   )
   yForLinePlot.push(yForLinePlot[yForLinePlot.length - 1])
 
   const plotData: Partial<plotly.PlotData>[] = [
     {
       x: filteredTrials.map(getAxisX),
-      y: filteredTrials.map((t: Trial): number => t.values![objectiveId]),
+      y: filteredTrials.map(
+        (t: Trial): number => t.values![objectiveId] as number
+      ),
       mode: "markers",
       type: "scatter",
     },

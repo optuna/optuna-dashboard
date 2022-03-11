@@ -54,9 +54,10 @@ const plotIntermediateValue = (trials: Trial[], mode: string) => {
       (t.state === "Pruned" && t.values && t.values.length > 0)
   )
   const plotData: Partial<plotly.PlotData>[] = filteredTrials.map((trial) => {
+    const values = trial.intermediate_values.filter((iv) => iv.value !== "inf")
     return {
-      x: trial.intermediate_values.map((iv) => iv.step),
-      y: trial.intermediate_values.map((iv) => iv.value),
+      x: values.map((iv) => iv.step),
+      y: values.map((iv) => iv.value),
       mode: "lines+markers",
       type: "scatter",
       name: `trial #${trial.number}`,

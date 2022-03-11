@@ -65,6 +65,18 @@ export const GraphParallelCoordinate: FC<{
   )
 }
 
+const filterFunc = (trial: Trial, objectiveId: number): boolean => {
+  if (trial.state !== "Complete" && trial.state !== "Pruned") {
+    return false
+  }
+  if (trial.values === undefined) {
+    return false
+  }
+  return (
+    trial.values.length > objectiveId && trial.values[objectiveId] !== "inf"
+  )
+}
+
 const plotCoordinate = (
   study: StudyDetail,
   objectiveId: number,
@@ -89,11 +101,7 @@ const plotCoordinate = (
     return
   }
 
-  const filteredTrials = study.trials.filter(
-    (t) =>
-      t.state === "Complete" ||
-      (t.state === "Pruned" && t.values && t.values.length > 0)
-  )
+  const filteredTrials = study.trials.filter((t) => filterFunc(t, objectiveId))
 
   const maxLabelLength = 40
   const breakLength = maxLabelLength / 2
@@ -115,7 +123,7 @@ const plotCoordinate = (
 
   // Intersection param names
   const objectiveValues: number[] = filteredTrials.map(
-    (t) => t.values![objectiveId]
+    (t) => t.values![objectiveId] as number
   )
   const dimensions = [
     {

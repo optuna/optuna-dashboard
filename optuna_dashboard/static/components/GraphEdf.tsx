@@ -64,15 +64,19 @@ export const Edf: FC<{
   )
 }
 
+const filterFunc = (trial: Trial, objectiveId: number): boolean => {
+  return trial.state !== "Complete" || trial.values![objectiveId] !== "inf"
+}
+
 const plotEdf = (study: StudyDetail, objectiveId: number, mode: string) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
 
   const trials: Trial[] = study ? study.trials : []
-  const completedTrials = trials.filter((t) => t.state === "Complete")
+  const filteredTrials = trials.filter((t) => filterFunc(t, objectiveId))
 
-  if (completedTrials.length === 0) {
+  if (filteredTrials.length === 0) {
     plotly.react(plotDomId, [])
     return
   }
@@ -80,7 +84,7 @@ const plotEdf = (study: StudyDetail, objectiveId: number, mode: string) => {
   const target_name = "Objective Value"
 
   const target = (t: Trial): number => {
-    return t.values![objectiveId]
+    return t.values![objectiveId] as number
   }
 
   const layout: Partial<plotly.Layout> = {
@@ -99,7 +103,7 @@ const plotEdf = (study: StudyDetail, objectiveId: number, mode: string) => {
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
-  const values = completedTrials.map((t) => target(t))
+  const values = filteredTrials.map((t) => target(t))
   const numValues = values.length
   const minX = Math.min(...values)
   const maxX = Math.max(...values)

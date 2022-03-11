@@ -21,7 +21,7 @@ type Distribution =
 
 declare interface TrialIntermediateValue {
   step: number
-  value: number
+  value: number | "inf"
 }
 
 declare interface TrialParam {
@@ -50,7 +50,7 @@ declare interface Trial {
   study_id: number
   number: number
   state: TrialState
-  values?: number[]
+  values?: (number | "inf")[]
   intermediate_values: TrialIntermediateValue[]
   datetime_start?: Date
   datetime_complete?: Date
