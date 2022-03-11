@@ -54,7 +54,8 @@ export const actionCreator = () => {
         setStudyDetails(newVal)
       })
       .catch((err) => {
-        enqueueSnackbar(`Failed to fetch study (id=${studyId})`, {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(`Failed to fetch study (reason=${reason})`, {
           variant: "error",
         })
         console.log(err)

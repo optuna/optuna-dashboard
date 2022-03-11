@@ -1,8 +1,10 @@
 import json
+import math
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Tuple
+from typing import Union
 
 from optuna.distributions import BaseDistribution
 from optuna.study import StudySummary
@@ -27,7 +29,7 @@ IntermediateValue = TypedDict(
     "IntermediateValue",
     {
         "step": int,
-        "value": float,
+        "value": Union[float, str],
     },
 )
 TrialParam = TypedDict(
@@ -53,7 +55,10 @@ def serialize_attrs(attrs: Dict[str, Any]) -> List[Attribute]:
 
 
 def serialize_intermediate_values(values: Dict[int, float]) -> List[IntermediateValue]:
-    return [{"step": step, "value": value} for step, value in values.items()]
+    return [
+        {"step": step, "value": "inf" if math.isinf(value) else value}
+        for step, value in values.items()
+    ]
 
 
 def serialize_trial_params(params: Dict[str, Any]) -> List[TrialParam]:
@@ -120,7 +125,7 @@ def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
     }
 
     if trial.values is not None:
-        serialized["values"] = trial.values
+        serialized["values"] = ["inf" if math.isinf(v) else v for v in trial.values]
 
     if trial.datetime_start is not None:
         serialized["datetime_start"] = trial.datetime_start.isoformat()

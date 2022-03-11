@@ -129,6 +129,25 @@ export const GraphSlice: FC<{
   )
 }
 
+const filterFunc = (
+  trial: Trial,
+  objectiveId: number,
+  selected: string | null
+): boolean => {
+  if (trial.state !== "Complete" && trial.state !== "Pruned") {
+    return false
+  }
+  if (trial.params.find((p) => p.name == selected) === undefined) {
+    return false
+  }
+  if (trial.values === undefined) {
+    return false
+  }
+  return (
+    trial.values.length > objectiveId && trial.values[objectiveId] !== "inf"
+  )
+}
+
 const plotSlice = (
   trials: Trial[],
   objectiveId: number,
@@ -164,11 +183,8 @@ const plotSlice = (
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
-  const filteredTrials = trials.filter(
-    (t) =>
-      (t.state === "Complete" ||
-        (t.state === "Pruned" && t.values && t.values.length > 0)) &&
-      t.params.find((p) => p.name == selected) !== undefined
+  const filteredTrials = trials.filter((t) =>
+    filterFunc(t, objectiveId, selected)
   )
 
   if (filteredTrials.length === 0 || selected === null) {
@@ -177,7 +193,7 @@ const plotSlice = (
   }
 
   const objectiveValues: number[] = filteredTrials.map(
-    (t) => t.values![objectiveId]
+    (t) => t.values![objectiveId] as number
   )
   const valueStrings = filteredTrials.map((t) => {
     return t.params.find((p) => p.name == selected)!.value

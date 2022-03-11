@@ -85,6 +85,10 @@ export const GraphParetoFront: FC<{
   )
 }
 
+const filterFunc = (trial: Trial): boolean => {
+  return trial.state !== "Complete" || trial.values!.every((v) => v !== "inf")
+}
+
 const plotParetoFront = (
   study: StudyDetail,
   objectiveXId: number,
@@ -106,18 +110,20 @@ const plotParetoFront = (
   }
 
   const trials: Trial[] = study ? study.trials : []
-  const completedTrials = trials.filter((t) => t.state === "Complete")
+  const filteredTrials = trials.filter(filterFunc)
 
-  if (completedTrials.length === 0) {
+  if (filteredTrials.length === 0) {
     plotly.react(plotDomId, [], layout)
     return
   }
 
   const normalizedValues: number[][] = []
-  completedTrials.forEach((t) => {
+  filteredTrials.forEach((t) => {
     if (t.values && t.values.length === study.directions.length) {
-      const trialValues = t.values.map((v: number, i: number) => {
-        return study.directions[i] === "minimize" ? v : -v
+      const trialValues = t.values.map((v, i) => {
+        return study.directions[i] === "minimize"
+          ? (v as number)
+          : (-v as number)
       })
       normalizedValues.push(trialValues)
     }
@@ -144,11 +150,11 @@ const plotParetoFront = (
   const plotData: Partial<plotly.PlotData>[] = [
     {
       type: "scatter",
-      x: completedTrials.map((t: Trial): number => {
-        return t.values![objectiveXId]
+      x: filteredTrials.map((t: Trial): number => {
+        return t.values![objectiveXId] as number
       }),
-      y: completedTrials.map((t: Trial): number => {
-        return t.values![objectiveYId]
+      y: filteredTrials.map((t: Trial): number => {
+        return t.values![objectiveYId] as number
       }),
       mode: "markers",
       xaxis: "Objective X",
@@ -156,7 +162,7 @@ const plotParetoFront = (
       marker: {
         color: pointColors,
       },
-      text: completedTrials.map(
+      text: filteredTrials.map(
         (t: Trial): string => `Trial (number=${t.number})`
       ),
       hovertemplate: "%{text}<extra></extra>",

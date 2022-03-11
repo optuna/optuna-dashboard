@@ -255,12 +255,16 @@ def create_app(storage: BaseStorage) -> Bottle:
         params = None
 
         if len(completed_trials) > 0:
-            importances = optuna.importance.get_param_importances(
-                study,
-                evaluator=evaluator,
-                params=params,
-                target=lambda t: t.values[objective_id],
-            )
+            try:
+                importances = optuna.importance.get_param_importances(
+                    study,
+                    evaluator=evaluator,
+                    params=params,
+                    target=lambda t: t.values[objective_id],
+                )
+            except ValueError as e:
+                response.status = 400  # Bad request
+                return {"reason": str(e)}
         else:
             importances = {}
         target_name = "Objective Value"
