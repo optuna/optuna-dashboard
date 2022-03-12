@@ -332,22 +332,10 @@ export const StudyList: FC<{
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
             <Box sx={{ maxWidth: 500 }}>
-              <TextField
-                fullWidth
-                id="search-study"
-                variant="outlined"
-                placeholder="Search study"
-                onChange={(e) => {
-                  setStudyFilterText(e.target.value)
-                }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SvgIcon fontSize="small" color="action">
-                        <Search />
-                      </SvgIcon>
-                    </InputAdornment>
-                  ),
+              <DebouncedInputTextField
+                delay={500}
+                onChange={(s) => {
+                  setStudyFilterText(s)
                 }}
               />
             </Box>
@@ -537,5 +525,40 @@ export const StudyList: FC<{
         </DialogActions>
       </Dialog>
     </div>
+  )
+}
+
+const DebouncedInputTextField: FC<{
+  onChange: (s: string) => void
+  delay: number
+}> = ({ onChange, delay }) => {
+  const [text, setText] = React.useState<string>("")
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onChange(text)
+    }, delay)
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [text, delay])
+  return (
+    <TextField
+      fullWidth
+      id="search-study"
+      variant="outlined"
+      placeholder="Search study"
+      onChange={(e) => {
+        setText(e.target.value)
+      }}
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start">
+            <SvgIcon fontSize="small" color="action">
+              <Search />
+            </SvgIcon>
+          </InputAdornment>
+        ),
+      }}
+    />
   )
 }
