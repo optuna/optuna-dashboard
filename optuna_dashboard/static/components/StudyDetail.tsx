@@ -116,8 +116,8 @@ export const StudyDetail: FC<{
   const title = studyDetail !== null ? studyDetail.name : `Study #${studyId}`
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
 
-  return (
-    <div>
+  const PreferenceDialog = () => {
+    return (
       <Dialog onClose={handleClose} aria-labelledby="vis-pref" open={prefOpen}>
         <MuiDialogTitle
           sx={{
@@ -243,6 +243,12 @@ export const StudyDetail: FC<{
           </FormControl>
         </MuiDialogContent>
       </Dialog>
+    )
+  }
+
+  return (
+    <div>
+      <PreferenceDialog />
       <AppBar position="static">
         <Container
           sx={{
@@ -299,12 +305,19 @@ export const StudyDetail: FC<{
         }}
       >
         <div>
-          <Typography variant="h4" sx={{
-            margin: `${theme.spacing(4)} ${theme.spacing(2)}`,
-            fontWeight: 700,
-            fontSize: "1.8rem",
-            ...(theme.palette.mode === "dark" && {color: theme.palette.primary.light}),
-          }}>{title}</Typography>
+          <Typography
+            variant="h4"
+            sx={{
+              margin: `${theme.spacing(4)} ${theme.spacing(2)}`,
+              fontWeight: 700,
+              fontSize: "1.8rem",
+              ...(theme.palette.mode === "dark" && {
+                color: theme.palette.primary.light,
+              }),
+            }}
+          >
+            {title}
+          </Typography>
           {preferences.graphHistoryChecked ? (
             <Card
               sx={{
