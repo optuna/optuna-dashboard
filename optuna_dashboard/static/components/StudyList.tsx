@@ -25,8 +25,18 @@ import {
   FormLabel,
   Select,
   useTheme,
+  InputAdornment,
+  SvgIcon,
+  CardContent,
 } from "@mui/material"
-import { Add, AddBox, Delete, Refresh, Remove } from "@mui/icons-material"
+import {
+  Add,
+  AddBox,
+  Delete,
+  Refresh,
+  Remove,
+  Search,
+} from "@mui/icons-material"
 
 import { actionCreator } from "../action"
 import { DataGrid, DataGridColumn } from "./DataGrid"
@@ -309,6 +319,27 @@ export const StudyList: FC<{
           },
         }}
       >
+        <Card sx={{ margin: theme.spacing(2) }}>
+          <CardContent>
+            <Box sx={{ maxWidth: 500 }}>
+              <TextField
+                fullWidth
+                id="search-study"
+                variant="outlined"
+                placeholder="Search study"
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SvgIcon fontSize="small" color="action">
+                        <Search />
+                      </SvgIcon>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Box>
+          </CardContent>
+        </Card>
         <Card sx={{ margin: theme.spacing(2) }}>
           <DataGrid<StudySummary>
             columns={columns}
