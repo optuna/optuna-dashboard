@@ -44,8 +44,9 @@ function DataGrid<T>(props: {
   collapseBody?: (rowIndex: number) => React.ReactNode
   initialRowsPerPage?: number
   rowsPerPageOption?: Array<number | { value: number; label: string }>
+  defaultFilter?: (row: T) => boolean
 }) {
-  const { columns, rows, keyField, dense, collapseBody } = props
+  const { columns, rows, keyField, dense, collapseBody, defaultFilter } = props
   let { initialRowsPerPage, rowsPerPageOption } = props
   const [order, setOrder] = React.useState<Order>("asc")
   const [orderBy, setOrderBy] = React.useState<number>(0) // index of columns
@@ -92,13 +93,16 @@ function DataGrid<T>(props: {
     setFilters(filters.filter((f) => f.field !== field))
   }
 
-  const filteredRows = rows.filter((row) =>
-    filters.length === 0
+  const filteredRows = rows.filter((row) => {
+    if (defaultFilter !== undefined && defaultFilter(row)) {
+      return false
+    }
+    return filters.length === 0
       ? true
       : filters.some((f) => {
           return row[f.field] === f.value
         })
-  )
+  })
 
   // Sorting
   const createSortHandler =

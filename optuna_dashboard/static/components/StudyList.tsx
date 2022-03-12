@@ -64,6 +64,16 @@ export const StudyList: FC<{
     React.useState(false)
   const [deleteStudyID, setDeleteStudyID] = React.useState(-1)
   const [newStudyName, setNewStudyName] = React.useState("")
+  const [studyFilterText, setStudyFilterText] = React.useState<string>("")
+  const studyFilter = (row: StudySummary) => {
+    const keywords = studyFilterText.split(" ")
+    return !keywords.every((k) => {
+      if (k === "") {
+        return true
+      }
+      return row.study_name.indexOf(k) >= 0
+    })
+  }
 
   const [maximize, setMaximize] = React.useState(false)
   const [directions, setDirections] = React.useState<StudyDirection[]>([
@@ -327,6 +337,9 @@ export const StudyList: FC<{
                 id="search-study"
                 variant="outlined"
                 placeholder="Search study"
+                onChange={(e) => {
+                  setStudyFilterText(e.target.value)
+                }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -348,6 +361,7 @@ export const StudyList: FC<{
             collapseBody={collapseBody}
             initialRowsPerPage={-1}
             rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
+            defaultFilter={studyFilter}
           />
         </Card>
       </Container>
