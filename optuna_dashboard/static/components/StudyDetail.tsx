@@ -11,17 +11,17 @@ import {
   Container,
   Grid,
   Toolbar,
-  Paper,
   Box,
   IconButton,
-  Select,
   MenuItem,
   FormGroup,
   useTheme,
   FormLabel,
-  FormControl,
+  TextField,
+  alpha,
 } from "@mui/material"
-import { Home, Settings } from "@mui/icons-material"
+import { styled } from "@mui/system"
+import { Cached, Home, Settings } from "@mui/icons-material"
 import FormControlLabel from "@mui/material/FormControlLabel"
 import MuiDialogTitle from "@mui/material/DialogTitle"
 import MuiDialogContent from "@mui/material/DialogContent"
@@ -53,6 +53,17 @@ export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   return studyDetails[studyId] || null
 }
 
+interface Preference {
+  graphHistoryChecked: boolean
+  graphParetoFrontChecked: boolean
+  graphParallelCoordinateChecked: boolean
+  graphIntermediateValuesChecked: boolean
+  edfChecked: boolean
+  graphHyperparameterImportancesChecked: boolean
+  graphSliceChecked: boolean
+  reloadInterval: number
+}
+
 export const StudyDetail: FC<{
   toggleColorMode: () => void
 }> = ({ toggleColorMode }) => {
@@ -62,7 +73,7 @@ export const StudyDetail: FC<{
   const studyIdNumber = parseInt(studyId, 10)
   const studyDetail = useStudyDetailValue(studyIdNumber)
 
-  const [preferences, setPreferences] = useState({
+  const [preferences, setPreferences] = useState<Preference>({
     graphHistoryChecked: true,
     graphParetoFrontChecked: true,
     graphParallelCoordinateChecked: true,
@@ -117,8 +128,8 @@ export const StudyDetail: FC<{
   const title = studyDetail !== null ? studyDetail.name : `Study #${studyId}`
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
 
-  return (
-    <div>
+  const PreferenceDialog = () => {
+    return (
       <Dialog onClose={handleClose} aria-labelledby="vis-pref" open={prefOpen}>
         <MuiDialogTitle
           sx={{
@@ -221,29 +232,14 @@ export const StudyDetail: FC<{
               label="Slice"
             />
           </FormGroup>
-          <FormLabel component="legend" sx={{ marginTop: theme.spacing(2) }}>
-            Reload Interval
-          </FormLabel>
-          <FormControl variant="standard">
-            <Select
-              labelId="pref-reload-interval"
-              value={preferences.reloadInterval}
-              onChange={(e) => {
-                setPreferences({
-                  ...preferences,
-                  ["reloadInterval"]: e.target.value as number,
-                })
-              }}
-            >
-              <MenuItem value={-1}>stop</MenuItem>
-              <MenuItem value={5}>5s</MenuItem>
-              <MenuItem value={10}>10s</MenuItem>
-              <MenuItem value={30}>30s</MenuItem>
-              <MenuItem value={60}>60s</MenuItem>
-            </Select>
-          </FormControl>
         </MuiDialogContent>
       </Dialog>
+    )
+  }
+
+  return (
+    <div>
+      <PreferenceDialog />
       <AppBar position="static">
         <Container
           sx={{
@@ -255,6 +251,10 @@ export const StudyDetail: FC<{
           <Toolbar>
             <Typography variant="h6">{APP_BAR_TITLE}</Typography>
             <Box sx={{ flexGrow: 1 }} />
+            <ReloadIntervalSelect
+              preferences={preferences}
+              setPreferences={setPreferences}
+            />
             <IconButton
               onClick={() => {
                 toggleColorMode()
@@ -300,14 +300,19 @@ export const StudyDetail: FC<{
         }}
       >
         <div>
-          <Paper
+          <Typography
+            variant="h4"
             sx={{
-              margin: theme.spacing(2),
-              padding: theme.spacing(2),
+              margin: `${theme.spacing(4)} ${theme.spacing(2)}`,
+              fontWeight: 700,
+              fontSize: "1.8rem",
+              ...(theme.palette.mode === "dark" && {
+                color: theme.palette.primary.light,
+              }),
             }}
           >
-            <Typography variant="h6">{title}</Typography>
-          </Paper>
+            {title}
+          </Typography>
           {preferences.graphHistoryChecked ? (
             <Card
               sx={{
@@ -377,6 +382,88 @@ export const StudyDetail: FC<{
         </div>
       </Container>
     </div>
+  )
+}
+
+const ReloadIntervalSelect: FC<{
+  preferences: Preference
+  setPreferences: (p: Preference) => void
+}> = ({ preferences, setPreferences }) => {
+  const Wrapper = styled("div")(({ theme }) => ({
+    position: "relative",
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: alpha(theme.palette.common.white, 0.15),
+    "&:hover": {
+      backgroundColor: alpha(theme.palette.common.white, 0.25),
+    },
+    marginLeft: 0,
+    width: "100%",
+    [theme.breakpoints.up("sm")]: {
+      marginLeft: theme.spacing(1),
+      width: "auto",
+    },
+  }))
+
+  const IconWrapper = styled("div")(({ theme }) => ({
+    padding: theme.spacing(0, 2),
+    height: "100%",
+    position: "absolute",
+    pointerEvents: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  }))
+
+  const Select = styled(TextField)(({ theme }) => ({
+    color: "inherit",
+    width: "14ch",
+    "& .MuiInput-underline:after": {
+      borderColor: "rgb(256,256,256,.1)",
+    },
+    "& .MuiOutlinedInput-root": {
+      color: "inherit",
+      "& fieldset": {
+        borderColor: "rgb(256,256,256,.1)",
+      },
+      "& .MuiSelect-icon": {
+        color: "white",
+      },
+      "&:hover fieldset": {
+        borderColor: "rgb(256,256,256,.1)",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "rgb(256,256,256,.1)",
+      },
+    },
+    "& .MuiInputBase-input": {
+      // vertical padding + font size from searchIcon
+      paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+      width: "100%",
+    },
+  }))
+
+  return (
+    <Wrapper>
+      <IconWrapper>
+        <Cached />
+      </IconWrapper>
+      <Select
+        select
+        value={preferences.reloadInterval}
+        onChange={(e) => {
+          setPreferences({
+            ...preferences,
+            ["reloadInterval"]: e.target.value as unknown as number,
+          })
+        }}
+      >
+        <MenuItem value={-1}>stop</MenuItem>
+        <MenuItem value={5}>5s</MenuItem>
+        <MenuItem value={10}>10s</MenuItem>
+        <MenuItem value={30}>30s</MenuItem>
+        <MenuItem value={60}>60s</MenuItem>
+      </Select>
+    </Wrapper>
   )
 }
 

@@ -2,7 +2,13 @@ import React, { FC, useMemo, useState, useEffect } from "react"
 import { RecoilRoot } from "recoil"
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
 import { SnackbarProvider } from "notistack"
-import { createTheme, useMediaQuery, ThemeProvider, Box } from "@mui/material"
+import {
+  createTheme,
+  useMediaQuery,
+  ThemeProvider,
+  Box,
+  CssBaseline,
+} from "@mui/material"
 
 import { StudyDetail } from "./StudyDetail"
 import { StudyList } from "./StudyList"
@@ -29,6 +35,7 @@ export const App: FC = () => {
   return (
     <RecoilRoot>
       <ThemeProvider theme={theme}>
+        <CssBaseline />
         <Box
           sx={{
             backgroundColor: colorMode === "dark" ? "#121212" : "#ffffff",
