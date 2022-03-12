@@ -11,7 +11,6 @@ import {
   Container,
   Grid,
   Toolbar,
-  Paper,
   Box,
   IconButton,
   Select,
@@ -300,14 +299,12 @@ export const StudyDetail: FC<{
         }}
       >
         <div>
-          <Paper
-            sx={{
-              margin: theme.spacing(2),
-              padding: theme.spacing(2),
-            }}
-          >
-            <Typography variant="h6">{title}</Typography>
-          </Paper>
+          <Typography variant="h4" sx={{
+            margin: `${theme.spacing(4)} ${theme.spacing(2)}`,
+            fontWeight: 700,
+            fontSize: "1.8rem",
+            ...(theme.palette.mode === "dark" && {color: theme.palette.primary.light}),
+          }}>{title}</Typography>
           {preferences.graphHistoryChecked ? (
             <Card
               sx={{

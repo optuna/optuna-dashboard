@@ -86,7 +86,7 @@ export const GraphHyperparameterImportances: FC<{
     <Grid container direction="row">
       <Grid item xs={3}>
         <Grid container direction="column">
-          <Typography variant="h6" sx={{ margin: "1em 0" }}>
+          <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
             Hyperparameter importance
           </Typography>
           {study !== null && study.directions.length !== 1 ? (
