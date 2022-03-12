@@ -387,7 +387,7 @@ export const StudyDetail: FC<{
 
 const ReloadIntervalSelect: FC<{
   preferences: Preference
-  setPreferences: (Preference) => void
+  setPreferences: (p: Preference) => void
 }> = ({ preferences, setPreferences }) => {
   const Wrapper = styled("div")(({ theme }) => ({
     position: "relative",
