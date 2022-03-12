@@ -55,13 +55,6 @@ INDEX_HTML = """<!DOCTYPE html>
     <title>Optuna Dashboard</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <style>
-    body {
-        min-height: 100vh;
-        margin: 0;
-        padding: 0;
-    }
-    </style>
     <script defer src="/static/bundle.js"></script>
 </head>
 <body>
