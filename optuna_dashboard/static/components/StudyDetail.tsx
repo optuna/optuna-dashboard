@@ -190,7 +190,9 @@ export const StudyDetail: FC<{
             />
             <FormControlLabel
               disabled={
-                studyDetail !== null && !isSingleObjectiveStudy(studyDetail)
+                studyDetail !== null &&
+                (!isSingleObjectiveStudy(studyDetail) ||
+                  !studyDetail.has_intermediate_values)
               }
               control={
                 <Checkbox
@@ -344,6 +346,7 @@ export const StudyDetail: FC<{
 
           {studyDetail !== null &&
           isSingleObjectiveStudy(studyDetail) &&
+          studyDetail.has_intermediate_values &&
           preferences.graphIntermediateValuesChecked ? (
             <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>

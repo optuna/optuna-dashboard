@@ -44,6 +44,7 @@ interface StudyDetailResponse {
   trials: TrialResponse[]
   intersection_search_space: SearchSpace[]
   union_search_space: SearchSpace[]
+  has_intermediate_values: boolean
 }
 
 export const getStudyDetailAPI = (
@@ -70,6 +71,7 @@ export const getStudyDetailAPI = (
         trials: trials,
         union_search_space: res.data.union_search_space,
         intersection_search_space: res.data.intersection_search_space,
+        has_intermediate_values: res.data.has_intermediate_values,
       }
     })
 }
