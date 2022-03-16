@@ -73,6 +73,7 @@ const study_detail = {
       attributes: { low: -3, high: 3 },
     },
   ],
+  has_intermediate_values: false,
 }
 
 it("Sort TrialTable by trial number", () => {

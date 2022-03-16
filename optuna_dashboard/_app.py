@@ -34,6 +34,7 @@ from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
 
+from ._intermediate_values import has_intermediate_values
 from ._search_space import get_search_space
 from ._serializer import serialize_study_detail
 from ._serializer import serialize_study_summary
@@ -217,9 +218,15 @@ def create_app(storage: BaseStorage) -> Bottle:
         if summary is None:
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
-        trials = get_trials(storage, study_id)[after:]
+        trials = get_trials(storage, study_id)
         intersection, union = get_search_space(study_id, trials)
-        return serialize_study_detail(summary, trials, intersection, union)
+        return serialize_study_detail(
+            summary,
+            trials[after:],
+            intersection,
+            union,
+            has_intermediate_values(study_id, trials),
+        )
 
     @app.get("/api/studies/<study_id:int>/param_importances")
     @handle_json_api_exception

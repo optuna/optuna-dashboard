@@ -77,6 +77,7 @@ declare interface StudyDetail {
   trials: Trial[]
   intersection_search_space: SearchSpace[]
   union_search_space: SearchSpace[]
+  has_intermediate_values: boolean
 }
 
 declare interface StudyDetails {
