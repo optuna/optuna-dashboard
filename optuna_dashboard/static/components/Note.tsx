@@ -61,10 +61,11 @@ export const Note: FC<{
         </Typography>
         <TextField
           disabled={saving}
-          minRows={10}
+          minRows={5}
           multiline={true}
           placeholder="Take a note (The note is saved to study's system_attrs)"
           sx={{ width: "100%", margin: `${theme.spacing(1)} 0` }}
+          inputProps={{ style: { resize: "vertical" } }}
           inputRef={textAreaRef}
           defaultValue={curNote.body}
           onChange={() => {

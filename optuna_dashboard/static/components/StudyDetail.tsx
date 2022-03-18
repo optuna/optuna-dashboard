@@ -238,14 +238,14 @@ export const StudyDetail: FC<{
             />
             <FormLabel component="legend">Editor</FormLabel>
             <FormControlLabel
-                control={
-                  <Checkbox
-                      checked={preferences.noteEditorChecked}
-                      onChange={handlePreferenceOnChange}
-                      name="noteEditorChecked"
-                  />
-                }
-                label="NoteEditor"
+              control={
+                <Checkbox
+                  checked={preferences.noteEditorChecked}
+                  onChange={handlePreferenceOnChange}
+                  name="noteEditorChecked"
+                />
+              }
+              label="NoteEditor"
             />
           </FormGroup>
         </MuiDialogContent>
