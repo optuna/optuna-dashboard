@@ -45,6 +45,11 @@ declare interface Attribute {
   value: string
 }
 
+declare interface Note {
+  version: number
+  body: string
+}
+
 declare interface Trial {
   trial_id: number
   study_id: number
@@ -70,6 +75,7 @@ declare interface StudySummary {
 }
 
 declare interface StudyDetail {
+  id: number
   name: string
   directions: StudyDirection[]
   datetime_start: Date
@@ -78,6 +84,7 @@ declare interface StudyDetail {
   intersection_search_space: SearchSpace[]
   union_search_space: SearchSpace[]
   has_intermediate_values: boolean
+  note: Note
 }
 
 declare interface StudyDetails {

@@ -45,6 +45,10 @@ interface StudyDetailResponse {
   intersection_search_space: SearchSpace[]
   union_search_space: SearchSpace[]
   has_intermediate_values: boolean
+  note: {
+    version: number
+    body: string
+  }
 }
 
 export const getStudyDetailAPI = (
@@ -62,6 +66,7 @@ export const getStudyDetailAPI = (
         return convertTrialResponse(trial)
       })
       return {
+        id: studyId,
         name: res.data.name,
         datetime_start: new Date(res.data.datetime_start),
         directions: res.data.directions,
@@ -72,6 +77,7 @@ export const getStudyDetailAPI = (
         union_search_space: res.data.union_search_space,
         intersection_search_space: res.data.intersection_search_space,
         has_intermediate_values: res.data.has_intermediate_values,
+        note: res.data.note,
       }
     })
 }
@@ -176,6 +182,17 @@ export const deleteStudyAPI = (studyId: number) => {
   return axiosInstance.delete(`/api/studies/${studyId}`).then((res) => {
     return {}
   })
+}
+
+export const saveNoteAPI = (
+  studyId: number,
+  note: { version: number; body: string }
+): Promise<void> => {
+  return axiosInstance
+    .post<void>(`/api/studies/${studyId}/note`, note)
+    .then((res) => {
+      return
+    })
 }
 
 interface ParamImportancesResponse {
