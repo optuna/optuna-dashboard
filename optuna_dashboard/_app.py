@@ -289,7 +289,8 @@ def create_app(storage: BaseStorage) -> Bottle:
         if not note.version_is_incremented(system_attrs, req_note_ver):
             response.status = 409  # Conflict
             return {
-                "reason": "The text you are editing has changed. Please copy your edits and refresh the page.",
+                "reason": "The text you are editing has changed. "
+                "Please copy your edits and refresh the page.",
             }
 
         note.save_note(storage, study_id, req_note_ver, req_note_body)
