@@ -34,11 +34,11 @@ from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
 
+from . import _note as note
 from ._intermediate_values import has_intermediate_values
 from ._search_space import get_search_space
 from ._serializer import serialize_study_detail
 from ._serializer import serialize_study_summary
-from . import _note as note
 
 
 if typing.TYPE_CHECKING:

@@ -1,8 +1,14 @@
-from typing import Dict, Any
-from typing import TypedDict
 import math
+from typing import Any
+from typing import Dict
 
 from optuna.storages import BaseStorage
+
+
+try:
+    from typing import TypedDict
+except ImportError:
+    from typing_extensions import TypedDict
 
 SYSTEM_ATTR_MAX_LENGTH = 2045
 NOTE_VER_KEY = "dashboard:note_ver"

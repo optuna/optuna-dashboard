@@ -74,6 +74,10 @@ const study_detail = {
     },
   ],
   has_intermediate_values: false,
+  note: {
+    version: 0,
+    body: "",
+  },
 }
 
 it("Sort TrialTable by trial number", () => {
