@@ -1,4 +1,12 @@
-import { Box, Button, TextField, Typography, useTheme } from "@mui/material"
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  TextField,
+  Typography,
+  useTheme,
+} from "@mui/material"
 import React, { FC, createRef, useState, useEffect } from "react"
 import LoadingButton from "@mui/lab/LoadingButton"
 import SaveIcon from "@mui/icons-material/Save"
@@ -46,56 +54,63 @@ export const Note: FC<{
   }
 
   return (
-    <>
-      <TextField
-        disabled={saving}
-        minRows={10}
-        multiline={true}
-        placeholder="Take a note (The note is saved to study's system_attrs)"
-        sx={{ width: "100%", margin: `${theme.spacing(1)} 0` }}
-        inputRef={textAreaRef}
-        defaultValue={curNote.body}
-        onChange={() => {
-          const cur = textAreaRef.current ? textAreaRef.current.value : ""
-          setDisable(cur === curNote.body)
-        }}
-      />
-      <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-        {notLatest && !saving && (
-          <>
-            <Typography
-              sx={{
-                color: theme.palette.error.main,
-                fontSize: "0.8rem",
-                display: "inline",
-              }}
-            >
-              The text you are editing has updated. Do you want to discard your
-              changes and refresh the textarea?
-            </Typography>
-            <Button
-              variant="text"
-              onClick={handleRefresh}
-              color="error"
-              size="small"
-              sx={{ textDecoration: "underline" }}
-            >
-              Yes
-            </Button>
-          </>
-        )}
-        <Box sx={{ flexGrow: 1 }} />
-        <LoadingButton
-          onClick={handleSave}
-          loading={saving}
-          loadingPosition="start"
-          startIcon={<SaveIcon />}
-          variant="contained"
-          disabled={disable}
+    <Card sx={{ margin: theme.spacing(2) }}>
+      <CardContent>
+        <Typography variant="h6" sx={{ fontSize: "1.25rem", fontWeight: 600 }}>
+          Note
+        </Typography>
+        <TextField
+          disabled={saving}
+          minRows={10}
+          multiline={true}
+          placeholder="Take a note (The note is saved to study's system_attrs)"
+          sx={{ width: "100%", margin: `${theme.spacing(1)} 0` }}
+          inputRef={textAreaRef}
+          defaultValue={curNote.body}
+          onChange={() => {
+            const cur = textAreaRef.current ? textAreaRef.current.value : ""
+            setDisable(cur === curNote.body)
+          }}
+        />
+        <Box
+          sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
         >
-          Save
-        </LoadingButton>
-      </Box>
-    </>
+          {notLatest && !saving && (
+            <>
+              <Typography
+                sx={{
+                  color: theme.palette.error.main,
+                  fontSize: "0.8rem",
+                  display: "inline",
+                }}
+              >
+                The text you are editing has updated. Do you want to discard
+                your changes and refresh the textarea?
+              </Typography>
+              <Button
+                variant="text"
+                onClick={handleRefresh}
+                color="error"
+                size="small"
+                sx={{ textDecoration: "underline" }}
+              >
+                Yes
+              </Button>
+            </>
+          )}
+          <Box sx={{ flexGrow: 1 }} />
+          <LoadingButton
+            onClick={handleSave}
+            loading={saving}
+            loadingPosition="start"
+            startIcon={<SaveIcon />}
+            variant="contained"
+            disabled={disable}
+          >
+            Save
+          </LoadingButton>
+        </Box>
+      </CardContent>
+    </Card>
   )
 }

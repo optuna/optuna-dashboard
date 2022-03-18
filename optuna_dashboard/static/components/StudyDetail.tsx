@@ -59,9 +59,10 @@ interface Preference {
   graphParetoFrontChecked: boolean
   graphParallelCoordinateChecked: boolean
   graphIntermediateValuesChecked: boolean
-  edfChecked: boolean
+  graphEdfChecked: boolean
   graphHyperparameterImportancesChecked: boolean
   graphSliceChecked: boolean
+  noteEditorChecked: boolean
   reloadInterval: number
 }
 
@@ -79,9 +80,10 @@ export const StudyDetail: FC<{
     graphParetoFrontChecked: true,
     graphParallelCoordinateChecked: true,
     graphIntermediateValuesChecked: true,
-    edfChecked: true,
+    graphEdfChecked: true,
     graphHyperparameterImportancesChecked: true,
     graphSliceChecked: true,
+    noteEditorChecked: true,
     reloadInterval: 10,
   })
   useEffect(() => {
@@ -102,7 +104,7 @@ export const StudyDetail: FC<{
   const handleClose = () => {
     setPrefOpen(false)
   }
-  const handleChartShownChange = (
+  const handlePreferenceOnChange = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     setPreferences({
@@ -160,7 +162,7 @@ export const StudyDetail: FC<{
               control={
                 <Checkbox
                   checked={preferences.graphHistoryChecked}
-                  onChange={handleChartShownChange}
+                  onChange={handlePreferenceOnChange}
                   name="graphHistoryChecked"
                 />
               }
@@ -173,7 +175,7 @@ export const StudyDetail: FC<{
               control={
                 <Checkbox
                   checked={preferences.graphParetoFrontChecked}
-                  onChange={handleChartShownChange}
+                  onChange={handlePreferenceOnChange}
                   name="graphParetoFrontChecked"
                 />
               }
@@ -183,7 +185,7 @@ export const StudyDetail: FC<{
               control={
                 <Checkbox
                   checked={preferences.graphParallelCoordinateChecked}
-                  onChange={handleChartShownChange}
+                  onChange={handlePreferenceOnChange}
                   name="graphParallelCoordinateChecked"
                 />
               }
@@ -198,7 +200,7 @@ export const StudyDetail: FC<{
               control={
                 <Checkbox
                   checked={preferences.graphIntermediateValuesChecked}
-                  onChange={handleChartShownChange}
+                  onChange={handlePreferenceOnChange}
                   name="graphIntermediateValuesChecked"
                 />
               }
@@ -207,8 +209,8 @@ export const StudyDetail: FC<{
             <FormControlLabel
               control={
                 <Checkbox
-                  checked={preferences.edfChecked}
-                  onChange={handleChartShownChange}
+                  checked={preferences.graphEdfChecked}
+                  onChange={handlePreferenceOnChange}
                   name="edfChecked"
                 />
               }
@@ -218,7 +220,7 @@ export const StudyDetail: FC<{
               control={
                 <Checkbox
                   checked={preferences.graphHyperparameterImportancesChecked}
-                  onChange={handleChartShownChange}
+                  onChange={handlePreferenceOnChange}
                   name="graphHyperparameterImportancesChecked"
                 />
               }
@@ -228,11 +230,22 @@ export const StudyDetail: FC<{
               control={
                 <Checkbox
                   checked={preferences.graphSliceChecked}
-                  onChange={handleChartShownChange}
+                  onChange={handlePreferenceOnChange}
                   name="graphSliceChecked"
                 />
               }
               label="Slice"
+            />
+            <FormLabel component="legend">Editor</FormLabel>
+            <FormControlLabel
+                control={
+                  <Checkbox
+                      checked={preferences.noteEditorChecked}
+                      onChange={handlePreferenceOnChange}
+                      name="noteEditorChecked"
+                  />
+                }
+                label="NoteEditor"
             />
           </FormGroup>
         </MuiDialogContent>
@@ -355,7 +368,7 @@ export const StudyDetail: FC<{
               </CardContent>
             </Card>
           ) : null}
-          {preferences.edfChecked ? (
+          {preferences.graphEdfChecked ? (
             <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>
                 <Edf study={studyDetail} />
@@ -383,19 +396,9 @@ export const StudyDetail: FC<{
           <Card sx={{ margin: theme.spacing(2) }}>
             <TrialTable studyDetail={studyDetail} />
           </Card>
-          <Card sx={{ margin: theme.spacing(2) }}>
-            <CardContent>
-              <Typography
-                variant="h6"
-                sx={{ fontSize: "1.25rem", fontWeight: 600 }}
-              >
-                Note
-              </Typography>
-              {studyDetail !== null && (
-                <Note studyId={studyIdNumber} latestNote={studyDetail.note} />
-              )}
-            </CardContent>
-          </Card>
+          {studyDetail !== null && preferences.noteEditorChecked ? (
+            <Note studyId={studyIdNumber} latestNote={studyDetail.note} />
+          ) : null}
         </div>
       </Container>
     </div>
