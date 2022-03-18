@@ -19,7 +19,7 @@ export const Note: FC<{
 }> = ({ studyId, latestNote }) => {
   const theme = useTheme()
   const [saving, setSaving] = useState(false)
-  const [disable, setDisable] = useState(true)
+  const [edited, setEdited] = useState(false)
   const [curNote, setCurNote] = useState({ version: 0, body: "" })
   const textAreaRef = createRef<HTMLTextAreaElement>()
   const action = actionCreator()
@@ -28,6 +28,15 @@ export const Note: FC<{
   useEffect(() => {
     setCurNote(latestNote)
   }, [])
+  useEffect(() => {
+    if (edited) {
+      window.onbeforeunload = (e) => {
+        e.returnValue = "Are you okay to discard your changes?"
+      }
+    } else {
+      window.onbeforeunload = null
+    }
+  }, [edited])
   const handleSave = () => {
     const nextVersion = curNote.version + 1
     const newNote = {
@@ -70,7 +79,7 @@ export const Note: FC<{
           defaultValue={curNote.body}
           onChange={() => {
             const cur = textAreaRef.current ? textAreaRef.current.value : ""
-            setDisable(cur === curNote.body)
+            setEdited(cur !== curNote.body)
           }}
         />
         <Box
@@ -106,7 +115,7 @@ export const Note: FC<{
             loadingPosition="start"
             startIcon={<SaveIcon />}
             variant="contained"
-            disabled={disable}
+            disabled={!edited}
           >
             Save
           </LoadingButton>
