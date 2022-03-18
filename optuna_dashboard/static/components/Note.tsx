@@ -10,6 +10,7 @@ export const Note: FC<{
   latestNote: Note
 }> = ({ studyId, latestNote }) => {
   const theme = useTheme()
+  const [saving, setSaving] = useState(false)
   const [disable, setDisable] = useState(true)
   const [curNote, setCurNote] = useState({ version: 0, body: "" })
   const textAreaRef = createRef<HTMLTextAreaElement>()
@@ -20,12 +21,20 @@ export const Note: FC<{
     setCurNote(latestNote)
   }, [])
   const handleSave = () => {
+    const nextVersion = curNote.version + 1
     const newNote = {
-      version: curNote.version + 1,
-      body: textAreaRef.current ? textAreaRef.current.value : ""
+      version: nextVersion,
+      body: textAreaRef.current ? textAreaRef.current.value : "",
     }
-    setCurNote(newNote)
-    action.saveNote(studyId, newNote)
+    setSaving(true)
+    action
+      .saveNote(studyId, newNote)
+      .then(() => {
+        setCurNote(newNote)
+      })
+      .finally(() => {
+        setSaving(false)
+      })
   }
   const handleRefresh = () => {
     if (!textAreaRef.current) {
@@ -39,6 +48,7 @@ export const Note: FC<{
   return (
     <>
       <TextField
+        disabled={saving}
         minRows={10}
         multiline={true}
         placeholder="Take a note (The note is saved to study's system_attrs)"
@@ -47,11 +57,11 @@ export const Note: FC<{
         defaultValue={curNote.body}
         onChange={() => {
           const cur = textAreaRef.current ? textAreaRef.current.value : ""
-          setDisable(cur === latestNote.body)
+          setDisable(cur === curNote.body)
         }}
       />
       <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-        {notLatest && (
+        {notLatest && !saving && (
           <>
             <Typography
               sx={{
@@ -77,7 +87,7 @@ export const Note: FC<{
         <Box sx={{ flexGrow: 1 }} />
         <LoadingButton
           onClick={handleSave}
-          loading={false}
+          loading={saving}
           loadingPosition="start"
           startIcon={<SaveIcon />}
           variant="contained"

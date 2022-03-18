@@ -96,8 +96,8 @@ export const actionCreator = () => {
       })
   }
 
-  const saveNote = (studyId: number, note: Note) => {
-    saveNoteAPI(studyId, note)
+  const saveNote = (studyId: number, note: Note): Promise<void> => {
+    return saveNoteAPI(studyId, note)
       .then(() => {
         const newStudy = Object.assign({}, studyDetails[studyId])
         newStudy.note = note
@@ -113,6 +113,7 @@ export const actionCreator = () => {
         enqueueSnackbar(`Failed: ${reason}`, {
           variant: "error",
         })
+        throw err
       })
   }
 

@@ -385,7 +385,12 @@ export const StudyDetail: FC<{
           </Card>
           <Card sx={{ margin: theme.spacing(2) }}>
             <CardContent>
-              <Typography variant="h6" sx={{fontSize: "1.25rem", fontWeight: 600}}>Note</Typography>
+              <Typography
+                variant="h6"
+                sx={{ fontSize: "1.25rem", fontWeight: 600 }}
+              >
+                Note
+              </Typography>
               {studyDetail !== null && (
                 <Note studyId={studyIdNumber} latestNote={studyDetail.note} />
               )}

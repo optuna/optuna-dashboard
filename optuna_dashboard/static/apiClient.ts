@@ -189,7 +189,7 @@ export const saveNoteAPI = (
   note: { version: number; body: string }
 ): Promise<void> => {
   return axiosInstance
-    .post<void>(`/api/studies/${studyId}/note`, note)
+    .put<void>(`/api/studies/${studyId}/note`, note)
     .then((res) => {
       return
     })

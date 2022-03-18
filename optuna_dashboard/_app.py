@@ -282,20 +282,23 @@ def create_app(storage: BaseStorage) -> Bottle:
             ],
         }
 
-    @app.post("/api/studies/<study_id:int>/note")
+    @app.put("/api/studies/<study_id:int>/note")
     @handle_json_api_exception
     def save_note(study_id: int) -> BottleViewReturn:
         response.content_type = "application/json"
 
-        system_attrs = storage.get_study_system_attrs(study_id)
         req_note_ver = request.json.get("version", None)
         req_note_body = request.json.get("body", None)
         if req_note_ver is None or req_note_body is None:
             response.status = 400  # Bad request
             return {"reason": "Invalid request."}
+
+        system_attrs = storage.get_study_system_attrs(study_id)
         if not note.version_is_incremented(system_attrs, req_note_ver):
-            response.status = 400  # Bad request
-            return {"reason": "The text you are editing has changed. Please copy your edits and refresh the page."}
+            response.status = 409  # Conflict
+            return {
+                "reason": "The text you are editing has changed. Please copy your edits and refresh the page.",
+            }
 
         note.save_note(storage, study_id, req_note_ver, req_note_body)
         response.status = 204  # No content
