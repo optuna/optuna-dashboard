@@ -72,10 +72,11 @@ trials_cache: Dict[int, List[FrozenTrial]] = {}
 trials_last_fetched_at: Dict[int, datetime] = {}
 
 
-def handle_json_api_exception(view: BottleView) -> BottleView:
+def json_api_view(view: BottleView) -> BottleView:
     @functools.wraps(view)
     def decorated(*args: List[Any], **kwargs: Dict[str, Any]) -> BottleViewReturn:
         try:
+            response.content_type = "application/json"
             response_body = view(*args, **kwargs)
             return response_body
         except Exception as e:
@@ -141,9 +142,8 @@ def create_app(storage: BaseStorage) -> Bottle:
         return INDEX_HTML
 
     @app.get("/api/studies")
-    @handle_json_api_exception
+    @json_api_view
     def list_study_summaries() -> BottleViewReturn:
-        response.content_type = "application/json"
         summaries = [
             serialize_study_summary(summary)
             for summary in storage.get_all_study_summaries()
@@ -153,10 +153,8 @@ def create_app(storage: BaseStorage) -> Bottle:
         }
 
     @app.post("/api/studies")
-    @handle_json_api_exception
+    @json_api_view
     def create_study() -> BottleViewReturn:
-        response.content_type = "application/json"
-
         study_name = request.json.get("study_name", None)
         directions = request.json.get("directions", [])
         if (
@@ -191,10 +189,8 @@ def create_app(storage: BaseStorage) -> Bottle:
         return {"study_summary": serialize_study_summary(summary)}
 
     @app.delete("/api/studies/<study_id:int>")
-    @handle_json_api_exception
+    @json_api_view
     def delete_study(study_id: int) -> BottleViewReturn:
-        response.content_type = "application/json"
-
         try:
             storage.delete_study(study_id)
         except KeyError:
@@ -204,9 +200,8 @@ def create_app(storage: BaseStorage) -> Bottle:
         return ""
 
     @app.get("/api/studies/<study_id:int>")
-    @handle_json_api_exception
+    @json_api_view
     def get_study_detail(study_id: int) -> BottleViewReturn:
-        response.content_type = "application/json"
         try:
             after = int(request.params["after"])
             assert after >= 0
@@ -230,10 +225,9 @@ def create_app(storage: BaseStorage) -> Bottle:
         )
 
     @app.get("/api/studies/<study_id:int>/param_importances")
-    @handle_json_api_exception
+    @json_api_view
     def get_param_importances(study_id: int) -> BottleViewReturn:
         # TODO(chenghuzi): add support for selecting params via query parameters.
-        response.content_type = "application/json"
         objective_id = int(request.params.get("objective_id", 0))
         try:
             study_name = storage.get_study_name_from_id(study_id)
@@ -283,10 +277,8 @@ def create_app(storage: BaseStorage) -> Bottle:
         }
 
     @app.put("/api/studies/<study_id:int>/note")
-    @handle_json_api_exception
+    @json_api_view
     def save_note(study_id: int) -> BottleViewReturn:
-        response.content_type = "application/json"
-
         req_note_ver = request.json.get("version", None)
         req_note_body = request.json.get("body", None)
         if req_note_ver is None or req_note_body is None:
