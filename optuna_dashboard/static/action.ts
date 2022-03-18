@@ -5,6 +5,7 @@ import {
   getStudySummariesAPI,
   createNewStudyAPI,
   deleteStudyAPI,
+  saveNoteAPI,
 } from "./apiClient"
 import { studyDetailsState, studySummariesState } from "./state"
 
@@ -95,11 +96,32 @@ export const actionCreator = () => {
       })
   }
 
+  const saveNote = (studyId: number, note: Note) => {
+    saveNoteAPI(studyId, note)
+      .then(() => {
+        const newStudy = Object.assign({}, studyDetails[studyId])
+        newStudy.note = note
+        const newStudies = Object.assign({}, studyDetails)
+        newStudies[studyId] = newStudy
+        setStudyDetails(newStudies)
+        enqueueSnackbar(`Success to save the note`, {
+          variant: "success",
+        })
+      })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(`Failed: ${reason}`, {
+          variant: "error",
+        })
+      })
+  }
+
   return {
     updateStudyDetail,
     updateStudySummaries,
     createNewStudy,
     deleteStudy,
+    saveNote,
   }
 }
 

@@ -37,6 +37,7 @@ import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphSlice } from "./GraphSlice"
 import { GraphHistory } from "./GraphHistory"
 import { GraphParetoFront } from "./GraphParetoFront"
+import { Note } from "./Note"
 import { actionCreator } from "../action"
 import { studyDetailsState } from "../state"
 
@@ -381,6 +382,14 @@ export const StudyDetail: FC<{
           ) : null}
           <Card sx={{ margin: theme.spacing(2) }}>
             <TrialTable studyDetail={studyDetail} />
+          </Card>
+          <Card sx={{ margin: theme.spacing(2) }}>
+            <CardContent>
+              <Typography variant="h6" sx={{fontSize: "1.25rem", fontWeight: 600}}>Note</Typography>
+              {studyDetail !== null && (
+                <Note studyId={studyIdNumber} latestNote={studyDetail.note} />
+              )}
+            </CardContent>
           </Card>
         </div>
       </Container>
