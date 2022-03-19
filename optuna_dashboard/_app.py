@@ -256,6 +256,10 @@ def create_app(storage: BaseStorage) -> Bottle:
 
     @app.get("/static/<filename:path>")
     def send_static(filename: str) -> BottleViewReturn:
+        if "gzip" in request.headers["Accept-Encoding"]:
+            gz_filename = filename.strip('/\\') + ".gz"
+            if os.path.exists(os.path.join(STATIC_DIR, gz_filename)):
+                filename = gz_filename
         return static_file(filename, root=STATIC_DIR)
 
     return app

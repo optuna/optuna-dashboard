@@ -57,6 +57,9 @@ if (isDev) {
     console.log('DEVELOPMENT BUILD');
     console.log(process.env.TYPESCRIPT_LOADER === 'esbuild-loader' ? 'esbuild-loader' : 'ts-loader');
     console.log('= = = = = = = = = = = = = = = = = = =');
+} else {
+    const CompressionPlugin = require("compression-webpack-plugin");
+    config.plugins.push(new CompressionPlugin())
 }
 
 module.exports = config;
