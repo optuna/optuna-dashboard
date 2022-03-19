@@ -5,7 +5,7 @@ import { cleanup, render, fireEvent } from "@testing-library/react"
 import {
   DataGrid,
   DataGridColumn,
-} from "../optuna_dashboard/static/components/DataGrid"
+} from "../optuna_dashboard/ts/components/DataGrid"
 
 afterEach(cleanup)
 

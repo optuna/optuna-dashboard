@@ -2,7 +2,7 @@ import React from "react"
 global.URL.createObjectURL = jest.fn()
 
 import { cleanup, render, within, fireEvent } from "@testing-library/react"
-import { TrialTable } from "../optuna_dashboard/static/components/StudyDetail"
+import { TrialTable } from "../optuna_dashboard/ts/components/StudyDetail"
 
 afterEach(cleanup)
 
