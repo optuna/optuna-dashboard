@@ -48,6 +48,7 @@ export const Note: FC<{
       .saveNote(studyId, newNote)
       .then(() => {
         setCurNote(newNote)
+        window.onbeforeunload = null
       })
       .finally(() => {
         setSaving(false)
@@ -60,6 +61,7 @@ export const Note: FC<{
     }
     textAreaRef.current.value = latestNote.body
     setCurNote(latestNote)
+    window.onbeforeunload = null
   }
 
   return (

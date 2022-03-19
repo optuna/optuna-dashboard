@@ -291,6 +291,7 @@ def create_app(storage: BaseStorage) -> Bottle:
             return {
                 "reason": "The text you are editing has changed. "
                 "Please copy your edits and refresh the page.",
+                "note": note.get_note_from_system_attrs(system_attrs)
             }
 
         note.save_note(storage, study_id, req_note_ver, req_note_body)

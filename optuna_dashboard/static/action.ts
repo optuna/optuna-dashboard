@@ -16,6 +16,12 @@ export const actionCreator = () => {
   const [studyDetails, setStudyDetails] =
     useRecoilState<StudyDetails>(studyDetailsState)
 
+  const setStudyDetailState = (studyId: number, study: StudyDetail) => {
+    const newVal = Object.assign({}, studyDetails)
+    newVal[studyId] = study
+    setStudyDetails(newVal)
+  }
+
   const updateStudySummaries = (successMsg?: string) => {
     getStudySummariesAPI()
       .then((studySummaries: StudySummary[]) => {
@@ -50,15 +56,15 @@ export const actionCreator = () => {
             ? studyDetails[studyId].trials.slice(0, nLocalFixedTrials)
             : []
         study.trials = study.trials.concat(currentFixedTrials)
-        const newVal = Object.assign({}, studyDetails)
-        newVal[studyId] = study
-        setStudyDetails(newVal)
+        setStudyDetailState(studyId, study)
       })
       .catch((err) => {
         const reason = err.response?.data.reason
-        enqueueSnackbar(`Failed to fetch study (reason=${reason})`, {
-          variant: "error",
-        })
+        if (reason !== undefined) {
+          enqueueSnackbar(`Failed to fetch study (reason=${reason})`, {
+            variant: "error",
+          })
+        }
         console.log(err)
       })
   }
@@ -101,18 +107,23 @@ export const actionCreator = () => {
       .then(() => {
         const newStudy = Object.assign({}, studyDetails[studyId])
         newStudy.note = note
-        const newStudies = Object.assign({}, studyDetails)
-        newStudies[studyId] = newStudy
-        setStudyDetails(newStudies)
+        setStudyDetailState(studyId, newStudy)
         enqueueSnackbar(`Success to save the note`, {
           variant: "success",
         })
       })
       .catch((err) => {
+        if (err.response.status === 409) {
+          const newStudy = Object.assign({}, studyDetails[studyId])
+          newStudy.note = err.response.data.note
+          setStudyDetailState(studyId, newStudy)
+        }
         const reason = err.response?.data.reason
-        enqueueSnackbar(`Failed: ${reason}`, {
-          variant: "error",
-        })
+        if (reason !== undefined) {
+          enqueueSnackbar(`Failed: ${reason}`, {
+            variant: "error",
+          })
+        }
         throw err
       })
   }
