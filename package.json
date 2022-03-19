@@ -17,6 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "@mui/icons-material": "^5.4.4",
+    "@mui/lab": "^5.0.0-alpha.73",
     "@mui/material": "^5.4.4",
     "axios": "^0.21.2",
     "notistack": "^2.0.3",

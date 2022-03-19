@@ -10,6 +10,8 @@ from optuna.distributions import BaseDistribution
 from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
 
+from . import _note as note
+
 
 try:
     from typing import TypedDict
@@ -111,6 +113,7 @@ def serialize_study_detail(
     serialized["intersection_search_space"] = serialize_search_space(intersection)
     serialized["union_search_space"] = serialize_search_space(union)
     serialized["has_intermediate_values"] = has_intermediate_values
+    serialized["note"] = note.get_note_from_system_attrs(summary.system_attrs)
     return serialized
 
 

@@ -34,6 +34,7 @@ from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
 
+from . import _note as note
 from ._intermediate_values import has_intermediate_values
 from ._search_space import get_search_space
 from ._serializer import serialize_study_detail
@@ -71,10 +72,11 @@ trials_cache: Dict[int, List[FrozenTrial]] = {}
 trials_last_fetched_at: Dict[int, datetime] = {}
 
 
-def handle_json_api_exception(view: BottleView) -> BottleView:
+def json_api_view(view: BottleView) -> BottleView:
     @functools.wraps(view)
     def decorated(*args: List[Any], **kwargs: Dict[str, Any]) -> BottleViewReturn:
         try:
+            response.content_type = "application/json"
             response_body = view(*args, **kwargs)
             return response_body
         except Exception as e:
@@ -140,9 +142,8 @@ def create_app(storage: BaseStorage) -> Bottle:
         return INDEX_HTML
 
     @app.get("/api/studies")
-    @handle_json_api_exception
+    @json_api_view
     def list_study_summaries() -> BottleViewReturn:
-        response.content_type = "application/json"
         summaries = [
             serialize_study_summary(summary)
             for summary in storage.get_all_study_summaries()
@@ -152,10 +153,8 @@ def create_app(storage: BaseStorage) -> Bottle:
         }
 
     @app.post("/api/studies")
-    @handle_json_api_exception
+    @json_api_view
     def create_study() -> BottleViewReturn:
-        response.content_type = "application/json"
-
         study_name = request.json.get("study_name", None)
         directions = request.json.get("directions", [])
         if (
@@ -190,10 +189,8 @@ def create_app(storage: BaseStorage) -> Bottle:
         return {"study_summary": serialize_study_summary(summary)}
 
     @app.delete("/api/studies/<study_id:int>")
-    @handle_json_api_exception
+    @json_api_view
     def delete_study(study_id: int) -> BottleViewReturn:
-        response.content_type = "application/json"
-
         try:
             storage.delete_study(study_id)
         except KeyError:
@@ -203,9 +200,8 @@ def create_app(storage: BaseStorage) -> Bottle:
         return ""
 
     @app.get("/api/studies/<study_id:int>")
-    @handle_json_api_exception
+    @json_api_view
     def get_study_detail(study_id: int) -> BottleViewReturn:
-        response.content_type = "application/json"
         try:
             after = int(request.params["after"])
             assert after >= 0
@@ -229,10 +225,9 @@ def create_app(storage: BaseStorage) -> Bottle:
         )
 
     @app.get("/api/studies/<study_id:int>/param_importances")
-    @handle_json_api_exception
+    @json_api_view
     def get_param_importances(study_id: int) -> BottleViewReturn:
         # TODO(chenghuzi): add support for selecting params via query parameters.
-        response.content_type = "application/json"
         objective_id = int(request.params.get("objective_id", 0))
         try:
             study_name = storage.get_study_name_from_id(study_id)
@@ -280,6 +275,28 @@ def create_app(storage: BaseStorage) -> Bottle:
                 for name, importance in importances.items()
             ],
         }
+
+    @app.put("/api/studies/<study_id:int>/note")
+    @json_api_view
+    def save_note(study_id: int) -> BottleViewReturn:
+        req_note_ver = request.json.get("version", None)
+        req_note_body = request.json.get("body", None)
+        if req_note_ver is None or req_note_body is None:
+            response.status = 400  # Bad request
+            return {"reason": "Invalid request."}
+
+        system_attrs = storage.get_study_system_attrs(study_id)
+        if not note.version_is_incremented(system_attrs, req_note_ver):
+            response.status = 409  # Conflict
+            return {
+                "reason": "The text you are editing has changed. "
+                "Please copy your edits and refresh the page.",
+                "note": note.get_note_from_system_attrs(system_attrs),
+            }
+
+        note.save_note(storage, study_id, req_note_ver, req_note_body)
+        response.status = 204  # No content
+        return {}
 
     @app.get("/static/<filename:path>")
     def send_static(filename: str) -> BottleViewReturn:
