@@ -23,18 +23,16 @@ from bottle import request
 from bottle import response
 from bottle import run
 from bottle import static_file
-import optuna
 from optuna.exceptions import DuplicatedStudyError
 from optuna.storages import BaseStorage
 from optuna.storages import RDBStorage
 from optuna.storages import RedisStorage
-from optuna.study import Study
 from optuna.study import StudyDirection
 from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
-from optuna.trial import TrialState
 
 from . import _note as note
+from ._importance import get_param_importance_from_trials_cache
 from ._intermediate_values import has_intermediate_values
 from ._search_space import get_search_space
 from ._serializer import serialize_study_detail
@@ -179,13 +177,6 @@ def get_trials(
     return trials
 
 
-def get_distribution_name(param_name: str, study: Study) -> str:
-    for trial in study.trials:
-        if param_name in trial.distributions:
-            return trial.distributions[param_name].__class__.__name__
-    assert False, "Must not reach here."
-
-
 def create_app(storage: BaseStorage) -> Bottle:
     app = Bottle()
 
@@ -292,51 +283,24 @@ def create_app(storage: BaseStorage) -> Bottle:
         # TODO(chenghuzi): add support for selecting params via query parameters.
         objective_id = int(request.params.get("objective_id", 0))
         try:
-            study_name = storage.get_study_name_from_id(study_id)
-            study = Study(study_name=study_name, storage=storage)
+            n_directions = len(storage.get_study_directions(study_id))
         except KeyError:
-            response.status = 404  # Not found
+            response.status = 404  # Study is not found
             return {"reason": f"study_id={study_id} is not found"}
-
-        n_directions = len(study.directions)
         if objective_id >= n_directions:
             response.status = 400  # Bad request
             return {
                 "reason": f"study_id={study_id} has only {n_directions} direction(s)."
             }
 
-        completed_trials = [
-            trial for trial in study.trials if trial.state == TrialState.COMPLETE
-        ]
-        evaluator = None
-        params = None
-
-        if len(completed_trials) > 0:
-            try:
-                importances = optuna.importance.get_param_importances(
-                    study,
-                    evaluator=evaluator,
-                    params=params,
-                    target=lambda t: t.values[objective_id],
-                )
-            except ValueError as e:
-                response.status = 400  # Bad request
-                return {"reason": str(e)}
-        else:
-            importances = {}
-        target_name = "Objective Value"
-
-        return {
-            "target_name": target_name,
-            "param_importances": [
-                {
-                    "name": name,
-                    "importance": importance,
-                    "distribution": get_distribution_name(name, study),
-                }
-                for name, importance in importances.items()
-            ],
-        }
+        trials = get_trials(storage, study_id)
+        try:
+            return get_param_importance_from_trials_cache(
+                storage, study_id, objective_id, trials
+            )
+        except ValueError as e:
+            response.status = 400  # Bad request
+            return {"reason": str(e)}
 
     @app.put("/api/studies/<study_id:int>/note")
     @json_api_view
