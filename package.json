@@ -38,6 +38,7 @@
     "@types/react-router-dom": "^5.1.7",
     "@typescript-eslint/eslint-plugin": "^4.26.1",
     "@typescript-eslint/parser": "^4.26.1",
+    "compression-webpack-plugin": "^9.2.0",
     "esbuild-loader": "^2.18.0",
     "eslint": "^7.28.0",
     "jest": "^27.4.1",
