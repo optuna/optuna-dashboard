@@ -50,6 +50,7 @@ logger = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "public")
+
 INDEX_HTML = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -125,7 +126,7 @@ INDEX_HTML = """<!DOCTYPE html>
     </div>
 </body>
 </html>
-"""
+"""  # noqa:E501
 # In-memory trials cache
 trials_cache_lock = threading.Lock()
 trials_cache: Dict[int, List[FrozenTrial]] = {}
