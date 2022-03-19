@@ -49,6 +49,7 @@ logger = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "public")
+IMG_DIR = os.path.join(BASE_DIR, "img")
 
 # In-memory trials cache
 trials_cache_lock = threading.Lock()
@@ -249,7 +250,9 @@ def create_app(storage: BaseStorage) -> Bottle:
 
     @app.get("/favicon.ico")
     def favicon() -> BottleViewReturn:
-        return static_file("favicon.ico", BASE_DIR)
+        use_gzip = "gzip" in request.headers["Accept-Encoding"]
+        filename = "favicon.ico.gz" if use_gzip else "favicon.ico"
+        return static_file(filename, IMG_DIR)
 
     @app.get("/static/<filename:path>")
     def send_static(filename: str) -> BottleViewReturn:
