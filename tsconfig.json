@@ -21,10 +21,10 @@
     "strict": true
   },
   "files": [
-    "./optuna_dashboard/static/index.tsx"
+    "./optuna_dashboard/ts/index.tsx"
   ],
   "include": [
-    "./optuna_dashboard/static/types/**/*",
+    "./optuna_dashboard/ts/types/**/*",
     "./frontend_tests/**/*"
   ],
   "types": ["node"]

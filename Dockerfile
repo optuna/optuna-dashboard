@@ -7,7 +7,7 @@ RUN npm install
 
 ADD ./tsconfig.json /usr/src/tsconfig.json
 ADD ./webpack.config.js /usr/src/webpack.config.js
-ADD ./optuna_dashboard/static/ /usr/src/optuna_dashboard/static
+ADD ./optuna_dashboard/ts/ /usr/src/optuna_dashboard/ts
 RUN mkdir -p /usr/src/optuna_dashboard/public
 RUN npm run build:prd
 

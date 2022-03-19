@@ -24,7 +24,7 @@ const typeScriptLoader = process.env.TYPESCRIPT_LOADER === "esbuild-loader" ? {
 
 var config = {
     mode,
-    entry: [__dirname + '/optuna_dashboard/static/index.tsx'],
+    entry: [__dirname + '/optuna_dashboard/ts/index.tsx'],
     output: {
         path: __dirname + '/optuna_dashboard/public/',
         filename: 'bundle.js',
