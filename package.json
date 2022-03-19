@@ -5,13 +5,13 @@
   "description": "Dashboard for Optuna",
   "main": "index.js",
   "scripts": {
-    "fmt": "prettier --write \"optuna_dashboard/ts/**/*.{ts,tsx}\" \"frontend_tests/*.{ts,tsx}\"",
-    "lint": "eslint . --ext .ts,.tsx && prettier --list-different \"optuna_dashboard/ts/**/*.{ts,tsx}\" \"frontend_tests/*.{ts,tsx}\"",
+    "fmt": "prettier --write \"optuna_dashboard/ts/**/*.{ts,tsx}\" \"typescript_tests/*.{ts,tsx}\"",
+    "lint": "eslint . --ext .ts,.tsx && prettier --list-different \"optuna_dashboard/ts/**/*.{ts,tsx}\" \"typescript_tests/*.{ts,tsx}\"",
     "watch": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack --watch",
     "build": "webpack",
     "build:dev": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack",
     "build:prd": "NODE_ENV=production webpack",
-    "test": "jest frontend_tests"
+    "test": "jest typescript_tests"
   },
   "author": "Masashi Shibata",
   "license": "MIT",

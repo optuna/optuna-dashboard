@@ -25,7 +25,7 @@
   ],
   "include": [
     "./optuna_dashboard/ts/types/**/*",
-    "./frontend_tests/**/*"
+    "./typescript_tests/**/*"
   ],
   "types": ["node"]
 }
