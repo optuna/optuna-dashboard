@@ -9,6 +9,7 @@ import {
   Typography,
   SelectChangeEvent,
   useTheme,
+  Box,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
@@ -79,7 +80,17 @@ export const GraphParetoFront: FC<{
         </Grid>
       ) : null}
       <Grid item xs={9}>
-        <div id={plotDomId} />
+        <Box
+          id={plotDomId}
+          sx={{
+            height: "450px",
+            backgroundColor:
+              theme.palette.mode === "dark"
+                ? "rgba(256, 256, 256, 0.05)"
+                : "rgba(0, 0, 0, 0.05)",
+            borderRadius: "5px",
+          }}
+        />
       </Grid>
     </Grid>
   )

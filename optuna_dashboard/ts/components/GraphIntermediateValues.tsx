@@ -1,6 +1,6 @@
 import * as plotly from "plotly.js-dist"
 import React, { FC, useEffect } from "react"
-import { Grid, Typography, useTheme } from "@mui/material"
+import { Box, Grid, Typography, useTheme } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-intermediate-values"
@@ -23,7 +23,17 @@ export const GraphIntermediateValues: FC<{
       </Grid>
 
       <Grid item xs={9}>
-        <div id={plotDomId} />
+        <Box
+          id={plotDomId}
+          sx={{
+            height: "450px",
+            backgroundColor:
+              theme.palette.mode === "dark"
+                ? "rgba(256, 256, 256, 0.05)"
+                : "rgba(0, 0, 0, 0.05)",
+            borderRadius: "5px",
+          }}
+        />
       </Grid>
     </Grid>
   )
