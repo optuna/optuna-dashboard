@@ -57,8 +57,8 @@ export const GraphHyperparameterImportances: FC<{
   }
 
   useEffect(() => {
-    async function fetchParamImportances(studyId: number, objectiveId: number) {
-      await getParamImportances(studyId, objectiveId)
+    if (numCompletedTrials > 0) {
+      getParamImportances(studyId, objectiveId)
         .then((p) => {
           setImportances(p)
         })
@@ -71,10 +71,6 @@ export const GraphHyperparameterImportances: FC<{
             }
           )
         })
-    }
-
-    if (numCompletedTrials > 0) {
-      fetchParamImportances(studyId, objectiveId)
     }
   }, [numCompletedTrials, objectiveId, theme.palette.mode])
 
