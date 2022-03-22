@@ -11,7 +11,7 @@ from . import __version__
 from ._app import create_app
 
 
-AUTO_RELOAD = os.environ.get("OPTUNA_DASHBOARD_AUTO_RELOAD") == "1"
+DEBUG = os.environ.get("OPTUNA_DASHBOARD_DEBUG") == "1"
 SERVER_CHOICES = ["wsgiref", "gunicorn"]
 
 
@@ -22,7 +22,7 @@ def run_wsgiref(app: Bottle, host: str, port: int, quiet: bool) -> None:
         port=port,
         server="wsgiref",
         quiet=quiet,
-        reloader=AUTO_RELOAD,
+        reloader=DEBUG,
     )
 
 
@@ -68,7 +68,7 @@ def main() -> None:
     else:
         storage = RDBStorage(args.storage)
 
-    app = create_app(storage)
+    app = create_app(storage, debug=DEBUG)
     if args.server == "wsgiref":
         run_wsgiref(app, args.host, args.port, args.quiet)
     elif args.server == "gunicorn":

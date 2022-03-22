@@ -54,10 +54,10 @@ $ optuna-dashboard sqlite:///db.sqlite3
 
 <summary>Environment variables for development</summary>
 
-If you set `OPTUNA_DASHBOARD_AUTO_RELOAD=1`, the server will automatically restart when the source codes are changed.
+If you set `OPTUNA_DASHBOARD_DEBUG=1`, the server will automatically restart when the source codes are changed.
 
 ```
-$ OPTUNA_DASHBOARD_AUTO_RELOAD=1 optuna-dashboard sqlite:///db.sqlite3
+$ OPTUNA_DASHBOARD_DEBUG=1 optuna-dashboard sqlite:///db.sqlite3
 ```
 
 </details>
