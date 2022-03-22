@@ -4,7 +4,6 @@ import {
   Grid,
   FormControl,
   FormLabel,
-  InputLabel,
   MenuItem,
   Switch,
   Select,
@@ -78,7 +77,7 @@ export const GraphSlice: FC<{
         <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
           Slice
         </Typography>
-        {study !== null && study.directions.length !== 1 ? (
+        {study !== null && study.directions.length !== 1 && (
           <FormControl component="fieldset">
             <FormLabel component="legend">Objective ID:</FormLabel>
             <Select value={objectiveId} onChange={handleObjectiveChange}>
@@ -89,9 +88,9 @@ export const GraphSlice: FC<{
               ))}
             </Select>
           </FormControl>
-        ) : null}
+        )}
         <FormControl component="fieldset">
-          <InputLabel id="parameter">Parameter</InputLabel>
+          <FormLabel component="legend">Parameter:</FormLabel>
           <Select value={selected || ""} onChange={handleSelectedParam}>
             {paramNames?.map((p, i) => (
               <MenuItem value={p} key={i}>
