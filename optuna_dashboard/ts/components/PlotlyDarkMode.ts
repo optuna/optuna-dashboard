@@ -1,4 +1,4 @@
-import * as plotly from "plotly.js-dist"
+import * as plotly from "plotly.js-dist-min"
 
 // Following template is extracted from the sdist of plotly Python library.
 // See https://github.com/plotly/plotly.py/blob/v5.6.0/packages/python/plotly/templategen/__init__.py and
