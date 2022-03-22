@@ -8,7 +8,7 @@
     "alwaysStrict": true,
     "outDir": "./optuna_dashboard/public/",
     "paths": {
-      "plotly.js-dist": ["node_modules/@types/plotly.js"]
+      "plotly.js-dist-min": ["node_modules/@types/plotly.js"]
     },
     "noImplicitAny": true,
     "lib": ["dom", "esnext"],
