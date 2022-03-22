@@ -128,11 +128,6 @@ export const GraphSlice: FC<{
           id={plotDomId}
           sx={{
             height: "450px",
-            backgroundColor:
-              theme.palette.mode === "dark"
-                ? "rgba(256, 256, 256, 0.05)"
-                : "rgba(0, 0, 0, 0.05)",
-            borderRadius: "5px",
           }}
         />
       </Grid>

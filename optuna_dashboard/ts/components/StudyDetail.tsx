@@ -39,19 +39,20 @@ import { GraphHistory } from "./GraphHistory"
 import { GraphParetoFront } from "./GraphParetoFront"
 import { Note } from "./Note"
 import { actionCreator } from "../action"
-import { studyDetailsState } from "../state"
+import { studyDetailsState, studySummariesState } from "../state"
 
 interface ParamTypes {
   studyId: string
 }
 
-const isSingleObjectiveStudy = (studyDetail: StudyDetail): boolean => {
-  return studyDetail.directions.length === 1
-}
-
-export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
+const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
   return studyDetails[studyId] || null
+}
+
+const useStudySummaryValue = (studyId: number): StudySummary | null => {
+  const studySummaries = useRecoilValue<StudySummary[]>(studySummariesState)
+  return studySummaries.find((s) => s.study_id == studyId) || null
 }
 
 interface Preference {
@@ -74,6 +75,8 @@ export const StudyDetail: FC<{
   const { studyId } = useParams<ParamTypes>()
   const studyIdNumber = parseInt(studyId, 10)
   const studyDetail = useStudyDetailValue(studyIdNumber)
+  const studySummary = useStudySummaryValue(studyIdNumber)
+  const directions = studyDetail?.directions || studySummary?.directions || null
 
   const [preferences, setPreferences] = useState<Preference>({
     graphHistoryChecked: true,
@@ -169,9 +172,7 @@ export const StudyDetail: FC<{
               label="History"
             />
             <FormControlLabel
-              disabled={
-                studyDetail !== null && isSingleObjectiveStudy(studyDetail)
-              }
+              disabled={directions?.length === 1}
               control={
                 <Checkbox
                   checked={preferences.graphParetoFrontChecked}
@@ -194,7 +195,7 @@ export const StudyDetail: FC<{
             <FormControlLabel
               disabled={
                 studyDetail !== null &&
-                (!isSingleObjectiveStudy(studyDetail) ||
+                (studyDetail.directions.length > 1 ||
                   !studyDetail.has_intermediate_values)
               }
               control={
@@ -341,8 +342,8 @@ export const StudyDetail: FC<{
             </Card>
           ) : null}
 
-          {studyDetail !== null &&
-          !isSingleObjectiveStudy(studyDetail) &&
+          {directions !== null &&
+          directions.length > 1 &&
           preferences.graphParetoFrontChecked ? (
             <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>
@@ -359,7 +360,7 @@ export const StudyDetail: FC<{
           ) : null}
 
           {studyDetail !== null &&
-          isSingleObjectiveStudy(studyDetail) &&
+          studyDetail.directions.length == 1 &&
           studyDetail.has_intermediate_values &&
           preferences.graphIntermediateValuesChecked ? (
             <Card sx={{ margin: theme.spacing(2) }}>
@@ -503,7 +504,7 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
       toCellValue: (i) => trials[i].state.toString(),
     },
   ]
-  if (studyDetail === null || isSingleObjectiveStudy(studyDetail)) {
+  if (studyDetail === null || studyDetail.directions.length == 1) {
     columns.push({
       field: "values",
       label: "Value",
