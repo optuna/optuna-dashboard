@@ -15,7 +15,6 @@ import {
   DialogTitle,
   DialogContent,
   DialogContentText,
-  TextField,
   DialogActions,
   FormControlLabel,
   Checkbox,
@@ -40,6 +39,7 @@ import {
 
 import { actionCreator } from "../action"
 import { DataGrid, DataGridColumn } from "./DataGrid"
+import { DebouncedInputTextField } from "./Debounce"
 import { studySummariesState } from "../state"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
 import Brightness4Icon from "@mui/icons-material/Brightness4"
@@ -333,9 +333,24 @@ export const StudyList: FC<{
           <CardContent>
             <Box sx={{ maxWidth: 500 }}>
               <DebouncedInputTextField
-                delay={500}
                 onChange={(s) => {
                   setStudyFilterText(s)
+                }}
+                delay={500}
+                textFieldProps={{
+                  fullWidth: true,
+                  id: "search-study",
+                  variant: "outlined",
+                  placeholder: "Search study",
+                  InputProps: {
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SvgIcon fontSize="small" color="action">
+                          <Search />
+                        </SvgIcon>
+                      </InputAdornment>
+                    ),
+                  },
                 }}
               />
             </Box>
@@ -367,18 +382,21 @@ export const StudyList: FC<{
           <DialogContentText>
             To create a new study, please enter the study name here.
           </DialogContentText>
-          <TextField
-            autoFocus
-            error={newStudyNameAlreadyUsed}
-            helperText={
-              newStudyNameAlreadyUsed ? `"${newStudyName}" is already used` : ""
-            }
-            label="Study name"
-            type="text"
-            onChange={(e) => {
-              setNewStudyName(e.target.value)
+          <DebouncedInputTextField
+            onChange={(s) => {
+              setNewStudyName(s)
             }}
-            fullWidth
+            delay={500}
+            textFieldProps={{
+              type: "text",
+              autoFocus: true,
+              fullWidth: true,
+              error: newStudyNameAlreadyUsed,
+              helperText: newStudyNameAlreadyUsed
+                ? `"${newStudyName}" is already used`
+                : "",
+              label: "Study name",
+            }}
           />
           <FormControlLabel
             control={
@@ -424,18 +442,21 @@ export const StudyList: FC<{
             To create a new study, please enter the study name and directions
             here.
           </DialogContentText>
-          <TextField
-            autoFocus
-            error={newStudyNameAlreadyUsed}
-            helperText={
-              newStudyNameAlreadyUsed ? `"${newStudyName}" is already used` : ""
-            }
-            label="Study name"
-            type="text"
-            onChange={(e) => {
-              setNewStudyName(e.target.value)
+          <DebouncedInputTextField
+            onChange={(s) => {
+              setNewStudyName(s)
             }}
-            fullWidth
+            delay={500}
+            textFieldProps={{
+              autoFocus: true,
+              fullWidth: true,
+              error: newStudyNameAlreadyUsed,
+              helperText: newStudyNameAlreadyUsed
+                ? `"${newStudyName}" is already used`
+                : "",
+              label: "Study name",
+              type: "text",
+            }}
           />
         </DialogContent>
         {directions.map((d, i) => (
@@ -525,40 +546,5 @@ export const StudyList: FC<{
         </DialogActions>
       </Dialog>
     </div>
-  )
-}
-
-const DebouncedInputTextField: FC<{
-  onChange: (s: string) => void
-  delay: number
-}> = ({ onChange, delay }) => {
-  const [text, setText] = React.useState<string>("")
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onChange(text)
-    }, delay)
-    return () => {
-      clearTimeout(timer)
-    }
-  }, [text, delay])
-  return (
-    <TextField
-      fullWidth
-      id="search-study"
-      variant="outlined"
-      placeholder="Search study"
-      onChange={(e) => {
-        setText(e.target.value)
-      }}
-      InputProps={{
-        startAdornment: (
-          <InputAdornment position="start">
-            <SvgIcon fontSize="small" color="action">
-              <Search />
-            </SvgIcon>
-          </InputAdornment>
-        ),
-      }}
-    />
   )
 }
