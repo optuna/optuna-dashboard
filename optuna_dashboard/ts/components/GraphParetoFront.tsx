@@ -38,19 +38,19 @@ export const GraphParetoFront: FC<{
 
   return (
     <Grid container direction="row">
-      <Grid item xs={3} container direction="column">
+      <Grid
+        item
+        xs={3}
+        container
+        direction="column"
+        sx={{ paddingRight: theme.spacing(2) }}
+      >
         <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
           Pareto Front
         </Typography>
         {study !== null && study.directions.length !== 1 ? (
           <>
-            <FormControl
-              component="fieldset"
-              sx={{
-                marginBottom: theme.spacing(2),
-                marginRight: theme.spacing(5),
-              }}
-            >
+            <FormControl component="fieldset">
               <FormLabel component="legend">Objective X ID:</FormLabel>
               <Select value={objectiveXId} onChange={handleObjectiveXChange}>
                 {study.directions.map((d, i) => (
@@ -60,13 +60,7 @@ export const GraphParetoFront: FC<{
                 ))}
               </Select>
             </FormControl>
-            <FormControl
-              component="fieldset"
-              sx={{
-                marginBottom: theme.spacing(2),
-                marginRight: theme.spacing(5),
-              }}
-            >
+            <FormControl component="fieldset">
               <FormLabel component="legend">Objective Y ID:</FormLabel>
               <Select value={objectiveYId} onChange={handleObjectiveYChange}>
                 {study.directions.map((d, i) => (

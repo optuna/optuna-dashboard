@@ -76,90 +76,94 @@ export const GraphHistory: FC<{
 
   return (
     <Grid container direction="row">
-      <Grid item xs={3}>
-        <Grid container direction="column">
-          <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
-            History
-          </Typography>
-          {study !== null && study.directions.length !== 1 ? (
-            <FormControl
-              component="fieldset"
-              sx={{ marginBottom: theme.spacing(2) }}
-            >
-              <FormLabel component="legend">Objective ID:</FormLabel>
-              <Select value={objectiveId} onChange={handleObjectiveChange}>
-                {study.directions.map((d, i) => (
-                  <MenuItem value={i} key={i}>
-                    {i}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          ) : null}
+      <Grid
+        item
+        xs={3}
+        container
+        direction="column"
+        sx={{ paddingRight: theme.spacing(2) }}
+      >
+        <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+          History
+        </Typography>
+        {study !== null && study.directions.length !== 1 ? (
           <FormControl
             component="fieldset"
             sx={{ marginBottom: theme.spacing(2) }}
           >
-            <FormLabel component="legend">Log y scale:</FormLabel>
-            <Switch
-              checked={logScale}
-              onChange={handleLogScaleChange}
-              value="enable"
-            />
+            <FormLabel component="legend">Objective ID:</FormLabel>
+            <Select value={objectiveId} onChange={handleObjectiveChange}>
+              {study.directions.map((d, i) => (
+                <MenuItem value={i} key={i}>
+                  {i}
+                </MenuItem>
+              ))}
+            </Select>
           </FormControl>
-          <FormControl
-            component="fieldset"
-            sx={{ marginBottom: theme.spacing(2) }}
+        ) : null}
+        <FormControl
+          component="fieldset"
+          sx={{ marginBottom: theme.spacing(2) }}
+        >
+          <FormLabel component="legend">Log y scale:</FormLabel>
+          <Switch
+            checked={logScale}
+            onChange={handleLogScaleChange}
+            value="enable"
+          />
+        </FormControl>
+        <FormControl
+          component="fieldset"
+          sx={{ marginBottom: theme.spacing(2) }}
+        >
+          <FormLabel component="legend">Filter state:</FormLabel>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={!filterCompleteTrial}
+                onChange={handleFilterCompleteChange}
+              />
+            }
+            label="Complete"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={!filterPrunedTrial}
+                onChange={handleFilterPrunedChange}
+              />
+            }
+            label="Pruned"
+          />
+        </FormControl>
+        <FormControl
+          component="fieldset"
+          sx={{ marginBottom: theme.spacing(2) }}
+        >
+          <FormLabel component="legend">X-axis:</FormLabel>
+          <RadioGroup
+            aria-label="gender"
+            name="gender1"
+            value={xAxis}
+            onChange={handleXAxisChange}
           >
-            <FormLabel component="legend">Filter state:</FormLabel>
             <FormControlLabel
-              control={
-                <Checkbox
-                  checked={!filterCompleteTrial}
-                  onChange={handleFilterCompleteChange}
-                />
-              }
-              label="Complete"
+              value="number"
+              control={<Radio />}
+              label="Number"
             />
             <FormControlLabel
-              control={
-                <Checkbox
-                  checked={!filterPrunedTrial}
-                  onChange={handleFilterPrunedChange}
-                />
-              }
-              label="Pruned"
+              value="datetime_start"
+              control={<Radio />}
+              label="Datetime start"
             />
-          </FormControl>
-          <FormControl
-            component="fieldset"
-            sx={{ marginBottom: theme.spacing(2) }}
-          >
-            <FormLabel component="legend">X-axis:</FormLabel>
-            <RadioGroup
-              aria-label="gender"
-              name="gender1"
-              value={xAxis}
-              onChange={handleXAxisChange}
-            >
-              <FormControlLabel
-                value="number"
-                control={<Radio />}
-                label="Number"
-              />
-              <FormControlLabel
-                value="datetime_start"
-                control={<Radio />}
-                label="Datetime start"
-              />
-              <FormControlLabel
-                value="datetime_complete"
-                control={<Radio />}
-                label="Datetime complete"
-              />
-            </RadioGroup>
-          </FormControl>
-        </Grid>
+            <FormControlLabel
+              value="datetime_complete"
+              control={<Radio />}
+              label="Datetime complete"
+            />
+          </RadioGroup>
+        </FormControl>
       </Grid>
       <Grid item xs={9}>
         <div id={plotDomId} />

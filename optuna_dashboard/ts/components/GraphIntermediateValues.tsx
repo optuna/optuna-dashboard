@@ -14,21 +14,19 @@ export const GraphIntermediateValues: FC<{
   }, [trials, theme.palette.mode])
   return (
     <Grid container direction="row">
-      <Grid item xs={3}>
-        <Grid container direction="column">
-          <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
-            Intermediate values
-          </Typography>
-        </Grid>
+      <Grid
+        item
+        xs={3}
+        container
+        direction="column"
+        sx={{ paddingRight: theme.spacing(2) }}
+      >
+        <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+          Intermediate values
+        </Typography>
       </Grid>
-
       <Grid item xs={9}>
-        <Box
-          id={plotDomId}
-          sx={{
-            height: "450px",
-          }}
-        />
+        <Box id={plotDomId} sx={{ height: "450px" }} />
       </Grid>
     </Grid>
   )
