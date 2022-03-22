@@ -9,6 +9,7 @@ import {
   Typography,
   SelectChangeEvent,
   useTheme,
+  Box,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
@@ -37,12 +38,12 @@ export const GraphParetoFront: FC<{
 
   return (
     <Grid container direction="row">
-      {study !== null && study.directions.length !== 1 ? (
-        <Grid item xs={3}>
-          <Grid container direction="column">
-            <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
-              Pareto Front
-            </Typography>
+      <Grid item xs={3} container direction="column">
+        <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+          Pareto Front
+        </Typography>
+        {study !== null && study.directions.length !== 1 ? (
+          <>
             <FormControl
               component="fieldset"
               sx={{
@@ -75,11 +76,16 @@ export const GraphParetoFront: FC<{
                 ))}
               </Select>
             </FormControl>
-          </Grid>
-        </Grid>
-      ) : null}
+          </>
+        ) : null}
+      </Grid>
       <Grid item xs={9}>
-        <div id={plotDomId} />
+        <Box
+          id={plotDomId}
+          sx={{
+            height: "450px",
+          }}
+        />
       </Grid>
     </Grid>
   )

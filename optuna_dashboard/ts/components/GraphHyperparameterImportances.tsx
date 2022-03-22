@@ -9,6 +9,7 @@ import {
   Typography,
   SelectChangeEvent,
   useTheme,
+  Box,
 } from "@mui/material"
 
 import { getParamImportances } from "../apiClient"
@@ -46,7 +47,8 @@ export const GraphHyperparameterImportances: FC<{
 }> = ({ study = null, studyId }) => {
   const theme = useTheme()
   const [objectiveId, setObjectiveId] = useState<number>(0)
-  const numOfTrials = study?.trials.length || 0
+  const numCompletedTrials =
+    study?.trials.filter((t) => t.state === "Complete").length || 0
   const [importances, setImportances] = useState<ParamImportances | null>(null)
   const { enqueueSnackbar } = useSnackbar()
 
@@ -55,8 +57,8 @@ export const GraphHyperparameterImportances: FC<{
   }
 
   useEffect(() => {
-    async function fetchParamImportances(studyId: number, objectiveId: number) {
-      await getParamImportances(studyId, objectiveId)
+    if (numCompletedTrials > 0) {
+      getParamImportances(studyId, objectiveId)
         .then((p) => {
           setImportances(p)
         })
@@ -70,11 +72,7 @@ export const GraphHyperparameterImportances: FC<{
           )
         })
     }
-
-    if (numOfTrials > 0) {
-      fetchParamImportances(studyId, objectiveId)
-    }
-  }, [numOfTrials, objectiveId, theme.palette.mode])
+  }, [numCompletedTrials, objectiveId, theme.palette.mode])
 
   useEffect(() => {
     if (importances !== null) {
@@ -111,7 +109,12 @@ export const GraphHyperparameterImportances: FC<{
       </Grid>
 
       <Grid item xs={9}>
-        <div id={plotDomId} />
+        <Box
+          id={plotDomId}
+          sx={{
+            height: "450px",
+          }}
+        />
       </Grid>
     </Grid>
   )

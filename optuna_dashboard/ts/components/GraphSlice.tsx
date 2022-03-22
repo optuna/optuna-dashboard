@@ -11,6 +11,7 @@ import {
   Typography,
   SelectChangeEvent,
   useTheme,
+  Box,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
@@ -123,7 +124,12 @@ export const GraphSlice: FC<{
         </Grid>
       </Grid>
       <Grid item xs={9}>
-        <div id={plotDomId} />
+        <Box
+          id={plotDomId}
+          sx={{
+            height: "450px",
+          }}
+        />
       </Grid>
     </Grid>
   )
