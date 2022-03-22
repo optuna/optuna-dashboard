@@ -33,39 +33,31 @@ export const GraphParallelCoordinate: FC<{
 
   return (
     <Grid container direction="row">
-      <Grid item xs={3}>
-        <Grid container direction="column">
-          <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
-            Parallel Coordinate
-          </Typography>
-          {study !== null && study.directions.length !== 1 ? (
-            <FormControl
-              component="fieldset"
-              sx={{
-                marginBottom: theme.spacing(2),
-                marginRight: theme.spacing(5),
-              }}
-            >
-              <FormLabel component="legend">Objective ID:</FormLabel>
-              <Select value={objectiveId} onChange={handleObjectiveChange}>
-                {study.directions.map((d, i) => (
-                  <MenuItem value={i} key={i}>
-                    {i}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          ) : null}
-        </Grid>
+      <Grid
+        item
+        xs={3}
+        container
+        direction="column"
+        sx={{ paddingRight: theme.spacing(2) }}
+      >
+        <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+          Parallel Coordinate
+        </Typography>
+        {study !== null && study.directions.length !== 1 ? (
+          <FormControl component="fieldset">
+            <FormLabel component="legend">Objective ID:</FormLabel>
+            <Select value={objectiveId} onChange={handleObjectiveChange}>
+              {study.directions.map((d, i) => (
+                <MenuItem value={i} key={i}>
+                  {i}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        ) : null}
       </Grid>
-
       <Grid item xs={9}>
-        <Box
-          id={plotDomId}
-          sx={{
-            height: "450px",
-          }}
-        />
+        <Box id={plotDomId} sx={{ height: "450px" }} />
       </Grid>
     </Grid>
   )
