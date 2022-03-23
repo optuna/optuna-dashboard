@@ -1,14 +1,15 @@
 name: Publish a Docker image to ghcr.io
 on:
-  push:
-    tags:
-      - v*.*.*
+  release:
+    types:
+      - published
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - run: echo "REPO=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+      - run: echo "TAG=${GITHUB_REF##*/}" >> $GITHUB_ENV
       - name: Enable buildx
         uses: docker/setup-buildx-action@v1
       - name: Login
@@ -22,4 +23,10 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ env.REPO }}:latest
+          tags: ghcr.io/${{ env.REPO }}:${{ env.TAG }}
+      - name: Docker build/push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ env.REPO }}:latast
