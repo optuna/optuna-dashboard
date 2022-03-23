@@ -63,7 +63,6 @@ interface Preference {
   graphEdfChecked: boolean
   graphHyperparameterImportancesChecked: boolean
   graphSliceChecked: boolean
-  noteEditorChecked: boolean
   reloadInterval: number
 }
 
@@ -86,7 +85,6 @@ export const StudyDetail: FC<{
     graphEdfChecked: true,
     graphHyperparameterImportancesChecked: true,
     graphSliceChecked: true,
-    noteEditorChecked: true,
     reloadInterval: 10,
   })
   useEffect(() => {
@@ -133,6 +131,7 @@ export const StudyDetail: FC<{
 
   const title = studyDetail !== null ? studyDetail.name : `Study #${studyId}`
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
+  const bestTrial = studySummary?.best_trial || studyDetail?.best_trial
 
   const PreferenceDialog = () => {
     return (
@@ -237,17 +236,6 @@ export const StudyDetail: FC<{
               }
               label="Slice"
             />
-            <FormLabel component="legend">Editor</FormLabel>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={preferences.noteEditorChecked}
-                  onChange={handlePreferenceOnChange}
-                  name="noteEditorChecked"
-                />
-              }
-              label="NoteEditor"
-            />
           </FormGroup>
         </MuiDialogContent>
       </Dialog>
@@ -255,7 +243,7 @@ export const StudyDetail: FC<{
   }
 
   return (
-    <div>
+    <>
       <PreferenceDialog />
       <AppBar position="static">
         <Container
@@ -316,93 +304,110 @@ export const StudyDetail: FC<{
           },
         }}
       >
-        <div>
-          <Typography
-            variant="h4"
+        <Typography
+          variant="h4"
+          sx={{
+            margin: `${theme.spacing(4)} ${theme.spacing(2)}`,
+            fontWeight: 700,
+            fontSize: "1.8rem",
+            ...(theme.palette.mode === "dark" && {
+              color: theme.palette.primary.light,
+            }),
+          }}
+        >
+          {title}
+        </Typography>
+        <Grid container>
+          <Grid item xs={6}>
+            <Card sx={{ margin: theme.spacing(2) }}>
+              <CardContent>
+                <Typography>
+                  {bestTrial?.params
+                    .map((p) => p.name + ": " + p.value)
+                    .join(", ") || ""}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={6}>
+            <Card sx={{ margin: theme.spacing(2) }}>
+              <CardContent>
+                {studyDetail !== null && (
+                  <Note studyId={studyIdNumber} latestNote={studyDetail.note} />
+                )}
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+        {preferences.graphHistoryChecked ? (
+          <Card
             sx={{
-              margin: `${theme.spacing(4)} ${theme.spacing(2)}`,
-              fontWeight: 700,
-              fontSize: "1.8rem",
-              ...(theme.palette.mode === "dark" && {
-                color: theme.palette.primary.light,
-              }),
+              margin: theme.spacing(2),
             }}
           >
-            {title}
-          </Typography>
-          {preferences.graphHistoryChecked ? (
-            <Card
-              sx={{
-                margin: theme.spacing(2),
-              }}
-            >
-              <CardContent>
-                <GraphHistory study={studyDetail} />
-              </CardContent>
-            </Card>
-          ) : null}
-
-          {directions !== null &&
-          directions.length > 1 &&
-          preferences.graphParetoFrontChecked ? (
-            <Card sx={{ margin: theme.spacing(2) }}>
-              <CardContent>
-                <GraphParetoFront study={studyDetail} />
-              </CardContent>
-            </Card>
-          ) : null}
-          {preferences.graphParallelCoordinateChecked ? (
-            <Card sx={{ margin: theme.spacing(2) }}>
-              <CardContent>
-                <GraphParallelCoordinate study={studyDetail} />
-              </CardContent>
-            </Card>
-          ) : null}
-
-          {studyDetail !== null &&
-          studyDetail.directions.length == 1 &&
-          studyDetail.has_intermediate_values &&
-          preferences.graphIntermediateValuesChecked ? (
-            <Card sx={{ margin: theme.spacing(2) }}>
-              <CardContent>
-                <GraphIntermediateValues trials={trials} />
-              </CardContent>
-            </Card>
-          ) : null}
-          {preferences.graphEdfChecked ? (
-            <Card sx={{ margin: theme.spacing(2) }}>
-              <CardContent>
-                <Edf study={studyDetail} />
-              </CardContent>
-            </Card>
-          ) : null}
-          {preferences.graphHyperparameterImportancesChecked ? (
-            <Card sx={{ margin: theme.spacing(2) }}>
-              <CardContent>
-                <GraphHyperparameterImportances
-                  study={studyDetail}
-                  studyId={studyIdNumber}
-                />
-              </CardContent>
-            </Card>
-          ) : null}
-
-          {studyDetail !== null && preferences.graphSliceChecked ? (
-            <Card sx={{ margin: theme.spacing(2) }}>
-              <CardContent>
-                <GraphSlice study={studyDetail} />
-              </CardContent>
-            </Card>
-          ) : null}
-          <Card sx={{ margin: theme.spacing(2) }}>
-            <TrialTable studyDetail={studyDetail} />
+            <CardContent>
+              <GraphHistory study={studyDetail} />
+            </CardContent>
           </Card>
-          {studyDetail !== null && preferences.noteEditorChecked ? (
-            <Note studyId={studyIdNumber} latestNote={studyDetail.note} />
-          ) : null}
-        </div>
+        ) : null}
+
+        {directions !== null &&
+        directions.length > 1 &&
+        preferences.graphParetoFrontChecked ? (
+          <Card sx={{ margin: theme.spacing(2) }}>
+            <CardContent>
+              <GraphParetoFront study={studyDetail} />
+            </CardContent>
+          </Card>
+        ) : null}
+        {preferences.graphParallelCoordinateChecked ? (
+          <Card sx={{ margin: theme.spacing(2) }}>
+            <CardContent>
+              <GraphParallelCoordinate study={studyDetail} />
+            </CardContent>
+          </Card>
+        ) : null}
+
+        {studyDetail !== null &&
+        studyDetail.directions.length == 1 &&
+        studyDetail.has_intermediate_values &&
+        preferences.graphIntermediateValuesChecked ? (
+          <Card sx={{ margin: theme.spacing(2) }}>
+            <CardContent>
+              <GraphIntermediateValues trials={trials} />
+            </CardContent>
+          </Card>
+        ) : null}
+        {preferences.graphEdfChecked ? (
+          <Card sx={{ margin: theme.spacing(2) }}>
+            <CardContent>
+              <Edf study={studyDetail} />
+            </CardContent>
+          </Card>
+        ) : null}
+        {preferences.graphHyperparameterImportancesChecked ? (
+          <Card sx={{ margin: theme.spacing(2) }}>
+            <CardContent>
+              <GraphHyperparameterImportances
+                study={studyDetail}
+                studyId={studyIdNumber}
+              />
+            </CardContent>
+          </Card>
+        ) : null}
+
+        {studyDetail !== null && preferences.graphSliceChecked ? (
+          <Card sx={{ margin: theme.spacing(2) }}>
+            <CardContent>
+              <GraphSlice study={studyDetail} />
+            </CardContent>
+          </Card>
+        ) : null}
+        <Card sx={{ margin: theme.spacing(2) }}>
+          <TrialTable studyDetail={studyDetail} />
+        </Card>
       </Container>
-    </div>
+    </>
   )
 }
 

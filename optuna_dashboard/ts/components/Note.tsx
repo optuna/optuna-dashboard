@@ -65,64 +65,60 @@ export const Note: FC<{
   }
 
   return (
-    <Card sx={{ margin: theme.spacing(2) }}>
-      <CardContent>
-        <Typography variant="h6" sx={{ fontSize: "1.25rem", fontWeight: 600 }}>
-          Note
-        </Typography>
-        <TextField
-          disabled={saving}
-          minRows={5}
-          multiline={true}
-          placeholder="Description about the study... (This note is saved to study's system_attrs)"
-          sx={{ width: "100%", margin: `${theme.spacing(1)} 0` }}
-          inputProps={{ style: { resize: "vertical" } }}
-          inputRef={textAreaRef}
-          defaultValue={curNote.body}
-          onChange={() => {
-            const cur = textAreaRef.current ? textAreaRef.current.value : ""
-            setEdited(cur !== curNote.body)
-          }}
-        />
-        <Box
-          sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
+    <>
+      <Typography variant="h6" sx={{ fontSize: "1.25rem", fontWeight: 600 }}>
+        Note
+      </Typography>
+      <TextField
+        disabled={saving}
+        minRows={5}
+        multiline={true}
+        placeholder="Description about the study... (This note is saved to study's system_attrs)"
+        sx={{ width: "100%", margin: `${theme.spacing(1)} 0` }}
+        inputProps={{ style: { resize: "vertical" } }}
+        inputRef={textAreaRef}
+        defaultValue={curNote.body}
+        onChange={() => {
+          const cur = textAreaRef.current ? textAreaRef.current.value : ""
+          setEdited(cur !== curNote.body)
+        }}
+      />
+      <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+        {notLatest && !saving && (
+          <>
+            <Typography
+              sx={{
+                color: theme.palette.error.main,
+                fontSize: "0.8rem",
+                display: "inline",
+              }}
+            >
+              The text you are editing has updated. Do you want to discard your
+              changes and refresh the textarea?
+            </Typography>
+            <Button
+              variant="text"
+              onClick={handleRefresh}
+              color="error"
+              size="small"
+              sx={{ textDecoration: "underline" }}
+            >
+              Yes
+            </Button>
+          </>
+        )}
+        <Box sx={{ flexGrow: 1 }} />
+        <LoadingButton
+          onClick={handleSave}
+          loading={saving}
+          loadingPosition="start"
+          startIcon={<SaveIcon />}
+          variant="contained"
+          disabled={!edited}
         >
-          {notLatest && !saving && (
-            <>
-              <Typography
-                sx={{
-                  color: theme.palette.error.main,
-                  fontSize: "0.8rem",
-                  display: "inline",
-                }}
-              >
-                The text you are editing has updated. Do you want to discard
-                your changes and refresh the textarea?
-              </Typography>
-              <Button
-                variant="text"
-                onClick={handleRefresh}
-                color="error"
-                size="small"
-                sx={{ textDecoration: "underline" }}
-              >
-                Yes
-              </Button>
-            </>
-          )}
-          <Box sx={{ flexGrow: 1 }} />
-          <LoadingButton
-            onClick={handleSave}
-            loading={saving}
-            loadingPosition="start"
-            startIcon={<SaveIcon />}
-            variant="contained"
-            disabled={!edited}
-          >
-            Save
-          </LoadingButton>
-        </Box>
-      </CardContent>
-    </Card>
+          Save
+        </LoadingButton>
+      </Box>
+    </>
   )
 }
