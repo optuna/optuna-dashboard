@@ -1,12 +1,12 @@
 name: Build Python distributions and publish to PyPI
 
 on:
-  push:
-    tags:
-    - v*.*.*
+  release:
+    types:
+      - published
 
 jobs:
-  build-and-publish:
+  pypi:
     name: Build and publish Python distributions to TestPyPI and PyPI
     runs-on: ubuntu-latest
     steps:
@@ -35,15 +35,3 @@ jobs:
       with:
         user: __token__
         password: ${{ secrets.PYPI_PASSWORD }}
-
-    - name: Create GitHub release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        wget https://github.com/tcnksm/ghr/releases/download/v0.13.0/ghr_v0.13.0_linux_amd64.tar.gz
-        tar -xzf ghr_v*_linux_amd64.tar.gz
-        export TAGNAME=$(jq --raw-output .ref "$GITHUB_EVENT_PATH" | sed -e "s/refs\/tags\///")
-
-        cp ./optuna_dashboard/public/bundle.js ./dist/
-        cp ./optuna_dashboard/public/bundle.js.LICENSE.txt ./dist/
-        ./ghr_v0.13.0_linux_amd64/ghr -n ${TAGNAME} -b ${TAGNAME} -draft ${TAGNAME} dist/

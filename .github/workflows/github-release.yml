@@ -1,0 +1,43 @@
+name: Build Python distributions and create GitHub Release
+
+on:
+  push:
+    tags:
+      - v*.*.*
+
+jobs:
+  github-release:
+    name: Build and publish Python distributions to TestPyPI and PyPI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - run: npm install
+      - run: npm run build:prd
+
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools
+          pip install --progress-bar off wheel twine
+      - run: python setup.py sdist bdist_wheel
+      - run: twine check dist/*
+
+      - name: Create GitHub release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          wget https://github.com/tcnksm/ghr/releases/download/v0.13.0/ghr_v0.13.0_linux_amd64.tar.gz
+          tar -xzf ghr_v*_linux_amd64.tar.gz
+          export TAGNAME=$(jq --raw-output .ref "$GITHUB_EVENT_PATH" | sed -e "s/refs\/tags\///")
+          
+          cp ./optuna_dashboard/public/bundle.js ./dist/
+          cp ./optuna_dashboard/public/bundle.js.LICENSE.txt ./dist/
+          ./ghr_v0.13.0_linux_amd64/ghr -n ${TAGNAME} -b ${TAGNAME} -draft ${TAGNAME} dist/
