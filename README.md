@@ -130,4 +130,4 @@ You can walk-through trials by filtering and sorting.
 
 ## Submitting patches
 
-If you want to contribute, please check [Developers Guide](./DEVELOPMENT.md).
+If you want to contribute, please check [Developers Guide](./CONTRIBUTING.md).
