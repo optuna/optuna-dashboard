@@ -30,6 +30,8 @@ from optuna.storages import RedisStorage
 from optuna.study import StudyDirection
 from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
+from optuna.version import __version__ as optuna_ver
+from packaging import version
 
 from . import _note as note
 from ._importance import get_param_importance_from_trials_cache
@@ -75,7 +77,10 @@ def json_api_view(view: BottleView) -> BottleView:
 
 
 def get_study_summary(storage: BaseStorage, study_id: int) -> Optional[StudySummary]:
-    summaries = storage.get_all_study_summaries()
+    if version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
+        summaries = storage.get_all_study_summaries(include_best_trial=True)  # type: ignore
+    else:
+        summaries = storage.get_all_study_summaries()  # type: ignore
     for summary in summaries:
         if summary._study_id != study_id:
             continue
@@ -121,12 +126,13 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
     @app.get("/api/studies")
     @json_api_view
     def list_study_summaries() -> BottleViewReturn:
-        summaries = [
-            serialize_study_summary(summary)
-            for summary in storage.get_all_study_summaries()
-        ]
+        if version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
+            summaries = storage.get_all_study_summaries(include_best_trial=True)  # type: ignore
+        else:
+            summaries = storage.get_all_study_summaries()  # type: ignore
+        serialized = [serialize_study_summary(summary) for summary in summaries]
         return {
-            "study_summaries": summaries,
+            "study_summaries": serialized,
         }
 
     @app.post("/api/studies")
