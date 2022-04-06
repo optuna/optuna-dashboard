@@ -78,7 +78,7 @@ def json_api_view(view: BottleView) -> BottleView:
 
 def get_study_summary(storage: BaseStorage, study_id: int) -> Optional[StudySummary]:
     if version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
-        summaries = storage.get_all_study_summaries(include_best_trial=True)
+        summaries = storage.get_all_study_summaries(include_best_trial=True)  # type: ignore
     else:
         summaries = storage.get_all_study_summaries()
     for summary in summaries:
@@ -127,7 +127,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
     @json_api_view
     def list_study_summaries() -> BottleViewReturn:
         if version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
-            summaries = storage.get_all_study_summaries(include_best_trial=True)
+            summaries = storage.get_all_study_summaries(include_best_trial=True)  # type: ignore
         else:
             summaries = storage.get_all_study_summaries()
         serialized = [serialize_study_summary(summary) for summary in summaries]
