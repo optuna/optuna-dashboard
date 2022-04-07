@@ -2,4 +2,4 @@ from ._app import run_server  # noqa
 from ._app import wsgi  # noqa
 
 
-__version__ = "0.6.1"
+__version__ = "0.6.2"
