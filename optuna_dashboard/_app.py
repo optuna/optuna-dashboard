@@ -160,13 +160,10 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
     app = Bottle()
 
     if isinstance(storage, RDBStorage):
-        with rdb_schema_migrate_lock:
-            current_version = storage.get_current_version()
-            head_version = storage.get_head_version()
-            if current_version != head_version:
-                rdb_schema_needs_migrate = True
-            if current_version not in storage.get_all_versions():
-                rdb_schema_unsupported = True
+        current_version = storage.get_current_version()
+        head_version = storage.get_head_version()
+        rdb_schema_needs_migrate = current_version != head_version
+        rdb_schema_unsupported = current_version not in storage.get_all_versions()
 
     @app.hook("before_request")
     def remove_trailing_slashes_hook() -> None:
@@ -174,24 +171,21 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
 
     @app.get("/")
     def index() -> BottleViewReturn:
-        with rdb_schema_migrate_lock:
-            if rdb_schema_needs_migrate:
-                return redirect("/incompatible-rdb-schema", 302)
+        if rdb_schema_needs_migrate:
+            return redirect("/incompatible-rdb-schema", 302)
         return redirect("/dashboard", 302)  # Status Found
 
     # Accept any following paths for client-side routing
     @app.get("/dashboard<:re:(/.*)?>")
     def dashboard() -> BottleViewReturn:
-        with rdb_schema_migrate_lock:
-            if rdb_schema_needs_migrate:
-                return redirect("/incompatible-rdb-schema", 302)
+        if rdb_schema_needs_migrate:
+            return redirect("/incompatible-rdb-schema", 302)
         return static_file("index.html", BASE_DIR, mimetype="text/html")
 
     @app.get("/incompatible-rdb-schema")
     def get_incompatible_rdb_schema() -> BottleViewReturn:
-        with rdb_schema_migrate_lock:
-            if not rdb_schema_needs_migrate:
-                return redirect("/dashboard", 302)
+        if not rdb_schema_needs_migrate:
+            return redirect("/dashboard", 302)
         assert isinstance(storage, RDBStorage)
         return rdb_schema_template.render(
             rdb_schema_needs_migrate=rdb_schema_needs_migrate,
