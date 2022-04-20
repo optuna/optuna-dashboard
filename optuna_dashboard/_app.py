@@ -70,18 +70,37 @@ rdb_schema_template = SimpleTemplate(
 <title>Incompatible RDB Schema Error - Optuna Dashboard</title>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+body {
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.wrapper {
+    padding: 64px;
+    width: 600px;
+    background-color: rgb(255, 255, 255);
+    box-shadow: rgba(0, 0, 0, 0.08) 0 8px 24px;
+    margin: 0px auto;
+    border-radius: 8px;
+}
+</style>
 </head>
 <body>
+    <div class="wrapper">
+    <h1>Error: Incompatible RDB Schema</h1>
 % if rdb_schema_unsupported:
-    <h1>Incompatible RDB Schema</h1>
-    <p>Your Optuna version seems outdated against the storage version. Please try updating optuna to the latest version by `$ pip install -U optuna` or press the following button.</p>
+    <p>Your Optuna version {{ optuna_ver }} seems outdated against the storage version. Please try updating optuna to the latest version by `$ pip install -U optuna`.</p>
 % elif rdb_schema_needs_migrate:
-    <h1>Incompatible RDB Schema</h1>
-    <p>The runtime optuna version {{ head_version }} is no longer compatible with the table schema (set up by optuna {{ current_version }}). Please execute `$ optuna storage upgrade --storage $STORAGE_URL` for upgrading the storage.</p>
+    <p>The runtime optuna version {{ optuna_ver }} is no longer compatible with the table schema. Please execute `$ optuna storage upgrade --storage $STORAGE_URL` or press the following button for upgrading the storage.</p>
     <form action="/incompatible-rdb-schema" method="post">
     <button>Migrate</button>
     </form>
 % end
+    </div>
 </body>
 </html>"""  # noqa: E501
 )
@@ -177,8 +196,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
         return rdb_schema_template.render(
             rdb_schema_needs_migrate=rdb_schema_needs_migrate,
             rdb_schema_unsupported=rdb_schema_unsupported,
-            current_version=storage.get_current_version(),
-            head_version=storage.get_head_version(),
+            optuna_ver=optuna_ver,
         )
 
     @app.post("/incompatible-rdb-schema")
