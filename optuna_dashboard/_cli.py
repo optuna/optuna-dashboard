@@ -66,7 +66,7 @@ def main() -> None:
     if args.storage.startswith("redis"):
         storage = RedisStorage(args.storage)
     else:
-        storage = RDBStorage(args.storage)
+        storage = RDBStorage(args.storage, skip_compatibility_check=True)
 
     app = create_app(storage, debug=DEBUG)
     if args.server == "wsgiref":

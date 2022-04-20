@@ -22,6 +22,7 @@ from bottle import redirect
 from bottle import request
 from bottle import response
 from bottle import run
+from bottle import SimpleTemplate
 from bottle import static_file
 from optuna.exceptions import DuplicatedStudyError
 from optuna.storages import BaseStorage
@@ -57,6 +58,52 @@ IMG_DIR = os.path.join(BASE_DIR, "img")
 trials_cache_lock = threading.Lock()
 trials_cache: Dict[int, List[FrozenTrial]] = {}
 trials_last_fetched_at: Dict[int, datetime] = {}
+
+# RDB schema migration check
+rdb_schema_migrate_lock = threading.Lock()
+rdb_schema_needs_migrate = False
+rdb_schema_unsupported = False
+rdb_schema_template = SimpleTemplate(
+    """<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Incompatible RDB Schema Error - Optuna Dashboard</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+body {
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.wrapper {
+    padding: 64px;
+    width: 600px;
+    background-color: rgb(255, 255, 255);
+    box-shadow: rgba(0, 0, 0, 0.08) 0 8px 24px;
+    margin: 0px auto;
+    border-radius: 8px;
+}
+</style>
+</head>
+<body>
+    <div class="wrapper">
+    <h1>Error: Incompatible RDB Schema</h1>
+% if rdb_schema_unsupported:
+    <p>Your Optuna version {{ optuna_ver }} seems outdated against the storage version. Please try updating optuna to the latest version by `$ pip install -U optuna`.</p>
+% elif rdb_schema_needs_migrate:
+    <p>The runtime optuna version {{ optuna_ver }} is no longer compatible with the table schema. Please execute `$ optuna storage upgrade --storage $STORAGE_URL` or press the following button for upgrading the storage.</p>
+    <form action="/incompatible-rdb-schema" method="post">
+    <button>Migrate</button>
+    </form>
+% end
+    </div>
+</body>
+</html>"""  # noqa: E501
+)
 
 
 def json_api_view(view: BottleView) -> BottleView:
@@ -108,7 +155,15 @@ def get_trials(
 
 
 def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
+    global rdb_schema_needs_migrate, rdb_schema_unsupported
+
     app = Bottle()
+
+    if isinstance(storage, RDBStorage):
+        current_version = storage.get_current_version()
+        head_version = storage.get_head_version()
+        rdb_schema_needs_migrate = current_version != head_version
+        rdb_schema_unsupported = current_version not in storage.get_all_versions()
 
     @app.hook("before_request")
     def remove_trailing_slashes_hook() -> None:
@@ -116,12 +171,36 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
 
     @app.get("/")
     def index() -> BottleViewReturn:
+        if rdb_schema_needs_migrate:
+            return redirect("/incompatible-rdb-schema", 302)
         return redirect("/dashboard", 302)  # Status Found
 
     # Accept any following paths for client-side routing
     @app.get("/dashboard<:re:(/.*)?>")
     def dashboard() -> BottleViewReturn:
+        if rdb_schema_needs_migrate:
+            return redirect("/incompatible-rdb-schema", 302)
         return static_file("index.html", BASE_DIR, mimetype="text/html")
+
+    @app.get("/incompatible-rdb-schema")
+    def get_incompatible_rdb_schema() -> BottleViewReturn:
+        if not rdb_schema_needs_migrate:
+            return redirect("/dashboard", 302)
+        assert isinstance(storage, RDBStorage)
+        return rdb_schema_template.render(
+            rdb_schema_needs_migrate=rdb_schema_needs_migrate,
+            rdb_schema_unsupported=rdb_schema_unsupported,
+            optuna_ver=optuna_ver,
+        )
+
+    @app.post("/incompatible-rdb-schema")
+    def post_incompatible_rdb_schema() -> BottleViewReturn:
+        global rdb_schema_needs_migrate
+        assert isinstance(storage, RDBStorage)
+        with rdb_schema_migrate_lock:
+            storage.upgrade()
+            rdb_schema_needs_migrate = False
+        return redirect("/dashboard", 302)
 
     @app.get("/api/studies")
     @json_api_view
@@ -276,7 +355,7 @@ def get_storage(storage: Union[str, BaseStorage]) -> BaseStorage:
         if storage.startswith("redis"):
             return RedisStorage(storage)
         else:
-            return RDBStorage(storage)
+            return RDBStorage(storage, skip_compatibility_check=True)
     return storage
 
 
