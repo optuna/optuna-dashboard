@@ -190,7 +190,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
 
     @app.get("/incompatible-rdb-schema")
     def get_incompatible_rdb_schema() -> BottleViewReturn:
-        if not rdb_schema_needs_migrate or not rdb_schema_unsupported:
+        if not rdb_schema_needs_migrate and not rdb_schema_unsupported:
             return redirect("/dashboard", 302)
         assert isinstance(storage, RDBStorage)
         return rdb_schema_template.render(
