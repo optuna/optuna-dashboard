@@ -85,8 +85,13 @@ export const GraphParetoFront: FC<{
   )
 }
 
-const filterFunc = (trial: Trial): boolean => {
-  return trial.state !== "Complete" || trial.values!.every((v) => v !== "inf")
+const filterFunc = (trial: Trial, directions: StudyDirection[]): boolean => {
+  return (
+    trial.state === "Complete" &&
+    trial.values !== undefined &&
+    trial.values.length === directions.length &&
+    trial.values.every((v) => v !== "inf")
+  )
 }
 
 const plotParetoFront = (
@@ -110,7 +115,9 @@ const plotParetoFront = (
   }
 
   const trials: Trial[] = study ? study.trials : []
-  const filteredTrials = trials.filter(filterFunc)
+  const filteredTrials = trials.filter((t: Trial) =>
+    filterFunc(t, study.directions)
+  )
 
   if (filteredTrials.length === 0) {
     plotly.react(plotDomId, [], layout)
