@@ -106,6 +106,18 @@ body {
 )
 
 
+def update_schema_compatibility_flags(storage: BaseStorage) -> None:
+    global rdb_schema_needs_migrate, rdb_schema_unsupported
+    if not isinstance(storage, RDBStorage):
+        return
+
+    with rdb_schema_migrate_lock:
+        current_version = storage.get_current_version()
+        head_version = storage.get_head_version()
+        rdb_schema_needs_migrate = current_version != head_version
+        rdb_schema_unsupported = current_version not in storage.get_all_versions()
+
+
 def json_api_view(view: BottleView) -> BottleView:
     @functools.wraps(view)
     def decorated(*args: List[Any], **kwargs: Dict[str, Any]) -> BottleViewReturn:
@@ -155,15 +167,8 @@ def get_trials(
 
 
 def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
-    global rdb_schema_needs_migrate, rdb_schema_unsupported
-
     app = Bottle()
-
-    if isinstance(storage, RDBStorage):
-        current_version = storage.get_current_version()
-        head_version = storage.get_head_version()
-        rdb_schema_needs_migrate = current_version != head_version
-        rdb_schema_unsupported = current_version not in storage.get_all_versions()
+    update_schema_compatibility_flags(storage)
 
     @app.hook("before_request")
     def remove_trailing_slashes_hook() -> None:
@@ -171,20 +176,21 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
 
     @app.get("/")
     def index() -> BottleViewReturn:
-        if rdb_schema_needs_migrate:
+        update_schema_compatibility_flags(storage)
+        if rdb_schema_needs_migrate or rdb_schema_unsupported:
             return redirect("/incompatible-rdb-schema", 302)
         return redirect("/dashboard", 302)  # Status Found
 
     # Accept any following paths for client-side routing
     @app.get("/dashboard<:re:(/.*)?>")
     def dashboard() -> BottleViewReturn:
-        if rdb_schema_needs_migrate:
+        if rdb_schema_needs_migrate or rdb_schema_unsupported:
             return redirect("/incompatible-rdb-schema", 302)
         return static_file("index.html", BASE_DIR, mimetype="text/html")
 
     @app.get("/incompatible-rdb-schema")
     def get_incompatible_rdb_schema() -> BottleViewReturn:
-        if not rdb_schema_needs_migrate:
+        if not rdb_schema_needs_migrate and not rdb_schema_unsupported:
             return redirect("/dashboard", 302)
         assert isinstance(storage, RDBStorage)
         return rdb_schema_template.render(
@@ -197,6 +203,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
     def post_incompatible_rdb_schema() -> BottleViewReturn:
         global rdb_schema_needs_migrate
         assert isinstance(storage, RDBStorage)
+        assert not rdb_schema_unsupported
         with rdb_schema_migrate_lock:
             storage.upgrade()
             rdb_schema_needs_migrate = False
