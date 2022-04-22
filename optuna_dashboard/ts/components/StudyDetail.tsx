@@ -212,7 +212,7 @@ export const StudyDetail: FC<{
                 <Checkbox
                   checked={preferences.graphEdfChecked}
                   onChange={handlePreferenceOnChange}
-                  name="edfChecked"
+                  name="graphEdfChecked"
                 />
               }
               label="EDF"
