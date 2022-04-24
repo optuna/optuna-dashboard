@@ -1,11 +1,24 @@
 import json
+from typing import List
 from unittest import TestCase
 
 import optuna
+from optuna.storages import BaseStorage
+from optuna.study import StudySummary
+from optuna.version import __version__ as optuna_ver
+from packaging import version
 
 from optuna_dashboard._app import create_app
 
 from .wsgi_client import send_request
+
+
+def get_all_study_summaries(storage: BaseStorage) -> List[StudySummary]:
+    if version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
+        summaries = storage.get_all_study_summaries(include_best_trial=True)  # type: ignore
+    else:
+        summaries = storage.get_all_study_summaries()  # type: ignore
+    return summaries
 
 
 def objective(trial: optuna.trial.Trial) -> float:
@@ -103,7 +116,7 @@ class APITestCase(TestCase):
         ]:
             with self.subTest(name):
                 storage = optuna.storages.InMemoryStorage()
-                self.assertEqual(len(storage.get_all_study_summaries()), 0)
+                self.assertEqual(len(get_all_study_summaries(storage)), 0)
 
                 app = create_app(storage)
                 request_body = {
@@ -120,14 +133,14 @@ class APITestCase(TestCase):
                 self.assertEqual(status, expected_status)
 
                 if expected_status == 201:
-                    self.assertEqual(len(storage.get_all_study_summaries()), 1)
+                    self.assertEqual(len(get_all_study_summaries(storage)), 1)
                 else:
-                    self.assertEqual(len(storage.get_all_study_summaries()), 0)
+                    self.assertEqual(len(get_all_study_summaries(storage)), 0)
 
     def test_create_study_duplicated(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         storage.create_new_study("foo")
-        self.assertEqual(len(storage.get_all_study_summaries()), 1)
+        self.assertEqual(len(get_all_study_summaries(storage)), 1)
 
         app = create_app(storage)
         request_body = {
@@ -142,13 +155,13 @@ class APITestCase(TestCase):
             body=json.dumps(request_body),
         )
         self.assertEqual(status, 400)
-        self.assertEqual(len(storage.get_all_study_summaries()), 1)
+        self.assertEqual(len(get_all_study_summaries(storage)), 1)
 
     def test_delete_study(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         storage.create_new_study("foo1")
         storage.create_new_study("foo2")
-        self.assertEqual(len(storage.get_all_study_summaries()), 2)
+        self.assertEqual(len(get_all_study_summaries(storage)), 2)
 
         app = create_app(storage)
         status, _, _ = send_request(
@@ -158,7 +171,7 @@ class APITestCase(TestCase):
             content_type="application/json",
         )
         self.assertEqual(status, 204)
-        self.assertEqual(len(storage.get_all_study_summaries()), 1)
+        self.assertEqual(len(get_all_study_summaries(storage)), 1)
 
     def test_delete_study_not_found(self) -> None:
         storage = optuna.storages.InMemoryStorage()
