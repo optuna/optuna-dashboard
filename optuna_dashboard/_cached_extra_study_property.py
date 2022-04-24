@@ -15,6 +15,7 @@ from optuna.trial import TrialState
 SearchSpaceSetT = Set[Tuple[str, BaseDistribution]]
 SearchSpaceListT = List[Tuple[str, BaseDistribution]]
 
+#  In-memory cache
 cached_extra_study_property_cache_lock = threading.Lock()
 cached_extra_study_property_cache: Dict[int, "_CachedExtraStudyProperty"] = {}
 
@@ -59,7 +60,7 @@ class _CachedExtraStudyProperty:
             if self._cursor > trial.number:
                 break
 
-            if not trial.state.is_finished:
+            if not trial.state.is_finished():
                 next_cursor = trial.number
 
             if trial.state not in states_of_interest:
