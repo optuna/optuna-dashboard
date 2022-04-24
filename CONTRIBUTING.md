@@ -91,7 +91,7 @@ $ pip install -r requirements.txt
 $ flake8
 $ black --check .
 $ isort . --check
-$ mypy .
+$ mypy optuna_dashboard python_tests
 ```
 
 or
