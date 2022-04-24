@@ -35,9 +35,8 @@ from optuna.version import __version__ as optuna_ver
 from packaging import version
 
 from . import _note as note
+from ._cached_extra_study_property import get_cached_extra_study_property
 from ._importance import get_param_importance_from_trials_cache
-from ._intermediate_values import has_intermediate_values
-from ._search_space import get_search_space
 from ._serializer import serialize_study_detail
 from ._serializer import serialize_study_summary
 
@@ -284,13 +283,13 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
         trials = get_trials(storage, study_id)
-        intersection, union = get_search_space(study_id, trials)
+        intersection, union, has_intermeridate_values = get_cached_extra_study_property(study_id, trials)
         return serialize_study_detail(
             summary,
             trials[after:],
             intersection,
             union,
-            has_intermediate_values(study_id, trials),
+            has_intermeridate_values,
         )
 
     @app.get("/api/studies/<study_id:int>/param_importances")
