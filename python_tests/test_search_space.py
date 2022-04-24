@@ -1,8 +1,11 @@
+from typing import Dict
+from typing import List
 from unittest import TestCase
 import warnings
 
 import optuna
 from optuna import create_trial
+from optuna.distributions import BaseDistribution
 from optuna.distributions import UniformDistribution
 from optuna.exceptions import ExperimentalWarning
 from optuna.trial import TrialState
@@ -16,7 +19,7 @@ class SearchSpaceTestCase(TestCase):
         warnings.simplefilter("ignore", category=ExperimentalWarning)
 
     def test_same_distributions(self) -> None:
-        distributions = [
+        distributions: List[Dict[str, BaseDistribution]] = [
             {
                 "x0": UniformDistribution(low=0, high=10),
                 "x1": UniformDistribution(low=0, high=10),
@@ -47,7 +50,7 @@ class SearchSpaceTestCase(TestCase):
         self.assertEqual(len(search_space.union), 2)
 
     def test_different_distributions(self) -> None:
-        distributions = [
+        distributions: List[Dict[str, BaseDistribution]] = [
             {
                 "x0": UniformDistribution(low=0, high=10),
                 "x1": UniformDistribution(low=0, high=10),
@@ -78,7 +81,7 @@ class SearchSpaceTestCase(TestCase):
         self.assertEqual(len(search_space.union), 3)
 
     def test_dynamic_search_space(self) -> None:
-        distributions = [
+        distributions: List[Dict[str, BaseDistribution]] = [
             {
                 "x0": UniformDistribution(low=0, high=10),
                 "x1": UniformDistribution(low=0, high=10),
