@@ -5,6 +5,7 @@ import warnings
 
 import optuna
 from optuna import create_trial
+from optuna.distributions import BaseDistribution
 from optuna.distributions import UniformDistribution
 from optuna.exceptions import ExperimentalWarning
 from optuna.trial import TrialState
@@ -18,7 +19,7 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
         warnings.simplefilter("ignore", category=ExperimentalWarning)
 
     def test_same_distributions(self) -> None:
-        distributions = [
+        distributions: List[Dict[str, BaseDistribution]] = [
             {
                 "x0": UniformDistribution(low=0, high=10),
                 "x1": UniformDistribution(low=0, high=10),
@@ -49,7 +50,7 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
         self.assertEqual(len(cached_extra_study_property.union), 2)
 
     def test_different_distributions(self) -> None:
-        distributions = [
+        distributions: List[Dict[str, BaseDistribution]] = [
             {
                 "x0": UniformDistribution(low=0, high=10),
                 "x1": UniformDistribution(low=0, high=10),
@@ -80,7 +81,7 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
         self.assertEqual(len(cached_extra_study_property.union), 3)
 
     def test_dynamic_search_space(self) -> None:
-        distributions = [
+        distributions: List[Dict[str, BaseDistribution]] = [
             {
                 "x0": UniformDistribution(low=0, high=10),
                 "x1": UniformDistribution(low=0, high=10),
@@ -143,7 +144,7 @@ class _CachedExtraStudyPropertyIntermediateTestCase(TestCase):
         self.assertFalse(cached_extra_study_property.has_intermediate_values)
 
     def test_some_trials_has_no_intermediate_value(self) -> None:
-        intermediate_values = [
+        intermediate_values: List[Dict] = [
             {0: 0.3, 1: 1.2},
             {},
             {0: 0.3, 1: 1.2},
@@ -163,7 +164,7 @@ class _CachedExtraStudyPropertyIntermediateTestCase(TestCase):
         self.assertTrue(cached_extra_study_property.has_intermediate_values)
 
     def test_all_trials_has_intermediate_value(self) -> None:
-        intermediate_values = [{0: 0.3, 1: 1.2}, {0: 0.3, 1: 1.2}]
+        intermediate_values: List[Dict] = [{0: 0.3, 1: 1.2}, {0: 0.3, 1: 1.2}]
         trials = [
             create_trial(
                 state=TrialState.COMPLETE,

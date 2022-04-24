@@ -47,21 +47,10 @@ $ docker run -it --rm -p 8080:8080 -v `PWD`:/app -w /app sqlite:///db.sqlite3
 
 ```
 $ pip install -e .
-$ optuna-dashboard sqlite:///db.sqlite3
-```
-
-<details>
-
-<summary>Environment variables for development</summary>
-
-If you set `OPTUNA_DASHBOARD_DEBUG=1`, the server will automatically restart when the source codes are changed.
-
-```
 $ OPTUNA_DASHBOARD_DEBUG=1 optuna-dashboard sqlite:///db.sqlite3
 ```
 
-</details>
-
+Note that `OPTUNA_DASHBOARD_DEBUG=1` makes the server will automatically restart when the source codes are changed.
 
 ## Running tests, lint checks and formatters
 
@@ -102,7 +91,7 @@ $ pip install -r requirements.txt
 $ flake8
 $ black --check .
 $ isort . --check
-$ mypy .
+$ mypy optuna_dashboard python_tests
 ```
 
 or
@@ -118,10 +107,11 @@ $ tox -e flake8 -e black -e mypy
 $ npm run fmt
 ```
 
-### Auto-formatting Python files (by black)
+### Auto-formatting Python files
 
 ```
 $ black .
+$ isort .
 ```
 
 
