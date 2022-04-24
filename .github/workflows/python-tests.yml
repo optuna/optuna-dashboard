@@ -42,3 +42,18 @@ jobs:
           python -m pip install --progress-bar off --upgrade pip setuptools
           pip install --progress-bar off .
       - run: python -m unittest
+  test-with-optuna-master:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+          architecture: x64
+      - name: Install dependencies
+        run: |
+          python -m pip install --progress-bar off --upgrade pip setuptools
+          pip install --progress-bar off .
+          python -m pip install --progress-bar off --upgrade git+https://github.com/optuna/optuna.git
+      - run: python -m unittest
