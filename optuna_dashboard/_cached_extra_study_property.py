@@ -5,12 +5,11 @@ from typing import List
 from typing import Optional
 from typing import Set
 from typing import Tuple
-from typing import Dict
-from typing import List
 
 from optuna.distributions import BaseDistribution
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
+
 
 SearchSpaceSetT = Set[Tuple[str, BaseDistribution]]
 SearchSpaceListT = List[Tuple[str, BaseDistribution]]
@@ -21,14 +20,24 @@ cached_extra_study_property_cache: Dict[int, "_CachedExtraStudyProperty"] = {}
 
 states_of_interest = [TrialState.COMPLETE, TrialState.PRUNED]
 
-def get_cached_extra_study_property(study_id: int, trials: List[FrozenTrial]) -> Tuple[SearchSpaceListT, SearchSpaceListT, bool]:
+
+def get_cached_extra_study_property(
+    study_id: int, trials: List[FrozenTrial]
+) -> Tuple[SearchSpaceListT, SearchSpaceListT, bool]:
     with cached_extra_study_property_cache_lock:
-        cached_extra_study_property = cached_extra_study_property_cache.get(study_id, None)
+        cached_extra_study_property = cached_extra_study_property_cache.get(
+            study_id, None
+        )
         if cached_extra_study_property is None:
             cached_extra_study_property = _CachedExtraStudyProperty()
         cached_extra_study_property.update(trials)
         cached_extra_study_property_cache[study_id] = cached_extra_study_property
-        return cached_extra_study_property.intersection, cached_extra_study_property.union, cached_extra_study_property.has_intermediate_values
+        return (
+            cached_extra_study_property.intersection,
+            cached_extra_study_property.union,
+            cached_extra_study_property.has_intermediate_values,
+        )
+
 
 class _CachedExtraStudyProperty:
     def __init__(self) -> None:
@@ -52,9 +61,6 @@ class _CachedExtraStudyProperty:
         return union
 
     def update(self, trials: List[FrozenTrial]) -> None:
-        if self.has_intermediate_values:
-            return
-
         next_cursor = self._cursor
         for trial in reversed(trials):
             if self._cursor > trial.number:
@@ -66,8 +72,7 @@ class _CachedExtraStudyProperty:
             if trial.state not in states_of_interest:
                 continue
 
-
-            if not self.has_intermediate_values and len(trial.intermediate_values) > 0 :
+            if len(trial.intermediate_values) > 0:
                 self.has_intermediate_values = True
 
             current = set([(n, d) for n, d in trial.distributions.items()])
