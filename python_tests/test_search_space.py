@@ -5,8 +5,8 @@ import warnings
 
 import optuna
 from optuna import create_trial
-from optuna.distributions import UniformDistribution
 from optuna.distributions import BaseDistribution
+from optuna.distributions import UniformDistribution
 from optuna.exceptions import ExperimentalWarning
 from optuna.trial import TrialState
 
