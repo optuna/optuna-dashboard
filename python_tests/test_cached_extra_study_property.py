@@ -1,3 +1,5 @@
+from typing import Dict
+from typing import List
 from unittest import TestCase
 import warnings
 
@@ -10,7 +12,7 @@ from optuna.trial import TrialState
 from optuna_dashboard._cached_extra_study_property import _CachedExtraStudyProperty
 
 
-class _CachedExtraStudyPropertyTestCase(TestCase):
+class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
     def setUp(self) -> None:
         optuna.logging.set_verbosity(optuna.logging.ERROR)
         warnings.simplefilter("ignore", category=ExperimentalWarning)
@@ -115,8 +117,14 @@ class _CachedExtraStudyPropertyTestCase(TestCase):
         self.assertEqual(len(cached_extra_study_property.intersection), 0)
         self.assertEqual(len(cached_extra_study_property.union), 3)
 
+
+class _CachedExtraStudyPropertyIntermediateTestCase(TestCase):
+    def setUp(self) -> None:
+        optuna.logging.set_verbosity(optuna.logging.ERROR)
+        warnings.simplefilter("ignore", category=ExperimentalWarning)
+
     def test_no_intermediate_value(self) -> None:
-        intermediate_values = [
+        intermediate_values: List[Dict] = [
             {},
             {},
         ]
@@ -171,7 +179,7 @@ class _CachedExtraStudyPropertyTestCase(TestCase):
         self.assertTrue(cached_extra_study_property.has_intermediate_values)
 
     def test_no_trials(self) -> None:
-        trials = []
+        trials: list = []
         cached_extra_study_property = _CachedExtraStudyProperty()
         cached_extra_study_property.update(trials)
         self.assertFalse(cached_extra_study_property.has_intermediate_values)

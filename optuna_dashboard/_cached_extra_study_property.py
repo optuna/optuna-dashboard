@@ -72,7 +72,7 @@ class _CachedExtraStudyProperty:
             if trial.state not in states_of_interest:
                 continue
 
-            if len(trial.intermediate_values) > 0:
+            if not self.has_intermediate_values and len(trial.intermediate_values) > 0:
                 self.has_intermediate_values = True
 
             current = set([(n, d) for n, d in trial.distributions.items()])
