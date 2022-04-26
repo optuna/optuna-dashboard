@@ -70,9 +70,6 @@ export const getStudyDetailAPI = (
         name: res.data.name,
         datetime_start: new Date(res.data.datetime_start),
         directions: res.data.directions,
-        best_trial: res.data.best_trial
-          ? convertTrialResponse(res.data.best_trial)
-          : undefined,
         trials: trials,
         union_search_space: res.data.union_search_space,
         intersection_search_space: res.data.intersection_search_space,
@@ -111,14 +108,10 @@ export const getStudySummariesAPI = (): Promise<StudySummary[]> => {
     .get<StudySummariesResponse>(`/api/studies`, {})
     .then((res) => {
       return res.data.study_summaries.map((study): StudySummary => {
-        const best_trial = study.best_trial
-          ? convertTrialResponse(study.best_trial)
-          : undefined
         return {
           study_id: study.study_id,
           study_name: study.study_name,
           directions: study.directions,
-          best_trial: best_trial,
           user_attrs: study.user_attrs,
           system_attrs: study.system_attrs,
           datetime_start: study.datetime_start

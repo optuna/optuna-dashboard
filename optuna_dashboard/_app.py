@@ -136,7 +136,7 @@ def json_api_view(view: BottleView) -> BottleView:
 
 def get_study_summary(storage: BaseStorage, study_id: int) -> Optional[StudySummary]:
     if version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
-        summaries = storage.get_all_study_summaries(include_best_trial=True)  # type: ignore
+        summaries = storage.get_all_study_summaries(include_best_trial=False)  # type: ignore
     else:
         summaries = storage.get_all_study_summaries()  # type: ignore
     for summary in summaries:
