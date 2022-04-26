@@ -86,13 +86,14 @@ it("Sort TrialTable by trial number", () => {
     <TrialTable studyDetail={studyDetail} />
   )
   const rows = getAllByRole("row")
+
   expect(within(rows[1]).getByText("0")).toBeTruthy()
-  expect(within(rows[3]).getByText("1")).toBeTruthy()
+  expect(within(rows[3]).getAllByText("1")[0]).toBeTruthy()
 
   fireEvent.click(getByText("Number"))
 
   const rows_updated = getAllByRole("row")
-  expect(within(rows_updated[1]).getByText("1")).toBeTruthy()
+  expect(within(rows_updated[1]).getAllByText("1")[0]).toBeTruthy()
   expect(within(rows_updated[3]).getByText("0")).toBeTruthy()
 })
 
