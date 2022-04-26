@@ -32,7 +32,7 @@ interface DataGridColumn<T> {
 }
 
 interface RowFilter<T> {
-  field: keyof T
+  columnIdx: number
   value: any
 }
 
@@ -78,29 +78,39 @@ function DataGrid<T>(props: {
   }
 
   // Filtering
-  const fieldAlreadyFiltered = (field: keyof T): boolean =>
-    filters.some((f) => f.field === field)
+  const fieldAlreadyFiltered = (columnIdx: number): boolean =>
+    filters.some((f) => f.columnIdx === columnIdx)
 
-  const handleClickFilterCell = (field: keyof T, value: any) => {
-    if (fieldAlreadyFiltered(field)) {
+  const handleClickFilterCell = (columnIdx: number, value: any) => {
+    if (fieldAlreadyFiltered(columnIdx)) {
       return
     }
-    const newFilters = [...filters, { field: field, value: value }]
+    const newFilters = [...filters, { columnIdx: columnIdx, value: value }]
     setFilters(newFilters)
   }
 
-  const clearFilter = (field: keyof T): void => {
-    setFilters(filters.filter((f) => f.field !== field))
+  const clearFilter = (columnIdx: number): void => {
+    setFilters(filters.filter((f) => f.columnIdx !== columnIdx))
   }
 
-  const filteredRows = rows.filter((row) => {
+  const filteredRows = rows.filter((row, rowIdx) => {
     if (defaultFilter !== undefined && defaultFilter(row)) {
       return false
     }
     return filters.length === 0
       ? true
       : filters.some((f) => {
-          return row[f.field] === f.value
+          // columns.find((c, idx) => idx === f.columnIdx).toCellValue  // ここでrowIndexが必要。色々厳しい
+          if (columns.length <= f.columnIdx) {
+            console.log(`columnIdx=${f.columnIdx} must be smaller than columns.length=${columns.length}`)
+            return true
+          }
+          const toCellValue = columns[f.columnIdx].toCellValue
+          if (toCellValue !== undefined) {
+            return toCellValue(rowIdx) ===f.value
+          }
+          const field = columns[f.columnIdx].field
+          return row[field] === f.value
         })
   })
 
@@ -147,18 +157,18 @@ function DataGrid<T>(props: {
           <TableHead>
             <TableRow>
               {collapseBody ? <TableCell /> : null}
-              {columns.map((column, index) => (
+              {columns.map((column, columnIdx) => (
                 <TableCell
-                  key={index}
+                  key={columnIdx}
                   padding={column.padding || "normal"}
                   sortDirection={orderBy === column.field ? order : false}
                 >
                   <TableHeaderCellSpan>
                     {column.sortable ? (
                       <TableSortLabel
-                        active={orderBy === index}
-                        direction={orderBy === index ? order : "asc"}
-                        onClick={createSortHandler(index)}
+                        active={orderBy === columnIdx}
+                        direction={orderBy === columnIdx ? order : "asc"}
+                        onClick={createSortHandler(columnIdx)}
                       >
                         {column.label}
                         {orderBy === column.field ? (
@@ -176,13 +186,13 @@ function DataGrid<T>(props: {
                       <IconButton
                         size={dense ? "small" : "medium"}
                         style={
-                          fieldAlreadyFiltered(column.field)
+                          fieldAlreadyFiltered(columnIdx)
                             ? {}
                             : { visibility: "hidden" }
                         }
                         color="inherit"
                         onClick={(e) => {
-                          clearFilter(column.field)
+                          clearFilter(columnIdx)
                         }}
                       >
                         <Clear />
@@ -232,7 +242,7 @@ function DataGridRow<T>(props: {
   row: T
   keyField: keyof T
   collapseBody?: (rowIndex: number) => React.ReactNode
-  handleClickFilterCell: (field: keyof T, value: any) => void
+  handleClickFilterCell: (columnIdx: number, value: any) => void
 }) {
   const {
     columns,
@@ -274,7 +284,8 @@ function DataGridRow<T>(props: {
               key={`${row[keyField]}:${column.field}:${columnIndex}`}
               padding={column.padding || "normal"}
               onClick={(e) => {
-                handleClickFilterCell(column.field, row[column.field])
+                const value = column.toCellValue !== undefined ? column.toCellValue(rowIndex) : row[column.field]
+                handleClickFilterCell(columnIndex, value)
               }}
             >
               <FilterableDiv>{cellItem}</FilterableDiv>
