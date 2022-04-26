@@ -102,12 +102,14 @@ function DataGrid<T>(props: {
       : filters.some((f) => {
           // columns.find((c, idx) => idx === f.columnIdx).toCellValue  // ここでrowIndexが必要。色々厳しい
           if (columns.length <= f.columnIdx) {
-            console.log(`columnIdx=${f.columnIdx} must be smaller than columns.length=${columns.length}`)
+            console.log(
+              `columnIdx=${f.columnIdx} must be smaller than columns.length=${columns.length}`
+            )
             return true
           }
           const toCellValue = columns[f.columnIdx].toCellValue
           if (toCellValue !== undefined) {
-            return toCellValue(rowIdx) ===f.value
+            return toCellValue(rowIdx) === f.value
           }
           const field = columns[f.columnIdx].field
           return row[field] === f.value
@@ -284,7 +286,10 @@ function DataGridRow<T>(props: {
               key={`${row[keyField]}:${column.field}:${columnIndex}`}
               padding={column.padding || "normal"}
               onClick={(e) => {
-                const value = column.toCellValue !== undefined ? column.toCellValue(rowIndex) : row[column.field]
+                const value =
+                  column.toCellValue !== undefined
+                    ? column.toCellValue(rowIndex)
+                    : row[column.field]
                 handleClickFilterCell(columnIndex, value)
               }}
             >
