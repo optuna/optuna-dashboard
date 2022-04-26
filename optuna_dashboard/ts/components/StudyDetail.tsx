@@ -599,12 +599,44 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
       }
     },
   })
-  columns.push({
-    field: "params",
-    label: "Params",
-    toCellValue: (i) =>
-      trials[i].params.map((p) => p.name + ": " + p.value).join(", "),
-  })
+  if (
+    studyDetail?.union_search_space.length ===
+    studyDetail?.intersection_search_space.length
+  ) {
+    studyDetail?.intersection_search_space.forEach((s) => {
+      columns.push({
+        field: "params",
+        label: `Param ${s.name}`,
+        toCellValue: (i) =>
+          trials[i].params.find((p) => p.name === s.name)?.value || null,
+        sortable: true,
+        filterable: false,
+        less: (firstEl, secondEl): number => {
+          const firstVal = firstEl.params.find((p) => p.name === s.name)?.value
+          const secondVal = secondEl.params.find(
+            (p) => p.name === s.name
+          )?.value
+
+          if (firstVal === secondVal) {
+            return 0
+          } else if (firstVal && secondVal) {
+            return firstVal < secondVal ? 1 : -1
+          } else if (firstVal) {
+            return -1
+          } else {
+            return 1
+          }
+        },
+      })
+    })
+  } else {
+    columns.push({
+      field: "params",
+      label: "Params",
+      toCellValue: (i) =>
+        trials[i].params.map((p) => p.name + ": " + p.value).join(", "),
+    })
+  }
 
   const collapseParamColumns: DataGridColumn<TrialParam>[] = [
     { field: "name", label: "Name", sortable: true },
