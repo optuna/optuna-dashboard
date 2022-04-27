@@ -100,7 +100,6 @@ function DataGrid<T>(props: {
     return filters.length === 0
       ? true
       : filters.some((f) => {
-          // columns.find((c, idx) => idx === f.columnIdx).toCellValue  // ここでrowIndexが必要。色々厳しい
           if (columns.length <= f.columnIdx) {
             console.log(
               `columnIdx=${f.columnIdx} must be smaller than columns.length=${columns.length}`
