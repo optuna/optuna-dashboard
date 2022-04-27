@@ -605,13 +605,14 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
   ) {
     studyDetail?.intersection_search_space.forEach((s) => {
       const sortable = s.distribution !== "CategoricalDistribution"
+      const filterable = s.distribution === "CategoricalDistribution"
       columns.push({
         field: "params",
         label: `Param ${s.name}`,
         toCellValue: (i) =>
           trials[i].params.find((p) => p.name === s.name)?.value || null,
         sortable: sortable,
-        filterable: false, // TODO(yoshinobc): Support filtering by categorical parameters
+        filterable: filterable,
         less: (firstEl, secondEl): number => {
           const firstVal = firstEl.params.find((p) => p.name === s.name)?.value
           const secondVal = secondEl.params.find(
