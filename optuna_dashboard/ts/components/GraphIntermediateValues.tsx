@@ -51,20 +51,31 @@ const plotIntermediateValue = (trials: Trial[], mode: string) => {
     return
   }
 
-  const filteredTrials = trials.filter(
-    (t) =>
-      t.state === "Complete" ||
-      (t.state === "Pruned" && t.values && t.values.length > 0)
-  )
-  const plotData: Partial<plotly.PlotData>[] = filteredTrials.map((trial) => {
-    const values = trial.intermediate_values.filter((iv) => iv.value !== "inf")
-    return {
-      x: values.map((iv) => iv.step),
-      y: values.map((iv) => iv.value),
-      mode: "lines+markers",
-      type: "scatter",
-      name: `trial #${trial.number}`,
+  const sortedFilteredTrials = trials
+    .filter(
+      (t) =>
+        t.state === "Complete" ||
+        (t.state === "Pruned" && t.values && t.values.length > 0) ||
+        t.state == "Running"
+    )
+    .slice()
+    .sort((a: Trial, b: Trial) => a.number - b.number)
+  const plotData: Partial<plotly.PlotData>[] = sortedFilteredTrials.map(
+    (trial) => {
+      const values = trial.intermediate_values.filter(
+        (iv) => iv.value !== "inf"
+      )
+      return {
+        x: values.map((iv) => iv.step),
+        y: values.map((iv) => iv.value),
+        mode: "lines+markers",
+        type: "scatter",
+        name:
+          trial.state !== "Running"
+            ? `trial #${trial.number}`
+            : `trial #${trial.number} (running)`,
+      }
     }
-  })
+  )
   plotly.react(plotDomId, plotData, layout)
 }
