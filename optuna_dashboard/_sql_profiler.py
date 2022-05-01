@@ -1,7 +1,5 @@
-import copy
 import threading
 from time import perf_counter
-from typing import Any
 from typing import Dict
 from typing import List
 from typing import Tuple
@@ -19,7 +17,7 @@ if TYPE_CHECKING:
     from sqlalchemy.engine.base import Engine
 
 sql_queries_lock = threading.Lock()
-sql_queries: Dict[str, Tuple[int, List[float], List[Dict[str, Any]]]] = {}
+sql_queries: Dict[str, Tuple[int, List[float]]] = {}
 sql_queries_template = SimpleTemplate(
     """<!DOCTYPE html>
 <html lang="en">
@@ -35,7 +33,7 @@ body {
 </style>
 </head>
 <body>
-  <h1>Slow Profiler</h1>
+  <h1>SQL Profiler</h1>
   <h2>Sort by Total Time</h2>
   <table border="1">
     <thead>
@@ -105,7 +103,6 @@ class EngineDebuggingSignalEvents:
             sql_queries[stmt] = (
                 sql_queries[stmt][0] + 1 if registered else 1,
                 sql_queries[stmt][1] + [duration] if registered else [duration],
-                sql_queries[stmt][2] + [parameters] if registered else [parameters],
             )
 
 
@@ -118,17 +115,14 @@ def register_profiler_view(app: Bottle, storage: RDBStorage) -> Bottle:
         with sql_queries_lock:
             summary = [
                 (stmt, count, f"{sum(durations):.4f}", sum(durations))
-                for stmt, (count, durations, _) in sql_queries.items()
+                for stmt, (count, durations) in sql_queries.items()
             ]
 
-            sorted(summary, key=lambda r: r[3], reverse=True)
-            sort_by_total = copy.deepcopy(summary[:5])
-
-            sorted(summary, key=lambda r: r[1], reverse=True)
-            sort_by_count = copy.deepcopy(summary[:5])
+            sort_by_total = sorted(summary, key=lambda r: r[3], reverse=True)
+            sort_by_count = sorted(summary, key=lambda r: r[1], reverse=True)
 
             res = sql_queries_template.render(
-                sort_by_total=sort_by_total, sort_by_count=sort_by_count
+                sort_by_total=sort_by_total[:5], sort_by_count=sort_by_count[:5]
             )
             sql_queries = {}
         return res
