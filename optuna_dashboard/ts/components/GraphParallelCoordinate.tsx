@@ -136,7 +136,7 @@ const plotCoordinate = (
       return param!.value
     })
     const isnum = valueStrings.every((v) => {
-      return !isNaN(parseFloat(v))
+      return !isNaN(Number(v))
     })
     if (isnum) {
       const values: number[] = valueStrings.map((v) => parseFloat(v))
