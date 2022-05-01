@@ -1,8 +1,11 @@
 import copy
 import threading
 from time import perf_counter
-from typing import List, Dict, Any
+from typing import Any
+from typing import Dict
+from typing import List
 from typing import Tuple
+from typing import TYPE_CHECKING
 
 from bottle import Bottle
 from bottle import SimpleTemplate
@@ -11,6 +14,9 @@ from sqlalchemy import event
 
 from optuna_dashboard._app import BottleView
 
+
+if TYPE_CHECKING:
+    from sqlalchemy.engine.base import Engine
 
 sql_queries_lock = threading.Lock()
 sql_queries: Dict[str, Tuple[int, List[float], List[Dict[str, Any]]]] = {}
@@ -77,22 +83,22 @@ class EngineDebuggingSignalEvents:
     """Sets up handlers for two events that let us track the execution time of
     queries."""
 
-    def __init__(self, engine):
+    def __init__(self, engine: "Engine") -> None:
         self.engine = engine
         self.query_start_time = perf_counter()
 
-    def register(self):
+    def register(self) -> None:
         event.listen(self.engine, "before_cursor_execute", self.before_cursor_execute)
         event.listen(self.engine, "after_cursor_execute", self.after_cursor_execute)
 
-    def before_cursor_execute(
+    def before_cursor_execute(  # type: ignore
         self, conn, cursor, statement, parameters, context, executemany
-    ):
+    ) -> None:
         self.query_start_time = perf_counter()
 
-    def after_cursor_execute(
+    def after_cursor_execute(  # type: ignore
         self, conn, cursor, stmt, parameters, context, executemany
-    ):
+    ) -> None:
         duration = perf_counter() - self.query_start_time
         with sql_queries_lock:
             registered = stmt in sql_queries
@@ -122,8 +128,7 @@ def register_profiler_view(app: Bottle, storage: RDBStorage) -> Bottle:
             sort_by_count = copy.deepcopy(summary[:5])
 
             res = sql_queries_template.render(
-                sort_by_total=sort_by_total,
-                sort_by_count=sort_by_count
+                sort_by_total=sort_by_total, sort_by_count=sort_by_count
             )
             sql_queries = {}
         return res
