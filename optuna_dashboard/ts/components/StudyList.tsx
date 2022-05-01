@@ -351,7 +351,7 @@ export const StudyList: FC<{
             rows={studies}
             keyField={"study_id"}
             collapseBody={collapseBody}
-            initialRowsPerPage={-1}
+            initialRowsPerPage={10}
             rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
             defaultFilter={studyFilter}
           />

@@ -212,7 +212,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
     @json_api_view
     def list_study_summaries() -> BottleViewReturn:
         if version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
-            summaries = storage.get_all_study_summaries(include_best_trial=True)  # type: ignore
+            summaries = storage.get_all_study_summaries(include_best_trial=False)  # type: ignore
         else:
             summaries = storage.get_all_study_summaries()  # type: ignore
         serialized = [serialize_study_summary(summary) for summary in summaries]
