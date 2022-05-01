@@ -9,6 +9,7 @@ from optuna.storages import RedisStorage
 
 from . import __version__
 from ._app import create_app
+from ._sql_profiler import register_profiler_view
 
 
 DEBUG = os.environ.get("OPTUNA_DASHBOARD_DEBUG") == "1"
@@ -69,6 +70,10 @@ def main() -> None:
         storage = RDBStorage(args.storage, skip_compatibility_check=True)
 
     app = create_app(storage, debug=DEBUG)
+
+    if DEBUG and isinstance(storage, RDBStorage):
+        app = register_profiler_view(app, storage)
+
     if args.server == "wsgiref":
         run_wsgiref(app, args.host, args.port, args.quiet)
     elif args.server == "gunicorn":
