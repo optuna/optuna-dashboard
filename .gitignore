@@ -13,3 +13,6 @@ tmp/
 
 *.sqlite3
 *.db
+
+optuna_dashboard/_fast_fanova/*.c
+*.so
