@@ -8,6 +8,7 @@ try:
 except ImportError:
     from optuna.importance import FanovaImportanceEvaluator
     import warnings
+
     warnings.warn("Failed to import Cython accelerated fANOVA module")
 
 try:

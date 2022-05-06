@@ -24,7 +24,7 @@ class LazyImportBuildExtCmd(build_ext):
     def finalize_options(self) -> None:
         # cythoinze() must be lazily called since Cython's build requires scikit-learn.
         if cythonize is not None:
-            self.distribution.ext_modules = cythonize(self.distribution.ext_modules)
+            self.extensions = cythonize(self.extensions)
         super().finalize_options()
 
 
