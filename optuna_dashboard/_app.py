@@ -136,7 +136,7 @@ def json_api_view(view: BottleView) -> BottleView:
 
 def get_study_summary(storage: BaseStorage, study_id: int) -> Optional[StudySummary]:
     if version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
-        summaries = storage.get_all_study_summaries(include_best_trial=True)  # type: ignore
+        summaries = storage.get_all_study_summaries(include_best_trial=False)  # type: ignore
     else:
         summaries = storage.get_all_study_summaries()  # type: ignore
     for summary in summaries:
@@ -158,7 +158,7 @@ def get_trials(
             and datetime.now() - last_fetched_at < timedelta(seconds=ttl_seconds)
         ):
             return trials
-    trials = storage.get_all_trials(study_id)
+    trials = storage.get_all_trials(study_id, deepcopy=False)
     with trials_cache_lock:
         trials_last_fetched_at[study_id] = datetime.now()
         trials_cache[study_id] = trials
@@ -212,7 +212,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
     @json_api_view
     def list_study_summaries() -> BottleViewReturn:
         if version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
-            summaries = storage.get_all_study_summaries(include_best_trial=True)  # type: ignore
+            summaries = storage.get_all_study_summaries(include_best_trial=False)  # type: ignore
         else:
             summaries = storage.get_all_study_summaries()  # type: ignore
         serialized = [serialize_study_summary(summary) for summary in summaries]
