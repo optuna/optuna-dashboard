@@ -15,11 +15,17 @@ except ImportError:
 
 
 class LazyImportBuildExtCmd(build_ext):
-    def run(self):
+    def run(self) -> None:
         import numpy
 
         self.include_dirs.append(numpy.get_include())
         super().run()
+
+    def finalize_options(self) -> None:
+        # cythoinze() must be lazily called since Cython's build requires scikit-learn.
+        if cythonize is not None:
+            self.distribution.ext_modules = cythonize(self.distribution.ext_modules)
+        super().finalize_options()
 
 
 ext_modules = [
@@ -30,12 +36,10 @@ ext_modules = [
     )
 ]
 
-if cythonize is not None:
-    ext_modules = cythonize(ext_modules)
-
 
 if __name__ == "__main__":
     setup(
         ext_modules=ext_modules,
+        setup_requires=["numpy", "scikit-learn"],
         cmdclass={"build_ext": LazyImportBuildExtCmd},
     )
