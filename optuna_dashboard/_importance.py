@@ -4,9 +4,11 @@ from typing import List
 from typing import Tuple
 
 try:
-    from ._fast_fanova.evaluator import FanovaImportanceEvaluator
+    from optuna_dashboard._fast_fanova import FanovaImportanceEvaluator
 except ImportError:
     from optuna.importance import FanovaImportanceEvaluator
+    import warnings
+    warnings.warn("Failed to import Cython accelerated fANOVA module")
 
 try:
     from typing import TypedDict

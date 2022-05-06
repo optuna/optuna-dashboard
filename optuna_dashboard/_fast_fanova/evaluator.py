@@ -16,7 +16,7 @@ from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
 from sklearn.ensemble import RandomForestRegressor
 
-from .tree import FanovaTree
+from optuna_dashboard._fast_fanova.tree import FanovaTree
 
 
 class FanovaImportanceEvaluator(BaseImportanceEvaluator):

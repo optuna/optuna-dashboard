@@ -22,8 +22,7 @@ cdef class FanovaTree:
         long long[:] _tree_node_features
         long long[:] _tree_node_right_children
         long long[:] _tree_node_left_children
-        double [:,:] _statistics
-        cnp.ndarray _search_spaces
+        double [:,:] _statistics, _search_spaces
         cnp.npy_bool[:,:] _subtree_active_features
         double _variance
         object _split_midpoints
@@ -109,55 +108,70 @@ cdef class FanovaTree:
 
     cdef (double, double) _get_marginalized_statistics(self, double[:] feature_vector):
         cdef:
-            cnp.ndarray search_spaces, next_subspace
+            cnp.ndarray next_subspace
+            int[:] active_nodes
+            double[:,:] buf
+            double[:,:,:] active_search_spaces
             cnp.ndarray[cnp.npy_bool, cast=True, ndim=1] marginalized_features, active_features
 
-            int node_index, next_node_index, feature
+            int i, node_index, next_node_index, feature, active_nodes_index
             double response
 
             double sum_weighted_value = 0, sum_weight = 0, tmp_weight, weighted_average
 
         assert feature_vector.size == self._n_features()
-        marginalized_features = np.isnan(feature_vector)
-        active_features = ~marginalized_features
-        search_spaces = self._search_spaces.copy()
-        search_spaces[marginalized_features] = [0.0, 1.0]
 
         # Start from the root and traverse towards the leafs.
-        active_nodes = [0]
-        active_search_spaces = [search_spaces]
+        active_nodes_index = 0
+        active_nodes = np.empty(shape=self._tree.node_count, dtype=np.int32)
+        active_search_spaces = np.empty(shape=(self._tree.node_count, self._search_spaces.shape[0], 2), dtype=np.float64)
 
-        while active_nodes:
-            node_index = active_nodes.pop()  # 0
-            search_spaces = active_search_spaces.pop()
+        active_nodes[active_nodes_index] = 0
+        active_search_spaces[active_nodes_index, ...] = self._search_spaces
+
+        active_features = np.zeros_like(np.asarray(feature_vector), dtype=np.bool_)
+
+        for i in range(feature_vector.shape[0]):
+            if isnan(feature_vector[i]):
+                active_search_spaces[active_nodes_index, i, 0] = 0.0
+                active_search_spaces[active_nodes_index, i, 1] = 1.0
+            else:
+                active_features[i] = True
+
+        while active_nodes_index >= 0:
+            node_index = active_nodes[active_nodes_index]
+            search_spaces = active_search_spaces[active_nodes_index]
+            active_nodes_index -= 1
 
             feature = self._get_node_split_feature(node_index)
             if feature >= 0:  # Not leaf. Avoid unnecessary call to `_is_node_leaf`.
                 # If node splits on an active feature, push the child node that we end up in.
                 response = feature_vector[feature]
                 if not isnan(response):
+                    active_nodes_index += 1
+                    buf = active_search_spaces[active_nodes_index]
                     if response <= self._get_node_split_threshold(node_index):
                         next_node_index = self._get_node_left_child(node_index)
-                        next_subspace = self._get_node_left_child_subspaces(
-                            node_index, search_spaces
+                        self._get_node_left_child_subspaces(
+                            node_index, search_spaces, buf
                         )
                     else:
                         next_node_index = self._get_node_right_child(node_index)
-                        next_subspace = self._get_node_right_child_subspaces(
-                            node_index, search_spaces
+                        self._get_node_right_child_subspaces(
+                            node_index, search_spaces, buf
                         )
-
-                    active_nodes.append(next_node_index)
-                    active_search_spaces.append(next_subspace)
+                    active_nodes[active_nodes_index] = next_node_index
                     continue
 
                 # If subtree starting from node splits on an active feature, push both child nodes.
-                if self._is_subtree_active(node_index, active_features):
-                    active_nodes.append(self._get_node_left_child(node_index))
-                    active_search_spaces.append(search_spaces)
+                if self._is_subtree_active(node_index, active_features) == 1:
+                    active_nodes_index += 1
+                    active_nodes[active_nodes_index] = self._get_node_left_child(node_index)
+                    active_search_spaces[active_nodes_index] = search_spaces
 
-                    active_nodes.append(self._get_node_right_child(node_index))
-                    active_search_spaces.append(search_spaces)
+                    active_nodes_index += 1
+                    active_nodes[active_nodes_index] = self._get_node_right_child(node_index)
+                    active_search_spaces[active_nodes_index] = search_spaces
                     continue
 
             # avg = sum(a * weights) / sum(weights)
@@ -169,13 +183,15 @@ cdef class FanovaTree:
         return weighted_average, sum_weight
 
     def _precompute_statistics(self) -> np.ndarray:
+        cdef double[:,:] child_subspace
+
         n_nodes = self._tree.node_count
 
         # Holds for each node, its weighted average value and the sum of weights.
         statistics = np.empty((n_nodes, 2), dtype=np.float64)
 
         subspaces = np.array([None for _ in range(n_nodes)])
-        subspaces[0] = self._search_spaces
+        subspaces[0] = np.asarray(self._search_spaces, dtype=np.float64)
 
         # Compute marginals for leaf nodes.
         for node_index in range(n_nodes):
@@ -187,12 +203,14 @@ cdef class FanovaTree:
                 statistics[node_index] = [value, weight]
             else:
                 child_node_index = self._get_node_left_child(node_index)
-                child_subspace = self._get_node_left_child_subspaces(node_index, subspace)
+                child_subspace = np.copy(subspace)
+                self._get_node_left_child_subspaces(node_index, subspace, child_subspace)
                 assert subspaces[child_node_index] is None
                 subspaces[child_node_index] = child_subspace
 
                 child_node_index = self._get_node_right_child(node_index)
-                child_subspace = self._get_node_right_child_subspaces(node_index, subspace)
+                child_subspace = np.copy(subspace)
+                self._get_node_right_child_subspaces(node_index, subspace, child_subspace)
                 assert subspaces[child_node_index] is None
                 subspaces[child_node_index] = child_subspace
 
@@ -213,7 +231,6 @@ cdef class FanovaTree:
                 value = np.average(child_values, weights=child_weights)
                 weight = float(np.sum(child_weights))
                 statistics[node_index] = [value, weight]
-
         return statistics
 
     def _precompute_split_midpoints_and_sizes(self):
@@ -297,24 +314,26 @@ cdef class FanovaTree:
     cdef inline int _get_node_split_feature(self, int node_index) nogil:
         return self._tree_node_features[node_index]
 
-    cdef inline cnp.ndarray _get_node_left_child_subspaces(
-        self, int node_index, cnp.ndarray search_spaces
-    ):
-        return _get_subspaces(
+    cdef inline void _get_node_left_child_subspaces(
+        self, int node_index, double[:,:] search_spaces, double[:,:] buf
+    ) nogil:
+        _get_subspaces(
             search_spaces,
             1,
             self._get_node_split_feature(node_index),
             self._get_node_split_threshold(node_index),
+            buf,
         )
 
-    cdef inline cnp.ndarray _get_node_right_child_subspaces(
-        self, int node_index, cnp.ndarray search_spaces
-    ):
-        return _get_subspaces(
+    cdef inline void _get_node_right_child_subspaces(
+        self, int node_index, double[:,:] search_spaces, double[:,:] buf
+    ) nogil:
+        _get_subspaces(
             search_spaces,
             0,
             self._get_node_split_feature(node_index),
             self._get_node_split_threshold(node_index),
+            buf,
         )
 
 
@@ -326,9 +345,9 @@ cdef inline double _get_cardinality(double[:,:] search_spaces) nogil:
     return result
 
 
-cdef inline cnp.ndarray _get_subspaces(
-    cnp.ndarray search_spaces, int search_spaces_column, int feature, double threshold
-):
-    search_spaces_subspace = np.copy(search_spaces)
-    search_spaces_subspace[feature, search_spaces_column] = threshold
-    return search_spaces_subspace
+@cython.boundscheck(False)
+cdef inline void _get_subspaces(
+    double[:,:] search_spaces, int search_spaces_column, int feature, double threshold, double[:,:] buf
+) nogil:
+    buf[...] = search_spaces
+    buf[feature, search_spaces_column] = threshold
