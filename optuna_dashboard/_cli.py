@@ -1,5 +1,9 @@
 import argparse
 import os
+from socketserver import ThreadingMixIn
+import sys
+from wsgiref.simple_server import make_server
+from wsgiref.simple_server import WSGIServer
 
 from bottle import Bottle
 from bottle import run
@@ -16,15 +20,25 @@ DEBUG = os.environ.get("OPTUNA_DASHBOARD_DEBUG") == "1"
 SERVER_CHOICES = ["wsgiref", "gunicorn"]
 
 
+class ThreadedWSGIServer(ThreadingMixIn, WSGIServer):
+    pass
+
+
 def run_wsgiref(app: Bottle, host: str, port: int, quiet: bool) -> None:
-    run(
-        app,
-        host=host,
-        port=port,
-        server="wsgiref",
-        quiet=quiet,
-        reloader=DEBUG,
-    )
+    if DEBUG:
+        run(
+            app,
+            host=host,
+            port=port,
+            server="wsgiref",
+            quiet=quiet,
+            reloader=DEBUG,
+        )
+    else:
+        print(f"Listening on http://{host}:{port}/", file=sys.stderr)
+        print("Hit Ctrl-C to quit.\n", file=sys.stderr)
+        httpd = make_server(host, port, app, server_class=ThreadedWSGIServer)
+        httpd.serve_forever()
 
 
 def run_gunicorn(app: Bottle, host: str, port: int, quiet: bool) -> None:
@@ -35,6 +49,7 @@ def run_gunicorn(app: Bottle, host: str, port: int, quiet: bool) -> None:
     class Application(BaseApplication):
         def load_config(self) -> None:
             self.cfg.set("bind", f"{host}:{port}")
+            self.cfg.set("threads", 4)
             if quiet:
                 self.cfg.set("loglevel", "error")
 
