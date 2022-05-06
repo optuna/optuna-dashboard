@@ -1,7 +1,13 @@
 import os
 
-import numpy
 from setuptools import setup, Extension
+from setuptools.command.build_ext import build_ext
+
+
+class LazyImportBuildExtCmd(build_ext):
+    def run(self):
+        import numpy
+        self.include_dirs.append(numpy.get_include())
 
 try:
     from Cython.Build import cythonize
@@ -14,7 +20,6 @@ ext_modules = [
     Extension(
         "optuna_dashboard._fast_fanova.tree",
         sources=[os.path.join("optuna_dashboard", "_fast_fanova", "tree" + ext)],
-        include_dirs=[numpy.get_include()],
         language='c'
     )
 ]
