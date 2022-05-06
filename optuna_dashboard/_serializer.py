@@ -79,11 +79,6 @@ def serialize_study_summary(summary: StudySummary) -> Dict[str, Any]:
     if summary.datetime_start is not None:
         serialized["datetime_start"] = (summary.datetime_start.isoformat(),)
 
-    if summary.best_trial:
-        serialized["best_trial"] = serialize_frozen_trial(
-            summary._study_id, summary.best_trial
-        )
-
     return serialized
 
 

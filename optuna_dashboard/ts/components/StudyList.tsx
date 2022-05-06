@@ -124,17 +124,6 @@ export const StudyList: FC<{
       toCellValue: (i) => studies[i].directions.join(),
     },
     {
-      field: "best_trial",
-      label: "Best value",
-      sortable: false,
-      toCellValue: (i) => {
-        if (studies[i].directions.length !== 1) {
-          return "-" // Multi-objective study does not hold best_trial attribute.
-        }
-        return studies[i].best_trial?.values?.[0] || null
-      },
-    },
-    {
       field: "study_name",
       label: "",
       sortable: false,
@@ -362,7 +351,7 @@ export const StudyList: FC<{
             rows={studies}
             keyField={"study_id"}
             collapseBody={collapseBody}
-            initialRowsPerPage={-1}
+            initialRowsPerPage={10}
             rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
             defaultFilter={studyFilter}
           />
