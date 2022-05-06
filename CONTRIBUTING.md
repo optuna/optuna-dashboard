@@ -64,7 +64,8 @@ $ tox -e ALL
 ### Running Python unit tests
 
 ```
-$ python -m unittest
+$ pip install pytest
+$ pytest python_tests/
 ```
 
 or

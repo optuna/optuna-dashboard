@@ -15,4 +15,5 @@ isort
 mypy
 
 # test
+pytest
 pyppeteer

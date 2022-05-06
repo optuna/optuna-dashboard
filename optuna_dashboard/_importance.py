@@ -6,7 +6,7 @@ from typing import Tuple
 try:
     from optuna_dashboard._fast_fanova import FanovaImportanceEvaluator
 except ImportError:
-    from optuna.importance import FanovaImportanceEvaluator
+    from optuna.importance import FanovaImportanceEvaluator  # type: ignore
     import warnings
 
     warnings.warn("Failed to import Cython accelerated fANOVA module")

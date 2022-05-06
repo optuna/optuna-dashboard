@@ -16,7 +16,7 @@ from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
 from sklearn.ensemble import RandomForestRegressor
 
-from optuna_dashboard._fast_fanova.tree import FanovaTree
+from .tree import FanovaTree
 
 
 class FanovaImportanceEvaluator(BaseImportanceEvaluator):
@@ -101,7 +101,9 @@ class FanovaImportanceEvaluator(BaseImportanceEvaluator):
 
         self._forest.fit(X=trans_params, y=trans_values)
 
-        importances = compute_importance(self._forest, trans, distributions.keys())
+        importances = compute_importance(
+            self._forest, trans, list(distributions.keys())
+        )
         importances = {**importances, **zero_importances}
         total_importance = sum(importances.values())
         for name in importances:
