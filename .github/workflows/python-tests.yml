@@ -42,7 +42,8 @@ jobs:
         run: |
           python -m pip install --progress-bar off --upgrade pip setuptools
           python -m pip install cython pytest
-          python -m pip install --progress-bar off .
+          python setup.py build_ext --inplace
+          python -m pip install -e --progress-bar off .
       - run: pytest python_tests/
   test-with-optuna-master:
     runs-on: ubuntu-latest
@@ -57,6 +58,7 @@ jobs:
         run: |
           python -m pip install --progress-bar off --upgrade pip setuptools
           python -m pip install cython pytest
-          python -m pip install --progress-bar off .
+          python setup.py build_ext --inplace
+          python -m pip install -e --progress-bar off .
           python -m pip install --progress-bar off --upgrade git+https://github.com/optuna/optuna.git
       - run: pytest python_tests/

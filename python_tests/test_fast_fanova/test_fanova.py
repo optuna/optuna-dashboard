@@ -8,7 +8,7 @@ import pytest
 try:
     from optuna_dashboard._fast_fanova import FanovaImportanceEvaluator
     from optuna.distributions import FloatDistribution
-except:
+except ImportError:
     FanovaImportanceEvaluator = None  # type: ignore
     FloatDistribution = None  # type: ignore
 
