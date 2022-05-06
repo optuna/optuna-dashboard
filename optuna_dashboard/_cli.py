@@ -1,8 +1,9 @@
 import argparse
 import os
-import sys
-from wsgiref.simple_server import make_server, WSGIServer
 from socketserver import ThreadingMixIn
+import sys
+from wsgiref.simple_server import make_server
+from wsgiref.simple_server import WSGIServer
 
 from bottle import Bottle
 from bottle import run
@@ -35,7 +36,7 @@ def run_wsgiref(app: Bottle, host: str, port: int, quiet: bool) -> None:
         )
     else:
         print(f"Listening on http://{host}:{port}/", file=sys.stderr)
-        print(f"Hit Ctrl-C to quit.\n", file=sys.stderr)
+        print("Hit Ctrl-C to quit.\n", file=sys.stderr)
         httpd = make_server(host, port, app, server_class=ThreadedWSGIServer)
         httpd.serve_forever()
 
