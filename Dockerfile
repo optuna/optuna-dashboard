@@ -15,7 +15,7 @@ FROM python:3.8-buster AS python-builder
 
 WORKDIR /usr/src
 RUN pip install --upgrade pip setuptools
-RUN pip install --progress-bar off PyMySQL[rsa] psycopg2-binary gunicorn
+RUN pip install --progress-bar off PyMySQL[rsa] psycopg2-binary gunicorn cython
 
 ADD ./setup.cfg /usr/src/setup.cfg
 ADD ./setup.py /usr/src/setup.py

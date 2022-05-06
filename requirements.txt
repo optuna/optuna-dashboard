@@ -4,6 +4,10 @@ bottle
 typing-extensions;python_version<'3.8'
 scikit-learn
 
+# build dependency
+Cython
+numpy
+
 # lint
 black
 flake8

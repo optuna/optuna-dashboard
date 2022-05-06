@@ -46,6 +46,7 @@ $ docker run -it --rm -p 8080:8080 -v `PWD`:/app -w /app sqlite:///db.sqlite3
 ### Running dashboard server
 
 ```
+$ pip install cython
 $ pip install -e .
 $ OPTUNA_DASHBOARD_DEBUG=1 optuna-dashboard sqlite:///db.sqlite3
 ```
