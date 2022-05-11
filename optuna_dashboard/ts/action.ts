@@ -55,7 +55,7 @@ export const actionCreator = () => {
           studyId in studyDetails
             ? studyDetails[studyId].trials.slice(0, nLocalFixedTrials)
             : []
-        study.trials = study.trials.concat(currentFixedTrials)
+        study.trials = currentFixedTrials.concat(study.trials)
         setStudyDetailState(studyId, study)
       })
       .catch((err) => {
