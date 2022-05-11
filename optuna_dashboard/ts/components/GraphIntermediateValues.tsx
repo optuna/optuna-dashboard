@@ -51,13 +51,13 @@ const plotIntermediateValue = (trials: Trial[], mode: string) => {
     return
   }
 
-  const FilteredTrials = trials.filter(
+  const filteredTrials = trials.filter(
     (t) =>
       t.state === "Complete" ||
       (t.state === "Pruned" && t.values && t.values.length > 0) ||
       t.state == "Running"
   )
-  const plotData: Partial<plotly.PlotData>[] = FilteredTrials.map((trial) => {
+  const plotData: Partial<plotly.PlotData>[] = filteredTrials.map((trial) => {
     const values = trial.intermediate_values.filter((iv) => iv.value !== "inf")
     return {
       x: values.map((iv) => iv.step),
