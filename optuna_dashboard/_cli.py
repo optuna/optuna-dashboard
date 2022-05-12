@@ -2,6 +2,7 @@ import argparse
 import os
 from socketserver import ThreadingMixIn
 import sys
+from typing import Literal
 from wsgiref.simple_server import make_server
 from wsgiref.simple_server import WSGIServer
 
@@ -17,7 +18,7 @@ from ._sql_profiler import register_profiler_view
 
 
 DEBUG = os.environ.get("OPTUNA_DASHBOARD_DEBUG") == "1"
-SERVER_CHOICES = ["wsgiref", "gunicorn"]
+SERVER_CHOICES = ["auto", "wsgiref", "gunicorn"]
 
 
 class ThreadedWSGIServer(ThreadingMixIn, WSGIServer):
@@ -59,6 +60,20 @@ def run_gunicorn(app: Bottle, host: str, port: int, quiet: bool) -> None:
     Application().run()
 
 
+def auto_select_server(
+    server_arg: Literal["auto", "gunicorn", "wsgiref"]
+) -> Literal["gunicorn", "wsgiref"]:
+    if server_arg != "auto":
+        return server_arg
+
+    try:
+        import gunicorn
+
+        return "gunicorn"
+    except ImportError:
+        return "wsgiref"
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="Real-time dashboard for Optuna.")
     parser.add_argument("storage", help="DB URL (e.g. sqlite:///example.db)", type=str)
@@ -71,7 +86,7 @@ def main() -> None:
     parser.add_argument(
         "--server",
         help="server (default: %(default)s)",
-        default="wsgiref",
+        default="auto",
         choices=SERVER_CHOICES,
     )
     parser.add_argument("--version", "-v", action="version", version=__version__)
@@ -89,9 +104,10 @@ def main() -> None:
     if DEBUG and isinstance(storage, RDBStorage):
         app = register_profiler_view(app, storage)
 
-    if args.server == "wsgiref":
+    server = auto_select_server(args.server)
+    if server == "wsgiref":
         run_wsgiref(app, args.host, args.port, args.quiet)
-    elif args.server == "gunicorn":
+    elif server == "gunicorn":
         run_gunicorn(app, args.host, args.port, args.quiet)
     else:
         raise Exception("must not reach here")
