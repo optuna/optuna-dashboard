@@ -68,7 +68,7 @@ def auto_select_server(
         return server_arg
 
     try:
-        import gunicorn
+        import gunicorn  # NOQA
 
         return "gunicorn"
     except ImportError:
