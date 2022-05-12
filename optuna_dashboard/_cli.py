@@ -26,20 +26,10 @@ class ThreadedWSGIServer(ThreadingMixIn, WSGIServer):
 
 
 def run_wsgiref(app: Bottle, host: str, port: int, quiet: bool) -> None:
-    if DEBUG:
-        run(
-            app,
-            host=host,
-            port=port,
-            server="wsgiref",
-            quiet=quiet,
-            reloader=DEBUG,
-        )
-    else:
-        print(f"Listening on http://{host}:{port}/", file=sys.stderr)
-        print("Hit Ctrl-C to quit.\n", file=sys.stderr)
-        httpd = make_server(host, port, app, server_class=ThreadedWSGIServer)
-        httpd.serve_forever()
+    print(f"Listening on http://{host}:{port}/", file=sys.stderr)
+    print("Hit Ctrl-C to quit.\n", file=sys.stderr)
+    httpd = make_server(host, port, app, server_class=ThreadedWSGIServer)
+    httpd.serve_forever()
 
 
 def run_gunicorn(app: Bottle, host: str, port: int, quiet: bool) -> None:
@@ -58,6 +48,17 @@ def run_gunicorn(app: Bottle, host: str, port: int, quiet: bool) -> None:
             return app
 
     Application().run()
+
+
+def run_debug_server(app: Bottle, host: str, port: int, quiet: bool) -> None:
+    run(
+        app,
+        host=host,
+        port=port,
+        server="wsgiref",
+        quiet=quiet,
+        reloader=DEBUG,
+    )
 
 
 def auto_select_server(
@@ -105,7 +106,9 @@ def main() -> None:
         app = register_profiler_view(app, storage)
 
     server = auto_select_server(args.server)
-    if server == "wsgiref":
+    if DEBUG:
+        run_debug_server(app, args.host, args.port, args.quiet)
+    elif server == "wsgiref":
         run_wsgiref(app, args.host, args.port, args.quiet)
     elif server == "gunicorn":
         run_gunicorn(app, args.host, args.port, args.quiet)
