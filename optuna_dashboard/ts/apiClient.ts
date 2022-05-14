@@ -23,7 +23,9 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
     number: res.number,
     state: res.state,
     values: res.values,
-    intermediate_values: res.intermediate_values,
+    intermediate_values: res.intermediate_values.sort(
+      (a, b) => a.step - b.step
+    ),
     datetime_start: res.datetime_start
       ? new Date(res.datetime_start)
       : undefined,
@@ -62,7 +64,7 @@ export const getStudyDetailAPI = (
       },
     })
     .then((res) => {
-      const trials = res.data.trials.map((trial): Trial => {
+      const trials: Trial[] = res.data.trials.map((trial): Trial => {
         return convertTrialResponse(trial)
       })
       return {
@@ -70,7 +72,7 @@ export const getStudyDetailAPI = (
         name: res.data.name,
         datetime_start: new Date(res.data.datetime_start),
         directions: res.data.directions,
-        trials: trials,
+        trials: trials.sort((a, b) => a.number - b.number),
         union_search_space: res.data.union_search_space,
         intersection_search_space: res.data.intersection_search_space,
         has_intermediate_values: res.data.has_intermediate_values,
