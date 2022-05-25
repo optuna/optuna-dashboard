@@ -5,20 +5,20 @@ from typing import List
 from typing import Tuple
 from typing import Union
 
+import numpy as np
 from optuna.distributions import BaseDistribution
 from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
-import numpy as np
 
 from . import _note as note
 
 
 try:
-    from typing import TypedDict
     from typing import Literal
+    from typing import TypedDict
 except ImportError:
-    from typing_extensions import TypedDict
     from typing_extensions import Literal
+    from typing_extensions import TypedDict
 
 
 MAX_ATTR_LENGTH = 1024
@@ -125,6 +125,7 @@ def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
         elif np.isneginf(value):
             serialized_value = "-inf"
         else:
+            assert np.isfinite(value)
             serialized_value = value
         serialized_intermediate_values.append({"step": step, "value": serialized_value})
     serialized["intermediate_values"] = serialized_intermediate_values
