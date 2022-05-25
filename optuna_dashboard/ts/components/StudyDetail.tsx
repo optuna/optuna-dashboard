@@ -515,13 +515,18 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
 
         if (firstVal === secondVal) {
           return 0
-        } else if (firstVal && secondVal) {
-          return firstVal < secondVal ? 1 : -1
-        } else if (firstVal) {
+        }
+        if (firstVal === undefined) {
           return -1
-        } else {
+        } else if (secondVal === undefined) {
           return 1
         }
+        if (firstVal === "-inf" || secondVal === "inf") {
+          return 1
+        } else if (secondVal === "-inf" || firstVal === "inf") {
+          return -1
+        }
+        return firstVal < secondVal ? 1 : -1
       },
       toCellValue: (i) => {
         if (trials[i].values === undefined) {
@@ -542,13 +547,18 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
 
           if (firstVal === secondVal) {
             return 0
-          } else if (firstVal && secondVal) {
-            return firstVal < secondVal ? 1 : -1
-          } else if (firstVal) {
+          }
+          if (firstVal === undefined) {
             return -1
-          } else {
+          } else if (secondVal === undefined) {
             return 1
           }
+          if (firstVal === "-inf" || secondVal === "inf") {
+            return 1
+          } else if (secondVal === "-inf" || firstVal === "inf") {
+            return -1
+          }
+          return firstVal < secondVal ? 1 : -1
         },
         toCellValue: (i) => {
           if (trials[i].values === undefined) {
