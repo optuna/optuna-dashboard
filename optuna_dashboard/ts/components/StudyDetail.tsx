@@ -667,17 +667,14 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
           if (firstVal === secondVal) {
             return 0
           }
-          if (
-            firstVal === "-inf" ||
-            secondVal === "nan" ||
-            secondVal === "inf"
-          ) {
+          if (firstVal === "nan") {
+            return -1
+          } else if (secondVal === "nan") {
             return 1
-          } else if (
-            secondVal === "-inf" ||
-            firstVal === "nan" ||
-            firstVal === "inf"
-          ) {
+          }
+          if (firstVal === "-inf" || secondVal === "inf") {
+            return 1
+          } else if (secondVal === "-inf" || firstVal === "inf") {
             return -1
           }
           return firstVal < secondVal ? 1 : -1
