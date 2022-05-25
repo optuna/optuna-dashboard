@@ -17,7 +17,7 @@ try:
     from typing import Literal
     from typing import TypedDict
 except ImportError:
-    from typing_extensions import Literal
+    from typing_extensions import Literal  # type: ignore
     from typing_extensions import TypedDict
 
 
@@ -34,13 +34,6 @@ IntermediateValue = TypedDict(
     {
         "step": int,
         "value": Union[float, Literal["inf", "-inf", "nan"]],
-    },
-)
-TrialParam = TypedDict(
-    "TrialParam",
-    {
-        "name": str,
-        "value": str,
     },
 )
 
@@ -116,8 +109,9 @@ def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
         "system_attrs": serialize_attrs(trial.system_attrs),
     }
 
-    serialized_intermediate_values = []
+    serialized_intermediate_values: List[IntermediateValue] = []
     for step, value in trial.intermediate_values.items():
+        serialized_value: Union[float, Literal["nan", "inf", "-inf"]]
         if np.isnan(value):
             serialized_value = "nan"
         elif np.isposinf(value):
