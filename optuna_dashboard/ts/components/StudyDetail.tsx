@@ -647,7 +647,32 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
   const collapseIntermediateValueColumns: DataGridColumn<TrialIntermediateValue>[] =
     [
       { field: "step", label: "Step", sortable: true },
-      { field: "value", label: "Value", sortable: true },
+      {
+        field: "value",
+        label: "Value",
+        sortable: true,
+        less: (firstEl, secondEl): number => {
+          const firstVal = firstEl.value
+          const secondVal = secondEl.value
+          if (firstVal === secondVal) {
+            return 0
+          }
+          if (
+            firstVal === "-inf" ||
+            secondVal === "nan" ||
+            secondVal === "inf"
+          ) {
+            return 1
+          } else if (
+            secondVal === "-inf" ||
+            firstVal === "nan" ||
+            firstVal === "inf"
+          ) {
+            return -1
+          }
+          return firstVal < secondVal ? 1 : -1
+        },
+      },
     ]
   const collapseAttrColumns: DataGridColumn<Attribute>[] = [
     { field: "key", label: "Key", sortable: true },

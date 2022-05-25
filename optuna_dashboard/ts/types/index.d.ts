@@ -7,6 +7,8 @@ declare const APP_BAR_TITLE: string
 declare const API_ENDPOINT: string
 declare const URL_PREFIX: string
 
+type TrialValueNumber = number | "inf" | "-inf"
+type TrialIntermediateValueNumber = number | "inf" | "-inf" | "nan"
 type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting"
 type StudyDirection = "maximize" | "minimize" | "not_set"
 type Distribution =
@@ -21,7 +23,7 @@ type Distribution =
 
 declare interface TrialIntermediateValue {
   step: number
-  value: number | "inf"
+  value: TrialIntermediateValueNumber
 }
 
 declare interface TrialParam {
@@ -55,7 +57,7 @@ declare interface Trial {
   study_id: number
   number: number
   state: TrialState
-  values?: (number | "inf")[]
+  values?: TrialValueNumber[]
   intermediate_values: TrialIntermediateValue[]
   datetime_start?: Date
   datetime_complete?: Date

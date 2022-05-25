@@ -90,7 +90,7 @@ const filterFunc = (trial: Trial, directions: StudyDirection[]): boolean => {
     trial.state === "Complete" &&
     trial.values !== undefined &&
     trial.values.length === directions.length &&
-    trial.values.every((v) => v !== "inf")
+    trial.values.every((v) => v !== "inf" && v !== "-inf")
   )
 }
 
