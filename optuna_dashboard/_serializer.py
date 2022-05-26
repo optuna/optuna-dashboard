@@ -85,15 +85,20 @@ def serialize_study_detail(
             summary._study_id, summary.best_trial
         )
 
-    serialized["trials"] = [
-        serialize_frozen_trial(summary._study_id, trial) for trial in trials
-    ]
-
+    serialized["trials"] = serialize_frozen_trials(summary._study_id, trials)
     serialized["intersection_search_space"] = serialize_search_space(intersection)
     serialized["union_search_space"] = serialize_search_space(union)
     serialized["has_intermediate_values"] = has_intermediate_values
     serialized["note"] = note.get_note_from_system_attrs(summary.system_attrs)
     return serialized
+
+
+def serialize_frozen_trials(study_id: int, trials: List[FrozenTrial]) -> List[Dict[str, Any]]:
+    serialized = [
+        serialize_frozen_trial(study_id, trial) for trial in trials
+    ]
+
+    return sorted(serialized, key=lambda t: t["number"])
 
 
 def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
@@ -122,7 +127,7 @@ def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
             assert np.isfinite(value)
             serialized_value = value
         serialized_intermediate_values.append({"step": step, "value": serialized_value})
-    serialized["intermediate_values"] = serialized_intermediate_values
+    serialized["intermediate_values"] = sorted(serialized_intermediate_values, key=lambda v: v["step"])
 
     if trial.values is not None:
         serialized_values: List[Union[float, Literal["inf", "-inf"]]] = []
