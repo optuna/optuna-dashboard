@@ -515,13 +515,18 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
 
         if (firstVal === secondVal) {
           return 0
-        } else if (firstVal && secondVal) {
-          return firstVal < secondVal ? 1 : -1
-        } else if (firstVal) {
+        }
+        if (firstVal === undefined) {
           return -1
-        } else {
+        } else if (secondVal === undefined) {
           return 1
         }
+        if (firstVal === "-inf" || secondVal === "inf") {
+          return 1
+        } else if (secondVal === "-inf" || firstVal === "inf") {
+          return -1
+        }
+        return firstVal < secondVal ? 1 : -1
       },
       toCellValue: (i) => {
         if (trials[i].values === undefined) {
@@ -542,13 +547,18 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
 
           if (firstVal === secondVal) {
             return 0
-          } else if (firstVal && secondVal) {
-            return firstVal < secondVal ? 1 : -1
-          } else if (firstVal) {
+          }
+          if (firstVal === undefined) {
             return -1
-          } else {
+          } else if (secondVal === undefined) {
             return 1
           }
+          if (firstVal === "-inf" || secondVal === "inf") {
+            return 1
+          } else if (secondVal === "-inf" || firstVal === "inf") {
+            return -1
+          }
+          return firstVal < secondVal ? 1 : -1
         },
         toCellValue: (i) => {
           if (trials[i].values === undefined) {
@@ -647,7 +657,29 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
   const collapseIntermediateValueColumns: DataGridColumn<TrialIntermediateValue>[] =
     [
       { field: "step", label: "Step", sortable: true },
-      { field: "value", label: "Value", sortable: true },
+      {
+        field: "value",
+        label: "Value",
+        sortable: true,
+        less: (firstEl, secondEl): number => {
+          const firstVal = firstEl.value
+          const secondVal = secondEl.value
+          if (firstVal === secondVal) {
+            return 0
+          }
+          if (firstVal === "nan") {
+            return -1
+          } else if (secondVal === "nan") {
+            return 1
+          }
+          if (firstVal === "-inf" || secondVal === "inf") {
+            return 1
+          } else if (secondVal === "-inf" || firstVal === "inf") {
+            return -1
+          }
+          return firstVal < secondVal ? 1 : -1
+        },
+      },
     ]
   const collapseAttrColumns: DataGridColumn<Attribute>[] = [
     { field: "key", label: "Key", sortable: true },

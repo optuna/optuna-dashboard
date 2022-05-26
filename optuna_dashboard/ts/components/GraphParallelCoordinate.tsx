@@ -71,7 +71,9 @@ const filterFunc = (trial: Trial, objectiveId: number): boolean => {
     return false
   }
   return (
-    trial.values.length > objectiveId && trial.values[objectiveId] !== "inf"
+    trial.values.length > objectiveId &&
+    trial.values[objectiveId] !== "inf" &&
+    trial.values[objectiveId] !== "-inf"
   )
 }
 

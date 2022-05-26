@@ -1,6 +1,5 @@
 import argparse
 import asyncio
-import math
 import os
 import sys
 import threading
@@ -87,13 +86,15 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
 
     study.optimize(objective_single_dynamic, n_trials=50)
 
-    # Single objective study with 'inf' value
+    # Single objective study with 'inf', '-inf', or 'nan' value
     study = optuna.create_study(study_name="single-inf", storage=storage)
 
     def objective_single_inf(trial: optuna.Trial) -> float:
         x = trial.suggest_float("x", -10, 10)
-        if x > 0:
-            return math.inf
+        if trial.number % 3 == 0:
+            return float("inf")
+        elif trial.number % 3 == 1:
+            return float("-inf")
         else:
             return x**2
 
@@ -152,13 +153,19 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
 
     study.optimize(objective_prune_without_report, n_trials=100)
 
-    # Single objective pruned after reported 'inf' value
+    # Single objective pruned after reported 'inf', '-inf', or 'nan'
     study = optuna.create_study(study_name="single-inf-report", storage=storage)
 
     def objective_single_inf_report(trial: optuna.Trial) -> float:
         x = trial.suggest_float("x", -10, 10)
+        if trial.number % 3 == 0:
+            trial.report(float("inf"), 1)
+        elif trial.number % 3 == 1:
+            trial.report(float("-inf"), 1)
+        else:
+            trial.report(float("nan"), 1)
+
         if x > 0:
-            trial.report(math.inf, 1)
             raise optuna.TrialPruned()
         else:
             return x**2

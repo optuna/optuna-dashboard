@@ -1,11 +1,11 @@
 import json
-import math
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Tuple
 from typing import Union
 
+import numpy as np
 from optuna.distributions import BaseDistribution
 from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
@@ -14,8 +14,10 @@ from . import _note as note
 
 
 try:
+    from typing import Literal
     from typing import TypedDict
 except ImportError:
+    from typing_extensions import Literal  # type: ignore
     from typing_extensions import TypedDict
 
 
@@ -31,14 +33,7 @@ IntermediateValue = TypedDict(
     "IntermediateValue",
     {
         "step": int,
-        "value": Union[float, str],
-    },
-)
-TrialParam = TypedDict(
-    "TrialParam",
-    {
-        "name": str,
-        "value": str,
+        "value": Union[float, Literal["inf", "-inf", "nan"]],
     },
 )
 
@@ -54,17 +49,6 @@ def serialize_attrs(attrs: Dict[str, Any]) -> List[Attribute]:
             value = value[:MAX_ATTR_LENGTH] if len(value) > MAX_ATTR_LENGTH else value
         serialized.append({"key": k, "value": value})
     return serialized
-
-
-def serialize_intermediate_values(values: Dict[int, float]) -> List[IntermediateValue]:
-    return [
-        {"step": step, "value": "inf" if math.isinf(value) else value}
-        for step, value in values.items()
-    ]
-
-
-def serialize_trial_params(params: Dict[str, Any]) -> List[TrialParam]:
-    return [{"name": name, "value": str(value)} for name, value in params.items()]
 
 
 def serialize_study_summary(summary: StudySummary) -> Dict[str, Any]:
@@ -118,14 +102,39 @@ def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
         "study_id": study_id,
         "number": trial.number,
         "state": trial.state.name.capitalize(),
-        "intermediate_values": serialize_intermediate_values(trial.intermediate_values),
-        "params": serialize_trial_params(trial.params),
+        "params": [
+            {"name": name, "value": str(value)} for name, value in trial.params.items()
+        ],
         "user_attrs": serialize_attrs(trial.user_attrs),
         "system_attrs": serialize_attrs(trial.system_attrs),
     }
 
+    serialized_intermediate_values: List[IntermediateValue] = []
+    for step, value in trial.intermediate_values.items():
+        serialized_value: Union[float, Literal["nan", "inf", "-inf"]]
+        if np.isnan(value):
+            serialized_value = "nan"
+        elif np.isposinf(value):
+            serialized_value = "inf"
+        elif np.isneginf(value):
+            serialized_value = "-inf"
+        else:
+            assert np.isfinite(value)
+            serialized_value = value
+        serialized_intermediate_values.append({"step": step, "value": serialized_value})
+    serialized["intermediate_values"] = serialized_intermediate_values
+
     if trial.values is not None:
-        serialized["values"] = ["inf" if math.isinf(v) else v for v in trial.values]
+        serialized_values: List[Union[float, Literal["inf", "-inf"]]] = []
+        for v in trial.values:
+            assert not np.isnan(v), "Should not detect nan value"
+            if np.isposinf(v):
+                serialized_values.append("inf")
+            elif np.isneginf(v):
+                serialized_values.append("-inf")
+            else:
+                serialized_values.append(v)
+        serialized["values"] = serialized_values
 
     if trial.datetime_start is not None:
         serialized["datetime_start"] = trial.datetime_start.isoformat()
