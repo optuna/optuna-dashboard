@@ -34,10 +34,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          wget https://github.com/tcnksm/ghr/releases/download/v0.14.0/ghr_v0.14.0_linux_amd64.tar.gz
-          tar -xzf ghr_v*_linux_amd64.tar.gz
           export TAGNAME=$(jq --raw-output .ref "$GITHUB_EVENT_PATH" | sed -e "s/refs\/tags\///")
-          
           cp ./optuna_dashboard/public/bundle.js ./dist/
           cp ./optuna_dashboard/public/bundle.js.LICENSE.txt ./dist/
-          ./ghr_v0.14.0_linux_amd64/ghr -n ${TAGNAME} -b ${TAGNAME} -draft ${TAGNAME} dist/
+          gh release create ${TAGNAME} --draft dist/*
