@@ -18,9 +18,7 @@ except ImportError:
     from typing_extensions import TypedDict
 
 try:
-    from optuna_fast_fanova import (
-        FanovaImportanceEvaluator as FastFanovaImportanceEvaluator,
-    )
+    from optuna_fast_fanova import FanovaImportanceEvaluator as FastFanovaImportanceEvaluator
 except ImportError:
     FastFanovaImportanceEvaluator = None  # type: ignore
 
