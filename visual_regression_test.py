@@ -10,41 +10,28 @@ from wsgiref.simple_server import make_server
 
 import optuna
 from optuna.version import __version__ as optuna_ver
+from optuna_dashboard import wsgi
 from packaging import version
 from pyppeteer import launch
 from pyppeteer.page import Page
 
-from optuna_dashboard import wsgi
-
 
 parser = argparse.ArgumentParser()
-parser.add_argument(
-    "--port", help="port number (default: %(default)s)", type=int, default=8081
-)
-parser.add_argument(
-    "--host", help="hostname (default: %(default)s)", default="127.0.0.1"
-)
+parser.add_argument("--port", help="port number (default: %(default)s)", type=int, default=8081)
+parser.add_argument("--host", help="hostname (default: %(default)s)", default="127.0.0.1")
 parser.add_argument(
     "--sleep",
     help="sleep seconds on each page open (default: %(default)s)",
     type=int,
     default=5,
 )
-parser.add_argument(
-    "--output-dir", help="output directory (default: %(default)s)", default="tmp"
-)
-parser.add_argument(
-    "--width", help="window width (default: %(default)s)", type=int, default=1000
-)
+parser.add_argument("--output-dir", help="output directory (default: %(default)s)", default="tmp")
+parser.add_argument("--width", help="window width (default: %(default)s)", type=int, default=1000)
 parser.add_argument(
     "--height", help="window height (default: %(default)s)", type=int, default=3000
 )
-parser.add_argument(
-    "--storage", help="storage url (default: %(default)s)", default=None
-)
-parser.add_argument(
-    "--skip-screenshot", help="skip to take screenshot", action="store_true"
-)
+parser.add_argument("--storage", help="storage url (default: %(default)s)", default=None)
+parser.add_argument("--skip-screenshot", help="skip to take screenshot", action="store_true")
 args = parser.parse_args()
 
 
@@ -62,9 +49,7 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
     study.optimize(objective_single, n_trials=50)
 
     # Single-objective study with 1 parameter
-    study = optuna.create_study(
-        study_name="single-1-param", storage=storage, direction="maximize"
-    )
+    study = optuna.create_study(study_name="single-1-param", storage=storage, direction="maximize")
 
     def objective_single_with_1param(trial: optuna.Trial) -> float:
         x1 = trial.suggest_float("x1", 0, 10)
@@ -73,9 +58,7 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
     study.optimize(objective_single_with_1param, n_trials=50)
 
     # Single-objective study with dynamic search space
-    study = optuna.create_study(
-        study_name="single-dynamic", storage=storage, direction="maximize"
-    )
+    study = optuna.create_study(study_name="single-dynamic", storage=storage, direction="maximize")
 
     def objective_single_dynamic(trial: optuna.Trial) -> float:
         category = trial.suggest_categorical("category", ["foo", "bar"])
@@ -139,9 +122,7 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
     study.optimize(objective_multi_dynamic, n_trials=50)
 
     # Pruning with no intermediate values
-    study = optuna.create_study(
-        study_name="single-pruned-without-report", storage=storage
-    )
+    study = optuna.create_study(study_name="single-pruned-without-report", storage=storage)
 
     def objective_prune_without_report(trial: optuna.Trial) -> float:
         x = trial.suggest_float("x", -15, 30)

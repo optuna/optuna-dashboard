@@ -80,14 +80,7 @@ def serialize_study_detail(
     if summary.datetime_start is not None:
         serialized["datetime_start"] = summary.datetime_start.isoformat()
 
-    if summary.best_trial is not None:
-        serialized["best_trial"] = serialize_frozen_trial(
-            summary._study_id, summary.best_trial
-        )
-
-    serialized["trials"] = [
-        serialize_frozen_trial(summary._study_id, trial) for trial in trials
-    ]
+    serialized["trials"] = [serialize_frozen_trial(summary._study_id, trial) for trial in trials]
     serialized["intersection_search_space"] = serialize_search_space(intersection)
     serialized["union_search_space"] = serialize_search_space(union)
     serialized["has_intermediate_values"] = has_intermediate_values
@@ -101,9 +94,7 @@ def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
         "study_id": study_id,
         "number": trial.number,
         "state": trial.state.name.capitalize(),
-        "params": [
-            {"name": name, "value": str(value)} for name, value in trial.params.items()
-        ],
+        "params": [{"name": name, "value": str(value)} for name, value in trial.params.items()],
         "user_attrs": serialize_attrs(trial.user_attrs),
         "system_attrs": serialize_attrs(trial.system_attrs),
     }

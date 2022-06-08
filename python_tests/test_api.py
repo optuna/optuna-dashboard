@@ -6,9 +6,8 @@ import optuna
 from optuna.storages import BaseStorage
 from optuna.study import StudySummary
 from optuna.version import __version__ as optuna_ver
-from packaging import version
-
 from optuna_dashboard._app import create_app
+from packaging import version
 
 from .wsgi_client import send_request
 

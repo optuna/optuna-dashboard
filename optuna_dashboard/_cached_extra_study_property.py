@@ -25,9 +25,7 @@ def get_cached_extra_study_property(
     study_id: int, trials: List[FrozenTrial]
 ) -> Tuple[SearchSpaceListT, SearchSpaceListT, bool]:
     with cached_extra_study_property_cache_lock:
-        cached_extra_study_property = cached_extra_study_property_cache.get(
-            study_id, None
-        )
+        cached_extra_study_property = cached_extra_study_property_cache.get(study_id, None)
         if cached_extra_study_property is None:
             cached_extra_study_property = _CachedExtraStudyProperty()
         cached_extra_study_property.update(trials)
