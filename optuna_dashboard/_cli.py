@@ -81,9 +81,7 @@ def main() -> None:
     parser.add_argument(
         "--port", help="port number (default: %(default)s)", type=int, default=8080
     )
-    parser.add_argument(
-        "--host", help="hostname (default: %(default)s)", default="127.0.0.1"
-    )
+    parser.add_argument("--host", help="hostname (default: %(default)s)", default="127.0.0.1")
     parser.add_argument(
         "--server",
         help="server (default: %(default)s)",

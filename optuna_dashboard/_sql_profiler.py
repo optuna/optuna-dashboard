@@ -8,9 +8,8 @@ from typing import TYPE_CHECKING
 from bottle import Bottle
 from bottle import SimpleTemplate
 from optuna.storages import RDBStorage
-from sqlalchemy import event
-
 from optuna_dashboard._app import BottleView
+from sqlalchemy import event
 
 
 if TYPE_CHECKING:

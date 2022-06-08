@@ -146,9 +146,7 @@ def get_study_summary(storage: BaseStorage, study_id: int) -> Optional[StudySumm
     return None
 
 
-def get_trials(
-    storage: BaseStorage, study_id: int, ttl_seconds: int = 10
-) -> List[FrozenTrial]:
+def get_trials(storage: BaseStorage, study_id: int, ttl_seconds: int = 10) -> List[FrozenTrial]:
     with trials_cache_lock:
         trials = trials_cache.get(study_id, None)
         last_fetched_at = trials_last_fetched_at.get(study_id, None)
@@ -247,9 +245,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
         storage.set_study_directions(
             study_id,
             [
-                StudyDirection.MAXIMIZE
-                if d.lower() == "maximize"
-                else StudyDirection.MINIMIZE
+                StudyDirection.MAXIMIZE if d.lower() == "maximize" else StudyDirection.MINIMIZE
                 for d in directions
             ],
         )
@@ -311,15 +307,11 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             return {"reason": f"study_id={study_id} is not found"}
         if objective_id >= n_directions:
             response.status = 400  # Bad request
-            return {
-                "reason": f"study_id={study_id} has only {n_directions} direction(s)."
-            }
+            return {"reason": f"study_id={study_id} has only {n_directions} direction(s)."}
 
         trials = get_trials(storage, study_id)
         try:
-            return get_param_importance_from_trials_cache(
-                storage, study_id, objective_id, trials
-            )
+            return get_param_importance_from_trials_cache(storage, study_id, objective_id, trials)
         except ValueError as e:
             response.status = 400  # Bad request
             return {"reason": str(e)}

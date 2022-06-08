@@ -31,9 +31,7 @@ def get_note_from_system_attrs(system_attrs: Dict[str, Any]) -> NoteType:
         }
     note_ver = int(system_attrs[NOTE_VER_KEY])
     note_attrs: Dict[str, str] = {
-        key: value
-        for key, value in system_attrs.items()
-        if key.startswith(NOTE_STR_KEY_PREFIX)
+        key: value for key, value in system_attrs.items() if key.startswith(NOTE_STR_KEY_PREFIX)
     }
     return {"version": note_ver, "body": concat_body(note_attrs)}
 
@@ -72,6 +70,4 @@ def split_body(note_str: str) -> Dict[str, str]:
 
 
 def concat_body(note_attrs: Dict[str, str]) -> str:
-    return "".join(
-        note_attrs[f"{NOTE_STR_KEY_PREFIX}{i}"] for i in range(len(note_attrs))
-    )
+    return "".join(note_attrs[f"{NOTE_STR_KEY_PREFIX}{i}"] for i in range(len(note_attrs)))
