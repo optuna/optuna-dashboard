@@ -3,17 +3,26 @@ from typing import Dict
 from typing import List
 from typing import Tuple
 
+from optuna.importance import BaseImportanceEvaluator
+from optuna.importance import FanovaImportanceEvaluator
+from optuna.importance import get_param_importances
+from optuna.storages import BaseStorage
+from optuna.study import Study
+from optuna.trial import FrozenTrial
+from optuna.trial import TrialState
+
 
 try:
     from typing import TypedDict
 except ImportError:
     from typing_extensions import TypedDict
 
-import optuna
-from optuna.storages import BaseStorage
-from optuna.study import Study
-from optuna.trial import FrozenTrial
-from optuna.trial import TrialState
+try:
+    from optuna_fast_fanova import (
+        FanovaImportanceEvaluator as FastFanovaImportanceEvaluator,
+    )
+except ImportError:
+    FastFanovaImportanceEvaluator = None  # type: ignore
 
 
 ImportanceItemType = TypedDict(
@@ -54,7 +63,8 @@ class StudyWrapper(Study):
 def get_param_importance_from_trials_cache(
     storage: BaseStorage, study_id: int, objective_id: int, trials: List[FrozenTrial]
 ) -> ImportanceType:
-    n_completed_trials = len([t for t in trials if t.state == TrialState.COMPLETE])
+    completed_trials = [t for t in trials if t.state == TrialState.COMPLETE]
+    n_completed_trials = len(completed_trials)
     if n_completed_trials == 0:
         return {"target_name": target_name, "param_importances": []}
 
@@ -67,8 +77,16 @@ def get_param_importance_from_trials_cache(
             return cache_importance
 
         study = StudyWrapper(storage, study_id, trials)
-        importance = optuna.importance.get_param_importances(
-            study, target=lambda t: t.values[objective_id]
+
+        evaluator: BaseImportanceEvaluator
+        if FastFanovaImportanceEvaluator is not None:
+            evaluator = FastFanovaImportanceEvaluator(completed_trials=completed_trials)
+        else:
+            evaluator = FanovaImportanceEvaluator()
+        importance = get_param_importances(
+            study,
+            target=lambda t: t.values[objective_id],
+            evaluator=evaluator,
         )
         converted = convert_to_importance_type(importance, trials)
         param_importance_cache[cache_key] = (n_completed_trials, converted)

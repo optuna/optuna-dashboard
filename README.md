@@ -11,31 +11,21 @@ Code files were originally taken from [Goptuna](https://github.com/c-bata/goptun
 You can install optuna-dashboard via [PyPI](https://pypi.org/project/optuna-dashboard/) or [Anaconda Cloud](https://anaconda.org/conda-forge/optuna-dashboard).
 
 ```
-# PyPI
 $ pip install optuna-dashboard
 ```
 
-```
-# Anaconda Cloud
-$ conda install -c conda-forge optuna-dashboard
+And you can also install following optional dependencies to make optuna-dashboard faster.
+
+```console
+$ pip install optuna-fast-fanova gunicorn
 ```
 
 Then please execute `optuna-dashboard` command with Optuna storage URL.
 
 ```
 $ optuna-dashboard sqlite:///db.sqlite3
-Bottle v0.12.18 server starting up (using WSGIRefServer())...
 Listening on http://localhost:8080/
 Hit Ctrl-C to quit.
-```
-
-Note that optuna-dashboard uses [wsgiref](https://docs.python.org/3/library/wsgiref.html) module by default.
-Although it requires no additional dependencies, it is NOT suitable for the production use.
-You can use [Gunicorn](https://gunicorn.org/) via "--server gunicorn" option.
-
-```console
-$ pip install gunicorn
-$ optuna-dashboard sqlite:///db.sqlite3 --server gunicorn
 ```
 
 <details>
@@ -56,7 +46,7 @@ optional arguments:
   --port PORT           port number (default: 8080)
   --host HOST           hostname (default: 127.0.0.1)
   --server {wsgiref,gunicorn}
-                        server (default: wsgiref)
+                        server (default: auto)
   --version, -v         show program's version number and exit
   --quiet, -q           quiet
 ```

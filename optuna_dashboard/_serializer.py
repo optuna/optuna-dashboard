@@ -80,11 +80,6 @@ def serialize_study_detail(
     if summary.datetime_start is not None:
         serialized["datetime_start"] = summary.datetime_start.isoformat()
 
-    if summary.best_trial is not None:
-        serialized["best_trial"] = serialize_frozen_trial(
-            summary._study_id, summary.best_trial
-        )
-
     serialized["trials"] = [
         serialize_frozen_trial(summary._study_id, trial) for trial in trials
     ]
