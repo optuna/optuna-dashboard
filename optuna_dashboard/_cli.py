@@ -2,7 +2,6 @@ import argparse
 import os
 from socketserver import ThreadingMixIn
 import sys
-from typing import Literal
 from wsgiref.simple_server import make_server
 from wsgiref.simple_server import WSGIServer
 
@@ -15,6 +14,11 @@ from optuna.storages import RedisStorage
 from . import __version__
 from ._app import create_app
 from ._sql_profiler import register_profiler_view
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal  # type: ignore
 
 
 DEBUG = os.environ.get("OPTUNA_DASHBOARD_DEBUG") == "1"
