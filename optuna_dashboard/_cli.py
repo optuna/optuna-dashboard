@@ -15,6 +15,7 @@ from . import __version__
 from ._app import create_app
 from ._sql_profiler import register_profiler_view
 
+
 try:
     from typing import Literal
 except ImportError:
