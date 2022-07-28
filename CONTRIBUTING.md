@@ -40,7 +40,7 @@ You can use the Docker image like below:
 
 ```
 # SQLite3
-$ docker run -it --rm -p 8080:8080 -v `pwd`:/app -w /app sqlite:///db.sqlite3
+$ docker run -it --rm -p 8080:8080 -v `pwd`:/app -w /app optuna-dashboard sqlite:///db.sqlite3
 ```
 
 ### Running dashboard server
