@@ -9,9 +9,8 @@ from typing import Tuple
 from wsgiref.simple_server import make_server
 
 import optuna
-from optuna.version import __version__ as optuna_ver
+from optuna import get_all_study_summaries
 from optuna_dashboard import wsgi
-from packaging import version
 from pyppeteer import launch
 from pyppeteer.page import Page
 
@@ -186,10 +185,7 @@ async def take_screenshots(storage: optuna.storages.BaseStorage) -> List[str]:
         time.sleep(1)
         await page.screenshot({"path": os.path.join(args.output_dir, "study-list.png")})
 
-    if version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
-        summaries = storage.get_all_study_summaries(include_best_trial=True)  # type: ignore
-    else:
-        summaries = storage.get_all_study_summaries()  # type: ignore
+    summaries = get_all_study_summaries(storage)
     study_ids = {s._study_id: s.study_name for s in summaries}
     for study_id, study_name in study_ids.items():
         await page.goto(f"http://{args.host}:{args.port}/dashboard/studies/{study_id}")

@@ -43,10 +43,11 @@ from ._serializer import serialize_study_summary
 
 if typing.TYPE_CHECKING:
     from _typeshed.wsgi import WSGIApplication
+
     try:
         from optuna.study._frozen import FrozenStudy
     except ImportError:
-        FrozenStudy = None
+        FrozenStudy = None  # type: ignore
 
 BottleViewReturn = Union[str, bytes, Dict[str, Any], BaseResponse]
 BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])
@@ -141,10 +142,7 @@ def json_api_view(view: BottleView) -> BottleView:
 def get_study_summaries(storage: BaseStorage) -> List[StudySummary]:
     if version.parse(optuna_ver) >= version.Version("3.0.0rc0.dev"):
         frozen_studies = storage.get_all_studies()  # type: ignore
-        return [
-            _frozen_study_to_study_summary(s)
-            for s in frozen_studies
-        ]
+        return [_frozen_study_to_study_summary(s) for s in frozen_studies]
     elif version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
         return storage.get_all_study_summaries(include_best_trial=False)  # type: ignore
     else:

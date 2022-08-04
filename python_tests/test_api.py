@@ -1,23 +1,11 @@
 import json
-from typing import List
 from unittest import TestCase
 
 import optuna
-from optuna.storages import BaseStorage
-from optuna.study import StudySummary
-from optuna.version import __version__ as optuna_ver
+from optuna import get_all_study_summaries
 from optuna_dashboard._app import create_app
-from packaging import version
 
 from .wsgi_client import send_request
-
-
-def get_all_study_summaries(storage: BaseStorage) -> List[StudySummary]:
-    if version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
-        summaries = storage.get_all_study_summaries(include_best_trial=True)  # type: ignore
-    else:
-        summaries = storage.get_all_study_summaries()  # type: ignore
-    return summaries
 
 
 def objective(trial: optuna.trial.Trial) -> float:
