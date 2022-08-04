@@ -170,8 +170,12 @@ def get_trials(storage: BaseStorage, study_id: int, ttl_seconds: int = 10) -> Li
             return trials
     trials = storage.get_all_trials(study_id, deepcopy=False)
 
-    # TODO(c-bata): Avoid to sort trials after fixed https://github.com/optuna/optuna/issues/3605
-    if isinstance(storage, RDBStorage) and storage.url.startswith("postgresql"):
+    if (
+        # See https://github.com/optuna/optuna/pull/3702
+        version.parse(optuna_ver) <= version.Version("3.0.0rc0.dev")
+        and isinstance(storage, RDBStorage)
+        and storage.url.startswith("postgresql")
+    ):
         trials = sorted(trials, key=lambda t: t.number)
 
     with trials_cache_lock:
