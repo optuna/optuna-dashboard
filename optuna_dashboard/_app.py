@@ -366,11 +366,12 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
 
 # TODO(c-bata): Remove type:ignore after released Optuna v3.0.0rc0.
 def _frozen_study_to_study_summary(frozen_study: "FrozenStudy") -> StudySummary:  # type: ignore
+    is_single = len(frozen_study.directions) == 1
     return StudySummary(
         study_name=frozen_study.study_name,
         study_id=frozen_study._study_id,
-        direction=frozen_study.direction,
-        directions=frozen_study.directions,
+        direction=frozen_study.direction if is_single else None,
+        directions=frozen_study.directions if not is_single else None,
         user_attrs=frozen_study.user_attrs,
         system_attrs=frozen_study.system_attrs,
         best_trial=None,
