@@ -43,6 +43,10 @@ from ._serializer import serialize_study_summary
 
 if typing.TYPE_CHECKING:
     from _typeshed.wsgi import WSGIApplication
+    try:
+        from optuna.study._frozen import FrozenStudy
+    except ImportError:
+        FrozenStudy = None
 
 BottleViewReturn = Union[str, bytes, Dict[str, Any], BaseResponse]
 BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])
@@ -134,11 +138,21 @@ def json_api_view(view: BottleView) -> BottleView:
     return cast(BottleView, decorated)
 
 
-def get_study_summary(storage: BaseStorage, study_id: int) -> Optional[StudySummary]:
-    if version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
-        summaries = storage.get_all_study_summaries(include_best_trial=False)  # type: ignore
+def get_study_summaries(storage: BaseStorage) -> List[StudySummary]:
+    if version.parse(optuna_ver) >= version.Version("3.0.0rc0.dev"):
+        frozen_studies = storage.get_all_studies()  # type: ignore
+        return [
+            _frozen_study_to_study_summary(s)
+            for s in frozen_studies
+        ]
+    elif version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
+        return storage.get_all_study_summaries(include_best_trial=False)  # type: ignore
     else:
-        summaries = storage.get_all_study_summaries()  # type: ignore
+        return storage.get_all_study_summaries()  # type: ignore
+
+
+def get_study_summary(storage: BaseStorage, study_id: int) -> Optional[StudySummary]:
+    summaries = get_study_summaries(storage)
     for summary in summaries:
         if summary._study_id != study_id:
             continue
@@ -214,10 +228,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
     @app.get("/api/studies")
     @json_api_view
     def list_study_summaries() -> BottleViewReturn:
-        if version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
-            summaries = storage.get_all_study_summaries(include_best_trial=False)  # type: ignore
-        else:
-            summaries = storage.get_all_study_summaries()  # type: ignore
+        summaries = get_study_summaries(storage)
         serialized = [serialize_study_summary(summary) for summary in summaries]
         return {
             "study_summaries": serialized,
@@ -353,6 +364,21 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
         return static_file(filename, root=STATIC_DIR)
 
     return app
+
+
+# TODO(c-bata): Remove type:ignore after released Optuna v3.0.0rc0.
+def _frozen_study_to_study_summary(frozen_study: "FrozenStudy") -> StudySummary:  # type: ignore
+    return StudySummary(
+        study_name=frozen_study.study_name,
+        study_id=frozen_study._study_id,
+        direction=frozen_study.direction,
+        directions=frozen_study.directions,
+        user_attrs=frozen_study.user_attrs,
+        system_attrs=frozen_study.system_attrs,
+        best_trial=None,
+        n_trials=-1,  # This field isn't used by Dashboard.
+        datetime_start=None,
+    )
 
 
 def get_storage(storage: Union[str, BaseStorage]) -> BaseStorage:
