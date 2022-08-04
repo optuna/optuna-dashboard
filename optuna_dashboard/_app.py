@@ -146,7 +146,9 @@ def get_study_summary(storage: BaseStorage, study_id: int) -> Optional[StudySumm
     return None
 
 
-def get_trials(storage: BaseStorage, study_id: int, ttl_seconds: int = 10) -> List[FrozenTrial]:
+def get_trials(
+    storage: BaseStorage, study_id: int, ttl_seconds: int = 10, after: int = 0
+) -> List[FrozenTrial]:
     with trials_cache_lock:
         trials = trials_cache.get(study_id, None)
         last_fetched_at = trials_last_fetched_at.get(study_id, None)
@@ -156,8 +158,12 @@ def get_trials(storage: BaseStorage, study_id: int, ttl_seconds: int = 10) -> Li
             and datetime.now() - last_fetched_at < timedelta(seconds=ttl_seconds)
         ):
             return trials
-    trials = storage.get_all_trials(study_id, deepcopy=False)
-
+    trials = storage._get_trials(
+        study_id=study_id,
+        states=None,
+        excluded_trial_ids=set(),
+        offset=after,
+    )
     # TODO(c-bata): Avoid to sort trials after fixed https://github.com/optuna/optuna/issues/3605
     if isinstance(storage, RDBStorage) and storage.url.startswith("postgresql"):
         trials = sorted(trials, key=lambda t: t.number)
