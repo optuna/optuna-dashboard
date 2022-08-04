@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - run: gh release download $(jq --raw-output .tag_name "$GITHUB_EVENT_PATH") ./dist
+    - run: gh release download $(jq --raw-output .tag_name "$GITHUB_EVENT_PATH") -p '*.whl' -p '*.tar.gz' -D ./dist
     - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
