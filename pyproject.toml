@@ -1,3 +1,54 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "optuna-dashboard"
+description = "Real-time dashboard for Optuna"
+readme = "README.md"
+authors = [
+    { name = "Masashi Shibata", "email" = "mshibata@preferred.jp" }
+]
+requires-python = ">=3.6"
+license = {text = "MIT License"}
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3 :: Only",
+    "Intended Audience :: Science/Research",
+]
+dependencies = [
+    "bottle",
+    "optuna>=2.4.0",
+    "packaging",
+    "scikit-learn",
+    'typing-extensions; python_version<"3.8"',
+]
+dynamic = ["version"]
+
+[project.scripts]
+optuna-dashboard = "optuna_dashboard._cli:main"
+
+[tool.setuptools.dynamic]
+version = {attr = "optuna_dashboard.__version__"}
+
+[tool.setuptools]
+packages = ["optuna_dashboard"]
+include-package-data = false
+package-data = { "optuna_dashboard" = ["public/*", "img/*", "index.html"] }
+
+[project.urls]
+"Homepage" = "https://github.com/optuna/optuna-dashboard"
+"Sources" = "https://github.com/optuna/optuna-dashboard"
+"Bug Tracker" = "https://github.com/optuna/optuna-dashboard/issues"
+
 [tool.black]
 line-length = 99
 target-version = ['py38']
@@ -24,3 +75,7 @@ lines_after_imports = 2
 force_single_line = 'True'
 force_sort_within_sections = 'True'
 order_by_type = 'False'
+
+[tool.mypy]
+ignore_missing_imports = true
+disallow_untyped_defs = true
