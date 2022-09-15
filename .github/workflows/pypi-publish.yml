@@ -12,6 +12,8 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - run: gh release download $(jq --raw-output .tag_name "$GITHUB_EVENT_PATH") -p '*.whl' -p '*.tar.gz' -D ./dist
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
