@@ -2,6 +2,7 @@ import threading
 from typing import Dict
 from typing import List
 from typing import Tuple
+import warnings
 
 from optuna.importance import BaseImportanceEvaluator
 from optuna.importance import FanovaImportanceEvaluator
@@ -19,7 +20,10 @@ except ImportError:
 
 try:
     from optuna_fast_fanova import FanovaImportanceEvaluator as FastFanovaImportanceEvaluator
-except (ImportError, ValueError):
+except ModuleNotFoundError:
+    FastFanovaImportanceEvaluator = None  # type: ignore
+except Exception as e:
+    warnings.warn(f"Failed to import optuna-fast-fanova: {e}")
     FastFanovaImportanceEvaluator = None  # type: ignore
 
 
