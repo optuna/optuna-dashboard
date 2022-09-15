@@ -19,7 +19,7 @@ except ImportError:
 
 try:
     from optuna_fast_fanova import FanovaImportanceEvaluator as FastFanovaImportanceEvaluator
-except ImportError:
+except (ImportError, ValueError):
     FastFanovaImportanceEvaluator = None  # type: ignore
 
 
