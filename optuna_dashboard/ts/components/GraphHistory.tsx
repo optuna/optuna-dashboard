@@ -228,24 +228,22 @@ const plotHistory = (
     return
   }
   const trialsForLinePlot: Trial[] = []
-  let currentBest: number | null = null
+  let currentBest: Trial | null = null
   filteredTrials.forEach((t) => {
     if (currentBest === null) {
-      currentBest = t.values![objectiveId] as number
-      trialsForLinePlot.push(t)
+      currentBest = t
     } else if (
       study.directions[objectiveId] === "maximize" &&
-      t.values![objectiveId] > currentBest
+      t.values![objectiveId] > currentBest.values![objectiveId]
     ) {
-      currentBest = t.values![objectiveId] as number
-      trialsForLinePlot.push(t)
+      currentBest = t
     } else if (
       study.directions[objectiveId] === "minimize" &&
-      t.values![objectiveId] < currentBest
+      t.values![objectiveId] < currentBest.values![objectiveId]
     ) {
-      currentBest = t.values![objectiveId] as number
-      trialsForLinePlot.push(t)
+      currentBest = t
     }
+    trialsForLinePlot.push(currentBest)
   })
 
   const getAxisX = (trial: Trial): number | Date => {
@@ -256,12 +254,9 @@ const plotHistory = (
       : trial.datetime_complete!
   }
 
-  const xForLinePlot = trialsForLinePlot.map(getAxisX)
-  xForLinePlot.push(getAxisX(filteredTrials[filteredTrials.length - 1]))
   const yForLinePlot = trialsForLinePlot.map(
     (t: Trial): number => t.values![objectiveId] as number
   )
-  yForLinePlot.push(yForLinePlot[yForLinePlot.length - 1])
 
   const plotData: Partial<plotly.PlotData>[] = [
     {
@@ -273,7 +268,7 @@ const plotHistory = (
       type: "scatter",
     },
     {
-      x: xForLinePlot,
+      x: filteredTrials.map(getAxisX),
       y: yForLinePlot,
       mode: "lines",
       type: "scatter",
