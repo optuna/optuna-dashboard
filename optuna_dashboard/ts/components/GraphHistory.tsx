@@ -236,7 +236,7 @@ const plotHistory = (
       : trial.datetime_complete!
   }
 
-  const xForLinePlot: number[] = []
+  const xForLinePlot: (number | Date)[] = []
   const yForLinePlot: number[] = []
   let currentBest: number | null = null
   for (let i = 0; i < filteredTrials.length; i++) {
