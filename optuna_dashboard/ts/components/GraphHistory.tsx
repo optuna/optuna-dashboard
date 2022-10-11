@@ -239,8 +239,8 @@ const plotHistory = (
   const xForLinePlot: number[] = []
   const yForLinePlot: number[] = []
   let currentBest: number | null = null
-  for (var i = 0; i < filteredTrials.length; i++) {
-    let t = filteredTrials[i]
+  for (let i = 0; i < filteredTrials.length; i++) {
+    const t = filteredTrials[i]
     if (currentBest === null) {
       currentBest = t.values![objectiveId] as number
       xForLinePlot.push(getAxisX(t))
@@ -249,7 +249,7 @@ const plotHistory = (
       study.directions[objectiveId] === "maximize" &&
       t.values![objectiveId] > currentBest
     ) {
-      let p = filteredTrials[i - 1]
+      const p = filteredTrials[i - 1]
       if (!xForLinePlot.includes(getAxisX(p))) {
         xForLinePlot.push(getAxisX(p))
         yForLinePlot.push(currentBest)
@@ -261,7 +261,7 @@ const plotHistory = (
       study.directions[objectiveId] === "minimize" &&
       t.values![objectiveId] < currentBest
     ) {
-      let p = filteredTrials[i - 1]
+      const p = filteredTrials[i - 1]
       if (!xForLinePlot.includes(getAxisX(p))) {
         xForLinePlot.push(getAxisX(p))
         yForLinePlot.push(currentBest)
@@ -289,6 +289,5 @@ const plotHistory = (
       type: "scatter",
     },
   ]
-  console.log(plotData)
   plotly.react(plotDomId, plotData, layout)
 }
