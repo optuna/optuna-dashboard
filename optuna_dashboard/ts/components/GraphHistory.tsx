@@ -290,7 +290,7 @@ const plotHistory = (
       x: xForLinePlot,
       y: yForLinePlot,
       name: "Best Value",
-      mode :"lines",
+      mode: "lines",
       type: "scatter",
     },
   ]
