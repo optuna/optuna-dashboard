@@ -207,12 +207,14 @@ const plotHistory = (
       b: 0,
     },
     yaxis: {
+      title: "Objective Value",
       type: logScale ? "log" : "linear",
     },
     xaxis: {
+      title: xAxis === "number" ? "Trial" : "Time",
       type: xAxis === "number" ? "linear" : "date",
     },
-    showlegend: false,
+    showlegend: true,
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
@@ -280,12 +282,15 @@ const plotHistory = (
       y: filteredTrials.map(
         (t: Trial): number => t.values![objectiveId] as number
       ),
+      name: "Objective Value",
       mode: "markers",
       type: "scatter",
     },
     {
       x: xForLinePlot,
       y: yForLinePlot,
+      name: "Best Value",
+      mode :"lines",
       type: "scatter",
     },
   ]
