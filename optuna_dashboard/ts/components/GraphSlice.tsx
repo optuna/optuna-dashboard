@@ -187,6 +187,10 @@ const plotSlice = (
     return t.params.find((p) => p.name == selected)!.value
   })
 
+  const trialNumbers: number[] = filteredTrials.map(
+    (t) => t.number as number
+  )
+
   const isnum = valueStrings.every((v) => {
     return !isNaN(Number(v))
   })
@@ -198,6 +202,13 @@ const plotSlice = (
         x: valuesNum,
         y: objectiveValues,
         mode: "markers",
+        marker: {
+          color: trialNumbers,
+          colorscale: 'Blues',
+          colorbar: {
+            title: "Trial",
+          },
+       },
       },
     ]
     layout["xaxis"] = {
