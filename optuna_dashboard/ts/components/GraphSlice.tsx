@@ -162,7 +162,7 @@ const plotSlice = (
       automargin: true,
     },
     yaxis: {
-      title: "Objective Values",
+      title: "Objective Value",
       type: logYScale ? "log" : "linear",
       gridwidth: 1,
       automargin: true,
@@ -205,10 +205,15 @@ const plotSlice = (
         marker: {
           color: trialNumbers,
           colorscale: 'Blues',
+          reversescale: true,
           colorbar: {
             title: "Trial",
           },
-       },
+          line: {
+            color: "Grey",
+            width: 0.5,
+          },
+        },
       },
     ]
     layout["xaxis"] = {
@@ -231,6 +236,18 @@ const plotSlice = (
         x: valuesCategorical,
         y: objectiveValues,
         mode: "markers",
+        marker: {
+          color: trialNumbers,
+          colorscale: 'Blues',
+          reversescale: true,
+          colorbar: {
+            title: "Trial",
+          },
+          line: {
+            color: "Grey",
+            width: 0.5,
+          },
+        },
       },
     ]
     layout["xaxis"] = {
