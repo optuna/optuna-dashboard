@@ -207,12 +207,14 @@ const plotHistory = (
       b: 0,
     },
     yaxis: {
+      title: "Objective Value",
       type: logScale ? "log" : "linear",
     },
     xaxis: {
+      title: xAxis === "number" ? "Trial" : "Time",
       type: xAxis === "number" ? "linear" : "date",
     },
-    showlegend: false,
+    showlegend: true,
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
@@ -227,26 +229,6 @@ const plotHistory = (
     plotly.react(plotDomId, [])
     return
   }
-  const trialsForLinePlot: Trial[] = []
-  let currentBest: number | null = null
-  filteredTrials.forEach((t) => {
-    if (currentBest === null) {
-      currentBest = t.values![objectiveId] as number
-      trialsForLinePlot.push(t)
-    } else if (
-      study.directions[objectiveId] === "maximize" &&
-      t.values![objectiveId] > currentBest
-    ) {
-      currentBest = t.values![objectiveId] as number
-      trialsForLinePlot.push(t)
-    } else if (
-      study.directions[objectiveId] === "minimize" &&
-      t.values![objectiveId] < currentBest
-    ) {
-      currentBest = t.values![objectiveId] as number
-      trialsForLinePlot.push(t)
-    }
-  })
 
   const getAxisX = (trial: Trial): number | Date => {
     return xAxis === "number"
@@ -256,11 +238,42 @@ const plotHistory = (
       : trial.datetime_complete!
   }
 
-  const xForLinePlot = trialsForLinePlot.map(getAxisX)
+  const xForLinePlot: (number | Date)[] = []
+  const yForLinePlot: number[] = []
+  let currentBest: number | null = null
+  for (let i = 0; i < filteredTrials.length; i++) {
+    const t = filteredTrials[i]
+    if (currentBest === null) {
+      currentBest = t.values![objectiveId] as number
+      xForLinePlot.push(getAxisX(t))
+      yForLinePlot.push(t.values![objectiveId] as number)
+    } else if (
+      study.directions[objectiveId] === "maximize" &&
+      t.values![objectiveId] > currentBest
+    ) {
+      const p = filteredTrials[i - 1]
+      if (!xForLinePlot.includes(getAxisX(p))) {
+        xForLinePlot.push(getAxisX(p))
+        yForLinePlot.push(currentBest)
+      }
+      currentBest = t.values![objectiveId] as number
+      xForLinePlot.push(getAxisX(t))
+      yForLinePlot.push(t.values![objectiveId] as number)
+    } else if (
+      study.directions[objectiveId] === "minimize" &&
+      t.values![objectiveId] < currentBest
+    ) {
+      const p = filteredTrials[i - 1]
+      if (!xForLinePlot.includes(getAxisX(p))) {
+        xForLinePlot.push(getAxisX(p))
+        yForLinePlot.push(currentBest)
+      }
+      currentBest = t.values![objectiveId] as number
+      xForLinePlot.push(getAxisX(t))
+      yForLinePlot.push(t.values![objectiveId] as number)
+    }
+  }
   xForLinePlot.push(getAxisX(filteredTrials[filteredTrials.length - 1]))
-  const yForLinePlot = trialsForLinePlot.map(
-    (t: Trial): number => t.values![objectiveId] as number
-  )
   yForLinePlot.push(yForLinePlot[yForLinePlot.length - 1])
 
   const plotData: Partial<plotly.PlotData>[] = [
@@ -269,12 +282,14 @@ const plotHistory = (
       y: filteredTrials.map(
         (t: Trial): number => t.values![objectiveId] as number
       ),
+      name: "Objective Value",
       mode: "markers",
       type: "scatter",
     },
     {
       x: xForLinePlot,
       y: yForLinePlot,
+      name: "Best Value",
       mode: "lines",
       type: "scatter",
     },
