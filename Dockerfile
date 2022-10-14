@@ -15,9 +15,9 @@ FROM python:3.10-buster AS python-builder
 
 WORKDIR /usr/src
 RUN pip install --upgrade pip setuptools
-RUN pip install --progress-bar off PyMySQL[rsa] psycopg2-binary gunicorn
+RUN pip install --progress-bar off PyMySQL[rsa] psycopg2-binary gunicorn optuna-fast-fanova
 
-ADD ./setup.cfg /usr/src/setup.cfg
+ADD ./pyproject.toml /usr/src/pyproject.toml
 ADD ./setup.py /usr/src/setup.py
 ADD ./optuna_dashboard /usr/src/optuna_dashboard
 COPY --from=front-builder /usr/src/optuna_dashboard/public/ /usr/src/optuna_dashboard/public/
