@@ -187,7 +187,7 @@ const plotSlice = (
     return t.params.find((p) => p.name == selected)!.value
   })
 
-  const trialNumbers: number[] = filteredTrials.map((t) => t.number as number)
+  const trialNumbers: number[] = filteredTrials.map((t) => t.number)
 
   const isnum = valueStrings.every((v) => {
     return !isNaN(Number(v))
