@@ -9,7 +9,7 @@ readme = "README.md"
 authors = [
     { name = "Masashi Shibata", "email" = "mshibata@preferred.jp" }
 ]
-requires-python = ">=3.6"
+requires-python = ">=3.7"
 license = {text = "MIT License"}
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -17,10 +17,10 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3 :: Only",
     "Intended Audience :: Science/Research",
 ]
