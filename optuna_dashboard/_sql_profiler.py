@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING
 from bottle import Bottle
 from bottle import SimpleTemplate
 from optuna.storages import RDBStorage
-from optuna_dashboard._app import BottleView
+from optuna_dashboard._app import BottleViewReturn
 from sqlalchemy import event
 
 
@@ -109,7 +109,7 @@ def register_profiler_view(app: Bottle, storage: RDBStorage) -> Bottle:
     EngineDebuggingSignalEvents(storage.engine).register()
 
     @app.get("/sql-profiler")
-    def profile_sql_queries() -> BottleView:
+    def profile_sql_queries() -> BottleViewReturn:
         global sql_queries
         with sql_queries_lock:
             summary = [
