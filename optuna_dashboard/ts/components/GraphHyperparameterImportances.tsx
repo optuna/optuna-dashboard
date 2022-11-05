@@ -17,30 +17,6 @@ import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { useSnackbar } from "notistack"
 const plotDomId = "graph-hyperparameter-importances"
 
-// To match colors used by plot_param_importances in optuna.
-const plotlyColorsSequentialBlues = [
-  "rgb(247,251,255)",
-  "rgb(222,235,247)",
-  "rgb(198,219,239)",
-  "rgb(158,202,225)",
-  "rgb(107,174,214)",
-  "rgb(66,146,198)",
-  "rgb(33,113,181)",
-  "rgb(8,81,156)",
-  "rgb(8,48,107)",
-]
-
-const distributionColors = {
-  FloatDistribution: plotlyColorsSequentialBlues.slice(-1)[0],
-  UniformDistribution: plotlyColorsSequentialBlues.slice(-1)[0],
-  LogUniformDistribution: plotlyColorsSequentialBlues.slice(-1)[0],
-  DiscreteUniformDistribution: plotlyColorsSequentialBlues.slice(-1)[0],
-  IntDistribution: plotlyColorsSequentialBlues.slice(-2)[0],
-  IntUniformDistribution: plotlyColorsSequentialBlues.slice(-2)[0],
-  IntLogUniformDistribution: plotlyColorsSequentialBlues.slice(-2)[0],
-  CategoricalDistribution: plotlyColorsSequentialBlues.slice(-4)[0],
-}
-
 export const GraphHyperparameterImportances: FC<{
   study: StudyDetail | null
   studyId: number
@@ -124,9 +100,6 @@ const plotParamImportances = (
   ].reverse()
   const importance_values = param_importances.map((p) => p.importance)
   const param_names = param_importances.map((p) => p.name)
-  const param_colors = param_importances.map(
-    (p) => distributionColors[p.distribution]
-  )
   const param_hover_templates = param_importances.map(
     (p) => `${p.name} (${p.distribution}): ${p.importance} <extra></extra>`
   )
@@ -159,7 +132,7 @@ const plotParamImportances = (
       textposition: "outside",
       hovertemplate: param_hover_templates,
       marker: {
-        color: param_colors,
+        color: "rgb(66,146,198)",
       },
     },
   ]
