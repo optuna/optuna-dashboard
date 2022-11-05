@@ -128,5 +128,6 @@ const plotEdf = (study: StudyDetail, objectiveId: number, mode: string) => {
       y: yValues,
     },
   ]
+  console.log(plotData)
   plotly.react(plotDomId, plotData, layout)
 }
