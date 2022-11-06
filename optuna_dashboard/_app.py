@@ -298,7 +298,8 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             return {"reason": f"study_id={study_id} is not found"}
         trials = get_trials(storage, study_id)
         (
-            # TODO: intersection_search_space and union_search_space look more clear since now we have union_user_attrs.
+            # TODO: intersection_search_space and union_search_space look more clear since now we
+            # have union_user_attrs.
             intersection,
             union,
             union_user_attrs,
