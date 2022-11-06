@@ -41,6 +41,7 @@ def get_cached_extra_study_property(
 class _CachedExtraStudyProperty:
     def __init__(self) -> None:
         self._cursor: int = -1
+        # TODO: intersection_search_space and union_search_space look more clear since now we have union_user_attrs.
         self._intersection: Optional[SearchSpaceSetT] = None
         self._union: SearchSpaceSetT = set()
         self._union_user_attrs: Set[str] = set()
