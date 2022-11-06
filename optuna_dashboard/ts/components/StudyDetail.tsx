@@ -632,7 +632,7 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
           if (firstVal === secondVal) {
             return 0
           } else if (firstVal && secondVal) {
-            return firstVal < secondVal ? 1 : -1
+            return Number(firstVal) < Number(secondVal) ? 1 : -1
           } else if (firstVal) {
             return -1
           } else {
