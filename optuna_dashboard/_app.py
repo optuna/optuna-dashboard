@@ -297,14 +297,20 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
         trials = get_trials(storage, study_id)
-        intersection, union, has_intermeridate_values = get_cached_extra_study_property(
-            study_id, trials
-        )
+        (
+            # TODO: intersection_search_space and union_search_space look more clear since now we
+            # have union_user_attrs.
+            intersection,
+            union,
+            union_user_attrs,
+            has_intermeridate_values,
+        ) = get_cached_extra_study_property(study_id, trials)
         return serialize_study_detail(
             summary,
             trials[after:],
             intersection,
             union,
+            union_user_attrs,
             has_intermeridate_values,
         )
 
