@@ -650,6 +650,13 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
     })
   }
 
+  columns.push({
+    field: "user_attrs",
+    label: "User Attributes",
+    toCellValue: (i) =>
+      trials[i].user_attrs.map((p) => p.key + ": " + p.value).join(", "),
+  })
+
   const collapseParamColumns: DataGridColumn<TrialParam>[] = [
     { field: "name", label: "Name", sortable: true },
     { field: "value", label: "Value", sortable: true },
