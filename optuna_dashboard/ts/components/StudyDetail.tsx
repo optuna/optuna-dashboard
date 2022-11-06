@@ -660,10 +660,10 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
       sortable: true,
       filterable: true,
       less: (firstEl, secondEl): number => {
-        const firstVal = firstEl.params.find(
+        const firstVal = firstEl.user_attrs.find(
           (attr) => attr.key === attr_name
         )?.value
-        const secondVal = secondEl.params.find(
+        const secondVal = secondEl.user_attrs.find(
           (attr) => attr.key === attr_name
         )?.value
 
