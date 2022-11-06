@@ -650,11 +650,34 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
     })
   }
 
-  columns.push({
-    field: "user_attrs",
-    label: "User Attributes",
-    toCellValue: (i) =>
-      trials[i].user_attrs.map((p) => p.key + ": " + p.value).join(", "),
+  studyDetail?.union_user_attrs.forEach((attr_name) => {
+    columns.push({
+      field: "user_attrs",
+      label: `User attribute ${attr_name}`,
+      toCellValue: (i) =>
+        trials[i].user_attrs.find((attr) => attr.key === attr_name)?.value ||
+        null,
+      sortable: true,
+      filterable: true,
+      less: (firstEl, secondEl): number => {
+        const firstVal = firstEl.params.find(
+          (attr) => attr.key === attr_name
+        )?.value
+        const secondVal = secondEl.params.find(
+          (attr) => attr.key === attr_name
+        )?.value
+
+        if (firstVal === secondVal) {
+          return 0
+        } else if (firstVal && secondVal) {
+          return firstVal < secondVal ? 1 : -1
+        } else if (firstVal) {
+          return -1
+        } else {
+          return 1
+        }
+      },
+    })
   })
 
   const collapseParamColumns: DataGridColumn<TrialParam>[] = [
