@@ -84,7 +84,7 @@ declare interface StudyDetail {
   trials: Trial[]
   intersection_search_space: SearchSpace[]
   union_search_space: SearchSpace[]
-  union_user_attrs: Attribute[]
+  union_user_attrs: string[]
   has_intermediate_values: boolean
   note: Note
 }

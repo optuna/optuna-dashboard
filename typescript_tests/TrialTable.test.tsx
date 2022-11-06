@@ -74,16 +74,7 @@ const studyDetail = {
       attributes: { low: -3, high: 3 },
     },
   ],
-  union_user_attrs: [
-    {
-      key: "foo",
-      value: "hoge",
-    },
-    {
-      key: "bar",
-      value: "0",
-    },
-  ],
+  union_user_attrs: ["foo", "bar"],
   has_intermediate_values: false,
   note: {
     version: 0,

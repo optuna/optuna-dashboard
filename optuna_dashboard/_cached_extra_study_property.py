@@ -1,6 +1,5 @@
 import copy
 import threading
-from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -24,7 +23,7 @@ states_of_interest = [TrialState.COMPLETE, TrialState.PRUNED]
 
 def get_cached_extra_study_property(
     study_id: int, trials: List[FrozenTrial]
-) -> Tuple[SearchSpaceListT, SearchSpaceListT, List[Tuple[str, Any]], bool]:
+) -> Tuple[SearchSpaceListT, SearchSpaceListT, List[str], bool]:
     with cached_extra_study_property_cache_lock:
         cached_extra_study_property = cached_extra_study_property_cache.get(study_id, None)
         if cached_extra_study_property is None:
@@ -44,7 +43,7 @@ class _CachedExtraStudyProperty:
         self._cursor: int = -1
         self._intersection: Optional[SearchSpaceSetT] = None
         self._union: SearchSpaceSetT = set()
-        self._union_user_attrs: Set[Tuple[str, Any]] = set()
+        self._union_user_attrs: Set[str] = set()
         self.has_intermediate_values: bool = False
 
     @property
@@ -62,9 +61,9 @@ class _CachedExtraStudyProperty:
         return union
 
     @property
-    def union_user_attrs(self) -> List[Tuple[str, Any]]:
+    def union_user_attrs(self) -> List[str]:
         union = list(self._union_user_attrs)
-        union.sort(key=lambda x: x[0])
+        union.sort()
         return union
 
     def update(self, trials: List[FrozenTrial]) -> None:
@@ -90,7 +89,7 @@ class _CachedExtraStudyProperty:
             else:
                 self._intersection = self._intersection.intersection(current)
 
-            current_user_attrs = set([(n, d) for n, d in trial.user_attrs.items()])
+            current_user_attrs = set(n for n in trial.user_attrs.keys())
             self._union_user_attrs = self._union_user_attrs.union(current_user_attrs)
 
         self._cursor = next_cursor
