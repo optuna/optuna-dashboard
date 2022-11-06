@@ -62,7 +62,7 @@ class _CachedExtraStudyProperty:
         return union
 
     @property
-    def union_user_attrs(self) -> Set[Tuple[str, Any]]:
+    def union_user_attrs(self) -> List[Tuple[str, Any]]:
         union = list(self._union_user_attrs)
         union.sort(key=lambda x: x[0])
         return union
