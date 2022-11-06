@@ -1,5 +1,6 @@
 import copy
 import threading
+from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
@@ -23,7 +24,7 @@ states_of_interest = [TrialState.COMPLETE, TrialState.PRUNED]
 
 def get_cached_extra_study_property(
     study_id: int, trials: List[FrozenTrial]
-) -> Tuple[SearchSpaceListT, SearchSpaceListT, bool]:
+) -> Tuple[SearchSpaceListT, SearchSpaceListT, List[Tuple[str, Any]], bool]:
     with cached_extra_study_property_cache_lock:
         cached_extra_study_property = cached_extra_study_property_cache.get(study_id, None)
         if cached_extra_study_property is None:
@@ -33,6 +34,7 @@ def get_cached_extra_study_property(
         return (
             cached_extra_study_property.intersection,
             cached_extra_study_property.union,
+            cached_extra_study_property.union_user_attrs,
             cached_extra_study_property.has_intermediate_values,
         )
 
@@ -42,6 +44,7 @@ class _CachedExtraStudyProperty:
         self._cursor: int = -1
         self._intersection: Optional[SearchSpaceSetT] = None
         self._union: SearchSpaceSetT = set()
+        self._union_user_attrs: Set[Tuple[str, Any]] = set()
         self.has_intermediate_values: bool = False
 
     @property
@@ -55,6 +58,12 @@ class _CachedExtraStudyProperty:
     @property
     def union(self) -> SearchSpaceListT:
         union = list(self._union)
+        union.sort(key=lambda x: x[0])
+        return union
+
+    @property
+    def union_user_attrs(self) -> Set[Tuple[str, Any]]:
+        union = list(self._union_user_attrs)
         union.sort(key=lambda x: x[0])
         return union
 
@@ -80,5 +89,8 @@ class _CachedExtraStudyProperty:
                 self._intersection = copy.copy(current)
             else:
                 self._intersection = self._intersection.intersection(current)
+
+            current_user_attrs = set([(n, d) for n, d in trial.user_attrs.items()])
+            self._union_user_attrs = self._union_user_attrs.union(current_user_attrs)
 
         self._cursor = next_cursor

@@ -71,6 +71,7 @@ def serialize_study_detail(
     trials: List[FrozenTrial],
     intersection: List[Tuple[str, BaseDistribution]],
     union: List[Tuple[str, BaseDistribution]],
+    union_user_attrs: List[Tuple[str, Any]],
     has_intermediate_values: bool,
 ) -> Dict[str, Any]:
     serialized: Dict[str, Any] = {
@@ -83,6 +84,7 @@ def serialize_study_detail(
     serialized["trials"] = [serialize_frozen_trial(summary._study_id, trial) for trial in trials]
     serialized["intersection_search_space"] = serialize_search_space(intersection)
     serialized["union_search_space"] = serialize_search_space(union)
+    serialized["union_user_attrs"] = serialize_user_attrs(union_user_attrs)
     serialized["has_intermediate_values"] = has_intermediate_values
     serialized["note"] = note.get_note_from_system_attrs(summary.system_attrs)
     return serialized
@@ -147,6 +149,18 @@ def serialize_search_space(
                 "name": param_name,
                 "distribution": distribution.__class__.__name__,
                 "attributes": distribution._asdict(),
+            }
+        )
+    return serialized
+
+
+def serialize_user_attrs(user_attrs: List[Tuple[str, Any]]) -> List[Dict[str, Any]]:
+    serialized = []
+    for attr_name, attr_value in user_attrs:
+        serialized.append(
+            {
+                "name": attr_name,
+                "value": attr_value,
             }
         )
     return serialized
