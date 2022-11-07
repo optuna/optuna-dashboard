@@ -33,6 +33,7 @@ import { DataGridColumn, DataGrid } from "./DataGrid"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { GraphHyperparameterImportances } from "./GraphHyperparameterImportances"
 import { Edf } from "./GraphEdf"
+import { Contour } from "./GraphContour"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphSlice } from "./GraphSlice"
 import { GraphHistory } from "./GraphHistory"
@@ -61,6 +62,7 @@ interface Preference {
   graphParallelCoordinateChecked: boolean
   graphIntermediateValuesChecked: boolean
   graphEdfChecked: boolean
+  graphContourChecked: boolean
   graphHyperparameterImportancesChecked: boolean
   graphSliceChecked: boolean
   noteEditorChecked: boolean
@@ -84,6 +86,7 @@ export const StudyDetail: FC<{
     graphParallelCoordinateChecked: true,
     graphIntermediateValuesChecked: true,
     graphEdfChecked: true,
+    graphContourChecked: true,
     graphHyperparameterImportancesChecked: true,
     graphSliceChecked: true,
     noteEditorChecked: true,
@@ -376,6 +379,15 @@ export const StudyDetail: FC<{
               </CardContent>
             </Card>
           ) : null}
+
+          {preferences.graphContourChecked ? (
+            <Card sx={{ margin: theme.spacing(2) }}>
+              <CardContent>
+                <Contour study={studyDetail} />
+              </CardContent>
+            </Card>
+          ) : null}
+
           {preferences.graphHyperparameterImportancesChecked ? (
             <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>
