@@ -9,7 +9,6 @@ from bottle import Bottle
 from bottle import run
 from optuna.storages import BaseStorage
 from optuna.storages import RDBStorage
-from optuna.storages import RedisStorage
 
 from . import __version__
 from ._app import create_app
@@ -99,7 +98,7 @@ def main() -> None:
 
     storage: BaseStorage
     if args.storage.startswith("redis"):
-        storage = RedisStorage(args.storage)
+        raise ValueError("RedisStorage is unsupported from Optuna v3.1 or Optuna Dashboard v0.8.0")
     else:
         storage = RDBStorage(args.storage, skip_compatibility_check=True)
 

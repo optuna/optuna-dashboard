@@ -212,8 +212,6 @@ def main() -> None:
     storage: optuna.storages.BaseStorage
     if not args.storage:
         storage = create_dummy_storage()
-    elif args.storage.startswith("redis"):
-        storage = optuna.storages.RedisStorage(args.storage)
     else:
         storage = optuna.storages.RDBStorage(args.storage)
 
