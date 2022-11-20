@@ -134,6 +134,7 @@ const makeMarker = (
   if (dominated) {
     return {
       line: { width: 0.5, color: "Grey" },
+      // @ts-ignore
       color: trials.map((t) => t.number),
       colorscale: "Blues",
       reversescale: true,
@@ -144,6 +145,7 @@ const makeMarker = (
   } else {
     return {
       line: { width: 0.5, color: "Grey" },
+      // @ts-ignore
       color: trials.map((t) => t.number),
       colorscale: "Reds",
       colorbar: {
