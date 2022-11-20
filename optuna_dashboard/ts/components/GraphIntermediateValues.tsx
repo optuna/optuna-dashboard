@@ -64,6 +64,7 @@ const plotIntermediateValue = (trials: Trial[], mode: string) => {
     return {
       x: values.map((iv) => iv.step),
       y: values.map((iv) => iv.value),
+      marker: { maxdisplayed: 10 },
       mode: "lines+markers",
       type: "scatter",
       name:
