@@ -94,6 +94,67 @@ const filterFunc = (trial: Trial, directions: StudyDirection[]): boolean => {
   )
 }
 
+const makeHovertext = (trial: Trial): string => {
+  return JSON.stringify(
+    {
+      number: trial.number,
+      values: trial.values,
+      params: trial.params
+        .map((p) => [p.name, p.value])
+        .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {}),
+    },
+    undefined,
+    "  "
+  ).replace(/\n/g, "<br>")
+}
+
+const makeScatterObject = (
+  trials: Trial[],
+  objectiveXId: number,
+  objectiveYId: number,
+  hovertemplate: string,
+  dominated: boolean
+): Partial<plotly.PlotData> => {
+  const marker = makeMarker(trials, dominated)
+  return {
+    x: trials.map((t) => t.values![objectiveXId] as number),
+    y: trials.map((t) => t.values![objectiveYId] as number),
+    text: trials.map((t) => makeHovertext(t)),
+    mode: "markers",
+    hovertemplate: hovertemplate,
+    marker: marker,
+    showlegend: false,
+  }
+}
+
+const makeMarker = (
+  trials: Trial[],
+  dominated: boolean
+): Partial<plotly.PlotData> => {
+  if (dominated) {
+    return {
+      line: { width: 0.5, color: "Grey" },
+      color: trials.map((t) => t.number),
+      colorscale: "Blues",
+      reversescale: true,
+      colorbar: {
+        title: "Trial",
+      },
+    }
+  } else {
+    return {
+      line: { width: 0.5, color: "Grey" },
+      color: trials.map((t) => t.number),
+      colorscale: "Reds",
+      colorbar: {
+        title: "Best Trial",
+        x: 1.1,
+        xpad: 80,
+      },
+    }
+  }
+}
+
 const plotParetoFront = (
   study: StudyDetail,
   objectiveXId: number,
@@ -136,7 +197,7 @@ const plotParetoFront = (
     }
   })
 
-  const pointColors: string[] = []
+  const dominatedTrials: boolean[] = []
   normalizedValues.forEach((values0: number[], i: number) => {
     const dominated = normalizedValues.some((values1: number[], j: number) => {
       if (i === j) {
@@ -146,34 +207,24 @@ const plotParetoFront = (
         return values1[k] <= value0
       })
     })
-
-    if (dominated) {
-      pointColors.push("blue")
-    } else {
-      pointColors.push("red")
-    }
+    dominatedTrials.push(dominated)
   })
 
   const plotData: Partial<plotly.PlotData>[] = [
-    {
-      type: "scatter",
-      x: filteredTrials.map((t: Trial): number => {
-        return t.values![objectiveXId] as number
-      }),
-      y: filteredTrials.map((t: Trial): number => {
-        return t.values![objectiveYId] as number
-      }),
-      mode: "markers",
-      xaxis: "Objective X",
-      yaxis: "Objective Y",
-      marker: {
-        color: pointColors,
-      },
-      text: filteredTrials.map(
-        (t: Trial): string => `Trial (number=${t.number})`
-      ),
-      hovertemplate: "%{text}<extra></extra>",
-    },
+    makeScatterObject(
+      filteredTrials.filter((t, i) => dominatedTrials[i]),
+      objectiveXId,
+      objectiveYId,
+      "%{text}<extra>Trial</extra>",
+      true
+    ),
+    makeScatterObject(
+      filteredTrials.filter((t, i) => !dominatedTrials[i]),
+      objectiveXId,
+      objectiveYId,
+      "%{text}<extra>Best Trial</extra>",
+      false
+    ),
   ]
 
   plotly.react(plotDomId, plotData, layout)
