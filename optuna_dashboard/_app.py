@@ -27,7 +27,6 @@ from bottle import static_file
 from optuna.exceptions import DuplicatedStudyError
 from optuna.storages import BaseStorage
 from optuna.storages import RDBStorage
-from optuna.storages import RedisStorage
 from optuna.study import StudyDirection
 from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
@@ -393,7 +392,9 @@ def _frozen_study_to_study_summary(frozen_study: "FrozenStudy") -> StudySummary:
 def get_storage(storage: Union[str, BaseStorage]) -> BaseStorage:
     if isinstance(storage, str):
         if storage.startswith("redis"):
-            return RedisStorage(storage)
+            raise ValueError(
+                "RedisStorage is unsupported from Optuna v3.1 or Optuna Dashboard v0.8.0"
+            )
         else:
             return RDBStorage(storage, skip_compatibility_check=True)
     return storage
