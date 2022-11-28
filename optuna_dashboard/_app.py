@@ -249,18 +249,16 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             return {"reason": "You need to set study_name and direction"}
 
         try:
-            study_id = storage.create_new_study(study_name)
+            study_id = storage.create_new_study(
+                study_name,
+                directions=[
+                    StudyDirection.MAXIMIZE if d.lower() == "maximize" else StudyDirection.MINIMIZE
+                    for d in directions
+                ],
+            )
         except DuplicatedStudyError:
             response.status = 400  # Bad request
             return {"reason": f"'{study_name}' is already exists"}
-
-        storage.set_study_directions(
-            study_id,
-            [
-                StudyDirection.MAXIMIZE if d.lower() == "maximize" else StudyDirection.MINIMIZE
-                for d in directions
-            ],
-        )
 
         summary = get_study_summary(storage, study_id)
         if summary is None:
