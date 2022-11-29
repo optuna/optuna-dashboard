@@ -1,5 +1,5 @@
 # project dependency
-optuna>=2.4
+optuna>=3.0
 bottle
 typing-extensions;python_version<'3.8'
 scikit-learn
