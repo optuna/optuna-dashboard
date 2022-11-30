@@ -249,13 +249,33 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             return {"reason": "You need to set study_name and direction"}
 
         try:
-            study_id = storage.create_new_study(
-                study_name,
-                directions=[
-                    StudyDirection.MAXIMIZE if d.lower() == "maximize" else StudyDirection.MINIMIZE
-                    for d in directions
-                ],
-            )
+            # if version.parse(optuna_ver) >= version.Version("3.0.0rc0.dev"):
+            #         frozen_studies = storage.get_all_studies()  # type: ignore
+            #         return [_frozen_study_to_study_summary(s) for s in frozen_studies]
+            #     elif version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
+            #         return storage.get_all_study_summaries(include_best_trial=False)  # type: ignore
+            if version.parse(optuna_ver) >= version.Version("3.1.0.dev"):
+                study_id = storage.create_new_study(
+                    study_name,
+                    directions=[
+                        StudyDirection.MAXIMIZE
+                        if d.lower() == "maximize"
+                        else StudyDirection.MINIMIZE
+                        for d in directions
+                    ],
+                )
+            else:
+                study_id = storage.create_new_study(study_name)
+                storage.set_study_directions(
+                    study_id,
+                    [
+                        StudyDirection.MAXIMIZE
+                        if d.lower() == "maximize"
+                        else StudyDirection.MINIMIZE
+                        for d in directions
+                    ],
+                )
+
         except DuplicatedStudyError:
             response.status = 400  # Bad request
             return {"reason": f"'{study_name}' is already exists"}
