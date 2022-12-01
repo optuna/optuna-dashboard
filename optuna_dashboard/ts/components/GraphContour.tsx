@@ -173,7 +173,6 @@ const getAxisInfo = (trials: Trial[], paramName: string): AxisInfo => {
             ? 1
             : 0
       )
-  console.log(indices)
 
   if (indices.length >= 2 && isNumerical(trials, paramName)) {
     indices.unshift(min)
