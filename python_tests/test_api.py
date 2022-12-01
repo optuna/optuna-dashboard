@@ -21,8 +21,12 @@ class APITestCase(TestCase):
         storage = optuna.storages.InMemoryStorage()
 
         if version.parse(optuna_ver) >= version.Version("3.1.0.dev"):
-            storage.create_new_study(study_name="foo1", directions=[StudyDirection.MINIMIZE])
-            storage.create_new_study(study_name="foo2", directions=[StudyDirection.MINIMIZE])
+            storage.create_new_study(
+                study_name="foo1", directions=[StudyDirection.MINIMIZE]
+            )  # type: ignore
+            storage.create_new_study(
+                study_name="foo2", directions=[StudyDirection.MINIMIZE]
+            )  # type: ignore
         else:
             storage.create_new_study("foo1")
             storage.create_new_study("foo2")
@@ -135,7 +139,9 @@ class APITestCase(TestCase):
     def test_create_study_duplicated(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         if version.parse(optuna_ver) >= version.Version("3.1.0.dev"):
-            storage.create_new_study(study_name="foo", directions=[StudyDirection.MINIMIZE])
+            storage.create_new_study(
+                study_name="foo", directions=[StudyDirection.MINIMIZE]
+            )  # type: ignore
         else:
             storage.create_new_study("foo")
         self.assertEqual(len(get_all_study_summaries(storage)), 1)
@@ -158,8 +164,12 @@ class APITestCase(TestCase):
     def test_delete_study(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         if version.parse(optuna_ver) >= version.Version("3.1.0.dev"):
-            storage.create_new_study(study_name="foo1", directions=[StudyDirection.MINIMIZE])
-            storage.create_new_study(study_name="foo2", directions=[StudyDirection.MINIMIZE])
+            storage.create_new_study(
+                study_name="foo1", directions=[StudyDirection.MINIMIZE]
+            )  # type: ignore
+            storage.create_new_study(
+                study_name="foo2", directions=[StudyDirection.MINIMIZE]
+            )  # type: ignore
         else:
             storage.create_new_study(study_name="foo1")
             storage.create_new_study(study_name="foo2")
