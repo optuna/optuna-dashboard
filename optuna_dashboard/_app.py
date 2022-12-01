@@ -258,7 +258,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
                         else StudyDirection.MINIMIZE
                         for d in directions
                     ],
-                )
+                )  # type: ignore
             else:
                 study_id = storage.create_new_study(study_name)
                 storage.set_study_directions(
@@ -269,8 +269,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
                         else StudyDirection.MINIMIZE
                         for d in directions
                     ],
-                )
-
+                )  # type: ignore
         except DuplicatedStudyError:
             response.status = 400  # Bad request
             return {"reason": f"'{study_name}' is already exists"}
