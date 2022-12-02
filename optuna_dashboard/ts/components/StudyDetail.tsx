@@ -223,6 +223,16 @@ export const StudyDetail: FC<{
             <FormControlLabel
               control={
                 <Checkbox
+                  checked={preferences.graphContourChecked}
+                  onChange={handlePreferenceOnChange}
+                  name="graphContourChecked"
+                />
+              }
+              label="Contour"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
                   checked={preferences.graphHyperparameterImportancesChecked}
                   onChange={handlePreferenceOnChange}
                   name="graphHyperparameterImportancesChecked"
