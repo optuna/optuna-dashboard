@@ -21,6 +21,17 @@ type Distribution =
   | "IntLogUniformDistribution"
   | "CategoricalDistribution"
 
+type GraphVisibility = {
+  history: boolean
+  paretoFront: boolean
+  parallelCoordinate: boolean
+  intermediateValues: boolean
+  edf: boolean
+  contour: boolean
+  importances: boolean
+  slice: boolean
+}
+
 declare interface TrialIntermediateValue {
   step: number
   value: TrialIntermediateValueNumber
