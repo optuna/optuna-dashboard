@@ -7,7 +7,13 @@ import {
   deleteStudyAPI,
   saveNoteAPI,
 } from "./apiClient"
-import { studyDetailsState, studySummariesState } from "./state"
+import {
+  graphVisibilityState,
+  studyDetailsState,
+  studySummariesState,
+} from "./state"
+
+const localStorageGraphVisibility = "graphVisibility"
 
 export const actionCreator = () => {
   const { enqueueSnackbar } = useSnackbar()
@@ -15,6 +21,8 @@ export const actionCreator = () => {
     useRecoilState<StudySummary[]>(studySummariesState)
   const [studyDetails, setStudyDetails] =
     useRecoilState<StudyDetails>(studyDetailsState)
+  const [graphVisibility, setGraphVisibility] =
+    useRecoilState<GraphVisibility>(graphVisibilityState)
 
   const setStudyDetailState = (studyId: number, study: StudyDetail) => {
     const newVal = Object.assign({}, studyDetails)
@@ -102,6 +110,24 @@ export const actionCreator = () => {
       })
   }
 
+  const getGraphVisibility = () => {
+    const localStoragePreferences = localStorage.getItem(
+      localStorageGraphVisibility
+    )
+    if (localStoragePreferences !== null) {
+      const merged = {
+        ...graphVisibility,
+        ...JSON.parse(localStoragePreferences),
+      }
+      setGraphVisibility(merged)
+    }
+  }
+
+  const saveGraphVisibility = (value: GraphVisibility) => {
+    setGraphVisibility(value)
+    localStorage.setItem(localStorageGraphVisibility, JSON.stringify(value))
+  }
+
   const saveNote = (studyId: number, note: Note): Promise<void> => {
     return saveNoteAPI(studyId, note)
       .then(() => {
@@ -133,6 +159,8 @@ export const actionCreator = () => {
     updateStudySummaries,
     createNewStudy,
     deleteStudy,
+    getGraphVisibility,
+    saveGraphVisibility,
     saveNote,
   }
 }
