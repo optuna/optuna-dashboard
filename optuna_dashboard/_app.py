@@ -53,9 +53,11 @@ BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])
 
 logger = logging.getLogger(__name__)
 
+# Static files
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "public")
 IMG_DIR = os.path.join(BASE_DIR, "img")
+cached_path_exists = functools.lru_cache(maxsize=10)(os.path.exists)
 
 # In-memory trials cache
 trials_cache_lock = threading.Lock()
@@ -366,7 +368,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
     def send_static(filename: str) -> BottleViewReturn:
         if not debug and "gzip" in request.headers["Accept-Encoding"]:
             gz_filename = filename.strip("/\\") + ".gz"
-            if os.path.exists(os.path.join(STATIC_DIR, gz_filename)):
+            if cached_path_exists(os.path.join(STATIC_DIR, gz_filename)):
                 filename = gz_filename
         return static_file(filename, root=STATIC_DIR)
 
