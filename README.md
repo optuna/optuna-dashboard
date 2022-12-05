@@ -100,23 +100,17 @@ $ docker run -it --rm -p 8080:8080 ghcr.io/optuna/optuna-dashboard postgresql+ps
 
 ## Features
 
-### Manage studies
+### Manage Studies
 
 You can create and delete studies from Dashboard.
 
-![optuna-dashboard-create-delete-study](https://user-images.githubusercontent.com/5564044/114265534-40b87100-9a2c-11eb-947f-02448809d8cd.gif)
+![optuna-dashboard-create-delete-study](https://user-images.githubusercontent.com/5564044/205545958-305f2354-c7cd-4687-be2f-9e46e7401838.gif)
 
-### Visualize with interactive graphs
+### Visualize with Interactive Graphs & Rich Trials Data Grid
 
-Interactive live-updating graphs for optimization history, parallel coordinate, intermediate values and hyperparameter importances.
+You can check the optimization history, hyperparameter importances, etc. in graphs and tables.
 
-![optuna-dashboard-realtime-graph](https://user-images.githubusercontent.com/5564044/114265619-d81dc400-9a2c-11eb-9a26-a4577574312e.gif)
-
-### Rich trials data grid
-
-You can walk-through trials by filtering and sorting.
-
-![optuna-dashboard-trials-datagrid](https://user-images.githubusercontent.com/5564044/114265667-20d57d00-9a2d-11eb-8b9c-69541c9b4a28.gif)
+![optuna-dashboard-realtime-graph](https://user-images.githubusercontent.com/5564044/205545965-278cd7f4-da7d-4e2e-ac31-6d81b106cada.gif)
 
 ## Submitting patches
 
