@@ -117,6 +117,30 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
         self.assertEqual(len(cached_extra_study_property.intersection), 0)
         self.assertEqual(len(cached_extra_study_property.union), 3)
 
+    def test_contains_failed_trials(self) -> None:
+        distributions = {
+            "x0": UniformDistribution(low=0, high=10),
+            "x1": UniformDistribution(low=0, high=10),
+        }
+        params = {
+            "x0": 0.5,
+            "x1": 0.5,
+        }
+        trials = [
+            create_trial(
+                state=TrialState.COMPLETE, value=0, distributions=distributions, params=params
+            ),
+            create_trial(state=TrialState.FAIL, value=0, distributions={}, params={}),
+            create_trial(
+                state=TrialState.COMPLETE, value=0, distributions=distributions, params=params
+            ),
+        ]
+        cached_extra_study_property = _CachedExtraStudyProperty()
+        cached_extra_study_property.update(trials)
+
+        self.assertEqual(len(cached_extra_study_property.intersection), 2)
+        self.assertEqual(len(cached_extra_study_property.union), 2)
+
 
 class _CachedExtraStudyPropertyIntermediateTestCase(TestCase):
     def setUp(self) -> None:
@@ -183,3 +207,46 @@ class _CachedExtraStudyPropertyIntermediateTestCase(TestCase):
         cached_extra_study_property = _CachedExtraStudyProperty()
         cached_extra_study_property.update(trials)
         self.assertFalse(cached_extra_study_property.has_intermediate_values)
+
+
+class _CachedExtraStudyPropertyUserAttrs(TestCase):
+    def setUp(self) -> None:
+        optuna.logging.set_verbosity(optuna.logging.ERROR)
+        warnings.simplefilter("ignore", category=ExperimentalWarning)
+
+    def test_contains_failed_trials(self) -> None:
+        distributions = {
+            "x0": UniformDistribution(low=0, high=10),
+            "x1": UniformDistribution(low=0, high=10),
+        }
+        params = {
+            "x0": 0.5,
+            "x1": 0.5,
+        }
+        trials = [
+            create_trial(
+                state=TrialState.COMPLETE,
+                value=0,
+                distributions=distributions,
+                params=params,
+                user_attrs={"foo": "foo"},
+            ),
+            create_trial(
+                state=TrialState.FAIL,
+                value=0,
+                distributions={},
+                params={},
+                user_attrs={"bar": "bar"},
+            ),
+            create_trial(
+                state=TrialState.COMPLETE,
+                value=0,
+                distributions=distributions,
+                params=params,
+                user_attrs={"baz": "baz"},
+            ),
+        ]
+        cached_extra_study_property = _CachedExtraStudyProperty()
+        cached_extra_study_property.update(trials)
+
+        self.assertEqual(len(cached_extra_study_property.union_user_attrs), 3)
