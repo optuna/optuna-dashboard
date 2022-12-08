@@ -58,6 +58,11 @@ declare interface Attribute {
   value: string
 }
 
+declare interface AttributeSpec {
+  key: string
+  sortable: boolean
+}
+
 declare interface Note {
   version: number
   body: string
@@ -95,7 +100,7 @@ declare interface StudyDetail {
   trials: Trial[]
   intersection_search_space: SearchSpace[]
   union_search_space: SearchSpace[]
-  union_user_attrs: string[]
+  union_user_attrs: AttributeSpec[]
   has_intermediate_values: boolean
   note: Note
 }

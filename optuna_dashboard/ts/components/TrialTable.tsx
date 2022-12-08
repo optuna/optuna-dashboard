@@ -165,21 +165,21 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
     })
   }
 
-  studyDetail?.union_user_attrs.forEach((attr_name) => {
+  studyDetail?.union_user_attrs.forEach((attr_spec) => {
     columns.push({
       field: "user_attrs",
-      label: `User attribute ${attr_name}`,
+      label: `User attribute ${attr_spec.key}`,
       toCellValue: (i) =>
-        trials[i].user_attrs.find((attr) => attr.key === attr_name)?.value ||
-        null,
-      sortable: true,
-      filterable: true,
+        trials[i].user_attrs.find((attr) => attr.key === attr_spec.key)
+          ?.value || null,
+      sortable: attr_spec.sortable,
+      filterable: !attr_spec.sortable,
       less: (firstEl, secondEl): number => {
         const firstVal = firstEl.user_attrs.find(
-          (attr) => attr.key === attr_name
+          (attr) => attr.key === attr_spec.key
         )?.value
         const secondVal = secondEl.user_attrs.find(
-          (attr) => attr.key === attr_name
+          (attr) => attr.key === attr_spec.key
         )?.value
 
         if (firstVal === secondVal) {

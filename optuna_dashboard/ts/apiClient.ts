@@ -44,7 +44,7 @@ interface StudyDetailResponse {
   trials: TrialResponse[]
   intersection_search_space: SearchSpace[]
   union_search_space: SearchSpace[]
-  union_user_attrs: string[]
+  union_user_attrs: AttributeSpec[]
   has_intermediate_values: boolean
   note: {
     version: number
