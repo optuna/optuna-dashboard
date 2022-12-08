@@ -18,8 +18,6 @@ SearchSpaceListT = List[Tuple[str, BaseDistribution]]
 cached_extra_study_property_cache_lock = threading.Lock()
 cached_extra_study_property_cache: Dict[int, "_CachedExtraStudyProperty"] = {}
 
-states_of_interest = [TrialState.COMPLETE, TrialState.PRUNED]
-
 
 def get_cached_extra_study_property(
     study_id: int, trials: List[FrozenTrial]
@@ -77,7 +75,9 @@ class _CachedExtraStudyProperty:
             if not trial.state.is_finished():
                 next_cursor = trial.number
 
-            if trial.state not in states_of_interest:
+            current_user_attrs = set(n for n in trial.user_attrs.keys())
+            self._union_user_attrs = self._union_user_attrs.union(current_user_attrs)
+            if trial.state == TrialState.FAIL:
                 continue
 
             if not self.has_intermediate_values and len(trial.intermediate_values) > 0:
@@ -90,8 +90,5 @@ class _CachedExtraStudyProperty:
                 self._intersection = copy.copy(current)
             else:
                 self._intersection = self._intersection.intersection(current)
-
-            current_user_attrs = set(n for n in trial.user_attrs.keys())
-            self._union_user_attrs = self._union_user_attrs.union(current_user_attrs)
 
         self._cursor = next_cursor
