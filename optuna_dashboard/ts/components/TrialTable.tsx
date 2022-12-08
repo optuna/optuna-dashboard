@@ -168,7 +168,7 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
   studyDetail?.union_user_attrs.forEach((attr_spec) => {
     columns.push({
       field: "user_attrs",
-      label: `User attribute ${attr_spec.key}`,
+      label: `UserAttribute ${attr_spec.key}`,
       toCellValue: (i) =>
         trials[i].user_attrs.find((attr) => attr.key === attr_spec.key)
           ?.value || null,
@@ -195,10 +195,6 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
     })
   })
 
-  const collapseParamColumns: DataGridColumn<TrialParam>[] = [
-    { field: "name", label: "Name", sortable: true },
-    { field: "value", label: "Value", sortable: true },
-  ]
   const collapseIntermediateValueColumns: DataGridColumn<TrialIntermediateValue>[] =
     [
       { field: "step", label: "Step", sortable: true },
@@ -237,30 +233,6 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
         <Grid item xs={6}>
           <Box margin={1}>
             <Typography variant="h6" gutterBottom component="div">
-              Parameters
-            </Typography>
-            <DataGrid<TrialParam>
-              columns={collapseParamColumns}
-              rows={trials[index].params}
-              keyField={"name"}
-              dense={true}
-              rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
-            />
-            <Typography variant="h6" gutterBottom component="div">
-              Trial user attributes
-            </Typography>
-            <DataGrid<Attribute>
-              columns={collapseAttrColumns}
-              rows={trials[index].user_attrs}
-              keyField={"key"}
-              dense={true}
-              rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
-            />
-          </Box>
-        </Grid>
-        <Grid item xs={6}>
-          <Box margin={1}>
-            <Typography variant="h6" gutterBottom component="div">
               Intermediate values
             </Typography>
             <DataGrid<TrialIntermediateValue>
@@ -270,6 +242,10 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
               dense={true}
               rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
             />
+          </Box>
+        </Grid>
+        <Grid item xs={6}>
+          <Box margin={1}>
             <Typography variant="h6" gutterBottom component="div">
               Trial system attributes
             </Typography>
