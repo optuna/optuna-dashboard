@@ -1,3 +1,4 @@
+from typing import Any
 from typing import Dict
 from typing import List
 from unittest import TestCase
@@ -118,7 +119,7 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
         self.assertEqual(len(cached_extra_study_property.union), 3)
 
     def test_contains_failed_trials(self) -> None:
-        distributions = {
+        distributions: Dict[str, BaseDistribution] = {
             "x0": FloatDistribution(low=0, high=10),
             "x1": FloatDistribution(low=0, high=10),
         }
@@ -215,7 +216,7 @@ class _CachedExtraStudyPropertyUserAttrs(TestCase):
         warnings.simplefilter("ignore", category=ExperimentalWarning)
 
     def test_contains_failed_trials(self) -> None:
-        distributions = {
+        distributions: Dict[str, BaseDistribution] = {
             "x0": FloatDistribution(low=0, high=10),
             "x1": FloatDistribution(low=0, high=10),
         }
@@ -252,12 +253,12 @@ class _CachedExtraStudyPropertyUserAttrs(TestCase):
         self.assertEqual(len(cached_extra_study_property.union_user_attrs), 3)
 
     def test_infer_sortable(self) -> None:
-        user_attrs_list = [
-            {"a": 1, "b": 1, "c": 1, "d": "a"},
+        user_attrs_list: List[Dict[str, Any]] = [
+            {"a": 1, "b": 1, "c": 1, "d": "a", "e": 1},
             {"a": 2, "b": "a", "c": "a", "d": "a"},
-            {"a": 3, "b": None, "c": 3, "d": "a"},
+            {"a": 3, "b": None, "c": 3, "d": "a", "e": 3},
         ]
-        expected = {"a": True, "b": False, "c": False, "d": False}
+        expected = {"a": True, "b": False, "c": False, "d": False, "e": True}
 
         trials = []
         for user_attrs in user_attrs_list:
