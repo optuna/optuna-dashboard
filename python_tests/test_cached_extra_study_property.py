@@ -6,7 +6,7 @@ import warnings
 import optuna
 from optuna import create_trial
 from optuna.distributions import BaseDistribution
-from optuna.distributions import UniformDistribution
+from optuna.distributions import FloatDistribution
 from optuna.exceptions import ExperimentalWarning
 from optuna.trial import TrialState
 from optuna_dashboard._cached_extra_study_property import _CachedExtraStudyProperty
@@ -20,12 +20,12 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
     def test_same_distributions(self) -> None:
         distributions: List[Dict[str, BaseDistribution]] = [
             {
-                "x0": UniformDistribution(low=0, high=10),
-                "x1": UniformDistribution(low=0, high=10),
+                "x0": FloatDistribution(low=0, high=10),
+                "x1": FloatDistribution(low=0, high=10),
             },
             {
-                "x0": UniformDistribution(low=0, high=10),
-                "x1": UniformDistribution(low=0, high=10),
+                "x0": FloatDistribution(low=0, high=10),
+                "x1": FloatDistribution(low=0, high=10),
             },
         ]
         params = [
@@ -51,12 +51,12 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
     def test_different_distributions(self) -> None:
         distributions: List[Dict[str, BaseDistribution]] = [
             {
-                "x0": UniformDistribution(low=0, high=10),
-                "x1": UniformDistribution(low=0, high=10),
+                "x0": FloatDistribution(low=0, high=10),
+                "x1": FloatDistribution(low=0, high=10),
             },
             {
-                "x0": UniformDistribution(low=0, high=5),
-                "x1": UniformDistribution(low=0, high=10),
+                "x0": FloatDistribution(low=0, high=5),
+                "x1": FloatDistribution(low=0, high=10),
             },
         ]
         params = [
@@ -82,15 +82,15 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
     def test_dynamic_search_space(self) -> None:
         distributions: List[Dict[str, BaseDistribution]] = [
             {
-                "x0": UniformDistribution(low=0, high=10),
-                "x1": UniformDistribution(low=0, high=10),
+                "x0": FloatDistribution(low=0, high=10),
+                "x1": FloatDistribution(low=0, high=10),
             },
             {
-                "x0": UniformDistribution(low=0, high=5),
+                "x0": FloatDistribution(low=0, high=5),
             },
             {
-                "x0": UniformDistribution(low=0, high=10),
-                "x1": UniformDistribution(low=0, high=10),
+                "x0": FloatDistribution(low=0, high=10),
+                "x1": FloatDistribution(low=0, high=10),
             },
         ]
         params = [
@@ -119,8 +119,8 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
 
     def test_contains_failed_trials(self) -> None:
         distributions = {
-            "x0": UniformDistribution(low=0, high=10),
-            "x1": UniformDistribution(low=0, high=10),
+            "x0": FloatDistribution(low=0, high=10),
+            "x1": FloatDistribution(low=0, high=10),
         }
         params = {
             "x0": 0.5,
@@ -156,7 +156,7 @@ class _CachedExtraStudyPropertyIntermediateTestCase(TestCase):
             create_trial(
                 state=TrialState.COMPLETE,
                 value=0,
-                distributions={"x0": UniformDistribution(low=0, high=10)},
+                distributions={"x0": FloatDistribution(low=0, high=10)},
                 intermediate_values=iv,
                 params={"x0": 0.5},
             )
@@ -176,7 +176,7 @@ class _CachedExtraStudyPropertyIntermediateTestCase(TestCase):
             create_trial(
                 state=TrialState.COMPLETE,
                 value=0,
-                distributions={"x0": UniformDistribution(low=0, high=10)},
+                distributions={"x0": FloatDistribution(low=0, high=10)},
                 intermediate_values=iv,
                 params={"x0": 0.5},
             )
@@ -192,7 +192,7 @@ class _CachedExtraStudyPropertyIntermediateTestCase(TestCase):
             create_trial(
                 state=TrialState.COMPLETE,
                 value=0,
-                distributions={"x0": UniformDistribution(low=0, high=10)},
+                distributions={"x0": FloatDistribution(low=0, high=10)},
                 intermediate_values=iv,
                 params={"x0": 0.5},
             )
@@ -216,8 +216,8 @@ class _CachedExtraStudyPropertyUserAttrs(TestCase):
 
     def test_contains_failed_trials(self) -> None:
         distributions = {
-            "x0": UniformDistribution(low=0, high=10),
-            "x1": UniformDistribution(low=0, high=10),
+            "x0": FloatDistribution(low=0, high=10),
+            "x1": FloatDistribution(low=0, high=10),
         }
         params = {
             "x0": 0.5,
@@ -250,3 +250,26 @@ class _CachedExtraStudyPropertyUserAttrs(TestCase):
         cached_extra_study_property.update(trials)
 
         self.assertEqual(len(cached_extra_study_property.union_user_attrs), 3)
+
+    def test_infer_sortable(self) -> None:
+        user_attrs_list = [
+            {"a": 1, "b": 1, "c": 1, "d": "a"},
+            {"a": 2, "b": "a", "c": "a", "d": "a"},
+            {"a": 3, "b": None, "c": 3, "d": "a"},
+        ]
+        expected = {"a": True, "b": False, "c": False, "d": False}
+
+        trials = []
+        for user_attrs in user_attrs_list:
+            trials.append(create_trial(
+                state=TrialState.COMPLETE,
+                value=0,
+                distributions={"x0": FloatDistribution(low=0, high=10), "x1": FloatDistribution(low=0, high=10)},
+                params={"x0": 0.5, "x1": 0.5},
+                user_attrs=user_attrs,
+            ))
+
+        cached_extra_study_property = _CachedExtraStudyProperty()
+        cached_extra_study_property.update(trials)
+        actual = {k: v for k, v in cached_extra_study_property.union_user_attrs}
+        assert actual == expected
