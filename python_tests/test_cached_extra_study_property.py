@@ -261,13 +261,18 @@ class _CachedExtraStudyPropertyUserAttrs(TestCase):
 
         trials = []
         for user_attrs in user_attrs_list:
-            trials.append(create_trial(
-                state=TrialState.COMPLETE,
-                value=0,
-                distributions={"x0": FloatDistribution(low=0, high=10), "x1": FloatDistribution(low=0, high=10)},
-                params={"x0": 0.5, "x1": 0.5},
-                user_attrs=user_attrs,
-            ))
+            trials.append(
+                create_trial(
+                    state=TrialState.COMPLETE,
+                    value=0,
+                    distributions={
+                        "x0": FloatDistribution(low=0, high=10),
+                        "x1": FloatDistribution(low=0, high=10),
+                    },
+                    params={"x0": 0.5, "x1": 0.5},
+                    user_attrs=user_attrs,
+                )
+            )
 
         cached_extra_study_property = _CachedExtraStudyProperty()
         cached_extra_study_property.update(trials)
