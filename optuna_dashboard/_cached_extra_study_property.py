@@ -85,7 +85,12 @@ class _CachedExtraStudyProperty:
     def _update_user_attrs(self, trial: FrozenTrial) -> None:
         # TODO(c-bata): Support numpy-specific number types.
         current_user_attrs = {k: isinstance(v, (int, float)) for k, v in trial.user_attrs.items()}
-        self._union_user_attrs.update(current_user_attrs)
+        for attr_name, current_is_sortable in current_user_attrs.items():
+            is_sortable = self._union_user_attrs.get(attr_name)
+            if is_sortable is None:
+                self._union_user_attrs[attr_name] = current_is_sortable
+            elif is_sortable and not current_is_sortable:
+                self._union_user_attrs[attr_name] = False
 
     def _update_intermediate_values(self, trial: FrozenTrial) -> None:
         if not self.has_intermediate_values and len(trial.intermediate_values) > 0:
