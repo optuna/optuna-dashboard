@@ -1,6 +1,15 @@
 import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect } from "react"
-import { Box, Grid, Typography, useTheme } from "@mui/material"
+import React, { ChangeEvent, FC, useEffect, useState } from "react"
+import {
+  Box,
+  Checkbox,
+  FormControl,
+  FormLabel,
+  FormControlLabel,
+  Grid,
+  Typography,
+  useTheme,
+} from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-intermediate-values"
@@ -9,9 +18,26 @@ export const GraphIntermediateValues: FC<{
   trials: Trial[]
 }> = ({ trials = [] }) => {
   const theme = useTheme()
+  const [filterCompleteTrial, setFilterCompleteTrial] = useState<boolean>(false)
+  const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
+
   useEffect(() => {
-    plotIntermediateValue(trials, theme.palette.mode)
-  }, [trials, theme.palette.mode])
+    plotIntermediateValue(
+      trials,
+      theme.palette.mode,
+      filterCompleteTrial,
+      filterPrunedTrial
+    )
+  }, [trials, theme.palette.mode, filterCompleteTrial, filterPrunedTrial])
+
+  const handleFilterCompleteChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    setFilterCompleteTrial(!filterCompleteTrial)
+  }
+  const handleFilterPrunedChange = (e: ChangeEvent<HTMLInputElement>) => {
+    e.preventDefault()
+    setFilterPrunedTrial(!filterPrunedTrial)
+  }
   return (
     <Grid container direction="row">
       <Grid
@@ -24,6 +50,30 @@ export const GraphIntermediateValues: FC<{
         <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
           Intermediate values
         </Typography>
+        <FormControl
+          component="fieldset"
+          sx={{ marginBottom: theme.spacing(2) }}
+        >
+          <FormLabel component="legend">Filter state:</FormLabel>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={!filterCompleteTrial}
+                onChange={handleFilterCompleteChange}
+              />
+            }
+            label="Complete"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={!filterPrunedTrial}
+                onChange={handleFilterPrunedChange}
+              />
+            }
+            label="Pruned"
+          />
+        </FormControl>
       </Grid>
       <Grid item xs={9}>
         <Box id={plotDomId} sx={{ height: "450px" }} />
@@ -32,7 +82,12 @@ export const GraphIntermediateValues: FC<{
   )
 }
 
-const plotIntermediateValue = (trials: Trial[], mode: string) => {
+const plotIntermediateValue = (
+  trials: Trial[],
+  mode: string,
+  filterCompleteTrial: boolean,
+  filterPrunedTrial: boolean
+) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
@@ -53,8 +108,11 @@ const plotIntermediateValue = (trials: Trial[], mode: string) => {
 
   const filteredTrials = trials.filter(
     (t) =>
-      t.state === "Complete" ||
-      (t.state === "Pruned" && t.values && t.values.length > 0) ||
+      (!filterCompleteTrial && t.state === "Complete") ||
+      (!filterPrunedTrial &&
+        t.state === "Pruned" &&
+        t.values &&
+        t.values.length > 0) ||
       t.state == "Running"
   )
   const plotData: Partial<plotly.PlotData>[] = filteredTrials.map((trial) => {
