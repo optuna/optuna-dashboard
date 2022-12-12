@@ -64,7 +64,7 @@ def serialize_study_summary(summary: StudySummary) -> Dict[str, Any]:
         "study_name": summary.study_name,
         "directions": [d.name.lower() for d in summary.directions],
         "user_attrs": serialize_attrs(summary.user_attrs),
-        "system_attrs": serialize_attrs(summary.system_attrs),
+        "system_attrs": serialize_attrs(getattr(summary, "system_attrs", {})),
     }
 
     if summary.datetime_start is not None:
@@ -93,7 +93,7 @@ def serialize_study_detail(
     serialized["union_search_space"] = serialize_search_space(union)
     serialized["union_user_attrs"] = [{"key": a[0], "sortable": a[1]} for a in union_user_attrs]
     serialized["has_intermediate_values"] = has_intermediate_values
-    serialized["note"] = note.get_note_from_system_attrs(summary.system_attrs)
+    serialized["note"] = note.get_note_from_system_attrs(getattr(summary, "system_attrs", {}))
     return serialized
 
 
@@ -105,7 +105,7 @@ def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
         "state": trial.state.name.capitalize(),
         "params": [{"name": name, "value": str(value)} for name, value in trial.params.items()],
         "user_attrs": serialize_attrs(trial.user_attrs),
-        "system_attrs": serialize_attrs(trial.system_attrs),
+        "system_attrs": serialize_attrs(getattr(trial, "_system_attrs", {})),
     }
 
     serialized_intermediate_values: List[IntermediateValue] = []
