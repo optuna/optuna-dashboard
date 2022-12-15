@@ -254,7 +254,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             study_id = storage.create_new_study(study_name)
         except DuplicatedStudyError:
             response.status = 400  # Bad request
-            return {"reason": f"'{study_name}' is already exists"}
+            return {"reason": f"'{study_name}' already exists"}
 
         storage.set_study_directions(
             study_id,
