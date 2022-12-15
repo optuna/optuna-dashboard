@@ -304,7 +304,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             intersection,
             union,
             union_user_attrs,
-            has_intermeridate_values,
+            has_intermediate_values,
         ) = get_cached_extra_study_property(study_id, trials)
         return serialize_study_detail(
             summary,
@@ -312,7 +312,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             intersection,
             union,
             union_user_attrs,
-            has_intermeridate_values,
+            has_intermediate_values,
         )
 
     @app.get("/api/studies/<study_id:int>/param_importances")
