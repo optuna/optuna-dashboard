@@ -165,9 +165,9 @@ def create_new_study(
     if version.parse(optuna_ver) >= version.Version("3.1.0.dev") and version.parse(
         optuna_ver
     ) != version.Version("3.1.0b0"):
-        study_id = storage.create_new_study(study_name, directions=directions)  # type: ignore
+        study_id = storage.create_new_study(directions, study_name=study_name)  # type: ignore
     else:
-        study_id = storage.create_new_study(study_name)
+        study_id = storage.create_new_study(study_name)  # type: ignore
         storage.set_study_directions(study_id, directions)  # type: ignore
     return study_id
 
@@ -254,18 +254,19 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
     @json_api_view
     def create_study() -> BottleViewReturn:
         study_name = request.json.get("study_name", None)
-        directions = [
-            StudyDirection.MAXIMIZE if d.lower() == "maximize" else StudyDirection.MINIMIZE
-            for d in request.json.get("directions", [])
-        ]
+        request_directions = [d.lower() for d in request.json.get("directions", [])]
         if (
             study_name is None
-            or len(directions) == 0
-            or not all([d in ("minimize", "maximize") for d in directions])
+            or len(request_directions) == 0
+            or not all([d in ("minimize", "maximize") for d in request_directions])
         ):
             response.status = 400  # Bad request
             return {"reason": "You need to set study_name and direction"}
 
+        directions = [
+            StudyDirection.MAXIMIZE if d == "maximize" else StudyDirection.MINIMIZE
+            for d in request_directions
+        ]
         try:
             study_id = create_new_study(storage, study_name, directions)
         except DuplicatedStudyError:
