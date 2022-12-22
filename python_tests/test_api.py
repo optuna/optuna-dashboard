@@ -4,9 +4,8 @@ from unittest import TestCase
 import optuna
 from optuna import get_all_study_summaries
 from optuna.study import StudyDirection
-from optuna.version import __version__ as optuna_ver
 from optuna_dashboard._app import create_app
-from packaging import version
+from optuna_dashboard._app import create_new_study
 
 from .wsgi_client import send_request
 
@@ -19,17 +18,8 @@ def objective(trial: optuna.trial.Trial) -> float:
 class APITestCase(TestCase):
     def test_get_study_summaries(self) -> None:
         storage = optuna.storages.InMemoryStorage()
-
-        if version.parse(optuna_ver) >= version.Version("3.1.0.dev"):
-            storage.create_new_study(
-                study_name="foo1", directions=[StudyDirection.MINIMIZE]
-            )  # type: ignore
-            storage.create_new_study(
-                study_name="foo2", directions=[StudyDirection.MINIMIZE]
-            )  # type: ignore
-        else:
-            storage.create_new_study("foo1")
-            storage.create_new_study("foo2")
+        create_new_study(storage, "foo1", [StudyDirection.MINIMIZE])
+        create_new_study(storage, "foo2", [StudyDirection.MINIMIZE])
 
         app = create_app(storage)
         status, _, body = send_request(
@@ -138,12 +128,7 @@ class APITestCase(TestCase):
 
     def test_create_study_duplicated(self) -> None:
         storage = optuna.storages.InMemoryStorage()
-        if version.parse(optuna_ver) >= version.Version("3.1.0.dev"):
-            storage.create_new_study(
-                study_name="foo", directions=[StudyDirection.MINIMIZE]
-            )  # type: ignore
-        else:
-            storage.create_new_study("foo")
+        create_new_study(storage, "foo", [StudyDirection.MINIMIZE])
         self.assertEqual(len(get_all_study_summaries(storage)), 1)
 
         app = create_app(storage)
@@ -163,16 +148,8 @@ class APITestCase(TestCase):
 
     def test_delete_study(self) -> None:
         storage = optuna.storages.InMemoryStorage()
-        if version.parse(optuna_ver) >= version.Version("3.1.0.dev"):
-            storage.create_new_study(
-                study_name="foo1", directions=[StudyDirection.MINIMIZE]
-            )  # type: ignore
-            storage.create_new_study(
-                study_name="foo2", directions=[StudyDirection.MINIMIZE]
-            )  # type: ignore
-        else:
-            storage.create_new_study(study_name="foo1")
-            storage.create_new_study(study_name="foo2")
+        create_new_study(storage, "foo1", [StudyDirection.MINIMIZE])
+        create_new_study(storage, "foo2", [StudyDirection.MINIMIZE])
         self.assertEqual(len(get_all_study_summaries(storage)), 2)
 
         app = create_app(storage)

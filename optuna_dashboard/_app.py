@@ -159,6 +159,19 @@ def get_study_summary(storage: BaseStorage, study_id: int) -> Optional[StudySumm
     return None
 
 
+def create_new_study(
+    storage: BaseStorage, study_name: str, directions: List[StudyDirection]
+) -> int:
+    if version.parse(optuna_ver) >= version.Version("3.1.0.dev") and version.parse(
+        optuna_ver
+    ) != version.Version("3.1.0b0"):
+        study_id = storage.create_new_study(study_name, directions=directions)  # type: ignore
+    else:
+        study_id = storage.create_new_study(study_name)
+        storage.set_study_directions(study_id, directions)  # type: ignore
+    return study_id
+
+
 def get_trials(storage: BaseStorage, study_id: int, ttl_seconds: int = 10) -> List[FrozenTrial]:
     with trials_cache_lock:
         trials = trials_cache.get(study_id, None)
@@ -241,7 +254,10 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
     @json_api_view
     def create_study() -> BottleViewReturn:
         study_name = request.json.get("study_name", None)
-        directions = request.json.get("directions", [])
+        directions = [
+            StudyDirection.MAXIMIZE if d.lower() == "maximize" else StudyDirection.MINIMIZE
+            for d in request.json.get("directions", [])
+        ]
         if (
             study_name is None
             or len(directions) == 0
@@ -251,27 +267,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             return {"reason": "You need to set study_name and direction"}
 
         try:
-            if version.parse(optuna_ver) >= version.Version("3.1.0.dev"):
-                study_id = storage.create_new_study(
-                    study_name,
-                    directions=[
-                        StudyDirection.MAXIMIZE
-                        if d.lower() == "maximize"
-                        else StudyDirection.MINIMIZE
-                        for d in directions
-                    ],
-                )  # type: ignore
-            else:
-                study_id = storage.create_new_study(study_name)
-                storage.set_study_directions(
-                    study_id,
-                    [
-                        StudyDirection.MAXIMIZE
-                        if d.lower() == "maximize"
-                        else StudyDirection.MINIMIZE
-                        for d in directions
-                    ],
-                )  # type: ignore
+            study_id = create_new_study(storage, study_name, directions)
         except DuplicatedStudyError:
             response.status = 400  # Bad request
             return {"reason": f"'{study_name}' already exists"}
