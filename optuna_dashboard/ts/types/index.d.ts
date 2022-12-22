@@ -21,6 +21,17 @@ type Distribution =
   | "IntLogUniformDistribution"
   | "CategoricalDistribution"
 
+type GraphVisibility = {
+  history: boolean
+  paretoFront: boolean
+  parallelCoordinate: boolean
+  intermediateValues: boolean
+  edf: boolean
+  contour: boolean
+  importances: boolean
+  slice: boolean
+}
+
 declare interface TrialIntermediateValue {
   step: number
   value: TrialIntermediateValueNumber
@@ -45,6 +56,11 @@ declare interface SearchSpace {
 declare interface Attribute {
   key: string
   value: string
+}
+
+declare interface AttributeSpec {
+  key: string
+  sortable: boolean
 }
 
 declare interface Note {
@@ -84,7 +100,7 @@ declare interface StudyDetail {
   trials: Trial[]
   intersection_search_space: SearchSpace[]
   union_search_space: SearchSpace[]
-  union_user_attrs: string[]
+  union_user_attrs: AttributeSpec[]
   has_intermediate_values: boolean
   note: Note
 }

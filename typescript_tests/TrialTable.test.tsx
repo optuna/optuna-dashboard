@@ -2,7 +2,7 @@ import React from "react"
 global.URL.createObjectURL = jest.fn()
 
 import { cleanup, render, within, fireEvent } from "@testing-library/react"
-import { TrialTable } from "../optuna_dashboard/ts/components/StudyDetail"
+import { TrialTable } from "../optuna_dashboard/ts/components/TrialTable"
 
 afterEach(cleanup)
 
@@ -74,7 +74,10 @@ const studyDetail = {
       attributes: { low: -3, high: 3 },
     },
   ],
-  union_user_attrs: ["foo", "bar"],
+  union_user_attrs: [
+    { key: "foo", sortable: false },
+    { key: "bar", sortable: false },
+  ],
   has_intermediate_values: false,
   note: {
     version: 0,

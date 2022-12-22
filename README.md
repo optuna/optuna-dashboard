@@ -6,7 +6,7 @@
 Real-time dashboard for [Optuna](https://github.com/optuna/optuna).
 Code files were originally taken from [Goptuna](https://github.com/c-bata/goptuna).
 
-## Getting Started
+## Installation
 
 You can install optuna-dashboard via [PyPI](https://pypi.org/project/optuna-dashboard/) or [Anaconda Cloud](https://anaconda.org/conda-forge/optuna-dashboard).
 
@@ -14,13 +14,34 @@ You can install optuna-dashboard via [PyPI](https://pypi.org/project/optuna-dash
 $ pip install optuna-dashboard
 ```
 
-And you can also install following optional dependencies to make optuna-dashboard faster.
+Also you can install following optional dependencies to make optuna-dashboard faster.
 
 ```console
 $ pip install optuna-fast-fanova gunicorn
 ```
 
-Then please execute `optuna-dashboard` command with Optuna storage URL.
+## Getting Started
+
+First, please specify the storage URL to persistent your study using the [RDB backend](https://optuna.readthedocs.io/en/stable/tutorial/20_recipes/001_rdb.html).
+
+```python
+import optuna
+
+def objective(trial):
+    x = trial.suggest_float("x", -100, 100)
+    y = trial.suggest_categorical("y", [-1, 0, 1])
+    return x**2 + y
+
+if __name__ == "__main__":
+    study = optuna.create_study(
+        storage="sqlite:///db.sqlite3",  # Specify the storage URL here.
+        study_name="quadratic-simple"
+    )
+    study.optimize(objective, n_trials=100)
+    print(f"Best value: {study.best_value} (params: {study.best_params})")
+```
+
+After running the above script, please execute the `optuna-dashboard` command with Optuna storage URL.
 
 ```
 $ optuna-dashboard sqlite:///db.sqlite3
@@ -100,23 +121,17 @@ $ docker run -it --rm -p 8080:8080 ghcr.io/optuna/optuna-dashboard postgresql+ps
 
 ## Features
 
-### Manage studies
+### Manage Studies
 
 You can create and delete studies from Dashboard.
 
-![optuna-dashboard-create-delete-study](https://user-images.githubusercontent.com/5564044/114265534-40b87100-9a2c-11eb-947f-02448809d8cd.gif)
+![optuna-dashboard-create-delete-study](https://user-images.githubusercontent.com/5564044/205545958-305f2354-c7cd-4687-be2f-9e46e7401838.gif)
 
-### Visualize with interactive graphs
+### Visualize with Interactive Graphs & Rich Trials Data Grid
 
-Interactive live-updating graphs for optimization history, parallel coordinate, intermediate values and hyperparameter importances.
+You can check the optimization history, hyperparameter importances, etc. in graphs and tables.
 
-![optuna-dashboard-realtime-graph](https://user-images.githubusercontent.com/5564044/114265619-d81dc400-9a2c-11eb-9a26-a4577574312e.gif)
-
-### Rich trials data grid
-
-You can walk-through trials by filtering and sorting.
-
-![optuna-dashboard-trials-datagrid](https://user-images.githubusercontent.com/5564044/114265667-20d57d00-9a2d-11eb-8b9c-69541c9b4a28.gif)
+![optuna-dashboard-realtime-graph](https://user-images.githubusercontent.com/5564044/205545965-278cd7f4-da7d-4e2e-ac31-6d81b106cada.gif)
 
 ## Submitting patches
 

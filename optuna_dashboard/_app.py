@@ -53,9 +53,11 @@ BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])
 
 logger = logging.getLogger(__name__)
 
+# Static files
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "public")
 IMG_DIR = os.path.join(BASE_DIR, "img")
+cached_path_exists = functools.lru_cache(maxsize=10)(os.path.exists)
 
 # In-memory trials cache
 trials_cache_lock = threading.Lock()
@@ -272,7 +274,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
                 )  # type: ignore
         except DuplicatedStudyError:
             response.status = 400  # Bad request
-            return {"reason": f"'{study_name}' is already exists"}
+            return {"reason": f"'{study_name}' already exists"}
 
         summary = get_study_summary(storage, study_id)
         if summary is None:
@@ -314,7 +316,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             intersection,
             union,
             union_user_attrs,
-            has_intermeridate_values,
+            has_intermediate_values,
         ) = get_cached_extra_study_property(study_id, trials)
         return serialize_study_detail(
             summary,
@@ -322,7 +324,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             intersection,
             union,
             union_user_attrs,
-            has_intermeridate_values,
+            has_intermediate_values,
         )
 
     @app.get("/api/studies/<study_id:int>/param_importances")
@@ -378,7 +380,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
     def send_static(filename: str) -> BottleViewReturn:
         if not debug and "gzip" in request.headers["Accept-Encoding"]:
             gz_filename = filename.strip("/\\") + ".gz"
-            if os.path.exists(os.path.join(STATIC_DIR, gz_filename)):
+            if cached_path_exists(os.path.join(STATIC_DIR, gz_filename)):
                 filename = gz_filename
         return static_file(filename, root=STATIC_DIR)
 
