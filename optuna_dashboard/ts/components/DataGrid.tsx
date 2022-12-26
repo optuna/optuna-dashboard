@@ -278,11 +278,12 @@ function DataGridRow<T>(props: {
         {columns.map((column, columnIndex) => {
           const cellItem = column.toCellValue
             ? column.toCellValue(rowIndex)
-            : row[column.field]
+            : // TODO(c-bata): Avoid this implicit type conversion.
+              (row[column.field] as number | string | null | undefined)
 
           return column.filterable ? (
             <TableCell
-              key={`${row[keyField]}:${column.field}:${columnIndex}`}
+              key={`${row[keyField]}:${column.field.toString()}:${columnIndex}`}
               padding={column.padding || "normal"}
               onClick={(e) => {
                 const value =
@@ -296,7 +297,7 @@ function DataGridRow<T>(props: {
             </TableCell>
           ) : (
             <TableCell
-              key={`${row[keyField]}:${column.field}:${columnIndex}`}
+              key={`${row[keyField]}:${column.field.toString()}:${columnIndex}`}
               padding={column.padding || "normal"}
             >
               {cellItem}
