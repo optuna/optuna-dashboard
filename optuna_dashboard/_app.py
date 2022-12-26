@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime
 from datetime import timedelta
 import functools
@@ -425,7 +427,7 @@ def run_server(
     run(app, host=host, port=port)
 
 
-def wsgi(storage: Union[str, BaseStorage]) -> "WSGIApplication":
+def wsgi(storage: Union[str, BaseStorage]) -> WSGIApplication:
     """This function exposes WSGI interface for people who want to run on the
     production-class WSGI servers like Gunicorn or uWSGI.
     """

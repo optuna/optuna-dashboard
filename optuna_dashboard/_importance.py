@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import threading
 from typing import Dict
 from typing import List
 from typing import Tuple
+from typing import TYPE_CHECKING
 import warnings
 
 from optuna.importance import BaseImportanceEvaluator
@@ -14,11 +17,6 @@ from optuna.trial import TrialState
 
 
 try:
-    from typing import TypedDict
-except ImportError:
-    from typing_extensions import TypedDict
-
-try:
     from optuna_fast_fanova import FanovaImportanceEvaluator as FastFanovaImportanceEvaluator
 except ModuleNotFoundError:
     FastFanovaImportanceEvaluator = None  # type: ignore
@@ -27,21 +25,24 @@ except Exception as e:
     FastFanovaImportanceEvaluator = None  # type: ignore
 
 
-ImportanceItemType = TypedDict(
-    "ImportanceItemType",
-    {
-        "name": str,
-        "importance": float,
-        "distribution": str,
-    },
-)
-ImportanceType = TypedDict(
-    "ImportanceType",
-    {
-        "target_name": str,
-        "param_importances": List[ImportanceItemType],
-    },
-)
+if TYPE_CHECKING:
+    from typing import TypedDict
+
+    ImportanceItemType = TypedDict(
+        "ImportanceItemType",
+        {
+            "name": str,
+            "importance": float,
+            "distribution": str,
+        },
+    )
+    ImportanceType = TypedDict(
+        "ImportanceType",
+        {
+            "target_name": str,
+            "param_importances": List[ImportanceItemType],
+        },
+    )
 
 target_name = "Objective Value"
 param_importance_cache_lock = threading.Lock()

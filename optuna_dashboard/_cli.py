@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import argparse
 import os
 from socketserver import ThreadingMixIn
 import sys
+from typing import TYPE_CHECKING
 from wsgiref.simple_server import make_server
 from wsgiref.simple_server import WSGIServer
 
@@ -16,10 +19,8 @@ from ._app import get_storage
 from ._sql_profiler import register_profiler_view
 
 
-try:
+if TYPE_CHECKING:
     from typing import Literal
-except ImportError:
-    from typing_extensions import Literal  # type: ignore
 
 
 DEBUG = os.environ.get("OPTUNA_DASHBOARD_DEBUG") == "1"

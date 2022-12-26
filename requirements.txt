@@ -1,7 +1,6 @@
 # project dependency
 optuna>=2.4
 bottle
-typing-extensions;python_version<'3.8'
 scikit-learn
 
 # lint

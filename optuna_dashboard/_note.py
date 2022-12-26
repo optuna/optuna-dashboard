@@ -1,26 +1,27 @@
+from __future__ import annotations
+
 import math
 from typing import Any
 from typing import Dict
+from typing import TYPE_CHECKING
 
 from optuna.storages import BaseStorage
 
 
-try:
+if TYPE_CHECKING:
     from typing import TypedDict
-except ImportError:
-    from typing_extensions import TypedDict
+
+    NoteType = TypedDict(
+        "NoteType",
+        {
+            "version": int,
+            "body": str,
+        },
+    )
 
 SYSTEM_ATTR_MAX_LENGTH = 2045
 NOTE_VER_KEY = "dashboard:note_ver"
 NOTE_STR_KEY_PREFIX = "dashboard:note_str:"
-
-NoteType = TypedDict(
-    "NoteType",
-    {
-        "version": int,
-        "body": str,
-    },
-)
 
 
 def get_note_from_system_attrs(system_attrs: Dict[str, Any]) -> NoteType:

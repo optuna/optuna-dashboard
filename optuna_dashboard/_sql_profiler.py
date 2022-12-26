@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import threading
 from time import perf_counter
 from typing import Dict

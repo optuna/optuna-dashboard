@@ -30,7 +30,6 @@ dependencies = [
     "optuna>=2.4.0",
     "packaging",
     "scikit-learn",
-    'typing-extensions; python_version<"3.8"',
 ]
 dynamic = ["version"]
 

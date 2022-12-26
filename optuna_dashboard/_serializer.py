@@ -1,8 +1,11 @@
+from __future__ import annotations
+
 import json
 from typing import Any
 from typing import Dict
 from typing import List
 from typing import Tuple
+from typing import TYPE_CHECKING
 from typing import Union
 
 import numpy as np
@@ -13,36 +16,34 @@ from optuna.trial import FrozenTrial
 from . import _note as note
 
 
-try:
+if TYPE_CHECKING:
     from typing import Literal
     from typing import TypedDict
-except ImportError:
-    from typing_extensions import Literal  # type: ignore
-    from typing_extensions import TypedDict
+
+    Attribute = TypedDict(
+        "Attribute",
+        {
+            "key": str,
+            "value": str,
+        },
+    )
+    AttributeSpec = TypedDict(
+        "AttributeSpec",
+        {
+            "key": str,
+            "sortable": bool,
+        },
+    )
+    IntermediateValue = TypedDict(
+        "IntermediateValue",
+        {
+            "step": int,
+            "value": Union[float, Literal["inf", "-inf", "nan"]],
+        },
+    )
 
 
 MAX_ATTR_LENGTH = 1024
-Attribute = TypedDict(
-    "Attribute",
-    {
-        "key": str,
-        "value": str,
-    },
-)
-AttributeSpec = TypedDict(
-    "AttributeSpec",
-    {
-        "key": str,
-        "sortable": bool,
-    },
-)
-IntermediateValue = TypedDict(
-    "IntermediateValue",
-    {
-        "step": int,
-        "value": Union[float, Literal["inf", "-inf", "nan"]],
-    },
-)
 
 
 def serialize_attrs(attrs: Dict[str, Any]) -> List[Attribute]:
