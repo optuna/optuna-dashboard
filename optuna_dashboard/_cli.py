@@ -11,7 +11,8 @@ from optuna.storages import BaseStorage
 from optuna.storages import RDBStorage
 
 from . import __version__
-from ._app import create_app, get_storage
+from ._app import create_app
+from ._app import get_storage
 from ._sql_profiler import register_profiler_view
 
 
