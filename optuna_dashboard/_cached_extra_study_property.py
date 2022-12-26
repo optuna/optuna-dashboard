@@ -2,28 +2,24 @@ from __future__ import annotations
 
 import copy
 import threading
-from typing import Dict
-from typing import List
 from typing import Optional
-from typing import Set
-from typing import Tuple
 
 from optuna.distributions import BaseDistribution
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
 
 
-SearchSpaceSetT = Set[Tuple[str, BaseDistribution]]
-SearchSpaceListT = List[Tuple[str, BaseDistribution]]
+SearchSpaceSetT = set[tuple[str, BaseDistribution]]
+SearchSpaceListT = list[tuple[str, BaseDistribution]]
 
 #  In-memory cache
 cached_extra_study_property_cache_lock = threading.Lock()
-cached_extra_study_property_cache: Dict[int, "_CachedExtraStudyProperty"] = {}
+cached_extra_study_property_cache: dict[int, "_CachedExtraStudyProperty"] = {}
 
 
 def get_cached_extra_study_property(
-    study_id: int, trials: List[FrozenTrial]
-) -> Tuple[SearchSpaceListT, SearchSpaceListT, List[Tuple[str, bool]], bool]:
+    study_id: int, trials: list[FrozenTrial]
+) -> tuple[SearchSpaceListT, SearchSpaceListT, list[tuple[str, bool]], bool]:
     with cached_extra_study_property_cache_lock:
         cached_extra_study_property = cached_extra_study_property_cache.get(study_id, None)
         if cached_extra_study_property is None:
@@ -45,7 +41,7 @@ class _CachedExtraStudyProperty:
         # union_user_attrs.
         self._intersection: Optional[SearchSpaceSetT] = None
         self._union: SearchSpaceSetT = set()
-        self._union_user_attrs: Dict[str, bool] = {}  # attr_name: is_sortable (= is_number)
+        self._union_user_attrs: dict[str, bool] = {}  # attr_name: is_sortable (= is_number)
         self.has_intermediate_values: bool = False
 
     @property
@@ -63,12 +59,12 @@ class _CachedExtraStudyProperty:
         return union
 
     @property
-    def union_user_attrs(self) -> List[Tuple[str, bool]]:
+    def union_user_attrs(self) -> list[tuple[str, bool]]:
         union = [(name, is_sortable) for name, is_sortable in self._union_user_attrs.items()]
         sorted(union, key=lambda x: x[0])
         return union
 
-    def update(self, trials: List[FrozenTrial]) -> None:
+    def update(self, trials: list[FrozenTrial]) -> None:
         next_cursor = self._cursor
         for trial in reversed(trials):
             if self._cursor > trial.number:

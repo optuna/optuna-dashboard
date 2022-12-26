@@ -12,8 +12,6 @@ import typing
 from typing import Any
 from typing import Callable
 from typing import cast
-from typing import Dict
-from typing import List
 from typing import Optional
 from typing import TypeVar
 from typing import Union
@@ -50,7 +48,7 @@ if typing.TYPE_CHECKING:
     except ImportError:
         FrozenStudy = None  # type: ignore
 
-BottleViewReturn = Union[str, bytes, Dict[str, Any], BaseResponse]
+BottleViewReturn = Union[str, bytes, dict[str, Any], BaseResponse]
 BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])
 
 logger = logging.getLogger(__name__)
@@ -63,8 +61,8 @@ cached_path_exists = functools.lru_cache(maxsize=10)(os.path.exists)
 
 # In-memory trials cache
 trials_cache_lock = threading.Lock()
-trials_cache: Dict[int, List[FrozenTrial]] = {}
-trials_last_fetched_at: Dict[int, datetime] = {}
+trials_cache: dict[int, list[FrozenTrial]] = {}
+trials_last_fetched_at: dict[int, datetime] = {}
 
 # RDB schema migration check
 rdb_schema_migrate_lock = threading.Lock()
@@ -127,7 +125,7 @@ def update_schema_compatibility_flags(storage: BaseStorage) -> None:
 
 def json_api_view(view: BottleView) -> BottleView:
     @functools.wraps(view)
-    def decorated(*args: List[Any], **kwargs: Dict[str, Any]) -> BottleViewReturn:
+    def decorated(*args: list[Any], **kwargs: dict[str, Any]) -> BottleViewReturn:
         try:
             response.content_type = "application/json"
             response_body = view(*args, **kwargs)
@@ -142,7 +140,7 @@ def json_api_view(view: BottleView) -> BottleView:
     return cast(BottleView, decorated)
 
 
-def get_study_summaries(storage: BaseStorage) -> List[StudySummary]:
+def get_study_summaries(storage: BaseStorage) -> list[StudySummary]:
     if version.parse(optuna_ver) >= version.Version("3.0.0rc0.dev"):
         frozen_studies = storage.get_all_studies()  # type: ignore
         return [_frozen_study_to_study_summary(s) for s in frozen_studies]
@@ -162,7 +160,7 @@ def get_study_summary(storage: BaseStorage, study_id: int) -> Optional[StudySumm
 
 
 def create_new_study(
-    storage: BaseStorage, study_name: str, directions: List[StudyDirection]
+    storage: BaseStorage, study_name: str, directions: list[StudyDirection]
 ) -> int:
     if version.parse(optuna_ver) >= version.Version("3.1.0.dev") and version.parse(
         optuna_ver
@@ -174,7 +172,7 @@ def create_new_study(
     return study_id
 
 
-def get_trials(storage: BaseStorage, study_id: int, ttl_seconds: int = 10) -> List[FrozenTrial]:
+def get_trials(storage: BaseStorage, study_id: int, ttl_seconds: int = 10) -> list[FrozenTrial]:
     with trials_cache_lock:
         trials = trials_cache.get(study_id, None)
         last_fetched_at = trials_last_fetched_at.get(study_id, None)
