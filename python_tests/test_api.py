@@ -3,7 +3,9 @@ from unittest import TestCase
 
 import optuna
 from optuna import get_all_study_summaries
+from optuna.study import StudyDirection
 from optuna_dashboard._app import create_app
+from optuna_dashboard._app import create_new_study
 
 from .wsgi_client import send_request
 
@@ -16,8 +18,8 @@ def objective(trial: optuna.trial.Trial) -> float:
 class APITestCase(TestCase):
     def test_get_study_summaries(self) -> None:
         storage = optuna.storages.InMemoryStorage()
-        storage.create_new_study("foo1")
-        storage.create_new_study("foo2")
+        create_new_study(storage, "foo1", [StudyDirection.MINIMIZE])
+        create_new_study(storage, "foo2", [StudyDirection.MINIMIZE])
 
         app = create_app(storage)
         status, _, body = send_request(
@@ -126,7 +128,7 @@ class APITestCase(TestCase):
 
     def test_create_study_duplicated(self) -> None:
         storage = optuna.storages.InMemoryStorage()
-        storage.create_new_study("foo")
+        create_new_study(storage, "foo", [StudyDirection.MINIMIZE])
         self.assertEqual(len(get_all_study_summaries(storage)), 1)
 
         app = create_app(storage)
@@ -146,8 +148,8 @@ class APITestCase(TestCase):
 
     def test_delete_study(self) -> None:
         storage = optuna.storages.InMemoryStorage()
-        storage.create_new_study("foo1")
-        storage.create_new_study("foo2")
+        create_new_study(storage, "foo1", [StudyDirection.MINIMIZE])
+        create_new_study(storage, "foo2", [StudyDirection.MINIMIZE])
         self.assertEqual(len(get_all_study_summaries(storage)), 2)
 
         app = create_app(storage)

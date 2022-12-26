@@ -159,6 +159,19 @@ def get_study_summary(storage: BaseStorage, study_id: int) -> Optional[StudySumm
     return None
 
 
+def create_new_study(
+    storage: BaseStorage, study_name: str, directions: List[StudyDirection]
+) -> int:
+    if version.parse(optuna_ver) >= version.Version("3.1.0.dev") and version.parse(
+        optuna_ver
+    ) != version.Version("3.1.0b0"):
+        study_id = storage.create_new_study(directions, study_name=study_name)  # type: ignore
+    else:
+        study_id = storage.create_new_study(study_name)  # type: ignore
+        storage.set_study_directions(study_id, directions)  # type: ignore
+    return study_id
+
+
 def get_trials(storage: BaseStorage, study_id: int, ttl_seconds: int = 10) -> List[FrozenTrial]:
     with trials_cache_lock:
         trials = trials_cache.get(study_id, None)
@@ -241,28 +254,24 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
     @json_api_view
     def create_study() -> BottleViewReturn:
         study_name = request.json.get("study_name", None)
-        directions = request.json.get("directions", [])
+        request_directions = [d.lower() for d in request.json.get("directions", [])]
         if (
             study_name is None
-            or len(directions) == 0
-            or not all([d in ("minimize", "maximize") for d in directions])
+            or len(request_directions) == 0
+            or not all([d in ("minimize", "maximize") for d in request_directions])
         ):
             response.status = 400  # Bad request
             return {"reason": "You need to set study_name and direction"}
 
+        directions = [
+            StudyDirection.MAXIMIZE if d == "maximize" else StudyDirection.MINIMIZE
+            for d in request_directions
+        ]
         try:
-            study_id = storage.create_new_study(study_name)
+            study_id = create_new_study(storage, study_name, directions)
         except DuplicatedStudyError:
             response.status = 400  # Bad request
-            return {"reason": f"'{study_name}' is already exists"}
-
-        storage.set_study_directions(
-            study_id,
-            [
-                StudyDirection.MAXIMIZE if d.lower() == "maximize" else StudyDirection.MINIMIZE
-                for d in directions
-            ],
-        )
+            return {"reason": f"'{study_name}' already exists"}
 
         summary = get_study_summary(storage, study_id)
         if summary is None:
@@ -304,7 +313,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             intersection,
             union,
             union_user_attrs,
-            has_intermeridate_values,
+            has_intermediate_values,
         ) = get_cached_extra_study_property(study_id, trials)
         return serialize_study_detail(
             summary,
@@ -312,7 +321,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             intersection,
             union,
             union_user_attrs,
-            has_intermeridate_values,
+            has_intermediate_values,
         )
 
     @app.get("/api/studies/<study_id:int>/param_importances")
