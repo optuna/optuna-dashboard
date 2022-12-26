@@ -406,6 +406,8 @@ def get_storage(storage: Union[str, BaseStorage]) -> BaseStorage:
             raise ValueError(
                 "RedisStorage is unsupported from Optuna v3.1 or Optuna Dashboard v0.8.0"
             )
+        elif version.parse(optuna_ver) >= version.Version("v3.0.0"):
+            return RDBStorage(storage, skip_compatibility_check=True, skip_table_creation=True)
         else:
             return RDBStorage(storage, skip_compatibility_check=True)
     return storage
