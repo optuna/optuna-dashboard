@@ -7,13 +7,28 @@ on:
 
 jobs:
   pypi:
-    name: Build and publish Python distributions to TestPyPI and PyPI
+    name: Build and publish Python distributions to PyPI
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - run: gh release download $(jq --raw-output .tag_name "$GITHUB_EVENT_PATH") -p '*.whl' -p '*.tar.gz' -D ./dist
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Setup Node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+    - run: npm install
+    - run: npm run build:prd
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip setuptools
+        pip install --progress-bar off wheel twine
+    - run: python setup.py sdist bdist_wheel
+
     - name: Publish distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
