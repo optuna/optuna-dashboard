@@ -12,6 +12,7 @@ from optuna.storages import RDBStorage
 
 from . import __version__
 from ._app import create_app
+from ._app import get_storage
 from ._sql_profiler import register_profiler_view
 
 
@@ -97,11 +98,7 @@ def main() -> None:
     args = parser.parse_args()
 
     storage: BaseStorage
-    if args.storage.startswith("redis"):
-        raise ValueError("RedisStorage is unsupported from Optuna v3.1 or Optuna Dashboard v0.8.0")
-    else:
-        storage = RDBStorage(args.storage, skip_compatibility_check=True)
-
+    storage = get_storage(args.storage)
     app = create_app(storage, debug=DEBUG)
 
     if DEBUG and isinstance(storage, RDBStorage):
