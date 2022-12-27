@@ -1,6 +1,6 @@
+from __future__ import annotations
+
 from typing import Any
-from typing import Dict
-from typing import List
 from unittest import TestCase
 import warnings
 
@@ -19,7 +19,7 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
         warnings.simplefilter("ignore", category=ExperimentalWarning)
 
     def test_same_distributions(self) -> None:
-        distributions: List[Dict[str, BaseDistribution]] = [
+        distributions: list[dict[str, BaseDistribution]] = [
             {
                 "x0": FloatDistribution(low=0, high=10),
                 "x1": FloatDistribution(low=0, high=10),
@@ -50,7 +50,7 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
         self.assertEqual(len(cached_extra_study_property.union), 2)
 
     def test_different_distributions(self) -> None:
-        distributions: List[Dict[str, BaseDistribution]] = [
+        distributions: list[dict[str, BaseDistribution]] = [
             {
                 "x0": FloatDistribution(low=0, high=10),
                 "x1": FloatDistribution(low=0, high=10),
@@ -81,7 +81,7 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
         self.assertEqual(len(cached_extra_study_property.union), 3)
 
     def test_dynamic_search_space(self) -> None:
-        distributions: List[Dict[str, BaseDistribution]] = [
+        distributions: list[dict[str, BaseDistribution]] = [
             {
                 "x0": FloatDistribution(low=0, high=10),
                 "x1": FloatDistribution(low=0, high=10),
@@ -119,7 +119,7 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
         self.assertEqual(len(cached_extra_study_property.union), 3)
 
     def test_contains_failed_trials(self) -> None:
-        distributions: Dict[str, BaseDistribution] = {
+        distributions: dict[str, BaseDistribution] = {
             "x0": FloatDistribution(low=0, high=10),
             "x1": FloatDistribution(low=0, high=10),
         }
@@ -149,7 +149,7 @@ class _CachedExtraStudyPropertyIntermediateTestCase(TestCase):
         warnings.simplefilter("ignore", category=ExperimentalWarning)
 
     def test_no_intermediate_value(self) -> None:
-        intermediate_values: List[Dict] = [
+        intermediate_values: list[dict] = [
             {},
             {},
         ]
@@ -168,7 +168,7 @@ class _CachedExtraStudyPropertyIntermediateTestCase(TestCase):
         self.assertFalse(cached_extra_study_property.has_intermediate_values)
 
     def test_some_trials_has_no_intermediate_value(self) -> None:
-        intermediate_values: List[Dict] = [
+        intermediate_values: list[dict] = [
             {0: 0.3, 1: 1.2},
             {},
             {0: 0.3, 1: 1.2},
@@ -188,7 +188,7 @@ class _CachedExtraStudyPropertyIntermediateTestCase(TestCase):
         self.assertTrue(cached_extra_study_property.has_intermediate_values)
 
     def test_all_trials_has_intermediate_value(self) -> None:
-        intermediate_values: List[Dict] = [{0: 0.3, 1: 1.2}, {0: 0.3, 1: 1.2}]
+        intermediate_values: list[dict] = [{0: 0.3, 1: 1.2}, {0: 0.3, 1: 1.2}]
         trials = [
             create_trial(
                 state=TrialState.COMPLETE,
@@ -216,7 +216,7 @@ class _CachedExtraStudyPropertyUserAttrs(TestCase):
         warnings.simplefilter("ignore", category=ExperimentalWarning)
 
     def test_contains_failed_trials(self) -> None:
-        distributions: Dict[str, BaseDistribution] = {
+        distributions: dict[str, BaseDistribution] = {
             "x0": FloatDistribution(low=0, high=10),
             "x1": FloatDistribution(low=0, high=10),
         }
@@ -253,7 +253,7 @@ class _CachedExtraStudyPropertyUserAttrs(TestCase):
         self.assertEqual(len(cached_extra_study_property.union_user_attrs), 3)
 
     def test_infer_sortable(self) -> None:
-        user_attrs_list: List[Dict[str, Any]] = [
+        user_attrs_list: list[dict[str, Any]] = [
             {"a": 1, "b": 1, "c": 1, "d": "a", "e": 1},
             {"a": 2, "b": "a", "c": "a", "d": "a"},
             {"a": 3, "b": None, "c": 3, "d": "a", "e": 3},

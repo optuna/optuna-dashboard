@@ -2,9 +2,6 @@ from __future__ import annotations
 
 import threading
 from time import perf_counter
-from typing import Dict
-from typing import List
-from typing import Tuple
 from typing import TYPE_CHECKING
 
 from bottle import Bottle
@@ -18,7 +15,7 @@ if TYPE_CHECKING:
     from sqlalchemy.engine.base import Engine
 
 sql_queries_lock = threading.Lock()
-sql_queries: Dict[str, Tuple[int, List[float]]] = {}
+sql_queries: dict[str, tuple[int, list[float]]] = {}
 sql_queries_template = SimpleTemplate(
     """<!DOCTYPE html>
 <html lang="en">

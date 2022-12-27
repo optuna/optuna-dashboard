@@ -1,11 +1,11 @@
+from __future__ import annotations
+
 import argparse
 import asyncio
 import os
 import sys
 import threading
 import time
-from typing import List
-from typing import Tuple
 from wsgiref.simple_server import make_server
 
 import optuna
@@ -89,7 +89,7 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
         directions=["minimize", "minimize"],
     )
 
-    def objective_multi(trial: optuna.Trial) -> Tuple[float, float]:
+    def objective_multi(trial: optuna.Trial) -> tuple[float, float]:
         x = trial.suggest_float("x", 0, 5)
         y = trial.suggest_float("y", 0, 3)
         v0 = 4 * x**2 + 4 * y**2
@@ -103,7 +103,7 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
         study_name="multi-dynamic", storage=storage, directions=["minimize", "minimize"]
     )
 
-    def objective_multi_dynamic(trial: optuna.Trial) -> Tuple[float, float]:
+    def objective_multi_dynamic(trial: optuna.Trial) -> tuple[float, float]:
         category = trial.suggest_categorical("category", ["foo", "bar"])
         if category == "foo":
             x = trial.suggest_float("x1", 0, 5)
@@ -173,8 +173,8 @@ async def contains_study_name(page: Page, study_name: str) -> bool:
     return False
 
 
-async def take_screenshots(storage: optuna.storages.BaseStorage) -> List[str]:
-    validation_errors: List[str] = []
+async def take_screenshots(storage: optuna.storages.BaseStorage) -> list[str]:
+    validation_errors: list[str] = []
 
     browser = await launch()
     page = await browser.newPage()

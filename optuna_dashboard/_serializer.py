@@ -2,9 +2,6 @@ from __future__ import annotations
 
 import json
 from typing import Any
-from typing import Dict
-from typing import List
-from typing import Tuple
 from typing import TYPE_CHECKING
 from typing import Union
 
@@ -46,8 +43,8 @@ if TYPE_CHECKING:
 MAX_ATTR_LENGTH = 1024
 
 
-def serialize_attrs(attrs: Dict[str, Any]) -> List[Attribute]:
-    serialized: List[Attribute] = []
+def serialize_attrs(attrs: dict[str, Any]) -> list[Attribute]:
+    serialized: list[Attribute] = []
     for k, v in attrs.items():
         value: str
         if isinstance(v, bytes):
@@ -59,7 +56,7 @@ def serialize_attrs(attrs: Dict[str, Any]) -> List[Attribute]:
     return serialized
 
 
-def serialize_study_summary(summary: StudySummary) -> Dict[str, Any]:
+def serialize_study_summary(summary: StudySummary) -> dict[str, Any]:
     serialized = {
         "study_id": summary._study_id,
         "study_name": summary.study_name,
@@ -76,13 +73,13 @@ def serialize_study_summary(summary: StudySummary) -> Dict[str, Any]:
 
 def serialize_study_detail(
     summary: StudySummary,
-    trials: List[FrozenTrial],
-    intersection: List[Tuple[str, BaseDistribution]],
-    union: List[Tuple[str, BaseDistribution]],
-    union_user_attrs: List[Tuple[str, bool]],
+    trials: list[FrozenTrial],
+    intersection: list[tuple[str, BaseDistribution]],
+    union: list[tuple[str, BaseDistribution]],
+    union_user_attrs: list[tuple[str, bool]],
     has_intermediate_values: bool,
-) -> Dict[str, Any]:
-    serialized: Dict[str, Any] = {
+) -> dict[str, Any]:
+    serialized: dict[str, Any] = {
         "name": summary.study_name,
         "directions": [d.name.lower() for d in summary.directions],
     }
@@ -98,7 +95,7 @@ def serialize_study_detail(
     return serialized
 
 
-def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
+def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> dict[str, Any]:
     serialized = {
         "trial_id": trial._trial_id,
         "study_id": study_id,
@@ -109,7 +106,7 @@ def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
         "system_attrs": serialize_attrs(getattr(trial, "_system_attrs", {})),
     }
 
-    serialized_intermediate_values: List[IntermediateValue] = []
+    serialized_intermediate_values: list[IntermediateValue] = []
     for step, value in trial.intermediate_values.items():
         serialized_value: Union[float, Literal["nan", "inf", "-inf"]]
         if np.isnan(value):
@@ -127,7 +124,7 @@ def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
     )
 
     if trial.values is not None:
-        serialized_values: List[Union[float, Literal["inf", "-inf"]]] = []
+        serialized_values: list[Union[float, Literal["inf", "-inf"]]] = []
         for v in trial.values:
             assert not np.isnan(v), "Should not detect nan value"
             if np.isposinf(v):
@@ -148,8 +145,8 @@ def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> Dict[str, Any]:
 
 
 def serialize_search_space(
-    search_space: List[Tuple[str, BaseDistribution]]
-) -> List[Dict[str, Any]]:
+    search_space: list[tuple[str, BaseDistribution]]
+) -> list[dict[str, Any]]:
     serialized = []
     for param_name, distribution in search_space:
         serialized.append(

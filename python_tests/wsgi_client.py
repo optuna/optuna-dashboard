@@ -1,9 +1,8 @@
+from __future__ import annotations
+
 import io
 import typing
-from typing import Dict
-from typing import List
 from typing import Optional
-from typing import Tuple
 from typing import Union
 
 from bottle import Bottle
@@ -18,8 +17,8 @@ def create_wsgi_env(
     method: str,
     content_type: str,
     body: bytes,
-    queries: Dict[str, str],
-    headers: Dict[str, str],
+    queries: dict[str, str],
+    headers: dict[str, str],
 ) -> "WSGIEnvironment":
     # 'key1=value1&key2=value2'
     query_string = "&".join([f"{k}={v}" for k, v in queries.items()])
@@ -51,14 +50,14 @@ def send_request(
     path: str,
     method: str,
     body: Union[str, bytes] = b"",
-    queries: Optional[Dict[str, str]] = None,
-    headers: Optional[Dict[str, str]] = None,
+    queries: Optional[dict[str, str]] = None,
+    headers: Optional[dict[str, str]] = None,
     content_type: str = "text/plain; charset=utf-8",
-) -> Tuple[int, List[Tuple[str, str]], bytes]:
+) -> tuple[int, list[tuple[str, str]], bytes]:
     status: str = ""
-    response_headers: List[Tuple[str, str]] = []
+    response_headers: list[tuple[str, str]] = []
 
-    def start_response(status_: str, headers_: List[Tuple[str, str]]) -> None:
+    def start_response(status_: str, headers_: list[tuple[str, str]]) -> None:
         nonlocal status, response_headers
         status = status_
         response_headers = headers_

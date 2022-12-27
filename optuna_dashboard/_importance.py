@@ -1,9 +1,6 @@
 from __future__ import annotations
 
 import threading
-from typing import Dict
-from typing import List
-from typing import Tuple
 from typing import TYPE_CHECKING
 import warnings
 
@@ -40,31 +37,31 @@ if TYPE_CHECKING:
         "ImportanceType",
         {
             "target_name": str,
-            "param_importances": List[ImportanceItemType],
+            "param_importances": list[ImportanceItemType],
         },
     )
 
 target_name = "Objective Value"
 param_importance_cache_lock = threading.Lock()
 # { "{study_id}:{objective_id}" : (n_completed_trials, importance) }
-param_importance_cache: Dict[str, Tuple[int, ImportanceType]] = {}
+param_importance_cache: dict[str, tuple[int, ImportanceType]] = {}
 
 
 class StudyWrapper(Study):
     def __init__(
-        self, storage: BaseStorage, study_id: int, cached_trials: List[FrozenTrial]
+        self, storage: BaseStorage, study_id: int, cached_trials: list[FrozenTrial]
     ) -> None:
         study_name = storage.get_study_name_from_id(study_id)
         super().__init__(study_name=study_name, storage=storage)
         self._cached_trials = cached_trials
 
     @property
-    def trials(self) -> List[FrozenTrial]:
+    def trials(self) -> list[FrozenTrial]:
         return self._cached_trials
 
 
 def get_param_importance_from_trials_cache(
-    storage: BaseStorage, study_id: int, objective_id: int, trials: List[FrozenTrial]
+    storage: BaseStorage, study_id: int, objective_id: int, trials: list[FrozenTrial]
 ) -> ImportanceType:
     completed_trials = [t for t in trials if t.state == TrialState.COMPLETE]
     n_completed_trials = len(completed_trials)
@@ -97,7 +94,7 @@ def get_param_importance_from_trials_cache(
 
 
 def convert_to_importance_type(
-    importance: Dict[str, float], trials: List[FrozenTrial]
+    importance: dict[str, float], trials: list[FrozenTrial]
 ) -> ImportanceType:
     return {
         "target_name": target_name,
@@ -112,7 +109,7 @@ def convert_to_importance_type(
     }
 
 
-def get_distribution_name(param_name: str, trials: List[FrozenTrial]) -> str:
+def get_distribution_name(param_name: str, trials: list[FrozenTrial]) -> str:
     for trial in trials:
         if param_name in trial.distributions:
             return trial.distributions[param_name].__class__.__name__
