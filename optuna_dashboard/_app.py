@@ -12,6 +12,7 @@ import typing
 from typing import Any
 from typing import Callable
 from typing import cast
+from typing import Dict
 from typing import Optional
 from typing import TypeVar
 from typing import Union
@@ -48,7 +49,7 @@ if typing.TYPE_CHECKING:
     except ImportError:
         FrozenStudy = None  # type: ignore
 
-BottleViewReturn = Union[str, bytes, dict[str, Any], BaseResponse]
+BottleViewReturn = Union[str, bytes, Dict[str, Any], BaseResponse]
 BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])
 
 logger = logging.getLogger(__name__)

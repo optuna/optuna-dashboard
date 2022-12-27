@@ -2,19 +2,25 @@ from __future__ import annotations
 
 import copy
 import threading
+from typing import List
 from typing import Optional
+from typing import Set
+from typing import Tuple
+from typing import TYPE_CHECKING
 
 from optuna.distributions import BaseDistribution
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
 
 
-SearchSpaceSetT = set[tuple[str, BaseDistribution]]
-SearchSpaceListT = list[tuple[str, BaseDistribution]]
-
 #  In-memory cache
 cached_extra_study_property_cache_lock = threading.Lock()
 cached_extra_study_property_cache: dict[int, "_CachedExtraStudyProperty"] = {}
+
+
+if TYPE_CHECKING:
+    SearchSpaceSetT = Set[Tuple[str, BaseDistribution]]
+    SearchSpaceListT = List[Tuple[str, BaseDistribution]]
 
 
 def get_cached_extra_study_property(
