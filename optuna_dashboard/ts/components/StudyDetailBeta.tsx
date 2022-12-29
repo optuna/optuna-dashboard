@@ -2,10 +2,8 @@ import React, { FC, useEffect } from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { Link, useParams } from "react-router-dom"
 import MuiDrawer from "@mui/material/Drawer"
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar"
 import IconButton from "@mui/material/IconButton"
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
-import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import ClearIcon from "@mui/icons-material/Clear"
 import Divider from "@mui/material/Divider"
 import MenuIcon from "@mui/icons-material/Menu"
@@ -18,7 +16,6 @@ import {
   Card,
   Typography,
   CardContent,
-  Toolbar,
   Box,
   useTheme,
   Switch,
@@ -29,7 +26,6 @@ import {
 import SyncIcon from "@mui/icons-material/Sync"
 import SyncDisabledIcon from "@mui/icons-material/SyncDisabled"
 import HomeIcon from "@mui/icons-material/Home"
-import TuneIcon from "@mui/icons-material/Tune"
 import Brightness4Icon from "@mui/icons-material/Brightness4"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
 import TableViewIcon from "@mui/icons-material/TableView"
@@ -43,7 +39,6 @@ import {
   studyDetailsState,
   studySummariesState,
 } from "../state"
-import { usePreferenceDialog } from "./PreferenceDialog"
 
 interface ParamTypes {
   studyId: string
@@ -68,8 +63,6 @@ export const StudyDetailBeta: FC<{
   const studyIdNumber = parseInt(studyId, 10)
   const studyDetail = useStudyDetailValue(studyIdNumber)
   const studySummary = useStudySummaryValue(studyIdNumber)
-  const [openPreferenceDialog, renderPreferenceDialog] =
-    usePreferenceDialog(studyDetail)
   const [reloadInterval, updateReloadInterval] =
     useRecoilState<number>(reloadIntervalState)
 
@@ -94,201 +87,14 @@ export const StudyDetailBeta: FC<{
       : `Study #${studyId}`
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
 
-  const drawerWidth = 240
   const trialListWidth = 240
-  const [open, setOpen] = React.useState(false)
-
-  const openedMixin = (theme: Theme): CSSObject => ({
-    width: drawerWidth,
-    transition: theme.transitions.create("width", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-    overflowX: "hidden",
-  })
-  const closedMixin = (theme: Theme): CSSObject => ({
-    transition: theme.transitions.create("width", {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    overflowX: "hidden",
-    width: `calc(${theme.spacing(7)} + 1px)`,
-    [theme.breakpoints.up("sm")]: {
-      width: `calc(${theme.spacing(8)} + 1px)`,
-    },
-  })
-  const DrawerHeader = styled("div")(({ theme }) => ({
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "flex-end",
-    padding: theme.spacing(0, 1),
-    // necessary for content to be below app bar
-    ...theme.mixins.toolbar,
-  }))
-  interface AppBarProps extends MuiAppBarProps {
-    open?: boolean
-  }
-
-  const AppBar = styled(MuiAppBar, {
-    shouldForwardProp: (prop) => prop !== "open",
-  })<AppBarProps>(({ theme, open }) => ({
-    zIndex: theme.zIndex.drawer + 1,
-    transition: theme.transitions.create(["width", "margin"], {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    ...(open && {
-      marginLeft: drawerWidth,
-      width: `calc(100% - ${drawerWidth}px)`,
-      transition: theme.transitions.create(["width", "margin"], {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-    }),
-  }))
-
-  const Drawer = styled(MuiDrawer, {
-    shouldForwardProp: (prop) => prop !== "open",
-  })(({ theme, open }) => ({
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: "nowrap",
-    boxSizing: "border-box",
-    ...(open && {
-      ...openedMixin(theme),
-      "& .MuiDrawer-paper": openedMixin(theme),
-    }),
-    ...(!open && {
-      ...closedMixin(theme),
-      "& .MuiDrawer-paper": closedMixin(theme),
-    }),
-  }))
 
   return (
     <Box sx={{ display: "flex" }}>
-      {renderPreferenceDialog()}
-      <Drawer variant="permanent" anchor="left" open={open}>
-        <DrawerHeader sx={open ? {} : { padding: 0, justifyContent: "center" }}>
-          <IconButton
-            onClick={() => {
-              setOpen(!open)
-            }}
-          >
-            {open ? <ChevronLeftIcon /> : <MenuIcon />}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <List>
-          <ListItem key="Home" disablePadding>
-            <ListItemButton component={Link} to={URL_PREFIX + "/"}>
-              <ListItemIcon>
-                <HomeIcon />
-              </ListItemIcon>
-              <ListItemText primary="History" />
-            </ListItemButton>
-          </ListItem>
-          <ListItem key="Table" disablePadding>
-            <ListItemButton component={Link} to={URL_PREFIX + "/"}>
-              <ListItemIcon>
-                <TableViewIcon />
-              </ListItemIcon>
-              <ListItemText primary="Trials" />
-            </ListItemButton>
-          </ListItem>
-        </List>
-        <Box sx={{ flexGrow: 1 }} />
-        <Divider />
-        <List>
-          <ListItem key="Home" disablePadding sx={{ display: "block"}}>
-            <ListItemButton
-              component={Link}
-              to={URL_PREFIX + "/"}
-              sx={{
-                minHeight: 48,
-                justifyContent: open ? "initial" : "center",
-                px: 2.5,
-              }}
-            >
-              <ListItemIcon
-                sx={{
-                  minWidth: 0,
-                  mr: open ? 3 : "auto",
-                  justifyContent: "center",
-                }}
-              >
-                <HomeIcon />
-              </ListItemIcon>
-              <ListItemText primary="Return to Home" sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem key="LiveUpdate" disablePadding>
-            <ListItemButton
-              onClick={() => {
-                updateReloadInterval(reloadInterval === -1 ? 10 : -1)
-              }}
-            >
-              <ListItemIcon>
-                {reloadInterval === -1 ? <SyncDisabledIcon /> : <SyncIcon />}
-              </ListItemIcon>
-              <ListItemText primary="Live Update" />
-              <Switch
-                edge="end"
-                checked={reloadInterval !== -1}
-                inputProps={{
-                  "aria-labelledby": "switch-list-label-live-update",
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
-          <ListItem key="DarkMode" disablePadding>
-            <ListItemButton
-              onClick={() => {
-                toggleColorMode()
-              }}
-            >
-              <ListItemIcon>
-                {theme.palette.mode === "dark" ? (
-                  <Brightness4Icon />
-                ) : (
-                  <Brightness7Icon />
-                )}
-              </ListItemIcon>
-              <ListItemText primary="Dark Mode" />
-              <Switch
-                edge="end"
-                checked={theme.palette.mode === "dark"}
-                inputProps={{
-                  "aria-labelledby": "switch-list-label-dark-mode",
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
-          <ListItem key="Preference" disablePadding>
-            <ListItemButton
-              onClick={() => {
-                openPreferenceDialog(true)
-              }}
-            >
-              <ListItemIcon>
-                <TuneIcon />
-              </ListItemIcon>
-              <ListItemText primary="Preferences" />
-            </ListItemButton>
-          </ListItem>
-          <Divider />
-          <ListItem key="BetaUI" disablePadding>
-            <ListItemButton
-              component={Link}
-              to={`${URL_PREFIX}/studies/${studyId}`}
-            >
-              <ListItemIcon>
-                <ClearIcon />
-              </ListItemIcon>
-              <ListItemText primary="Quit Beta UI" />
-            </ListItemButton>
-          </ListItem>
-        </List>
-      </Drawer>
+      <StudyDetailDrawer
+        studyId={studyIdNumber}
+        toggleColorMode={toggleColorMode}
+      />
       <Box sx={{ maxHeight: 1000, width: trialListWidth, overflow: "auto" }}>
         <List>
           {trials.map((trial, i) => {
@@ -330,5 +136,177 @@ export const StudyDetailBeta: FC<{
         ) : null}
       </Box>
     </Box>
+  )
+}
+
+const StudyDetailDrawer: FC<{
+  studyId: number
+  toggleColorMode: () => void
+}> = ({ studyId, toggleColorMode }) => {
+  const theme = useTheme()
+  const [open, setOpen] = React.useState(false)
+  const drawerWidth = 240
+  const [reloadInterval, updateReloadInterval] =
+    useRecoilState<number>(reloadIntervalState)
+
+  const openedMixin = (theme: Theme): CSSObject => ({
+    width: drawerWidth,
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    overflowX: "hidden",
+  })
+  const closedMixin = (theme: Theme): CSSObject => ({
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    overflowX: "hidden",
+    width: `calc(${theme.spacing(7)} + 1px)`,
+    [theme.breakpoints.up("sm")]: {
+      width: `calc(${theme.spacing(8)} + 1px)`,
+    },
+  })
+  const DrawerHeader = styled("div")(({ theme }) => ({
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    padding: theme.spacing(0, 1),
+    // necessary for content to be below app bar
+    ...theme.mixins.toolbar,
+  }))
+
+  const Drawer = styled(MuiDrawer, {
+    shouldForwardProp: (prop) => prop !== "open",
+  })(({ theme, open }) => ({
+    width: drawerWidth,
+    flexShrink: 0,
+    whiteSpace: "nowrap",
+    boxSizing: "border-box",
+    ...(open && {
+      ...openedMixin(theme),
+      "& .MuiDrawer-paper": openedMixin(theme),
+    }),
+    ...(!open && {
+      ...closedMixin(theme),
+      "& .MuiDrawer-paper": closedMixin(theme),
+    }),
+  }))
+
+  return (
+    <Drawer variant="permanent" anchor="left" open={open}>
+      <DrawerHeader sx={open ? {} : { padding: 0, justifyContent: "center" }}>
+        <IconButton
+          onClick={() => {
+            setOpen(!open)
+          }}
+        >
+          {open ? <ChevronLeftIcon /> : <MenuIcon />}
+        </IconButton>
+      </DrawerHeader>
+      <Divider />
+      <List>
+        <ListItem key="Home" disablePadding>
+          <ListItemButton component={Link} to={URL_PREFIX + "/"}>
+            <ListItemIcon>
+              <HomeIcon />
+            </ListItemIcon>
+            <ListItemText primary="History" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem key="Table" disablePadding>
+          <ListItemButton component={Link} to={URL_PREFIX + "/"}>
+            <ListItemIcon>
+              <TableViewIcon />
+            </ListItemIcon>
+            <ListItemText primary="Trials" />
+          </ListItemButton>
+        </ListItem>
+      </List>
+      <Box sx={{ flexGrow: 1 }} />
+      <Divider />
+      <List>
+        <ListItem key="Home" disablePadding sx={{ display: "block" }}>
+          <ListItemButton
+            component={Link}
+            to={URL_PREFIX + "/"}
+            sx={{
+              minHeight: 48,
+              justifyContent: open ? "initial" : "center",
+              px: 2.5,
+            }}
+          >
+            <ListItemIcon
+              sx={{
+                minWidth: 0,
+                mr: open ? 3 : "auto",
+                justifyContent: "center",
+              }}
+            >
+              <HomeIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="Return to Home"
+              sx={{ opacity: open ? 1 : 0 }}
+            />
+          </ListItemButton>
+        </ListItem>
+        <ListItem key="LiveUpdate" disablePadding>
+          <ListItemButton
+            onClick={() => {
+              updateReloadInterval(reloadInterval === -1 ? 10 : -1)
+            }}
+          >
+            <ListItemIcon>
+              {reloadInterval === -1 ? <SyncDisabledIcon /> : <SyncIcon />}
+            </ListItemIcon>
+            <ListItemText primary="Live Update" />
+            <Switch
+              edge="end"
+              checked={reloadInterval !== -1}
+              inputProps={{
+                "aria-labelledby": "switch-list-label-live-update",
+              }}
+            />
+          </ListItemButton>
+        </ListItem>
+        <ListItem key="DarkMode" disablePadding>
+          <ListItemButton
+            onClick={() => {
+              toggleColorMode()
+            }}
+          >
+            <ListItemIcon>
+              {theme.palette.mode === "dark" ? (
+                <Brightness4Icon />
+              ) : (
+                <Brightness7Icon />
+              )}
+            </ListItemIcon>
+            <ListItemText primary="Dark Mode" />
+            <Switch
+              edge="end"
+              checked={theme.palette.mode === "dark"}
+              inputProps={{
+                "aria-labelledby": "switch-list-label-dark-mode",
+              }}
+            />
+          </ListItemButton>
+        </ListItem>
+        <Divider />
+        <ListItem key="BetaUI" disablePadding>
+          <ListItemButton
+            component={Link}
+            to={`${URL_PREFIX}/studies/${studyId}`}
+          >
+            <ListItemIcon>
+              <ClearIcon />
+            </ListItemIcon>
+            <ListItemText primary="Quit Beta UI" />
+          </ListItemButton>
+        </ListItem>
+      </List>
+    </Drawer>
   )
 }
