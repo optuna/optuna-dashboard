@@ -69,6 +69,7 @@ export const StudyDetail: FC<{
     action.updateStudyDetail(studyIdNumber)
   }, [])
 
+  // TODO(chenghuzi): Reduce the number of calls to setInterval and clearInterval.
   useEffect(() => {
     if (reloadInterval < 0) {
       return
@@ -79,8 +80,10 @@ export const StudyDetail: FC<{
     return () => clearInterval(intervalId)
   }, [reloadInterval, studyDetail])
 
-  // TODO(chenghuzi): Reduce the number of calls to setInterval and clearInterval.
-  const title = studyDetail !== null ? studyDetail.name : `Study #${studyId}`
+  const title =
+    studyDetail !== null || studySummary !== null
+      ? `${studyDetail?.name || studySummary?.study_name} (id=${studyId})`
+      : `Study #${studyId}`
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
 
   return (
