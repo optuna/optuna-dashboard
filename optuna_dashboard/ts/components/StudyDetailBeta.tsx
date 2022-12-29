@@ -14,7 +14,6 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import {
   Card,
-  Typography,
   CardContent,
   Box,
   useTheme,
@@ -63,8 +62,7 @@ export const StudyDetailBeta: FC<{
   const studyIdNumber = parseInt(studyId, 10)
   const studyDetail = useStudyDetailValue(studyIdNumber)
   const studySummary = useStudySummaryValue(studyIdNumber)
-  const [reloadInterval, updateReloadInterval] =
-    useRecoilState<number>(reloadIntervalState)
+  const reloadInterval = useRecoilValue<number>(reloadIntervalState)
 
   useEffect(() => {
     action.updateStudyDetail(studyIdNumber)
@@ -106,11 +104,7 @@ export const StudyDetailBeta: FC<{
                   </ListItemIcon>
                   <ListItemText
                     primary={`Trial ${trial.trial_id}`}
-                    secondary={
-                      <React.Fragment>
-                        <Typography>State={trial.state}</Typography>
-                      </React.Fragment>
-                    }
+                    secondary={`State=${trial.state}`}
                   />
                 </ListItemButton>
               </ListItem>
@@ -194,6 +188,26 @@ const StudyDetailDrawer: FC<{
     }),
   }))
 
+  const styleListItem = {
+    display: "block",
+  }
+  const styleListItemButton = {
+    minHeight: 48,
+    justifyContent: open ? "initial" : "center",
+    px: 2.5,
+  }
+  const styleListItemIcon = {
+    minWidth: 0,
+    mr: open ? 3 : "auto",
+    justifyContent: "center",
+  }
+  const styleListItemText = {
+    opacity: open ? 1 : 0,
+  }
+  const styleSwitch = {
+    display: open ? "inherit" : "none",
+  }
+
   return (
     <Drawer variant="permanent" anchor="left" open={open}>
       <DrawerHeader sx={open ? {} : { padding: 0, justifyContent: "center" }}>
@@ -207,87 +221,86 @@ const StudyDetailDrawer: FC<{
       </DrawerHeader>
       <Divider />
       <List>
-        <ListItem key="Home" disablePadding>
-          <ListItemButton component={Link} to={URL_PREFIX + "/"}>
-            <ListItemIcon>
+        <ListItem key="Home" disablePadding sx={styleListItem}>
+          <ListItemButton
+            component={Link}
+            to={URL_PREFIX + "/"}
+            sx={styleListItemButton}
+          >
+            <ListItemIcon sx={styleListItemIcon}>
               <HomeIcon />
             </ListItemIcon>
-            <ListItemText primary="History" />
+            <ListItemText primary="History" sx={styleListItemText} />
           </ListItemButton>
         </ListItem>
-        <ListItem key="Table" disablePadding>
-          <ListItemButton component={Link} to={URL_PREFIX + "/"}>
-            <ListItemIcon>
+        <ListItem key="Table" disablePadding sx={styleListItem}>
+          <ListItemButton
+            component={Link}
+            to={URL_PREFIX + "/"}
+            sx={styleListItemButton}
+          >
+            <ListItemIcon sx={styleListItemIcon}>
               <TableViewIcon />
             </ListItemIcon>
-            <ListItemText primary="Trials" />
+            <ListItemText primary="Trials" sx={styleListItemText} />
           </ListItemButton>
         </ListItem>
       </List>
       <Box sx={{ flexGrow: 1 }} />
       <Divider />
       <List>
-        <ListItem key="Home" disablePadding sx={{ display: "block" }}>
+        <ListItem key="Home" disablePadding sx={styleListItem}>
           <ListItemButton
             component={Link}
             to={URL_PREFIX + "/"}
-            sx={{
-              minHeight: 48,
-              justifyContent: open ? "initial" : "center",
-              px: 2.5,
-            }}
+            sx={styleListItemButton}
           >
-            <ListItemIcon
-              sx={{
-                minWidth: 0,
-                mr: open ? 3 : "auto",
-                justifyContent: "center",
-              }}
-            >
+            <ListItemIcon sx={styleListItemIcon}>
               <HomeIcon />
             </ListItemIcon>
-            <ListItemText
-              primary="Return to Home"
-              sx={{ opacity: open ? 1 : 0 }}
-            />
+            <ListItemText primary="Return to Home" sx={styleListItemText} />
           </ListItemButton>
         </ListItem>
-        <ListItem key="LiveUpdate" disablePadding>
+        <ListItem key="LiveUpdate" disablePadding sx={styleListItem}>
           <ListItemButton
+            sx={styleListItemButton}
             onClick={() => {
               updateReloadInterval(reloadInterval === -1 ? 10 : -1)
             }}
           >
-            <ListItemIcon>
+            <ListItemIcon sx={styleListItemIcon}>
               {reloadInterval === -1 ? <SyncDisabledIcon /> : <SyncIcon />}
             </ListItemIcon>
-            <ListItemText primary="Live Update" />
+            <ListItemText primary="Live Update" sx={styleListItemText} />
             <Switch
               edge="end"
               checked={reloadInterval !== -1}
+              sx={styleSwitch}
               inputProps={{
                 "aria-labelledby": "switch-list-label-live-update",
               }}
             />
           </ListItemButton>
         </ListItem>
-        <ListItem key="DarkMode" disablePadding>
+        <ListItem key="DarkMode" disablePadding sx={styleListItem}>
           <ListItemButton
+            sx={styleListItemButton}
             onClick={() => {
               toggleColorMode()
             }}
           >
-            <ListItemIcon>
+            <ListItemIcon sx={styleListItemIcon}>
               {theme.palette.mode === "dark" ? (
                 <Brightness4Icon />
               ) : (
                 <Brightness7Icon />
               )}
             </ListItemIcon>
-            <ListItemText primary="Dark Mode" />
+            <ListItemText primary="Dark Mode" sx={styleListItemText} />
             <Switch
               edge="end"
               checked={theme.palette.mode === "dark"}
+              sx={styleSwitch}
               inputProps={{
                 "aria-labelledby": "switch-list-label-dark-mode",
               }}
@@ -295,15 +308,16 @@ const StudyDetailDrawer: FC<{
           </ListItemButton>
         </ListItem>
         <Divider />
-        <ListItem key="BetaUI" disablePadding>
+        <ListItem key="BetaUI" disablePadding sx={styleListItem}>
           <ListItemButton
             component={Link}
             to={`${URL_PREFIX}/studies/${studyId}`}
+            sx={styleListItemButton}
           >
-            <ListItemIcon>
+            <ListItemIcon sx={styleListItemIcon}>
               <ClearIcon />
             </ListItemIcon>
-            <ListItemText primary="Quit Beta UI" />
+            <ListItemText primary="Quit Beta UI" sx={styleListItemText} />
           </ListItemButton>
         </ListItem>
       </List>
