@@ -1,40 +1,39 @@
 import React, { FC, useEffect } from "react"
-import { useRecoilValue } from "recoil"
+import { useRecoilState, useRecoilValue } from "recoil"
 import { Link, useParams } from "react-router-dom"
+import Drawer from "@mui/material/Drawer"
+import Divider from "@mui/material/Divider"
+import List from "@mui/material/List"
+import ListItem from "@mui/material/ListItem"
+import ListItemButton from "@mui/material/ListItemButton"
+import ListItemIcon from "@mui/material/ListItemIcon"
+import ListItemText from "@mui/material/ListItemText"
 import {
-  AppBar,
   Card,
   Typography,
   CardContent,
-  Container,
   Toolbar,
   Box,
-  IconButton,
   useTheme,
+  Switch,
 } from "@mui/material"
-import { Home, Settings } from "@mui/icons-material"
-import Brightness4Icon from "@mui/icons-material/Brightness4"
+import Cached from "@mui/icons-material/Cached"
+import Home from "@mui/icons-material/Home"
+import Settings from "@mui/icons-material/Settings"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
+import TableViewIcon from "@mui/icons-material/TableView"
+import VisibilityIcon from '@mui/icons-material/Visibility';
 
-import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
-import { GraphHyperparameterImportances } from "./GraphHyperparameterImportances"
-import { Edf } from "./GraphEdf"
-import { Contour } from "./GraphContour"
-import { GraphIntermediateValues } from "./GraphIntermediateValues"
-import { GraphSlice } from "./GraphSlice"
 import { GraphHistory } from "./GraphHistory"
-import { GraphParetoFront } from "./GraphParetoFront"
 import { Note } from "./Note"
 import { actionCreator } from "../action"
 import {
-  graphVisibilityState,
   reloadIntervalState,
   studyDetailsState,
   studySummariesState,
 } from "../state"
 import { usePreferenceDialog } from "./PreferenceDialog"
-import { ReloadIntervalSelect } from "./ReloadIntervalSelect"
-import { TrialTable } from "./TrialTable"
+import {Web} from "@mui/icons-material";
 
 interface ParamTypes {
   studyId: string
@@ -59,9 +58,10 @@ export const StudyDetailBeta: FC<{
   const studyIdNumber = parseInt(studyId, 10)
   const studyDetail = useStudyDetailValue(studyIdNumber)
   const studySummary = useStudySummaryValue(studyIdNumber)
-  const directions = studyDetail?.directions || studySummary?.directions || null
-  const graphVisibility = useRecoilValue<GraphVisibility>(graphVisibilityState)
-  const reloadInterval = useRecoilValue<number>(reloadIntervalState)
+  const [openPreferenceDialog, renderPreferenceDialog] =
+    usePreferenceDialog(studyDetail)
+  const [reloadInterval, updateReloadInterval] =
+    useRecoilState<number>(reloadIntervalState)
 
   useEffect(() => {
     action.updateStudyDetail(studyIdNumber)
@@ -78,100 +78,149 @@ export const StudyDetailBeta: FC<{
   }, [reloadInterval, studyDetail])
 
   // TODO(chenghuzi): Reduce the number of calls to setInterval and clearInterval.
-  const title = studyDetail !== null ? studyDetail.name : `Study #${studyId}`
+  const title = studyDetail?.name || `Study #${studyId}`
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
 
+  const drawerWidth = 240
+  const trialListWidth = 240
+
   return (
-    <div>
-      <AppBar position="static">
-        <Container
-          sx={{
-            ["@media (min-width: 1280px)"]: {
-              maxWidth: "100%",
-            },
-          }}
-        >
-          <Toolbar>
-            <Typography variant="h6">{APP_BAR_TITLE}</Typography>
-            <Box sx={{ flexGrow: 1 }} />
-            <ReloadIntervalSelect />
-            <IconButton
+    <Box sx={{ display: "flex" }}>
+      {renderPreferenceDialog()}
+      <Drawer
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          "& .MuiDrawer-paper": {
+            width: drawerWidth,
+            boxSizing: "border-box",
+          },
+        }}
+        variant="permanent"
+        anchor="left"
+      >
+        <Toolbar />
+        <Divider />
+        <List>
+          <ListItem key="Home" disablePadding>
+            <ListItemButton component={Link} to={URL_PREFIX + "/"}>
+              <ListItemIcon>
+                <Home />
+              </ListItemIcon>
+              <ListItemText primary="Return to Home" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key="Table" disablePadding>
+            <ListItemButton component={Link} to={URL_PREFIX + "/"}>
+              <ListItemIcon>
+                <TableViewIcon />
+              </ListItemIcon>
+              <ListItemText primary="Trial Table" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+        <Box sx={{ flexGrow: 1 }} />
+        <Divider />
+        <List>
+          <ListItem key="LiveUpdate" disablePadding>
+            <ListItemButton
+              onClick={() => {
+                updateReloadInterval(reloadInterval === -1 ? 10 : -1)
+              }}
+            >
+              <ListItemIcon>
+                <Cached />
+              </ListItemIcon>
+              <ListItemText primary="Live Update" />
+              <Switch
+                edge="end"
+                checked={reloadInterval !== -1}
+                inputProps={{
+                  "aria-labelledby": "switch-list-label-live-update",
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key="DarkMode" disablePadding>
+            <ListItemButton
               onClick={() => {
                 toggleColorMode()
               }}
-              color="inherit"
-              title={
-                theme.palette.mode === "dark"
-                  ? "Switch to light mode"
-                  : "Switch to dark mode"
-              }
             >
-              {theme.palette.mode === "dark" ? (
+              <ListItemIcon>
                 <Brightness7Icon />
-              ) : (
-                <Brightness4Icon />
-              )}
-            </IconButton>
-            <IconButton
-              color="inherit"
+              </ListItemIcon>
+              <ListItemText primary="Dark Mode" />
+              <Switch
+                edge="end"
+                checked={theme.palette.mode === "dark"}
+                inputProps={{
+                  "aria-labelledby": "switch-list-label-dark-mode",
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key="Preference" disablePadding>
+            <ListItemButton
               onClick={() => {
                 openPreferenceDialog(true)
               }}
-              title="Open preference panel"
             >
-              <Settings />
-            </IconButton>
-            <IconButton
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              component={Link}
-              to={URL_PREFIX + "/"}
-              color="inherit"
-              title="Go to the top"
+              <ListItemIcon>
+                <Settings />
+              </ListItemIcon>
+              <ListItemText primary="Preferences" />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key="BetaUI" disablePadding>
+            <ListItemButton
+                 component={Link} to={`${URL_PREFIX}/studies/${studyId}`}
             >
-              <Home />
-            </IconButton>
-          </Toolbar>
-        </Container>
-      </AppBar>
-      <Container
-        sx={{
-          ["@media (min-width: 1280px)"]: {
-            maxWidth: "100%",
-          },
-        }}
+              <ListItemIcon>
+                <Web />
+              </ListItemIcon>
+              <ListItemText primary="Use Previous UI" />
+            </ListItemButton>
+          </ListItem>
+        </List>
+      </Drawer>
+      <Box sx={{ maxHeight: 1000, width: trialListWidth, overflow: 'auto'}}>
+        <List>
+          { trials.map((trial, i) => {
+            return (
+                <ListItem key={trial.trial_id} disablePadding>
+                  <ListItemButton>
+                    <ListItemIcon>
+                      <VisibilityIcon />
+                    </ListItemIcon>
+                    <ListItemText primary={`Trial ${trial.trial_id}`}
+                                  secondary={<React.Fragment>
+                                    <Typography>State={trial.state}</Typography>
+                                  </React.Fragment>}
+                    />
+                  </ListItemButton>
+                </ListItem>
+            )
+          })}
+        </List>
+      </Box>
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}
       >
-        <div>
-          <Typography
-            variant="h4"
-            sx={{
-              margin: `${theme.spacing(4)} ${theme.spacing(2)}`,
-              fontWeight: 700,
-              fontSize: "1.8rem",
-              ...(theme.palette.mode === "dark" && {
-                color: theme.palette.primary.light,
-              }),
-            }}
-          >
-            {title}
-          </Typography>
-            <Card
-                sx={{
-                    margin: theme.spacing(2),
-                }}
-            >
-                <CardContent>
-                    <GraphHistory study={studyDetail} />
-                </CardContent>
-            </Card>
-          <Card sx={{ margin: theme.spacing(2) }}>
-            <TrialTable studyDetail={studyDetail} />
-          </Card>
-          {studyDetail !== null ? (
-            <Note studyId={studyIdNumber} latestNote={studyDetail.note} />
-          ) : null}
-        </div>
-      </Container>
-    </div>
+        <Card
+          sx={{
+            margin: theme.spacing(2),
+          }}
+        >
+          <CardContent>
+            <GraphHistory study={studyDetail} />
+          </CardContent>
+        </Card>
+        {studyDetail !== null ? (
+          <Note studyId={studyIdNumber} latestNote={studyDetail.note} />
+        ) : null}
+      </Box>
+    </Box>
   )
 }
