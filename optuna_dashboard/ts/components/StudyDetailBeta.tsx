@@ -1,8 +1,14 @@
 import React, { FC, useEffect } from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { Link, useParams } from "react-router-dom"
-import Drawer from "@mui/material/Drawer"
+import MuiDrawer from "@mui/material/Drawer"
+import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar"
+import IconButton from "@mui/material/IconButton"
+import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
+import ChevronRightIcon from "@mui/icons-material/ChevronRight"
+import ClearIcon from "@mui/icons-material/Clear"
 import Divider from "@mui/material/Divider"
+import MenuIcon from "@mui/icons-material/Menu"
 import List from "@mui/material/List"
 import ListItem from "@mui/material/ListItem"
 import ListItemButton from "@mui/material/ListItemButton"
@@ -16,13 +22,18 @@ import {
   Box,
   useTheme,
   Switch,
+  Theme,
+  CSSObject,
+  styled,
 } from "@mui/material"
-import Cached from "@mui/icons-material/Cached"
-import Home from "@mui/icons-material/Home"
-import Settings from "@mui/icons-material/Settings"
+import SyncIcon from "@mui/icons-material/Sync"
+import SyncDisabledIcon from "@mui/icons-material/SyncDisabled"
+import HomeIcon from "@mui/icons-material/Home"
+import TuneIcon from "@mui/icons-material/Tune"
+import Brightness4Icon from "@mui/icons-material/Brightness4"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
 import TableViewIcon from "@mui/icons-material/TableView"
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityIcon from "@mui/icons-material/Visibility"
 
 import { GraphHistory } from "./GraphHistory"
 import { Note } from "./Note"
@@ -33,7 +44,6 @@ import {
   studySummariesState,
 } from "../state"
 import { usePreferenceDialog } from "./PreferenceDialog"
-import {Web} from "@mui/icons-material";
 
 interface ParamTypes {
   studyId: string
@@ -78,36 +88,103 @@ export const StudyDetailBeta: FC<{
   }, [reloadInterval, studyDetail])
 
   // TODO(chenghuzi): Reduce the number of calls to setInterval and clearInterval.
-  const title = studyDetail?.name || `Study #${studyId}`
+  const title =
+    studyDetail !== null || studySummary !== null
+      ? `${studyDetail?.name || studySummary?.study_name} (id=${studyId})`
+      : `Study #${studyId}`
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
 
   const drawerWidth = 240
   const trialListWidth = 240
+  const [open, setOpen] = React.useState(false)
+
+  const openedMixin = (theme: Theme): CSSObject => ({
+    width: drawerWidth,
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+    overflowX: "hidden",
+  })
+  const closedMixin = (theme: Theme): CSSObject => ({
+    transition: theme.transitions.create("width", {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    overflowX: "hidden",
+    width: `calc(${theme.spacing(7)} + 1px)`,
+    [theme.breakpoints.up("sm")]: {
+      width: `calc(${theme.spacing(8)} + 1px)`,
+    },
+  })
+  const DrawerHeader = styled("div")(({ theme }) => ({
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    padding: theme.spacing(0, 1),
+    // necessary for content to be below app bar
+    ...theme.mixins.toolbar,
+  }))
+  interface AppBarProps extends MuiAppBarProps {
+    open?: boolean
+  }
+
+  const AppBar = styled(MuiAppBar, {
+    shouldForwardProp: (prop) => prop !== "open",
+  })<AppBarProps>(({ theme, open }) => ({
+    zIndex: theme.zIndex.drawer + 1,
+    transition: theme.transitions.create(["width", "margin"], {
+      easing: theme.transitions.easing.sharp,
+      duration: theme.transitions.duration.leavingScreen,
+    }),
+    ...(open && {
+      marginLeft: drawerWidth,
+      width: `calc(100% - ${drawerWidth}px)`,
+      transition: theme.transitions.create(["width", "margin"], {
+        easing: theme.transitions.easing.sharp,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    }),
+  }))
+
+  const Drawer = styled(MuiDrawer, {
+    shouldForwardProp: (prop) => prop !== "open",
+  })(({ theme, open }) => ({
+    width: drawerWidth,
+    flexShrink: 0,
+    whiteSpace: "nowrap",
+    boxSizing: "border-box",
+    ...(open && {
+      ...openedMixin(theme),
+      "& .MuiDrawer-paper": openedMixin(theme),
+    }),
+    ...(!open && {
+      ...closedMixin(theme),
+      "& .MuiDrawer-paper": closedMixin(theme),
+    }),
+  }))
 
   return (
     <Box sx={{ display: "flex" }}>
       {renderPreferenceDialog()}
-      <Drawer
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            width: drawerWidth,
-            boxSizing: "border-box",
-          },
-        }}
-        variant="permanent"
-        anchor="left"
-      >
-        <Toolbar />
+      <Drawer variant="permanent" anchor="left" open={open}>
+        <DrawerHeader sx={open ? {} : { padding: 0, justifyContent: "center" }}>
+          <IconButton
+            onClick={() => {
+              setOpen(!open)
+            }}
+          >
+            {open ? <ChevronLeftIcon /> : <MenuIcon />}
+          </IconButton>
+        </DrawerHeader>
         <Divider />
         <List>
           <ListItem key="Home" disablePadding>
             <ListItemButton component={Link} to={URL_PREFIX + "/"}>
               <ListItemIcon>
-                <Home />
+                <HomeIcon />
               </ListItemIcon>
-              <ListItemText primary="Return to Home" />
+              <ListItemText primary="History" />
             </ListItemButton>
           </ListItem>
           <ListItem key="Table" disablePadding>
@@ -115,13 +192,35 @@ export const StudyDetailBeta: FC<{
               <ListItemIcon>
                 <TableViewIcon />
               </ListItemIcon>
-              <ListItemText primary="Trial Table" />
+              <ListItemText primary="Trials" />
             </ListItemButton>
           </ListItem>
         </List>
         <Box sx={{ flexGrow: 1 }} />
         <Divider />
         <List>
+          <ListItem key="Home" disablePadding sx={{ display: "block"}}>
+            <ListItemButton
+              component={Link}
+              to={URL_PREFIX + "/"}
+              sx={{
+                minHeight: 48,
+                justifyContent: open ? "initial" : "center",
+                px: 2.5,
+              }}
+            >
+              <ListItemIcon
+                sx={{
+                  minWidth: 0,
+                  mr: open ? 3 : "auto",
+                  justifyContent: "center",
+                }}
+              >
+                <HomeIcon />
+              </ListItemIcon>
+              <ListItemText primary="Return to Home" sx={{ opacity: open ? 1 : 0 }} />
+            </ListItemButton>
+          </ListItem>
           <ListItem key="LiveUpdate" disablePadding>
             <ListItemButton
               onClick={() => {
@@ -129,7 +228,7 @@ export const StudyDetailBeta: FC<{
               }}
             >
               <ListItemIcon>
-                <Cached />
+                {reloadInterval === -1 ? <SyncDisabledIcon /> : <SyncIcon />}
               </ListItemIcon>
               <ListItemText primary="Live Update" />
               <Switch
@@ -148,7 +247,11 @@ export const StudyDetailBeta: FC<{
               }}
             >
               <ListItemIcon>
-                <Brightness7Icon />
+                {theme.palette.mode === "dark" ? (
+                  <Brightness4Icon />
+                ) : (
+                  <Brightness7Icon />
+                )}
               </ListItemIcon>
               <ListItemText primary="Dark Mode" />
               <Switch
@@ -167,39 +270,44 @@ export const StudyDetailBeta: FC<{
               }}
             >
               <ListItemIcon>
-                <Settings />
+                <TuneIcon />
               </ListItemIcon>
               <ListItemText primary="Preferences" />
             </ListItemButton>
           </ListItem>
+          <Divider />
           <ListItem key="BetaUI" disablePadding>
             <ListItemButton
-                 component={Link} to={`${URL_PREFIX}/studies/${studyId}`}
+              component={Link}
+              to={`${URL_PREFIX}/studies/${studyId}`}
             >
               <ListItemIcon>
-                <Web />
+                <ClearIcon />
               </ListItemIcon>
-              <ListItemText primary="Use Previous UI" />
+              <ListItemText primary="Quit Beta UI" />
             </ListItemButton>
           </ListItem>
         </List>
       </Drawer>
-      <Box sx={{ maxHeight: 1000, width: trialListWidth, overflow: 'auto'}}>
+      <Box sx={{ maxHeight: 1000, width: trialListWidth, overflow: "auto" }}>
         <List>
-          { trials.map((trial, i) => {
+          {trials.map((trial, i) => {
             return (
-                <ListItem key={trial.trial_id} disablePadding>
-                  <ListItemButton>
-                    <ListItemIcon>
-                      <VisibilityIcon />
-                    </ListItemIcon>
-                    <ListItemText primary={`Trial ${trial.trial_id}`}
-                                  secondary={<React.Fragment>
-                                    <Typography>State={trial.state}</Typography>
-                                  </React.Fragment>}
-                    />
-                  </ListItemButton>
-                </ListItem>
+              <ListItem key={trial.trial_id} disablePadding>
+                <ListItemButton>
+                  <ListItemIcon>
+                    <VisibilityIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary={`Trial ${trial.trial_id}`}
+                    secondary={
+                      <React.Fragment>
+                        <Typography>State={trial.state}</Typography>
+                      </React.Fragment>
+                    }
+                  />
+                </ListItemButton>
+              </ListItem>
             )
           })}
         </List>
