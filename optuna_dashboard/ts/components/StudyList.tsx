@@ -22,11 +22,11 @@ import {
   MenuItem,
   FormControl,
   FormLabel,
-  Select,
   useTheme,
   InputAdornment,
   SvgIcon,
   CardContent,
+  TextField,
 } from "@mui/material"
 import {
   Add,
@@ -36,6 +36,7 @@ import {
   Remove,
   Search,
 } from "@mui/icons-material"
+import SortIcon from "@mui/icons-material/Sort"
 
 import { actionCreator } from "../action"
 import { DataGrid, DataGridColumn } from "./DataGrid"
@@ -43,6 +44,7 @@ import { DebouncedInputTextField } from "./Debounce"
 import { studySummariesState } from "../state"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
 import Brightness4Icon from "@mui/icons-material/Brightness4"
+import { styled } from "@mui/system"
 
 export const StudyList: FC<{
   toggleColorMode: () => void
@@ -222,6 +224,37 @@ export const StudyList: FC<{
     )
   }
 
+  const Wrapper = styled("div")(({ theme }) => ({
+    position: "relative",
+    borderRadius: theme.shape.borderRadius,
+  }))
+  const IconWrapper = styled("div")(({ theme }) => ({
+    padding: theme.spacing(0, 2),
+    height: "100%",
+    position: "absolute",
+    pointerEvents: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  }))
+  const Select = styled(TextField)(({ theme }) => ({
+    "& .MuiInputBase-input": {
+      // vertical padding + font size from searchIcon
+      paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    },
+  }))
+  const sortBySelect = (
+    <Wrapper>
+      <IconWrapper>
+        <SortIcon />
+      </IconWrapper>
+      <Select select value={"id-asc"}>
+        <MenuItem value={"id-asc"}>Study ID (asc)</MenuItem>
+        <MenuItem value={"id-desc"}>Study ID (desc)</MenuItem>
+      </Select>
+    </Wrapper>
+  )
+
   return (
     <div>
       <AppBar position="static">
@@ -320,7 +353,7 @@ export const StudyList: FC<{
       >
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
-            <Box sx={{ maxWidth: 500 }}>
+            <Box sx={{ display: "flex" }}>
               <DebouncedInputTextField
                 onChange={(s) => {
                   setStudyFilterText(s)
@@ -331,6 +364,7 @@ export const StudyList: FC<{
                   id: "search-study",
                   variant: "outlined",
                   placeholder: "Search study",
+                  sx: { maxWidth: 500 },
                   InputProps: {
                     startAdornment: (
                       <InputAdornment position="start">
@@ -342,6 +376,7 @@ export const StudyList: FC<{
                   },
                 }}
               />
+              {sortBySelect}
             </Box>
           </CardContent>
         </Card>

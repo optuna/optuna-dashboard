@@ -33,11 +33,7 @@ import VisibilityIcon from "@mui/icons-material/Visibility"
 import { GraphHistory } from "./GraphHistory"
 import { Note } from "./Note"
 import { actionCreator } from "../action"
-import {
-  reloadIntervalState,
-  studyDetailsState,
-  studySummariesState,
-} from "../state"
+import { reloadIntervalState, studyDetailsState } from "../state"
 import { TrialTable } from "./TrialTable"
 
 interface ParamTypes {
@@ -49,11 +45,6 @@ const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   return studyDetails[studyId] || null
 }
 
-const useStudySummaryValue = (studyId: number): StudySummary | null => {
-  const studySummaries = useRecoilValue<StudySummary[]>(studySummariesState)
-  return studySummaries.find((s) => s.study_id == studyId) || null
-}
-
 export const StudyDetailBeta: FC<{
   toggleColorMode: () => void
   page: "top" | "trials"
@@ -63,7 +54,6 @@ export const StudyDetailBeta: FC<{
   const { studyId } = useParams<ParamTypes>()
   const studyIdNumber = parseInt(studyId, 10)
   const studyDetail = useStudyDetailValue(studyIdNumber)
-  const studySummary = useStudySummaryValue(studyIdNumber)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
 
   useEffect(() => {
@@ -80,11 +70,6 @@ export const StudyDetailBeta: FC<{
     return () => clearInterval(intervalId)
   }, [reloadInterval, studyDetail])
 
-  // TODO(chenghuzi): Reduce the number of calls to setInterval and clearInterval.
-  const title =
-    studyDetail !== null || studySummary !== null
-      ? `${studyDetail?.name || studySummary?.study_name} (id=${studyId})`
-      : `Study #${studyId}`
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
 
   const trialListWidth = 240
