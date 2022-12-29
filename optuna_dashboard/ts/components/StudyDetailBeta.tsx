@@ -38,6 +38,7 @@ import {
   studyDetailsState,
   studySummariesState,
 } from "../state"
+import { TrialTable } from "./TrialTable"
 
 interface ParamTypes {
   studyId: string
@@ -55,7 +56,8 @@ const useStudySummaryValue = (studyId: number): StudySummary | null => {
 
 export const StudyDetailBeta: FC<{
   toggleColorMode: () => void
-}> = ({ toggleColorMode }) => {
+  page: "top" | "trials"
+}> = ({ toggleColorMode, page }) => {
   const theme = useTheme()
   const action = actionCreator()
   const { studyId } = useParams<ParamTypes>()
@@ -87,48 +89,58 @@ export const StudyDetailBeta: FC<{
 
   const trialListWidth = 240
 
+  const content =
+    page === "top" ? (
+      <Box sx={{ display: "flex" }}>
+        <Box sx={{ height: "100vh", width: trialListWidth, overflow: "auto" }}>
+          <List dense={true}>
+            {trials.map((trial, i) => {
+              return (
+                <ListItem key={trial.trial_id} disablePadding>
+                  <ListItemButton>
+                    <ListItemIcon>
+                      <VisibilityIcon />
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={`Trial ${trial.trial_id}`}
+                      secondary={`State=${trial.state}`}
+                    />
+                  </ListItemButton>
+                </ListItem>
+              )
+            })}
+          </List>
+        </Box>
+        <Divider orientation="vertical" flexItem />
+        <Box
+          component="main"
+          sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}
+        >
+          <Card
+            sx={{
+              margin: theme.spacing(2),
+            }}
+          >
+            <CardContent>
+              <GraphHistory study={studyDetail} />
+            </CardContent>
+          </Card>
+          {studyDetail !== null ? (
+            <Note studyId={studyIdNumber} latestNote={studyDetail.note} />
+          ) : null}
+        </Box>
+      </Box>
+    ) : (
+      <TrialTable studyDetail={studyDetail} />
+    )
+
   return (
     <Box sx={{ display: "flex" }}>
       <StudyDetailDrawer
         studyId={studyIdNumber}
         toggleColorMode={toggleColorMode}
       />
-      <Box sx={{ maxHeight: 1000, width: trialListWidth, overflow: "auto" }}>
-        <List>
-          {trials.map((trial, i) => {
-            return (
-              <ListItem key={trial.trial_id} disablePadding>
-                <ListItemButton>
-                  <ListItemIcon>
-                    <VisibilityIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary={`Trial ${trial.trial_id}`}
-                    secondary={`State=${trial.state}`}
-                  />
-                </ListItemButton>
-              </ListItem>
-            )
-          })}
-        </List>
-      </Box>
-      <Box
-        component="main"
-        sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}
-      >
-        <Card
-          sx={{
-            margin: theme.spacing(2),
-          }}
-        >
-          <CardContent>
-            <GraphHistory study={studyDetail} />
-          </CardContent>
-        </Card>
-        {studyDetail !== null ? (
-          <Note studyId={studyIdNumber} latestNote={studyDetail.note} />
-        ) : null}
-      </Box>
+      {content}
     </Box>
   )
 }
@@ -224,7 +236,7 @@ const StudyDetailDrawer: FC<{
         <ListItem key="Home" disablePadding sx={styleListItem}>
           <ListItemButton
             component={Link}
-            to={URL_PREFIX + "/"}
+            to={`${URL_PREFIX}/studies/${studyId}/beta`}
             sx={styleListItemButton}
           >
             <ListItemIcon sx={styleListItemIcon}>
@@ -236,7 +248,7 @@ const StudyDetailDrawer: FC<{
         <ListItem key="Table" disablePadding sx={styleListItem}>
           <ListItemButton
             component={Link}
-            to={URL_PREFIX + "/"}
+            to={`${URL_PREFIX}/studies/${studyId}/trials`}
             sx={styleListItemButton}
           >
             <ListItemIcon sx={styleListItemIcon}>
