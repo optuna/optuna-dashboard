@@ -40,6 +40,8 @@ interface ParamTypes {
   studyId: string
 }
 
+type PageId = "top" | "trials"
+
 const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
   return studyDetails[studyId] || null
@@ -47,7 +49,7 @@ const useStudyDetailValue = (studyId: number): StudyDetail | null => {
 
 export const StudyDetailBeta: FC<{
   toggleColorMode: () => void
-  page: "top" | "trials"
+  page: PageId
 }> = ({ toggleColorMode, page }) => {
   const theme = useTheme()
   const action = actionCreator()
@@ -124,6 +126,7 @@ export const StudyDetailBeta: FC<{
       <StudyDetailDrawer
         studyId={studyIdNumber}
         toggleColorMode={toggleColorMode}
+        page={page}
       />
       {content}
     </Box>
@@ -133,7 +136,8 @@ export const StudyDetailBeta: FC<{
 const StudyDetailDrawer: FC<{
   studyId: number
   toggleColorMode: () => void
-}> = ({ studyId, toggleColorMode }) => {
+  page: PageId
+}> = ({ studyId, toggleColorMode, page }) => {
   const theme = useTheme()
   const [open, setOpen] = React.useState(false)
   const drawerWidth = 240
@@ -223,6 +227,7 @@ const StudyDetailDrawer: FC<{
             component={Link}
             to={`${URL_PREFIX}/studies/${studyId}/beta`}
             sx={styleListItemButton}
+            selected={page === "top"}
           >
             <ListItemIcon sx={styleListItemIcon}>
               <HomeIcon />
@@ -235,6 +240,7 @@ const StudyDetailDrawer: FC<{
             component={Link}
             to={`${URL_PREFIX}/studies/${studyId}/trials`}
             sx={styleListItemButton}
+            selected={page === "trials"}
           >
             <ListItemIcon sx={styleListItemIcon}>
               <TableViewIcon />
