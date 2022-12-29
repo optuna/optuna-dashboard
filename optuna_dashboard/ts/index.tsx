@@ -1,10 +1,9 @@
 import React from "react"
-import { render } from "react-dom"
+import ReactDOM from "react-dom/client"
 import { App } from "./components/App"
 
-render(
+ReactDOM.createRoot(document.getElementById("dashboard") as HTMLElement).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>,
-  document.getElementById("dashboard")
+  </React.StrictMode>
 )
