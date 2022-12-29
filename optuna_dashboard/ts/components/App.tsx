@@ -12,6 +12,7 @@ import {
 
 import { StudyDetail } from "./StudyDetail"
 import { StudyList } from "./StudyList"
+import { StudyDetailBeta } from "./StudyDetailBeta"
 
 export const App: FC = () => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)")
@@ -47,6 +48,12 @@ export const App: FC = () => {
           <SnackbarProvider maxSnack={3}>
             <Router>
               <Switch>
+                <Route
+                  path={URL_PREFIX + "/studies/:studyId/beta"}
+                  children={
+                    <StudyDetailBeta toggleColorMode={toggleColorMode} />
+                  }
+                />
                 <Route
                   path={URL_PREFIX + "/studies/:studyId"}
                   children={<StudyDetail toggleColorMode={toggleColorMode} />}
