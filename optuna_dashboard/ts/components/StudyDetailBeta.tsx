@@ -12,6 +12,7 @@ import ListItem from "@mui/material/ListItem"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
+import ListSubheader from "@mui/material/ListSubheader"
 import {
   Card,
   CardContent,
@@ -22,13 +23,14 @@ import {
   CSSObject,
   styled,
 } from "@mui/material"
+import AutoGraphIcon from "@mui/icons-material/AutoGraph"
 import SyncIcon from "@mui/icons-material/Sync"
 import SyncDisabledIcon from "@mui/icons-material/SyncDisabled"
 import HomeIcon from "@mui/icons-material/Home"
 import Brightness4Icon from "@mui/icons-material/Brightness4"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
 import TableViewIcon from "@mui/icons-material/TableView"
-import VisibilityIcon from "@mui/icons-material/Visibility"
+import RateReviewIcon from "@mui/icons-material/RateReview"
 
 import { GraphHistory } from "./GraphHistory"
 import { Note } from "./Note"
@@ -40,7 +42,7 @@ interface ParamTypes {
   studyId: string
 }
 
-type PageId = "top" | "trials"
+type PageId = "top" | "trials" | "note"
 
 const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
@@ -76,18 +78,19 @@ export const StudyDetailBeta: FC<{
 
   const trialListWidth = 240
 
-  const content =
-    page === "top" ? (
-      <Box sx={{ display: "flex" }}>
+  let content = null
+  if (page === "top") {
+    content = (
+      <Box sx={{ display: "flex", width: "100%" }}>
         <Box sx={{ height: "100vh", width: trialListWidth, overflow: "auto" }}>
           <List dense={true}>
+            <ListSubheader>{`Trials (${
+              studyDetail?.trials.length || 0
+            })`}</ListSubheader>
             {trials.map((trial, i) => {
               return (
                 <ListItem key={trial.trial_id} disablePadding>
                   <ListItemButton>
-                    <ListItemIcon>
-                      <VisibilityIcon />
-                    </ListItemIcon>
                     <ListItemText
                       primary={`Trial ${trial.trial_id}`}
                       secondary={`State=${trial.state}`}
@@ -112,14 +115,17 @@ export const StudyDetailBeta: FC<{
               <GraphHistory study={studyDetail} />
             </CardContent>
           </Card>
-          {studyDetail !== null ? (
-            <Note studyId={studyIdNumber} latestNote={studyDetail.note} />
-          ) : null}
         </Box>
       </Box>
-    ) : (
-      <TrialTable studyDetail={studyDetail} />
     )
+  } else if (page === "trials") {
+    content = <TrialTable studyDetail={studyDetail} />
+  } else {
+    content =
+      studyDetail !== null ? (
+        <Note studyId={studyIdNumber} latestNote={studyDetail.note} />
+      ) : null
+  }
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -222,7 +228,7 @@ const StudyDetailDrawer: FC<{
       </DrawerHeader>
       <Divider />
       <List>
-        <ListItem key="Home" disablePadding sx={styleListItem}>
+        <ListItem key="Top" disablePadding sx={styleListItem}>
           <ListItemButton
             component={Link}
             to={`${URL_PREFIX}/studies/${studyId}/beta`}
@@ -230,7 +236,7 @@ const StudyDetailDrawer: FC<{
             selected={page === "top"}
           >
             <ListItemIcon sx={styleListItemIcon}>
-              <HomeIcon />
+              <AutoGraphIcon />
             </ListItemIcon>
             <ListItemText primary="History" sx={styleListItemText} />
           </ListItemButton>
@@ -246,6 +252,19 @@ const StudyDetailDrawer: FC<{
               <TableViewIcon />
             </ListItemIcon>
             <ListItemText primary="Trials" sx={styleListItemText} />
+          </ListItemButton>
+        </ListItem>
+        <ListItem key="Note" disablePadding sx={styleListItem}>
+          <ListItemButton
+            component={Link}
+            to={`${URL_PREFIX}/studies/${studyId}/note`}
+            sx={styleListItemButton}
+            selected={page === "note"}
+          >
+            <ListItemIcon sx={styleListItemIcon}>
+              <RateReviewIcon />
+            </ListItemIcon>
+            <ListItemText primary="Note" sx={styleListItemText} />
           </ListItemButton>
         </ListItem>
       </List>
@@ -264,6 +283,7 @@ const StudyDetailDrawer: FC<{
             <ListItemText primary="Return to Home" sx={styleListItemText} />
           </ListItemButton>
         </ListItem>
+        <Divider />
         <ListItem key="LiveUpdate" disablePadding sx={styleListItem}>
           <ListItemButton
             sx={styleListItemButton}
