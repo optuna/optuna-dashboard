@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { useRecoilValue } from "recoil"
 import { Link } from "react-router-dom"
 import {
@@ -49,27 +49,18 @@ export const StudyListBeta: FC<{
     useCreateStudyDialog()
   const [openDeleteStudyDialog, renderDeleteStudyDialog] =
     useDeleteStudyDialog()
+  const [sortBy, setSortBy] = useState<"id-asc" | "id-desc">("id-asc")
 
-  const studies = useRecoilValue<StudySummary[]>(studySummariesState)
-  const filteredStudy = studies.filter((s) => !studyFilter(s))
+  let studies = useRecoilValue<StudySummary[]>(studySummariesState)
+  studies = studies.filter((s) => !studyFilter(s))
+  if (sortBy === "id-desc") {
+    studies = studies.reverse()
+  }
 
   useEffect(() => {
     action.updateStudySummaries()
   }, [])
 
-  const Wrapper = styled("div")(({ theme }) => ({
-    position: "relative",
-    borderRadius: theme.shape.borderRadius,
-  }))
-  const IconWrapper = styled("div")(({ theme }) => ({
-    padding: theme.spacing(0, 2),
-    height: "100%",
-    position: "absolute",
-    pointerEvents: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  }))
   const Select = styled(TextField)(({ theme }) => ({
     "& .MuiInputBase-input": {
       // vertical padding + font size from searchIcon
@@ -77,20 +68,42 @@ export const StudyListBeta: FC<{
     },
   }))
   const sortBySelect = (
-    <Wrapper>
-      <IconWrapper>
+    <Box
+      sx={{
+        position: "relative",
+        borderRadius: theme.shape.borderRadius,
+        margin: theme.spacing(0, 2),
+      }}
+    >
+      <Box
+        sx={{
+          padding: theme.spacing(0, 2),
+          height: "100%",
+          position: "absolute",
+          pointerEvents: "none",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <SortIcon />
-      </IconWrapper>
-      <Select select value={"id-asc"}>
-        <MenuItem value={"id-asc"}>Oldest</MenuItem>
-        <MenuItem value={"id-desc"}>Oldest</MenuItem>
+      </Box>
+      <Select
+        select
+        value={sortBy}
+        onChange={(e) => {
+          setSortBy(e.target.value as "id-asc" | "id-desc")
+        }}
+      >
+        <MenuItem value={"id-asc"}>Sort ascending</MenuItem>
+        <MenuItem value={"id-desc"}>Sort descending</MenuItem>
       </Select>
-    </Wrapper>
+    </Box>
   )
 
   const toolbar = (
     <Typography variant="h5" noWrap component="div">
-      Optuna Dashboard (Beta UI)
+      Optuna Dashboard (Beta ver.)
     </Typography>
   )
 
@@ -129,18 +142,8 @@ export const StudyListBeta: FC<{
                     },
                   }}
                 />
+                {sortBySelect}
                 <Box sx={{ flexGrow: 1 }} />
-                <Button
-                  variant="outlined"
-                  startIcon={<AddBoxIcon />}
-                  aria-haspopup="true"
-                  onClick={(e) => {
-                    openCreateStudyDialog()
-                  }}
-                  sx={{ margin: theme.spacing(0, 2), minWidth: "120px" }}
-                >
-                  Create
-                </Button>
                 <Button
                   variant="outlined"
                   startIcon={<Refresh />}
@@ -148,16 +151,26 @@ export const StudyListBeta: FC<{
                   onClick={(e) => {
                     action.updateStudySummaries("Success to reload")
                   }}
-                  sx={{ marginRight: theme.spacing( 2), minWidth: "120px" }}
+                  sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
                 >
                   Refresh
                 </Button>
-                {sortBySelect}
+                <Button
+                  variant="outlined"
+                  startIcon={<AddBoxIcon />}
+                  aria-haspopup="true"
+                  onClick={(e) => {
+                    openCreateStudyDialog()
+                  }}
+                  sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
+                >
+                  Create
+                </Button>
               </Box>
             </CardContent>
           </Card>
           <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-            {filteredStudy.map((study) => (
+            {studies.map((study) => (
               <Card
                 key={study.study_id}
                 sx={{ margin: theme.spacing(2), width: "500px" }}
@@ -178,7 +191,7 @@ export const StudyListBeta: FC<{
                       {"Direction: " +
                         study.directions
                           .map((d) => d.toString().toUpperCase())
-                          .join(" ")}
+                          .join(", ")}
                     </Typography>
                   </CardContent>
                 </CardActionArea>
