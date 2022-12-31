@@ -37,6 +37,7 @@ from packaging import version
 from . import _note as note
 from ._cached_extra_study_property import get_cached_extra_study_property
 from ._importance import get_param_importance_from_trials_cache
+from ._pareto_front import get_pareto_front_trials
 from ._serializer import serialize_study_detail
 from ._serializer import serialize_study_summary
 
@@ -308,6 +309,12 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
         trials = get_trials(storage, study_id)
+
+        # TODO(c-bata): Cache best_trials
+        if summary.directions == 1:
+            best_trials = [storage.get_best_trial(study_id)]
+        else:
+            best_trials = get_pareto_front_trials(trials=trials, directions=summary.directions)
         (
             # TODO: intersection_search_space and union_search_space look more clear since now we
             # have union_user_attrs.
@@ -318,6 +325,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
         ) = get_cached_extra_study_property(study_id, trials)
         return serialize_study_detail(
             summary,
+            best_trials,
             trials[after:],
             intersection,
             union,

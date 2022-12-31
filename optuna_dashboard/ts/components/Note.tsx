@@ -16,7 +16,8 @@ import { actionCreator } from "../action"
 export const Note: FC<{
   studyId: number
   latestNote: Note
-}> = ({ studyId, latestNote }) => {
+  minRows: number
+}> = ({ studyId, latestNote, minRows }) => {
   const theme = useTheme()
   const [saving, setSaving] = useState(false)
   const [edited, setEdited] = useState(false)
@@ -72,7 +73,7 @@ export const Note: FC<{
         </Typography>
         <TextField
           disabled={saving}
-          minRows={5}
+          minRows={minRows}
           multiline={true}
           placeholder="Description about the study... (This note is saved to study's system_attrs)"
           sx={{ width: "100%", margin: `${theme.spacing(1)} 0` }}
