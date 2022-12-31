@@ -43,35 +43,31 @@ const trials = [
 
 const study_direction: StudyDirection = "minimize" as StudyDirection
 
-const studyDetail = {
+const studyDetail: StudyDetail = {
   id: 1,
   name: "study_0",
   directions: [study_direction],
   datetime_start: new Date("2021-06-15T00:00:00"),
-  best_trial: trials[1],
+  best_trials: [trials[1]],
   trials: trials,
   intersection_search_space: [
     {
       name: "x",
       distribution: "FloatDistribution" as Distribution,
-      attributes: { low: -3, high: 3 },
     },
     {
       name: "y",
       distribution: "FloatDistribution" as Distribution,
-      attributes: { low: -3, high: 3 },
     },
   ],
   union_search_space: [
     {
       name: "x",
       distribution: "FloatDistribution" as Distribution,
-      attributes: { low: -3, high: 3 },
     },
     {
       name: "y",
       distribution: "FloatDistribution" as Distribution,
-      attributes: { low: -3, high: 3 },
     },
   ],
   union_user_attrs: [
