@@ -1,10 +1,11 @@
-import React, { FC, useEffect, useMemo } from "react"
+import React, { FC, useEffect } from "react"
 import { useRecoilValue } from "recoil"
 import { Link } from "react-router-dom"
 import {
   Typography,
   Container,
   Card,
+  CardActionArea,
   Box,
   Button,
   IconButton,
@@ -14,6 +15,7 @@ import {
   SvgIcon,
   CardContent,
   TextField,
+  CardActions,
 } from "@mui/material"
 import { Delete, Refresh, Search } from "@mui/icons-material"
 import SortIcon from "@mui/icons-material/Sort"
@@ -47,13 +49,6 @@ export const StudyListBeta: FC<{
     useCreateStudyDialog()
   const [openDeleteStudyDialog, renderDeleteStudyDialog] =
     useDeleteStudyDialog()
-  const linkColor = useMemo(
-    () =>
-      theme.palette.mode === "dark"
-        ? theme.palette.primary.light
-        : theme.palette.primary.dark,
-    [theme.palette.mode]
-  )
 
   const studies = useRecoilValue<StudySummary[]>(studySummariesState)
   const filteredStudy = studies.filter((s) => !studyFilter(s))
@@ -161,34 +156,48 @@ export const StudyListBeta: FC<{
               </Box>
             </CardContent>
           </Card>
-          {filteredStudy.map((study) => (
-            <Card key={study.study_id} sx={{ margin: theme.spacing(2) }}>
-              <CardContent sx={{ margin: theme.spacing(2) }}>
-                <Typography variant="h5">
-                  <Link
-                    to={`${URL_PREFIX}/studies/${study.study_id}/beta`}
-                    style={{ color: linkColor }}
-                  >
-                    {study.study_name}
-                  </Link>
-                </Typography>
-                <Typography>{study.study_id}</Typography>
-                <Typography>
-                  {study.directions.map((d) => d.toString()).join(" ")}
-                </Typography>
-                <IconButton
-                  aria-label="delete study"
-                  size="small"
-                  color="inherit"
-                  onClick={() => {
-                    openDeleteStudyDialog(study.study_id)
-                  }}
+          <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+            {filteredStudy.map((study) => (
+              <Card
+                key={study.study_id}
+                sx={{ margin: theme.spacing(2), width: "320px" }}
+              >
+                <CardActionArea
+                  component={Link}
+                  to={`${URL_PREFIX}/studies/${study.study_id}/beta`}
                 >
-                  <Delete />
-                </IconButton>
-              </CardContent>
-            </Card>
-          ))}
+                  <CardContent>
+                    <Typography variant="h5">
+                      {study.study_id} {study.study_name}
+                    </Typography>
+                    <Typography
+                      variant="subtitle1"
+                      color="text.secondary"
+                      component="div"
+                    >
+                      {"Direction: " +
+                        study.directions
+                          .map((d) => d.toString().toUpperCase())
+                          .join(" ")}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+                <CardActions disableSpacing>
+                  <Box sx={{ flexGrow: 1 }} />
+                  <IconButton
+                    aria-label="delete study"
+                    size="small"
+                    color="inherit"
+                    onClick={() => {
+                      openDeleteStudyDialog(study.study_id)
+                    }}
+                  >
+                    <Delete />
+                  </IconButton>
+                </CardActions>
+              </Card>
+            ))}
+          </Box>
         </Container>
       </AppDrawer>
       {renderCreateStudyDialog()}
