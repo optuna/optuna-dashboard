@@ -82,8 +82,8 @@ export const StudyListBeta: FC<{
         <SortIcon />
       </IconWrapper>
       <Select select value={"id-asc"}>
-        <MenuItem value={"id-asc"}>Study ID (asc)</MenuItem>
-        <MenuItem value={"id-desc"}>Study ID (desc)</MenuItem>
+        <MenuItem value={"id-asc"}>Oldest</MenuItem>
+        <MenuItem value={"id-desc"}>Oldest</MenuItem>
       </Select>
     </Wrapper>
   )
@@ -137,7 +137,7 @@ export const StudyListBeta: FC<{
                   onClick={(e) => {
                     openCreateStudyDialog()
                   }}
-                  sx={{ marginRight: theme.spacing(2) }}
+                  sx={{ margin: theme.spacing(0, 2), minWidth: "120px" }}
                 >
                   Create
                 </Button>
@@ -148,7 +148,7 @@ export const StudyListBeta: FC<{
                   onClick={(e) => {
                     action.updateStudySummaries("Success to reload")
                   }}
-                  sx={{ marginRight: theme.spacing(2) }}
+                  sx={{ marginRight: theme.spacing( 2), minWidth: "120px" }}
                 >
                   Refresh
                 </Button>
@@ -160,7 +160,7 @@ export const StudyListBeta: FC<{
             {filteredStudy.map((study) => (
               <Card
                 key={study.study_id}
-                sx={{ margin: theme.spacing(2), width: "320px" }}
+                sx={{ margin: theme.spacing(2), width: "500px" }}
               >
                 <CardActionArea
                   component={Link}
