@@ -171,7 +171,7 @@ export const AppDrawer: FC<{
           </IconButton>
         </DrawerHeader>
         <Divider />
-        {studyId && page && (
+        {studyId !== undefined && page && (
           <List>
             <ListItem key="History" disablePadding sx={styleListItem}>
               <ListItemButton
@@ -230,7 +230,7 @@ export const AppDrawer: FC<{
         <Box sx={{ flexGrow: 1 }} />
         <Divider />
         <List>
-          {studyId && (
+          {studyId !== undefined && (
             <ListItem key="LiveUpdate" disablePadding sx={styleListItem}>
               <ListItemButton
                 sx={styleListItemButton}
