@@ -22,11 +22,11 @@ import {
   MenuItem,
   FormControl,
   FormLabel,
-  Select,
   useTheme,
   InputAdornment,
   SvgIcon,
   CardContent,
+  TextField,
 } from "@mui/material"
 import {
   Add,
@@ -36,6 +36,7 @@ import {
   Remove,
   Search,
 } from "@mui/icons-material"
+import SortIcon from "@mui/icons-material/Sort"
 
 import { actionCreator } from "../action"
 import { DataGrid, DataGridColumn } from "./DataGrid"
@@ -43,13 +44,12 @@ import { DebouncedInputTextField } from "./Debounce"
 import { studySummariesState } from "../state"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
 import Brightness4Icon from "@mui/icons-material/Brightness4"
-import { useSnackbar } from "notistack"
+import { styled } from "@mui/system"
 
-export const StudyList: FC<{
+export const StudyListBeta: FC<{
   toggleColorMode: () => void
 }> = ({ toggleColorMode }) => {
   const theme = useTheme()
-  const { enqueueSnackbar } = useSnackbar()
 
   const [newStudySelectionAnchorEl, setNewStudySelectionAnchorEl] =
     React.useState<null | HTMLElement>(null)
@@ -112,7 +112,7 @@ export const StudyList: FC<{
       sortable: true,
       toCellValue: (i) => (
         <Link
-          to={`${URL_PREFIX}/studies/${studies[i].study_id}`}
+          to={`${URL_PREFIX}/studies/${studies[i].study_id}/beta`}
           style={{ color: linkColor }}
         >
           {studies[i].study_name}
@@ -224,17 +224,39 @@ export const StudyList: FC<{
     )
   }
 
-  const sayThankYouForBetaUsers = () => {
-    enqueueSnackbar(
-      `Thanks for testing our beta UI. Share your feedback via a GitHub issue.`,
-      {
-        variant: "success",
-      }
-    )
-  }
+  const Wrapper = styled("div")(({ theme }) => ({
+    position: "relative",
+    borderRadius: theme.shape.borderRadius,
+  }))
+  const IconWrapper = styled("div")(({ theme }) => ({
+    padding: theme.spacing(0, 2),
+    height: "100%",
+    position: "absolute",
+    pointerEvents: "none",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  }))
+  const Select = styled(TextField)(({ theme }) => ({
+    "& .MuiInputBase-input": {
+      // vertical padding + font size from searchIcon
+      paddingLeft: `calc(1em + ${theme.spacing(4)})`,
+    },
+  }))
+  const sortBySelect = (
+    <Wrapper>
+      <IconWrapper>
+        <SortIcon />
+      </IconWrapper>
+      <Select select value={"id-asc"}>
+        <MenuItem value={"id-asc"}>Study ID (asc)</MenuItem>
+        <MenuItem value={"id-desc"}>Study ID (desc)</MenuItem>
+      </Select>
+    </Wrapper>
+  )
 
   return (
-    <>
+    <div>
       <AppBar position="static">
         <Container
           sx={{
@@ -331,22 +353,7 @@ export const StudyList: FC<{
       >
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
-            <Typography>
-              {`We would appreciate your feedback on our beta UI. Click `}
-              <Link
-                to={`${URL_PREFIX}/beta`}
-                style={{ color: linkColor }}
-                onClick={sayThankYouForBetaUsers}
-              >
-                here
-              </Link>
-              {" to try it out and share your thoughts."}
-            </Typography>
-          </CardContent>
-        </Card>
-        <Card sx={{ margin: theme.spacing(2) }}>
-          <CardContent>
-            <Box sx={{ maxWidth: 500 }}>
+            <Box sx={{ display: "flex" }}>
               <DebouncedInputTextField
                 onChange={(s) => {
                   setStudyFilterText(s)
@@ -357,6 +364,7 @@ export const StudyList: FC<{
                   id: "search-study",
                   variant: "outlined",
                   placeholder: "Search study",
+                  sx: { maxWidth: 500 },
                   InputProps: {
                     startAdornment: (
                       <InputAdornment position="start">
@@ -368,6 +376,8 @@ export const StudyList: FC<{
                   },
                 }}
               />
+              <Box sx={{ flexGrow: 1 }} />
+              {sortBySelect}
             </Box>
           </CardContent>
         </Card>
@@ -560,6 +570,6 @@ export const StudyList: FC<{
           </Button>
         </DialogActions>
       </Dialog>
-    </>
+    </div>
   )
 }

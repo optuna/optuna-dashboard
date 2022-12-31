@@ -15,6 +15,7 @@ import {
 import { StudyDetail } from "./StudyDetail"
 import { StudyList } from "./StudyList"
 import { StudyDetailBeta } from "./StudyDetailBeta"
+import { StudyListBeta } from "./StudyListBeta"
 
 export const App: FC = () => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)")
@@ -91,6 +92,10 @@ export const App: FC = () => {
                 <Route
                   path={URL_PREFIX + "/studies/:studyId"}
                   children={<StudyDetail toggleColorMode={toggleColorMode} />}
+                />
+                <Route
+                  path={URL_PREFIX + "/beta"}
+                  children={<StudyListBeta toggleColorMode={toggleColorMode} />}
                 />
                 <Route
                   path={URL_PREFIX + "/"}

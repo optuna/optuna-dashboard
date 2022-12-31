@@ -305,7 +305,7 @@ export const StudyDetailDrawer: FC<{
           <ListItem key="BetaUI" disablePadding sx={styleListItem}>
             <ListItemButton
               component={Link}
-              to={`${URL_PREFIX}/studies/${studyId}`}
+              to={URL_PREFIX}
               sx={styleListItemButton}
             >
               <ListItemIcon sx={styleListItemIcon}>
