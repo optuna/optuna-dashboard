@@ -1,6 +1,6 @@
 import React, { FC, useEffect } from "react"
 import { useRecoilValue } from "recoil"
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import {
   Card,
   CardContent,
@@ -8,8 +8,11 @@ import {
   Typography,
   useTheme,
   ListItem,
+  IconButton,
 } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2"
+import ChevronRightIcon from "@mui/icons-material/ChevronRight"
+import HomeIcon from "@mui/icons-material/Home"
 
 import { GraphHistory } from "./GraphHistory"
 import { Note } from "./Note"
@@ -20,7 +23,7 @@ import {
   studySummariesState,
 } from "../state"
 import { TrialTable } from "./TrialTable"
-import { StudyDetailDrawer } from "./StudyDetailDrawer"
+import { AppDrawer } from "./AppDrawer"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { Contour } from "./GraphContour"
 import { GraphHyperparameterImportances } from "./GraphHyperparameterImportances"
@@ -232,16 +235,34 @@ export const StudyDetailBeta: FC<{
       ) : null
   }
 
+  const toolbar = (
+    <>
+      <IconButton
+        component={Link}
+        to={URL_PREFIX + "/beta"}
+        sx={{ marginRight: theme.spacing(1) }}
+        color="inherit"
+        title="Return to the top page"
+      >
+        <HomeIcon />
+      </IconButton>
+      <ChevronRightIcon sx={{ marginRight: theme.spacing(1) }} />
+      <Typography variant="h5" noWrap component="div">
+        {title}
+      </Typography>
+    </>
+  )
+
   return (
     <Box sx={{ display: "flex" }}>
-      <StudyDetailDrawer
+      <AppDrawer
         studyId={studyIdNumber}
         page={page}
         toggleColorMode={toggleColorMode}
-        title={title}
+        toolbar={toolbar}
       >
         {content}
-      </StudyDetailDrawer>
+      </AppDrawer>
     </Box>
   )
 }

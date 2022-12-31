@@ -6,7 +6,6 @@ import MuiDrawer from "@mui/material/Drawer"
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar"
 import Toolbar from "@mui/material/Toolbar"
 import List from "@mui/material/List"
-import Typography from "@mui/material/Typography"
 import Divider from "@mui/material/Divider"
 import IconButton from "@mui/material/IconButton"
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
@@ -20,7 +19,6 @@ import { Link } from "react-router-dom"
 import AutoGraphIcon from "@mui/icons-material/AutoGraph"
 import SyncIcon from "@mui/icons-material/Sync"
 import SyncDisabledIcon from "@mui/icons-material/SyncDisabled"
-import HomeIcon from "@mui/icons-material/Home"
 import Brightness4Icon from "@mui/icons-material/Brightness4"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
 import TableViewIcon from "@mui/icons-material/TableView"
@@ -103,13 +101,13 @@ const Drawer = styled(MuiDrawer, {
   }),
 }))
 
-export const StudyDetailDrawer: FC<{
-  studyId: number
+export const AppDrawer: FC<{
+  studyId?: number
   toggleColorMode: () => void
-  page: "history" | "analytics" | "trials" | "note"
-  title: string
+  page?: "history" | "analytics" | "trials" | "note"
+  toolbar: React.ReactNode
   children?: React.ReactNode
-}> = ({ studyId, toggleColorMode, page, title, children }) => {
+}> = ({ studyId, toggleColorMode, page, toolbar, children }) => {
   const theme = useTheme()
   const [open, setOpen] = React.useState(true)
   const [reloadInterval, updateReloadInterval] =
@@ -159,19 +157,7 @@ export const StudyDetailDrawer: FC<{
           >
             <MenuIcon />
           </IconButton>
-          <IconButton
-            component={Link}
-            to={URL_PREFIX + "/beta"}
-            sx={{ marginRight: theme.spacing(1) }}
-            color="inherit"
-            title="Return to the top page"
-          >
-            <HomeIcon />
-          </IconButton>
-          <ChevronRightIcon sx={{ marginRight: theme.spacing(1) }} />
-          <Typography variant="h5" noWrap component="div">
-            {title}
-          </Typography>
+          {toolbar}
         </Toolbar>
       </AppBar>
       <Drawer variant="permanent" open={open}>
@@ -185,84 +171,88 @@ export const StudyDetailDrawer: FC<{
           </IconButton>
         </DrawerHeader>
         <Divider />
-        <List>
-          <ListItem key="History" disablePadding sx={styleListItem}>
-            <ListItemButton
-              component={Link}
-              to={`${URL_PREFIX}/studies/${studyId}/beta`}
-              sx={styleListItemButton}
-              selected={page === "history"}
-            >
-              <ListItemIcon sx={styleListItemIcon}>
-                <AutoGraphIcon />
-              </ListItemIcon>
-              <ListItemText primary="History" sx={styleListItemText} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem key="Analytics" disablePadding sx={styleListItem}>
-            <ListItemButton
-              component={Link}
-              to={`${URL_PREFIX}/studies/${studyId}/analytics`}
-              sx={styleListItemButton}
-              selected={page === "analytics"}
-            >
-              <ListItemIcon sx={styleListItemIcon}>
-                <QueryStatsIcon />
-              </ListItemIcon>
-              <ListItemText primary="Analytics" sx={styleListItemText} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem key="Table" disablePadding sx={styleListItem}>
-            <ListItemButton
-              component={Link}
-              to={`${URL_PREFIX}/studies/${studyId}/trials`}
-              sx={styleListItemButton}
-              selected={page === "trials"}
-            >
-              <ListItemIcon sx={styleListItemIcon}>
-                <TableViewIcon />
-              </ListItemIcon>
-              <ListItemText primary="Trials" sx={styleListItemText} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem key="Note" disablePadding sx={styleListItem}>
-            <ListItemButton
-              component={Link}
-              to={`${URL_PREFIX}/studies/${studyId}/note`}
-              sx={styleListItemButton}
-              selected={page === "note"}
-            >
-              <ListItemIcon sx={styleListItemIcon}>
-                <RateReviewIcon />
-              </ListItemIcon>
-              <ListItemText primary="Note" sx={styleListItemText} />
-            </ListItemButton>
-          </ListItem>
-        </List>
+        {studyId && page && (
+          <List>
+            <ListItem key="History" disablePadding sx={styleListItem}>
+              <ListItemButton
+                component={Link}
+                to={`${URL_PREFIX}/studies/${studyId}/beta`}
+                sx={styleListItemButton}
+                selected={page === "history"}
+              >
+                <ListItemIcon sx={styleListItemIcon}>
+                  <AutoGraphIcon />
+                </ListItemIcon>
+                <ListItemText primary="History" sx={styleListItemText} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem key="Analytics" disablePadding sx={styleListItem}>
+              <ListItemButton
+                component={Link}
+                to={`${URL_PREFIX}/studies/${studyId}/analytics`}
+                sx={styleListItemButton}
+                selected={page === "analytics"}
+              >
+                <ListItemIcon sx={styleListItemIcon}>
+                  <QueryStatsIcon />
+                </ListItemIcon>
+                <ListItemText primary="Analytics" sx={styleListItemText} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem key="Table" disablePadding sx={styleListItem}>
+              <ListItemButton
+                component={Link}
+                to={`${URL_PREFIX}/studies/${studyId}/trials`}
+                sx={styleListItemButton}
+                selected={page === "trials"}
+              >
+                <ListItemIcon sx={styleListItemIcon}>
+                  <TableViewIcon />
+                </ListItemIcon>
+                <ListItemText primary="Trials" sx={styleListItemText} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem key="Note" disablePadding sx={styleListItem}>
+              <ListItemButton
+                component={Link}
+                to={`${URL_PREFIX}/studies/${studyId}/note`}
+                sx={styleListItemButton}
+                selected={page === "note"}
+              >
+                <ListItemIcon sx={styleListItemIcon}>
+                  <RateReviewIcon />
+                </ListItemIcon>
+                <ListItemText primary="Note" sx={styleListItemText} />
+              </ListItemButton>
+            </ListItem>
+          </List>
+        )}
         <Box sx={{ flexGrow: 1 }} />
         <Divider />
         <List>
-          <ListItem key="LiveUpdate" disablePadding sx={styleListItem}>
-            <ListItemButton
-              sx={styleListItemButton}
-              onClick={() => {
-                updateReloadInterval(reloadInterval === -1 ? 10 : -1)
-              }}
-            >
-              <ListItemIcon sx={styleListItemIcon}>
-                {reloadInterval === -1 ? <SyncDisabledIcon /> : <SyncIcon />}
-              </ListItemIcon>
-              <ListItemText primary="Live Update" sx={styleListItemText} />
-              <Switch
-                edge="end"
-                checked={reloadInterval !== -1}
-                sx={styleSwitch}
-                inputProps={{
-                  "aria-labelledby": "switch-list-label-live-update",
+          {studyId && (
+            <ListItem key="LiveUpdate" disablePadding sx={styleListItem}>
+              <ListItemButton
+                sx={styleListItemButton}
+                onClick={() => {
+                  updateReloadInterval(reloadInterval === -1 ? 10 : -1)
                 }}
-              />
-            </ListItemButton>
-          </ListItem>
+              >
+                <ListItemIcon sx={styleListItemIcon}>
+                  {reloadInterval === -1 ? <SyncDisabledIcon /> : <SyncIcon />}
+                </ListItemIcon>
+                <ListItemText primary="Live Update" sx={styleListItemText} />
+                <Switch
+                  edge="end"
+                  checked={reloadInterval !== -1}
+                  sx={styleSwitch}
+                  inputProps={{
+                    "aria-labelledby": "switch-list-label-live-update",
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          )}
           <ListItem key="DarkMode" disablePadding sx={styleListItem}>
             <ListItemButton
               sx={styleListItemButton}

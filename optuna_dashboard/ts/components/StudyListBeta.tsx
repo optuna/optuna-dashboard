@@ -2,8 +2,6 @@ import React, { FC, useEffect, useMemo } from "react"
 import { useRecoilValue } from "recoil"
 import { Link } from "react-router-dom"
 import {
-  AppBar,
-  Toolbar,
   Typography,
   Container,
   Card,
@@ -18,7 +16,6 @@ import {
   DialogActions,
   FormControlLabel,
   Checkbox,
-  Menu,
   MenuItem,
   FormControl,
   FormLabel,
@@ -27,24 +24,18 @@ import {
   SvgIcon,
   CardContent,
   TextField,
+  Menu,
 } from "@mui/material"
-import {
-  Add,
-  AddBox,
-  Delete,
-  Refresh,
-  Remove,
-  Search,
-} from "@mui/icons-material"
+import { Add, Delete, Remove, Search } from "@mui/icons-material"
 import SortIcon from "@mui/icons-material/Sort"
+import AddBoxIcon from "@mui/icons-material/AddBox"
 
 import { actionCreator } from "../action"
 import { DataGrid, DataGridColumn } from "./DataGrid"
 import { DebouncedInputTextField } from "./Debounce"
 import { studySummariesState } from "../state"
-import Brightness7Icon from "@mui/icons-material/Brightness7"
-import Brightness4Icon from "@mui/icons-material/Brightness4"
 import { styled } from "@mui/system"
+import { AppDrawer } from "./AppDrawer"
 
 export const StudyListBeta: FC<{
   toggleColorMode: () => void
@@ -255,9 +246,15 @@ export const StudyListBeta: FC<{
     </Wrapper>
   )
 
+  const toolbar = (
+    <Typography variant="h5" noWrap component="div">
+      Optuna Dashboard (Beta UI)
+    </Typography>
+  )
+
   return (
-    <div>
-      <AppBar position="static">
+    <Box sx={{ display: "flex" }}>
+      <AppDrawer toggleColorMode={toggleColorMode} toolbar={toolbar}>
         <Container
           sx={{
             ["@media (min-width: 1280px)"]: {
@@ -265,134 +262,271 @@ export const StudyListBeta: FC<{
             },
           }}
         >
-          <Toolbar>
-            <Typography variant="h6">{APP_BAR_TITLE}</Typography>
-            <Box sx={{ flexGrow: 1 }} />
-            <IconButton
-              onClick={() => {
-                toggleColorMode()
+          <Card sx={{ margin: theme.spacing(2) }}>
+            <CardContent>
+              <Box sx={{ display: "flex" }}>
+                <DebouncedInputTextField
+                  onChange={(s) => {
+                    setStudyFilterText(s)
+                  }}
+                  delay={500}
+                  textFieldProps={{
+                    fullWidth: true,
+                    id: "search-study",
+                    variant: "outlined",
+                    placeholder: "Search study",
+                    sx: { maxWidth: 500 },
+                    InputProps: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SvgIcon fontSize="small" color="action">
+                            <Search />
+                          </SvgIcon>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+                <Box sx={{ flexGrow: 1 }} />
+                <Button
+                  variant="outlined"
+                  startIcon={<AddBoxIcon />}
+                  aria-haspopup="true"
+                  onClick={(e) => {
+                    setNewStudySelectionAnchorEl(e.currentTarget)
+                  }}
+                  sx={{ marginRight: theme.spacing(2) }}
+                >
+                  Create
+                </Button>
+                <Menu
+                  id="menu-appbar"
+                  anchorEl={newStudySelectionAnchorEl}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  open={openNewStudySelection}
+                  onClose={() => {
+                    setNewStudySelectionAnchorEl(null)
+                  }}
+                >
+                  <MenuItem
+                    onClick={() => {
+                      setNewStudySelectionAnchorEl(null)
+                      setOpenNewSingleObjectiveStudyDialog(true)
+                    }}
+                  >
+                    Single-objective
+                  </MenuItem>
+                  <MenuItem
+                    onClick={() => {
+                      setNewStudySelectionAnchorEl(null)
+                      setOpenNewMultiObjectiveStudyDialog(true)
+                    }}
+                  >
+                    Multi-objective
+                  </MenuItem>
+                </Menu>
+                {sortBySelect}
+              </Box>
+            </CardContent>
+          </Card>
+          <Card sx={{ margin: theme.spacing(2) }}>
+            <DataGrid<StudySummary>
+              columns={columns}
+              rows={studies}
+              keyField={"study_id"}
+              collapseBody={collapseBody}
+              initialRowsPerPage={10}
+              rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
+              defaultFilter={studyFilter}
+            />
+          </Card>
+        </Container>
+        <Dialog
+          open={openNewSingleObjectiveStudyDialog}
+          onClose={() => {
+            handleCloseNewSingleObjectiveStudyDialog()
+          }}
+          aria-labelledby="create-single-objective-study-form-dialog-title"
+        >
+          <DialogTitle id="create-single-objective-study-form-dialog-title">
+            New single-objective study
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              To create a new study, please enter the study name here.
+            </DialogContentText>
+            <DebouncedInputTextField
+              onChange={(s) => {
+                setNewStudyName(s)
               }}
-              color="inherit"
-              title={
-                theme.palette.mode === "dark"
-                  ? "Switch to light mode"
-                  : "Switch to dark mode"
+              delay={500}
+              textFieldProps={{
+                type: "text",
+                autoFocus: true,
+                fullWidth: true,
+                error: newStudyNameAlreadyUsed,
+                helperText: newStudyNameAlreadyUsed
+                  ? `"${newStudyName}" is already used`
+                  : "",
+                label: "Study name",
+              }}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={maximize}
+                  onChange={() => {
+                    setMaximize(!maximize)
+                  }}
+                  color="primary"
+                />
+              }
+              label="Set maximize direction (default: minimize)"
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={handleCloseNewSingleObjectiveStudyDialog}
+              color="primary"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateNewSingleObjectiveStudy}
+              color="primary"
+              disabled={newStudyName === "" || newStudyNameAlreadyUsed}
+            >
+              Create
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={openNewMultiObjectiveStudyDialog}
+          onClose={() => {
+            handleCloseNewMultiObjectiveStudyDialog()
+          }}
+          aria-labelledby="create-multi-objective-study-form-dialog-title"
+        >
+          <DialogTitle id="create-multi-objective-study-form-dialog-title">
+            New multi-objective study
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              To create a new study, please enter the study name and directions
+              here.
+            </DialogContentText>
+            <DebouncedInputTextField
+              onChange={(s) => {
+                setNewStudyName(s)
+              }}
+              delay={500}
+              textFieldProps={{
+                autoFocus: true,
+                fullWidth: true,
+                error: newStudyNameAlreadyUsed,
+                helperText: newStudyNameAlreadyUsed
+                  ? `"${newStudyName}" is already used`
+                  : "",
+                label: "Study name",
+                type: "text",
+              }}
+            />
+          </DialogContent>
+          {directions.map((d, i) => (
+            <DialogContent key={i}>
+              <FormControl component="fieldset" fullWidth={true}>
+                <FormLabel component="legend">Objective {i}:</FormLabel>
+                <Select
+                  value={directions[i]}
+                  onChange={(e) => {
+                    const newVal: StudyDirection[] = [...directions]
+                    newVal[i] = e.target.value as StudyDirection
+                    setDirections(newVal)
+                  }}
+                >
+                  <MenuItem value="minimize">Minimize</MenuItem>
+                  <MenuItem value="maximize">Maximize</MenuItem>
+                </Select>
+              </FormControl>
+            </DialogContent>
+          ))}
+          <DialogContent>
+            <Button
+              variant="outlined"
+              startIcon={<Add />}
+              sx={{ marginRight: theme.spacing(1) }}
+              onClick={() => {
+                const newVal: StudyDirection[] = [...directions, "minimize"]
+                setDirections(newVal)
+              }}
+            >
+              Add
+            </Button>
+            <Button
+              variant="outlined"
+              startIcon={<Remove />}
+              sx={{ marginRight: theme.spacing(1) }}
+              disabled={directions.length <= 1}
+              onClick={() => {
+                const newVal: StudyDirection[] = [...directions]
+                newVal.pop()
+                setDirections(newVal)
+              }}
+            >
+              Remove
+            </Button>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={handleCloseNewMultiObjectiveStudyDialog}
+              color="primary"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateNewMultiObjectiveStudy}
+              color="primary"
+              disabled={
+                newStudyName === "" ||
+                newStudyNameAlreadyUsed ||
+                directions.length === 0
               }
             >
-              {theme.palette.mode === "dark" ? (
-                <Brightness7Icon />
-              ) : (
-                <Brightness4Icon />
-              )}
-            </IconButton>
-            <IconButton
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={() => {
-                action.updateStudySummaries("Success to reload")
-              }}
-              color="inherit"
-              title="Reload studies"
-            >
-              <Refresh />
-            </IconButton>
-            <IconButton
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={(e) => {
-                setNewStudySelectionAnchorEl(e.currentTarget)
-              }}
-              color="inherit"
-              title="Create new study"
-            >
-              <AddBox />
-            </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={newStudySelectionAnchorEl}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={openNewStudySelection}
-              onClose={() => {
-                setNewStudySelectionAnchorEl(null)
-              }}
-            >
-              <MenuItem
-                onClick={() => {
-                  setNewStudySelectionAnchorEl(null)
-                  setOpenNewSingleObjectiveStudyDialog(true)
-                }}
-              >
-                Single-objective
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  setNewStudySelectionAnchorEl(null)
-                  setOpenNewMultiObjectiveStudyDialog(true)
-                }}
-              >
-                Multi-objective
-              </MenuItem>
-            </Menu>
-          </Toolbar>
-        </Container>
-      </AppBar>
-      <Container
-        sx={{
-          ["@media (min-width: 1280px)"]: {
-            maxWidth: "100%",
-          },
-        }}
-      >
-        <Card sx={{ margin: theme.spacing(2) }}>
-          <CardContent>
-            <Box sx={{ display: "flex" }}>
-              <DebouncedInputTextField
-                onChange={(s) => {
-                  setStudyFilterText(s)
-                }}
-                delay={500}
-                textFieldProps={{
-                  fullWidth: true,
-                  id: "search-study",
-                  variant: "outlined",
-                  placeholder: "Search study",
-                  sx: { maxWidth: 500 },
-                  InputProps: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SvgIcon fontSize="small" color="action">
-                          <Search />
-                        </SvgIcon>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-              <Box sx={{ flexGrow: 1 }} />
-              {sortBySelect}
-            </Box>
-          </CardContent>
-        </Card>
-        <Card sx={{ margin: theme.spacing(2) }}>
-          <DataGrid<StudySummary>
-            columns={columns}
-            rows={studies}
-            keyField={"study_id"}
-            collapseBody={collapseBody}
-            initialRowsPerPage={10}
-            rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
-            defaultFilter={studyFilter}
-          />
-        </Card>
-      </Container>
+              Create
+            </Button>
+          </DialogActions>
+        </Dialog>
+        <Dialog
+          open={openDeleteStudyDialog}
+          onClose={() => {
+            handleCloseDeleteStudyDialog()
+          }}
+          aria-labelledby="delete-study-dialog-title"
+        >
+          <DialogTitle id="delete-study-dialog-title">Delete study</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Are you sure you want to delete a study (id={deleteStudyID})?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleCloseDeleteStudyDialog} color="primary">
+              No
+            </Button>
+            <Button onClick={handleDeleteStudy} color="primary">
+              Yes
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </AppDrawer>
       <Dialog
         open={openNewSingleObjectiveStudyDialog}
         onClose={() => {
@@ -570,6 +704,6 @@ export const StudyListBeta: FC<{
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </Box>
   )
 }
