@@ -27,6 +27,8 @@ import TableViewIcon from "@mui/icons-material/TableView"
 import RateReviewIcon from "@mui/icons-material/RateReview"
 import ClearIcon from "@mui/icons-material/Clear"
 import MenuIcon from "@mui/icons-material/Menu"
+import GitHubIcon from '@mui/icons-material/GitHub';
+import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { Switch } from "@mui/material"
 
 const drawerWidth = 240
@@ -275,6 +277,15 @@ export const StudyDetailDrawer: FC<{
             </ListItemButton>
           </ListItem>
           <Divider />
+          <ListItem key="Feedback" disablePadding sx={styleListItem}>
+            <ListItemButton target="_blank" href="https://github.com/optuna/optuna-dashboard/issues/new/choose" sx={styleListItemButton}>
+              <ListItemIcon sx={styleListItemIcon}>
+                <GitHubIcon />
+              </ListItemIcon>
+              <ListItemText primary="Send Feedback" sx={styleListItemText} />
+              <OpenInNewIcon sx={styleSwitch} />
+            </ListItemButton>
+          </ListItem>
           <ListItem key="BetaUI" disablePadding sx={styleListItem}>
             <ListItemButton
               component={Link}
