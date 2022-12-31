@@ -109,7 +109,7 @@ export const AppDrawer: FC<{
   children?: React.ReactNode
 }> = ({ studyId, toggleColorMode, page, toolbar, children }) => {
   const theme = useTheme()
-  const [open, setOpen] = React.useState(true)
+  const [open, setOpen] = React.useState(false)
   const [reloadInterval, updateReloadInterval] =
     useRecoilState<number>(reloadIntervalState)
 
