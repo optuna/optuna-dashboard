@@ -9,33 +9,13 @@ import {
   Card,
   Grid,
   Box,
-  Button,
   IconButton,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogContentText,
-  DialogActions,
-  FormControlLabel,
-  Checkbox,
-  Menu,
-  MenuItem,
-  FormControl,
-  FormLabel,
-  Select,
   useTheme,
   InputAdornment,
   SvgIcon,
   CardContent,
 } from "@mui/material"
-import {
-  Add,
-  AddBox,
-  Delete,
-  Refresh,
-  Remove,
-  Search,
-} from "@mui/icons-material"
+import { AddBox, Delete, Refresh, Search } from "@mui/icons-material"
 
 import { actionCreator } from "../action"
 import { DataGrid, DataGridColumn } from "./DataGrid"
@@ -44,6 +24,8 @@ import { studySummariesState } from "../state"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
 import Brightness4Icon from "@mui/icons-material/Brightness4"
 import { useSnackbar } from "notistack"
+import { useDeleteStudyDialog } from "./DeleteStudyDialog"
+import { useCreateStudyDialog } from "./CreateStudyDialog"
 
 export const StudyList: FC<{
   toggleColorMode: () => void
@@ -51,21 +33,6 @@ export const StudyList: FC<{
   const theme = useTheme()
   const { enqueueSnackbar } = useSnackbar()
 
-  const [newStudySelectionAnchorEl, setNewStudySelectionAnchorEl] =
-    React.useState<null | HTMLElement>(null)
-  const openNewStudySelection = Boolean(newStudySelectionAnchorEl)
-  const [
-    openNewSingleObjectiveStudyDialog,
-    setOpenNewSingleObjectiveStudyDialog,
-  ] = React.useState(false)
-  const [
-    openNewMultiObjectiveStudyDialog,
-    setOpenNewMultiObjectiveStudyDialog,
-  ] = React.useState(false)
-  const [openDeleteStudyDialog, setOpenDeleteStudyDialog] =
-    React.useState(false)
-  const [deleteStudyID, setDeleteStudyID] = React.useState(-1)
-  const [newStudyName, setNewStudyName] = React.useState("")
   const [studyFilterText, setStudyFilterText] = React.useState<string>("")
   const studyFilter = (row: StudySummary) => {
     const keywords = studyFilterText.split(" ")
@@ -76,11 +43,11 @@ export const StudyList: FC<{
       return row.study_name.indexOf(k) >= 0
     })
   }
+  const [openDeleteStudyDialog, renderDeleteStudyDialog] =
+    useDeleteStudyDialog()
+  const [openCreateStudyDialog, renderCreateStudyDialog] =
+    useCreateStudyDialog()
 
-  const [maximize, setMaximize] = React.useState(false)
-  const [directions, setDirections] = React.useState<StudyDirection[]>([
-    "minimize",
-  ])
   const linkColor = useMemo(
     () =>
       theme.palette.mode === "dark"
@@ -91,10 +58,6 @@ export const StudyList: FC<{
 
   const action = actionCreator()
   const studies = useRecoilValue<StudySummary[]>(studySummariesState)
-
-  const newStudyNameAlreadyUsed = studies.some(
-    (v) => v.study_name === newStudyName
-  )
 
   useEffect(() => {
     action.updateStudySummaries()
@@ -136,8 +99,7 @@ export const StudyList: FC<{
           size="small"
           color="inherit"
           onClick={() => {
-            setDeleteStudyID(studies[i].study_id)
-            setOpenDeleteStudyDialog(true)
+            openDeleteStudyDialog(studies[i].study_id)
           }}
         >
           <Delete />
@@ -150,42 +112,6 @@ export const StudyList: FC<{
     { field: "key", label: "Key", sortable: true },
     { field: "value", label: "Value", sortable: true },
   ]
-
-  const handleCloseNewSingleObjectiveStudyDialog = () => {
-    setNewStudyName("")
-    setOpenNewSingleObjectiveStudyDialog(false)
-  }
-
-  const handleCreateNewSingleObjectiveStudy = () => {
-    const direction = maximize ? "maximize" : "minimize"
-    action.createNewStudy(newStudyName, [direction])
-    setOpenNewSingleObjectiveStudyDialog(false)
-    setNewStudyName("")
-  }
-
-  const handleCloseNewMultiObjectiveStudyDialog = () => {
-    setOpenNewMultiObjectiveStudyDialog(false)
-    setNewStudyName("")
-    setDirections(["minimize"])
-  }
-
-  const handleCreateNewMultiObjectiveStudy = () => {
-    action.createNewStudy(newStudyName, directions)
-    setOpenNewMultiObjectiveStudyDialog(false)
-    setNewStudyName("")
-    setDirections(["minimize"])
-  }
-
-  const handleCloseDeleteStudyDialog = () => {
-    setOpenDeleteStudyDialog(false)
-    setDeleteStudyID(-1)
-  }
-
-  const handleDeleteStudy = () => {
-    action.deleteStudy(deleteStudyID)
-    setOpenDeleteStudyDialog(false)
-    setDeleteStudyID(-1)
-  }
 
   const collapseBody = (index: number) => {
     return (
@@ -278,47 +204,13 @@ export const StudyList: FC<{
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={(e) => {
-                setNewStudySelectionAnchorEl(e.currentTarget)
+                openCreateStudyDialog()
               }}
               color="inherit"
               title="Create new study"
             >
               <AddBox />
             </IconButton>
-            <Menu
-              id="menu-appbar"
-              anchorEl={newStudySelectionAnchorEl}
-              anchorOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "right",
-              }}
-              open={openNewStudySelection}
-              onClose={() => {
-                setNewStudySelectionAnchorEl(null)
-              }}
-            >
-              <MenuItem
-                onClick={() => {
-                  setNewStudySelectionAnchorEl(null)
-                  setOpenNewSingleObjectiveStudyDialog(true)
-                }}
-              >
-                Single-objective
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  setNewStudySelectionAnchorEl(null)
-                  setOpenNewMultiObjectiveStudyDialog(true)
-                }}
-              >
-                Multi-objective
-              </MenuItem>
-            </Menu>
           </Toolbar>
         </Container>
       </AppBar>
@@ -383,183 +275,8 @@ export const StudyList: FC<{
           />
         </Card>
       </Container>
-      <Dialog
-        open={openNewSingleObjectiveStudyDialog}
-        onClose={() => {
-          handleCloseNewSingleObjectiveStudyDialog()
-        }}
-        aria-labelledby="create-single-objective-study-form-dialog-title"
-      >
-        <DialogTitle id="create-single-objective-study-form-dialog-title">
-          New single-objective study
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            To create a new study, please enter the study name here.
-          </DialogContentText>
-          <DebouncedInputTextField
-            onChange={(s) => {
-              setNewStudyName(s)
-            }}
-            delay={500}
-            textFieldProps={{
-              type: "text",
-              autoFocus: true,
-              fullWidth: true,
-              error: newStudyNameAlreadyUsed,
-              helperText: newStudyNameAlreadyUsed
-                ? `"${newStudyName}" is already used`
-                : "",
-              label: "Study name",
-            }}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={maximize}
-                onChange={() => {
-                  setMaximize(!maximize)
-                }}
-                color="primary"
-              />
-            }
-            label="Set maximize direction (default: minimize)"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={handleCloseNewSingleObjectiveStudyDialog}
-            color="primary"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleCreateNewSingleObjectiveStudy}
-            color="primary"
-            disabled={newStudyName === "" || newStudyNameAlreadyUsed}
-          >
-            Create
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog
-        open={openNewMultiObjectiveStudyDialog}
-        onClose={() => {
-          handleCloseNewMultiObjectiveStudyDialog()
-        }}
-        aria-labelledby="create-multi-objective-study-form-dialog-title"
-      >
-        <DialogTitle id="create-multi-objective-study-form-dialog-title">
-          New multi-objective study
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            To create a new study, please enter the study name and directions
-            here.
-          </DialogContentText>
-          <DebouncedInputTextField
-            onChange={(s) => {
-              setNewStudyName(s)
-            }}
-            delay={500}
-            textFieldProps={{
-              autoFocus: true,
-              fullWidth: true,
-              error: newStudyNameAlreadyUsed,
-              helperText: newStudyNameAlreadyUsed
-                ? `"${newStudyName}" is already used`
-                : "",
-              label: "Study name",
-              type: "text",
-            }}
-          />
-        </DialogContent>
-        {directions.map((d, i) => (
-          <DialogContent key={i}>
-            <FormControl component="fieldset" fullWidth={true}>
-              <FormLabel component="legend">Objective {i}:</FormLabel>
-              <Select
-                value={directions[i]}
-                onChange={(e) => {
-                  const newVal: StudyDirection[] = [...directions]
-                  newVal[i] = e.target.value as StudyDirection
-                  setDirections(newVal)
-                }}
-              >
-                <MenuItem value="minimize">Minimize</MenuItem>
-                <MenuItem value="maximize">Maximize</MenuItem>
-              </Select>
-            </FormControl>
-          </DialogContent>
-        ))}
-        <DialogContent>
-          <Button
-            variant="outlined"
-            startIcon={<Add />}
-            sx={{ marginRight: theme.spacing(1) }}
-            onClick={() => {
-              const newVal: StudyDirection[] = [...directions, "minimize"]
-              setDirections(newVal)
-            }}
-          >
-            Add
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<Remove />}
-            sx={{ marginRight: theme.spacing(1) }}
-            disabled={directions.length <= 1}
-            onClick={() => {
-              const newVal: StudyDirection[] = [...directions]
-              newVal.pop()
-              setDirections(newVal)
-            }}
-          >
-            Remove
-          </Button>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={handleCloseNewMultiObjectiveStudyDialog}
-            color="primary"
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleCreateNewMultiObjectiveStudy}
-            color="primary"
-            disabled={
-              newStudyName === "" ||
-              newStudyNameAlreadyUsed ||
-              directions.length === 0
-            }
-          >
-            Create
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Dialog
-        open={openDeleteStudyDialog}
-        onClose={() => {
-          handleCloseDeleteStudyDialog()
-        }}
-        aria-labelledby="delete-study-dialog-title"
-      >
-        <DialogTitle id="delete-study-dialog-title">Delete study</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete a study (id={deleteStudyID})?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDeleteStudyDialog} color="primary">
-            No
-          </Button>
-          <Button onClick={handleDeleteStudy} color="primary">
-            Yes
-          </Button>
-        </DialogActions>
-      </Dialog>
+      {renderCreateStudyDialog()}
+      {renderDeleteStudyDialog()}
     </>
   )
 }
