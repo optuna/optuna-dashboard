@@ -2,6 +2,7 @@
 # https://github.com/optuna/optuna/blob/v3.0.5/optuna/study/_multi_objective.py
 
 from __future__ import annotations
+
 from typing import Optional
 from typing import Sequence
 
