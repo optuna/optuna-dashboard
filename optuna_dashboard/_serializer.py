@@ -88,7 +88,9 @@ def serialize_study_detail(
         serialized["datetime_start"] = summary.datetime_start.isoformat()
 
     serialized["trials"] = [serialize_frozen_trial(summary._study_id, trial) for trial in trials]
-    serialized["best_trials"] = [serialize_frozen_trial(summary._study_id, trial) for trial in best_trials]
+    serialized["best_trials"] = [
+        serialize_frozen_trial(summary._study_id, trial) for trial in best_trials
+    ]
     serialized["intersection_search_space"] = serialize_search_space(intersection)
     serialized["union_search_space"] = serialize_search_space(union)
     serialized["union_user_attrs"] = [{"key": a[0], "sortable": a[1]} for a in union_user_attrs]
