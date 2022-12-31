@@ -28,6 +28,7 @@ import { GraphSlice } from "./GraphSlice"
 import { GraphParetoFront } from "./GraphParetoFront"
 import { DataGrid, DataGridColumn } from "./DataGrid"
 import List from "@mui/material/List"
+import { GraphIntermediateValues } from "./GraphIntermediateValues"
 
 interface ParamTypes {
   studyId: string
@@ -82,6 +83,7 @@ export const StudyDetailBeta: FC<{
     { field: "key", label: "Key", sortable: true },
     { field: "value", label: "Value", sortable: true },
   ]
+  const trials: Trial[] = studyDetail?.trials || []
 
   let content = null
   if (page === "history") {
@@ -96,6 +98,15 @@ export const StudyDetailBeta: FC<{
             <GraphHistory study={studyDetail} />
           </CardContent>
         </Card>
+        {studyDetail !== null &&
+        studyDetail.directions.length == 1 &&
+        studyDetail.has_intermediate_values ? (
+          <Card sx={{ margin: theme.spacing(2) }}>
+            <CardContent>
+              <GraphIntermediateValues trials={trials} />
+            </CardContent>
+          </Card>
+        ) : null}
         {directions !== null && directions.length > 1 ? (
           <Card sx={{ margin: theme.spacing(2) }}>
             <CardContent>
@@ -210,7 +221,7 @@ export const StudyDetailBeta: FC<{
         </CardContent>
       </Card>
     )
-  } else {
+  } else if (page === "note") {
     content =
       studyDetail !== null ? (
         <Note

@@ -161,7 +161,7 @@ export const StudyDetailDrawer: FC<{
           </IconButton>
           <IconButton
             component={Link}
-            to={URL_PREFIX + "/"}
+            to={URL_PREFIX + "/beta"}
             sx={{ marginRight: theme.spacing(1) }}
             color="inherit"
             title="Return to the top page"
