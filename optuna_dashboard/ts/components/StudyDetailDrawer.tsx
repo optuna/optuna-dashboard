@@ -159,6 +159,16 @@ export const StudyDetailDrawer: FC<{
           >
             <MenuIcon />
           </IconButton>
+          <IconButton
+            component={Link}
+            to={URL_PREFIX + "/"}
+            sx={{ marginRight: theme.spacing(1) }}
+            color="inherit"
+            title="Return to the top page"
+          >
+            <HomeIcon />
+          </IconButton>
+          <ChevronRightIcon sx={{ marginRight: theme.spacing(1) }} />
           <Typography variant="h5" noWrap component="div">
             {title}
           </Typography>
@@ -232,19 +242,6 @@ export const StudyDetailDrawer: FC<{
         <Box sx={{ flexGrow: 1 }} />
         <Divider />
         <List>
-          <ListItem key="Home" disablePadding sx={styleListItem}>
-            <ListItemButton
-              component={Link}
-              to={URL_PREFIX + "/"}
-              sx={styleListItemButton}
-            >
-              <ListItemIcon sx={styleListItemIcon}>
-                <HomeIcon />
-              </ListItemIcon>
-              <ListItemText primary="Return to Home" sx={styleListItemText} />
-            </ListItemButton>
-          </ListItem>
-          <Divider />
           <ListItem key="LiveUpdate" disablePadding sx={styleListItem}>
             <ListItemButton
               sx={styleListItemButton}
