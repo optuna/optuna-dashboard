@@ -376,6 +376,7 @@ export const StudyList: FC<{
                   },
                 }}
               />
+              <Box sx={{ flexGrow: 1 }} />
               {sortBySelect}
             </Box>
           </CardContent>

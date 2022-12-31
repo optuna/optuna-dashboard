@@ -27,8 +27,9 @@ import TableViewIcon from "@mui/icons-material/TableView"
 import RateReviewIcon from "@mui/icons-material/RateReview"
 import ClearIcon from "@mui/icons-material/Clear"
 import MenuIcon from "@mui/icons-material/Menu"
-import GitHubIcon from '@mui/icons-material/GitHub';
-import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import GitHubIcon from "@mui/icons-material/GitHub"
+import OpenInNewIcon from "@mui/icons-material/OpenInNew"
+import QueryStatsIcon from "@mui/icons-material/QueryStats"
 import { Switch } from "@mui/material"
 
 const drawerWidth = 240
@@ -105,11 +106,12 @@ const Drawer = styled(MuiDrawer, {
 export const StudyDetailDrawer: FC<{
   studyId: number
   toggleColorMode: () => void
-  page: "top" | "trials" | "note"
+  page: "history" | "analytics" | "trials" | "note"
+  title: string
   children?: React.ReactNode
-}> = ({ studyId, toggleColorMode, page, children }) => {
+}> = ({ studyId, toggleColorMode, page, title, children }) => {
   const theme = useTheme()
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(true)
   const [reloadInterval, updateReloadInterval] =
     useRecoilState<number>(reloadIntervalState)
 
@@ -157,8 +159,8 @@ export const StudyDetailDrawer: FC<{
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Mini variant drawer
+          <Typography variant="h5" noWrap component="div">
+            {title}
           </Typography>
         </Toolbar>
       </AppBar>
@@ -174,17 +176,30 @@ export const StudyDetailDrawer: FC<{
         </DrawerHeader>
         <Divider />
         <List>
-          <ListItem key="Top" disablePadding sx={styleListItem}>
+          <ListItem key="History" disablePadding sx={styleListItem}>
             <ListItemButton
               component={Link}
               to={`${URL_PREFIX}/studies/${studyId}/beta`}
               sx={styleListItemButton}
-              selected={page === "top"}
+              selected={page === "history"}
             >
               <ListItemIcon sx={styleListItemIcon}>
                 <AutoGraphIcon />
               </ListItemIcon>
               <ListItemText primary="History" sx={styleListItemText} />
+            </ListItemButton>
+          </ListItem>
+          <ListItem key="Analytics" disablePadding sx={styleListItem}>
+            <ListItemButton
+              component={Link}
+              to={`${URL_PREFIX}/studies/${studyId}/analytics`}
+              sx={styleListItemButton}
+              selected={page === "analytics"}
+            >
+              <ListItemIcon sx={styleListItemIcon}>
+                <QueryStatsIcon />
+              </ListItemIcon>
+              <ListItemText primary="Analytics" sx={styleListItemText} />
             </ListItemButton>
           </ListItem>
           <ListItem key="Table" disablePadding sx={styleListItem}>
@@ -278,7 +293,11 @@ export const StudyDetailDrawer: FC<{
           </ListItem>
           <Divider />
           <ListItem key="Feedback" disablePadding sx={styleListItem}>
-            <ListItemButton target="_blank" href="https://github.com/optuna/optuna-dashboard/issues/new/choose" sx={styleListItemButton}>
+            <ListItemButton
+              target="_blank"
+              href="https://github.com/optuna/optuna-dashboard/issues/new/choose"
+              sx={styleListItemButton}
+            >
               <ListItemIcon sx={styleListItemIcon}>
                 <GitHubIcon />
               </ListItemIcon>

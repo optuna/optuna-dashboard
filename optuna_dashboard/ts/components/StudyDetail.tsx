@@ -235,7 +235,11 @@ export const StudyDetail: FC<{
             <TrialTable studyDetail={studyDetail} />
           </Card>
           {studyDetail !== null ? (
-            <Note studyId={studyIdNumber} latestNote={studyDetail.note} />
+            <Note
+              studyId={studyIdNumber}
+              latestNote={studyDetail.note}
+              minRows={5}
+            />
           ) : null}
         </div>
       </Container>

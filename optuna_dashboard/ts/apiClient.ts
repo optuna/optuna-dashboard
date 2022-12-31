@@ -40,8 +40,8 @@ interface StudyDetailResponse {
   name: string
   datetime_start: string
   directions: StudyDirection[]
-  best_trial?: TrialResponse
   trials: TrialResponse[]
+  best_trials: TrialResponse[]
   intersection_search_space: SearchSpace[]
   union_search_space: SearchSpace[]
   union_user_attrs: AttributeSpec[]
@@ -66,12 +66,16 @@ export const getStudyDetailAPI = (
       const trials = res.data.trials.map((trial): Trial => {
         return convertTrialResponse(trial)
       })
+      const best_trials = res.data.best_trials.map((trial): Trial => {
+        return convertTrialResponse(trial)
+      })
       return {
         id: studyId,
         name: res.data.name,
         datetime_start: new Date(res.data.datetime_start),
         directions: res.data.directions,
         trials: trials,
+        best_trials: best_trials,
         union_search_space: res.data.union_search_space,
         intersection_search_space: res.data.intersection_search_space,
         union_user_attrs: res.data.union_user_attrs,

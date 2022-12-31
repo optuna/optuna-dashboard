@@ -2,6 +2,8 @@ import React, { FC, useMemo, useState, useEffect } from "react"
 import { RecoilRoot } from "recoil"
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
 import { SnackbarProvider } from "notistack"
+import blue from "@mui/material/colors/blue"
+import pink from "@mui/material/colors/pink"
 import {
   createTheme,
   useMediaQuery,
@@ -25,6 +27,8 @@ export const App: FC = () => {
       createTheme({
         palette: {
           mode: colorMode,
+          primary: blue,
+          secondary: pink,
         },
       }),
     [colorMode]
@@ -53,7 +57,16 @@ export const App: FC = () => {
                   children={
                     <StudyDetailBeta
                       toggleColorMode={toggleColorMode}
-                      page={"top"}
+                      page={"history"}
+                    />
+                  }
+                />
+                <Route
+                  path={URL_PREFIX + "/studies/:studyId/analytics"}
+                  children={
+                    <StudyDetailBeta
+                      toggleColorMode={toggleColorMode}
+                      page={"analytics"}
                     />
                   }
                 />

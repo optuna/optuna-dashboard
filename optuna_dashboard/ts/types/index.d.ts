@@ -96,7 +96,7 @@ declare interface StudyDetail {
   name: string
   directions: StudyDirection[]
   datetime_start: Date
-  best_trial?: Trial
+  best_trials: Trial[]
   trials: Trial[]
   intersection_search_space: SearchSpace[]
   union_search_space: SearchSpace[]

@@ -1,45 +1,48 @@
 import React, { FC, useEffect } from "react"
-import { useRecoilState, useRecoilValue } from "recoil"
-import { Link, useParams } from "react-router-dom"
-import MuiDrawer from "@mui/material/Drawer"
-import IconButton from "@mui/material/IconButton"
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
-import Divider from "@mui/material/Divider"
-import List from "@mui/material/List"
-import ListItem from "@mui/material/ListItem"
-import ListItemButton from "@mui/material/ListItemButton"
-import ListItemIcon from "@mui/material/ListItemIcon"
-import ListItemText from "@mui/material/ListItemText"
-import ListSubheader from "@mui/material/ListSubheader"
+import { useRecoilValue } from "recoil"
+import { useParams } from "react-router-dom"
 import {
   Card,
   CardContent,
   Box,
-  useTheme,
-  Switch,
-  Theme,
-  CSSObject,
-  styled,
   Typography,
-  Toolbar,
+  useTheme,
+  ListItem,
 } from "@mui/material"
+import Grid2 from "@mui/material/Unstable_Grid2"
 
 import { GraphHistory } from "./GraphHistory"
 import { Note } from "./Note"
 import { actionCreator } from "../action"
-import { reloadIntervalState, studyDetailsState } from "../state"
+import {
+  reloadIntervalState,
+  studyDetailsState,
+  studySummariesState,
+} from "../state"
 import { TrialTable } from "./TrialTable"
 import { StudyDetailDrawer } from "./StudyDetailDrawer"
+import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
+import { Contour } from "./GraphContour"
+import { GraphHyperparameterImportances } from "./GraphHyperparameterImportances"
+import { GraphSlice } from "./GraphSlice"
+import { GraphParetoFront } from "./GraphParetoFront"
+import { DataGrid, DataGridColumn } from "./DataGrid"
+import List from "@mui/material/List"
 
 interface ParamTypes {
   studyId: string
 }
 
-type PageId = "top" | "trials" | "note"
+type PageId = "history" | "analytics" | "trials" | "note"
 
 const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
   return studyDetails[studyId] || null
+}
+
+const useStudySummaryValue = (studyId: number): StudySummary | null => {
+  const studySummaries = useRecoilValue<StudySummary[]>(studySummariesState)
+  return studySummaries.find((s) => s.study_id == studyId) || null
 }
 
 export const StudyDetailBeta: FC<{
@@ -52,71 +55,169 @@ export const StudyDetailBeta: FC<{
   const studyIdNumber = parseInt(studyId, 10)
   const studyDetail = useStudyDetailValue(studyIdNumber)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
+  const studySummary = useStudySummaryValue(studyIdNumber)
+  const directions = studyDetail?.directions || studySummary?.directions || null
+  const userAttrs = studySummary?.user_attrs || []
+
+  const title =
+    studyDetail !== null || studySummary !== null
+      ? `${studyDetail?.name || studySummary?.study_name} (id=${studyId})`
+      : `Study #${studyId}`
 
   useEffect(() => {
     action.updateStudyDetail(studyIdNumber)
   }, [])
 
   useEffect(() => {
-    if (reloadInterval < 0) {
+    if (reloadInterval < 0 || page === "trials") {
       return
     }
     const intervalId = setInterval(function () {
       action.updateStudyDetail(studyIdNumber)
     }, reloadInterval * 1000)
     return () => clearInterval(intervalId)
-  }, [reloadInterval, studyDetail])
+  }, [reloadInterval, studyDetail, page])
 
-  const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
-
-  const trialListWidth = 240
+  const userAttrColumns: DataGridColumn<Attribute>[] = [
+    { field: "key", label: "Key", sortable: true },
+    { field: "value", label: "Value", sortable: true },
+  ]
 
   let content = null
-  if (page === "top") {
+  if (page === "history") {
     content = (
-      <Box sx={{ display: "flex", width: "100%" }}>
-        <Box sx={{ height: "100vh", width: trialListWidth, overflow: "auto" }}>
-          <List dense={true}>
-            <ListSubheader>{`Trials (${
-              studyDetail?.trials.length || 0
-            })`}</ListSubheader>
-            {trials.map((trial, i) => {
-              return (
-                <ListItem key={trial.trial_id} disablePadding>
-                  <ListItemButton>
-                    <ListItemText
-                      primary={`Trial ${trial.trial_id}`}
-                      secondary={`State=${trial.state}`}
-                    />
-                  </ListItemButton>
-                </ListItem>
-              )
-            })}
-          </List>
-        </Box>
-        <Divider orientation="vertical" flexItem />
-        <Box
-          component="main"
-          sx={{ flexGrow: 1, bgcolor: "background.default", p: 3 }}
+      <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
+        <Card
+          sx={{
+            margin: theme.spacing(2),
+          }}
         >
-          <Card
-            sx={{
-              margin: theme.spacing(2),
-            }}
-          >
+          <CardContent>
+            <GraphHistory study={studyDetail} />
+          </CardContent>
+        </Card>
+        {directions !== null && directions.length > 1 ? (
+          <Card sx={{ margin: theme.spacing(2) }}>
             <CardContent>
-              <GraphHistory study={studyDetail} />
+              <GraphParetoFront study={studyDetail} />
             </CardContent>
           </Card>
-        </Box>
+        ) : null}
+        <Grid2 container spacing={2}>
+          <Grid2 xs={6}>
+            <Card sx={{ margin: theme.spacing(2) }}>
+              <CardContent>
+                {studyDetail !== null &&
+                  studyDetail.best_trials.length === 1 && (
+                    <>
+                      <Typography
+                        variant="h6"
+                        sx={{ margin: "1em 0", fontWeight: 600 }}
+                      >
+                        Best Trial
+                      </Typography>
+                      <Typography
+                        variant="h2"
+                        sx={{ fontWeight: 600 }}
+                        color="secondary"
+                      >
+                        {studyDetail.best_trials[0].values}
+                      </Typography>
+                      <List>
+                        {studyDetail.best_trials[0].params.map((param) => (
+                          <ListItem>
+                            {param.name} {param.value}
+                          </ListItem>
+                        ))}
+                      </List>
+                    </>
+                  )}
+                {studyDetail !== null && studyDetail.best_trials.length > 1 && (
+                  <>
+                    <Typography
+                      variant="h6"
+                      sx={{ margin: "1em 0", fontWeight: 600 }}
+                    >
+                      Best Trials
+                    </Typography>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          </Grid2>
+          <Grid2 xs={6}>
+            <Card sx={{ margin: theme.spacing(2) }}>
+              <CardContent>
+                <Typography
+                  variant="h6"
+                  sx={{ margin: "1em 0", fontWeight: 600 }}
+                >
+                  Study User Attributes
+                </Typography>
+                <DataGrid<Attribute>
+                  columns={userAttrColumns}
+                  rows={userAttrs}
+                  keyField={"key"}
+                  dense={true}
+                  initialRowsPerPage={5}
+                  rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
+                />
+              </CardContent>
+            </Card>
+          </Grid2>
+        </Grid2>
+      </Box>
+    )
+  } else if (page === "analytics") {
+    content = (
+      <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
+        <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
+          Hyperparameter Importance
+        </Typography>
+        <Card sx={{ margin: theme.spacing(2) }}>
+          <CardContent>
+            <GraphHyperparameterImportances
+              study={studyDetail}
+              studyId={studyIdNumber}
+            />
+          </CardContent>
+        </Card>
+        <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
+          Hyperparameter Relationships
+        </Typography>
+        <Card sx={{ margin: theme.spacing(2) }}>
+          <CardContent>
+            <GraphSlice study={studyDetail} />
+          </CardContent>
+        </Card>
+        <Card sx={{ margin: theme.spacing(2) }}>
+          <CardContent>
+            <GraphParallelCoordinate study={studyDetail} />
+          </CardContent>
+        </Card>
+        <Card sx={{ margin: theme.spacing(2) }}>
+          <CardContent>
+            <Contour study={studyDetail} />
+          </CardContent>
+        </Card>
       </Box>
     )
   } else if (page === "trials") {
-    content = <TrialTable studyDetail={studyDetail} />
+    content = (
+      <Card sx={{ margin: theme.spacing(2) }}>
+        <CardContent>
+          <TrialTable studyDetail={studyDetail} />
+        </CardContent>
+      </Card>
+    )
   } else {
     content =
       studyDetail !== null ? (
-        <Note studyId={studyIdNumber} latestNote={studyDetail.note} />
+        <Note
+          studyId={studyIdNumber}
+          latestNote={studyDetail.note}
+          minRows={30}
+        />
       ) : null
   }
 
@@ -126,6 +227,7 @@ export const StudyDetailBeta: FC<{
         studyId={studyIdNumber}
         page={page}
         toggleColorMode={toggleColorMode}
+        title={title}
       >
         {content}
       </StudyDetailDrawer>
