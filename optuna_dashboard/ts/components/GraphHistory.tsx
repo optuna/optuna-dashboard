@@ -38,17 +38,14 @@ export const GraphHistory: FC<{
   }
 
   const handleLogScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault()
     setLogScale(!logScale)
   }
 
   const handleFilterCompleteChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault()
     setFilterCompleteTrial(!filterCompleteTrial)
   }
 
   const handleFilterPrunedChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault()
     setFilterPrunedTrial(!filterPrunedTrial)
   }
 
