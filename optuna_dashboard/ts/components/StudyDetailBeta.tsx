@@ -37,6 +37,17 @@ import { TrialList } from "./TrialList"
 
 interface ParamTypes {
   studyId: string
+  trialNumber?: string
+}
+
+export const useURLVars = (): [number, number | null] => {
+  const { studyId, trialNumber } = useParams<ParamTypes>()
+  const parsedStudyId = parseInt(studyId, 10)
+  if (trialNumber === undefined) {
+    return [parsedStudyId, null]
+  }
+  const parsedTrialNumber = parseInt(trialNumber, 10)
+  return [parsedStudyId, parsedTrialNumber]
 }
 
 export const StudyDetailBeta: FC<{
@@ -45,20 +56,19 @@ export const StudyDetailBeta: FC<{
 }> = ({ toggleColorMode, page }) => {
   const theme = useTheme()
   const action = actionCreator()
-  const { studyId } = useParams<ParamTypes>()
-  const studyIdNumber = parseInt(studyId, 10)
-  const studyDetail = useStudyDetailValue(studyIdNumber)
+  const [studyId, trialNumber] = useURLVars()
+  const studyDetail = useStudyDetailValue(studyId)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
-  const studySummary = useStudySummaryValue(studyIdNumber)
-  const directions = useStudyDirections(studyIdNumber)
-  const studyName = useStudyName(studyIdNumber)
+  const studySummary = useStudySummaryValue(studyId)
+  const directions = useStudyDirections(studyId)
+  const studyName = useStudyName(studyId)
   const userAttrs = studySummary?.user_attrs || []
 
   const title =
     studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
 
   useEffect(() => {
-    action.updateStudyDetail(studyIdNumber)
+    action.updateStudyDetail(studyId)
   }, [])
 
   useEffect(() => {
@@ -66,7 +76,7 @@ export const StudyDetailBeta: FC<{
       return
     }
     const intervalId = setInterval(function () {
-      action.updateStudyDetail(studyIdNumber)
+      action.updateStudyDetail(studyId)
     }, reloadInterval * 1000)
     return () => clearInterval(intervalId)
   }, [reloadInterval, studyDetail, page])
@@ -108,7 +118,7 @@ export const StudyDetailBeta: FC<{
         ) : null}
         <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
           <GraphHyperparameterImportanceBeta
-            studyId={studyIdNumber}
+            studyId={studyId}
             study={studyDetail}
             graphHeight="450px"
           />
@@ -274,11 +284,11 @@ export const StudyDetailBeta: FC<{
       </Card>
     )
   } else if (page === "trialList") {
-    content = <TrialList studyDetail={studyDetail} />
+    content = <TrialList studyDetail={studyDetail} trialNumber={trialNumber} />
   } else if (page === "note" && studyDetail !== null) {
     content = (
       <StudyNote
-        studyId={studyIdNumber}
+        studyId={studyId}
         latestNote={studyDetail.note}
         minRows={30}
         cardSx={{ height: "90vh" }}
@@ -307,7 +317,7 @@ export const StudyDetailBeta: FC<{
   return (
     <Box sx={{ display: "flex" }}>
       <AppDrawer
-        studyId={studyIdNumber}
+        studyId={studyId}
         page={page}
         toggleColorMode={toggleColorMode}
         toolbar={toolbar}
