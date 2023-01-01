@@ -178,7 +178,7 @@ export const StudyListBeta: FC<{
                 >
                   <CardContent>
                     <Typography variant="h5">
-                      {study.study_id} {study.study_name}
+                      {study.study_id}. {study.study_name}
                     </Typography>
                     <Typography
                       variant="subtitle1"

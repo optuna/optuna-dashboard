@@ -7,7 +7,6 @@ import {
   Box,
   Typography,
   useTheme,
-  ListItem,
   IconButton,
 } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2"
@@ -32,7 +31,6 @@ import { GraphHyperparameterImportanceBeta } from "./GraphHyperparameterImportan
 import { GraphSlice } from "./GraphSlice"
 import { GraphParetoFront } from "./GraphParetoFront"
 import { DataGrid, DataGridColumn } from "./DataGrid"
-import List from "@mui/material/List"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 
 interface ParamTypes {
