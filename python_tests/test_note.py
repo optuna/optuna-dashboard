@@ -15,7 +15,7 @@ class NoteTestCase(TestCase):
             ("012345", 2),
         ]:
             with self.subTest(f"with_{dummy_body_str}_{attr_len}"):
-                attrs = note.split_body(dummy_body_str)
+                attrs = note.split_body(dummy_body_str, None)
                 assert len(attrs) == attr_len
-                actual = note.concat_body(attrs)
+                actual = note.concat_body(attrs, None)
                 assert dummy_body_str == actual

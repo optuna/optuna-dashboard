@@ -55,15 +55,13 @@ export const TrialNote: FC<{
   studyId: number
   trialId: number
   latestNote: Note
-  editable: boolean
-}> = ({ studyId, trialId, latestNote, editable }) => {
+}> = ({ studyId, trialId, latestNote }) => {
   return (
     <NoteBase
       studyId={studyId}
       trialId={trialId}
       latestNote={latestNote}
       minRows={5}
-      editable={editable}
     />
   )
 }
@@ -80,19 +78,17 @@ export const StudyNote: FC<{
       latestNote={latestNote}
       minRows={minRows}
       cardSx={cardSx}
-      editable={true}
     />
   )
 }
 
-export const NoteBase: FC<{
+const NoteBase: FC<{
   studyId: number
   trialId?: number
   latestNote: Note
   minRows: number
-  editable: boolean
   cardSx?: SxProps<Theme>
-}> = ({ studyId, trialId, latestNote, minRows, editable, cardSx }) => {
+}> = ({ studyId, trialId, latestNote, minRows, cardSx }) => {
   const theme = useTheme()
   const [renderMarkdown, setRenderMarkdown] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -147,16 +143,11 @@ export const NoteBase: FC<{
     setCurNote(latestNote)
     window.onbeforeunload = null
   }
-  let defaultBody: string
-  if (editable) {
-    defaultBody =
-      "*A markdown editor for taking a memo, related to the study. Click the 'Edit' button in the upper right corner to access the editor.*"
-  } else {
-    defaultBody = ""
-  }
 
   let content
   if (renderMarkdown) {
+    const defaultBody =
+      "*A markdown editor for taking a memo, related to the study. Click the 'Edit' button in the upper right corner to access the editor.*"
     content = (
       <ReactMarkdown
         children={latestNote.body || defaultBody}
@@ -239,10 +230,7 @@ export const NoteBase: FC<{
               <CloseIcon />
             </IconButton>
           ) : (
-            <IconButton
-              disabled={!editable}
-              onClick={() => setRenderMarkdown(false)}
-            >
+            <IconButton onClick={() => setRenderMarkdown(false)}>
               <EditIcon />
             </IconButton>
           )

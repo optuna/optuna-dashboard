@@ -363,41 +363,38 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             return {"reason": "Invalid request."}
 
         system_attrs = storage.get_study_system_attrs(study_id)
-        if not note.version_is_incremented(system_attrs, req_note_ver):
+        if not note.version_is_incremented(system_attrs, None, req_note_ver):
             response.status = 409  # Conflict
             return {
                 "reason": "The text you are editing has changed. "
                 "Please copy your edits and refresh the page.",
-                "note": note.get_note_from_system_attrs(system_attrs),
+                "note": note.get_note_from_system_attrs(system_attrs, None),
             }
 
-        note.save_note_in_study(storage, study_id, req_note_ver, req_note_body)
+        note.save_note(storage, study_id, None, req_note_ver, req_note_body)
         response.status = 204  # No content
         return {}
 
-    @app.put("/api/trials/<trial_id:int>/note")
+    @app.put("/api/studies/<study_id:int>/<trial_id:int>/note")
     @json_api_view
-    def save_trial_note(trial_id: int) -> BottleViewReturn:
-        trial = storage.get_trial(trial_id)
-        if trial.state.is_finished():
-            response.status = 400  # Bad request
-            return {"reason": "Cannot update the finished trials"}
-
+    def save_trial_note(study_id: int, trial_id: int) -> BottleViewReturn:
         req_note_ver = request.json.get("version", None)
         req_note_body = request.json.get("body", None)
         if req_note_ver is None or req_note_body is None:
             response.status = 400  # Bad request
             return {"reason": "Invalid request."}
 
-        if not note.version_is_incremented(trial.system_attrs, req_note_ver):
+        # Store note content in study system attrs since it's always updatable.
+        system_attrs = storage.get_study_system_attrs(study_id=study_id)
+        if not note.version_is_incremented(system_attrs, trial_id, req_note_ver):
             response.status = 409  # Conflict
             return {
                 "reason": "The text you are editing has changed. "
                 "Please copy your edits and refresh the page.",
-                "note": note.get_note_from_system_attrs(system_attrs),
+                "note": note.get_note_from_system_attrs(system_attrs, trial_id),
             }
 
-        note.save_note_in_trial(storage, trial_id, req_note_ver, req_note_body)
+        note.save_note(storage, study_id, trial_id, req_note_ver, req_note_body)
         response.status = 204  # No content
         return {}
 

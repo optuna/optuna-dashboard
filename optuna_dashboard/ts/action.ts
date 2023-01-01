@@ -35,6 +35,19 @@ export const actionCreator = () => {
     setStudyDetails(newVal)
   }
 
+  const setTrialNote = (studyId: number, index: number, note: Note) => {
+    const newTrial: Trial = Object.assign(
+      {},
+      studyDetails[studyId].trials[index]
+    )
+    newTrial.note = note
+    const newTrials: Trial[] = [...studyDetails[studyId].trials]
+    newTrials[index] = newTrial
+    const newStudy: StudyDetail = Object.assign({}, studyDetails[studyId])
+    newStudy.trials = newTrials
+    setStudyDetailState(studyId, newStudy)
+  }
+
   const setStudyParamImportanceState = (
     studyId: number,
     importance: ParamImportance[][]
@@ -189,27 +202,29 @@ export const actionCreator = () => {
     trialId: number,
     note: Note
   ): Promise<void> => {
-    return saveTrialNoteAPI(trialId, note)
+    return saveTrialNoteAPI(studyId, trialId, note)
       .then(() => {
-        const newStudy = Object.assign({}, studyDetails[studyId])
-        const trial = newStudy.trials.find((t) => t.trial_id === trialId)
-        if (trial === undefined) {
+        const index = studyDetails[studyId].trials.findIndex(
+          (t) => t.trial_id === trialId
+        )
+        if (index === -1) {
           enqueueSnackbar(`Unexpected error happens. Please reload the page.`, {
             variant: "error",
           })
           return
         }
-        trial.note = note
-        setStudyDetailState(studyId, newStudy)
+        setTrialNote(studyId, index, note)
         enqueueSnackbar(`Success to save the note`, {
           variant: "success",
         })
       })
       .catch((err) => {
+        console.dir(err)
         if (err.response.status === 409) {
-          const newStudy = Object.assign({}, studyDetails[studyId])
-          const trial = newStudy.trials.find((t) => t.trial_id === trialId)
-          if (trial === undefined) {
+          const index = studyDetails[studyId].trials.findIndex(
+            (t) => t.trial_id === trialId
+          )
+          if (index === -1) {
             enqueueSnackbar(
               `Unexpected error happens. Please reload the page.`,
               {
@@ -218,8 +233,7 @@ export const actionCreator = () => {
             )
             return
           }
-          trial.note = err.response.data.note
-          setStudyDetailState(studyId, newStudy)
+          setTrialNote(studyId, index, note)
         }
         const reason = err.response?.data.reason
         if (reason !== undefined) {

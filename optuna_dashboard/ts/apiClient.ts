@@ -48,10 +48,7 @@ interface StudyDetailResponse {
   union_search_space: SearchSpace[]
   union_user_attrs: AttributeSpec[]
   has_intermediate_values: boolean
-  note: {
-    version: number
-    body: string
-  }
+  note: Note
 }
 
 export const getStudyDetailAPI = (
@@ -197,11 +194,12 @@ export const saveStudyNoteAPI = (
 }
 
 export const saveTrialNoteAPI = (
+  studyId: number,
   trialId: number,
   note: { version: number; body: string }
 ): Promise<void> => {
   return axiosInstance
-    .put<void>(`/api/trials/${trialId}/note`, note)
+    .put<void>(`/api/studies/${studyId}/${trialId}/note`, note)
     .then((res) => {
       return
     })

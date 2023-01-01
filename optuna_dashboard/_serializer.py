@@ -84,22 +84,27 @@ def serialize_study_detail(
         "name": summary.study_name,
         "directions": [d.name.lower() for d in summary.directions],
     }
+    system_attrs = getattr(summary, "system_attrs", {})
     if summary.datetime_start is not None:
         serialized["datetime_start"] = summary.datetime_start.isoformat()
 
-    serialized["trials"] = [serialize_frozen_trial(summary._study_id, trial) for trial in trials]
+    serialized["trials"] = [
+        serialize_frozen_trial(summary._study_id, trial, system_attrs) for trial in trials
+    ]
     serialized["best_trials"] = [
-        serialize_frozen_trial(summary._study_id, trial) for trial in best_trials
+        serialize_frozen_trial(summary._study_id, trial, system_attrs) for trial in best_trials
     ]
     serialized["intersection_search_space"] = serialize_search_space(intersection)
     serialized["union_search_space"] = serialize_search_space(union)
     serialized["union_user_attrs"] = [{"key": a[0], "sortable": a[1]} for a in union_user_attrs]
     serialized["has_intermediate_values"] = has_intermediate_values
-    serialized["note"] = note.get_note_from_system_attrs(getattr(summary, "system_attrs", {}))
+    serialized["note"] = note.get_note_from_system_attrs(system_attrs, None)
     return serialized
 
 
-def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> dict[str, Any]:
+def serialize_frozen_trial(
+    study_id: int, trial: FrozenTrial, study_system_attrs: dict[str, Any]
+) -> dict[str, Any]:
     serialized = {
         "trial_id": trial._trial_id,
         "study_id": study_id,
@@ -108,7 +113,7 @@ def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> dict[str, Any]:
         "params": [{"name": name, "value": str(value)} for name, value in trial.params.items()],
         "user_attrs": serialize_attrs(trial.user_attrs),
         "system_attrs": serialize_attrs(getattr(trial, "_system_attrs", {})),
-        "note": note.get_note_from_system_attrs(getattr(trial, "_system_attrs", {}))
+        "note": note.get_note_from_system_attrs(study_system_attrs, trial._trial_id),
     }
 
     serialized_intermediate_values: list[IntermediateValue] = []
