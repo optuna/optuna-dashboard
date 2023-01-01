@@ -19,8 +19,10 @@ import { Note } from "./Note"
 import { actionCreator } from "../action"
 import {
   reloadIntervalState,
-  studyDetailsState,
-  studySummariesState,
+  useStudyDetailValue,
+  useStudyDirections,
+  useStudyName,
+  useStudySummaryValue,
 } from "../state"
 import { TrialTable } from "./TrialTable"
 import { AppDrawer } from "./AppDrawer"
@@ -37,18 +39,6 @@ interface ParamTypes {
   studyId: string
 }
 
-type PageId = "history" | "analytics" | "trials" | "note"
-
-const useStudyDetailValue = (studyId: number): StudyDetail | null => {
-  const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
-  return studyDetails[studyId] || null
-}
-
-const useStudySummaryValue = (studyId: number): StudySummary | null => {
-  const studySummaries = useRecoilValue<StudySummary[]>(studySummariesState)
-  return studySummaries.find((s) => s.study_id == studyId) || null
-}
-
 export const StudyDetailBeta: FC<{
   toggleColorMode: () => void
   page: PageId
@@ -60,13 +50,12 @@ export const StudyDetailBeta: FC<{
   const studyDetail = useStudyDetailValue(studyIdNumber)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studySummary = useStudySummaryValue(studyIdNumber)
-  const directions = studyDetail?.directions || studySummary?.directions || null
+  const directions = useStudyDirections(studyIdNumber)
+  const studyName = useStudyName(studyIdNumber)
   const userAttrs = studySummary?.user_attrs || []
 
   const title =
-    studyDetail !== null || studySummary !== null
-      ? `${studyDetail?.name || studySummary?.study_name} (id=${studyId})`
-      : `Study #${studyId}`
+    studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
 
   useEffect(() => {
     action.updateStudyDetail(studyIdNumber)

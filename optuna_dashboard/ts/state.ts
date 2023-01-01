@@ -64,3 +64,9 @@ export const useStudyDirections = (
   const studySummary = useStudySummaryValue(studyId)
   return studyDetail?.directions || studySummary?.directions || null
 }
+
+export const useStudyName = (studyId: number): string | null => {
+  const studyDetail = useStudyDetailValue(studyId)
+  const studySummary = useStudySummaryValue(studyId)
+  return studyDetail?.name || studySummary?.study_name || null
+}

@@ -21,6 +21,8 @@ type Distribution =
   | "IntLogUniformDistribution"
   | "CategoricalDistribution"
 
+type PageId = "history" | "analytics" | "trials" | "note"
+
 type GraphVisibility = {
   history: boolean
   paretoFront: boolean

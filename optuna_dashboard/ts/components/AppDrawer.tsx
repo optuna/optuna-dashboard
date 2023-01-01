@@ -104,7 +104,7 @@ const Drawer = styled(MuiDrawer, {
 export const AppDrawer: FC<{
   studyId?: number
   toggleColorMode: () => void
-  page?: "history" | "analytics" | "trials" | "note"
+  page?: PageId
   toolbar: React.ReactNode
   children?: React.ReactNode
 }> = ({ studyId, toggleColorMode, page, toolbar, children }) => {
