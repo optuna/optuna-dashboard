@@ -109,7 +109,6 @@ declare interface StudyDetails {
   [study_id: string]: StudyDetail
 }
 
-declare interface ParamImportances {
-  target_name: string
-  param_importances: ParamImportance[]
+declare interface StudyParamImportance {
+  [study_id: string]: ParamImportance[][]
 }

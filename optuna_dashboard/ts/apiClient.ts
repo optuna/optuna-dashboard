@@ -195,24 +195,15 @@ export const saveNoteAPI = (
 }
 
 interface ParamImportancesResponse {
-  target_name: string
-  param_importances: ParamImportance[]
+  param_importances: ParamImportance[][]
 }
 
 export const getParamImportances = (
-  studyId: number,
-  objectiveId = 0
-): Promise<ParamImportances> => {
+  studyId: number
+): Promise<ParamImportance[][]> => {
   return axiosInstance
-    .get<ParamImportancesResponse>(
-      `/api/studies/${studyId}/param_importances`,
-      {
-        params: {
-          objective_id: objectiveId,
-        },
-      }
-    )
+    .get<ParamImportancesResponse>(`/api/studies/${studyId}/param_importances`)
     .then((res) => {
-      return res.data
+      return res.data.param_importances
     })
 }

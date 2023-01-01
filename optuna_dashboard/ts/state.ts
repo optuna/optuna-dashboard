@@ -10,6 +10,11 @@ export const studyDetailsState = atom<StudyDetails>({
   default: {},
 })
 
+export const paramImportanceState = atom<StudyParamImportance>({
+  key: "paramImportance",
+  default: {},
+})
+
 export const graphVisibilityState = atom<GraphVisibility>({
   key: "graphVisibility",
   default: {

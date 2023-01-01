@@ -1,5 +1,6 @@
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
+import { useRecoilValue } from "recoil"
 import {
   Grid,
   FormControl,
@@ -12,49 +13,43 @@ import {
   Box,
 } from "@mui/material"
 
-import { getParamImportances } from "../apiClient"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
-import { useSnackbar } from "notistack"
+import { actionCreator } from "../action"
+import { paramImportanceState } from "../state"
 const plotDomId = "graph-hyperparameter-importances"
+
+const useParamImportanceValue = (
+  studyId: number
+): ParamImportance[][] | null => {
+  const studyParamImportance =
+    useRecoilValue<StudyParamImportance>(paramImportanceState)
+  return studyParamImportance[studyId] || null
+}
 
 export const GraphHyperparameterImportances: FC<{
   study: StudyDetail | null
   studyId: number
 }> = ({ study = null, studyId }) => {
   const theme = useTheme()
+  const action = actionCreator()
+  const importances = useParamImportanceValue(studyId)
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
-  const [importances, setImportances] = useState<ParamImportances | null>(null)
-  const { enqueueSnackbar } = useSnackbar()
 
   const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
     setObjectiveId(event.target.value as number)
   }
 
   useEffect(() => {
-    if (numCompletedTrials > 0) {
-      getParamImportances(studyId, objectiveId)
-        .then((p) => {
-          setImportances(p)
-        })
-        .catch((err) => {
-          const reason = err.response?.data.reason
-          enqueueSnackbar(
-            `Failed to load hyperparameter importance (reason=${reason})`,
-            {
-              variant: "error",
-            }
-          )
-        })
-    }
-  }, [numCompletedTrials, objectiveId, theme.palette.mode])
+    action.updateParamImportance(studyId)
+  }, [numCompletedTrials])
 
   useEffect(() => {
-    if (importances !== null) {
-      plotParamImportances(importances, theme.palette.mode)
+    if (importances !== null && importances.length > objectiveId) {
+      plotParamImportances(importances[objectiveId], theme.palette.mode)
     }
-  }, [importances, theme.palette.mode])
+  }, [importances, objectiveId, theme.palette.mode])
 
   return (
     <Grid container direction="row">
@@ -88,25 +83,20 @@ export const GraphHyperparameterImportances: FC<{
   )
 }
 
-const plotParamImportances = (
-  paramsImportanceData: ParamImportances,
-  mode: string
-) => {
+const plotParamImportances = (importance: ParamImportance[], mode: string) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
-  const param_importances = [
-    ...paramsImportanceData.param_importances,
-  ].reverse()
-  const importance_values = param_importances.map((p) => p.importance)
-  const param_names = param_importances.map((p) => p.name)
-  const param_hover_templates = param_importances.map(
+  const reversed = [...importance].reverse()
+  const importance_values = reversed.map((p) => p.importance)
+  const param_names = reversed.map((p) => p.name)
+  const param_hover_templates = reversed.map(
     (p) => `${p.name} (${p.distribution}): ${p.importance} <extra></extra>`
   )
 
   const layout: Partial<plotly.Layout> = {
     xaxis: {
-      title: `Importance for ${paramsImportanceData.target_name}`,
+      title: `Importance for the Objective Value`,
     },
     yaxis: {
       title: "Hyperparameter",

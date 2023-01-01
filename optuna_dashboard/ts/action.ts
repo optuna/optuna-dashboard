@@ -3,6 +3,7 @@ import { useSnackbar } from "notistack"
 import {
   getStudyDetailAPI,
   getStudySummariesAPI,
+  getParamImportances,
   createNewStudyAPI,
   deleteStudyAPI,
   saveNoteAPI,
@@ -11,6 +12,7 @@ import {
   graphVisibilityState,
   studyDetailsState,
   studySummariesState,
+  paramImportanceState,
 } from "./state"
 
 const localStorageGraphVisibility = "graphVisibility"
@@ -23,11 +25,22 @@ export const actionCreator = () => {
     useRecoilState<StudyDetails>(studyDetailsState)
   const [graphVisibility, setGraphVisibility] =
     useRecoilState<GraphVisibility>(graphVisibilityState)
+  const [paramImportance, setParamImportance] =
+    useRecoilState<StudyParamImportance>(paramImportanceState)
 
   const setStudyDetailState = (studyId: number, study: StudyDetail) => {
     const newVal = Object.assign({}, studyDetails)
     newVal[studyId] = study
     setStudyDetails(newVal)
+  }
+
+  const setStudyParamImportanceState = (
+    studyId: number,
+    importance: ParamImportance[][]
+  ) => {
+    const newVal = Object.assign({}, paramImportance)
+    newVal[studyId] = importance
+    setParamImportance(newVal)
   }
 
   const updateStudySummaries = (successMsg?: string) => {
@@ -74,6 +87,22 @@ export const actionCreator = () => {
           })
         }
         console.log(err)
+      })
+  }
+
+  const updateParamImportance = (studyId: number) => {
+    getParamImportances(studyId)
+      .then((importance) => {
+        setStudyParamImportanceState(studyId, importance)
+      })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(
+          `Failed to load hyperparameter importance (reason=${reason})`,
+          {
+            variant: "error",
+          }
+        )
       })
   }
 
@@ -157,6 +186,7 @@ export const actionCreator = () => {
   return {
     updateStudyDetail,
     updateStudySummaries,
+    updateParamImportance,
     createNewStudy,
     deleteStudy,
     getGraphVisibility,

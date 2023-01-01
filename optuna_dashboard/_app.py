@@ -336,20 +336,19 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
     @app.get("/api/studies/<study_id:int>/param_importances")
     @json_api_view
     def get_param_importances(study_id: int) -> BottleViewReturn:
-        # TODO(chenghuzi): add support for selecting params via query parameters.
-        objective_id = int(request.params.get("objective_id", 0))
         try:
             n_directions = len(storage.get_study_directions(study_id))
         except KeyError:
             response.status = 404  # Study is not found
             return {"reason": f"study_id={study_id} is not found"}
-        if objective_id >= n_directions:
-            response.status = 400  # Bad request
-            return {"reason": f"study_id={study_id} has only {n_directions} direction(s)."}
 
         trials = get_trials(storage, study_id)
         try:
-            return get_param_importance_from_trials_cache(storage, study_id, objective_id, trials)
+            importances = [
+                get_param_importance_from_trials_cache(storage, study_id, objective_id, trials)
+                for objective_id in range(n_directions)
+            ]
+            return {"param_importances": importances}
         except ValueError as e:
             response.status = 400  # Bad request
             return {"reason": str(e)}

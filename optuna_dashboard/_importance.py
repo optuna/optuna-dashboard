@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import threading
+from typing import List
 from typing import TYPE_CHECKING
 import warnings
 
@@ -25,26 +26,18 @@ except Exception as e:
 if TYPE_CHECKING:
     from typing import TypedDict
 
-    ImportanceItemType = TypedDict(
-        "ImportanceItemType",
+    ImportanceType = TypedDict(
+        "ImportanceType",
         {
             "name": str,
             "importance": float,
             "distribution": str,
         },
     )
-    ImportanceType = TypedDict(
-        "ImportanceType",
-        {
-            "target_name": str,
-            "param_importances": list[ImportanceItemType],
-        },
-    )
 
-target_name = "Objective Value"
 param_importance_cache_lock = threading.Lock()
 # { "{study_id}:{objective_id}" : (n_completed_trials, importance) }
-param_importance_cache: dict[str, tuple[int, ImportanceType]] = {}
+param_importance_cache: dict[str, tuple[int, list[ImportanceType]]] = {}
 
 
 class StudyWrapper(Study):
@@ -62,16 +55,16 @@ class StudyWrapper(Study):
 
 def get_param_importance_from_trials_cache(
     storage: BaseStorage, study_id: int, objective_id: int, trials: list[FrozenTrial]
-) -> ImportanceType:
+) -> list[ImportanceType]:
     completed_trials = [t for t in trials if t.state == TrialState.COMPLETE]
     n_completed_trials = len(completed_trials)
     if n_completed_trials == 0:
-        return {"target_name": target_name, "param_importances": []}
+        return []
 
     cache_key = f"{study_id}:{objective_id}"
     with param_importance_cache_lock:
         cache_n_trial, cache_importance = param_importance_cache.get(
-            cache_key, (0, {"target_name": target_name, "param_importances": []})
+            cache_key, (0, {"param_importances": []})
         )
         if n_completed_trials == cache_n_trial:
             return cache_importance
@@ -95,18 +88,15 @@ def get_param_importance_from_trials_cache(
 
 def convert_to_importance_type(
     importance: dict[str, float], trials: list[FrozenTrial]
-) -> ImportanceType:
-    return {
-        "target_name": target_name,
-        "param_importances": [
-            {
-                "name": name,
-                "importance": importance,
-                "distribution": get_distribution_name(name, trials),
-            }
-            for name, importance in importance.items()
-        ],
-    }
+) -> list[ImportanceType]:
+    return [
+        {
+            "name": name,
+            "importance": importance,
+            "distribution": get_distribution_name(name, trials),
+        }
+        for name, importance in importance.items()
+    ]
 
 
 def get_distribution_name(param_name: str, trials: list[FrozenTrial]) -> str:
