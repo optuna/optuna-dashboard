@@ -2,9 +2,9 @@ import React, { FC, useEffect } from "react"
 import { useRecoilValue } from "recoil"
 import { Link, useParams } from "react-router-dom"
 import {
+  Box,
   Card,
   CardContent,
-  Box,
   Typography,
   useTheme,
   IconButton,
@@ -107,7 +107,13 @@ export const StudyDetailBeta: FC<{
         <Grid2 container spacing={2}>
           <Grid2 xs={6}>
             <Card sx={{ margin: theme.spacing(2) }}>
-              <CardContent>
+              <CardContent
+                sx={{
+                  alignItems: "center",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
                 {studyDetail !== null &&
                   studyDetail.best_trials.length === 1 && (
                     <>
@@ -119,7 +125,7 @@ export const StudyDetailBeta: FC<{
                       </Typography>
                       <Typography
                         variant="h3"
-                        sx={{ fontWeight: 600 }}
+                        sx={{ fontWeight: 600, marginBottom: theme.spacing(2) }}
                         color="secondary"
                       >
                         {studyDetail.best_trials[0].values}
@@ -174,7 +180,13 @@ export const StudyDetailBeta: FC<{
           </Grid2>
           <Grid2 xs={6}>
             <Card sx={{ margin: theme.spacing(2) }}>
-              <CardContent>
+              <CardContent
+                sx={{
+                  alignItems: "center",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
                 <Typography
                   variant="h6"
                   sx={{ margin: "1em 0", fontWeight: 600 }}
@@ -233,15 +245,15 @@ export const StudyDetailBeta: FC<{
         </CardContent>
       </Card>
     )
-  } else if (page === "note") {
-    content =
-      studyDetail !== null ? (
-        <Note
-          studyId={studyIdNumber}
-          latestNote={studyDetail.note}
-          minRows={30}
-        />
-      ) : null
+  } else if (page === "note" && studyDetail !== null) {
+    content = (
+      <Note
+        studyId={studyIdNumber}
+        latestNote={studyDetail.note}
+        minRows={30}
+        cardSx={{ height: "90vh" }}
+      />
+    )
   }
 
   const toolbar = (

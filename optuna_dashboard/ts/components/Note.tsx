@@ -3,22 +3,33 @@ import {
   Button,
   Card,
   CardContent,
+  CardHeader,
+  IconButton,
+  SxProps,
   TextField,
   Typography,
   useTheme,
 } from "@mui/material"
 import React, { FC, createRef, useState, useEffect } from "react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 import LoadingButton from "@mui/lab/LoadingButton"
 import SaveIcon from "@mui/icons-material/Save"
+import EditIcon from "@mui/icons-material/Edit"
+import CloseIcon from "@mui/icons-material/Close"
 
 import { actionCreator } from "../action"
+import Divider from "@mui/material/Divider"
+import { Theme } from "@mui/material/styles"
 
 export const Note: FC<{
   studyId: number
   latestNote: Note
   minRows: number
-}> = ({ studyId, latestNote, minRows }) => {
+  cardSx?: SxProps<Theme>
+}> = ({ studyId, latestNote, minRows, cardSx }) => {
   const theme = useTheme()
+  const [renderMarkdown, setRenderMarkdown] = useState(true)
   const [saving, setSaving] = useState(false)
   const [edited, setEdited] = useState(false)
   const [curNote, setCurNote] = useState({ version: 0, body: "" })
@@ -65,12 +76,19 @@ export const Note: FC<{
     window.onbeforeunload = null
   }
 
-  return (
-    <Card sx={{ margin: theme.spacing(2) }}>
-      <CardContent>
-        <Typography variant="h6" sx={{ fontSize: "1.25rem", fontWeight: 600 }}>
-          Note
-        </Typography>
+  let content
+  if (renderMarkdown) {
+    const defaultBody =
+      "*A markdown editor for taking a memo, related to the study. Click the 'Edit' button in the upper right corner to access the editor.*"
+    content = (
+      <ReactMarkdown
+        children={latestNote.body || defaultBody}
+        remarkPlugins={[remarkGfm]}
+      />
+    )
+  } else {
+    content = (
+      <>
         <TextField
           disabled={saving}
           minRows={minRows}
@@ -123,6 +141,34 @@ export const Note: FC<{
             Save
           </LoadingButton>
         </Box>
+      </>
+    )
+  }
+
+  return (
+    <Card sx={{ margin: theme.spacing(2), ...cardSx }}>
+      <CardHeader
+        title="Note"
+        action={
+          !renderMarkdown ? (
+            <IconButton
+              onClick={() => {
+                setRenderMarkdown(true)
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          ) : (
+            <IconButton onClick={() => setRenderMarkdown(false)}>
+              <EditIcon />
+            </IconButton>
+          )
+        }
+        sx={{ paddingBottom: 0 }}
+      />
+      <CardContent sx={{ paddingTop: theme.spacing(1) }}>
+        <Divider />
+        {content}
       </CardContent>
     </Card>
   )
