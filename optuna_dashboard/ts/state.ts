@@ -1,4 +1,4 @@
-import { atom } from "recoil"
+import { atom, useRecoilValue } from "recoil"
 
 export const studySummariesState = atom<StudySummary[]>({
   key: "studySummaries",
@@ -33,3 +33,29 @@ export const reloadIntervalState = atom<number>({
   key: "reloadInterval",
   default: 10,
 })
+
+export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
+  const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
+  return studyDetails[studyId] || null
+}
+
+export const useStudySummaryValue = (studyId: number): StudySummary | null => {
+  const studySummaries = useRecoilValue<StudySummary[]>(studySummariesState)
+  return studySummaries.find((s) => s.study_id == studyId) || null
+}
+
+export const useParamImportanceValue = (
+  studyId: number
+): ParamImportance[][] | null => {
+  const studyParamImportance =
+    useRecoilValue<StudyParamImportance>(paramImportanceState)
+  return studyParamImportance[studyId] || null
+}
+
+export const useStudyDirections = (
+  studyId: number
+): StudyDirection[] | null => {
+  const studyDetail = useStudyDetailValue(studyId)
+  const studySummary = useStudySummaryValue(studyId)
+  return studyDetail?.directions || studySummary?.directions || null
+}

@@ -26,7 +26,7 @@ import { TrialTable } from "./TrialTable"
 import { AppDrawer } from "./AppDrawer"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { Contour } from "./GraphContour"
-import { GraphHyperparameterImportances } from "./GraphHyperparameterImportances"
+import { GraphHyperparameterImportanceBeta } from "./GraphHyperparameterImportances"
 import { GraphSlice } from "./GraphSlice"
 import { GraphParetoFront } from "./GraphParetoFront"
 import { DataGrid, DataGridColumn } from "./DataGrid"
@@ -188,14 +188,10 @@ export const StudyDetailBeta: FC<{
         <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
           Hyperparameter Importance
         </Typography>
-        <Card sx={{ margin: theme.spacing(2) }}>
-          <CardContent>
-            <GraphHyperparameterImportances
-              study={studyDetail}
-              studyId={studyIdNumber}
-            />
-          </CardContent>
-        </Card>
+        <GraphHyperparameterImportanceBeta
+          studyId={studyIdNumber}
+          study={studyDetail}
+        />
         <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
           Hyperparameter Relationships
         </Typography>
