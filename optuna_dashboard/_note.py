@@ -8,8 +8,8 @@ from optuna.storages import BaseStorage
 
 
 if TYPE_CHECKING:
-    from typing import TypedDict
     from typing import Optional
+    from typing import TypedDict
 
     NoteType = TypedDict(
         "NoteType",
@@ -29,7 +29,7 @@ def note_ver_key(trial_id: Optional[int]) -> str:
     return f"dashboard:{trial_id}:note_ver"
 
 
-def note_str_key_prefix(trial_id: int) -> str:
+def note_str_key_prefix(trial_id: Optional[int]) -> str:
     prefix = "dashboard:note_str:"
     if trial_id is None:
         return prefix

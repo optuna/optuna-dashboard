@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import threading
-from typing import List
 from typing import TYPE_CHECKING
 import warnings
 
@@ -63,9 +62,7 @@ def get_param_importance_from_trials_cache(
 
     cache_key = f"{study_id}:{objective_id}"
     with param_importance_cache_lock:
-        cache_n_trial, cache_importance = param_importance_cache.get(
-            cache_key, (0, {"param_importances": []})
-        )
+        cache_n_trial, cache_importance = param_importance_cache.get(cache_key, (0, []))
         if n_completed_trials == cache_n_trial:
             return cache_importance
 
