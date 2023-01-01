@@ -55,13 +55,15 @@ export const TrialNote: FC<{
   studyId: number
   trialId: number
   latestNote: Note
-}> = ({ studyId, trialId, latestNote }) => {
+  cardSx?: SxProps<Theme>
+}> = ({ studyId, trialId, latestNote, cardSx }) => {
   return (
     <NoteBase
       studyId={studyId}
       trialId={trialId}
       latestNote={latestNote}
-      minRows={5}
+      minRows={30}
+      cardSx={cardSx}
     />
   )
 }

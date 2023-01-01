@@ -17,6 +17,7 @@ import ListItemText from "@mui/material/ListItemText"
 import { drawerOpenState, reloadIntervalState } from "../state"
 import { Link } from "react-router-dom"
 import AutoGraphIcon from "@mui/icons-material/AutoGraph"
+import ViewListIcon from "@mui/icons-material/ViewList"
 import SyncIcon from "@mui/icons-material/Sync"
 import SyncDisabledIcon from "@mui/icons-material/SyncDisabled"
 import Brightness4Icon from "@mui/icons-material/Brightness4"
@@ -199,17 +200,30 @@ export const AppDrawer: FC<{
                 <ListItemText primary="Analytics" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
-            <ListItem key="Table" disablePadding sx={styleListItem}>
+            <ListItem key="TableList" disablePadding sx={styleListItem}>
               <ListItemButton
                 component={Link}
                 to={`${URL_PREFIX}/studies/${studyId}/trials`}
                 sx={styleListItemButton}
-                selected={page === "trials"}
+                selected={page === "trialList"}
+              >
+                <ListItemIcon sx={styleListItemIcon}>
+                  <ViewListIcon />
+                </ListItemIcon>
+                <ListItemText primary="Trials (List)" sx={styleListItemText} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem key="TrialTable" disablePadding sx={styleListItem}>
+              <ListItemButton
+                component={Link}
+                to={`${URL_PREFIX}/studies/${studyId}/trialTable`}
+                sx={styleListItemButton}
+                selected={page === "trialTable"}
               >
                 <ListItemIcon sx={styleListItemIcon}>
                   <TableViewIcon />
                 </ListItemIcon>
-                <ListItemText primary="Trials" sx={styleListItemText} />
+                <ListItemText primary="Trials (Table)" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
             <ListItem key="Note" disablePadding sx={styleListItem}>

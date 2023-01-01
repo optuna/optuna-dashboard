@@ -21,7 +21,7 @@ type Distribution =
   | "IntLogUniformDistribution"
   | "CategoricalDistribution"
 
-type PageId = "history" | "analytics" | "trials" | "note"
+type PageId = "history" | "analytics" | "trialTable" | "trialList" | "note"
 
 type GraphVisibility = {
   history: boolean

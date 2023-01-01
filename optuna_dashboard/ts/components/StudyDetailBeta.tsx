@@ -33,6 +33,7 @@ import { GraphParetoFront } from "./GraphParetoFront"
 import { DataGrid, DataGridColumn } from "./DataGrid"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { Edf } from "./GraphEdf"
+import { TrialList } from "./TrialList"
 
 interface ParamTypes {
   studyId: string
@@ -61,7 +62,7 @@ export const StudyDetailBeta: FC<{
   }, [])
 
   useEffect(() => {
-    if (reloadInterval < 0 || page === "trials") {
+    if (reloadInterval < 0 || page === "trialTable" || page === "trialList") {
       return
     }
     const intervalId = setInterval(function () {
@@ -264,7 +265,7 @@ export const StudyDetailBeta: FC<{
         </Card>
       </Box>
     )
-  } else if (page === "trials") {
+  } else if (page === "trialTable") {
     content = (
       <Card sx={{ margin: theme.spacing(2) }}>
         <CardContent>
@@ -272,6 +273,8 @@ export const StudyDetailBeta: FC<{
         </CardContent>
       </Card>
     )
+  } else if (page === "trialList") {
+    content = <TrialList studyDetail={studyDetail} />
   } else if (page === "note" && studyDetail !== null) {
     content = (
       <StudyNote
