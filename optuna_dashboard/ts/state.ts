@@ -34,6 +34,11 @@ export const reloadIntervalState = atom<number>({
   default: 10,
 })
 
+export const drawerOpenState = atom<boolean>({
+  key: "drawerOpen",
+  default: false,
+})
+
 export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
   return studyDetails[studyId] || null

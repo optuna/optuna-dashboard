@@ -14,7 +14,7 @@ import ListItem from "@mui/material/ListItem"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
-import { reloadIntervalState } from "../state"
+import { drawerOpenState, reloadIntervalState } from "../state"
 import { Link } from "react-router-dom"
 import AutoGraphIcon from "@mui/icons-material/AutoGraph"
 import SyncIcon from "@mui/icons-material/Sync"
@@ -109,7 +109,7 @@ export const AppDrawer: FC<{
   children?: React.ReactNode
 }> = ({ studyId, toggleColorMode, page, toolbar, children }) => {
   const theme = useTheme()
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = useRecoilState<boolean>(drawerOpenState)
   const [reloadInterval, updateReloadInterval] =
     useRecoilState<number>(reloadIntervalState)
 

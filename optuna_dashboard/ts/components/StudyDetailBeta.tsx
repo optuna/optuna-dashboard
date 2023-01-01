@@ -92,6 +92,13 @@ export const StudyDetailBeta: FC<{
   if (page === "history") {
     content = (
       <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
+        {directions !== null && directions.length > 1 ? (
+          <Card sx={{ margin: theme.spacing(2) }}>
+            <CardContent>
+              <GraphParetoFront study={studyDetail} />
+            </CardContent>
+          </Card>
+        ) : null}
         <Card
           sx={{
             margin: theme.spacing(2),
@@ -107,13 +114,6 @@ export const StudyDetailBeta: FC<{
           <Card sx={{ margin: theme.spacing(2) }}>
             <CardContent>
               <GraphIntermediateValues trials={trials} />
-            </CardContent>
-          </Card>
-        ) : null}
-        {directions !== null && directions.length > 1 ? (
-          <Card sx={{ margin: theme.spacing(2) }}>
-            <CardContent>
-              <GraphParetoFront study={studyDetail} />
             </CardContent>
           </Card>
         ) : null}
