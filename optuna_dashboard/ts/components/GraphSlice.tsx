@@ -61,7 +61,6 @@ export const GraphSlice: FC<{
   }
 
   const handleLogYScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault()
     setLogYScale(!logYScale)
   }
 
