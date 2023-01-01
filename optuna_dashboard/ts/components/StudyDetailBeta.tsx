@@ -32,6 +32,7 @@ import { GraphSlice } from "./GraphSlice"
 import { GraphParetoFront } from "./GraphParetoFront"
 import { DataGrid, DataGridColumn } from "./DataGrid"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
+import { Edf } from "./GraphEdf"
 
 interface ParamTypes {
   studyId: string
@@ -105,6 +106,10 @@ export const StudyDetailBeta: FC<{
           </Card>
         ) : null}
         <Grid2 container spacing={2}>
+          <GraphHyperparameterImportanceBeta
+            studyId={studyIdNumber}
+            study={studyDetail}
+          />
           <Grid2 xs={6}>
             <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent
@@ -211,13 +216,6 @@ export const StudyDetailBeta: FC<{
     content = (
       <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
         <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
-          Hyperparameter Importance
-        </Typography>
-        <GraphHyperparameterImportanceBeta
-          studyId={studyIdNumber}
-          study={studyDetail}
-        />
-        <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
           Hyperparameter Relationships
         </Typography>
         <Card sx={{ margin: theme.spacing(2) }}>
@@ -233,6 +231,14 @@ export const StudyDetailBeta: FC<{
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
             <Contour study={studyDetail} />
+          </CardContent>
+        </Card>
+        <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
+          Empirical Distribution of the Objective Value
+        </Typography>
+        <Card sx={{ margin: theme.spacing(2) }}>
+          <CardContent>
+            <Edf study={studyDetail} />
           </CardContent>
         </Card>
       </Box>

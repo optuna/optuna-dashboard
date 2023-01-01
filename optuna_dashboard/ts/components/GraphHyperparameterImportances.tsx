@@ -13,6 +13,7 @@ import {
   Card,
   CardContent,
 } from "@mui/material"
+import Grid2 from "@mui/material/Unstable_Grid2"
 
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { actionCreator } from "../action"
@@ -42,17 +43,29 @@ export const GraphHyperparameterImportanceBeta: FC<{
   }, [nObjectives, importances, theme.palette.mode])
 
   return (
-    <Grid container direction="row">
-      {Array.from({ length: nObjectives || 1 }, (_, i) => (
-        <Grid key={i} item xs={6}>
-          <Card sx={{ margin: theme.spacing(2) }}>
-            <CardContent>
-              <Box id={getPlotDomId(i)} sx={{ height: "450px" }} />
-            </CardContent>
-          </Card>
-        </Grid>
-      ))}
-    </Grid>
+    <>
+      {Array.from({ length: nObjectives || 1 }, (_, i) => {
+        let title = `Importance for the Objective Value`
+        if (nObjectives != null && nObjectives > 1) {
+          title = `Importance for the Objective ${i}`
+        }
+        return (
+          <Grid2 key={i} xs={6}>
+            <Card sx={{ margin: theme.spacing(2) }}>
+              <CardContent>
+                <Typography
+                  variant="h6"
+                  sx={{ margin: "1em 0", fontWeight: 600, textAlign: "center" }}
+                >
+                  {title}
+                </Typography>
+                <Box id={getPlotDomId(i)} sx={{ height: "450px" }} />
+              </CardContent>
+            </Card>
+          </Grid2>
+        )
+      })}
+    </>
   )
 }
 
@@ -60,9 +73,9 @@ const plotParamImportancesBeta = (
   importances: ParamImportance[][],
   mode: string
 ) => {
-  const getLayout = (title: string): Partial<plotly.Layout> => ({
+  const layout: Partial<plotly.Layout> = {
     xaxis: {
-      title: title,
+      title: "Hyperparameter Importance",
     },
     yaxis: {
       title: "Hyperparameter",
@@ -76,7 +89,7 @@ const plotParamImportancesBeta = (
     },
     showlegend: false,
     template: mode === "dark" ? plotlyDarkTemplate : {},
-  })
+  }
 
   importances.forEach((importance, objectiveId) => {
     if (document.getElementById(getPlotDomId(objectiveId)) === null) {
@@ -89,11 +102,6 @@ const plotParamImportancesBeta = (
     const param_hover_templates = reversed.map(
       (p) => `${p.name} (${p.distribution}): ${p.importance} <extra></extra>`
     )
-    let title = `Importance for the Objective Value`
-    if (importance.length > 1) {
-      title = `Importance for the Objective ${objectiveId}`
-    }
-    const layout = getLayout(title)
     const plotData: Partial<plotly.PlotData>[] = [
       {
         type: "bar",
