@@ -17,10 +17,39 @@ import LoadingButton from "@mui/lab/LoadingButton"
 import SaveIcon from "@mui/icons-material/Save"
 import EditIcon from "@mui/icons-material/Edit"
 import CloseIcon from "@mui/icons-material/Close"
-
-import { actionCreator } from "../action"
 import Divider from "@mui/material/Divider"
 import { Theme } from "@mui/material/styles"
+import {
+  CodeComponent,
+  ReactMarkdownNames,
+} from "react-markdown/lib/ast-to-react"
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
+import { darcula } from "react-syntax-highlighter/dist/esm/styles/prism"
+
+import { actionCreator } from "../action"
+
+const CodeBlock: CodeComponent | ReactMarkdownNames = ({
+  inline,
+  className,
+  children,
+  ...props
+}) => {
+  const match = /language-(\w+)/.exec(className || "")
+  return !inline && match ? (
+    <SyntaxHighlighter
+      style={darcula}
+      language={match[1]}
+      PreTag="div"
+      {...props}
+    >
+      {String(children).replace(/\n$/, "")}
+    </SyntaxHighlighter>
+  ) : (
+    <code className={className} {...props}>
+      {children}
+    </code>
+  )
+}
 
 export const Note: FC<{
   studyId: number
@@ -60,6 +89,7 @@ export const Note: FC<{
       .saveNote(studyId, newNote)
       .then(() => {
         setCurNote(newNote)
+        setRenderMarkdown(true)
         window.onbeforeunload = null
       })
       .finally(() => {
@@ -84,6 +114,7 @@ export const Note: FC<{
       <ReactMarkdown
         children={latestNote.body || defaultBody}
         remarkPlugins={[remarkGfm]}
+        components={{ code: CodeBlock }}
       />
     )
   } else {
