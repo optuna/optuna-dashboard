@@ -315,7 +315,10 @@ export const AppDrawer: FC<{
               <ListItemIcon sx={styleListItemIcon}>
                 <ClearIcon />
               </ListItemIcon>
-              <ListItemText primary="Quit Beta UI" sx={styleListItemText} />
+              <ListItemText
+                primary="Switch to stable UI"
+                sx={styleListItemText}
+              />
             </ListItemButton>
           </ListItem>
         </List>
