@@ -229,7 +229,6 @@ export const TrialTable: FC<{
   ]
 
   const collapseBody = (index: number) => {
-    console.dir(trials)
     return (
       <Grid container direction="row">
         <Grid item xs={6}>
