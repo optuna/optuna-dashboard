@@ -22,6 +22,10 @@ const trials = [
     ],
     user_attrs: [],
     system_attrs: [],
+    note: {
+      body: "",
+      version: 0,
+    },
   },
   {
     trial_id: 2,
@@ -38,6 +42,10 @@ const trials = [
     ],
     user_attrs: [],
     system_attrs: [],
+    note: {
+      body: "",
+      version: 0,
+    },
   },
 ]
 

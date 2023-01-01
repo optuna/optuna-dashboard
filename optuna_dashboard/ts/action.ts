@@ -3,14 +3,17 @@ import { useSnackbar } from "notistack"
 import {
   getStudyDetailAPI,
   getStudySummariesAPI,
+  getParamImportances,
   createNewStudyAPI,
   deleteStudyAPI,
-  saveNoteAPI,
+  saveStudyNoteAPI,
+  saveTrialNoteAPI,
 } from "./apiClient"
 import {
   graphVisibilityState,
   studyDetailsState,
   studySummariesState,
+  paramImportanceState,
 } from "./state"
 
 const localStorageGraphVisibility = "graphVisibility"
@@ -23,11 +26,35 @@ export const actionCreator = () => {
     useRecoilState<StudyDetails>(studyDetailsState)
   const [graphVisibility, setGraphVisibility] =
     useRecoilState<GraphVisibility>(graphVisibilityState)
+  const [paramImportance, setParamImportance] =
+    useRecoilState<StudyParamImportance>(paramImportanceState)
 
   const setStudyDetailState = (studyId: number, study: StudyDetail) => {
     const newVal = Object.assign({}, studyDetails)
     newVal[studyId] = study
     setStudyDetails(newVal)
+  }
+
+  const setTrialNote = (studyId: number, index: number, note: Note) => {
+    const newTrial: Trial = Object.assign(
+      {},
+      studyDetails[studyId].trials[index]
+    )
+    newTrial.note = note
+    const newTrials: Trial[] = [...studyDetails[studyId].trials]
+    newTrials[index] = newTrial
+    const newStudy: StudyDetail = Object.assign({}, studyDetails[studyId])
+    newStudy.trials = newTrials
+    setStudyDetailState(studyId, newStudy)
+  }
+
+  const setStudyParamImportanceState = (
+    studyId: number,
+    importance: ParamImportance[][]
+  ) => {
+    const newVal = Object.assign({}, paramImportance)
+    newVal[studyId] = importance
+    setParamImportance(newVal)
   }
 
   const updateStudySummaries = (successMsg?: string) => {
@@ -74,6 +101,22 @@ export const actionCreator = () => {
           })
         }
         console.log(err)
+      })
+  }
+
+  const updateParamImportance = (studyId: number) => {
+    getParamImportances(studyId)
+      .then((importance) => {
+        setStudyParamImportanceState(studyId, importance)
+      })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(
+          `Failed to load hyperparameter importance (reason=${reason})`,
+          {
+            variant: "error",
+          }
+        )
       })
   }
 
@@ -128,8 +171,8 @@ export const actionCreator = () => {
     localStorage.setItem(localStorageGraphVisibility, JSON.stringify(value))
   }
 
-  const saveNote = (studyId: number, note: Note): Promise<void> => {
-    return saveNoteAPI(studyId, note)
+  const saveStudyNote = (studyId: number, note: Note): Promise<void> => {
+    return saveStudyNoteAPI(studyId, note)
       .then(() => {
         const newStudy = Object.assign({}, studyDetails[studyId])
         newStudy.note = note
@@ -154,14 +197,64 @@ export const actionCreator = () => {
       })
   }
 
+  const saveTrialNote = (
+    studyId: number,
+    trialId: number,
+    note: Note
+  ): Promise<void> => {
+    return saveTrialNoteAPI(studyId, trialId, note)
+      .then(() => {
+        const index = studyDetails[studyId].trials.findIndex(
+          (t) => t.trial_id === trialId
+        )
+        if (index === -1) {
+          enqueueSnackbar(`Unexpected error happens. Please reload the page.`, {
+            variant: "error",
+          })
+          return
+        }
+        setTrialNote(studyId, index, note)
+        enqueueSnackbar(`Success to save the note`, {
+          variant: "success",
+        })
+      })
+      .catch((err) => {
+        console.dir(err)
+        if (err.response.status === 409) {
+          const index = studyDetails[studyId].trials.findIndex(
+            (t) => t.trial_id === trialId
+          )
+          if (index === -1) {
+            enqueueSnackbar(
+              `Unexpected error happens. Please reload the page.`,
+              {
+                variant: "error",
+              }
+            )
+            return
+          }
+          setTrialNote(studyId, index, note)
+        }
+        const reason = err.response?.data.reason
+        if (reason !== undefined) {
+          enqueueSnackbar(`Failed: ${reason}`, {
+            variant: "error",
+          })
+        }
+        throw err
+      })
+  }
+
   return {
     updateStudyDetail,
     updateStudySummaries,
+    updateParamImportance,
     createNewStudy,
     deleteStudy,
     getGraphVisibility,
     saveGraphVisibility,
-    saveNote,
+    saveStudyNote,
+    saveTrialNote,
   }
 }
 

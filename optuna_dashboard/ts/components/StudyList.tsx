@@ -23,7 +23,6 @@ import { DebouncedInputTextField } from "./Debounce"
 import { studySummariesState } from "../state"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
 import Brightness4Icon from "@mui/icons-material/Brightness4"
-import { useSnackbar } from "notistack"
 import { useDeleteStudyDialog } from "./DeleteStudyDialog"
 import { useCreateStudyDialog } from "./CreateStudyDialog"
 
@@ -31,7 +30,6 @@ export const StudyList: FC<{
   toggleColorMode: () => void
 }> = ({ toggleColorMode }) => {
   const theme = useTheme()
-  const { enqueueSnackbar } = useSnackbar()
 
   const [studyFilterText, setStudyFilterText] = React.useState<string>("")
   const studyFilter = (row: StudySummary) => {
@@ -150,15 +148,6 @@ export const StudyList: FC<{
     )
   }
 
-  const sayThankYouForBetaUsers = () => {
-    enqueueSnackbar(
-      `Thanks for testing our beta UI. Share your feedback via a GitHub issue.`,
-      {
-        variant: "success",
-      }
-    )
-  }
-
   return (
     <>
       <AppBar position="static">
@@ -225,11 +214,7 @@ export const StudyList: FC<{
           <CardContent>
             <Typography>
               {`We would appreciate your feedback on our beta UI. Click `}
-              <Link
-                to={`${URL_PREFIX}/beta`}
-                style={{ color: linkColor }}
-                onClick={sayThankYouForBetaUsers}
-              >
+              <Link to={`${URL_PREFIX}/beta`} style={{ color: linkColor }}>
                 here
               </Link>
               {" to try it out and share your thoughts."}

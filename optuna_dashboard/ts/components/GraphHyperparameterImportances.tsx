@@ -10,51 +10,141 @@ import {
   SelectChangeEvent,
   useTheme,
   Box,
+  Card,
+  CardContent,
 } from "@mui/material"
+import Grid2 from "@mui/material/Unstable_Grid2"
 
-import { getParamImportances } from "../apiClient"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
-import { useSnackbar } from "notistack"
+import { actionCreator } from "../action"
+import { useParamImportanceValue, useStudyDirections } from "../state"
 const plotDomId = "graph-hyperparameter-importances"
+const getPlotDomId = (objectiveId: number) => `graph-importance-${objectiveId}`
+
+export const GraphHyperparameterImportanceBeta: FC<{
+  studyId: number
+  study: StudyDetail | null
+  graphHeight: string
+}> = ({ studyId, study = null, graphHeight }) => {
+  const theme = useTheme()
+  const action = actionCreator()
+  const importances = useParamImportanceValue(studyId)
+  const numCompletedTrials =
+    study?.trials.filter((t) => t.state === "Complete").length || 0
+  const nObjectives = useStudyDirections(studyId)?.length
+
+  useEffect(() => {
+    action.updateParamImportance(studyId)
+  }, [numCompletedTrials])
+
+  useEffect(() => {
+    if (importances !== null && nObjectives === importances.length) {
+      plotParamImportancesBeta(importances, theme.palette.mode)
+    }
+  }, [nObjectives, importances, theme.palette.mode])
+
+  return (
+    <>
+      {Array.from({ length: nObjectives || 1 }, (_, i) => {
+        let title = `Importance for the Objective Value`
+        if (nObjectives != null && nObjectives > 1) {
+          title = `Importance for the Objective ${i}`
+        }
+        return (
+          <Grid2 key={i} xs={6}>
+            <Card>
+              <CardContent>
+                <Typography
+                  variant="h6"
+                  sx={{ margin: "1em 0", fontWeight: 600, textAlign: "center" }}
+                >
+                  {title}
+                </Typography>
+                <Box id={getPlotDomId(i)} sx={{ height: graphHeight }} />
+              </CardContent>
+            </Card>
+          </Grid2>
+        )
+      })}
+    </>
+  )
+}
+
+const plotParamImportancesBeta = (
+  importances: ParamImportance[][],
+  mode: string
+) => {
+  const layout: Partial<plotly.Layout> = {
+    xaxis: {
+      title: "Hyperparameter Importance",
+    },
+    yaxis: {
+      title: "Hyperparameter",
+      automargin: true,
+    },
+    margin: {
+      l: 50,
+      t: 0,
+      r: 50,
+      b: 50,
+    },
+    showlegend: false,
+    template: mode === "dark" ? plotlyDarkTemplate : {},
+  }
+
+  importances.forEach((importance, objectiveId) => {
+    if (document.getElementById(getPlotDomId(objectiveId)) === null) {
+      return
+    }
+
+    const reversed = [...importance].reverse()
+    const importance_values = reversed.map((p) => p.importance)
+    const param_names = reversed.map((p) => p.name)
+    const param_hover_templates = reversed.map(
+      (p) => `${p.name} (${p.distribution}): ${p.importance} <extra></extra>`
+    )
+    const plotData: Partial<plotly.PlotData>[] = [
+      {
+        type: "bar",
+        orientation: "h",
+        x: importance_values,
+        y: param_names,
+        text: importance_values.map((v) => String(v.toFixed(2))),
+        textposition: "outside",
+        hovertemplate: param_hover_templates,
+        marker: {
+          color: "rgb(66,146,198)",
+        },
+      },
+    ]
+    plotly.react(getPlotDomId(objectiveId), plotData, layout)
+  })
+}
 
 export const GraphHyperparameterImportances: FC<{
   study: StudyDetail | null
   studyId: number
 }> = ({ study = null, studyId }) => {
   const theme = useTheme()
+  const action = actionCreator()
+  const importances = useParamImportanceValue(studyId)
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
-  const [importances, setImportances] = useState<ParamImportances | null>(null)
-  const { enqueueSnackbar } = useSnackbar()
 
   const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
     setObjectiveId(event.target.value as number)
   }
 
   useEffect(() => {
-    if (numCompletedTrials > 0) {
-      getParamImportances(studyId, objectiveId)
-        .then((p) => {
-          setImportances(p)
-        })
-        .catch((err) => {
-          const reason = err.response?.data.reason
-          enqueueSnackbar(
-            `Failed to load hyperparameter importance (reason=${reason})`,
-            {
-              variant: "error",
-            }
-          )
-        })
-    }
-  }, [numCompletedTrials, objectiveId, theme.palette.mode])
+    action.updateParamImportance(studyId)
+  }, [numCompletedTrials])
 
   useEffect(() => {
-    if (importances !== null) {
-      plotParamImportances(importances, theme.palette.mode)
+    if (importances !== null && importances.length > objectiveId) {
+      plotParamImportances(importances[objectiveId], theme.palette.mode)
     }
-  }, [importances, theme.palette.mode])
+  }, [importances, objectiveId, theme.palette.mode])
 
   return (
     <Grid container direction="row">
@@ -88,25 +178,20 @@ export const GraphHyperparameterImportances: FC<{
   )
 }
 
-const plotParamImportances = (
-  paramsImportanceData: ParamImportances,
-  mode: string
-) => {
+const plotParamImportances = (importance: ParamImportance[], mode: string) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
-  const param_importances = [
-    ...paramsImportanceData.param_importances,
-  ].reverse()
-  const importance_values = param_importances.map((p) => p.importance)
-  const param_names = param_importances.map((p) => p.name)
-  const param_hover_templates = param_importances.map(
+  const reversed = [...importance].reverse()
+  const importance_values = reversed.map((p) => p.importance)
+  const param_names = reversed.map((p) => p.name)
+  const param_hover_templates = reversed.map(
     (p) => `${p.name} (${p.distribution}): ${p.importance} <extra></extra>`
   )
 
   const layout: Partial<plotly.Layout> = {
     xaxis: {
-      title: `Importance for ${paramsImportanceData.target_name}`,
+      title: `Importance for the Objective Value`,
     },
     yaxis: {
       title: "Hyperparameter",

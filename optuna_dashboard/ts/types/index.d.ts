@@ -21,6 +21,8 @@ type Distribution =
   | "IntLogUniformDistribution"
   | "CategoricalDistribution"
 
+type PageId = "history" | "analytics" | "trialTable" | "trialList" | "note"
+
 type GraphVisibility = {
   history: boolean
   paretoFront: boolean
@@ -80,6 +82,7 @@ declare interface Trial {
   params: TrialParam[]
   user_attrs: Attribute[]
   system_attrs: Attribute[]
+  note: Note
 }
 
 declare interface StudySummary {
@@ -109,7 +112,6 @@ declare interface StudyDetails {
   [study_id: string]: StudyDetail
 }
 
-declare interface ParamImportances {
-  target_name: string
-  param_importances: ParamImportance[]
+declare interface StudyParamImportance {
+  [study_id: string]: ParamImportance[][]
 }

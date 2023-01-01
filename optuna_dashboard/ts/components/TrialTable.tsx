@@ -3,9 +3,10 @@ import { Typography, Grid, Box } from "@mui/material"
 
 import { DataGridColumn, DataGrid } from "./DataGrid"
 
-export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
-  studyDetail,
-}) => {
+export const TrialTable: FC<{
+  studyDetail: StudyDetail | null
+  initialRowsPerPage?: number
+}> = ({ studyDetail, initialRowsPerPage }) => {
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
 
   const columns: DataGridColumn<Trial>[] = [
@@ -228,6 +229,7 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
   ]
 
   const collapseBody = (index: number) => {
+    console.dir(trials)
     return (
       <Grid container direction="row">
         <Grid item xs={6}>
@@ -269,6 +271,7 @@ export const TrialTable: FC<{ studyDetail: StudyDetail | null }> = ({
       keyField={"trial_id"}
       dense={true}
       collapseBody={collapseBody}
+      initialRowsPerPage={initialRowsPerPage}
     />
   )
 }

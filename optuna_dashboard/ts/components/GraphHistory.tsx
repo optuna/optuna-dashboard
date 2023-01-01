@@ -127,6 +127,7 @@ export const GraphHistory: FC<{
             control={
               <Checkbox
                 checked={!filterPrunedTrial}
+                disabled={!study?.has_intermediate_values}
                 onChange={handleFilterPrunedChange}
               />
             }

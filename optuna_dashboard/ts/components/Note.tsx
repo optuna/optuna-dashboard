@@ -3,22 +3,96 @@ import {
   Button,
   Card,
   CardContent,
+  CardHeader,
+  IconButton,
+  SxProps,
   TextField,
   Typography,
   useTheme,
 } from "@mui/material"
 import React, { FC, createRef, useState, useEffect } from "react"
+import ReactMarkdown from "react-markdown"
+import remarkGfm from "remark-gfm"
 import LoadingButton from "@mui/lab/LoadingButton"
 import SaveIcon from "@mui/icons-material/Save"
+import EditIcon from "@mui/icons-material/Edit"
+import CloseIcon from "@mui/icons-material/Close"
+import Divider from "@mui/material/Divider"
+import { Theme } from "@mui/material/styles"
+import {
+  CodeComponent,
+  ReactMarkdownNames,
+} from "react-markdown/lib/ast-to-react"
+import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
+import { darcula } from "react-syntax-highlighter/dist/esm/styles/prism"
 
 import { actionCreator } from "../action"
 
-export const Note: FC<{
+const CodeBlock: CodeComponent | ReactMarkdownNames = ({
+  inline,
+  className,
+  children,
+  ...props
+}) => {
+  const match = /language-(\w+)/.exec(className || "")
+  return !inline && match ? (
+    <SyntaxHighlighter
+      style={darcula}
+      language={match[1]}
+      PreTag="div"
+      {...props}
+    >
+      {String(children).replace(/\n$/, "")}
+    </SyntaxHighlighter>
+  ) : (
+    <code className={className} {...props}>
+      {children}
+    </code>
+  )
+}
+
+export const TrialNote: FC<{
+  studyId: number
+  trialId: number
+  latestNote: Note
+  cardSx?: SxProps<Theme>
+}> = ({ studyId, trialId, latestNote, cardSx }) => {
+  return (
+    <NoteBase
+      studyId={studyId}
+      trialId={trialId}
+      latestNote={latestNote}
+      minRows={30}
+      cardSx={cardSx}
+    />
+  )
+}
+
+export const StudyNote: FC<{
   studyId: number
   latestNote: Note
   minRows: number
-}> = ({ studyId, latestNote, minRows }) => {
+  cardSx?: SxProps<Theme>
+}> = ({ studyId, latestNote, minRows, cardSx }) => {
+  return (
+    <NoteBase
+      studyId={studyId}
+      latestNote={latestNote}
+      minRows={minRows}
+      cardSx={cardSx}
+    />
+  )
+}
+
+const NoteBase: FC<{
+  studyId: number
+  trialId?: number
+  latestNote: Note
+  minRows: number
+  cardSx?: SxProps<Theme>
+}> = ({ studyId, trialId, latestNote, minRows, cardSx }) => {
   const theme = useTheme()
+  const [renderMarkdown, setRenderMarkdown] = useState(true)
   const [saving, setSaving] = useState(false)
   const [edited, setEdited] = useState(false)
   const [curNote, setCurNote] = useState({ version: 0, body: "" })
@@ -45,10 +119,17 @@ export const Note: FC<{
       body: textAreaRef.current ? textAreaRef.current.value : "",
     }
     setSaving(true)
-    action
-      .saveNote(studyId, newNote)
+
+    let actionResponse: Promise<void>
+    if (trialId === undefined) {
+      actionResponse = action.saveStudyNote(studyId, newNote)
+    } else {
+      actionResponse = action.saveTrialNote(studyId, trialId, newNote)
+    }
+    actionResponse
       .then(() => {
         setCurNote(newNote)
+        setRenderMarkdown(true)
         window.onbeforeunload = null
       })
       .finally(() => {
@@ -65,17 +146,27 @@ export const Note: FC<{
     window.onbeforeunload = null
   }
 
-  return (
-    <Card sx={{ margin: theme.spacing(2) }}>
-      <CardContent>
-        <Typography variant="h6" sx={{ fontSize: "1.25rem", fontWeight: 600 }}>
-          Note
-        </Typography>
+  let content
+  if (renderMarkdown) {
+    const defaultBody =
+      "*A markdown editor for taking a memo, related to the study. Click the 'Edit' button in the upper right corner to access the editor.*"
+    content = (
+      <ReactMarkdown
+        children={latestNote.body || defaultBody}
+        remarkPlugins={[remarkGfm]}
+        components={{ code: CodeBlock }}
+      />
+    )
+  } else {
+    content = (
+      <>
         <TextField
           disabled={saving}
           minRows={minRows}
           multiline={true}
-          placeholder="Description about the study... (This note is saved to study's system_attrs)"
+          placeholder={`Description about the ${
+            trialId === undefined ? "study" : "trial"
+          }...`}
           sx={{ width: "100%", margin: `${theme.spacing(1)} 0` }}
           inputProps={{ style: { resize: "vertical" } }}
           inputRef={textAreaRef}
@@ -123,6 +214,34 @@ export const Note: FC<{
             Save
           </LoadingButton>
         </Box>
+      </>
+    )
+  }
+
+  return (
+    <Card sx={{ margin: theme.spacing(2), ...cardSx }}>
+      <CardHeader
+        title="Note"
+        action={
+          !renderMarkdown ? (
+            <IconButton
+              onClick={() => {
+                setRenderMarkdown(true)
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+          ) : (
+            <IconButton onClick={() => setRenderMarkdown(false)}>
+              <EditIcon />
+            </IconButton>
+          )
+        }
+        sx={{ paddingBottom: 0 }}
+      />
+      <CardContent sx={{ paddingTop: theme.spacing(1) }}>
+        <Divider />
+        {content}
       </CardContent>
     </Card>
   )

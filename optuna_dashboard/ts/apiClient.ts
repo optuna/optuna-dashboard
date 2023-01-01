@@ -14,6 +14,7 @@ interface TrialResponse {
   params: TrialParam[]
   user_attrs: Attribute[]
   system_attrs: Attribute[]
+  note: Note
 }
 
 const convertTrialResponse = (res: TrialResponse): Trial => {
@@ -33,6 +34,7 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
     params: res.params,
     user_attrs: res.user_attrs,
     system_attrs: res.system_attrs,
+    note: res.note,
   }
 }
 
@@ -46,10 +48,7 @@ interface StudyDetailResponse {
   union_search_space: SearchSpace[]
   union_user_attrs: AttributeSpec[]
   has_intermediate_values: boolean
-  note: {
-    version: number
-    body: string
-  }
+  note: Note
 }
 
 export const getStudyDetailAPI = (
@@ -183,7 +182,7 @@ export const deleteStudyAPI = (studyId: number) => {
   })
 }
 
-export const saveNoteAPI = (
+export const saveStudyNoteAPI = (
   studyId: number,
   note: { version: number; body: string }
 ): Promise<void> => {
@@ -194,25 +193,28 @@ export const saveNoteAPI = (
     })
 }
 
+export const saveTrialNoteAPI = (
+  studyId: number,
+  trialId: number,
+  note: { version: number; body: string }
+): Promise<void> => {
+  return axiosInstance
+    .put<void>(`/api/studies/${studyId}/${trialId}/note`, note)
+    .then((res) => {
+      return
+    })
+}
+
 interface ParamImportancesResponse {
-  target_name: string
-  param_importances: ParamImportance[]
+  param_importances: ParamImportance[][]
 }
 
 export const getParamImportances = (
-  studyId: number,
-  objectiveId = 0
-): Promise<ParamImportances> => {
+  studyId: number
+): Promise<ParamImportance[][]> => {
   return axiosInstance
-    .get<ParamImportancesResponse>(
-      `/api/studies/${studyId}/param_importances`,
-      {
-        params: {
-          objective_id: objectiveId,
-        },
-      }
-    )
+    .get<ParamImportancesResponse>(`/api/studies/${studyId}/param_importances`)
     .then((res) => {
-      return res.data
+      return res.data.param_importances
     })
 }

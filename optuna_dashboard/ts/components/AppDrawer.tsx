@@ -14,9 +14,10 @@ import ListItem from "@mui/material/ListItem"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
-import { reloadIntervalState } from "../state"
+import { drawerOpenState, reloadIntervalState } from "../state"
 import { Link } from "react-router-dom"
 import AutoGraphIcon from "@mui/icons-material/AutoGraph"
+import ViewListIcon from "@mui/icons-material/ViewList"
 import SyncIcon from "@mui/icons-material/Sync"
 import SyncDisabledIcon from "@mui/icons-material/SyncDisabled"
 import Brightness4Icon from "@mui/icons-material/Brightness4"
@@ -104,12 +105,12 @@ const Drawer = styled(MuiDrawer, {
 export const AppDrawer: FC<{
   studyId?: number
   toggleColorMode: () => void
-  page?: "history" | "analytics" | "trials" | "note"
+  page?: PageId
   toolbar: React.ReactNode
   children?: React.ReactNode
 }> = ({ studyId, toggleColorMode, page, toolbar, children }) => {
   const theme = useTheme()
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = useRecoilState<boolean>(drawerOpenState)
   const [reloadInterval, updateReloadInterval] =
     useRecoilState<number>(reloadIntervalState)
 
@@ -199,17 +200,30 @@ export const AppDrawer: FC<{
                 <ListItemText primary="Analytics" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
-            <ListItem key="Table" disablePadding sx={styleListItem}>
+            <ListItem key="TableList" disablePadding sx={styleListItem}>
               <ListItemButton
                 component={Link}
                 to={`${URL_PREFIX}/studies/${studyId}/trials`}
                 sx={styleListItemButton}
-                selected={page === "trials"}
+                selected={page === "trialList"}
+              >
+                <ListItemIcon sx={styleListItemIcon}>
+                  <ViewListIcon />
+                </ListItemIcon>
+                <ListItemText primary="Trials (List)" sx={styleListItemText} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem key="TrialTable" disablePadding sx={styleListItem}>
+              <ListItemButton
+                component={Link}
+                to={`${URL_PREFIX}/studies/${studyId}/trialTable`}
+                sx={styleListItemButton}
+                selected={page === "trialTable"}
               >
                 <ListItemIcon sx={styleListItemIcon}>
                   <TableViewIcon />
                 </ListItemIcon>
-                <ListItemText primary="Trials" sx={styleListItemText} />
+                <ListItemText primary="Trials (Table)" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
             <ListItem key="Note" disablePadding sx={styleListItem}>
@@ -301,7 +315,10 @@ export const AppDrawer: FC<{
               <ListItemIcon sx={styleListItemIcon}>
                 <ClearIcon />
               </ListItemIcon>
-              <ListItemText primary="Quit Beta UI" sx={styleListItemText} />
+              <ListItemText
+                primary="Switch to stable UI"
+                sx={styleListItemText}
+              />
             </ListItemButton>
           </ListItem>
         </List>

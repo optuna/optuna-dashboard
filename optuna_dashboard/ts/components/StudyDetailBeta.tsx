@@ -2,12 +2,11 @@ import React, { FC, useEffect } from "react"
 import { useRecoilValue } from "recoil"
 import { Link, useParams } from "react-router-dom"
 import {
+  Box,
   Card,
   CardContent,
-  Box,
   Typography,
   useTheme,
-  ListItem,
   IconButton,
 } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2"
@@ -15,38 +14,29 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import HomeIcon from "@mui/icons-material/Home"
 
 import { GraphHistory } from "./GraphHistory"
-import { Note } from "./Note"
+import { StudyNote } from "./Note"
 import { actionCreator } from "../action"
 import {
   reloadIntervalState,
-  studyDetailsState,
-  studySummariesState,
+  useStudyDetailValue,
+  useStudyDirections,
+  useStudyName,
+  useStudySummaryValue,
 } from "../state"
 import { TrialTable } from "./TrialTable"
 import { AppDrawer } from "./AppDrawer"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { Contour } from "./GraphContour"
-import { GraphHyperparameterImportances } from "./GraphHyperparameterImportances"
+import { GraphHyperparameterImportanceBeta } from "./GraphHyperparameterImportances"
 import { GraphSlice } from "./GraphSlice"
 import { GraphParetoFront } from "./GraphParetoFront"
 import { DataGrid, DataGridColumn } from "./DataGrid"
-import List from "@mui/material/List"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
+import { Edf } from "./GraphEdf"
+import { TrialList } from "./TrialList"
 
 interface ParamTypes {
   studyId: string
-}
-
-type PageId = "history" | "analytics" | "trials" | "note"
-
-const useStudyDetailValue = (studyId: number): StudyDetail | null => {
-  const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
-  return studyDetails[studyId] || null
-}
-
-const useStudySummaryValue = (studyId: number): StudySummary | null => {
-  const studySummaries = useRecoilValue<StudySummary[]>(studySummariesState)
-  return studySummaries.find((s) => s.study_id == studyId) || null
 }
 
 export const StudyDetailBeta: FC<{
@@ -60,20 +50,19 @@ export const StudyDetailBeta: FC<{
   const studyDetail = useStudyDetailValue(studyIdNumber)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studySummary = useStudySummaryValue(studyIdNumber)
-  const directions = studyDetail?.directions || studySummary?.directions || null
+  const directions = useStudyDirections(studyIdNumber)
+  const studyName = useStudyName(studyIdNumber)
   const userAttrs = studySummary?.user_attrs || []
 
   const title =
-    studyDetail !== null || studySummary !== null
-      ? `${studyDetail?.name || studySummary?.study_name} (id=${studyId})`
-      : `Study #${studyId}`
+    studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
 
   useEffect(() => {
     action.updateStudyDetail(studyIdNumber)
   }, [])
 
   useEffect(() => {
-    if (reloadInterval < 0 || page === "trials") {
+    if (reloadInterval < 0 || page === "trialTable" || page === "trialList") {
       return
     }
     const intervalId = setInterval(function () {
@@ -92,6 +81,13 @@ export const StudyDetailBeta: FC<{
   if (page === "history") {
     content = (
       <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
+        {directions !== null && directions.length > 1 ? (
+          <Card sx={{ margin: theme.spacing(2) }}>
+            <CardContent>
+              <GraphParetoFront study={studyDetail} />
+            </CardContent>
+          </Card>
+        ) : null}
         <Card
           sx={{
             margin: theme.spacing(2),
@@ -110,17 +106,21 @@ export const StudyDetailBeta: FC<{
             </CardContent>
           </Card>
         ) : null}
-        {directions !== null && directions.length > 1 ? (
-          <Card sx={{ margin: theme.spacing(2) }}>
-            <CardContent>
-              <GraphParetoFront study={studyDetail} />
-            </CardContent>
-          </Card>
-        ) : null}
-        <Grid2 container spacing={2}>
-          <Grid2 xs={6}>
-            <Card sx={{ margin: theme.spacing(2) }}>
-              <CardContent>
+        <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
+          <GraphHyperparameterImportanceBeta
+            studyId={studyIdNumber}
+            study={studyDetail}
+            graphHeight="450px"
+          />
+          <Grid2 xs={6} spacing={2}>
+            <Card>
+              <CardContent
+                sx={{
+                  alignItems: "center",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
                 {studyDetail !== null &&
                   studyDetail.best_trials.length === 1 && (
                     <>
@@ -131,37 +131,89 @@ export const StudyDetailBeta: FC<{
                         Best Trial
                       </Typography>
                       <Typography
-                        variant="h2"
-                        sx={{ fontWeight: 600 }}
+                        variant="h3"
+                        sx={{ fontWeight: 600, marginBottom: theme.spacing(2) }}
                         color="secondary"
                       >
                         {studyDetail.best_trials[0].values}
                       </Typography>
-                      <List>
-                        {studyDetail.best_trials[0].params.map((param) => (
-                          <ListItem>
-                            {param.name} {param.value}
-                          </ListItem>
-                        ))}
-                      </List>
+                      <Typography>
+                        number={studyDetail.best_trials[0].number}
+                      </Typography>
+                      <Typography>
+                        trial_id={studyDetail.best_trials[0].trial_id}
+                      </Typography>
+                      <Typography>
+                        Params = [
+                        {studyDetail.best_trials[0].params
+                          .map((p) => `${p.name}: ${p.value}`)
+                          .join(", ")}
+                        ]
+                      </Typography>
+                      <Typography>
+                        Intermediate Values = [
+                        {studyDetail.best_trials[0].intermediate_values
+                          .map((p) => `${p.step}: ${p.value}`)
+                          .join(", ")}
+                        ]
+                      </Typography>
+                      <Typography>
+                        User Attributes = [
+                        {studyDetail.best_trials[0].user_attrs
+                          .map((p) => `${p.key}: ${p.value}`)
+                          .join(", ")}
+                        ]
+                      </Typography>
                     </>
                   )}
-                {studyDetail !== null && studyDetail.best_trials.length > 1 && (
+                {studyDetail !== null && studyDetail.directions.length > 1 && (
                   <>
                     <Typography
                       variant="h6"
                       sx={{ margin: "1em 0", fontWeight: 600 }}
                     >
-                      Best Trials
+                      Best Trials ({studyDetail.best_trials.length} trials)
                     </Typography>
+                    {studyDetail.best_trials.map((trial, i) => (
+                      <Card
+                        key={i}
+                        sx={{
+                          border: "1px solid rgba(128,128,128,0.5)",
+                          margin: theme.spacing(1, 0),
+                        }}
+                      >
+                        <CardContent>
+                          <Typography variant="h6">
+                            Trial number={trial.number} (trial_id=
+                            {trial.trial_id})
+                          </Typography>
+                          <Typography>
+                            Objective Values = [{trial.values?.join(", ")}]
+                          </Typography>
+                          <Typography>
+                            Params = [
+                            {trial.params
+                              .map((p) => `${p.name}: ${p.value}`)
+                              .join(", ")}
+                            ]
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </>
                 )}
               </CardContent>
             </Card>
           </Grid2>
           <Grid2 xs={6}>
-            <Card sx={{ margin: theme.spacing(2) }}>
-              <CardContent>
+            <Card>
+              <CardContent
+                sx={{
+                  alignItems: "center",
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
                 <Typography
                   variant="h6"
                   sx={{ margin: "1em 0", fontWeight: 600 }}
@@ -186,17 +238,6 @@ export const StudyDetailBeta: FC<{
     content = (
       <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
         <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
-          Hyperparameter Importance
-        </Typography>
-        <Card sx={{ margin: theme.spacing(2) }}>
-          <CardContent>
-            <GraphHyperparameterImportances
-              study={studyDetail}
-              studyId={studyIdNumber}
-            />
-          </CardContent>
-        </Card>
-        <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
           Hyperparameter Relationships
         </Typography>
         <Card sx={{ margin: theme.spacing(2) }}>
@@ -214,25 +255,35 @@ export const StudyDetailBeta: FC<{
             <Contour study={studyDetail} />
           </CardContent>
         </Card>
+        <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
+          Empirical Distribution of the Objective Value
+        </Typography>
+        <Card sx={{ margin: theme.spacing(2) }}>
+          <CardContent>
+            <Edf study={studyDetail} />
+          </CardContent>
+        </Card>
       </Box>
     )
-  } else if (page === "trials") {
+  } else if (page === "trialTable") {
     content = (
       <Card sx={{ margin: theme.spacing(2) }}>
         <CardContent>
-          <TrialTable studyDetail={studyDetail} />
+          <TrialTable studyDetail={studyDetail} initialRowsPerPage={50} />
         </CardContent>
       </Card>
     )
-  } else if (page === "note") {
-    content =
-      studyDetail !== null ? (
-        <Note
-          studyId={studyIdNumber}
-          latestNote={studyDetail.note}
-          minRows={30}
-        />
-      ) : null
+  } else if (page === "trialList") {
+    content = <TrialList studyDetail={studyDetail} />
+  } else if (page === "note" && studyDetail !== null) {
+    content = (
+      <StudyNote
+        studyId={studyIdNumber}
+        latestNote={studyDetail.note}
+        minRows={30}
+        cardSx={{ height: "90vh" }}
+      />
+    )
   }
 
   const toolbar = (

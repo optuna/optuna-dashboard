@@ -19,6 +19,7 @@ import {
 } from "@mui/material"
 import { Delete, Refresh, Search } from "@mui/icons-material"
 import SortIcon from "@mui/icons-material/Sort"
+import HomeIcon from "@mui/icons-material/Home"
 import AddBoxIcon from "@mui/icons-material/AddBox"
 
 import { actionCreator } from "../action"
@@ -101,11 +102,7 @@ export const StudyListBeta: FC<{
     </Box>
   )
 
-  const toolbar = (
-    <Typography variant="h5" noWrap component="div">
-      Optuna Dashboard (Beta ver.)
-    </Typography>
-  )
+  const toolbar = <HomeIcon sx={{ margin: theme.spacing(0, 1) }} />
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -153,7 +150,7 @@ export const StudyListBeta: FC<{
                   }}
                   sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
                 >
-                  Refresh
+                  Reload
                 </Button>
                 <Button
                   variant="outlined"
@@ -181,7 +178,7 @@ export const StudyListBeta: FC<{
                 >
                   <CardContent>
                     <Typography variant="h5">
-                      {study.study_id} {study.study_name}
+                      {study.study_id}. {study.study_name}
                     </Typography>
                     <Typography
                       variant="subtitle1"

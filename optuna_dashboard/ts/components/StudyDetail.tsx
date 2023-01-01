@@ -24,7 +24,7 @@ import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphSlice } from "./GraphSlice"
 import { GraphHistory } from "./GraphHistory"
 import { GraphParetoFront } from "./GraphParetoFront"
-import { Note } from "./Note"
+import { StudyNote } from "./Note"
 import { actionCreator } from "../action"
 import {
   graphVisibilityState,
@@ -235,7 +235,7 @@ export const StudyDetail: FC<{
             <TrialTable studyDetail={studyDetail} />
           </Card>
           {studyDetail !== null ? (
-            <Note
+            <StudyNote
               studyId={studyIdNumber}
               latestNote={studyDetail.note}
               minRows={5}
