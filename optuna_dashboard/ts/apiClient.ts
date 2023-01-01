@@ -14,6 +14,7 @@ interface TrialResponse {
   params: TrialParam[]
   user_attrs: Attribute[]
   system_attrs: Attribute[]
+  note: Note
 }
 
 const convertTrialResponse = (res: TrialResponse): Trial => {
@@ -33,6 +34,7 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
     params: res.params,
     user_attrs: res.user_attrs,
     system_attrs: res.system_attrs,
+    note: res.note,
   }
 }
 
@@ -183,12 +185,23 @@ export const deleteStudyAPI = (studyId: number) => {
   })
 }
 
-export const saveNoteAPI = (
+export const saveStudyNoteAPI = (
   studyId: number,
   note: { version: number; body: string }
 ): Promise<void> => {
   return axiosInstance
     .put<void>(`/api/studies/${studyId}/note`, note)
+    .then((res) => {
+      return
+    })
+}
+
+export const saveTrialNoteAPI = (
+  trialId: number,
+  note: { version: number; body: string }
+): Promise<void> => {
+  return axiosInstance
+    .put<void>(`/api/trials/${trialId}/note`, note)
     .then((res) => {
       return
     })

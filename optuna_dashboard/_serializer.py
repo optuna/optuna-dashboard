@@ -108,6 +108,7 @@ def serialize_frozen_trial(study_id: int, trial: FrozenTrial) -> dict[str, Any]:
         "params": [{"name": name, "value": str(value)} for name, value in trial.params.items()],
         "user_attrs": serialize_attrs(trial.user_attrs),
         "system_attrs": serialize_attrs(getattr(trial, "_system_attrs", {})),
+        "note": note.get_note_from_system_attrs(getattr(trial, "_system_attrs", {}))
     }
 
     serialized_intermediate_values: list[IntermediateValue] = []

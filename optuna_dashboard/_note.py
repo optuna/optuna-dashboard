@@ -41,7 +41,7 @@ def version_is_incremented(system_attrs: dict[str, Any], req_note_ver: int) -> b
     return req_note_ver == db_note_ver + 1
 
 
-def save_note(storage: BaseStorage, study_id: int, ver: int, body: str) -> None:
+def save_note_in_study(storage: BaseStorage, study_id: int, ver: int, body: str) -> None:
     storage.set_study_system_attr(study_id, NOTE_VER_KEY, ver)
 
     attrs = split_body(body)
@@ -57,6 +57,24 @@ def save_note(storage: BaseStorage, study_id: int, ver: int, body: str) -> None:
     if len(all_note_attrs) > len(attrs):
         for i in range(len(attrs), len(all_note_attrs)):
             storage.set_study_system_attr(study_id, f"{NOTE_STR_KEY_PREFIX}{i}", "")
+
+
+def save_note_in_trial(storage: BaseStorage, trial_id: int, ver: int, body: str) -> None:
+    storage.set_trial_system_attr(trial_id, NOTE_VER_KEY, ver)
+
+    attrs = split_body(body)
+    for k, v in attrs.items():
+        storage.set_study_system_attr(trial_id, k, v)
+
+    # Clear previous messages
+    all_note_attrs: dict[str, str] = {
+        key: value
+        for key, value in storage.get_trial_system_attrs(trial_id).items()
+        if key.startswith(NOTE_STR_KEY_PREFIX)
+    }
+    if len(all_note_attrs) > len(attrs):
+        for i in range(len(attrs), len(all_note_attrs)):
+            storage.set_trial_system_attr(trial_id, f"{NOTE_STR_KEY_PREFIX}{i}", "")
 
 
 def split_body(note_str: str) -> dict[str, str]:

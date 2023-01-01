@@ -82,6 +82,7 @@ declare interface Trial {
   params: TrialParam[]
   user_attrs: Attribute[]
   system_attrs: Attribute[]
+  note: Note
 }
 
 declare interface StudySummary {

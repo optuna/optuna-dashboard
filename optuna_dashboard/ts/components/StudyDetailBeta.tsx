@@ -14,7 +14,7 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import HomeIcon from "@mui/icons-material/Home"
 
 import { GraphHistory } from "./GraphHistory"
-import { Note } from "./Note"
+import { StudyNote } from "./Note"
 import { actionCreator } from "../action"
 import {
   reloadIntervalState,
@@ -274,7 +274,7 @@ export const StudyDetailBeta: FC<{
     )
   } else if (page === "note" && studyDetail !== null) {
     content = (
-      <Note
+      <StudyNote
         studyId={studyIdNumber}
         latestNote={studyDetail.note}
         minRows={30}

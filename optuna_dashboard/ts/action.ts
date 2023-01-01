@@ -6,7 +6,8 @@ import {
   getParamImportances,
   createNewStudyAPI,
   deleteStudyAPI,
-  saveNoteAPI,
+  saveStudyNoteAPI,
+  saveTrialNoteAPI,
 } from "./apiClient"
 import {
   graphVisibilityState,
@@ -157,8 +158,8 @@ export const actionCreator = () => {
     localStorage.setItem(localStorageGraphVisibility, JSON.stringify(value))
   }
 
-  const saveNote = (studyId: number, note: Note): Promise<void> => {
-    return saveNoteAPI(studyId, note)
+  const saveStudyNote = (studyId: number, note: Note): Promise<void> => {
+    return saveStudyNoteAPI(studyId, note)
       .then(() => {
         const newStudy = Object.assign({}, studyDetails[studyId])
         newStudy.note = note
@@ -183,6 +184,53 @@ export const actionCreator = () => {
       })
   }
 
+  const saveTrialNote = (
+    studyId: number,
+    trialId: number,
+    note: Note
+  ): Promise<void> => {
+    return saveTrialNoteAPI(trialId, note)
+      .then(() => {
+        const newStudy = Object.assign({}, studyDetails[studyId])
+        const trial = newStudy.trials.find((t) => t.trial_id === trialId)
+        if (trial === undefined) {
+          enqueueSnackbar(`Unexpected error happens. Please reload the page.`, {
+            variant: "error",
+          })
+          return
+        }
+        trial.note = note
+        setStudyDetailState(studyId, newStudy)
+        enqueueSnackbar(`Success to save the note`, {
+          variant: "success",
+        })
+      })
+      .catch((err) => {
+        if (err.response.status === 409) {
+          const newStudy = Object.assign({}, studyDetails[studyId])
+          const trial = newStudy.trials.find((t) => t.trial_id === trialId)
+          if (trial === undefined) {
+            enqueueSnackbar(
+              `Unexpected error happens. Please reload the page.`,
+              {
+                variant: "error",
+              }
+            )
+            return
+          }
+          trial.note = err.response.data.note
+          setStudyDetailState(studyId, newStudy)
+        }
+        const reason = err.response?.data.reason
+        if (reason !== undefined) {
+          enqueueSnackbar(`Failed: ${reason}`, {
+            variant: "error",
+          })
+        }
+        throw err
+      })
+  }
+
   return {
     updateStudyDetail,
     updateStudySummaries,
@@ -191,7 +239,8 @@ export const actionCreator = () => {
     deleteStudy,
     getGraphVisibility,
     saveGraphVisibility,
-    saveNote,
+    saveStudyNote,
+    saveTrialNote,
   }
 }
 

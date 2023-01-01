@@ -51,12 +51,48 @@ const CodeBlock: CodeComponent | ReactMarkdownNames = ({
   )
 }
 
-export const Note: FC<{
+export const TrialNote: FC<{
+  studyId: number
+  trialId: number
+  latestNote: Note
+  editable: boolean
+}> = ({ studyId, trialId, latestNote, editable }) => {
+  return (
+    <NoteBase
+      studyId={studyId}
+      trialId={trialId}
+      latestNote={latestNote}
+      minRows={5}
+      editable={editable}
+    />
+  )
+}
+
+export const StudyNote: FC<{
   studyId: number
   latestNote: Note
   minRows: number
   cardSx?: SxProps<Theme>
 }> = ({ studyId, latestNote, minRows, cardSx }) => {
+  return (
+    <NoteBase
+      studyId={studyId}
+      latestNote={latestNote}
+      minRows={minRows}
+      cardSx={cardSx}
+      editable={true}
+    />
+  )
+}
+
+export const NoteBase: FC<{
+  studyId: number
+  trialId?: number
+  latestNote: Note
+  minRows: number
+  editable: boolean
+  cardSx?: SxProps<Theme>
+}> = ({ studyId, trialId, latestNote, minRows, editable, cardSx }) => {
   const theme = useTheme()
   const [renderMarkdown, setRenderMarkdown] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -85,8 +121,14 @@ export const Note: FC<{
       body: textAreaRef.current ? textAreaRef.current.value : "",
     }
     setSaving(true)
-    action
-      .saveNote(studyId, newNote)
+
+    let actionResponse: Promise<void>
+    if (trialId === undefined) {
+      actionResponse = action.saveStudyNote(studyId, newNote)
+    } else {
+      actionResponse = action.saveTrialNote(studyId, trialId, newNote)
+    }
+    actionResponse
       .then(() => {
         setCurNote(newNote)
         setRenderMarkdown(true)
@@ -105,11 +147,16 @@ export const Note: FC<{
     setCurNote(latestNote)
     window.onbeforeunload = null
   }
+  let defaultBody: string
+  if (editable) {
+    defaultBody =
+      "*A markdown editor for taking a memo, related to the study. Click the 'Edit' button in the upper right corner to access the editor.*"
+  } else {
+    defaultBody = ""
+  }
 
   let content
   if (renderMarkdown) {
-    const defaultBody =
-      "*A markdown editor for taking a memo, related to the study. Click the 'Edit' button in the upper right corner to access the editor.*"
     content = (
       <ReactMarkdown
         children={latestNote.body || defaultBody}
@@ -124,7 +171,9 @@ export const Note: FC<{
           disabled={saving}
           minRows={minRows}
           multiline={true}
-          placeholder="Description about the study... (This note is saved to study's system_attrs)"
+          placeholder={`Description about the ${
+            trialId === undefined ? "study" : "trial"
+          }...`}
           sx={{ width: "100%", margin: `${theme.spacing(1)} 0` }}
           inputProps={{ style: { resize: "vertical" } }}
           inputRef={textAreaRef}
@@ -190,7 +239,10 @@ export const Note: FC<{
               <CloseIcon />
             </IconButton>
           ) : (
-            <IconButton onClick={() => setRenderMarkdown(false)}>
+            <IconButton
+              disabled={!editable}
+              onClick={() => setRenderMarkdown(false)}
+            >
               <EditIcon />
             </IconButton>
           )

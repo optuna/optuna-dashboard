@@ -2,6 +2,7 @@ import React, { FC } from "react"
 import { Typography, Grid, Box } from "@mui/material"
 
 import { DataGridColumn, DataGrid } from "./DataGrid"
+import { TrialNote } from "./Note"
 
 export const TrialTable: FC<{
   studyDetail: StudyDetail | null
@@ -229,8 +230,20 @@ export const TrialTable: FC<{
   ]
 
   const collapseBody = (index: number) => {
+    const editable =
+      trials[index].state === "Running" || trials[index].state === "Waiting"
     return (
       <Grid container direction="row">
+        {trials[index].note.body !== "" || editable ? (
+          <Grid item xs={12}>
+            <TrialNote
+              studyId={trials[index].study_id}
+              trialId={trials[index].trial_id}
+              latestNote={trials[index].note}
+              editable={editable}
+            />
+          </Grid>
+        ) : null}
         <Grid item xs={6}>
           <Box margin={1}>
             <Typography variant="h6" gutterBottom component="div">
