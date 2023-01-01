@@ -105,13 +105,14 @@ export const StudyDetailBeta: FC<{
             </CardContent>
           </Card>
         ) : null}
-        <Grid2 container spacing={2}>
+        <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
           <GraphHyperparameterImportanceBeta
             studyId={studyIdNumber}
             study={studyDetail}
+            graphHeight="450px"
           />
-          <Grid2 xs={6}>
-            <Card sx={{ margin: theme.spacing(2) }}>
+          <Grid2 xs={6} spacing={2}>
+            <Card>
               <CardContent
                 sx={{
                   alignItems: "center",
@@ -136,9 +137,29 @@ export const StudyDetailBeta: FC<{
                         {studyDetail.best_trials[0].values}
                       </Typography>
                       <Typography>
+                        number={studyDetail.best_trials[0].number}
+                      </Typography>
+                      <Typography>
+                        trial_id={studyDetail.best_trials[0].trial_id}
+                      </Typography>
+                      <Typography>
                         Params = [
                         {studyDetail.best_trials[0].params
                           .map((p) => `${p.name}: ${p.value}`)
+                          .join(", ")}
+                        ]
+                      </Typography>
+                      <Typography>
+                        Intermediate Values = [
+                        {studyDetail.best_trials[0].intermediate_values
+                          .map((p) => `${p.step}: ${p.value}`)
+                          .join(", ")}
+                        ]
+                      </Typography>
+                      <Typography>
+                        User Attributes = [
+                        {studyDetail.best_trials[0].user_attrs
+                          .map((p) => `${p.key}: ${p.value}`)
                           .join(", ")}
                         ]
                       </Typography>
@@ -184,7 +205,7 @@ export const StudyDetailBeta: FC<{
             </Card>
           </Grid2>
           <Grid2 xs={6}>
-            <Card sx={{ margin: theme.spacing(2) }}>
+            <Card>
               <CardContent
                 sx={{
                   alignItems: "center",

@@ -24,7 +24,8 @@ const getPlotDomId = (objectiveId: number) => `graph-importance-${objectiveId}`
 export const GraphHyperparameterImportanceBeta: FC<{
   studyId: number
   study: StudyDetail | null
-}> = ({ studyId, study = null }) => {
+  graphHeight: string
+}> = ({ studyId, study = null, graphHeight }) => {
   const theme = useTheme()
   const action = actionCreator()
   const importances = useParamImportanceValue(studyId)
@@ -51,7 +52,7 @@ export const GraphHyperparameterImportanceBeta: FC<{
         }
         return (
           <Grid2 key={i} xs={6}>
-            <Card sx={{ margin: theme.spacing(2) }}>
+            <Card>
               <CardContent>
                 <Typography
                   variant="h6"
@@ -59,7 +60,7 @@ export const GraphHyperparameterImportanceBeta: FC<{
                 >
                   {title}
                 </Typography>
-                <Box id={getPlotDomId(i)} sx={{ height: "450px" }} />
+                <Box id={getPlotDomId(i)} sx={{ height: graphHeight }} />
               </CardContent>
             </Card>
           </Grid2>
