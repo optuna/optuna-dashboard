@@ -120,29 +120,55 @@ export const StudyDetailBeta: FC<{
                         Best Trial
                       </Typography>
                       <Typography
-                        variant="h2"
+                        variant="h3"
                         sx={{ fontWeight: 600 }}
                         color="secondary"
                       >
                         {studyDetail.best_trials[0].values}
                       </Typography>
-                      <List>
-                        {studyDetail.best_trials[0].params.map((param) => (
-                          <ListItem>
-                            {param.name} {param.value}
-                          </ListItem>
-                        ))}
-                      </List>
+                      <Typography>
+                        Params = [
+                        {studyDetail.best_trials[0].params
+                          .map((p) => `${p.name}: ${p.value}`)
+                          .join(", ")}
+                        ]
+                      </Typography>
                     </>
                   )}
-                {studyDetail !== null && studyDetail.best_trials.length > 1 && (
+                {studyDetail !== null && studyDetail.directions.length > 1 && (
                   <>
                     <Typography
                       variant="h6"
                       sx={{ margin: "1em 0", fontWeight: 600 }}
                     >
-                      Best Trials
+                      Best Trials ({studyDetail.best_trials.length} trials)
                     </Typography>
+                    {studyDetail.best_trials.map((trial, i) => (
+                      <Card
+                        key={i}
+                        sx={{
+                          border: "1px solid rgba(128,128,128,0.5)",
+                          margin: theme.spacing(1, 0),
+                        }}
+                      >
+                        <CardContent>
+                          <Typography variant="h6">
+                            Trial number={trial.number} (trial_id=
+                            {trial.trial_id})
+                          </Typography>
+                          <Typography>
+                            Objective Values = [{trial.values?.join(", ")}]
+                          </Typography>
+                          <Typography>
+                            Params = [
+                            {trial.params
+                              .map((p) => `${p.name}: ${p.value}`)
+                              .join(", ")}
+                            ]
+                          </Typography>
+                        </CardContent>
+                      </Card>
+                    ))}
                   </>
                 )}
               </CardContent>
