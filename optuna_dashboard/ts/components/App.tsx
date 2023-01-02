@@ -47,7 +47,6 @@ export const App: FC = () => {
             backgroundColor: colorMode === "dark" ? "#121212" : "#ffffff",
             width: "100%",
             minHeight: "100vh",
-            paddingBottom: theme.spacing(2),
           }}
         >
           <SnackbarProvider maxSnack={3}>
