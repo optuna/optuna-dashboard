@@ -4,6 +4,11 @@ import {
   Card,
   CardContent,
   CardHeader,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   IconButton,
   SxProps,
   TextField,
@@ -23,6 +28,8 @@ import {
   CodeComponent,
   ReactMarkdownNames,
 } from "react-markdown/lib/ast-to-react"
+import HtmlIcon from "@mui/icons-material/Html"
+import ModeEditIcon from "@mui/icons-material/ModeEdit"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { darcula } from "react-syntax-highlighter/dist/esm/styles/prism"
 
@@ -75,19 +82,71 @@ export const StudyNote: FC<{
   return <NoteBase studyId={studyId} latestNote={latestNote} cardSx={cardSx} />
 }
 
+const useConfirmCloseDialog = (
+  handleClose: () => void
+): [() => void, () => React.ReactNode] => {
+  const theme = useTheme()
+  const [open, setOpen] = useState(false)
+
+  const zIndex = theme.zIndex.snackbar - 1
+  const openDialog = () => {
+    setOpen(true)
+  }
+  const renderDialog = () => {
+    return (
+      <Dialog
+        open={open}
+        sx={{
+          zIndex: zIndex,
+        }}
+      >
+        <DialogTitle>Unsaved changes</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Do you want to save or discard your changes?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="primary">
+            Discard
+          </Button>
+          <Button
+            onClick={() => {
+              setOpen(false)
+            }}
+            color="primary"
+          >
+            Stay
+          </Button>
+        </DialogActions>
+      </Dialog>
+    )
+  }
+  return [openDialog, renderDialog]
+}
+
 const MarkdownEditorModal: FC<{
   studyId: number
   trialId?: number
   latestNote: Note
-  onClose: () => void
-}> = ({ studyId, trialId, latestNote, onClose }) => {
+  setEditorUnmount: () => void
+}> = ({ studyId, trialId, latestNote, setEditorUnmount }) => {
   const theme = useTheme()
   const action = actionCreator()
+  const [openConfirmCloseDialog, renderConfirmCloseDialog] =
+    useConfirmCloseDialog(() => {
+      setEditorUnmount()
+      window.onbeforeunload = null
+    })
+
   const [saving, setSaving] = useState(false)
   const [edited, setEdited] = useState(false)
   const [curNote, setCurNote] = useState({ version: 0, body: "" })
   const textAreaRef = createRef<HTMLTextAreaElement>()
   const notLatest = latestNote.version > curNote.version
+
+  const [previewMarkdown, setPreviewMarkdown] = useState<string>("")
+  const [preview, setPreview] = useState<boolean>(false)
 
   useEffect(() => {
     setCurNote(latestNote)
@@ -118,6 +177,7 @@ const MarkdownEditorModal: FC<{
       .then(() => {
         setCurNote(newNote)
         window.onbeforeunload = null
+        setEditorUnmount()
       })
       .finally(() => {
         setSaving(false)
@@ -134,7 +194,7 @@ const MarkdownEditorModal: FC<{
   }
 
   // See https://github.com/iamhosseindhv/notistack/issues/231#issuecomment-825924840
-  const zIndex = theme.zIndex.snackbar - 1
+  const zIndex = theme.zIndex.snackbar - 2
 
   return (
     <Card
@@ -152,6 +212,39 @@ const MarkdownEditorModal: FC<{
         flexDirection: "column",
       }}
     >
+      <CardHeader
+        action={
+          <IconButton
+            onClick={() => {
+              setPreview(!preview)
+              setPreviewMarkdown(
+                textAreaRef.current ? textAreaRef.current.value : ""
+              )
+            }}
+          >
+            {preview ? (
+              <ModeEditIcon color="primary" />
+            ) : (
+              <HtmlIcon color="primary" />
+            )}
+          </IconButton>
+        }
+        title="Markdown Editor"
+      />
+      <Box
+        sx={{
+          height: "100%",
+          padding: theme.spacing(2),
+          display: preview ? "default" : "none",
+          overflow: "scroll",
+        }}
+      >
+        <ReactMarkdown
+          children={previewMarkdown}
+          remarkPlugins={[remarkGfm]}
+          components={{ code: CodeBlock }}
+        />
+      </Box>
       <TextField
         disabled={saving}
         multiline={true}
@@ -164,6 +257,7 @@ const MarkdownEditorModal: FC<{
           width: "100%",
           height: "100%",
           margin: theme.spacing(1, 0),
+          display: preview ? "none" : "default",
           "& .MuiInputBase-root": { height: "100%" },
         }}
         inputProps={{
@@ -173,7 +267,9 @@ const MarkdownEditorModal: FC<{
         defaultValue={latestNote.body}
         onChange={() => {
           const cur = textAreaRef.current ? textAreaRef.current.value : ""
-          setEdited(cur !== curNote.body)
+          if (edited !== (cur !== curNote.body)) {
+            setEdited(cur !== curNote.body)
+          }
         }}
       />
       <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
@@ -201,7 +297,17 @@ const MarkdownEditorModal: FC<{
           </>
         )}
         <Box sx={{ flexGrow: 1 }} />
-        <Button variant="outlined" onClick={onClose} startIcon={<CloseIcon />}>
+        <Button
+          variant="outlined"
+          onClick={() => {
+            if (edited) {
+              openConfirmCloseDialog()
+            } else {
+              setEditorUnmount()
+            }
+          }}
+          startIcon={<CloseIcon />}
+        >
           Close
         </Button>
         <LoadingButton
@@ -216,6 +322,7 @@ const MarkdownEditorModal: FC<{
           Save
         </LoadingButton>
       </Box>
+      {renderConfirmCloseDialog()}
     </Card>
   )
 }
@@ -227,18 +334,18 @@ const NoteBase: FC<{
   cardSx?: SxProps<Theme>
 }> = ({ studyId, trialId, latestNote, cardSx }) => {
   const theme = useTheme()
-  const [editorOpen, setEditorOpen] = useState<boolean>(false)
+  const [editorMounted, setEditorMounted] = useState<boolean>(false)
 
   const defaultBody =
     "*A markdown editor for taking a memo, related to the study. Click the 'Edit' button in the upper right corner to access the editor.*"
   return (
-    <Card sx={{ margin: theme.spacing(2), ...cardSx }}>
+    <Card sx={{ margin: theme.spacing(2), overflow: "scroll", ...cardSx }}>
       <CardHeader
         title="Note"
         action={
           <IconButton
             onClick={() => {
-              setEditorOpen(true)
+              setEditorMounted(true)
             }}
           >
             <EditIcon />
@@ -254,13 +361,13 @@ const NoteBase: FC<{
           components={{ code: CodeBlock }}
         />
       </CardContent>
-      {editorOpen && (
+      {editorMounted && (
         <MarkdownEditorModal
           studyId={studyId}
           trialId={trialId}
           latestNote={latestNote}
-          onClose={() => {
-            setEditorOpen(false)
+          setEditorUnmount={() => {
+            setEditorMounted(false)
           }}
         />
       )}
