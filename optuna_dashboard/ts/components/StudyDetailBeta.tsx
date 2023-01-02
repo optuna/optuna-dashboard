@@ -34,6 +34,7 @@ import { DataGrid, DataGridColumn } from "./DataGrid"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { Edf } from "./GraphEdf"
 import { TrialList } from "./TrialList"
+import {BestTrialsCard} from "./BestTrialsCard";
 
 interface ParamTypes {
   studyId: string
@@ -123,97 +124,7 @@ export const StudyDetailBeta: FC<{
             graphHeight="450px"
           />
           <Grid2 xs={6} spacing={2}>
-            <Card>
-              <CardContent
-                sx={{
-                  alignItems: "center",
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                {studyDetail !== null &&
-                  studyDetail.best_trials.length === 1 && (
-                    <>
-                      <Typography
-                        variant="h6"
-                        sx={{ margin: "1em 0", fontWeight: 600 }}
-                      >
-                        Best Trial
-                      </Typography>
-                      <Typography
-                        variant="h3"
-                        sx={{ fontWeight: 600, marginBottom: theme.spacing(2) }}
-                        color="secondary"
-                      >
-                        {studyDetail.best_trials[0].values}
-                      </Typography>
-                      <Typography>
-                        number={studyDetail.best_trials[0].number}
-                      </Typography>
-                      <Typography>
-                        trial_id={studyDetail.best_trials[0].trial_id}
-                      </Typography>
-                      <Typography>
-                        Params = [
-                        {studyDetail.best_trials[0].params
-                          .map((p) => `${p.name}: ${p.value}`)
-                          .join(", ")}
-                        ]
-                      </Typography>
-                      <Typography>
-                        Intermediate Values = [
-                        {studyDetail.best_trials[0].intermediate_values
-                          .map((p) => `${p.step}: ${p.value}`)
-                          .join(", ")}
-                        ]
-                      </Typography>
-                      <Typography>
-                        User Attributes = [
-                        {studyDetail.best_trials[0].user_attrs
-                          .map((p) => `${p.key}: ${p.value}`)
-                          .join(", ")}
-                        ]
-                      </Typography>
-                    </>
-                  )}
-                {studyDetail !== null && studyDetail.directions.length > 1 && (
-                  <>
-                    <Typography
-                      variant="h6"
-                      sx={{ margin: "1em 0", fontWeight: 600 }}
-                    >
-                      Best Trials ({studyDetail.best_trials.length} trials)
-                    </Typography>
-                    {studyDetail.best_trials.map((trial, i) => (
-                      <Card
-                        key={i}
-                        sx={{
-                          border: "1px solid rgba(128,128,128,0.5)",
-                          margin: theme.spacing(1, 0),
-                        }}
-                      >
-                        <CardContent>
-                          <Typography variant="h6">
-                            Trial number={trial.number} (trial_id=
-                            {trial.trial_id})
-                          </Typography>
-                          <Typography>
-                            Objective Values = [{trial.values?.join(", ")}]
-                          </Typography>
-                          <Typography>
-                            Params = [
-                            {trial.params
-                              .map((p) => `${p.name}: ${p.value}`)
-                              .join(", ")}
-                            ]
-                          </Typography>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </>
-                )}
-              </CardContent>
-            </Card>
+              <BestTrialsCard studyDetail={studyDetail} />
           </Grid2>
           <Grid2 xs={6}>
             <Card>

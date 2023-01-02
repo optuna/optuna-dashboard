@@ -144,7 +144,6 @@ export const StudyListBeta: FC<{
                 <Button
                   variant="outlined"
                   startIcon={<Refresh />}
-                  aria-haspopup="true"
                   onClick={(e) => {
                     action.updateStudySummaries("Success to reload")
                   }}
@@ -155,7 +154,6 @@ export const StudyListBeta: FC<{
                 <Button
                   variant="outlined"
                   startIcon={<AddBoxIcon />}
-                  aria-haspopup="true"
                   onClick={(e) => {
                     openCreateStudyDialog()
                   }}
