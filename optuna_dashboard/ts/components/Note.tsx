@@ -4,7 +4,7 @@ import {
   Card,
   CardContent,
   CardHeader,
-  IconButton,
+  IconButton, Modal,
   SxProps,
   TextField,
   Typography,
@@ -16,7 +16,6 @@ import remarkGfm from "remark-gfm"
 import LoadingButton from "@mui/lab/LoadingButton"
 import SaveIcon from "@mui/icons-material/Save"
 import EditIcon from "@mui/icons-material/Edit"
-import CloseIcon from "@mui/icons-material/Close"
 import Divider from "@mui/material/Divider"
 import { Theme } from "@mui/material/styles"
 import {
@@ -27,6 +26,7 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { darcula } from "react-syntax-highlighter/dist/esm/styles/prism"
 
 import { actionCreator } from "../action"
+import {styled} from "@mui/system";
 
 const CodeBlock: CodeComponent | ReactMarkdownNames = ({
   inline,
@@ -84,25 +84,33 @@ export const StudyNote: FC<{
   )
 }
 
-const NoteBase: FC<{
+const MarkdownEditorModal: FC<{
   studyId: number
   trialId?: number
-  latestNote: Note
-  minRows: number
-  cardSx?: SxProps<Theme>
-}> = ({ studyId, trialId, latestNote, minRows, cardSx }) => {
+  latestNote?: Note
+  open: boolean
+}> = ({ studyId, trialId, latestNote, open}) => {
   const theme = useTheme()
-  const [renderMarkdown, setRenderMarkdown] = useState(true)
+  const action = actionCreator()
   const [saving, setSaving] = useState(false)
   const [edited, setEdited] = useState(false)
   const [curNote, setCurNote] = useState({ version: 0, body: "" })
+
   const textAreaRef = createRef<HTMLTextAreaElement>()
-  const action = actionCreator()
-  const notLatest = latestNote.version > curNote.version
+  const notLatest = latestNote !== undefined && latestNote.version > curNote.version
 
   useEffect(() => {
+    if (latestNote === undefined) {
+      return
+    }
+    if (!textAreaRef.current) {
+      console.log("Unexpectedly, textarea is not found.")
+      return
+    }
+    textAreaRef.current.value = latestNote.body
     setCurNote(latestNote)
-  }, [])
+    window.onbeforeunload = null
+  }, [trialId])
   useEffect(() => {
     if (edited) {
       window.onbeforeunload = (e) => {
@@ -127,16 +135,18 @@ const NoteBase: FC<{
       actionResponse = action.saveTrialNote(studyId, trialId, newNote)
     }
     actionResponse
-      .then(() => {
-        setCurNote(newNote)
-        setRenderMarkdown(true)
-        window.onbeforeunload = null
-      })
-      .finally(() => {
-        setSaving(false)
-      })
+        .then(() => {
+          setCurNote(newNote)
+          window.onbeforeunload = null
+        })
+        .finally(() => {
+          setSaving(false)
+        })
   }
   const handleRefresh = () => {
+    if (latestNote === undefined) {
+      return
+    }
     if (!textAreaRef.current) {
       console.log("Unexpectedly, textarea is not found.")
       return
@@ -146,75 +156,108 @@ const NoteBase: FC<{
     window.onbeforeunload = null
   }
 
-  let content
-  if (renderMarkdown) {
-    const defaultBody =
+  const EditorField = styled(TextField)(({ theme }) => ({
+    "& .MuiInputBase-root": { height: "100%"},
+  }))
+
+  return (
+      <Modal open={open}>
+        {latestNote === undefined ? (<Typography>Now Loading...</Typography>) : (
+            <Card sx={{
+              bottom: 0,
+              height: "100%",
+              left: 0,
+              overflow: "hidden",
+              position: "fixed",
+              right: 0,
+              top: 0,
+              zIndex: 99999,
+              p: theme.spacing(2),
+              display: "flex",
+              flexDirection: "column"
+            }}>
+              <EditorField
+                  disabled={saving}
+                  multiline={true}
+                  placeholder={`Description about the ${
+                      trialId === undefined ? "study" : "trial"
+                  }... (Markdown)`}
+                  sx={{
+                    position: "relative",
+                    resize: "none",
+                    width: "100%", height: "100%", margin: `${theme.spacing(1)} 0` }}
+                  inputProps={{ style: { resize: "none", overflow: "scroll", height: "100%" }, sx: {height: "100%"} }}
+                  inputRef={textAreaRef}
+                  defaultValue={latestNote.body}
+                  onChange={() => {
+                    const cur = textAreaRef.current ? textAreaRef.current.value : ""
+                    setEdited(cur !== curNote.body)
+                  }}
+              />
+              <Box
+                  sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
+              >
+                {notLatest && !saving && (
+                    <>
+                      <Typography
+                          sx={{
+                            color: theme.palette.error.main,
+                            fontSize: "0.8rem",
+                            display: "inline",
+                          }}
+                      >
+                        The text you are editing has updated. Do you want to discard
+                        your changes and refresh the textarea?
+                      </Typography>
+                      <Button
+                          variant="text"
+                          onClick={handleRefresh}
+                          color="error"
+                          size="small"
+                          sx={{ textDecoration: "underline" }}
+                      >
+                        Yes
+                      </Button>
+                    </>
+                )}
+                <Box sx={{ flexGrow: 1 }} />
+                <LoadingButton
+                    onClick={handleSave}
+                    loading={saving}
+                    loadingPosition="start"
+                    startIcon={<SaveIcon />}
+                    variant="contained"
+                    disabled={!edited}
+                >
+                  Save
+                </LoadingButton>
+              </Box>
+            </Card>
+        )}
+      </Modal>
+  )
+}
+
+const NoteBase: FC<{
+  studyId: number
+  trialId?: number
+  latestNote: Note
+  minRows: number
+  cardSx?: SxProps<Theme>
+}> = ({ studyId, trialId, latestNote, minRows, cardSx }) => {
+  const theme = useTheme()
+
+  const defaultBody =
       "*A markdown editor for taking a memo, related to the study. Click the 'Edit' button in the upper right corner to access the editor.*"
-    content = (
-      <ReactMarkdown
-        children={latestNote.body || defaultBody}
-        remarkPlugins={[remarkGfm]}
-        components={{ code: CodeBlock }}
-      />
-    )
-  } else {
-    content = (
-      <>
-        <TextField
-          disabled={saving}
-          minRows={minRows}
-          multiline={true}
-          placeholder={`Description about the ${
-            trialId === undefined ? "study" : "trial"
-          }...`}
-          sx={{ width: "100%", margin: `${theme.spacing(1)} 0` }}
-          inputProps={{ style: { resize: "vertical" } }}
-          inputRef={textAreaRef}
-          defaultValue={curNote.body}
-          onChange={() => {
-            const cur = textAreaRef.current ? textAreaRef.current.value : ""
-            setEdited(cur !== curNote.body)
-          }}
+  let content = null
+
+  if (latestNote !== undefined) {
+    content =  (
+        <ReactMarkdown
+            children={latestNote.body || defaultBody}
+            remarkPlugins={[remarkGfm]}
+            components={{ code: CodeBlock }}
         />
-        <Box
-          sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
-        >
-          {notLatest && !saving && (
-            <>
-              <Typography
-                sx={{
-                  color: theme.palette.error.main,
-                  fontSize: "0.8rem",
-                  display: "inline",
-                }}
-              >
-                The text you are editing has updated. Do you want to discard
-                your changes and refresh the textarea?
-              </Typography>
-              <Button
-                variant="text"
-                onClick={handleRefresh}
-                color="error"
-                size="small"
-                sx={{ textDecoration: "underline" }}
-              >
-                Yes
-              </Button>
-            </>
-          )}
-          <Box sx={{ flexGrow: 1 }} />
-          <LoadingButton
-            onClick={handleSave}
-            loading={saving}
-            loadingPosition="start"
-            startIcon={<SaveIcon />}
-            variant="contained"
-            disabled={!edited}
-          >
-            Save
-          </LoadingButton>
-        </Box>
-      </>
     )
   }
 
@@ -223,19 +266,9 @@ const NoteBase: FC<{
       <CardHeader
         title="Note"
         action={
-          !renderMarkdown ? (
-            <IconButton
-              onClick={() => {
-                setRenderMarkdown(true)
-              }}
-            >
-              <CloseIcon />
-            </IconButton>
-          ) : (
-            <IconButton onClick={() => setRenderMarkdown(false)}>
+            <IconButton onClick={() => { console.log("Clicked!")}}>
               <EditIcon />
             </IconButton>
-          )
         }
         sx={{ paddingBottom: 0 }}
       />
@@ -243,6 +276,7 @@ const NoteBase: FC<{
         <Divider />
         {content}
       </CardContent>
+      <MarkdownEditorModal studyId={studyId} trialId={trialId} latestNote={latestNote} open={true} />
     </Card>
   )
 }
