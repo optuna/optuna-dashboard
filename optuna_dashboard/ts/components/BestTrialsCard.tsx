@@ -1,5 +1,17 @@
 import React, { FC } from "react"
-import { Button, Card, CardContent, Typography, useTheme } from "@mui/material"
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Divider,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  Typography,
+  useTheme,
+} from "@mui/material"
 import { Link } from "react-router-dom"
 import LinkIcon from "@mui/icons-material/Link"
 
@@ -55,29 +67,53 @@ export const BestTrialsCard: FC<{
     const bestTrials = studyDetail.best_trials
     content = (
       <>
-        {bestTrials.map((trial, i) => (
-          <Card
-            key={i}
-            sx={{
-              border: "1px solid rgba(128,128,128,0.5)",
-              margin: theme.spacing(1, 0),
-            }}
-          >
-            <CardContent>
-              <Typography variant="h6">
-                Trial number={trial.number} (trial_id=
-                {trial.trial_id})
-              </Typography>
-              <Typography>
-                Objective Values = [{trial.values?.join(", ")}]
-              </Typography>
-              <Typography>
-                Params = [
-                {trial.params.map((p) => `${p.name}: ${p.value}`).join(", ")}]
-              </Typography>
-            </CardContent>
-          </Card>
-        ))}
+        <Divider
+          sx={{ paddingBottom: theme.spacing(1) }}
+          orientation="horizontal"
+        />
+        <Box
+          sx={{
+            overflow: "auto",
+            height: "450px",
+            width: "100%",
+          }}
+        >
+          <List>
+            {bestTrials.map((trial) => (
+              <ListItem key={trial.number} disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to={
+                    URL_PREFIX +
+                    `/studies/${trial.study_id}/trials/${trial.number}`
+                  }
+                >
+                  <ListItemText
+                    primary={
+                      <Typography variant="h5" sx={{ textAlign: "center" }}>
+                        Trial {trial.number}
+                      </Typography>
+                    }
+                    secondary={
+                      <>
+                        <Typography sx={{ textAlign: "center" }}>
+                          Objective Values = [{trial.values?.join(", ")}]
+                        </Typography>
+                        <Typography sx={{ textAlign: "center" }}>
+                          Params = [
+                          {trial.params
+                            .map((p) => `${p.name}: ${p.value}`)
+                            .join(", ")}
+                          ]
+                        </Typography>
+                      </>
+                    }
+                  />
+                </ListItemButton>
+              </ListItem>
+            ))}
+          </List>
+        </Box>
       </>
     )
   }
