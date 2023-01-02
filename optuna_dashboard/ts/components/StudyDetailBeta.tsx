@@ -201,7 +201,6 @@ export const StudyDetailBeta: FC<{
       <StudyNote
         studyId={studyId}
         latestNote={studyDetail.note}
-        minRows={30}
         cardSx={{ height: "90vh" }}
       />
     )

@@ -219,7 +219,6 @@ export const actionCreator = () => {
         })
       })
       .catch((err) => {
-        console.dir(err)
         if (err.response.status === 409) {
           const index = studyDetails[studyId].trials.findIndex(
             (t) => t.trial_id === trialId
@@ -233,7 +232,7 @@ export const actionCreator = () => {
             )
             return
           }
-          setTrialNote(studyId, index, note)
+          setTrialNote(studyId, index, err.response.data.note)
         }
         const reason = err.response?.data.reason
         if (reason !== undefined) {
