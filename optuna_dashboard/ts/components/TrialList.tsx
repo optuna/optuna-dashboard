@@ -18,12 +18,14 @@ import ListSubheader from "@mui/material/ListSubheader"
 
 import { TrialNote } from "./Note"
 import { DataGrid, DataGridColumn } from "./DataGrid"
+import { Link } from "react-router-dom"
 
 export const TrialList: FC<{
   studyDetail: StudyDetail | null
-}> = ({ studyDetail }) => {
+  trialNumber: number | null
+}> = ({ studyDetail, trialNumber }) => {
   const theme = useTheme()
-  const [selected, setSelected] = useState<number>(0)
+  const [selected, setSelected] = useState<number>(trialNumber || 0)
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
   const trialListWidth = 240
 
@@ -172,13 +174,18 @@ export const TrialList: FC<{
             return (
               <ListItem key={trial.trial_id} disablePadding>
                 <ListItemButton
+                  component={Link}
+                  to={
+                    URL_PREFIX +
+                    `/studies/${trial.study_id}/trials/${trial.number}`
+                  }
                   onClick={() => {
-                    setSelected(i)
+                    setSelected(trial.number)
                   }}
                   selected={i === selected}
                 >
                   <ListItemText
-                    primary={`Trial ${trial.trial_id}`}
+                    primary={`Trial ${trial.number}`}
                     secondary={
                       <Box sx={{ padding: theme.spacing(1, 0) }}>
                         <Chip color={color} label={trial.state} size="small" />

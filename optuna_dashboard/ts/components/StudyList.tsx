@@ -213,11 +213,11 @@ export const StudyList: FC<{
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
             <Typography>
-              {`We would appreciate your feedback on our beta UI. Click `}
+              {`We would appreciate your feedback on the new dashboard UI. Click `}
               <Link to={`${URL_PREFIX}/beta`} style={{ color: linkColor }}>
                 here
               </Link>
-              {" to try it out and share your thoughts."}
+              {" to try it out and share your thoughts with us."}
             </Typography>
           </CardContent>
         </Card>

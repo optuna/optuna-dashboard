@@ -62,7 +62,7 @@ export const TrialNote: FC<{
       studyId={studyId}
       trialId={trialId}
       latestNote={latestNote}
-      minRows={30}
+      minRows={10}
       cardSx={cardSx}
     />
   )
