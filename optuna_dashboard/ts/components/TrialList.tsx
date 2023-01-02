@@ -20,6 +20,30 @@ import { TrialNote } from "./Note"
 import { DataGrid, DataGridColumn } from "./DataGrid"
 import { Link } from "react-router-dom"
 
+type Color =
+  | "default"
+  | "primary"
+  | "secondary"
+  | "error"
+  | "info"
+  | "success"
+  | "warning"
+
+const getChipColor = (state: TrialState): Color => {
+  if (state === "Complete") {
+    return "success"
+  } else if (state === "Running") {
+    return "secondary"
+  } else if (state === "Waiting") {
+    return "secondary"
+  } else if (state === "Pruned") {
+    return "warning"
+  } else if (state === "Fail") {
+    return "error"
+  }
+  return "default"
+}
+
 export const TrialList: FC<{
   studyDetail: StudyDetail | null
   trialNumber: number | null
@@ -75,15 +99,17 @@ export const TrialList: FC<{
           <CardHeader
             title={`Trial ${trial.number} (trial_id=${trial.trial_id})`}
           />
-          <CardContent>
-            {isBestTrial(trial.trial_id) ? (
+          <CardContent sx={{ paddingTop: 0 }}>
+            <Box sx={{ marginBottom: theme.spacing(1) }}>
               <Chip
-                label={"Best Trial"}
-                color="primary"
-                sx={{ marginBottom: theme.spacing(1) }}
-                size="small"
+                color={getChipColor(trial.state)}
+                label={trial.state}
+                sx={{ marginRight: theme.spacing(1) }}
               />
-            ) : null}
+              {isBestTrial(trial.trial_id) ? (
+                <Chip label={"Best Trial"} color="primary" />
+              ) : null}
+            </Box>
             <Typography>
               Values:{" "}
               {trial.values?.map((v) => v.toString()).join(" ") || "None"}
@@ -152,25 +178,6 @@ export const TrialList: FC<{
             studyDetail?.trials.length || 0
           } Trials`}</ListSubheader>
           {trials.map((trial, i) => {
-            let color:
-              | "default"
-              | "primary"
-              | "secondary"
-              | "error"
-              | "info"
-              | "success"
-              | "warning" = "default"
-            if (trial.state === "Complete") {
-              color = "success"
-            } else if (trial.state === "Running") {
-              color = "secondary"
-            } else if (trial.state === "Waiting") {
-              color = "secondary"
-            } else if (trial.state === "Pruned") {
-              color = "warning"
-            } else if (trial.state === "Fail") {
-              color = "error"
-            }
             return (
               <ListItem key={trial.trial_id} disablePadding>
                 <ListItemButton
@@ -183,23 +190,29 @@ export const TrialList: FC<{
                     setSelected(trial.number)
                   }}
                   selected={i === selected}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                  }}
                 >
-                  <ListItemText
-                    primary={`Trial ${trial.number}`}
-                    secondary={
-                      <Box sx={{ padding: theme.spacing(1, 0) }}>
-                        <Chip color={color} label={trial.state} size="small" />
-                        {isBestTrial(trial.trial_id) ? (
-                          <Chip
-                            label={"Best Trial"}
-                            color="primary"
-                            sx={{ marginLeft: theme.spacing(1) }}
-                            size="small"
-                          />
-                        ) : null}
-                      </Box>
-                    }
-                  />
+                  <ListItemText primary={`Trial ${trial.number}`} />
+                  <Box>
+                    <Chip
+                      color={getChipColor(trial.state)}
+                      label={trial.state}
+                      sx={{ margin: theme.spacing(1, 0) }}
+                      size="small"
+                    />
+                    {isBestTrial(trial.trial_id) ? (
+                      <Chip
+                        label={"Best Trial"}
+                        color="primary"
+                        sx={{ marginLeft: theme.spacing(1) }}
+                        size="small"
+                      />
+                    ) : null}
+                  </Box>
                 </ListItemButton>
               </ListItem>
             )
