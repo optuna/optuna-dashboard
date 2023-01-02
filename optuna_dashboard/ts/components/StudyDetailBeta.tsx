@@ -34,7 +34,7 @@ import { DataGrid, DataGridColumn } from "./DataGrid"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { Edf } from "./GraphEdf"
 import { TrialList } from "./TrialList"
-import {BestTrialsCard} from "./BestTrialsCard";
+import { BestTrialsCard } from "./BestTrialsCard"
 
 interface ParamTypes {
   studyId: string
@@ -124,7 +124,7 @@ export const StudyDetailBeta: FC<{
             graphHeight="450px"
           />
           <Grid2 xs={6} spacing={2}>
-              <BestTrialsCard studyDetail={studyDetail} />
+            <BestTrialsCard studyDetail={studyDetail} />
           </Grid2>
           <Grid2 xs={6}>
             <Card>
