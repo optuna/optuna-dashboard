@@ -90,9 +90,7 @@ export const BestTrialsCard: FC<{
                 >
                   <ListItemText
                     primary={
-                      <Typography variant="h5">
-                        Trial {trial.number}
-                      </Typography>
+                      <Typography variant="h5">Trial {trial.number}</Typography>
                     }
                     secondary={
                       <>
