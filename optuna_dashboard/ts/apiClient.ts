@@ -49,6 +49,7 @@ interface StudyDetailResponse {
   union_user_attrs: AttributeSpec[]
   has_intermediate_values: boolean
   note: Note
+  objective_names?: string[]
 }
 
 export const getStudyDetailAPI = (
@@ -80,6 +81,7 @@ export const getStudyDetailAPI = (
         union_user_attrs: res.data.union_user_attrs,
         has_intermediate_values: res.data.has_intermediate_values,
         note: res.data.note,
+        objective_names: res.data.objective_names,
       }
     })
 }

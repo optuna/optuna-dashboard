@@ -32,6 +32,7 @@ export const GraphSlice: FC<{
   const distributions = new Map(
     study?.union_search_space.map((s) => [s.name, s.distribution])
   )
+  const objectiveNames: string[] = study?.objective_names || []
   if (selected === null && paramNames && paramNames.length > 0) {
     const distribution = distributions.get(paramNames[0]) || ""
     setSelected(paramNames[0])
@@ -82,7 +83,7 @@ export const GraphSlice: FC<{
             <Select value={objectiveId} onChange={handleObjectiveChange}>
               {study.directions.map((d, i) => (
                 <MenuItem value={i} key={i}>
-                  {i}
+                  {objectiveNames.length === study?.directions.length ? objectiveNames[i] : `${i}`}
                 </MenuItem>
               ))}
             </Select>
@@ -93,7 +94,7 @@ export const GraphSlice: FC<{
           <Select value={selected || ""} onChange={handleSelectedParam}>
             {paramNames?.map((p, i) => (
               <MenuItem value={p} key={i}>
-                {p}
+                {objectiveNames.length === study?.directions.length ? objectiveNames[i] : `${i}`}
               </MenuItem>
             ))}
           </Select>

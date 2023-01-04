@@ -11,6 +11,7 @@ from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
 
 from . import _note as note
+from ._named_objectives import get_objective_names
 
 
 if TYPE_CHECKING:
@@ -99,6 +100,9 @@ def serialize_study_detail(
     serialized["union_user_attrs"] = [{"key": a[0], "sortable": a[1]} for a in union_user_attrs]
     serialized["has_intermediate_values"] = has_intermediate_values
     serialized["note"] = note.get_note_from_system_attrs(system_attrs, None)
+    objective_names = get_objective_names(system_attrs)
+    if objective_names:
+        serialized["objective_names"] = objective_names
     return serialized
 
 

@@ -20,6 +20,7 @@ export const Edf: FC<{
 }> = ({ study = null }) => {
   const theme = useTheme()
   const [objectiveId, setObjectiveId] = useState<number>(0)
+  const objectiveNames: string[] = study?.objective_names || []
 
   const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
     setObjectiveId(event.target.value as number)
@@ -48,7 +49,7 @@ export const Edf: FC<{
             <Select value={objectiveId} onChange={handleObjectiveChange}>
               {study.directions.map((d, i) => (
                 <MenuItem value={i} key={i}>
-                  {i}
+                  {objectiveNames.length === study?.directions.length ? objectiveNames[i] : `${i}`}
                 </MenuItem>
               ))}
             </Select>
