@@ -106,6 +106,7 @@ declare interface StudyDetail {
   union_user_attrs: AttributeSpec[]
   has_intermediate_values: boolean
   note: Note
+  objective_names?: string[]
 }
 
 declare interface StudyDetails {

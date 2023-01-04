@@ -28,6 +28,7 @@ export const GraphHistory: FC<{
   const [logScale, setLogScale] = useState<boolean>(false)
   const [filterCompleteTrial, setFilterCompleteTrial] = useState<boolean>(false)
   const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
+  const objectiveNames: string[] = study?.objective_names || []
 
   const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
     setObjectiveId(event.target.value as number)
@@ -92,7 +93,9 @@ export const GraphHistory: FC<{
             <Select value={objectiveId} onChange={handleObjectiveChange}>
               {study.directions.map((d, i) => (
                 <MenuItem value={i} key={i}>
-                  {i}
+                  {objectiveNames.length === study?.directions.length
+                    ? objectiveNames[i]
+                    : `${i}`}
                 </MenuItem>
               ))}
             </Select>

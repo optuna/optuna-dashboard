@@ -32,6 +32,7 @@ export const GraphHyperparameterImportanceBeta: FC<{
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
   const nObjectives = useStudyDirections(studyId)?.length
+  const objectiveNames: string[] = study?.objective_names || []
 
   useEffect(() => {
     action.updateParamImportance(studyId)
@@ -48,7 +49,11 @@ export const GraphHyperparameterImportanceBeta: FC<{
       {Array.from({ length: nObjectives || 1 }, (_, i) => {
         let title = `Importance for the Objective Value`
         if (nObjectives != null && nObjectives > 1) {
-          title = `Importance for the Objective ${i}`
+          if (objectiveNames.length == nObjectives) {
+            title = `Importance for ${objectiveNames[i]} (Objective ${i})`
+          } else {
+            title = `Importance for the Objective ${i}`
+          }
         }
         return (
           <Grid2 key={i} xs={6}>

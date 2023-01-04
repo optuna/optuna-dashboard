@@ -8,6 +8,7 @@ export const TrialTable: FC<{
   initialRowsPerPage?: number
 }> = ({ studyDetail, initialRowsPerPage }) => {
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
+  const objectiveNames: string[] = studyDetail?.objective_names || []
 
   const columns: DataGridColumn<Trial>[] = [
     { field: "number", label: "Number", sortable: true, padding: "none" },
@@ -55,7 +56,10 @@ export const TrialTable: FC<{
     const objectiveColumns: DataGridColumn<Trial>[] =
       studyDetail.directions.map((s, objectiveId) => ({
         field: "values",
-        label: `Objective ${objectiveId}`,
+        label:
+          objectiveNames.length === studyDetail?.directions.length
+            ? objectiveNames[objectiveId]
+            : `Objective ${objectiveId}`,
         sortable: true,
         less: (firstEl, secondEl): number => {
           const firstVal = firstEl.values?.[objectiveId]

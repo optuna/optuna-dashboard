@@ -41,6 +41,7 @@ export const Contour: FC<{
   const [xParam, setXParam] = useState("")
   const [yParam, setYParam] = useState("")
   const paramNames = study?.union_search_space.map((s) => s.name)
+  const objectiveNames: string[] = study?.objective_names || []
 
   if (!xParam && paramNames && paramNames.length > 0) {
     setXParam(paramNames[0])
@@ -85,7 +86,9 @@ export const Contour: FC<{
             <Select value={objectiveId} onChange={handleObjectiveChange}>
               {study.directions.map((d, i) => (
                 <MenuItem value={i} key={i}>
-                  {i}
+                  {objectiveNames.length === study?.directions.length
+                    ? objectiveNames[i]
+                    : `${i}`}
                 </MenuItem>
               ))}
             </Select>
