@@ -56,7 +56,9 @@ export const GraphParetoFront: FC<{
               <Select value={objectiveXId} onChange={handleObjectiveXChange}>
                 {study.directions.map((d, i) => (
                   <MenuItem value={i} key={i}>
-                    {objectiveNames.length === study?.directions.length ? objectiveNames[i] : `${i}`}
+                    {objectiveNames.length === study?.directions.length
+                      ? objectiveNames[i]
+                      : `${i}`}
                   </MenuItem>
                 ))}
               </Select>
@@ -66,7 +68,9 @@ export const GraphParetoFront: FC<{
               <Select value={objectiveYId} onChange={handleObjectiveYChange}>
                 {study.directions.map((d, i) => (
                   <MenuItem value={i} key={i}>
-                    {objectiveNames.length === study?.directions.length ? objectiveNames[i] : `${i}`}
+                    {objectiveNames.length === study?.directions.length
+                      ? objectiveNames[i]
+                      : `${i}`}
                   </MenuItem>
                 ))}
               </Select>

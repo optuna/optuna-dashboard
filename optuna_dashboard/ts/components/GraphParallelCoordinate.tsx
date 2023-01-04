@@ -50,7 +50,9 @@ export const GraphParallelCoordinate: FC<{
             <Select value={objectiveId} onChange={handleObjectiveChange}>
               {study.directions.map((d, i) => (
                 <MenuItem value={i} key={i}>
-                  {objectiveNames.length === study?.directions.length ? objectiveNames[i] : `${i}`}
+                  {objectiveNames.length === study?.directions.length
+                    ? objectiveNames[i]
+                    : `${i}`}
                 </MenuItem>
               ))}
             </Select>

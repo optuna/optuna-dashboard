@@ -56,7 +56,10 @@ export const TrialTable: FC<{
     const objectiveColumns: DataGridColumn<Trial>[] =
       studyDetail.directions.map((s, objectiveId) => ({
         field: "values",
-        label: objectiveNames.length === studyDetail?.directions.length ? objectiveNames[objectiveId] : `Objective ${objectiveId}`,
+        label:
+          objectiveNames.length === studyDetail?.directions.length
+            ? objectiveNames[objectiveId]
+            : `Objective ${objectiveId}`,
         sortable: true,
         less: (firstEl, secondEl): number => {
           const firstVal = firstEl.values?.[objectiveId]
