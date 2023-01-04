@@ -88,6 +88,14 @@ This function uses wsgiref module which is not intended for the production use.
 This function exposes WSGI interface for people who want to run on the
 production-class WSGI servers like Gunicorn or uWSGI.
 
+**`save_study_note(study: Study, body: string) -> None`**
+
+Save the note (Markdown format) to the Study.
+
+**`save_trial_note(trial: Trial, body: string) -> None`**
+
+Save the note (Markdown format) to the Trial.
+
 </details>
 
 ## Using an official Docker image
