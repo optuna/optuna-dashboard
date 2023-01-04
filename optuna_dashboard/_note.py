@@ -4,6 +4,7 @@ import math
 from typing import Any
 from typing import TYPE_CHECKING
 
+import optuna
 from optuna.storages import BaseStorage
 
 
@@ -20,6 +21,67 @@ if TYPE_CHECKING:
     )
 
 SYSTEM_ATTR_MAX_LENGTH = 2045
+
+
+def save_study_note(study: optuna.Study, body: str) -> None:
+    """Save the note (Markdown format) to the Study.
+
+    Example:
+
+       .. code-block:: python
+
+          import optuna
+          from optuna_dashboard import save_study_note
+
+          study = optuna.create_study()
+
+          note = textwrap.dedent('''\
+          ## Hello
+
+          You can *freely* take a **note** that is associated with the study.
+          ''')
+          save_study_note(study, note)
+
+    """
+    storage = study._storage
+    study_id = study._study_id
+    system_attrs = storage.get_study_system_attrs(study_id)
+    next_ver = system_attrs.get(note_ver_key(None), 0) + 1
+    save_note(storage, study_id, None, next_ver, body)
+
+
+def save_trial_note(trial: optuna.Trial, body: str) -> None:
+    """Save the note (Markdown format) to the Trial.
+
+    Example:
+
+       .. code-block:: python
+
+          import optuna
+          import textwrap
+          from optuna_dashboard import save_trial_note
+
+          def objective_single(trial: optuna.Trial) -> float:
+              x1 = trial.suggest_float("x1", 0, 10)
+              x2 = trial.suggest_float("x2", 0, 10)
+
+              note = textwrap.dedent(f'''\
+              ## Trial {trial._trial_id}
+
+              $$
+              y = (x1 - 2)^{{2}} + (x2 - 5)^{{2}} = ({x1} - 2)^{{2}} + ({x2} - 5)^{{2}}
+              $$
+              ''')
+              save_trial_note(trial, note)
+              return (x1 - 2) ** 2 + (x2 - 5) ** 2
+    """
+    storage = trial.storage
+    trial_id = trial._trial_id
+    study_id = trial.study._study_id
+
+    system_attrs = storage.get_study_system_attrs(study_id)
+    next_ver = system_attrs.get(note_ver_key(trial_id), 0) + 1
+    save_note(storage, study_id, trial_id, next_ver, body)
 
 
 def note_ver_key(trial_id: Optional[int]) -> str:
