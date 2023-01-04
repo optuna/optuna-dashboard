@@ -18,6 +18,8 @@ import {
 import React, { FC, createRef, useState, useEffect } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import remarkMath from "remark-math"
+import rehypeMathjax from "rehype-mathjax"
 import LoadingButton from "@mui/lab/LoadingButton"
 import SaveIcon from "@mui/icons-material/Save"
 import CloseIcon from "@mui/icons-material/Close"
@@ -34,6 +36,27 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { darcula } from "react-syntax-highlighter/dist/esm/styles/prism"
 
 import { actionCreator } from "../action"
+
+const placeholder = `## What is this feature for?
+
+Here you can freely take a note in *(GitHub flavored) Markdown format*.
+In addition, **code blocks with syntax highlights** and **formula** are also supported here, as shown below.
+
+### Code-block with Syntax Highlights
+
+\`\`\`python
+def objective(trial):
+    x = trial.suggest_float("x", -10, 10)
+    y = trial.suggest_float("y", -10, 10)
+    return (x - 5) ** 2 + (y + 5) ** 2
+\`\`\`
+
+### Formula
+
+$$
+L = \\frac{1}{2} \\rho v^2 S C_L
+$$
+`
 
 const CodeBlock: CodeComponent | ReactMarkdownNames = ({
   inline,
@@ -124,6 +147,15 @@ const useConfirmCloseDialog = (
   }
   return [openDialog, renderDialog]
 }
+
+const MarkdownRenderer: FC<{ body: string }> = ({ body }) => (
+  <ReactMarkdown
+    children={body}
+    remarkPlugins={[remarkGfm, remarkMath]}
+    rehypePlugins={[rehypeMathjax]}
+    components={{ code: CodeBlock }}
+  />
+)
 
 const MarkdownEditorModal: FC<{
   studyId: number
@@ -239,18 +271,12 @@ const MarkdownEditorModal: FC<{
           overflow: "scroll",
         }}
       >
-        <ReactMarkdown
-          children={previewMarkdown}
-          remarkPlugins={[remarkGfm]}
-          components={{ code: CodeBlock }}
-        />
+        <MarkdownRenderer body={previewMarkdown} />
       </Box>
       <TextField
         disabled={saving}
         multiline={true}
-        placeholder={`Description about the ${
-          trialId === undefined ? "study" : "trial"
-        }... (Markdown)`}
+        placeholder={placeholder}
         sx={{
           position: "relative",
           resize: "none",
@@ -336,8 +362,7 @@ const NoteBase: FC<{
   const theme = useTheme()
   const [editorMounted, setEditorMounted] = useState<boolean>(false)
 
-  const defaultBody =
-    "*A markdown editor for taking a memo, related to the study. Click the 'Edit' button in the upper right corner to access the editor.*"
+  const defaultBody = ""
   return (
     <Card sx={{ margin: theme.spacing(2), overflow: "scroll", ...cardSx }}>
       <CardHeader
@@ -355,11 +380,7 @@ const NoteBase: FC<{
       />
       <CardContent sx={{ paddingTop: theme.spacing(1) }}>
         <Divider />
-        <ReactMarkdown
-          children={latestNote.body || defaultBody}
-          remarkPlugins={[remarkGfm]}
-          components={{ code: CodeBlock }}
-        />
+        <MarkdownRenderer body={latestNote.body || defaultBody} />
       </CardContent>
       {editorMounted && (
         <MarkdownEditorModal
