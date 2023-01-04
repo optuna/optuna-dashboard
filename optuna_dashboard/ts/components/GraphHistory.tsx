@@ -224,7 +224,7 @@ const plotHistory = (
     filteredTrials = filteredTrials.filter((t) => t.state !== "Pruned")
   }
   if (filteredTrials.length === 0) {
-    plotly.react(plotDomId, [])
+    plotly.react(plotDomId, [], layout)
     return
   }
 

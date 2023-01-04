@@ -30,7 +30,9 @@
     "react-router-dom": "^5.3.4",
     "react-syntax-highlighter": "^15.5.0",
     "recoil": "^0.7.6",
-    "remark-gfm": "^3.0.1"
+    "rehype-mathjax": "^4.0.2",
+    "remark-gfm": "^3.0.1",
+    "remark-math": "^5.1.1"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",

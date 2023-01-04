@@ -214,7 +214,9 @@ const plotContour = (
   const filteredTrials = trials.filter((t) => filterFunc(t, objectiveId))
 
   if (filteredTrials.length === 0) {
-    plotly.react(plotDomId, [])
+    plotly.react(plotDomId, [], {
+      template: mode === "dark" ? plotlyDarkTemplate : {},
+    })
     return
   }
 
