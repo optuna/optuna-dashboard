@@ -56,7 +56,7 @@ export const GraphHyperparameterImportanceBeta: FC<{
               <CardContent>
                 <Typography
                   variant="h6"
-                  sx={{ margin: "1em 0", fontWeight: 600, textAlign: "center" }}
+                  sx={{ margin: "1em 0", fontWeight: 600 }}
                 >
                   {title}
                 </Typography>

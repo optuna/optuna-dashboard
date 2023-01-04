@@ -90,16 +90,16 @@ export const BestTrialsCard: FC<{
                 >
                   <ListItemText
                     primary={
-                      <Typography variant="h5" sx={{ textAlign: "center" }}>
+                      <Typography variant="h5">
                         Trial {trial.number}
                       </Typography>
                     }
                     secondary={
                       <>
-                        <Typography sx={{ textAlign: "center" }}>
+                        <Typography>
                           Objective Values = [{trial.values?.join(", ")}]
                         </Typography>
-                        <Typography sx={{ textAlign: "center" }}>
+                        <Typography>
                           Params = [
                           {trial.params
                             .map((p) => `${p.name}: ${p.value}`)
@@ -121,8 +121,7 @@ export const BestTrialsCard: FC<{
     <Card>
       <CardContent
         sx={{
-          alignItems: "center",
-          display: "flex",
+          display: "inline-content",
           flexDirection: "column",
         }}
       >

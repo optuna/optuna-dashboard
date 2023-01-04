@@ -130,7 +130,6 @@ export const StudyDetailBeta: FC<{
             <Card>
               <CardContent
                 sx={{
-                  alignItems: "center",
                   display: "flex",
                   flexDirection: "column",
                 }}
