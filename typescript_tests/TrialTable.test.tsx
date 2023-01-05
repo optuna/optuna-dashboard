@@ -151,7 +151,9 @@ it("Sort TrialTable by state", () => {
 })
 
 it("Filter trials by state", () => {
-  const { queryAllByText } = render(<TrialTable studyDetail={studyDetail} isBeta={false} />)
+  const { queryAllByText } = render(
+    <TrialTable studyDetail={studyDetail} isBeta={false} />
+  )
   expect(queryAllByText("Fail").length).toBe(1)
 
   // Click 'Complete' state
