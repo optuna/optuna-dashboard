@@ -31,11 +31,11 @@ type Color =
 
 const getChipColor = (state: TrialState): Color => {
   if (state === "Complete") {
-    return "success"
+    return "primary"
   } else if (state === "Running") {
-    return "secondary"
+    return "default"
   } else if (state === "Waiting") {
-    return "secondary"
+    return "default"
   } else if (state === "Pruned") {
     return "warning"
   } else if (state === "Fail") {
@@ -93,6 +93,14 @@ export const TrialList: FC<{
   let content = null
   if (trials.length > selected) {
     const trial = trials[selected]
+
+    const startMs = trial.datetime_start?.getTime()
+    const completeMs = trial.datetime_complete?.getTime()
+    let duration = ""
+    if (startMs !== undefined && completeMs !== undefined) {
+      duration = (completeMs - startMs).toString()
+    }
+
     content = (
       <>
         <Card sx={{ margin: theme.spacing(2) }}>
@@ -107,17 +115,28 @@ export const TrialList: FC<{
                 sx={{ marginRight: theme.spacing(1) }}
               />
               {isBestTrial(trial.trial_id) ? (
-                <Chip label={"Best Trial"} color="primary" />
+                <Chip label={"Best Trial"} color="secondary" />
               ) : null}
             </Box>
             <Typography>
-              Values:{" "}
-              {trial.values?.map((v) => v.toString()).join(" ") || "None"}
+              Values: [
+              {trial.values?.map((v) => v.toString()).join(" ") || "None"}]
             </Typography>
             <Typography>
               Params = [
               {trial.params.map((p) => `${p.name}: ${p.value}`).join(", ")}]
             </Typography>
+            <Typography>
+              Started At ={" "}
+              {trial?.datetime_start ? trial?.datetime_start.toString() : null}
+            </Typography>
+            <Typography>
+              Completed At ={" "}
+              {trial?.datetime_complete
+                ? trial?.datetime_complete.toString()
+                : null}
+            </Typography>
+            <Typography>Duration = {duration} ms</Typography>
           </CardContent>
         </Card>
         <TrialNote
@@ -207,7 +226,7 @@ export const TrialList: FC<{
                     {isBestTrial(trial.trial_id) ? (
                       <Chip
                         label={"Best Trial"}
-                        color="primary"
+                        color="secondary"
                         sx={{ marginLeft: theme.spacing(1) }}
                         size="small"
                       />
