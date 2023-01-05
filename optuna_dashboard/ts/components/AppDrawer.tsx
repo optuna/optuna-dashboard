@@ -296,7 +296,7 @@ export const AppDrawer: FC<{
           <ListItem key="Feedback" disablePadding sx={styleListItem}>
             <ListItemButton
               target="_blank"
-              href="https://github.com/optuna/optuna-dashboard/discussions/319"
+              href="https://github.com/optuna/optuna-dashboard/discussions/332"
               sx={styleListItemButton}
             >
               <ListItemIcon sx={styleListItemIcon}>
