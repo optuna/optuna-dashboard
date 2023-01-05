@@ -1,12 +1,15 @@
 import React, { FC } from "react"
-import { Typography, Grid, Box } from "@mui/material"
+import { Typography, Grid, Box, IconButton } from "@mui/material"
+import LinkIcon from "@mui/icons-material/Link"
 
 import { DataGridColumn, DataGrid } from "./DataGrid"
+import { Link } from "react-router-dom"
 
 export const TrialTable: FC<{
   studyDetail: StudyDetail | null
+  isBeta: boolean
   initialRowsPerPage?: number
-}> = ({ studyDetail, initialRowsPerPage }) => {
+}> = ({ studyDetail, isBeta, initialRowsPerPage }) => {
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
   const objectiveNames: string[] = studyDetail?.objective_names || []
 
@@ -89,46 +92,48 @@ export const TrialTable: FC<{
       }))
     columns.push(...objectiveColumns)
   }
-  columns.push({
-    field: "datetime_start",
-    label: "Duration(ms)",
-    toCellValue: (i) => {
-      const startMs = trials[i].datetime_start?.getTime()
-      const completeMs = trials[i].datetime_complete?.getTime()
-      if (startMs !== undefined && completeMs !== undefined) {
-        return (completeMs - startMs).toString()
-      }
-      return null
-    },
-    sortable: true,
-    less: (firstEl, secondEl): number => {
-      const firstStartMs = firstEl.datetime_start?.getTime()
-      const firstCompleteMs = firstEl.datetime_complete?.getTime()
-      const firstDurationMs =
-        firstStartMs !== undefined && firstCompleteMs !== undefined
-          ? firstCompleteMs - firstStartMs
-          : undefined
-      const secondStartMs = secondEl.datetime_start?.getTime()
-      const secondCompleteMs = secondEl.datetime_complete?.getTime()
-      const secondDurationMs =
-        secondStartMs !== undefined && secondCompleteMs !== undefined
-          ? secondCompleteMs - secondStartMs
-          : undefined
+  if (!isBeta) {
+    columns.push({
+      field: "datetime_start",
+      label: "Duration(ms)",
+      toCellValue: (i) => {
+        const startMs = trials[i].datetime_start?.getTime()
+        const completeMs = trials[i].datetime_complete?.getTime()
+        if (startMs !== undefined && completeMs !== undefined) {
+          return (completeMs - startMs).toString()
+        }
+        return null
+      },
+      sortable: true,
+      less: (firstEl, secondEl): number => {
+        const firstStartMs = firstEl.datetime_start?.getTime()
+        const firstCompleteMs = firstEl.datetime_complete?.getTime()
+        const firstDurationMs =
+          firstStartMs !== undefined && firstCompleteMs !== undefined
+            ? firstCompleteMs - firstStartMs
+            : undefined
+        const secondStartMs = secondEl.datetime_start?.getTime()
+        const secondCompleteMs = secondEl.datetime_complete?.getTime()
+        const secondDurationMs =
+          secondStartMs !== undefined && secondCompleteMs !== undefined
+            ? secondCompleteMs - secondStartMs
+            : undefined
 
-      if (firstDurationMs === secondDurationMs) {
-        return 0
-      } else if (
-        firstDurationMs !== undefined &&
-        secondDurationMs !== undefined
-      ) {
-        return firstDurationMs < secondDurationMs ? 1 : -1
-      } else if (firstDurationMs !== undefined) {
-        return -1
-      } else {
-        return 1
-      }
-    },
-  })
+        if (firstDurationMs === secondDurationMs) {
+          return 0
+        } else if (
+          firstDurationMs !== undefined &&
+          secondDurationMs !== undefined
+        ) {
+          return firstDurationMs < secondDurationMs ? 1 : -1
+        } else if (firstDurationMs !== undefined) {
+          return -1
+        } else {
+          return 1
+        }
+      },
+    })
+  }
   if (
     studyDetail?.union_search_space.length ===
     studyDetail?.intersection_search_space.length
@@ -199,6 +204,26 @@ export const TrialTable: FC<{
       },
     })
   })
+  if (isBeta) {
+    columns.push({
+      field: "trial_id",
+      label: "Detail",
+      toCellValue: (i) => (
+        <IconButton
+          component={Link}
+          to={
+            URL_PREFIX +
+            `/studies/${trials[i].study_id}/trials/${trials[i].number}`
+          }
+          color="inherit"
+          title="Go to the trial's detail page"
+          size="small"
+        >
+          <LinkIcon />
+        </IconButton>
+      ),
+    })
+  }
 
   const collapseIntermediateValueColumns: DataGridColumn<TrialIntermediateValue>[] =
     [
@@ -273,7 +298,7 @@ export const TrialTable: FC<{
       rows={trials}
       keyField={"trial_id"}
       dense={true}
-      collapseBody={collapseBody}
+      collapseBody={isBeta ? undefined : collapseBody}
       initialRowsPerPage={initialRowsPerPage}
     />
   )

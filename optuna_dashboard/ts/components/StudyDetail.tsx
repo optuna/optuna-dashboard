@@ -232,7 +232,7 @@ export const StudyDetail: FC<{
             </Card>
           ) : null}
           <Card sx={{ margin: theme.spacing(2) }}>
-            <TrialTable studyDetail={studyDetail} />
+            <TrialTable studyDetail={studyDetail} isBeta={false} />
           </Card>
           {studyDetail !== null ? (
             <StudyNote studyId={studyIdNumber} latestNote={studyDetail.note} />

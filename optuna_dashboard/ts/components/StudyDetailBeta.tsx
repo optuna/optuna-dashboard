@@ -189,7 +189,11 @@ export const StudyDetailBeta: FC<{
     content = (
       <Card sx={{ margin: theme.spacing(2) }}>
         <CardContent>
-          <TrialTable studyDetail={studyDetail} initialRowsPerPage={50} />
+          <TrialTable
+            studyDetail={studyDetail}
+            isBeta={true}
+            initialRowsPerPage={50}
+          />
         </CardContent>
       </Card>
     )
