@@ -34,43 +34,43 @@ type GraphVisibility = {
   slice: boolean
 }
 
-declare interface TrialIntermediateValue {
+type TrialIntermediateValue = {
   step: number
   value: TrialIntermediateValueNumber
 }
 
-declare interface TrialParam {
+type TrialParam = {
   name: string
   value: string
 }
 
-declare interface ParamImportance {
+type ParamImportance = {
   name: string
   importance: number
   distribution: Distribution
 }
 
-declare interface SearchSpace {
+type SearchSpace = {
   name: string
   distribution: Distribution
 }
 
-declare interface Attribute {
+type Attribute = {
   key: string
   value: string
 }
 
-declare interface AttributeSpec {
+type AttributeSpec = {
   key: string
   sortable: boolean
 }
 
-declare interface Note {
+type Note = {
   version: number
   body: string
 }
 
-declare interface Trial {
+type Trial = {
   trial_id: number
   study_id: number
   number: number
@@ -85,7 +85,7 @@ declare interface Trial {
   note: Note
 }
 
-declare interface StudySummary {
+type StudySummary = {
   study_id: number
   study_name: string
   directions: StudyDirection[]
@@ -94,7 +94,7 @@ declare interface StudySummary {
   datetime_start?: Date
 }
 
-declare interface StudyDetail {
+type StudyDetail = {
   id: number
   name: string
   directions: StudyDirection[]
@@ -109,10 +109,10 @@ declare interface StudyDetail {
   objective_names?: string[]
 }
 
-declare interface StudyDetails {
+type StudyDetails = {
   [study_id: string]: StudyDetail
 }
 
-declare interface StudyParamImportance {
+type StudyParamImportance = {
   [study_id: string]: ParamImportance[][]
 }
