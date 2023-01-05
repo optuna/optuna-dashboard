@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { ReactNode, useState } from "react"
 import {
   Dialog,
   DialogTitle,
@@ -9,9 +9,10 @@ import {
 } from "@mui/material"
 import { actionCreator } from "../action"
 
-type UsePreferenceDialogReturn = [(studyId: number) => void, () => JSX.Element]
-
-export const useDeleteStudyDialog = (): UsePreferenceDialogReturn => {
+export const useDeleteStudyDialog = (): [
+  (studyId: number) => void,
+  () => ReactNode
+] => {
   const action = actionCreator()
 
   const [openDeleteStudyDialog, setOpenDeleteStudyDialog] = useState(false)
@@ -33,7 +34,7 @@ export const useDeleteStudyDialog = (): UsePreferenceDialogReturn => {
     setOpenDeleteStudyDialog(true)
   }
 
-  const renderCreateNewStudyDialog = () => {
+  const renderDeleteStudyDialog = () => {
     return (
       <Dialog
         open={openDeleteStudyDialog}
@@ -59,5 +60,5 @@ export const useDeleteStudyDialog = (): UsePreferenceDialogReturn => {
       </Dialog>
     )
   }
-  return [openDialog, renderCreateNewStudyDialog]
+  return [openDialog, renderDeleteStudyDialog]
 }
