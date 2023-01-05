@@ -120,16 +120,22 @@ export const TrialList: FC<{
             </Box>
             <Typography>
               Values: [
-              {trial.values?.map((v) => v.toString()).join(" ") || "None"}
-              ]
+              {trial.values?.map((v) => v.toString()).join(" ") || "None"}]
             </Typography>
             <Typography>
               Params = [
-              {trial.params.map((p) => `${p.name}: ${p.value}`).join(", ")}
-              ]
+              {trial.params.map((p) => `${p.name}: ${p.value}`).join(", ")}]
             </Typography>
-            <Typography>Started At = {trial?.datetime_start ? trial?.datetime_start.toString() : null}</Typography>
-            <Typography>Completed At = {trial?.datetime_complete ? trial?.datetime_complete.toString() : null}</Typography>
+            <Typography>
+              Started At ={" "}
+              {trial?.datetime_start ? trial?.datetime_start.toString() : null}
+            </Typography>
+            <Typography>
+              Completed At ={" "}
+              {trial?.datetime_complete
+                ? trial?.datetime_complete.toString()
+                : null}
+            </Typography>
             <Typography>Duration = {duration} ms</Typography>
           </CardContent>
         </Card>
