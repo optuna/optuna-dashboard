@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import logging
 import threading
 from typing import TYPE_CHECKING
-import warnings
 
 import optuna
 from optuna.importance import FanovaImportanceEvaluator
@@ -13,12 +13,15 @@ from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
 
 
+_logger = logging.getLogger(__name__)
+
+
 try:
     from optuna_fast_fanova import FanovaImportanceEvaluator as FastFanovaImportanceEvaluator
 except ModuleNotFoundError:
     FastFanovaImportanceEvaluator = None  # type: ignore
-except Exception as e:
-    warnings.warn(f"Failed to import optuna-fast-fanova: {e}")
+except Exception:
+    _logger.exception("Failed to import optuna-fast-fanova")
     FastFanovaImportanceEvaluator = None  # type: ignore
 
 
@@ -68,7 +71,8 @@ def _get_param_importances(
                 target=target,
                 evaluator=evaluator,
             )
-        except:
+        except Exception:
+            _logger.exception("Failed to call optuna-fast-fanova")
             pass
     return get_param_importances(
         study,
