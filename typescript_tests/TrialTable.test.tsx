@@ -91,7 +91,7 @@ const studyDetail: StudyDetail = {
 
 it("Sort TrialTable by trial number", () => {
   const { getAllByRole, getByText } = render(
-    <TrialTable studyDetail={studyDetail} />
+    <TrialTable studyDetail={studyDetail} isBeta={false} />
   )
   const rows = getAllByRole("row")
 
@@ -107,7 +107,7 @@ it("Sort TrialTable by trial number", () => {
 
 it("Sort TrialTable by value", () => {
   const { getAllByRole, getByText } = render(
-    <TrialTable studyDetail={studyDetail} />
+    <TrialTable studyDetail={studyDetail} isBeta={false} />
   )
   fireEvent.click(getByText("Value"))
   const rows = getAllByRole("row")
@@ -122,7 +122,7 @@ it("Sort TrialTable by value", () => {
 
 it("Sort TrialTable by duration", () => {
   const { getAllByRole, getByText } = render(
-    <TrialTable studyDetail={studyDetail} />
+    <TrialTable studyDetail={studyDetail} isBeta={false} />
   )
   fireEvent.click(getByText("Duration(ms)"))
   const rows = getAllByRole("row")
@@ -137,7 +137,7 @@ it("Sort TrialTable by duration", () => {
 
 it("Sort TrialTable by state", () => {
   const { getAllByRole, getByText } = render(
-    <TrialTable studyDetail={studyDetail} />
+    <TrialTable studyDetail={studyDetail} isBeta={false} />
   )
   fireEvent.click(getByText("State"))
   const rows = getAllByRole("row")
@@ -151,7 +151,7 @@ it("Sort TrialTable by state", () => {
 })
 
 it("Filter trials by state", () => {
-  const { queryAllByText } = render(<TrialTable studyDetail={studyDetail} />)
+  const { queryAllByText } = render(<TrialTable studyDetail={studyDetail} isBeta={false} />)
   expect(queryAllByText("Fail").length).toBe(1)
 
   // Click 'Complete' state
