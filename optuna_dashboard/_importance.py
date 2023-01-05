@@ -4,7 +4,7 @@ import threading
 from typing import TYPE_CHECKING
 import warnings
 
-from optuna.importance import BaseImportanceEvaluator
+import optuna
 from optuna.importance import FanovaImportanceEvaluator
 from optuna.importance import get_param_importances
 from optuna.storages import BaseStorage
@@ -23,6 +23,8 @@ except Exception as e:
 
 
 if TYPE_CHECKING:
+    from typing import Callable
+    from typing import Optional
     from typing import TypedDict
 
     ImportanceType = TypedDict(
@@ -52,6 +54,29 @@ class StudyWrapper(Study):
         return self._cached_trials
 
 
+def _get_param_importances(
+    study: optuna.Study,
+    completed_trials: list[FrozenTrial],
+    *,
+    target: Optional[Callable[[FrozenTrial], float]] = None,
+) -> dict[str, float]:
+    if FastFanovaImportanceEvaluator is not None:
+        try:
+            evaluator = FastFanovaImportanceEvaluator(completed_trials=completed_trials)
+            return get_param_importances(
+                study,
+                target=target,
+                evaluator=evaluator,
+            )
+        except:
+            pass
+    return get_param_importances(
+        study,
+        target=target,
+        evaluator=FanovaImportanceEvaluator(),
+    )
+
+
 def get_param_importance_from_trials_cache(
     storage: BaseStorage, study_id: int, objective_id: int, trials: list[FrozenTrial]
 ) -> list[ImportanceType]:
@@ -67,17 +92,7 @@ def get_param_importance_from_trials_cache(
             return cache_importance
 
         study = StudyWrapper(storage, study_id, trials)
-
-        evaluator: BaseImportanceEvaluator
-        if FastFanovaImportanceEvaluator is not None:
-            evaluator = FastFanovaImportanceEvaluator(completed_trials=completed_trials)
-        else:
-            evaluator = FanovaImportanceEvaluator()
-        importance = get_param_importances(
-            study,
-            target=lambda t: t.values[objective_id],
-            evaluator=evaluator,
-        )
+        importance = _get_param_importances(study, completed_trials)
         converted = convert_to_importance_type(importance, trials)
         param_importance_cache[cache_key] = (n_completed_trials, converted)
     return converted
