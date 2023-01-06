@@ -309,10 +309,13 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             response.status = 500
             storage.delete_study(dst_study._study_id)
             return {"reason": str(e)}
-        storage.delete_study(src_study._study_id)
-
-        response.status = 201
         new_study_summary = get_study_summary(storage, dst_study._study_id)
+        if new_study_summary is None:
+            response.status = 500
+            return {"reason": "Failed to load the new study"}
+
+        storage.delete_study(src_study._study_id)
+        response.status = 201
         return serialize_study_summary(new_study_summary)
 
     @app.delete("/api/studies/<study_id:int>")
