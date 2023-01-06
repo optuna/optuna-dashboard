@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from "react"
+import React, { FC, useMemo } from "react"
 import {
   Typography,
   Box,
@@ -69,6 +69,23 @@ const useTrials = (
   }, [studyDetail, query])
 }
 
+const useSelectedTrials = (
+  trials: Trial[],
+  query: URLSearchParams
+): Trial[] => {
+  return useMemo(() => {
+    const selected = query.get("numbers")
+    if (selected === null) {
+      return []
+    }
+    const numbers = selected
+      .split(",")
+      .map((s) => parseInt(s))
+      .filter((n) => !isNaN(n))
+    return trials.filter((t) => numbers.findIndex((n) => n === t.number) !== -1)
+  }, [query])
+}
+
 const useIsBestTrial = (
   studyDetail: StudyDetail | null
 ): ((trialId: number) => boolean) => {
@@ -79,16 +96,15 @@ const useIsBestTrial = (
   }, [studyDetail])
 }
 
-export const TrialList: FC<{
-  studyDetail: StudyDetail | null
-  trialNumber: number | null
-}> = ({ studyDetail, trialNumber }) => {
+export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
+  studyDetail,
+}) => {
   const theme = useTheme()
   const query = useQuery()
   const trials = useTrials(studyDetail, query)
   const isBestTrial = useIsBestTrial(studyDetail)
+  const selected = useSelectedTrials(trials, query)
 
-  const [selected, setSelected] = useState<number>(trialNumber || 0)
   const trialListWidth = 240
 
   const collapseIntermediateValueColumns: DataGridColumn<TrialIntermediateValue>[] =
@@ -124,8 +140,9 @@ export const TrialList: FC<{
   ]
 
   let content = null
-  if (trials.length > selected) {
-    const trial = trials[selected]
+  // TODO(c-bata): Support multiple columns
+  if (selected.length > 0 || trials.length > 0) {
+    const trial = selected.length > 0 ? selected[0] : trials[0]
 
     const startMs = trial.datetime_start?.getTime()
     const completeMs = trial.datetime_complete?.getTime()
@@ -234,12 +251,11 @@ export const TrialList: FC<{
                   component={Link}
                   to={
                     URL_PREFIX +
-                    `/studies/${trial.study_id}/trials/${trial.number}`
+                    `/studies/${trial.study_id}/trials?numbers=${trial.number}`
                   }
-                  onClick={() => {
-                    setSelected(trial.number)
-                  }}
-                  selected={i === selected}
+                  selected={
+                    selected.findIndex((t) => t.number === trial.number) !== -1
+                  }
                   sx={{
                     display: "flex",
                     flexDirection: "column",

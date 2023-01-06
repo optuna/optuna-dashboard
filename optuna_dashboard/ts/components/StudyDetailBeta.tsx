@@ -38,19 +38,12 @@ import { BestTrialsCard } from "./BestTrialsCard"
 
 interface ParamTypes {
   studyId: string
-  trialNumber?: string
 }
 
-export const useURLVars = (): [number, number | null] => {
-  const { studyId, trialNumber } = useParams<ParamTypes>()
+export const useURLVars = (): number => {
+  const { studyId } = useParams<ParamTypes>()
 
-  return [
-    useMemo(() => parseInt(studyId, 10), [trialNumber]),
-    useMemo(
-      () => (trialNumber ? parseInt(trialNumber, 10) : null),
-      [trialNumber]
-    ),
-  ]
+  return useMemo(() => parseInt(studyId, 10), [studyId])
 }
 
 export const StudyDetailBeta: FC<{
@@ -59,7 +52,7 @@ export const StudyDetailBeta: FC<{
 }> = ({ toggleColorMode, page }) => {
   const theme = useTheme()
   const action = actionCreator()
-  const [studyId, trialNumber] = useURLVars()
+  const studyId = useURLVars()
   const studyDetail = useStudyDetailValue(studyId)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studySummary = useStudySummaryValue(studyId)
@@ -200,7 +193,7 @@ export const StudyDetailBeta: FC<{
       </Card>
     )
   } else if (page === "trialList") {
-    content = <TrialList studyDetail={studyDetail} trialNumber={trialNumber} />
+    content = <TrialList studyDetail={studyDetail} />
   } else if (page === "note" && studyDetail !== null) {
     content = (
       <StudyNote
