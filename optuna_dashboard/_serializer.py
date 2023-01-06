@@ -7,6 +7,8 @@ from typing import Union
 
 import numpy as np
 from optuna.distributions import BaseDistribution
+from optuna.distributions import FloatDistribution
+from optuna.distributions import IntDistribution
 from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
 
@@ -158,11 +160,47 @@ def serialize_frozen_trial(
     return serialized
 
 
+def normalize_distribution(distribution: BaseDistribution) -> BaseDistribution:
+    if distribution.__class__.__name__ == "UniformDistribution":
+        return FloatDistribution(
+            low=getattr(distribution, "low"),
+            high=getattr(distribution, "high"),
+        )
+    elif distribution.__class__.__name__ == "LogUniformDistribution":
+        return FloatDistribution(
+            low=getattr(distribution, "low"),
+            high=getattr(distribution, "high"),
+            log=True,
+        )
+    elif distribution.__class__.__name__ == "DiscreteUniformDistribution":
+        return FloatDistribution(
+            low=getattr(distribution, "low"),
+            high=getattr(distribution, "high"),
+            step=getattr(distribution, "q")
+        )
+    elif distribution.__class__.__name__ == "IntUniformDistribution":
+        return IntDistribution(
+            low=getattr(distribution, "low"),
+            high=getattr(distribution, "high"),
+            step=getattr(distribution, "step")
+        )
+    elif distribution.__class__.__name__ == "IntLogUniformDistribution":
+        return IntDistribution(
+            low=getattr(distribution, "low"),
+            high=getattr(distribution, "high"),
+            step=getattr(distribution, "step"),
+            log=True
+        )
+    else:
+        return distribution
+
+
 def serialize_search_space(
     search_space: list[tuple[str, BaseDistribution]]
 ) -> list[dict[str, Any]]:
     serialized = []
     for param_name, distribution in search_space:
+        distribution = normalize_distribution(distribution)
         serialized.append(
             {
                 "name": param_name,

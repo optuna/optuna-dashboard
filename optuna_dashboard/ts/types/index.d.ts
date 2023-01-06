@@ -14,11 +14,6 @@ type StudyDirection = "maximize" | "minimize" | "not_set"
 type Distribution =
   | "FloatDistribution"
   | "IntDistribution"
-  | "UniformDistribution"
-  | "LogUniformDistribution"
-  | "DiscreteUniformDistribution"
-  | "IntUniformDistribution"
-  | "IntLogUniformDistribution"
   | "CategoricalDistribution"
 
 type PageId = "history" | "analytics" | "trialTable" | "trialList" | "note"
