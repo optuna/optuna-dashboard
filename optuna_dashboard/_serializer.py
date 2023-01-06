@@ -70,7 +70,10 @@ if TYPE_CHECKING:
     )
     CategoricalDistributionJSON = TypedDict(
         "CategoricalDistributionJSON",
-        {"choices": list[CategoricalDistributionChoiceJSON]},
+        {
+            "type": Literal["CategoricalDistribution"],
+            "choices": list[CategoricalDistributionChoiceJSON],
+        },
     )
     DistributionJSON = Union[
         FloatDistributionJSON, IntDistributionJSON, CategoricalDistributionJSON
@@ -209,77 +212,83 @@ def serialize_frozen_trial(
 def serialize_distribution(distribution: BaseDistribution) -> DistributionJSON:
     if distribution.__class__.__name__ == "FloatDistribution":
         # Added from Optuna v3.0
-        return {
+        float_distribution: FloatDistributionJSON = {
             "type": "FloatDistribution",
             "low": getattr(distribution, "low"),
             "high": getattr(distribution, "high"),
             "step": getattr(distribution, "step"),
             "log": getattr(distribution, "log"),
         }
+        return float_distribution
     if distribution.__class__.__name__ == "UniformDistribution":
         # Deprecated from Optuna v3.0
-        return {
+        uniform: FloatDistributionJSON = {
             "type": "FloatDistribution",
             "low": getattr(distribution, "low"),
             "high": getattr(distribution, "high"),
             "step": 0,
             "log": False,
         }
+        return uniform
     if distribution.__class__.__name__ == "LogUniformDistribution":
         # Deprecated from Optuna v3.0
-        return {
+        log_uniform: FloatDistributionJSON = {
             "type": "FloatDistribution",
             "low": getattr(distribution, "low"),
             "high": getattr(distribution, "high"),
             "step": 0,
             "log": True,
         }
+        return log_uniform
     if distribution.__class__.__name__ == "DiscreteUniformDistribution":
         # Deprecated from Optuna v3.0
-        return {
+        discrete_uniform: FloatDistributionJSON = {
             "type": "FloatDistribution",
             "low": getattr(distribution, "low"),
             "high": getattr(distribution, "high"),
             "step": getattr(distribution, "q"),
             "log": False,
         }
-
+        return discrete_uniform
     if distribution.__class__.__name__ == "IntDistribution":
         # Added from Optuna v3.0
-        return {
+        int_distribution: IntDistributionJSON = {
             "type": "IntDistribution",
             "low": getattr(distribution, "low"),
             "high": getattr(distribution, "high"),
             "step": getattr(distribution, "step"),
             "log": getattr(distribution, "log"),
         }
+        return int_distribution
     if distribution.__class__.__name__ == "IntUniformDistribution":
         # Deprecated from Optuna v3.0
-        return {
+        int_uniform: IntDistributionJSON = {
             "type": "IntDistribution",
             "low": getattr(distribution, "low"),
             "high": getattr(distribution, "high"),
             "step": getattr(distribution, "step"),
             "log": False,
         }
+        return int_uniform
     if distribution.__class__.__name__ == "IntLogUniformDistribution":
         # Deprecated from Optuna v3.0
-        return {
+        int_log_uniform: IntDistributionJSON = {
             "type": "IntDistribution",
             "low": getattr(distribution, "low"),
             "high": getattr(distribution, "high"),
             "step": getattr(distribution, "step"),
             "log": True,
         }
-
+        return int_log_uniform
     if isinstance(distribution, CategoricalDistribution):
-        return {
+        categorical: CategoricalDistributionJSON = {
             "type": "CategoricalDistribution",
             "choices": [
                 {"pytype": str(type(choice)), "value": str(choice)}
                 for choice in distribution.choices
             ],
         }
+        return categorical
     raise ValueError(f"Unexpected distribution {str(distribution)}")
 
 
