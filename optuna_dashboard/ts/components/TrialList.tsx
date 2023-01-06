@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react"
+import React, { FC, useMemo, useState } from "react"
 import {
   Typography,
   Box,
@@ -18,7 +18,7 @@ import ListSubheader from "@mui/material/ListSubheader"
 
 import { TrialNote } from "./Note"
 import { DataGrid, DataGridColumn } from "./DataGrid"
-import { Link } from "react-router-dom"
+import { Link, useLocation } from "react-router-dom"
 
 type Color =
   | "default"
@@ -44,19 +44,52 @@ const getChipColor = (state: TrialState): Color => {
   return "default"
 }
 
+const useQuery = (): URLSearchParams => {
+  const { search } = useLocation()
+
+  return useMemo(() => new URLSearchParams(search), [search])
+}
+
+const useTrials = (
+  studyDetail: StudyDetail | null,
+  query: URLSearchParams
+): Trial[] => {
+  return useMemo(() => {
+    let result = studyDetail !== null ? studyDetail.trials : []
+
+    const exclude = query.get("exclude")
+    if (exclude === null) {
+      return result
+    }
+    const states = exclude.split(",").map((s) => s.toUpperCase())
+    states.forEach((s) => {
+      result = result.filter((t) => t.state.toUpperCase() !== s)
+    })
+    return result
+  }, [studyDetail, query])
+}
+
+const useIsBestTrial = (
+  studyDetail: StudyDetail | null
+): ((trialId: number) => boolean) => {
+  return useMemo(() => {
+    const bestTrialIDs = studyDetail?.best_trials.map((t) => t.trial_id) || []
+    return (trialId: number): boolean =>
+      bestTrialIDs.findIndex((a) => a === trialId) != -1
+  }, [studyDetail])
+}
+
 export const TrialList: FC<{
   studyDetail: StudyDetail | null
   trialNumber: number | null
 }> = ({ studyDetail, trialNumber }) => {
   const theme = useTheme()
-  const [selected, setSelected] = useState<number>(trialNumber || 0)
-  const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
-  const trialListWidth = 240
+  const query = useQuery()
+  const trials = useTrials(studyDetail, query)
+  const isBestTrial = useIsBestTrial(studyDetail)
 
-  const isBestTrial = (trialId: number) => {
-    const bestTrialIDs = studyDetail?.best_trials.map((t) => t.trial_id) || []
-    return bestTrialIDs.findIndex((a) => a === trialId) != -1
-  }
+  const [selected, setSelected] = useState<number>(trialNumber || 0)
+  const trialListWidth = 240
 
   const collapseIntermediateValueColumns: DataGridColumn<TrialIntermediateValue>[] =
     [
@@ -119,7 +152,7 @@ export const TrialList: FC<{
               ) : null}
             </Box>
             <Typography>
-              Values: [
+              Values = [
               {trial.values?.map((v) => v.toString()).join(" ") || "None"}]
             </Typography>
             <Typography>
@@ -193,9 +226,7 @@ export const TrialList: FC<{
         }}
       >
         <List>
-          <ListSubheader>{`${
-            studyDetail?.trials.length || 0
-          } Trials`}</ListSubheader>
+          <ListSubheader>{`${trials.length} Trials`}</ListSubheader>
           {trials.map((trial, i) => {
             return (
               <ListItem key={trial.trial_id} disablePadding>

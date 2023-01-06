@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react"
+import React, { FC, useEffect, useMemo } from "react"
 import { useRecoilValue } from "recoil"
 import { Link, useParams } from "react-router-dom"
 import {
@@ -43,12 +43,14 @@ interface ParamTypes {
 
 export const useURLVars = (): [number, number | null] => {
   const { studyId, trialNumber } = useParams<ParamTypes>()
-  const parsedStudyId = parseInt(studyId, 10)
-  if (trialNumber === undefined) {
-    return [parsedStudyId, null]
-  }
-  const parsedTrialNumber = parseInt(trialNumber, 10)
-  return [parsedStudyId, parsedTrialNumber]
+
+  return [
+    useMemo(() => parseInt(studyId, 10), [trialNumber]),
+    useMemo(
+      () => (trialNumber ? parseInt(trialNumber, 10) : null),
+      [trialNumber]
+    ),
+  ]
 }
 
 export const StudyDetailBeta: FC<{

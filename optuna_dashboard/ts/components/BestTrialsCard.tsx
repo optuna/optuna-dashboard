@@ -1,4 +1,4 @@
-import React, { FC } from "react"
+import React, { FC, ReactNode, useMemo } from "react"
 import {
   Box,
   Button,
@@ -15,15 +15,20 @@ import {
 import { Link } from "react-router-dom"
 import LinkIcon from "@mui/icons-material/Link"
 
+const useBestTrials = (studyDetail: StudyDetail | null): Trial[] => {
+  return useMemo(() => studyDetail?.best_trials || [], [studyDetail])
+}
+
 export const BestTrialsCard: FC<{
   studyDetail: StudyDetail | null
 }> = ({ studyDetail }) => {
   const theme = useTheme()
+  const bestTrials = useBestTrials(studyDetail)
 
   let header = "Best Trials"
-  let content: React.ReactNode = null
-  if (studyDetail !== null && studyDetail.best_trials.length === 1) {
-    const bestTrial = studyDetail.best_trials[0]
+  let content: ReactNode = null
+  if (bestTrials.length === 1) {
+    const bestTrial = bestTrials[0]
     header = `Best Trial (number=${bestTrial.number})`
     content = (
       <>
@@ -40,17 +45,14 @@ export const BestTrialsCard: FC<{
         </Typography>
         <Typography>
           Intermediate Values = [
-          {studyDetail.best_trials[0].intermediate_values
+          {bestTrial.intermediate_values
             .map((p) => `${p.step}: ${p.value}`)
             .join(", ")}
           ]
         </Typography>
         <Typography>
           User Attributes = [
-          {studyDetail.best_trials[0].user_attrs
-            .map((p) => `${p.key}: ${p.value}`)
-            .join(", ")}
-          ]
+          {bestTrial.user_attrs.map((p) => `${p.key}: ${p.value}`).join(", ")}]
         </Typography>
         <Button
           variant="outlined"
@@ -63,8 +65,7 @@ export const BestTrialsCard: FC<{
         </Button>
       </>
     )
-  } else if (studyDetail !== null && studyDetail.best_trials.length > 1) {
-    const bestTrials = studyDetail.best_trials
+  } else if (bestTrials.length > 1) {
     content = (
       <>
         <Divider
