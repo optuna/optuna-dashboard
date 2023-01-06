@@ -150,7 +150,9 @@ def serialize_frozen_trial(
 ) -> dict[str, Any]:
     params = []
     for param_name, param_external_value in trial.params.items():
-        distribution = trial.distributions[param_name]
+        distribution = trial.distributions.get(param_name)
+        if distribution is None:
+            continue
         params.append(
             {
                 "name": param_name,
