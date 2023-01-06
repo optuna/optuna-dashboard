@@ -11,10 +11,32 @@ type TrialValueNumber = number | "inf" | "-inf"
 type TrialIntermediateValueNumber = number | "inf" | "-inf" | "nan"
 type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting"
 type StudyDirection = "maximize" | "minimize" | "not_set"
+
+type FloatDistribution = {
+  type: "FloatDistribution"
+  low: number
+  high: number
+  step: number
+  log: boolean
+}
+
+type IntDistribution = {
+  type: "IntDistribution"
+  low: number
+  high: number
+  step: number
+  log: boolean
+}
+
+type CategoricalDistribution = {
+  type: "CategoricalDistribution"
+  choices: { pytype: string; value: string }[]
+}
+
 type Distribution =
-  | "FloatDistribution"
-  | "IntDistribution"
-  | "CategoricalDistribution"
+  | FloatDistribution
+  | IntDistribution
+  | CategoricalDistribution
 
 type GraphVisibility = {
   history: boolean
@@ -34,7 +56,10 @@ type TrialIntermediateValue = {
 
 type TrialParam = {
   name: string
-  value: string
+  param_internal_value: number
+  param_external_value: string
+  param_external_type: string
+  distribution: Distribution
 }
 
 type ParamImportance = {
@@ -43,7 +68,7 @@ type ParamImportance = {
   distribution: Distribution
 }
 
-type SearchSpace = {
+type SearchSpaceItem = {
   name: string
   distribution: Distribution
 }
@@ -94,8 +119,8 @@ type StudyDetail = {
   datetime_start: Date
   best_trials: Trial[]
   trials: Trial[]
-  intersection_search_space: SearchSpace[]
-  union_search_space: SearchSpace[]
+  intersection_search_space: SearchSpaceItem[]
+  union_search_space: SearchSpaceItem[]
   union_user_attrs: AttributeSpec[]
   has_intermediate_values: boolean
   note: Note

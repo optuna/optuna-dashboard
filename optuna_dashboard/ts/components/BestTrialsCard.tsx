@@ -41,7 +41,10 @@ export const BestTrialsCard: FC<{
         </Typography>
         <Typography>
           Params = [
-          {bestTrial.params.map((p) => `${p.name}: ${p.value}`).join(", ")}]
+          {bestTrial.params
+            .map((p) => `${p.name}: ${p.param_external_value}`)
+            .join(", ")}
+          ]
         </Typography>
         <Typography>
           Intermediate Values = [
@@ -101,7 +104,7 @@ export const BestTrialsCard: FC<{
                         <Typography>
                           Params = [
                           {trial.params
-                            .map((p) => `${p.name}: ${p.value}`)
+                            .map((p) => `${p.name}: ${p.param_external_value}`)
                             .join(", ")}
                           ]
                         </Typography>

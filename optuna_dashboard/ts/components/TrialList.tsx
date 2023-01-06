@@ -162,7 +162,10 @@ const TrialListDetail: FC<{
           </Typography>
           <Typography>
             Params = [
-            {trial.params.map((p) => `${p.name}: ${p.value}`).join(", ")}]
+            {trial.params
+              .map((p) => `${p.name}: ${p.param_external_value}`)
+              .join(", ")}
+            ]
           </Typography>
           <Typography>
             Started At ={" "}

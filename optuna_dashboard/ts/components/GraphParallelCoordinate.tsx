@@ -136,15 +136,10 @@ const plotCoordinate = (
     },
   ]
   study.intersection_search_space.forEach((s) => {
-    const valueStrings = filteredTrials.map((t) => {
-      const param = t.params.find((p) => p.name === s.name)
-      return param!.value
-    })
-    const isnum = valueStrings.every((v) => {
-      return !isNaN(Number(v))
-    })
-    if (isnum) {
-      const values: number[] = valueStrings.map((v) => parseFloat(v))
+    const values: number[] = filteredTrials.map(
+      (t) => t.params.find((p) => p.name === s.name)!.param_internal_value
+    )
+    if (s.distribution.type !== "CategoricalDistribution") {
       dimensions.push({
         label: breakLabelIfTooLong(s.name),
         values: values,
@@ -152,11 +147,7 @@ const plotCoordinate = (
       })
     } else {
       // categorical
-      const vocabSet = new Set<string>(valueStrings)
-      const vocabArr = Array.from<string>(vocabSet)
-      const values: number[] = valueStrings.map((v) =>
-        vocabArr.findIndex((vocab) => v === vocab)
-      )
+      const vocabArr: string[] = s.distribution.choices.map((c) => c.value)
       const tickvals: number[] = vocabArr.map((v, i) => i)
       dimensions.push({
         label: breakLabelIfTooLong(s.name),

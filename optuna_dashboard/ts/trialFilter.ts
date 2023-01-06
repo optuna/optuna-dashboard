@@ -1,10 +1,12 @@
 import { useMemo } from "react"
 
+type TargetKind = "objective" | "user_attr" | "params"
+
 export class Target {
-  kind: "objective" | "user_attr"
+  kind: TargetKind
   key: number | string
 
-  constructor(kind: "objective" | "user_attr", key: number | string) {
+  constructor(kind: TargetKind, key: number | string) {
     this.kind = kind
     this.key = key
   }
@@ -18,8 +20,10 @@ export class Target {
       if (typeof this.key !== "string") {
         return false
       }
-    } else {
-      return false
+    } else if (this.kind === "params") {
+      if (typeof this.key !== "string") {
+        return false
+      }
     }
     return true
   }
@@ -31,12 +35,17 @@ export class Target {
         return objectiveNames[objectiveId]
       }
       return `Objective ${objectiveId}`
-    } else {
+    } else if (this.kind === "user_attr") {
       return `User Attribute ${this.key}`
+    } else {
+      return `Param ${this.key}`
     }
   }
 
   getObjectiveId(): number | null {
+    if (this.kind !== "objective") {
+      return null
+    }
     return this.key as number
   }
 
@@ -68,6 +77,12 @@ export class Target {
         return null
       }
       return value
+    } else if (this.kind === "params") {
+      const param = trial.params.find((p) => p.name === this.key)
+      if (param === undefined) {
+        return null
+      }
+      return param.param_internal_value
     }
     return null
   }
@@ -75,7 +90,7 @@ export class Target {
 
 export const useFilteredTrials = (
   study: StudyDetail | null,
-  target: Target,
+  targets: Target[],
   filterComplete: boolean,
   filterPruned: boolean
 ): Trial[] =>
@@ -93,11 +108,22 @@ export const useFilteredTrials = (
       if (t.state === "Pruned" && filterPruned) {
         return false
       }
-      return target.getTargetValue(t) !== null
+      return targets.every((target) => target.getTargetValue(t) !== null)
     })
-  }, [study?.trials, target, filterComplete, filterPruned])
+  }, [study?.trials, targets, filterComplete, filterPruned])
 
-export const useTargetList = (study: StudyDetail | null): Target[] =>
+export const useObjectiveTargets = (study: StudyDetail | null): Target[] =>
+  useMemo<Target[]>(() => {
+    if (study !== null) {
+      return study.directions.map((v, i) => new Target("objective", i))
+    } else {
+      return [new Target("objective", 0)]
+    }
+  }, [study?.directions])
+
+export const useObjectiveAndSystemAttrTargets = (
+  study: StudyDetail | null
+): Target[] =>
   useMemo<Target[]>(() => {
     if (study !== null) {
       return [

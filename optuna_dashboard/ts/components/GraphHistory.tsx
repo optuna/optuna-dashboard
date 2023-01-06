@@ -16,7 +16,11 @@ import {
   useTheme,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
-import { useFilteredTrials, Target, useTargetList } from "../trialFilter"
+import {
+  useFilteredTrials,
+  Target,
+  useObjectiveAndSystemAttrTargets,
+} from "../trialFilter"
 
 const plotDomId = "graph-history"
 
@@ -30,11 +34,11 @@ export const GraphHistory: FC<{
   const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
 
   const objectiveNames: string[] = study?.objective_names || []
-  const targetList = useTargetList(study)
+  const targetList = useObjectiveAndSystemAttrTargets(study)
   const [targetIndex, setTargetIndex] = useState<number>(0)
   const trials = useFilteredTrials(
     study,
-    targetList[targetIndex],
+    [targetList[targetIndex]],
     filterCompleteTrial,
     filterPrunedTrial
   )

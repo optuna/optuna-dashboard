@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 from typing import Union
 
 import numpy as np
-from optuna.distributions import BaseDistribution
+from optuna.distributions import BaseDistribution, CategoricalDistribution
 from optuna.distributions import FloatDistribution
 from optuna.distributions import IntDistribution
 from optuna.study import StudySummary
@@ -41,6 +41,41 @@ if TYPE_CHECKING:
             "value": Union[float, Literal["inf", "-inf", "nan"]],
         },
     )
+
+    FloatDistributionJSON = TypedDict(
+        "FloatDistributionJSON",
+        {
+            "type": Literal["FloatDistribution"],
+            "low": float,
+            "high": float,
+            "step": float,
+            "log": bool,
+        },
+    )
+    IntDistributionJSON = TypedDict(
+        "IntDistributionJSON",
+        {
+            "type": Literal["IntDistribution"],
+            "low": int,
+            "high": int,
+            "step": int,
+            "log": bool,
+        },
+    )
+    CategoricalDistributionChoiceJSON = TypedDict(
+        "CategoricalDistributionChoiceJSON",
+        {
+            "pytype": str,
+            "value": str,
+        }
+    )
+    CategoricalDistributionJSON = TypedDict(
+        "CategoricalDistributionJSON",
+        {
+            "choices": list[CategoricalDistributionChoiceJSON]
+        },
+    )
+    DistributionJSON = Union[FloatDistributionJSON, IntDistributionJSON, CategoricalDistributionJSON]
 
 
 MAX_ATTR_LENGTH = 1024
@@ -111,12 +146,22 @@ def serialize_study_detail(
 def serialize_frozen_trial(
     study_id: int, trial: FrozenTrial, study_system_attrs: dict[str, Any]
 ) -> dict[str, Any]:
+    params = []
+    for param_name, param_external_value in trial.params.items():
+        distribution = trial.distributions[param_name]
+        params.append({
+            "name": param_name,
+            "param_internal_value": distribution.to_internal_repr(param_external_value),
+            "param_external_value": str(param_external_value),
+            "param_external_pytyp": str(type(param_external_value)),
+            "distribution": serialize_distribution(distribution)
+        })
     serialized = {
         "trial_id": trial._trial_id,
         "study_id": study_id,
         "number": trial.number,
         "state": trial.state.name.capitalize(),
-        "params": [{"name": name, "value": str(value)} for name, value in trial.params.items()],
+        "params": params,
         "user_attrs": serialize_attrs(trial.user_attrs),
         "system_attrs": serialize_attrs(getattr(trial, "_system_attrs", {})),
         "note": note.get_note_from_system_attrs(study_system_attrs, trial._trial_id),
@@ -160,6 +205,38 @@ def serialize_frozen_trial(
     return serialized
 
 
+def serialize_distribution(distribution: BaseDistribution) -> DistributionJSON:
+    distribution = normalize_distribution(distribution)
+    if isinstance(distribution, FloatDistribution):
+        return {
+            "type": "FloatDistribution",
+            "low": distribution.low,
+            "high": distribution.high,
+            "step": distribution.step,
+            "log": distribution.log,
+        }
+    if isinstance(distribution, IntDistribution):
+        return {
+            "type": "IntDistribution",
+            "low": distribution.low,
+            "high": distribution.high,
+            "step": distribution.step,
+            "log": distribution.log,
+        }
+    if isinstance(distribution, CategoricalDistribution):
+        return {
+            "type": "CategoricalDistribution",
+            "choices": [
+                {
+                    "pytype": str(type(choice)),
+                    "value": str(choice)
+                }
+                for choice in distribution.choices
+            ],
+        }
+    raise ValueError(f"Unexpected distribution {str(distribution)}")
+
+
 def normalize_distribution(distribution: BaseDistribution) -> BaseDistribution:
     if distribution.__class__.__name__ == "UniformDistribution":
         return FloatDistribution(
@@ -200,12 +277,10 @@ def serialize_search_space(
 ) -> list[dict[str, Any]]:
     serialized = []
     for param_name, distribution in search_space:
-        distribution = normalize_distribution(distribution)
         serialized.append(
             {
                 "name": param_name,
-                "distribution": distribution.__class__.__name__,
-                "attributes": distribution._asdict(),
+                "distribution": serialize_distribution(distribution),
             }
         )
     return serialized

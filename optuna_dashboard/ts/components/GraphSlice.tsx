@@ -1,5 +1,5 @@
 import * as plotly from "plotly.js-dist-min"
-import React, { ChangeEvent, FC, useEffect, useState } from "react"
+import React, { ChangeEvent, FC, useEffect, useMemo, useState } from "react"
 import {
   Grid,
   FormControl,
@@ -13,52 +13,76 @@ import {
   Box,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import { Target, useFilteredTrials, useObjectiveTargets } from "../trialFilter"
+import { useSnackbar } from "notistack"
 
 const plotDomId = "graph-slice"
 
-// TODO(c-bata): Check `log` field of IntDistribution and FloatDistribution.
-const logDistributions = ["LogUniformDistribution", "IntLogUniformDistribution"]
+const useSearchSpace = (
+  unionSearchSpaces?: SearchSpaceItem[]
+): SearchSpaceItem[] =>
+  useMemo(
+    () =>
+      Array.from(unionSearchSpaces || []).sort((a, b) =>
+        a.name > b.name ? 1 : a.name < b.name ? -1 : 0
+      ),
+    [unionSearchSpaces]
+  )
+
+const isLogScale = (s: SearchSpaceItem): boolean => {
+  if (s.distribution.type === "CategoricalDistribution") {
+    return false
+  }
+  return s.distribution.log
+}
 
 export const GraphSlice: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
-  const trials: Trial[] = study !== null ? study.trials : []
+  const { enqueueSnackbar } = useSnackbar()
+
   const [objectiveId, setObjectiveId] = useState<number>(0)
-  const [selected, setSelected] = useState<string | null>(null)
-  const [logXScale, setLogXScale] = useState<boolean>(false)
+  const [selected, setSelected] = useState<SearchSpaceItem | null>(null)
   const [logYScale, setLogYScale] = useState<boolean>(false)
-  const paramNames = study?.union_search_space.map((s) => s.name)
-  const distributions = new Map(
-    study?.union_search_space.map((s) => [s.name, s.distribution])
-  )
+  const searchSpaces = useSearchSpace(study?.union_search_space)
+
+  const targets = useObjectiveTargets(study)
+  const filterTargets: Target[] = [targets[objectiveId]]
+  if (selected !== null) filterTargets.push(new Target("params", selected.name))
+  const trials = useFilteredTrials(study, filterTargets, false, false)
+
   const objectiveNames: string[] = study?.objective_names || []
-  if (selected === null && paramNames && paramNames.length > 0) {
-    const distribution = distributions.get(paramNames[0]) || ""
-    setSelected(paramNames[0])
-    setLogXScale(logDistributions.includes(distribution))
+  if (selected === null && searchSpaces.length > 0) {
+    setSelected(searchSpaces[0])
   }
 
   useEffect(() => {
     plotSlice(
       trials,
-      objectiveId,
+      targets[objectiveId],
       selected,
-      logXScale,
       logYScale,
       theme.palette.mode
     )
-  }, [trials, objectiveId, selected, logXScale, logYScale, theme.palette.mode])
+  }, [trials, targets[objectiveId], selected, logYScale, theme.palette.mode])
 
   const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
     setObjectiveId(event.target.value as number)
   }
 
   const handleSelectedParam = (e: SelectChangeEvent<string>) => {
-    const paramName = e.target.value
-    const distribution = distributions.get(paramName) || ""
-    setSelected(paramName)
-    setLogXScale(logDistributions.includes(distribution))
+    const s = searchSpaces.find((s) => s.name === e.target.value)
+    if (s === undefined) {
+      enqueueSnackbar(
+        `Cannot find ${e.target.value} param in the search space.`,
+        {
+          variant: "error",
+        }
+      )
+      return
+    }
+    setSelected(s)
   }
 
   const handleLogYScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -93,9 +117,9 @@ export const GraphSlice: FC<{
         )}
         <FormControl component="fieldset">
           <FormLabel component="legend">Parameter:</FormLabel>
-          <Select value={selected || ""} onChange={handleSelectedParam}>
-            {paramNames?.map((p, i) => (
-              <MenuItem value={p} key={i}>
+          <Select value={selected?.name || ""} onChange={handleSelectedParam}>
+            {searchSpaces?.map((s, i) => (
+              <MenuItem value={s.name} key={i}>
                 {objectiveNames.length === study?.directions.length
                   ? objectiveNames[i]
                   : `${i}`}
@@ -119,32 +143,10 @@ export const GraphSlice: FC<{
   )
 }
 
-const filterFunc = (
-  trial: Trial,
-  objectiveId: number,
-  selected: string | null
-): boolean => {
-  if (trial.state !== "Complete" && trial.state !== "Pruned") {
-    return false
-  }
-  if (trial.params.find((p) => p.name == selected) === undefined) {
-    return false
-  }
-  if (trial.values === undefined) {
-    return false
-  }
-  return (
-    trial.values.length > objectiveId &&
-    trial.values[objectiveId] !== "inf" &&
-    trial.values[objectiveId] !== "-inf"
-  )
-}
-
 const plotSlice = (
   trials: Trial[],
-  objectiveId: number,
-  selected: string | null,
-  logXScale: boolean,
+  target: Target,
+  selected: SearchSpaceItem | null,
   logYScale: boolean,
   mode: string
 ) => {
@@ -160,8 +162,8 @@ const plotSlice = (
       b: 0,
     },
     xaxis: {
-      title: selected || "",
-      type: logXScale ? "log" : "linear",
+      title: selected?.name || "",
+      type: selected !== null && isLogScale(selected) ? "log" : "linear",
       gridwidth: 1,
       automargin: true,
     },
@@ -174,34 +176,27 @@ const plotSlice = (
     showlegend: false,
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
-
-  const filteredTrials = trials.filter((t) =>
-    filterFunc(t, objectiveId, selected)
-  )
-
-  if (filteredTrials.length === 0 || selected === null) {
+  if (selected === null) {
+    plotly.react(plotDomId, [], layout)
+    return
+  }
+  if (trials.length === 0) {
     plotly.react(plotDomId, [], layout)
     return
   }
 
-  const objectiveValues: number[] = filteredTrials.map(
-    (t) => t.values![objectiveId] as number
+  const objectiveValues: number[] = trials.map(
+    (t) => target.getTargetValue(t) as number
   )
-  const valueStrings = filteredTrials.map((t) => {
-    return t.params.find((p) => p.name == selected)!.value
-  })
+  const paramTarget = new Target("params", selected.name)
+  const values = trials.map((t) => paramTarget.getTargetValue(t) as number)
 
-  const trialNumbers: number[] = filteredTrials.map((t) => t.number)
-
-  const isnum = valueStrings.every((v) => {
-    return !isNaN(Number(v))
-  })
-  if (isnum) {
-    const valuesNum: number[] = valueStrings.map((v) => parseFloat(v))
+  const trialNumbers: number[] = trials.map((t) => t.number)
+  if (selected.distribution.type !== "CategoricalDistribution") {
     const trace: plotly.Data[] = [
       {
         type: "scatter",
-        x: valuesNum,
+        x: values,
         y: objectiveValues,
         mode: "markers",
         marker: {
@@ -219,23 +214,19 @@ const plotSlice = (
       },
     ]
     layout["xaxis"] = {
-      title: selected,
-      type: logXScale ? "log" : "linear",
+      title: selected.name,
+      type: selected.distribution.log ? "log" : "linear",
       gridwidth: 1,
       automargin: true, // Otherwise the label is outside of the plot
     }
     plotly.react(plotDomId, trace, layout)
   } else {
-    const vocabSet = new Set<string>(valueStrings)
-    const vocabArr = Array.from<string>(vocabSet)
-    const valuesCategorical: number[] = valueStrings.map((v) =>
-      vocabArr.findIndex((vocab) => v === vocab)
-    )
+    const vocabArr = selected.distribution.choices.map((c) => c.value)
     const tickvals: number[] = vocabArr.map((v, i) => i)
     const trace: plotly.Data[] = [
       {
         type: "scatter",
-        x: valuesCategorical,
+        x: values,
         y: objectiveValues,
         mode: "markers",
         marker: {
@@ -253,8 +244,8 @@ const plotSlice = (
       },
     ]
     layout["xaxis"] = {
-      title: selected,
-      type: logXScale ? "log" : "linear",
+      title: selected.name,
+      type: "linear",
       gridwidth: 1,
       tickvals: tickvals,
       ticktext: vocabArr,

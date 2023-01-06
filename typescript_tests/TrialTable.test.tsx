@@ -61,21 +61,21 @@ const studyDetail: StudyDetail = {
   intersection_search_space: [
     {
       name: "x",
-      distribution: "FloatDistribution" as Distribution,
+      distribution: "FloatDistribution" as DistributionName,
     },
     {
       name: "y",
-      distribution: "FloatDistribution" as Distribution,
+      distribution: "FloatDistribution" as DistributionName,
     },
   ],
   union_search_space: [
     {
       name: "x",
-      distribution: "FloatDistribution" as Distribution,
+      distribution: "FloatDistribution" as DistributionName,
     },
     {
       name: "y",
-      distribution: "FloatDistribution" as Distribution,
+      distribution: "FloatDistribution" as DistributionName,
     },
   ],
   union_user_attrs: [
