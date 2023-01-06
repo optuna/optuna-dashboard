@@ -407,7 +407,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
                 "note": note.get_note_from_system_attrs(system_attrs, None),
             }
 
-        note.save_note(storage, study_id, None, req_note_ver, req_note_body)
+        note.save_note_with_version(storage, study_id, None, req_note_ver, req_note_body)
         response.status = 204  # No content
         return {}
 
@@ -430,7 +430,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
                 "note": note.get_note_from_system_attrs(system_attrs, trial_id),
             }
 
-        note.save_note(storage, study_id, trial_id, req_note_ver, req_note_body)
+        note.save_note_with_version(storage, study_id, trial_id, req_note_ver, req_note_body)
         response.status = 204  # No content
         return {}
 
