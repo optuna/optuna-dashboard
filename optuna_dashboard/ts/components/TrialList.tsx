@@ -83,7 +83,7 @@ const useSelectedTrials = (
       .map((s) => parseInt(s))
       .filter((n) => !isNaN(n))
     return trials.filter((t) => numbers.findIndex((n) => n === t.number) !== -1)
-  }, [query])
+  }, [trials, query])
 }
 
 const useIsBestTrial = (
@@ -96,17 +96,17 @@ const useIsBestTrial = (
   }, [studyDetail])
 }
 
-export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
-  studyDetail,
-}) => {
+const TrialListDetail: FC<{
+  trial: Trial
+  isBestTrial: (trialId: number) => boolean
+}> = ({ trial, isBestTrial }) => {
   const theme = useTheme()
-  const query = useQuery()
-  const trials = useTrials(studyDetail, query)
-  const isBestTrial = useIsBestTrial(studyDetail)
-  const selected = useSelectedTrials(trials, query)
-
-  const trialListWidth = 240
-
+  const startMs = trial.datetime_start?.getTime()
+  const completeMs = trial.datetime_complete?.getTime()
+  let duration = ""
+  if (startMs !== undefined && completeMs !== undefined) {
+    duration = (completeMs - startMs).toString()
+  }
   const collapseIntermediateValueColumns: DataGridColumn<TrialIntermediateValue>[] =
     [
       { field: "step", label: "Step", sortable: true },
@@ -139,99 +139,101 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
     { field: "value", label: "Value", sortable: true },
   ]
 
-  let content = null
-  // TODO(c-bata): Support multiple columns
-  if (selected.length > 0 || trials.length > 0) {
-    const trial = selected.length > 0 ? selected[0] : trials[0]
-
-    const startMs = trial.datetime_start?.getTime()
-    const completeMs = trial.datetime_complete?.getTime()
-    let duration = ""
-    if (startMs !== undefined && completeMs !== undefined) {
-      duration = (completeMs - startMs).toString()
-    }
-
-    content = (
-      <>
-        <Card sx={{ margin: theme.spacing(2) }}>
-          <CardHeader
-            title={`Trial ${trial.number} (trial_id=${trial.trial_id})`}
-          />
-          <CardContent sx={{ paddingTop: 0 }}>
-            <Box sx={{ marginBottom: theme.spacing(1) }}>
-              <Chip
-                color={getChipColor(trial.state)}
-                label={trial.state}
-                sx={{ marginRight: theme.spacing(1) }}
-              />
-              {isBestTrial(trial.trial_id) ? (
-                <Chip label={"Best Trial"} color="secondary" />
-              ) : null}
-            </Box>
-            <Typography>
-              Values = [
-              {trial.values?.map((v) => v.toString()).join(" ") || "None"}]
-            </Typography>
-            <Typography>
-              Params = [
-              {trial.params.map((p) => `${p.name}: ${p.value}`).join(", ")}]
-            </Typography>
-            <Typography>
-              Started At ={" "}
-              {trial?.datetime_start ? trial?.datetime_start.toString() : null}
-            </Typography>
-            <Typography>
-              Completed At ={" "}
-              {trial?.datetime_complete
-                ? trial?.datetime_complete.toString()
-                : null}
-            </Typography>
-            <Typography>Duration = {duration} ms</Typography>
-          </CardContent>
-        </Card>
-        <TrialNote
-          studyId={trial.study_id}
-          trialId={trial.trial_id}
-          latestNote={trial.note}
+  return (
+    <Box sx={{ width: "100%" }}>
+      <Card sx={{ margin: theme.spacing(2) }}>
+        <CardHeader
+          title={`Trial ${trial.number} (trial_id=${trial.trial_id})`}
         />
-        <Grid
-          container
-          direction="row"
-          spacing={2}
-          sx={{ p: theme.spacing(0, 2) }}
-        >
-          <Grid item xs={6}>
-            <Card>
-              <CardHeader title="Intermediate Values" />
-              <CardContent>
-                <DataGrid<TrialIntermediateValue>
-                  columns={collapseIntermediateValueColumns}
-                  rows={trial.intermediate_values}
-                  keyField={"step"}
-                  dense={true}
-                  rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
-                />
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={6}>
-            <Card>
-              <CardHeader title="User Attributes" />
-              <CardContent>
-                <DataGrid<Attribute>
-                  columns={collapseAttrColumns}
-                  rows={trial.user_attrs}
-                  keyField={"key"}
-                  dense={true}
-                  rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
-                />
-              </CardContent>
-            </Card>
-          </Grid>
+        <CardContent sx={{ paddingTop: 0 }}>
+          <Box sx={{ marginBottom: theme.spacing(1) }}>
+            <Chip
+              color={getChipColor(trial.state)}
+              label={trial.state}
+              sx={{ marginRight: theme.spacing(1) }}
+            />
+            {isBestTrial(trial.trial_id) ? (
+              <Chip label={"Best Trial"} color="secondary" />
+            ) : null}
+          </Box>
+          <Typography>
+            Values = [
+            {trial.values?.map((v) => v.toString()).join(" ") || "None"}]
+          </Typography>
+          <Typography>
+            Params = [
+            {trial.params.map((p) => `${p.name}: ${p.value}`).join(", ")}]
+          </Typography>
+          <Typography>
+            Started At ={" "}
+            {trial?.datetime_start ? trial?.datetime_start.toString() : null}
+          </Typography>
+          <Typography>
+            Completed At ={" "}
+            {trial?.datetime_complete
+              ? trial?.datetime_complete.toString()
+              : null}
+          </Typography>
+          <Typography>Duration = {duration} ms</Typography>
+        </CardContent>
+      </Card>
+      <TrialNote
+        studyId={trial.study_id}
+        trialId={trial.trial_id}
+        latestNote={trial.note}
+      />
+      <Grid
+        container
+        direction="row"
+        spacing={2}
+        sx={{ p: theme.spacing(0, 2) }}
+      >
+        <Grid item xs={6}>
+          <Card>
+            <CardHeader title="Intermediate Values" />
+            <CardContent>
+              <DataGrid<TrialIntermediateValue>
+                columns={collapseIntermediateValueColumns}
+                rows={trial.intermediate_values}
+                keyField={"step"}
+                dense={true}
+                rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
+              />
+            </CardContent>
+          </Card>
         </Grid>
-      </>
-    )
-  }
+        <Grid item xs={6}>
+          <Card>
+            <CardHeader title="User Attributes" />
+            <CardContent>
+              <DataGrid<Attribute>
+                columns={collapseAttrColumns}
+                rows={trial.user_attrs}
+                keyField={"key"}
+                dense={true}
+                rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
+              />
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
+  )
+}
+
+export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
+  studyDetail,
+}) => {
+  const theme = useTheme()
+  const query = useQuery()
+  const trials = useTrials(studyDetail, query)
+  const isBestTrial = useIsBestTrial(studyDetail)
+  const selected = useSelectedTrials(trials, query)
+
+  const trialListWidth = 240
+
+  const showDetailTrials =
+    selected.length > 0 ? selected : trials.length > 0 ? [trials[0]] : []
 
   return (
     <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
@@ -293,7 +295,17 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
           height: `calc(100vh - ${theme.spacing(8)})`,
         }}
       >
-        {content}
+        <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
+          {showDetailTrials.length === 0
+            ? null
+            : showDetailTrials.map((t) => (
+                <TrialListDetail
+                  key={t.trial_id}
+                  trial={t}
+                  isBestTrial={isBestTrial}
+                />
+              ))}
+        </Box>
       </Box>
     </Box>
   )
