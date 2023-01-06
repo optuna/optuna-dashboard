@@ -1,5 +1,5 @@
 import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect, useMemo, useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 import {
   Grid,
   FormControl,
@@ -12,6 +12,7 @@ import {
   Box,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import { useSearchSpace } from "../searchSpace"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const unique = (array: any[]) => {
@@ -32,17 +33,6 @@ type AxisInfo = {
 
 const PADDING_RATIO = 0.05
 const plotDomId = "graph-contour"
-
-const useSearchSpace = (
-  unionSearchSpaces?: SearchSpaceItem[]
-): SearchSpaceItem[] =>
-  useMemo(
-    () =>
-      Array.from(unionSearchSpaces || []).sort((a, b) =>
-        a.name > b.name ? 1 : a.name < b.name ? -1 : 0
-      ),
-    [unionSearchSpaces]
-  )
 
 export const Contour: FC<{
   study: StudyDetail | null

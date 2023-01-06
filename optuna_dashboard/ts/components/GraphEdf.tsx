@@ -12,7 +12,7 @@ import {
   Box,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
-import {Target, useFilteredTrials, useObjectiveTargets} from "../trialFilter";
+import { Target, useFilteredTrials, useObjectiveTargets } from "../trialFilter"
 
 const plotDomId = "graph-edf"
 
