@@ -24,7 +24,7 @@ import {
   useStudySummaryValue,
 } from "../state"
 import { TrialTable } from "./TrialTable"
-import { AppDrawer } from "./AppDrawer"
+import { AppDrawer, PageId } from "./AppDrawer"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { Contour } from "./GraphContour"
 import { GraphHyperparameterImportanceBeta } from "./GraphHyperparameterImportances"

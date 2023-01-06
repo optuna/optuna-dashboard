@@ -16,8 +16,6 @@ type Distribution =
   | "IntDistribution"
   | "CategoricalDistribution"
 
-type PageId = "history" | "analytics" | "trialTable" | "trialList" | "note"
-
 type GraphVisibility = {
   history: boolean
   paretoFront: boolean
