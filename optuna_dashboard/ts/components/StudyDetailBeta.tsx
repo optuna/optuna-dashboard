@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react"
+import React, { FC, useEffect, useMemo } from "react"
 import { useRecoilValue } from "recoil"
 import { Link, useParams } from "react-router-dom"
 import {
@@ -38,17 +38,12 @@ import { BestTrialsCard } from "./BestTrialsCard"
 
 interface ParamTypes {
   studyId: string
-  trialNumber?: string
 }
 
-export const useURLVars = (): [number, number | null] => {
-  const { studyId, trialNumber } = useParams<ParamTypes>()
-  const parsedStudyId = parseInt(studyId, 10)
-  if (trialNumber === undefined) {
-    return [parsedStudyId, null]
-  }
-  const parsedTrialNumber = parseInt(trialNumber, 10)
-  return [parsedStudyId, parsedTrialNumber]
+export const useURLVars = (): number => {
+  const { studyId } = useParams<ParamTypes>()
+
+  return useMemo(() => parseInt(studyId, 10), [studyId])
 }
 
 export const StudyDetailBeta: FC<{
@@ -57,7 +52,7 @@ export const StudyDetailBeta: FC<{
 }> = ({ toggleColorMode, page }) => {
   const theme = useTheme()
   const action = actionCreator()
-  const [studyId, trialNumber] = useURLVars()
+  const studyId = useURLVars()
   const studyDetail = useStudyDetailValue(studyId)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studySummary = useStudySummaryValue(studyId)
@@ -198,7 +193,7 @@ export const StudyDetailBeta: FC<{
       </Card>
     )
   } else if (page === "trialList") {
-    content = <TrialList studyDetail={studyDetail} trialNumber={trialNumber} />
+    content = <TrialList studyDetail={studyDetail} />
   } else if (page === "note" && studyDetail !== null) {
     content = (
       <StudyNote
