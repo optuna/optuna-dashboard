@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { ReactNode, useState } from "react"
 import {
   Dialog,
   useTheme,
@@ -19,9 +19,7 @@ import { studySummariesState } from "../state"
 import RemoveIcon from "@mui/icons-material/Remove"
 import AddIcon from "@mui/icons-material/Add"
 
-type UsePreferenceDialogReturn = [() => void, () => JSX.Element]
-
-export const useCreateStudyDialog = (): UsePreferenceDialogReturn => {
+export const useCreateStudyDialog = (): [() => void, () => ReactNode] => {
   const theme = useTheme()
   const action = actionCreator()
 

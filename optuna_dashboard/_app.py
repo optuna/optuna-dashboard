@@ -25,6 +25,7 @@ from bottle import response
 from bottle import run
 from bottle import SimpleTemplate
 from bottle import static_file
+import optuna
 from optuna.exceptions import DuplicatedStudyError
 from optuna.storages import BaseStorage
 from optuna.storages import RDBStorage
@@ -281,6 +282,41 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             return {"reason": "Failed to create study"}
         response.status = 201  # Created
         return {"study_summary": serialize_study_summary(summary)}
+
+    @app.post("/api/studies/<study_id:int>/rename")
+    @json_api_view
+    def rename_study(study_id: int) -> BottleViewReturn:
+        dst_study_name = request.json.get("study_name", None)
+        if dst_study_name is None:
+            response.status = 400  # Bad request
+            return {"reason": "You need to set study_name and direction"}
+
+        src_study_name = storage.get_study_name_from_id(study_id)
+        try:
+            src_study = optuna.load_study(storage=storage, study_name=src_study_name)
+        except KeyError:
+            response.status = 404  # Not found
+            return {"reason": f"study_id={study_id} is not found"}
+
+        try:
+            dst_study = optuna.create_study(storage=storage, study_name=dst_study_name)
+            dst_study.add_trials(src_study.get_trials(deepcopy=False))
+        except DuplicatedStudyError:
+            response.status = 400  # Bad request
+            return {"reason": f"study_name={dst_study_name} is duplicaated"}
+        except Exception as e:
+            logger.exception("Unexpected error:")
+            response.status = 500
+            storage.delete_study(dst_study._study_id)
+            return {"reason": str(e)}
+        new_study_summary = get_study_summary(storage, dst_study._study_id)
+        if new_study_summary is None:
+            response.status = 500
+            return {"reason": "Failed to load the new study"}
+
+        storage.delete_study(src_study._study_id)
+        response.status = 201
+        return serialize_study_summary(new_study_summary)
 
     @app.delete("/api/studies/<study_id:int>")
     @json_api_view

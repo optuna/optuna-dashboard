@@ -8,6 +8,7 @@ import {
   deleteStudyAPI,
   saveStudyNoteAPI,
   saveTrialNoteAPI,
+  renameStudyAPI,
 } from "./apiClient"
 import {
   graphVisibilityState,
@@ -139,7 +140,7 @@ export const actionCreator = () => {
 
   const deleteStudy = (studyId: number) => {
     deleteStudyAPI(studyId)
-      .then((study) => {
+      .then(() => {
         setStudySummaries(studySummaries.filter((s) => s.study_id !== studyId))
         enqueueSnackbar(`Success to delete a study (id=${studyId})`, {
           variant: "success",
@@ -147,6 +148,26 @@ export const actionCreator = () => {
       })
       .catch((err) => {
         enqueueSnackbar(`Failed to delete study (id=${studyId})`, {
+          variant: "error",
+        })
+        console.log(err)
+      })
+  }
+
+  const renameStudy = (studyId: number, studyName: string) => {
+    renameStudyAPI(studyId, studyName)
+      .then((study) => {
+        const newStudySummaries = [
+          ...studySummaries.filter((s) => s.study_id !== studyId),
+          study,
+        ]
+        setStudySummaries(newStudySummaries)
+        enqueueSnackbar(`Success to delete a study (id=${studyId})`, {
+          variant: "success",
+        })
+      })
+      .catch((err) => {
+        enqueueSnackbar(`Failed to rename study (id=${studyId})`, {
           variant: "error",
         })
         console.log(err)
@@ -250,6 +271,7 @@ export const actionCreator = () => {
     updateParamImportance,
     createNewStudy,
     deleteStudy,
+    renameStudy,
     getGraphVisibility,
     saveGraphVisibility,
     saveStudyNote,

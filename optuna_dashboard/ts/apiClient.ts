@@ -91,19 +91,6 @@ interface StudySummariesResponse {
     study_id: number
     study_name: string
     directions: StudyDirection[]
-    best_trial?: {
-      trial_id: number
-      study_id: number
-      number: number
-      state: TrialState
-      value?: number
-      intermediate_values: TrialIntermediateValue[]
-      datetime_start: string
-      datetime_complete?: string
-      params: TrialParam[]
-      user_attrs: Attribute[]
-      system_attrs: Attribute[]
-    }
     user_attrs: Attribute[]
     system_attrs: Attribute[]
     datetime_start?: string
@@ -134,19 +121,6 @@ interface CreateNewStudyResponse {
     study_id: number
     study_name: string
     directions: StudyDirection[]
-    best_trial?: {
-      trial_id: number
-      study_id: number
-      number: number
-      state: TrialState
-      value?: number
-      intermediate_values: TrialIntermediateValue[]
-      datetime_start: string
-      datetime_complete?: string
-      params: TrialParam[]
-      user_attrs: Attribute[]
-      system_attrs: Attribute[]
-    }
     user_attrs: Attribute[]
     system_attrs: Attribute[]
     datetime_start?: string
@@ -178,10 +152,41 @@ export const createNewStudyAPI = (
     })
 }
 
-export const deleteStudyAPI = (studyId: number) => {
+export const deleteStudyAPI = (studyId: number): Promise<void> => {
   return axiosInstance.delete(`/api/studies/${studyId}`).then((res) => {
-    return {}
+    return
   })
+}
+
+type RenameStudyResponse = {
+  study_id: number
+  study_name: string
+  directions: StudyDirection[]
+  user_attrs: Attribute[]
+  system_attrs: Attribute[]
+  datetime_start?: string
+}
+
+export const renameStudyAPI = (
+  studyId: number,
+  studyName: string
+): Promise<StudySummary> => {
+  return axiosInstance
+    .post<RenameStudyResponse>(`/api/studies/${studyId}/rename`, {
+      study_name: studyName,
+    })
+    .then((res) => {
+      return {
+        study_id: res.data.study_id,
+        study_name: res.data.study_name,
+        directions: res.data.directions,
+        user_attrs: res.data.user_attrs,
+        system_attrs: res.data.system_attrs,
+        datetime_start: res.data.datetime_start
+          ? new Date(res.data.datetime_start)
+          : undefined,
+      }
+    })
 }
 
 export const saveStudyNoteAPI = (

@@ -22,6 +22,7 @@ import { Delete, Refresh, Search } from "@mui/icons-material"
 import SortIcon from "@mui/icons-material/Sort"
 import HomeIcon from "@mui/icons-material/Home"
 import AddBoxIcon from "@mui/icons-material/AddBox"
+import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"
 
 import { actionCreator } from "../action"
 import { DebouncedInputTextField } from "./Debounce"
@@ -30,6 +31,7 @@ import { styled } from "@mui/system"
 import { AppDrawer } from "./AppDrawer"
 import { useCreateStudyDialog } from "./CreateStudyDialog"
 import { useDeleteStudyDialog } from "./DeleteStudyDialog"
+import { useRenameStudyDialog } from "./RenameStudyDialog"
 
 export const StudyListBeta: FC<{
   toggleColorMode: () => void
@@ -47,16 +49,18 @@ export const StudyListBeta: FC<{
       return row.study_name.indexOf(k) >= 0
     })
   }
+  const studies = useRecoilValue<StudySummary[]>(studySummariesState)
   const [openCreateStudyDialog, renderCreateStudyDialog] =
     useCreateStudyDialog()
   const [openDeleteStudyDialog, renderDeleteStudyDialog] =
     useDeleteStudyDialog()
+  const [openRenameStudyDialog, renderRenameStudyDialog] =
+    useRenameStudyDialog(studies)
   const [sortBy, setSortBy] = useState<"id-asc" | "id-desc">("id-asc")
 
-  let studies = useRecoilValue<StudySummary[]>(studySummariesState)
-  studies = studies.filter((s) => !studyFilter(s))
+  let filteredStudies = studies.filter((s) => !studyFilter(s))
   if (sortBy === "id-desc") {
-    studies = studies.reverse()
+    filteredStudies = filteredStudies.reverse()
   }
 
   useEffect(() => {
@@ -118,7 +122,7 @@ export const StudyListBeta: FC<{
           <Card sx={{ margin: theme.spacing(2) }}>
             <CardContent>
               <Typography>
-                {`Thank you for testing the new UI! we would appreciate it if you could send us the feedback via `}
+                {`Thank you for testing the new UI! We would appreciate it if you could send us the feedback via `}
                 <MuiLink
                   target="_blank"
                   href="https://github.com/optuna/optuna-dashboard/discussions/332"
@@ -180,7 +184,7 @@ export const StudyListBeta: FC<{
             </CardContent>
           </Card>
           <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-            {studies.map((study) => (
+            {filteredStudies.map((study) => (
               <Card
                 key={study.study_id}
                 sx={{ margin: theme.spacing(2), width: "500px" }}
@@ -208,6 +212,16 @@ export const StudyListBeta: FC<{
                 <CardActions disableSpacing>
                   <Box sx={{ flexGrow: 1 }} />
                   <IconButton
+                    aria-label="rename study"
+                    size="small"
+                    color="inherit"
+                    onClick={() => {
+                      openRenameStudyDialog(study.study_id, study.study_name)
+                    }}
+                  >
+                    <DriveFileRenameOutlineIcon />
+                  </IconButton>
+                  <IconButton
                     aria-label="delete study"
                     size="small"
                     color="inherit"
@@ -225,6 +239,7 @@ export const StudyListBeta: FC<{
       </AppDrawer>
       {renderCreateStudyDialog()}
       {renderDeleteStudyDialog()}
+      {renderRenameStudyDialog()}
     </Box>
   )
 }
