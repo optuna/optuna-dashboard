@@ -6,7 +6,14 @@ import { TrialTable } from "../optuna_dashboard/ts/components/TrialTable"
 
 afterEach(cleanup)
 
-const trials = [
+const dummyDistribution: FloatDistribution = {
+  type: "FloatDistribution",
+  low: 0,
+  high: 10,
+  step: 1,
+  log: false,
+}
+const trials: Trial[] = [
   {
     trial_id: 1,
     study_id: 0,
@@ -17,8 +24,20 @@ const trials = [
     datetime_start: new Date("2021-06-15T00:00:00"),
     datetime_complete: new Date("2021-06-15T00:00:01"),
     params: [
-      { name: "x", value: "1" },
-      { name: "y", value: "2" },
+      {
+        name: "x",
+        param_internal_value: 1,
+        param_external_value: "1",
+        param_external_type: "float",
+        distribution: dummyDistribution,
+      },
+      {
+        name: "y",
+        param_internal_value: 2,
+        param_external_value: "2",
+        param_external_type: "float",
+        distribution: dummyDistribution,
+      },
     ],
     user_attrs: [],
     system_attrs: [],
@@ -37,8 +56,20 @@ const trials = [
     datetime_start: new Date("2021-06-15T00:00:01"),
     datetime_complete: new Date("2021-06-15T00:00:03"),
     params: [
-      { name: "x", value: "2" },
-      { name: "y", value: "1" },
+      {
+        name: "x",
+        param_internal_value: 1,
+        param_external_value: "1",
+        param_external_type: "float",
+        distribution: dummyDistribution,
+      },
+      {
+        name: "y",
+        param_internal_value: 2,
+        param_external_value: "2",
+        param_external_type: "float",
+        distribution: dummyDistribution,
+      },
     ],
     user_attrs: [],
     system_attrs: [],
@@ -61,21 +92,21 @@ const studyDetail: StudyDetail = {
   intersection_search_space: [
     {
       name: "x",
-      distribution: "FloatDistribution" as DistributionName,
+      distribution: dummyDistribution,
     },
     {
       name: "y",
-      distribution: "FloatDistribution" as DistributionName,
+      distribution: dummyDistribution,
     },
   ],
   union_search_space: [
     {
       name: "x",
-      distribution: "FloatDistribution" as DistributionName,
+      distribution: dummyDistribution,
     },
     {
       name: "y",
-      distribution: "FloatDistribution" as DistributionName,
+      distribution: dummyDistribution,
     },
   ],
   union_user_attrs: [
