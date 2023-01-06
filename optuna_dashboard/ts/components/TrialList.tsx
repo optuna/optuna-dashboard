@@ -18,7 +18,7 @@ import ListSubheader from "@mui/material/ListSubheader"
 
 import { TrialNote } from "./Note"
 import { DataGrid, DataGridColumn } from "./DataGrid"
-import { Link, useLocation } from "react-router-dom"
+import { useHistory, useLocation } from "react-router-dom"
 
 type Color =
   | "default"
@@ -226,6 +226,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
 }) => {
   const theme = useTheme()
   const query = useQuery()
+  const history = useHistory()
   const trials = useTrials(studyDetail, query)
   const isBestTrial = useIsBestTrial(studyDetail)
   const selected = useSelectedTrials(trials, query)
@@ -250,11 +251,39 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
             return (
               <ListItem key={trial.trial_id} disablePadding>
                 <ListItemButton
-                  component={Link}
-                  to={
-                    URL_PREFIX +
-                    `/studies/${trial.study_id}/trials?numbers=${trial.number}`
-                  }
+                  onClick={(e) => {
+                    if (e.shiftKey) {
+                      let next: number[]
+                      const selectedNumbers = selected.map((t) => t.number)
+                      const alreadySelected =
+                        selectedNumbers.findIndex((n) => n === trial.number) >=
+                        0
+                      if (alreadySelected) {
+                        next = selectedNumbers.filter((n) => n !== trial.number)
+                      } else {
+                        next = [...selectedNumbers, trial.number]
+                      }
+                      const trialNumbers = next
+                        .map((n) => n.toString())
+                        .join(",")
+
+                      if (trialNumbers.length > 0) {
+                        history.push(
+                          URL_PREFIX +
+                            `/studies/${trial.study_id}/trials?numbers=${trialNumbers}`
+                        )
+                      } else {
+                        history.push(
+                          URL_PREFIX + `/studies/${trial.study_id}/trials`
+                        )
+                      }
+                    } else {
+                      history.push(
+                        URL_PREFIX +
+                          `/studies/${trial.study_id}/trials?numbers=${trial.number}`
+                      )
+                    }
+                  }}
                   selected={
                     selected.findIndex((t) => t.number === trial.number) !== -1
                   }
