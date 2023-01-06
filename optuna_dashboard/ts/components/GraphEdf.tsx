@@ -12,6 +12,7 @@ import {
   Box,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import {Target, useFilteredTrials, useObjectiveTargets} from "../trialFilter";
 
 const plotDomId = "graph-edf"
 
@@ -20,6 +21,8 @@ export const Edf: FC<{
 }> = ({ study = null }) => {
   const theme = useTheme()
   const [objectiveId, setObjectiveId] = useState<number>(0)
+  const targets = useObjectiveTargets(study)
+  const trials = useFilteredTrials(study, [targets[objectiveId]], false, false)
   const objectiveNames: string[] = study?.objective_names || []
 
   const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
@@ -28,9 +31,9 @@ export const Edf: FC<{
 
   useEffect(() => {
     if (study != null) {
-      plotEdf(study, objectiveId, theme.palette.mode)
+      plotEdf(trials, targets[objectiveId], theme.palette.mode)
     }
-  }, [study, objectiveId, theme.palette.mode])
+  }, [trials, targets, objectiveId, theme.palette.mode])
   return (
     <Grid container direction="row">
       <Grid
@@ -47,11 +50,9 @@ export const Edf: FC<{
           <FormControl component="fieldset">
             <FormLabel component="legend">Objective ID:</FormLabel>
             <Select value={objectiveId} onChange={handleObjectiveChange}>
-              {study.directions.map((d, i) => (
+              {targets.map((target, i) => (
                 <MenuItem value={i} key={i}>
-                  {objectiveNames.length === study?.directions.length
-                    ? objectiveNames[i]
-                    : `${i}`}
+                  {target.toLabel(objectiveNames)}
                 </MenuItem>
               ))}
             </Select>
@@ -65,24 +66,11 @@ export const Edf: FC<{
   )
 }
 
-const filterFunc = (trial: Trial, objectiveId: number): boolean => {
-  return (
-    trial.state === "Complete" &&
-    trial.values !== undefined &&
-    trial.values[objectiveId] !== "inf" &&
-    trial.values[objectiveId] !== "-inf"
-  )
-}
-
-const plotEdf = (study: StudyDetail, objectiveId: number, mode: string) => {
+const plotEdf = (trials: Trial[], target: Target, mode: string) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
-
-  const trials: Trial[] = study ? study.trials : []
-  const filteredTrials = trials.filter((t) => filterFunc(t, objectiveId))
-
-  if (filteredTrials.length === 0) {
+  if (trials.length === 0) {
     plotly.react(plotDomId, [], {
       template: mode === "dark" ? plotlyDarkTemplate : {},
     })
@@ -90,11 +78,6 @@ const plotEdf = (study: StudyDetail, objectiveId: number, mode: string) => {
   }
 
   const target_name = "Objective Value"
-
-  const target = (t: Trial): number => {
-    return t.values![objectiveId] as number
-  }
-
   const layout: Partial<plotly.Layout> = {
     xaxis: {
       title: target_name,
@@ -111,7 +94,7 @@ const plotEdf = (study: StudyDetail, objectiveId: number, mode: string) => {
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
-  const values = filteredTrials.map((t) => target(t))
+  const values = trials.map((t) => target.getTargetValue(t) as number)
   const numValues = values.length
   const minX = Math.min(...values)
   const maxX = Math.max(...values)
