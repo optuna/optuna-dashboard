@@ -6,7 +6,8 @@ from typing import TYPE_CHECKING
 from typing import Union
 
 import numpy as np
-from optuna.distributions import BaseDistribution, CategoricalDistribution
+from optuna.distributions import BaseDistribution
+from optuna.distributions import CategoricalDistribution
 from optuna.distributions import FloatDistribution
 from optuna.distributions import IntDistribution
 from optuna.study import StudySummary
@@ -67,15 +68,15 @@ if TYPE_CHECKING:
         {
             "pytype": str,
             "value": str,
-        }
+        },
     )
     CategoricalDistributionJSON = TypedDict(
         "CategoricalDistributionJSON",
-        {
-            "choices": list[CategoricalDistributionChoiceJSON]
-        },
+        {"choices": list[CategoricalDistributionChoiceJSON]},
     )
-    DistributionJSON = Union[FloatDistributionJSON, IntDistributionJSON, CategoricalDistributionJSON]
+    DistributionJSON = Union[
+        FloatDistributionJSON, IntDistributionJSON, CategoricalDistributionJSON
+    ]
 
 
 MAX_ATTR_LENGTH = 1024
@@ -149,13 +150,15 @@ def serialize_frozen_trial(
     params = []
     for param_name, param_external_value in trial.params.items():
         distribution = trial.distributions[param_name]
-        params.append({
-            "name": param_name,
-            "param_internal_value": distribution.to_internal_repr(param_external_value),
-            "param_external_value": str(param_external_value),
-            "param_external_pytyp": str(type(param_external_value)),
-            "distribution": serialize_distribution(distribution)
-        })
+        params.append(
+            {
+                "name": param_name,
+                "param_internal_value": distribution.to_internal_repr(param_external_value),
+                "param_external_value": str(param_external_value),
+                "param_external_pytyp": str(type(param_external_value)),
+                "distribution": serialize_distribution(distribution),
+            }
+        )
     serialized = {
         "trial_id": trial._trial_id,
         "study_id": study_id,
@@ -227,10 +230,7 @@ def serialize_distribution(distribution: BaseDistribution) -> DistributionJSON:
         return {
             "type": "CategoricalDistribution",
             "choices": [
-                {
-                    "pytype": str(type(choice)),
-                    "value": str(choice)
-                }
+                {"pytype": str(type(choice)), "value": str(choice)}
                 for choice in distribution.choices
             ],
         }
@@ -253,20 +253,20 @@ def normalize_distribution(distribution: BaseDistribution) -> BaseDistribution:
         return FloatDistribution(
             low=getattr(distribution, "low"),
             high=getattr(distribution, "high"),
-            step=getattr(distribution, "q")
+            step=getattr(distribution, "q"),
         )
     elif distribution.__class__.__name__ == "IntUniformDistribution":
         return IntDistribution(
             low=getattr(distribution, "low"),
             high=getattr(distribution, "high"),
-            step=getattr(distribution, "step")
+            step=getattr(distribution, "step"),
         )
     elif distribution.__class__.__name__ == "IntLogUniformDistribution":
         return IntDistribution(
             low=getattr(distribution, "low"),
             high=getattr(distribution, "high"),
             step=getattr(distribution, "step"),
-            log=True
+            log=True,
         )
     else:
         return distribution
