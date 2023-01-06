@@ -160,7 +160,7 @@ export const TrialTable: FC<{
           if (firstVal === secondVal) {
             return 0
           } else if (firstVal && secondVal) {
-            return Number(firstVal) < Number(secondVal) ? 1 : -1
+            return firstVal < secondVal ? 1 : -1
           } else if (firstVal) {
             return -1
           } else {
