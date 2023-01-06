@@ -96,7 +96,9 @@ def get_param_importance_from_trials_cache(
             return cache_importance
 
         study = StudyWrapper(storage, study_id, trials)
-        importance = _get_param_importances(study, completed_trials)
+        importance = _get_param_importances(
+            study, completed_trials, target=lambda t: t.values[objective_id]
+        )
         converted = convert_to_importance_type(importance, trials)
         param_importance_cache[cache_key] = (n_completed_trials, converted)
     return converted
