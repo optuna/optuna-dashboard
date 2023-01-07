@@ -98,6 +98,10 @@ type Trial = {
   datetime_start?: Date
   datetime_complete?: Date
   params: TrialParam[]
+  fixed_params: {
+    name: string
+    param_external_value: string
+  }[]
   user_attrs: Attribute[]
   system_attrs: Attribute[]
   note: Note
