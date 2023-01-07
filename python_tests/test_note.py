@@ -5,8 +5,7 @@ from unittest.mock import patch
 
 import optuna
 from optuna_dashboard import _note as note
-from optuna_dashboard import save_study_note
-from optuna_dashboard import save_trial_note
+from optuna_dashboard import save_note
 
 
 class NoteTestCase(TestCase):
@@ -28,7 +27,7 @@ class NoteTestCase(TestCase):
 
         for body, expected_ver in [("version 1", 1), ("version 2", 2)]:
             with self.subTest(body):
-                save_study_note(study, body)
+                save_note(study, body)
                 system_attrs = study._storage.get_study_system_attrs(study._study_id)
                 note_dict = note.get_note_from_system_attrs(system_attrs, None)
                 assert note_dict["body"] == body
@@ -40,7 +39,7 @@ class NoteTestCase(TestCase):
 
         for body, expected_ver in [("version 1", 1), ("version 2", 2)]:
             with self.subTest(body):
-                save_trial_note(trial, body)
+                save_note(trial, body)
                 system_attrs = study._storage.get_study_system_attrs(study._study_id)
                 note_dict = note.get_note_from_system_attrs(system_attrs, trial._trial_id)
                 assert note_dict["body"] == body

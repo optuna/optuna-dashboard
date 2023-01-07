@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import math
-from typing import Any
 from typing import TYPE_CHECKING
 
 import optuna
@@ -9,8 +8,10 @@ from optuna.storages import BaseStorage
 
 
 if TYPE_CHECKING:
+    from typing import Any
     from typing import Optional
     from typing import TypedDict
+    from typing import Union
 
     NoteType = TypedDict(
         "NoteType",
@@ -23,65 +24,50 @@ if TYPE_CHECKING:
 SYSTEM_ATTR_MAX_LENGTH = 2045
 
 
-def save_study_note(study: optuna.Study, body: str) -> None:
-    """Save the note (Markdown format) to the Study.
+def save_note(study_or_trial: Union[optuna.Study, optuna.Trial], body: str) -> None:
+    """Save the note (Markdown format) to the Study or Trial.
 
     Example:
 
        .. code-block:: python
 
           import optuna
-          from optuna_dashboard import save_study_note
+          from optuna_dashboard import save_note
+
+
+          def objective(trial: optuna.Trial) -> float:
+              x1 = trial.suggest_float("x1", 0, 10)
+
+              save_note(trial, textwrap.dedent(f'''\
+              ## Trial {trial.number}
+
+              You can *freely* take a **note** that is associated with the Trial.
+              '''))
+              return (x1 - 2) ** 2
+
 
           study = optuna.create_study()
-
-          note = textwrap.dedent('''\
-          ## Hello
+          save_note(study, textwrap.dedent(f'''\
+          ## {study.study_name}
 
           You can *freely* take a **note** that is associated with the study.
-          ''')
-          save_study_note(study, note)
-
+          '''))
+          study.optimize(objective, n_trials=10)
     """
-    storage = study._storage
-    study_id = study._study_id
-    system_attrs = storage.get_study_system_attrs(study_id)
-    next_ver = system_attrs.get(note_ver_key(None), 0) + 1
-    save_note(storage, study_id, None, next_ver, body)
-
-
-def save_trial_note(trial: optuna.Trial, body: str) -> None:
-    """Save the note (Markdown format) to the Trial.
-
-    Example:
-
-       .. code-block:: python
-
-          import optuna
-          import textwrap
-          from optuna_dashboard import save_trial_note
-
-          def objective_single(trial: optuna.Trial) -> float:
-              x1 = trial.suggest_float("x1", 0, 10)
-              x2 = trial.suggest_float("x2", 0, 10)
-
-              note = textwrap.dedent(f'''\
-              ## Trial {trial._trial_id}
-
-              $$
-              y = (x1 - 2)^{{2}} + (x2 - 5)^{{2}} = ({x1} - 2)^{{2}} + ({x2} - 5)^{{2}}
-              $$
-              ''')
-              save_trial_note(trial, note)
-              return (x1 - 2) ** 2 + (x2 - 5) ** 2
-    """
-    storage = trial.storage
-    trial_id = trial._trial_id
-    study_id = trial.study._study_id
+    storage: BaseStorage
+    study_id: int
+    trial_id: Optional[int] = None
+    if isinstance(study_or_trial, optuna.Study):
+        storage = study_or_trial._storage
+        study_id = study_or_trial._study_id
+    else:
+        storage = study_or_trial.storage
+        study_id = study_or_trial.study._study_id
+        trial_id = study_or_trial._trial_id
 
     system_attrs = storage.get_study_system_attrs(study_id)
     next_ver = system_attrs.get(note_ver_key(trial_id), 0) + 1
-    save_note(storage, study_id, trial_id, next_ver, body)
+    save_note_with_version(storage, study_id, trial_id, next_ver, body)
 
 
 def note_ver_key(trial_id: Optional[int]) -> str:
@@ -120,7 +106,7 @@ def version_is_incremented(
     return req_note_ver == db_note_ver + 1
 
 
-def save_note(
+def save_note_with_version(
     storage: BaseStorage, study_id: int, trial_id: Optional[int], ver: int, body: str
 ) -> None:
     storage.set_study_system_attr(study_id, note_ver_key(trial_id), ver)

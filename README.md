@@ -88,13 +88,9 @@ This function uses wsgiref module which is not intended for the production use.
 This function exposes WSGI interface for people who want to run on the
 production-class WSGI servers like Gunicorn or uWSGI.
 
-**`save_study_note(study: Study, body: str) -> None`**
+**`save_note(study_or_trial: Union[Study, Trial], body: str) -> None`**
 
-Save the note (Markdown format) to the Study.
-
-**`save_trial_note(trial: Trial, body: str) -> None`**
-
-Save the note (Markdown format) to the Trial.
+Save the note (Markdown format) to the Study or the Trial.
 
 **`set_objective_names(study: Study, names: list[str]) -> None`**
 
