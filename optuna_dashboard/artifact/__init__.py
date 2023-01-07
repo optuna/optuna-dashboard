@@ -3,49 +3,39 @@ from __future__ import annotations
 import json
 import mimetypes
 import os.path
-from typing import Any
-from typing import BinaryIO
-from typing import Optional
+from typing import TYPE_CHECKING
 import uuid
 
 from bottle import Bottle
 from bottle import response
 import optuna
-from optuna.storages import BaseStorage
 
 
-try:
-    from typing import Protocol
+if TYPE_CHECKING:
+    from typing import Any
+    from typing import Optional
     from typing import TypedDict
-except ImportError:
-    from typing_extensions import Protocol  # type: ignore
-    from typing_extensions import TypedDict  # type: ignore
+
+    from optuna.storages import BaseStorage
+
+    from .backend import ArtifactBackend
+
+    ArtifactMeta = TypedDict(
+        "ArtifactMeta",
+        {
+            "artifact_id": str,
+            "mimetype": str,
+            "encoding": str,
+            "filename": str,
+        },
+    )
 
 
 ARTIFACTS_ATTR_PREFIX = "dashboard:artifacts:"
 
 
-ArtifactMeta = TypedDict(
-    "ArtifactMeta",
-    {
-        "artifact_id": str,
-        "mimetype": str,
-        "encoding": str,
-        "filename": str,
-    },
-)
-
-
-class ArtifactBackend(Protocol):
-    def open(self, artifact_id: str) -> BinaryIO:
-        ...
-
-    def write(self, artifact_id: str, content_body: BinaryIO) -> None:
-        ...
-
-
 def register_artifact_route(
-    app: Bottle, storage: BaseStorage, artifact_backend: ArtifactBackend
+    app: Bottle, storage: BaseStorage, artifact_backend: Optional[ArtifactBackend]
 ) -> None:
     @app.get("/artifacts/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
     def proxy_artifact(trial_id: int, artifact_id: str) -> bytes:
@@ -58,6 +48,15 @@ def register_artifact_route(
         with artifact_backend.open(artifact_id) as f:
             body = f.read()
         return body
+
+    @app.delete("/artifacts/<artifact_id:re:[0-9a-fA-F-]+>")
+    def delete_artifact(artifact_id: str) -> bytes:
+        if artifact_backend is None:
+            response.status = 400  # Bad Request
+            return b"Cannot access to the artifacts."
+        artifact_backend.remove(artifact_id)
+        response.status = 204
+        return b""
 
 
 def upload_artifact(

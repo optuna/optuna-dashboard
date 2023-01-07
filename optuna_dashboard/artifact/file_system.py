@@ -4,7 +4,7 @@ import os
 from typing import BinaryIO
 from typing import TYPE_CHECKING
 
-from . import ArtifactBackend
+from .backend import ArtifactBackend
 
 
 class FileSystemBackend:
@@ -19,6 +19,10 @@ class FileSystemBackend:
         filepath = os.path.join(self._base_path, artifact_id)
         with open(filepath, "wb") as f:
             f.write(content_body.read())
+
+    def remove(self, artifact_id: str) -> None:
+        filepath = os.path.join(self._base_path, artifact_id)
+        os.remove(filepath)
 
 
 if TYPE_CHECKING:
