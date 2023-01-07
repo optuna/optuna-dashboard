@@ -36,6 +36,7 @@ from optuna.version import __version__ as optuna_ver
 from packaging import version
 
 from . import _note as note
+from . import artifact
 from ._cached_extra_study_property import get_cached_extra_study_property
 from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
@@ -201,7 +202,11 @@ def get_trials(storage: BaseStorage, study_id: int, ttl_seconds: int = 10) -> li
     return trials
 
 
-def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
+def create_app(
+    storage: BaseStorage,
+    artifact_backend: Optional[artifact.ArtifactBackend] = None,
+    debug: bool = False,
+) -> Bottle:
     app = Bottle()
     update_schema_compatibility_flags(storage)
 
@@ -448,6 +453,8 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
                 filename = gz_filename
         return static_file(filename, root=STATIC_DIR)
 
+    if artifact_backend is not None:
+        artifact.register_artifact_route(app, storage, artifact_backend)
     return app
 
 
