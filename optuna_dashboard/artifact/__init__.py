@@ -11,9 +11,8 @@ from bottle import request
 from bottle import response
 import optuna
 
-from .._bottleutil import BottleViewReturn
-from .._bottleutil import json_api_view
-from .._bottleutil import parse_data_uri
+from .._bottle_util import json_api_view
+from .._bottle_util import parse_data_uri
 
 
 if TYPE_CHECKING:
@@ -30,13 +29,14 @@ if TYPE_CHECKING:
         {
             "artifact_id": str,
             "filename": str,
-            "mimetype": Optional[str],
+            "mimetype": str,
             "encoding": Optional[str],
         },
     )
 
 
 ARTIFACTS_ATTR_PREFIX = "dashboard:artifacts:"
+DEFAULT_MIME_TYPE = "application/octet-stream"
 
 
 def register_artifact_route(
@@ -48,12 +48,9 @@ def register_artifact_route(
             response.status = 400  # Bad Request
             return b"Cannot access to the artifacts."
         artifact_dict = _get_artifact_meta(storage, trial_id, artifact_id)
-        mimetype, encoding = mimetypes.guess_type(artifact_dict["filename"])
-        mimetype: str = artifact_dict.get("mimetype") or encoding or "application/octet-stream"
-        encoding: Optional[str] = artifact_dict.get("encoding") or encoding
-        response.set_header("Content-Type", mimetype)
-        if encoding:
-            response.set_header("Content-Encodings", encoding)
+        response.set_header("Content-Type", artifact_dict["mimetype"])
+        if artifact_dict.get("encoding"):
+            response.set_header("Content-Encodings", artifact_dict.get("encoding"))
 
         with artifact_backend.open(artifact_id) as f:
             body = f.read()
@@ -61,7 +58,7 @@ def register_artifact_route(
 
     @app.post("/api/artifacts/<trial_id:int>/")
     @json_api_view
-    def upload_artifact(trial_id: int) -> BottleViewReturn:
+    def upload_artifact(trial_id: int) -> dict[str, Any]:
         if artifact_backend is None:
             response.status = 400  # Bad Request
             return {"reason": "Cannot access to the artifacts."}
@@ -76,11 +73,12 @@ def register_artifact_route(
         with artifact_backend.open(artifact_id=artifact_id) as f:
             f.write(data)
 
-        artifact: ArtifactMeta = {
+        mimetype, encoding = mimetypes.guess_type(filename)
+        artifact = {
             "artifact_id": artifact_id,
-            "mimetype": None,
-            "encoding": None,
             "filename": filename,
+            "mimetype": mimetype or DEFAULT_MIME_TYPE,
+            "encoding": encoding,
         }
         attr_key = _artifact_prefix(trial_id=trial_id) + artifact_id
         storage.set_study_system_attr(trial_id, attr_key, json.dumps(artifact))
@@ -89,13 +87,13 @@ def register_artifact_route(
 
     @app.delete("/api/artifacts/<artifact_id:re:[0-9a-fA-F-]+>")
     @json_api_view
-    def delete_artifact(artifact_id: str) -> BottleViewReturn:
+    def delete_artifact(artifact_id: str) -> dict[str, Any]:
         if artifact_backend is None:
             response.status = 400  # Bad Request
             return {"reason": "Cannot access to the artifacts."}
         artifact_backend.remove(artifact_id)
         response.status = 204
-        return b""
+        return {}
 
 
 def upload_artifact(
@@ -127,10 +125,11 @@ def upload_artifact(
     storage = trial.storage
     trial_id = trial._trial_id
     artifact_id = str(uuid.uuid4())
+    guess_mimetype, guess_encoding = mimetypes.guess_type(filename)
     artifact: ArtifactMeta = {
         "artifact_id": artifact_id,
-        "mimetype": mimetype,
-        "encoding": encoding,
+        "mimetype": mimetype or guess_mimetype or DEFAULT_MIME_TYPE,
+        "encoding": encoding or guess_encoding,
         "filename": filename,
     }
     attr_key = _artifact_prefix(trial_id=trial_id) + artifact_id

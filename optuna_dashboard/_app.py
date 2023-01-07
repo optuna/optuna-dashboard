@@ -7,6 +7,7 @@ import logging
 import os
 import threading
 import typing
+from typing import Any
 from typing import Optional
 from typing import Union
 
@@ -29,8 +30,8 @@ from packaging import version
 
 from . import _note as note
 from . import artifact
-from ._bottleutil import BottleViewReturn
-from ._bottleutil import json_api_view
+from ._bottle_util import BottleViewReturn
+from ._bottle_util import json_api_view
 from ._cached_extra_study_property import get_cached_extra_study_property
 from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
@@ -226,7 +227,7 @@ def create_app(
 
     @app.get("/api/studies")
     @json_api_view
-    def list_study_summaries() -> BottleViewReturn:
+    def list_study_summaries() -> dict[str, Any]:
         summaries = get_study_summaries(storage)
         serialized = [serialize_study_summary(summary) for summary in summaries]
         return {
@@ -235,7 +236,7 @@ def create_app(
 
     @app.post("/api/studies")
     @json_api_view
-    def create_study() -> BottleViewReturn:
+    def create_study() -> dict[str, Any]:
         study_name = request.json.get("study_name", None)
         request_directions = [d.lower() for d in request.json.get("directions", [])]
         if (
@@ -265,7 +266,7 @@ def create_app(
 
     @app.post("/api/studies/<study_id:int>/rename")
     @json_api_view
-    def rename_study(study_id: int) -> BottleViewReturn:
+    def rename_study(study_id: int) -> dict[str, Any]:
         dst_study_name = request.json.get("study_name", None)
         if dst_study_name is None:
             response.status = 400  # Bad request
@@ -300,7 +301,7 @@ def create_app(
 
     @app.delete("/api/studies/<study_id:int>")
     @json_api_view
-    def delete_study(study_id: int) -> BottleViewReturn:
+    def delete_study(study_id: int) -> dict[str, Any]:
         if artifact_backend is not None:
             system_attrs = storage.get_study_system_attrs(study_id)
             artifact._delete_all_artifacts(artifact_backend, system_attrs)
@@ -311,11 +312,11 @@ def create_app(
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
         response.status = 204  # No content
-        return ""
+        return {}
 
     @app.get("/api/studies/<study_id:int>")
     @json_api_view
-    def get_study_detail(study_id: int) -> BottleViewReturn:
+    def get_study_detail(study_id: int) -> dict[str, Any]:
         try:
             after = int(request.params["after"])
             assert after >= 0
@@ -355,7 +356,7 @@ def create_app(
 
     @app.get("/api/studies/<study_id:int>/param_importances")
     @json_api_view
-    def get_param_importances(study_id: int) -> BottleViewReturn:
+    def get_param_importances(study_id: int) -> dict[str, Any]:
         try:
             n_directions = len(storage.get_study_directions(study_id))
         except KeyError:
@@ -375,7 +376,7 @@ def create_app(
 
     @app.put("/api/studies/<study_id:int>/note")
     @json_api_view
-    def save_study_note(study_id: int) -> BottleViewReturn:
+    def save_study_note(study_id: int) -> dict[str, Any]:
         req_note_ver = request.json.get("version", None)
         req_note_body = request.json.get("body", None)
         if req_note_ver is None or req_note_body is None:
@@ -397,7 +398,7 @@ def create_app(
 
     @app.put("/api/studies/<study_id:int>/<trial_id:int>/note")
     @json_api_view
-    def save_trial_note(study_id: int, trial_id: int) -> BottleViewReturn:
+    def save_trial_note(study_id: int, trial_id: int) -> dict[str, Any]:
         req_note_ver = request.json.get("version", None)
         req_note_body = request.json.get("body", None)
         if req_note_ver is None or req_note_body is None:

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import base64
 import functools
 import json
@@ -16,10 +18,11 @@ from bottle import response
 
 BottleViewReturn = Union[str, bytes, Dict[str, Any], BaseResponse]
 BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])
+BottleAPIView = TypeVar("BottleAPIView", bound=Callable[..., Dict[str, Any]])
 logger = logging.getLogger(__name__)
 
 
-def json_api_view(view: BottleView) -> BottleView:
+def json_api_view(view: BottleAPIView) -> BottleAPIView:
     @functools.wraps(view)
     def decorated(*args: list[Any], **kwargs: dict[str, Any]) -> BottleViewReturn:
         try:
@@ -33,7 +36,7 @@ def json_api_view(view: BottleView) -> BottleView:
             logger.error(f"Exception: {e}\n{stacktrace}")
             return json.dumps({"reason": "internal server error"})
 
-    return cast(BottleView, decorated)
+    return cast(BottleAPIView, decorated)
 
 
 def parse_data_uri(data_uri: str) -> tuple[str, bytes]:

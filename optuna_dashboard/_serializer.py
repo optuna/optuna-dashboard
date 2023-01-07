@@ -107,7 +107,7 @@ def serialize_study_summary(summary: StudySummary) -> dict[str, Any]:
     }
 
     if summary.datetime_start is not None:
-        serialized["datetime_start"] = (summary.datetime_start.isoformat(),)
+        serialized["datetime_start"] = summary.datetime_start.isoformat()
 
     return serialized
 
