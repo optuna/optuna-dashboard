@@ -218,7 +218,7 @@ export const TrialTable: FC<{
           component={Link}
           to={
             URL_PREFIX +
-            `/studies/${trials[i].study_id}/trials/${trials[i].number}`
+            `/studies/${trials[i].study_id}/trials?numbers=${trials[i].number}`
           }
           color="inherit"
           title="Go to the trial's detail page"
