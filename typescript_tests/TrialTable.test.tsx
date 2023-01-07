@@ -39,6 +39,7 @@ const trials: Trial[] = [
         distribution: dummyDistribution,
       },
     ],
+    fixed_params: [],
     user_attrs: [],
     system_attrs: [],
     note: {
@@ -71,6 +72,7 @@ const trials: Trial[] = [
         distribution: dummyDistribution,
       },
     ],
+    fixed_params: [],
     user_attrs: [],
     system_attrs: [],
     note: {
