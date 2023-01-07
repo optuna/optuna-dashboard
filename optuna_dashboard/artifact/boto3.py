@@ -46,3 +46,11 @@ class Boto3Backend:
 
     def remove(self, artifact_id: str) -> None:
         self.client.delete_object(Bucket=self.bucket, Key=artifact_id)
+
+
+if TYPE_CHECKING:
+    # A mypy-runtime assertion to ensure that Boto3Backend
+    # implements all abstract methods in ArtifactBackendProtocol.
+    from ._backend import ArtifactBackend
+
+    _: ArtifactBackend = Boto3Backend("")

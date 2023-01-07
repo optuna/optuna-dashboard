@@ -37,6 +37,8 @@ from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
 from ._serializer import serialize_study_detail
 from ._serializer import serialize_study_summary
+from .artifact._backend import delete_all_artifacts
+from .artifact._backend import register_artifact_route
 
 
 if typing.TYPE_CHECKING:
@@ -304,7 +306,7 @@ def create_app(
     def delete_study(study_id: int) -> dict[str, Any]:
         if artifact_backend is not None:
             system_attrs = storage.get_study_system_attrs(study_id)
-            artifact._delete_all_artifacts(artifact_backend, system_attrs)
+            delete_all_artifacts(artifact_backend, system_attrs)
 
         try:
             storage.delete_study(study_id)
@@ -433,7 +435,7 @@ def create_app(
                 filename = gz_filename
         return static_file(filename, root=STATIC_DIR)
 
-    artifact.register_artifact_route(app, storage, artifact_backend)
+    register_artifact_route(app, storage, artifact_backend)
     return app
 
 

@@ -4,8 +4,6 @@ import os
 from typing import BinaryIO
 from typing import TYPE_CHECKING
 
-from .backend import ArtifactBackend
-
 
 class FileSystemBackend:
     def __init__(self, base_path: str) -> None:
@@ -28,4 +26,6 @@ class FileSystemBackend:
 if TYPE_CHECKING:
     # A mypy-runtime assertion to ensure that LocalArtifactBackend
     # implements all abstract methods in ArtifactBackendProtocol.
+    from ._backend import ArtifactBackend
+
     _: ArtifactBackend = FileSystemBackend("")
