@@ -36,9 +36,10 @@ args = parser.parse_args()
 
 def create_dummy_storage() -> optuna.storages.InMemoryStorage:
     storage = optuna.storages.InMemoryStorage()
+    sampler = optuna.samplers.RandomSampler(seed=0)
 
     # Single-objective study
-    study = optuna.create_study(study_name="single", storage=storage)
+    study = optuna.create_study(study_name="single", storage=storage, sampler=sampler)
 
     def objective_single(trial: optuna.Trial) -> float:
         x1 = trial.suggest_float("x1", 0, 10)
@@ -48,7 +49,9 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
     study.optimize(objective_single, n_trials=50)
 
     # Single-objective study with 1 parameter
-    study = optuna.create_study(study_name="single-1-param", storage=storage, direction="maximize")
+    study = optuna.create_study(
+        study_name="single-1-param", storage=storage, direction="maximize", sampler=sampler
+    )
 
     def objective_single_with_1param(trial: optuna.Trial) -> float:
         x1 = trial.suggest_float("x1", 0, 10)
@@ -57,7 +60,9 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
     study.optimize(objective_single_with_1param, n_trials=50)
 
     # Single-objective study with dynamic search space
-    study = optuna.create_study(study_name="single-dynamic", storage=storage, direction="maximize")
+    study = optuna.create_study(
+        study_name="single-dynamic", storage=storage, direction="maximize", sampler=sampler
+    )
 
     def objective_single_dynamic(trial: optuna.Trial) -> float:
         category = trial.suggest_categorical("category", ["foo", "bar"])
@@ -69,7 +74,7 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
     study.optimize(objective_single_dynamic, n_trials=50)
 
     # Single objective study with 'inf', '-inf', or 'nan' value
-    study = optuna.create_study(study_name="single-inf", storage=storage)
+    study = optuna.create_study(study_name="single-inf", storage=storage, sampler=sampler)
 
     def objective_single_inf(trial: optuna.Trial) -> float:
         x = trial.suggest_float("x", -10, 10)
@@ -87,6 +92,7 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
         study_name="multi-objective",
         storage=storage,
         directions=["minimize", "minimize"],
+        sampler=sampler,
     )
 
     def objective_multi(trial: optuna.Trial) -> tuple[float, float]:
@@ -100,7 +106,10 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
 
     # Multi-objective study with dynamic search space
     study = optuna.create_study(
-        study_name="multi-dynamic", storage=storage, directions=["minimize", "minimize"]
+        study_name="multi-dynamic",
+        storage=storage,
+        directions=["minimize", "minimize"],
+        sampler=sampler,
     )
 
     def objective_multi_dynamic(trial: optuna.Trial) -> tuple[float, float]:
@@ -121,7 +130,9 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
     study.optimize(objective_multi_dynamic, n_trials=50)
 
     # Pruning with no intermediate values
-    study = optuna.create_study(study_name="single-pruned-without-report", storage=storage)
+    study = optuna.create_study(
+        study_name="single-pruned-without-report", storage=storage, sampler=sampler
+    )
 
     def objective_prune_without_report(trial: optuna.Trial) -> float:
         x = trial.suggest_float("x", -15, 30)
@@ -134,7 +145,7 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
     study.optimize(objective_prune_without_report, n_trials=100)
 
     # Single objective pruned after reported 'inf', '-inf', or 'nan'
-    study = optuna.create_study(study_name="single-inf-report", storage=storage)
+    study = optuna.create_study(study_name="single-inf-report", storage=storage, sampler=sampler)
 
     def objective_single_inf_report(trial: optuna.Trial) -> float:
         x = trial.suggest_float("x", -10, 10)
@@ -153,13 +164,14 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
     study.optimize(objective_single_inf_report, n_trials=50)
 
     # No trials single-objective study
-    optuna.create_study(study_name="single-no-trials", storage=storage)
+    optuna.create_study(study_name="single-no-trials", storage=storage, sampler=sampler)
 
     # No trials multi-objective study
     optuna.create_study(
         study_name="multi-no-trials",
         storage=storage,
         directions=["minimize", "maximize"],
+        sampler=sampler,
     )
     return storage
 
