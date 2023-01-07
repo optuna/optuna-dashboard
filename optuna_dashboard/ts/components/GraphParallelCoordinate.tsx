@@ -1,36 +1,98 @@
 import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, ReactNode, useEffect, useState } from "react"
 import {
-  Grid,
-  FormControl,
-  FormLabel,
-  MenuItem,
-  Select,
   Typography,
-  SelectChangeEvent,
   useTheme,
   Box,
+  Grid,
+  FormGroup,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import {
+  Target,
+  useFilteredTrials,
+  useObjectiveAndUserAttrTargets,
+  useParamTargets,
+} from "../trialFilter"
+import { useMergedUnionSearchSpace } from "../searchSpace"
 
 const plotDomId = "graph-parallel-coordinate"
+
+const useTargets = (
+  study: StudyDetail | null
+): [Target[], SearchSpaceItem[], () => ReactNode] => {
+  const [targets1, _target1, _setter1] = useObjectiveAndUserAttrTargets(study)
+  const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
+  const [targets2, _target2, _setter2] = useParamTargets(searchSpace)
+  const [checked, setChecked] = useState<boolean[]>([true])
+
+  const allTargets = [...targets1, ...targets2]
+  useEffect(() => {
+    if (allTargets.length !== checked.length) {
+      setChecked(
+        allTargets.map((t) => {
+          if (t.kind !== "params" || study === null) {
+            return true
+          }
+          // By default, params that is not included in intersection search space should be disabled,
+          // otherwise all trials are filtered.
+          return (
+            study.intersection_search_space.find((s) => s.name === t.key) !==
+            undefined
+          )
+        })
+      )
+    }
+  }, [allTargets])
+
+  const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked(
+      checked.map((c, i) =>
+        i.toString() === event.target.name ? event.target.checked : c
+      )
+    )
+  }
+
+  const renderCheckBoxes = (): ReactNode => (
+    <FormGroup>
+      {allTargets.map((t, i) => {
+        return (
+          <FormControlLabel
+            key={i}
+            control={
+              <Checkbox
+                checked={checked.length > i ? checked[i] : true}
+                onChange={handleOnChange}
+                name={i.toString()}
+              />
+            }
+            label={t.toLabel(study?.objective_names)}
+          />
+        )
+      })}
+    </FormGroup>
+  )
+
+  const targets = allTargets.filter((t, i) =>
+    checked.length > i ? checked[i] : true
+  )
+  return [targets, searchSpace, renderCheckBoxes]
+}
 
 export const GraphParallelCoordinate: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
-  const [objectiveId, setObjectiveId] = useState<number>(0)
-  const objectiveNames: string[] = study?.objective_names || []
+  const [targets, searchSpace, renderCheckBoxes] = useTargets(study)
 
-  const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
-    setObjectiveId(event.target.value as number)
-  }
-
+  const trials = useFilteredTrials(study, targets, false, false)
   useEffect(() => {
     if (study !== null) {
-      plotCoordinate(study, objectiveId, theme.palette.mode)
+      plotCoordinate(study, trials, targets, searchSpace, theme.palette.mode)
     }
-  }, [study, objectiveId, theme.palette.mode])
+  }, [study, trials, targets, searchSpace, theme.palette.mode])
 
   return (
     <Grid container direction="row">
@@ -39,25 +101,16 @@ export const GraphParallelCoordinate: FC<{
         xs={3}
         container
         direction="column"
-        sx={{ paddingRight: theme.spacing(2) }}
+        sx={{
+          paddingRight: theme.spacing(2),
+          display: "flex",
+          flexDirection: "column",
+        }}
       >
         <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
           Parallel Coordinate
         </Typography>
-        {study !== null && study.directions.length !== 1 ? (
-          <FormControl component="fieldset">
-            <FormLabel component="legend">Objective ID:</FormLabel>
-            <Select value={objectiveId} onChange={handleObjectiveChange}>
-              {study.directions.map((d, i) => (
-                <MenuItem value={i} key={i}>
-                  {objectiveNames.length === study?.directions.length
-                    ? objectiveNames[i]
-                    : `${i}`}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        ) : null}
+        {renderCheckBoxes()}
       </Grid>
       <Grid item xs={9}>
         <Box id={plotDomId} sx={{ height: "450px" }} />
@@ -66,23 +119,11 @@ export const GraphParallelCoordinate: FC<{
   )
 }
 
-const filterFunc = (trial: Trial, objectiveId: number): boolean => {
-  if (trial.state !== "Complete" && trial.state !== "Pruned") {
-    return false
-  }
-  if (trial.values === undefined) {
-    return false
-  }
-  return (
-    trial.values.length > objectiveId &&
-    trial.values[objectiveId] !== "inf" &&
-    trial.values[objectiveId] !== "-inf"
-  )
-}
-
 const plotCoordinate = (
   study: StudyDetail,
-  objectiveId: number,
+  trials: Trial[],
+  targets: Target[],
+  searchSpace: SearchSpaceItem[],
   mode: string
 ) => {
   if (document.getElementById(plotDomId) === null) {
@@ -98,13 +139,10 @@ const plotCoordinate = (
     },
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
-
-  if (study.trials.length === 0) {
+  if (trials.length === 0 || targets.length === 0) {
     plotly.react(plotDomId, [], layout)
     return
   }
-
-  const filteredTrials = study.trials.filter((t) => filterFunc(t, objectiveId))
 
   const maxLabelLength = 40
   const breakLength = maxLabelLength / 2
@@ -124,41 +162,58 @@ const plotCoordinate = (
       .join("")
   }
 
-  // Intersection param names
-  const objectiveValues: number[] = filteredTrials.map(
-    (t) => t.values![objectiveId] as number
-  )
-  const dimensions = [
-    {
-      label: "Objective value",
-      values: objectiveValues,
-      range: [Math.min(...objectiveValues), Math.max(...objectiveValues)],
-    },
-  ]
-  study.intersection_search_space.forEach((s) => {
-    const values: number[] = filteredTrials.map(
-      (t) => t.params.find((p) => p.name === s.name)!.param_internal_value
-    )
-    if (s.distribution.type !== "CategoricalDistribution") {
-      dimensions.push({
-        label: breakLabelIfTooLong(s.name),
+  const dimensions = targets.map((target) => {
+    if (target.kind === "objective" || target.kind === "user_attr") {
+      const values: number[] = trials.map(
+        (t) => target.getTargetValue(t) as number
+      )
+      return {
+        label: target.toLabel(study.objective_names),
         values: values,
         range: [Math.min(...values), Math.max(...values)],
-      })
+      }
     } else {
-      // categorical
-      const vocabArr: string[] = s.distribution.choices.map((c) => c.value)
-      const tickvals: number[] = vocabArr.map((v, i) => i)
-      dimensions.push({
-        label: breakLabelIfTooLong(s.name),
-        values: values,
-        range: [Math.min(...values), Math.max(...values)],
-        // @ts-ignore
-        tickvals: tickvals,
-        ticktext: vocabArr,
-      })
+      const s = searchSpace.find(
+        (s) => s.name === target.key
+      ) as SearchSpaceItem // Must be already filtered.
+
+      const values: number[] = trials.map(
+        (t) => target.getTargetValue(t) as number
+      )
+      if (s.distribution.type !== "CategoricalDistribution") {
+        return {
+          label: breakLabelIfTooLong(s.name),
+          values: values,
+          range: [s.distribution.low, s.distribution.high],
+        }
+      } else {
+        // categorical
+        const vocabArr: string[] = s.distribution.choices.map((c) => c.value)
+        const tickvals: number[] = vocabArr.map((v, i) => i)
+        return {
+          label: breakLabelIfTooLong(s.name),
+          values: values,
+          range: [0, s.distribution.choices.length - 1],
+          // @ts-ignore
+          tickvals: tickvals,
+          ticktext: vocabArr,
+        }
+      }
     }
   })
+  if (dimensions.length === 0) {
+    console.log("Must not reach here.")
+    plotly.react(plotDomId, [], layout)
+    return
+  }
+  let reversescale = false
+  if (
+    targets[0].kind === "objective" &&
+    (targets[0].getObjectiveId() as number) < study.directions.length &&
+    study.directions[targets[0].getObjectiveId() as number] === "maximize"
+  ) {
+    reversescale = true
+  }
   const plotData: Partial<plotly.PlotData>[] = [
     {
       type: "parcoords",
@@ -170,10 +225,10 @@ const plotCoordinate = (
         // @ts-ignore
         colorscale: "Blues",
         colorbar: {
-          title: "Objective value",
+          title: targets[0].toLabel(study.objective_names),
         },
         showscale: true,
-        reversescale: study.directions[objectiveId] === "maximize",
+        reversescale: reversescale,
       },
     },
   ]

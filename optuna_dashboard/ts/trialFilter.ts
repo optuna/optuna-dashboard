@@ -1,5 +1,4 @@
-import { useMemo } from "react"
-import { mergeUnionSearchSpace } from "./searchSpace"
+import { useMemo, useState } from "react"
 
 type TargetKind = "objective" | "user_attr" | "params"
 
@@ -27,6 +26,10 @@ export class Target {
       }
     }
     return true
+  }
+
+  identifier(): string {
+    return `${this.kind}:${this.key}`
   }
 
   toLabel(objectiveNames?: string[]): string {
@@ -113,32 +116,52 @@ export const useFilteredTrials = (
     })
   }, [study?.trials, targets, filterComplete, filterPruned])
 
-export const useObjectiveTargets = (study: StudyDetail | null): Target[] =>
-  useMemo<Target[]>(() => {
+export const useObjectiveTargets = (
+  study: StudyDetail | null
+): [Target[], Target, (ident: string) => void] => {
+  const defaultTarget = new Target("objective", 0)
+  const [selected, setTargetIdent] = useState<string>(
+    defaultTarget.identifier()
+  )
+  const targetList = useMemo<Target[]>(() => {
     if (study !== null) {
       return study.directions.map((v, i) => new Target("objective", i))
     } else {
-      return [new Target("objective", 0)]
+      return [defaultTarget]
     }
   }, [study?.directions])
+  const selectedTarget = useMemo<Target>(
+    () => targetList.find((t) => t.identifier() === selected) || defaultTarget,
+    [targetList, selected]
+  )
+  return [targetList, selectedTarget, setTargetIdent]
+}
 
 export const useParamTargets = (
-  study: StudyDetail | null
-): [Target[], SearchSpaceItem[]] =>
-  useMemo<[Target[], SearchSpaceItem[]]>(() => {
-    if (study !== null) {
-      const searchSpace = mergeUnionSearchSpace(study.union_search_space)
-      const targets = searchSpace.map((s) => new Target("params", s.name))
-      return [targets, searchSpace]
-    } else {
-      return [[], []]
-    }
-  }, [study?.union_search_space])
+  searchSpace: SearchSpaceItem[]
+): [Target[], Target | null, (ident: string) => void] => {
+  const [selected, setTargetIdent] = useState<string>("")
+  const targetList = useMemo<Target[]>(() => {
+    const targets = searchSpace.map((s) => new Target("params", s.name))
+    if (selected === "" && targets.length > 0)
+      setTargetIdent(targets[0].identifier())
+    return targets
+  }, [searchSpace])
+  const selectedTarget = useMemo<Target | null>(
+    () => targetList.find((t) => t.identifier() === selected) || null,
+    [targetList, selected]
+  )
+  return [targetList, selectedTarget, setTargetIdent]
+}
 
-export const useObjectiveAndSystemAttrTargets = (
+export const useObjectiveAndUserAttrTargets = (
   study: StudyDetail | null
-): Target[] =>
-  useMemo<Target[]>(() => {
+): [Target[], Target, (ident: string) => void] => {
+  const defaultTarget = new Target("objective", 0)
+  const [selected, setTargetIdent] = useState<string>(
+    defaultTarget.identifier()
+  )
+  const targetList = useMemo<Target[]>(() => {
     if (study !== null) {
       return [
         ...study.directions.map((v, i) => new Target("objective", i)),
@@ -147,6 +170,12 @@ export const useObjectiveAndSystemAttrTargets = (
           .map((attr) => new Target("user_attr", attr.key)),
       ]
     } else {
-      return [new Target("objective", 0)]
+      return [defaultTarget]
     }
   }, [study?.directions, study?.union_user_attrs])
+  const selectedTarget = useMemo<Target>(
+    () => targetList.find((t) => t.identifier() === selected) || defaultTarget,
+    [targetList, selected]
+  )
+  return [targetList, selectedTarget, setTargetIdent]
+}

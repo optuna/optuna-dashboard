@@ -18,7 +18,7 @@ import Brightness7Icon from "@mui/icons-material/Brightness7"
 
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { GraphHyperparameterImportances } from "./GraphHyperparameterImportances"
-import { Edf } from "./GraphEdf"
+import { GraphEdf } from "./GraphEdf"
 import { Contour } from "./GraphContour"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphSlice } from "./GraphSlice"
@@ -200,7 +200,7 @@ export const StudyDetail: FC<{
           {graphVisibility.edf ? (
             <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>
-                <Edf study={studyDetail} />
+                <GraphEdf study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}

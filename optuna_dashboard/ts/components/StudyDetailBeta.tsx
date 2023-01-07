@@ -32,7 +32,7 @@ import { GraphSlice } from "./GraphSlice"
 import { GraphParetoFront } from "./GraphParetoFront"
 import { DataGrid, DataGridColumn } from "./DataGrid"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
-import { Edf } from "./GraphEdf"
+import { GraphEdfBeta } from "./GraphEdf"
 import { TrialList } from "./TrialList"
 import { BestTrialsCard } from "./BestTrialsCard"
 
@@ -173,11 +173,19 @@ export const StudyDetailBeta: FC<{
         <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
           Empirical Distribution of the Objective Value
         </Typography>
-        <Card sx={{ margin: theme.spacing(2) }}>
-          <CardContent>
-            <Edf study={studyDetail} />
-          </CardContent>
-        </Card>
+        <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
+          {studyDetail !== null
+            ? studyDetail.directions.map((d, i) => (
+                <Grid2 xs={6} key={i}>
+                  <Card>
+                    <CardContent>
+                      <GraphEdfBeta study={studyDetail} objectiveId={i} />
+                    </CardContent>
+                  </Card>
+                </Grid2>
+              ))
+            : null}
+        </Grid2>
       </Box>
     )
   } else if (page === "trialTable") {
