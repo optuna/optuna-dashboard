@@ -1,5 +1,5 @@
 import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useEffect } from "react"
 import {
   Grid,
   FormControl,
@@ -16,23 +16,22 @@ import { Target, useFilteredTrials, useObjectiveTargets } from "../trialFilter"
 
 const plotDomId = "graph-edf"
 
-export const Edf: FC<{
+export const GraphEdf: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
-  const [objectiveId, setObjectiveId] = useState<number>(0)
-  const targets = useObjectiveTargets(study)
-  const trials = useFilteredTrials(study, [targets[objectiveId]], false, false)
+  const [targets, selected, setTarget] = useObjectiveTargets(study)
+  const trials = useFilteredTrials(study, [selected], false, false)
 
   const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
-    setObjectiveId(event.target.value as number)
+    setTarget(event.target.value as number)
   }
 
   useEffect(() => {
     if (study != null) {
-      plotEdf(trials, targets[objectiveId], theme.palette.mode)
+      plotEdf(trials, selected, theme.palette.mode)
     }
-  }, [trials, targets, objectiveId, theme.palette.mode])
+  }, [trials, selected, theme.palette.mode])
   return (
     <Grid container direction="row">
       <Grid
@@ -47,8 +46,8 @@ export const Edf: FC<{
         </Typography>
         {study !== null && study.directions.length !== 1 ? (
           <FormControl component="fieldset">
-            <FormLabel component="legend">Objective ID:</FormLabel>
-            <Select value={objectiveId} onChange={handleObjectiveChange}>
+            <FormLabel component="legend">Objective:</FormLabel>
+            <Select value={selected.getObjectiveId() || 0} onChange={handleObjectiveChange}>
               {targets.map((target, i) => (
                 <MenuItem value={i} key={i}>
                   {target.toLabel(study?.objective_names)}

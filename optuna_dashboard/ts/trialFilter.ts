@@ -1,4 +1,4 @@
-import { useMemo } from "react"
+import {useMemo, useState} from "react"
 import { mergeUnionSearchSpace } from "./searchSpace"
 
 type TargetKind = "objective" | "user_attr" | "params"
@@ -113,14 +113,17 @@ export const useFilteredTrials = (
     })
   }, [study?.trials, targets, filterComplete, filterPruned])
 
-export const useObjectiveTargets = (study: StudyDetail | null): Target[] =>
-  useMemo<Target[]>(() => {
+export const useObjectiveTargets = (study: StudyDetail | null): [Target[], Target, (index: number) => void] => {
+  const [targetIndex, setTargetIndex] = useState<number>(0)
+  const targetList = useMemo<Target[]>(() => {
     if (study !== null) {
       return study.directions.map((v, i) => new Target("objective", i))
     } else {
       return [new Target("objective", 0)]
     }
   }, [study?.directions])
+  return [targetList, targetList[targetIndex], setTargetIndex]
+}
 
 export const useParamTargets = (
   study: StudyDetail | null

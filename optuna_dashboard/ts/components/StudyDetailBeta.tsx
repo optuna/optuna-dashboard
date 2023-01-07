@@ -32,7 +32,7 @@ import { GraphSlice } from "./GraphSlice"
 import { GraphParetoFront } from "./GraphParetoFront"
 import { DataGrid, DataGridColumn } from "./DataGrid"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
-import { Edf } from "./GraphEdf"
+import { GraphEdf } from "./GraphEdf"
 import { TrialList } from "./TrialList"
 import { BestTrialsCard } from "./BestTrialsCard"
 
@@ -175,7 +175,7 @@ export const StudyDetailBeta: FC<{
         </Typography>
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
-            <Edf study={studyDetail} />
+            <GraphEdf study={studyDetail} />
           </CardContent>
         </Card>
       </Box>
