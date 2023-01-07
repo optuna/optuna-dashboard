@@ -162,14 +162,20 @@ def serialize_frozen_trial(
                 "distribution": serialize_distribution(distribution),
             }
         )
+    trial_system_attrs = getattr(trial, "_system_attrs", {})
+    fixed_params = trial_system_attrs.get("fixed_params", {})
     serialized = {
         "trial_id": trial._trial_id,
         "study_id": study_id,
         "number": trial.number,
         "state": trial.state.name.capitalize(),
         "params": params,
+        "fixed_params": [
+            {"name": param_name, "param_external_value": str(fixed_params.get(param_name, None))}
+            for param_name in fixed_params
+        ],
         "user_attrs": serialize_attrs(trial.user_attrs),
-        "system_attrs": serialize_attrs(getattr(trial, "_system_attrs", {})),
+        "system_attrs": serialize_attrs(trial_system_attrs),
         "note": note.get_note_from_system_attrs(study_system_attrs, trial._trial_id),
     }
 

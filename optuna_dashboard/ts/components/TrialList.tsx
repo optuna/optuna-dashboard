@@ -160,13 +160,23 @@ const TrialListDetail: FC<{
             Values = [
             {trial.values?.map((v) => v.toString()).join(" ") || "None"}]
           </Typography>
-          <Typography>
-            Params = [
-            {trial.params
-              .map((p) => `${p.name}: ${p.param_external_value}`)
-              .join(", ")}
-            ]
-          </Typography>
+          {trial.state !== "Waiting" ? (
+            <Typography>
+              Params = [
+              {trial.params
+                .map((p) => `${p.name}: ${p.param_external_value}`)
+                .join(", ")}
+              ]
+            </Typography>
+          ) : (
+            <Typography>
+              Params = [
+              {trial.fixed_params
+                .map((p) => `${p.name}: ${p.param_external_value}`)
+                .join(", ")}
+              ]
+            </Typography>
+          )}
           <Typography>
             Started At ={" "}
             {trial?.datetime_start ? trial?.datetime_start.toString() : null}

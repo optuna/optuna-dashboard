@@ -12,6 +12,10 @@ interface TrialResponse {
   datetime_start?: string
   datetime_complete?: string
   params: TrialParam[]
+  fixed_params: {
+    name: string
+    param_external_value: string
+  }[]
   user_attrs: Attribute[]
   system_attrs: Attribute[]
   note: Note
@@ -32,6 +36,7 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
       ? new Date(res.datetime_complete)
       : undefined,
     params: res.params,
+    fixed_params: res.fixed_params,
     user_attrs: res.user_attrs,
     system_attrs: res.system_attrs,
     note: res.note,
