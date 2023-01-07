@@ -34,13 +34,12 @@ export const GraphSlice: FC<{
 }> = ({ study = null }) => {
   const theme = useTheme()
 
-  const [objectiveId, setObjectiveId] = useState<number>(0)
-  const objectiveTargets = useObjectiveTargets(study)
+  const [objectiveTargets, selectedObjective, setObjectiveTarget] = useObjectiveTargets(study)
   const [paramTargetsIndex, setParamTargetsIndex] = useState<number>(0)
   const [paramTargets, searchSpace] = useParamTargets(study)
   const [logYScale, setLogYScale] = useState<boolean>(false)
 
-  const filterTargets: Target[] = [objectiveTargets[objectiveId]]
+  const filterTargets: Target[] = [selectedObjective]
   if (paramTargets.length > paramTargetsIndex)
     filterTargets.push(paramTargets[paramTargetsIndex])
   const trials = useFilteredTrials(study, filterTargets, false, false)
@@ -48,7 +47,7 @@ export const GraphSlice: FC<{
   useEffect(() => {
     plotSlice(
       trials,
-      objectiveTargets[objectiveId],
+      selectedObjective,
       searchSpace.length > paramTargetsIndex
         ? searchSpace[paramTargetsIndex]
         : null,
@@ -57,15 +56,15 @@ export const GraphSlice: FC<{
     )
   }, [
     trials,
-    objectiveTargets[objectiveId],
+    selectedObjective,
     searchSpace,
     paramTargetsIndex,
     logYScale,
     theme.palette.mode,
   ])
 
-  const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
-    setObjectiveId(event.target.value as number)
+  const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
+    setObjectiveTarget(event.target.value)
   }
 
   const handleSelectedParam = (e: SelectChangeEvent<number>) => {
@@ -90,10 +89,10 @@ export const GraphSlice: FC<{
         </Typography>
         {study !== null && study.directions.length !== 1 && (
           <FormControl component="fieldset">
-            <FormLabel component="legend">Objective ID:</FormLabel>
-            <Select value={objectiveId} onChange={handleObjectiveChange}>
+            <FormLabel component="legend">Objective:</FormLabel>
+            <Select value={selectedObjective.identifier()} onChange={handleObjectiveChange}>
               {objectiveTargets.map((t, i) => (
-                <MenuItem value={i} key={i}>
+                <MenuItem value={t.identifier()} key={i}>
                   {t.toLabel(study?.objective_names)}
                 </MenuItem>
               ))}
