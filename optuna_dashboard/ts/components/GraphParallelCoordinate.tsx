@@ -16,20 +16,34 @@ import {
   useObjectiveAndUserAttrTargets,
   useParamTargets,
 } from "../trialFilter"
+import { useMergedUnionSearchSpace } from "../searchSpace"
 
 const plotDomId = "graph-parallel-coordinate"
 
-const useTargets = (study: StudyDetail | null): [Target[], () => ReactNode] => {
+const useTargets = (
+  study: StudyDetail | null
+): [Target[], SearchSpaceItem[], () => ReactNode] => {
   const [targets1, _target1, _setter1] = useObjectiveAndUserAttrTargets(study)
-  const [targets2, _target2, _setter2] = useParamTargets(
-    study?.intersection_search_space || []
-  )
+  const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
+  const [targets2, _target2, _setter2] = useParamTargets(searchSpace)
   const [checked, setChecked] = useState<boolean[]>([true])
 
   const allTargets = [...targets1, ...targets2]
   useEffect(() => {
     if (allTargets.length !== checked.length) {
-      setChecked(allTargets.map((_) => true))
+      setChecked(
+        allTargets.map((t) => {
+          if (t.kind !== "params" || study === null) {
+            return true
+          }
+          // By default, params that is not included in intersection search space should be disabled,
+          // otherwise all trials are filtered.
+          return (
+            study.intersection_search_space.find((s) => s.name === t.key) !==
+            undefined
+          )
+        })
+      )
     }
   }, [allTargets])
 
@@ -64,21 +78,21 @@ const useTargets = (study: StudyDetail | null): [Target[], () => ReactNode] => {
   const targets = allTargets.filter((t, i) =>
     checked.length > i ? checked[i] : true
   )
-  return [targets, renderCheckBoxes]
+  return [targets, searchSpace, renderCheckBoxes]
 }
 
 export const GraphParallelCoordinate: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
-  const [targets, renderCheckBoxes] = useTargets(study)
+  const [targets, searchSpace, renderCheckBoxes] = useTargets(study)
 
   const trials = useFilteredTrials(study, targets, false, false)
   useEffect(() => {
     if (study !== null) {
-      plotCoordinate(study, trials, targets, theme.palette.mode)
+      plotCoordinate(study, trials, targets, searchSpace, theme.palette.mode)
     }
-  }, [study, trials, targets, theme.palette.mode])
+  }, [study, trials, targets, searchSpace, theme.palette.mode])
 
   return (
     <Grid container direction="row">
@@ -109,6 +123,7 @@ const plotCoordinate = (
   study: StudyDetail,
   trials: Trial[],
   targets: Target[],
+  searchSpace: SearchSpaceItem[],
   mode: string
 ) => {
   if (document.getElementById(plotDomId) === null) {
@@ -158,7 +173,7 @@ const plotCoordinate = (
         range: [Math.min(...values), Math.max(...values)],
       }
     } else {
-      const s = study.intersection_search_space.find(
+      const s = searchSpace.find(
         (s) => s.name === target.key
       ) as SearchSpaceItem // Must be already filtered.
 
