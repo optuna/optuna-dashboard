@@ -44,8 +44,8 @@ interface StudyDetailResponse {
   directions: StudyDirection[]
   trials: TrialResponse[]
   best_trials: TrialResponse[]
-  intersection_search_space: SearchSpace[]
-  union_search_space: SearchSpace[]
+  intersection_search_space: SearchSpaceItem[]
+  union_search_space: SearchSpaceItem[]
   union_user_attrs: AttributeSpec[]
   has_intermediate_values: boolean
   note: Note

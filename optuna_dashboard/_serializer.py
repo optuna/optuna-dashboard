@@ -7,6 +7,7 @@ from typing import Union
 
 import numpy as np
 from optuna.distributions import BaseDistribution
+from optuna.distributions import CategoricalDistribution
 from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
 
@@ -39,6 +40,44 @@ if TYPE_CHECKING:
             "value": Union[float, Literal["inf", "-inf", "nan"]],
         },
     )
+
+    FloatDistributionJSON = TypedDict(
+        "FloatDistributionJSON",
+        {
+            "type": Literal["FloatDistribution"],
+            "low": float,
+            "high": float,
+            "step": float,
+            "log": bool,
+        },
+    )
+    IntDistributionJSON = TypedDict(
+        "IntDistributionJSON",
+        {
+            "type": Literal["IntDistribution"],
+            "low": int,
+            "high": int,
+            "step": int,
+            "log": bool,
+        },
+    )
+    CategoricalDistributionChoiceJSON = TypedDict(
+        "CategoricalDistributionChoiceJSON",
+        {
+            "pytype": str,
+            "value": str,
+        },
+    )
+    CategoricalDistributionJSON = TypedDict(
+        "CategoricalDistributionJSON",
+        {
+            "type": Literal["CategoricalDistribution"],
+            "choices": list[CategoricalDistributionChoiceJSON],
+        },
+    )
+    DistributionJSON = Union[
+        FloatDistributionJSON, IntDistributionJSON, CategoricalDistributionJSON
+    ]
 
 
 MAX_ATTR_LENGTH = 1024
@@ -109,12 +148,26 @@ def serialize_study_detail(
 def serialize_frozen_trial(
     study_id: int, trial: FrozenTrial, study_system_attrs: dict[str, Any]
 ) -> dict[str, Any]:
+    params = []
+    for param_name, param_external_value in trial.params.items():
+        distribution = trial.distributions.get(param_name)
+        if distribution is None:
+            continue
+        params.append(
+            {
+                "name": param_name,
+                "param_internal_value": distribution.to_internal_repr(param_external_value),
+                "param_external_value": str(param_external_value),
+                "param_external_pytyp": str(type(param_external_value)),
+                "distribution": serialize_distribution(distribution),
+            }
+        )
     serialized = {
         "trial_id": trial._trial_id,
         "study_id": study_id,
         "number": trial.number,
         "state": trial.state.name.capitalize(),
-        "params": [{"name": name, "value": str(value)} for name, value in trial.params.items()],
+        "params": params,
         "user_attrs": serialize_attrs(trial.user_attrs),
         "system_attrs": serialize_attrs(getattr(trial, "_system_attrs", {})),
         "note": note.get_note_from_system_attrs(study_system_attrs, trial._trial_id),
@@ -158,6 +211,89 @@ def serialize_frozen_trial(
     return serialized
 
 
+def serialize_distribution(distribution: BaseDistribution) -> DistributionJSON:
+    if distribution.__class__.__name__ == "FloatDistribution":
+        # Added from Optuna v3.0
+        float_distribution: FloatDistributionJSON = {
+            "type": "FloatDistribution",
+            "low": getattr(distribution, "low"),
+            "high": getattr(distribution, "high"),
+            "step": getattr(distribution, "step"),
+            "log": getattr(distribution, "log"),
+        }
+        return float_distribution
+    if distribution.__class__.__name__ == "UniformDistribution":
+        # Deprecated from Optuna v3.0
+        uniform: FloatDistributionJSON = {
+            "type": "FloatDistribution",
+            "low": getattr(distribution, "low"),
+            "high": getattr(distribution, "high"),
+            "step": 0,
+            "log": False,
+        }
+        return uniform
+    if distribution.__class__.__name__ == "LogUniformDistribution":
+        # Deprecated from Optuna v3.0
+        log_uniform: FloatDistributionJSON = {
+            "type": "FloatDistribution",
+            "low": getattr(distribution, "low"),
+            "high": getattr(distribution, "high"),
+            "step": 0,
+            "log": True,
+        }
+        return log_uniform
+    if distribution.__class__.__name__ == "DiscreteUniformDistribution":
+        # Deprecated from Optuna v3.0
+        discrete_uniform: FloatDistributionJSON = {
+            "type": "FloatDistribution",
+            "low": getattr(distribution, "low"),
+            "high": getattr(distribution, "high"),
+            "step": getattr(distribution, "q"),
+            "log": False,
+        }
+        return discrete_uniform
+    if distribution.__class__.__name__ == "IntDistribution":
+        # Added from Optuna v3.0
+        int_distribution: IntDistributionJSON = {
+            "type": "IntDistribution",
+            "low": getattr(distribution, "low"),
+            "high": getattr(distribution, "high"),
+            "step": getattr(distribution, "step"),
+            "log": getattr(distribution, "log"),
+        }
+        return int_distribution
+    if distribution.__class__.__name__ == "IntUniformDistribution":
+        # Deprecated from Optuna v3.0
+        int_uniform: IntDistributionJSON = {
+            "type": "IntDistribution",
+            "low": getattr(distribution, "low"),
+            "high": getattr(distribution, "high"),
+            "step": getattr(distribution, "step"),
+            "log": False,
+        }
+        return int_uniform
+    if distribution.__class__.__name__ == "IntLogUniformDistribution":
+        # Deprecated from Optuna v3.0
+        int_log_uniform: IntDistributionJSON = {
+            "type": "IntDistribution",
+            "low": getattr(distribution, "low"),
+            "high": getattr(distribution, "high"),
+            "step": getattr(distribution, "step"),
+            "log": True,
+        }
+        return int_log_uniform
+    if isinstance(distribution, CategoricalDistribution):
+        categorical: CategoricalDistributionJSON = {
+            "type": "CategoricalDistribution",
+            "choices": [
+                {"pytype": str(type(choice)), "value": str(choice)}
+                for choice in distribution.choices
+            ],
+        }
+        return categorical
+    raise ValueError(f"Unexpected distribution {str(distribution)}")
+
+
 def serialize_search_space(
     search_space: list[tuple[str, BaseDistribution]]
 ) -> list[dict[str, Any]]:
@@ -166,8 +302,7 @@ def serialize_search_space(
         serialized.append(
             {
                 "name": param_name,
-                "distribution": distribution.__class__.__name__,
-                "attributes": distribution._asdict(),
+                "distribution": serialize_distribution(distribution),
             }
         )
     return serialized

@@ -12,6 +12,7 @@ import {
   Box,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import { useMergedUnionSearchSpace } from "../searchSpace"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const unique = (array: any[]) => {
@@ -38,26 +39,28 @@ export const Contour: FC<{
 }> = ({ study = null }) => {
   const theme = useTheme()
   const [objectiveId, setObjectiveId] = useState<number>(0)
-  const [xParam, setXParam] = useState("")
-  const [yParam, setYParam] = useState("")
-  const paramNames = study?.union_search_space.map((s) => s.name)
+  const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
+  const [xParam, setXParam] = useState<SearchSpaceItem | null>(null)
+  const [yParam, setYParam] = useState<SearchSpaceItem | null>(null)
   const objectiveNames: string[] = study?.objective_names || []
 
-  if (!xParam && paramNames && paramNames.length > 0) {
-    setXParam(paramNames[0])
+  if (xParam === null && searchSpace.length > 0) {
+    setXParam(searchSpace[0])
   }
-  if (!yParam && paramNames && paramNames.length > 1) {
-    setYParam(paramNames[1])
+  if (yParam === null && searchSpace.length > 1) {
+    setYParam(searchSpace[1])
   }
 
   const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
     setObjectiveId(event.target.value as number)
   }
   const handleXParamChange = (event: SelectChangeEvent<string>) => {
-    setXParam(event.target.value as string)
+    const param = searchSpace.find((s) => s.name === event.target.value)
+    setXParam(param || null)
   }
   const handleYParamChange = (event: SelectChangeEvent<string>) => {
-    setYParam(event.target.value as string)
+    const param = searchSpace.find((s) => s.name === event.target.value)
+    setYParam(param || null)
   }
 
   useEffect(() => {
@@ -66,7 +69,7 @@ export const Contour: FC<{
     }
   }, [study, objectiveId, xParam, yParam, theme.palette.mode])
 
-  const space: SearchSpace[] = study ? study.union_search_space : []
+  const space: SearchSpaceItem[] = study ? study.union_search_space : []
 
   return (
     <Grid container direction="row">
@@ -98,7 +101,7 @@ export const Contour: FC<{
           <Grid container direction="column" gap={1}>
             <FormControl component="fieldset" fullWidth>
               <FormLabel component="legend">x:</FormLabel>
-              <Select value={xParam} onChange={handleXParamChange}>
+              <Select value={xParam?.name || ""} onChange={handleXParamChange}>
                 {space.map((d, i) => (
                   <MenuItem value={d.name} key={d.name}>
                     {d.name}
@@ -108,7 +111,7 @@ export const Contour: FC<{
             </FormControl>
             <FormControl component="fieldset" fullWidth>
               <FormLabel component="legend">y:</FormLabel>
-              <Select value={yParam} onChange={handleYParamChange}>
+              <Select value={yParam?.name || ""} onChange={handleYParamChange}>
                 {space.map((d, i) => (
                   <MenuItem value={d.name} key={d.name}>
                     {d.name}
@@ -126,73 +129,6 @@ export const Contour: FC<{
   )
 }
 
-const isNumerical = (trials: Trial[], paramName: string): boolean => {
-  return trials.every((t) => {
-    const param = t.params.find((param) => param.name === paramName)
-    if (!param) return true
-    const val = param.value
-    return typeof (Number(val) || val) === "number"
-  })
-}
-
-const getAxisInfo = (trials: Trial[], paramName: string): AxisInfo => {
-  const values = trials.map((trial) => {
-    const param = trial.params.find((p) => p.name === paramName)
-    return param ? Number(param.value) || param.value : null
-  })
-
-  let min: number
-  let max: number
-  let isLog: boolean
-  let isCat: boolean
-
-  if (isNumerical(trials, paramName)) {
-    const minValue = Math.min(...(values as number[]))
-    const maxValue = Math.max(...(values as number[]))
-    const padding = (maxValue - minValue) * PADDING_RATIO
-    min = minValue - padding
-    max = maxValue + padding
-    isLog = false
-    isCat = false
-  } else {
-    const uniqueValues = unique(values)
-    const span = uniqueValues.length - (uniqueValues.includes(null) ? 2 : 1)
-    const padding = span * PADDING_RATIO
-    min = -padding
-    max = span + padding
-    isLog = false
-    isCat = true
-  }
-
-  const indices = isNumerical(trials, paramName)
-    ? unique((values as (number | null)[]).filter((v) => v !== null)).sort(
-        (a, b) => a - b
-      )
-    : unique((values as (string | null)[]).filter((v) => v !== null)).sort(
-        (a, b) =>
-          a.toString().toLowerCase() < b.toString().toLowerCase()
-            ? -1
-            : a.toString().toLowerCase() > b.toString().toLowerCase()
-            ? 1
-            : 0
-      )
-
-  if (indices.length >= 2 && isNumerical(trials, paramName)) {
-    indices.unshift(min)
-    indices.push(max)
-  }
-
-  return {
-    name: paramName,
-    min,
-    max,
-    isLog,
-    isCat,
-    indices,
-    values,
-  }
-}
-
 const filterFunc = (trial: Trial, objectiveId: number): boolean => {
   return (
     trial.state === "Complete" &&
@@ -205,8 +141,8 @@ const filterFunc = (trial: Trial, objectiveId: number): boolean => {
 const plotContour = (
   study: StudyDetail,
   objectiveId: number,
-  xParam: string,
-  yParam: string,
+  xParam: SearchSpaceItem | null,
+  yParam: SearchSpaceItem | null,
   mode: string
 ) => {
   if (document.getElementById(plotDomId) === null) {
@@ -215,16 +151,15 @@ const plotContour = (
 
   const trials: Trial[] = study ? study.trials : []
   const filteredTrials = trials.filter((t) => filterFunc(t, objectiveId))
-
-  if (filteredTrials.length === 0) {
+  if (filteredTrials.length === 0 || xParam === null || yParam === null) {
     plotly.react(plotDomId, [], {
       template: mode === "dark" ? plotlyDarkTemplate : {},
     })
     return
   }
 
-  const xAxis = getAxisInfo(trials, xParam)
-  const yAxis = getAxisInfo(trials, yParam)
+  const xAxis = getAxisInfo(study, trials, xParam)
+  const yAxis = getAxisInfo(study, trials, yParam)
   const xIndices = xAxis.indices
   const yIndices = yAxis.indices
 
@@ -279,11 +214,11 @@ const plotContour = (
 
   const layout: Partial<plotly.Layout> = {
     xaxis: {
-      title: xParam,
+      title: xParam.name,
       type: xAxis.isCat ? "category" : undefined,
     },
     yaxis: {
-      title: yParam,
+      title: yParam.name,
       type: yAxis.isCat ? "category" : undefined,
     },
     margin: {
@@ -295,4 +230,88 @@ const plotContour = (
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
   plotly.react(plotDomId, plotData, layout)
+}
+
+const getAxisInfoForNumericalParams = (
+  trials: Trial[],
+  paramName: string,
+  distribution: FloatDistribution | IntDistribution
+): AxisInfo => {
+  const padding = (distribution.high - distribution.low) * PADDING_RATIO
+  const min = distribution.low - padding
+  const max = distribution.high + padding
+
+  const values = trials.map(
+    (trial) =>
+      trial.params.find((p) => p.name === paramName)?.param_internal_value ||
+      null
+  )
+  const indices = unique(values)
+    .filter((v) => v !== null)
+    .sort((a, b) => a - b)
+  if (indices.length >= 2) {
+    indices.unshift(min)
+    indices.push(max)
+  }
+  return {
+    name: paramName,
+    min,
+    max,
+    isLog: distribution.log,
+    isCat: false,
+    indices,
+    values,
+  }
+}
+
+const getAxisInfoForCategoricalParams = (
+  trials: Trial[],
+  paramName: string,
+  distribution: CategoricalDistribution
+): AxisInfo => {
+  const values = trials.map(
+    (trial) =>
+      trial.params.find((p) => p.name === paramName)?.param_external_value ||
+      null
+  )
+  const isDynamic = values.some((v) => v === null)
+  const span = distribution.choices.length - (isDynamic ? 2 : 1)
+  const padding = span * PADDING_RATIO
+  const min = -padding
+  const max = span + padding
+
+  const indices = distribution.choices
+    .map((c) => c.value)
+    .sort((a, b) =>
+      a.toLowerCase() < b.toLowerCase()
+        ? -1
+        : a.toLowerCase() > b.toLowerCase()
+        ? 1
+        : 0
+    )
+  return {
+    name: paramName,
+    min,
+    max,
+    isLog: false,
+    isCat: true,
+    indices,
+    values,
+  }
+}
+
+const getAxisInfo = (
+  study: StudyDetail,
+  trials: Trial[],
+  param: SearchSpaceItem
+): AxisInfo => {
+  if (param.distribution.type === "CategoricalDistribution") {
+    return getAxisInfoForCategoricalParams(
+      trials,
+      param.name,
+      param.distribution
+    )
+  } else {
+    return getAxisInfoForNumericalParams(trials, param.name, param.distribution)
+  }
 }

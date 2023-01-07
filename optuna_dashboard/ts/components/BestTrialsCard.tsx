@@ -41,7 +41,10 @@ export const BestTrialsCard: FC<{
         </Typography>
         <Typography>
           Params = [
-          {bestTrial.params.map((p) => `${p.name}: ${p.value}`).join(", ")}]
+          {bestTrial.params
+            .map((p) => `${p.name}: ${p.param_external_value}`)
+            .join(", ")}
+          ]
         </Typography>
         <Typography>
           Intermediate Values = [
@@ -88,26 +91,23 @@ export const BestTrialsCard: FC<{
                     URL_PREFIX +
                     `/studies/${trial.study_id}/trials?numbers=${trial.number}`
                   }
+                  sx={{ flexDirection: "column", alignItems: "flex-start" }}
                 >
                   <ListItemText
                     primary={
                       <Typography variant="h5">Trial {trial.number}</Typography>
                     }
-                    secondary={
-                      <>
-                        <Typography>
-                          Objective Values = [{trial.values?.join(", ")}]
-                        </Typography>
-                        <Typography>
-                          Params = [
-                          {trial.params
-                            .map((p) => `${p.name}: ${p.value}`)
-                            .join(", ")}
-                          ]
-                        </Typography>
-                      </>
-                    }
                   />
+                  <Typography>
+                    Objective Values = [{trial.values?.join(", ")}]
+                  </Typography>
+                  <Typography>
+                    Params = [
+                    {trial.params
+                      .map((p) => `${p.name}: ${p.param_external_value}`)
+                      .join(", ")}
+                    ]
+                  </Typography>
                 </ListItemButton>
               </ListItem>
             ))}

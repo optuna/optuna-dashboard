@@ -33,6 +33,13 @@ import { Switch } from "@mui/material"
 
 const drawerWidth = 240
 
+export type PageId =
+  | "history"
+  | "analytics"
+  | "trialTable"
+  | "trialList"
+  | "note"
+
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
   transition: theme.transitions.create("width", {

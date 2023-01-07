@@ -139,25 +139,28 @@ export const TrialTable: FC<{
     studyDetail?.intersection_search_space.length
   ) {
     studyDetail?.intersection_search_space.forEach((s) => {
-      const sortable = s.distribution !== "CategoricalDistribution"
-      const filterable = s.distribution === "CategoricalDistribution"
+      const sortable = s.distribution.type !== "CategoricalDistribution"
+      const filterable = s.distribution.type === "CategoricalDistribution"
       columns.push({
         field: "params",
         label: `Param ${s.name}`,
         toCellValue: (i) =>
-          trials[i].params.find((p) => p.name === s.name)?.value || null,
+          trials[i].params.find((p) => p.name === s.name)
+            ?.param_external_value || null,
         sortable: sortable,
         filterable: filterable,
         less: (firstEl, secondEl): number => {
-          const firstVal = firstEl.params.find((p) => p.name === s.name)?.value
+          const firstVal = firstEl.params.find(
+            (p) => p.name === s.name
+          )?.param_internal_value
           const secondVal = secondEl.params.find(
             (p) => p.name === s.name
-          )?.value
+          )?.param_internal_value
 
           if (firstVal === secondVal) {
             return 0
           } else if (firstVal && secondVal) {
-            return Number(firstVal) < Number(secondVal) ? 1 : -1
+            return firstVal < secondVal ? 1 : -1
           } else if (firstVal) {
             return -1
           } else {
@@ -171,7 +174,9 @@ export const TrialTable: FC<{
       field: "params",
       label: "Params",
       toCellValue: (i) =>
-        trials[i].params.map((p) => p.name + ": " + p.value).join(", "),
+        trials[i].params
+          .map((p) => p.name + ": " + p.param_external_value)
+          .join(", "),
     })
   }
 

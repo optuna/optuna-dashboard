@@ -49,6 +49,15 @@ export const usePreferenceDialog = (
       [event.target.name]: event.target.checked,
     })
   }
+  const renderSelectBox = (onChange: (e) => void): ReactNode => (
+    <Select value={0} onChange={onChange}>
+      {targets.map((t, i) => (
+        <MenuItem value={i} key={i}>
+          {t.toLabel()}
+        </MenuItem>
+      ))}
+    </Select>
+  )
 
   const renderPreferenceDialog = () => {
     return (
