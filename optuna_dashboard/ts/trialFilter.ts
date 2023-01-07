@@ -154,7 +154,7 @@ export const useParamTargets = (
   return [targetList, selectedTarget, setTargetIdent]
 }
 
-export const useObjectiveAndSystemAttrTargets = (
+export const useObjectiveAndUserAttrTargets = (
   study: StudyDetail | null
 ): [Target[], Target, (ident: string) => void] => {
   const defaultTarget = new Target("objective", 0)

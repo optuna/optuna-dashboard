@@ -85,7 +85,7 @@ export const Contour: FC<{
         </Typography>
         {study !== null && study.directions.length !== 1 ? (
           <FormControl component="fieldset">
-            <FormLabel component="legend">Objective ID:</FormLabel>
+            <FormLabel component="legend">Objective:</FormLabel>
             <Select value={objectiveId} onChange={handleObjectiveChange}>
               {study.directions.map((d, i) => (
                 <MenuItem value={i} key={i}>

@@ -1,52 +1,36 @@
 import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect, useMemo } from "react"
-import {
-  Grid,
-  FormControl,
-  FormLabel,
-  MenuItem,
-  Select,
-  Typography,
-  SelectChangeEvent,
-  useTheme,
-  Box,
-} from "@mui/material"
+import React, { FC, useEffect } from "react"
+import { Typography, useTheme, Box, Grid } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import {
   Target,
   useFilteredTrials,
-  useObjectiveAndSystemAttrTargets,
+  useObjectiveAndUserAttrTargets,
+  useParamTargets,
 } from "../trialFilter"
 
 const plotDomId = "graph-parallel-coordinate"
+
+const useTargets = (study: StudyDetail | null): Target[] => {
+  const [targets1, _target1, _setter1] = useObjectiveAndUserAttrTargets(study)
+  const [targets2, _target2, _setter2] = useParamTargets(
+    study?.intersection_search_space || []
+  )
+  return [...targets1, ...targets2]
+}
 
 export const GraphParallelCoordinate: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
-  const [targets, selected, setTarget] = useObjectiveAndSystemAttrTargets(study)
-  const filterTargets = useMemo<Target[]>(
-    () => [
-      ...(study !== null
-        ? study.intersection_search_space.map(
-            (s) => new Target("params", s.name)
-          )
-        : []),
-      ...(selected !== null ? [selected] : []),
-    ],
-    [study?.intersection_search_space, selected]
-  )
-  const trials = useFilteredTrials(study, filterTargets, false, false)
+  const targets = useTargets(study)
 
-  const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
-    setTarget(event.target.value)
-  }
-
+  const trials = useFilteredTrials(study, targets, false, false)
   useEffect(() => {
     if (study !== null) {
-      plotCoordinate(study, trials, selected, theme.palette.mode)
+      plotCoordinate(study, trials, targets, theme.palette.mode)
     }
-  }, [study, trials, selected, theme.palette.mode])
+  }, [study, trials, targets, theme.palette.mode])
 
   return (
     <Grid container direction="row">
@@ -55,26 +39,15 @@ export const GraphParallelCoordinate: FC<{
         xs={3}
         container
         direction="column"
-        sx={{ paddingRight: theme.spacing(2) }}
+        sx={{
+          paddingRight: theme.spacing(2),
+          display: "flex",
+          flexDirection: "row",
+        }}
       >
         <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
           Parallel Coordinate
         </Typography>
-        {study !== null && targets.length >= 2 ? (
-          <FormControl component="fieldset">
-            <FormLabel component="legend">Objective:</FormLabel>
-            <Select
-              value={selected.identifier()}
-              onChange={handleObjectiveChange}
-            >
-              {targets.map((t, i) => (
-                <MenuItem value={t.identifier()} key={i}>
-                  {t.toLabel(study.objective_names)}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        ) : null}
       </Grid>
       <Grid item xs={9}>
         <Box id={plotDomId} sx={{ height: "450px" }} />
@@ -86,7 +59,7 @@ export const GraphParallelCoordinate: FC<{
 const plotCoordinate = (
   study: StudyDetail,
   trials: Trial[],
-  target: Target | null,
+  targets: Target[],
   mode: string
 ) => {
   if (document.getElementById(plotDomId) === null) {
@@ -102,7 +75,7 @@ const plotCoordinate = (
     },
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
-  if (trials.length === 0 || target === null) {
+  if (trials.length === 0) {
     plotly.react(plotDomId, [], layout)
     return
   }
@@ -125,46 +98,59 @@ const plotCoordinate = (
       .join("")
   }
 
-  // Intersection param names
-  const objectiveValues: number[] = trials.map(
-    (t) => target.getTargetValue(t) as number
-  )
-  const dimensions = [
-    {
-      label: target.toLabel(study.objective_names),
-      values: objectiveValues,
-      range: [Math.min(...objectiveValues), Math.max(...objectiveValues)],
-    },
-  ]
-  study.intersection_search_space.forEach((s) => {
-    const values: number[] = trials.map(
-      (t) => t.params.find((p) => p.name === s.name)!.param_internal_value
-    )
-    if (s.distribution.type !== "CategoricalDistribution") {
-      dimensions.push({
-        label: breakLabelIfTooLong(s.name),
-        values: values,
-        range: [s.distribution.low, s.distribution.high],
-      })
-    } else {
-      // categorical
-      const vocabArr: string[] = s.distribution.choices.map((c) => c.value)
-      const tickvals: number[] = vocabArr.map((v, i) => i)
-      dimensions.push({
-        label: breakLabelIfTooLong(s.name),
-        values: values,
-        range: [0, s.distribution.choices.length - 1],
-        // @ts-ignore
-        tickvals: tickvals,
-        ticktext: vocabArr,
-      })
-    }
-  })
-  const objectiveId = target.getObjectiveId()
-  const reversescale =
-    objectiveId !== null && study.directions.length > objectiveId
-      ? study.directions[objectiveId] === "maximize"
-      : "minimize"
+  const dimensions = targets
+    .map((target) => {
+      if (target.kind === "objective" || target.kind === "user_attr") {
+        const values: number[] = trials.map(
+          (t) => target.getTargetValue(t) as number
+        )
+        return {
+          label: target.toLabel(study.objective_names),
+          values: values,
+          range: [Math.min(...values), Math.max(...values)],
+        }
+      } else {
+        const s = study.intersection_search_space.find(
+          (s) => s.name === target.key
+        ) as SearchSpaceItem  // Must be already filtered.
+
+        const values: number[] = trials.map(
+          (t) => target.getTargetValue(t) as number
+        )
+        if (s.distribution.type !== "CategoricalDistribution") {
+          return {
+            label: breakLabelIfTooLong(s.name),
+            values: values,
+            range: [s.distribution.low, s.distribution.high],
+          }
+        } else {
+          // categorical
+          const vocabArr: string[] = s.distribution.choices.map((c) => c.value)
+          const tickvals: number[] = vocabArr.map((v, i) => i)
+          return {
+            label: breakLabelIfTooLong(s.name),
+            values: values,
+            range: [0, s.distribution.choices.length - 1],
+            // @ts-ignore
+            tickvals: tickvals,
+            ticktext: vocabArr,
+          }
+        }
+      }
+    })
+  if (dimensions.length === 0) {
+    console.log("Must not reach here.")
+    plotly.react(plotDomId, [], layout)
+    return
+  }
+  let reversescale = false
+  if (
+    targets[0].kind === "objective" &&
+    (targets[0].getObjectiveId() as number) < study.directions.length &&
+    study.directions[targets[0].getObjectiveId() as number] === "maximize"
+  ) {
+    reversescale = true
+  }
   const plotData: Partial<plotly.PlotData>[] = [
     {
       type: "parcoords",
@@ -176,7 +162,7 @@ const plotCoordinate = (
         // @ts-ignore
         colorscale: "Blues",
         colorbar: {
-          title: target.toLabel(study.objective_names),
+          title: targets[0].toLabel(study.objective_names),
         },
         showscale: true,
         reversescale: reversescale,

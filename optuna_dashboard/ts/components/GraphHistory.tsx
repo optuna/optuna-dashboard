@@ -19,7 +19,7 @@ import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import {
   useFilteredTrials,
   Target,
-  useObjectiveAndSystemAttrTargets,
+  useObjectiveAndUserAttrTargets,
 } from "../trialFilter"
 
 const plotDomId = "graph-history"
@@ -33,7 +33,7 @@ export const GraphHistory: FC<{
   const [filterCompleteTrial, setFilterCompleteTrial] = useState<boolean>(false)
   const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
 
-  const [targets, selected, setTarget] = useObjectiveAndSystemAttrTargets(study)
+  const [targets, selected, setTarget] = useObjectiveAndUserAttrTargets(study)
   const trials = useFilteredTrials(
     study,
     [selected],
