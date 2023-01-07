@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react"
-import { mergeUnionSearchSpace } from "./searchSpace"
 
 type TargetKind = "objective" | "user_attr" | "params"
 
@@ -139,17 +138,21 @@ export const useObjectiveTargets = (
 }
 
 export const useParamTargets = (
-  study: StudyDetail | null
-): [Target[], SearchSpaceItem[]] =>
-  useMemo<[Target[], SearchSpaceItem[]]>(() => {
-    if (study !== null) {
-      const searchSpace = mergeUnionSearchSpace(study.union_search_space)
-      const targets = searchSpace.map((s) => new Target("params", s.name))
-      return [targets, searchSpace]
-    } else {
-      return [[], []]
-    }
-  }, [study?.union_search_space])
+  searchSpace: SearchSpaceItem[]
+): [Target[], Target | null, (ident: string) => void] => {
+  const [selected, setTargetIdent] = useState<string>("")
+  const targetList = useMemo<Target[]>(() => {
+    const targets = searchSpace.map((s) => new Target("params", s.name))
+    if (selected === "" && targets.length > 0)
+      setTargetIdent(targets[0].identifier())
+    return targets
+  }, [searchSpace])
+  const selectedTarget = useMemo<Target | null>(
+    () => targetList.find((t) => t.identifier() === selected) || null,
+    [targetList, selected]
+  )
+  return [targetList, selectedTarget, setTargetIdent]
+}
 
 export const useObjectiveAndSystemAttrTargets = (
   study: StudyDetail | null

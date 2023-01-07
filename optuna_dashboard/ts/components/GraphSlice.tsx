@@ -19,6 +19,7 @@ import {
   useObjectiveTargets,
   useParamTargets,
 } from "../trialFilter"
+import { useMergedUnionSearchSpace } from "../searchSpace"
 
 const plotDomId = "graph-slice"
 
@@ -34,23 +35,28 @@ export const GraphSlice: FC<{
 }> = ({ study = null }) => {
   const theme = useTheme()
 
-  const [objectiveTargets, selectedObjective, setObjectiveTarget] = useObjectiveTargets(study)
-  const [paramTargetsIndex, setParamTargetsIndex] = useState<number>(0)
-  const [paramTargets, searchSpace] = useParamTargets(study)
+  const [objectiveTargets, selectedObjective, setObjectiveTarget] =
+    useObjectiveTargets(study)
+  const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
+  const [paramTargets, selectedParamTarget, setParamTarget] =
+    useParamTargets(searchSpace)
   const [logYScale, setLogYScale] = useState<boolean>(false)
 
-  const filterTargets: Target[] = [selectedObjective]
-  if (paramTargets.length > paramTargetsIndex)
-    filterTargets.push(paramTargets[paramTargetsIndex])
-  const trials = useFilteredTrials(study, filterTargets, false, false)
+  const trials = useFilteredTrials(
+    study,
+    selectedParamTarget !== null
+      ? [selectedObjective, selectedParamTarget]
+      : [selectedObjective],
+    false,
+    false
+  )
 
   useEffect(() => {
     plotSlice(
       trials,
       selectedObjective,
-      searchSpace.length > paramTargetsIndex
-        ? searchSpace[paramTargetsIndex]
-        : null,
+      selectedParamTarget,
+      searchSpace.find((s) => s.name === selectedParamTarget?.key) || null,
       logYScale,
       theme.palette.mode
     )
@@ -58,7 +64,7 @@ export const GraphSlice: FC<{
     trials,
     selectedObjective,
     searchSpace,
-    paramTargetsIndex,
+    selectedParamTarget,
     logYScale,
     theme.palette.mode,
   ])
@@ -67,8 +73,8 @@ export const GraphSlice: FC<{
     setObjectiveTarget(event.target.value)
   }
 
-  const handleSelectedParam = (e: SelectChangeEvent<number>) => {
-    setParamTargetsIndex(e.target.value as number)
+  const handleSelectedParam = (e: SelectChangeEvent<string>) => {
+    setParamTarget(e.target.value)
   }
 
   const handleLogYScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -90,7 +96,10 @@ export const GraphSlice: FC<{
         {study !== null && study.directions.length !== 1 && (
           <FormControl component="fieldset">
             <FormLabel component="legend">Objective:</FormLabel>
-            <Select value={selectedObjective.identifier()} onChange={handleObjectiveChange}>
+            <Select
+              value={selectedObjective.identifier()}
+              onChange={handleObjectiveChange}
+            >
               {objectiveTargets.map((t, i) => (
                 <MenuItem value={t.identifier()} key={i}>
                   {t.toLabel(study?.objective_names)}
@@ -99,12 +108,15 @@ export const GraphSlice: FC<{
             </Select>
           </FormControl>
         )}
-        {paramTargets.length !== 0 && paramTargetsIndex !== null && (
+        {paramTargets.length !== 0 && selectedParamTarget !== null && (
           <FormControl component="fieldset">
             <FormLabel component="legend">Parameter:</FormLabel>
-            <Select value={paramTargetsIndex} onChange={handleSelectedParam}>
+            <Select
+              value={selectedParamTarget.identifier()}
+              onChange={handleSelectedParam}
+            >
               {paramTargets.map((t, i) => (
-                <MenuItem value={i} key={i}>
+                <MenuItem value={t.identifier()} key={i}>
                   {t.toLabel()}
                 </MenuItem>
               ))}
@@ -130,7 +142,8 @@ export const GraphSlice: FC<{
 const plotSlice = (
   trials: Trial[],
   objectiveTarget: Target,
-  selected: SearchSpaceItem | null,
+  selectedParamTarget: Target | null,
+  selectedParamSpace: SearchSpaceItem | null,
   logYScale: boolean,
   mode: string
 ) => {
@@ -146,8 +159,8 @@ const plotSlice = (
       b: 0,
     },
     xaxis: {
-      title: selected?.name || "",
-      type: selected !== null && isLogScale(selected) ? "log" : "linear",
+      title: selectedParamTarget?.toLabel() || "",
+      type: selectedParamSpace !== null && isLogScale(selectedParamSpace) ? "log" : "linear",
       gridwidth: 1,
       automargin: true,
     },
@@ -160,11 +173,7 @@ const plotSlice = (
     showlegend: false,
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
-  if (selected === null) {
-    plotly.react(plotDomId, [], layout)
-    return
-  }
-  if (trials.length === 0) {
+  if (selectedParamSpace === null || selectedParamTarget === null || trials.length === 0) {
     plotly.react(plotDomId, [], layout)
     return
   }
@@ -172,11 +181,10 @@ const plotSlice = (
   const objectiveValues: number[] = trials.map(
     (t) => objectiveTarget.getTargetValue(t) as number
   )
-  const paramTarget = new Target("params", selected.name)
-  const values = trials.map((t) => paramTarget.getTargetValue(t) as number)
+  const values = trials.map((t) => selectedParamTarget.getTargetValue(t) as number)
 
   const trialNumbers: number[] = trials.map((t) => t.number)
-  if (selected.distribution.type !== "CategoricalDistribution") {
+  if (selectedParamSpace.distribution.type !== "CategoricalDistribution") {
     const trace: plotly.Data[] = [
       {
         type: "scatter",
@@ -198,14 +206,14 @@ const plotSlice = (
       },
     ]
     layout["xaxis"] = {
-      title: selected.name,
-      type: selected.distribution.log ? "log" : "linear",
+      title: selectedParamTarget.toLabel(),
+      type: isLogScale(selectedParamSpace) ? "log" : "linear",
       gridwidth: 1,
       automargin: true, // Otherwise the label is outside of the plot
     }
     plotly.react(plotDomId, trace, layout)
   } else {
-    const vocabArr = selected.distribution.choices.map((c) => c.value)
+    const vocabArr = selectedParamSpace.distribution.choices.map((c) => c.value)
     const tickvals: number[] = vocabArr.map((v, i) => i)
     const trace: plotly.Data[] = [
       {
@@ -228,7 +236,7 @@ const plotSlice = (
       },
     ]
     layout["xaxis"] = {
-      title: selected.name,
+      title: selectedParamTarget.toLabel(),
       type: "linear",
       gridwidth: 1,
       tickvals: tickvals,
