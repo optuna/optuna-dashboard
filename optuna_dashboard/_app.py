@@ -3,21 +3,13 @@ from __future__ import annotations
 from datetime import datetime
 from datetime import timedelta
 import functools
-import json
 import logging
 import os
 import threading
-import traceback
 import typing
-from typing import Any
-from typing import Callable
-from typing import cast
-from typing import Dict
 from typing import Optional
-from typing import TypeVar
 from typing import Union
 
-from bottle import BaseResponse
 from bottle import Bottle
 from bottle import redirect
 from bottle import request
@@ -37,6 +29,8 @@ from packaging import version
 
 from . import _note as note
 from . import artifact
+from ._bottleutil import BottleViewReturn
+from ._bottleutil import json_api_view
 from ._cached_extra_study_property import get_cached_extra_study_property
 from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
@@ -52,8 +46,6 @@ if typing.TYPE_CHECKING:
     except ImportError:
         FrozenStudy = None  # type: ignore
 
-BottleViewReturn = Union[str, bytes, Dict[str, Any], BaseResponse]
-BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])
 
 logger = logging.getLogger(__name__)
 
@@ -125,23 +117,6 @@ def update_schema_compatibility_flags(storage: BaseStorage) -> None:
         head_version = storage.get_head_version()
         rdb_schema_needs_migrate = current_version != head_version
         rdb_schema_unsupported = current_version not in storage.get_all_versions()
-
-
-def json_api_view(view: BottleView) -> BottleView:
-    @functools.wraps(view)
-    def decorated(*args: list[Any], **kwargs: dict[str, Any]) -> BottleViewReturn:
-        try:
-            response.content_type = "application/json"
-            response_body = view(*args, **kwargs)
-            return response_body
-        except Exception as e:
-            response.status = 500
-            response.content_type = "application/json"
-            stacktrace = "\n".join(traceback.format_tb(e.__traceback__))
-            logger.error(f"Exception: {e}\n{stacktrace}")
-            return json.dumps({"reason": "internal server error"})
-
-    return cast(BottleView, decorated)
 
 
 def get_study_summaries(storage: BaseStorage) -> list[StudySummary]:
