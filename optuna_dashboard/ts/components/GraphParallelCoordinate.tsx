@@ -1,5 +1,5 @@
 import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useEffect, useMemo } from "react"
 import {
   Grid,
   FormControl,
@@ -12,6 +12,11 @@ import {
   Box,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import {
+  Target,
+  useFilteredTrials,
+  useObjectiveAndSystemAttrTargets,
+} from "../trialFilter"
 
 const plotDomId = "graph-parallel-coordinate"
 
@@ -19,18 +24,29 @@ export const GraphParallelCoordinate: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
-  const [objectiveId, setObjectiveId] = useState<number>(0)
-  const objectiveNames: string[] = study?.objective_names || []
+  const [targets, selected, setTarget] = useObjectiveAndSystemAttrTargets(study)
+  const filterTargets = useMemo<Target[]>(
+    () => [
+      ...(study !== null
+        ? study.intersection_search_space.map(
+            (s) => new Target("params", s.name)
+          )
+        : []),
+      ...(selected !== null ? [selected] : []),
+    ],
+    [study?.intersection_search_space, selected]
+  )
+  const trials = useFilteredTrials(study, filterTargets, false, false)
 
-  const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
-    setObjectiveId(event.target.value as number)
+  const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
+    setTarget(event.target.value)
   }
 
   useEffect(() => {
     if (study !== null) {
-      plotCoordinate(study, objectiveId, theme.palette.mode)
+      plotCoordinate(study, trials, selected, theme.palette.mode)
     }
-  }, [study, objectiveId, theme.palette.mode])
+  }, [study, trials, selected, theme.palette.mode])
 
   return (
     <Grid container direction="row">
@@ -44,15 +60,16 @@ export const GraphParallelCoordinate: FC<{
         <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
           Parallel Coordinate
         </Typography>
-        {study !== null && study.directions.length !== 1 ? (
+        {study !== null && targets.length >= 2 ? (
           <FormControl component="fieldset">
-            <FormLabel component="legend">Objective ID:</FormLabel>
-            <Select value={objectiveId} onChange={handleObjectiveChange}>
-              {study.directions.map((d, i) => (
-                <MenuItem value={i} key={i}>
-                  {objectiveNames.length === study?.directions.length
-                    ? objectiveNames[i]
-                    : `${i}`}
+            <FormLabel component="legend">Objective:</FormLabel>
+            <Select
+              value={selected.identifier()}
+              onChange={handleObjectiveChange}
+            >
+              {targets.map((t, i) => (
+                <MenuItem value={t.identifier()} key={i}>
+                  {t.toLabel(study.objective_names)}
                 </MenuItem>
               ))}
             </Select>
@@ -66,23 +83,10 @@ export const GraphParallelCoordinate: FC<{
   )
 }
 
-const filterFunc = (trial: Trial, objectiveId: number): boolean => {
-  if (trial.state !== "Complete" && trial.state !== "Pruned") {
-    return false
-  }
-  if (trial.values === undefined) {
-    return false
-  }
-  return (
-    trial.values.length > objectiveId &&
-    trial.values[objectiveId] !== "inf" &&
-    trial.values[objectiveId] !== "-inf"
-  )
-}
-
 const plotCoordinate = (
   study: StudyDetail,
-  objectiveId: number,
+  trials: Trial[],
+  target: Target | null,
   mode: string
 ) => {
   if (document.getElementById(plotDomId) === null) {
@@ -98,13 +102,10 @@ const plotCoordinate = (
     },
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
-
-  if (study.trials.length === 0) {
+  if (trials.length === 0 || target === null) {
     plotly.react(plotDomId, [], layout)
     return
   }
-
-  const filteredTrials = study.trials.filter((t) => filterFunc(t, objectiveId))
 
   const maxLabelLength = 40
   const breakLength = maxLabelLength / 2
@@ -125,25 +126,25 @@ const plotCoordinate = (
   }
 
   // Intersection param names
-  const objectiveValues: number[] = filteredTrials.map(
-    (t) => t.values![objectiveId] as number
+  const objectiveValues: number[] = trials.map(
+    (t) => target.getTargetValue(t) as number
   )
   const dimensions = [
     {
-      label: "Objective value",
+      label: target.toLabel(study.objective_names),
       values: objectiveValues,
       range: [Math.min(...objectiveValues), Math.max(...objectiveValues)],
     },
   ]
   study.intersection_search_space.forEach((s) => {
-    const values: number[] = filteredTrials.map(
+    const values: number[] = trials.map(
       (t) => t.params.find((p) => p.name === s.name)!.param_internal_value
     )
     if (s.distribution.type !== "CategoricalDistribution") {
       dimensions.push({
         label: breakLabelIfTooLong(s.name),
         values: values,
-        range: [Math.min(...values), Math.max(...values)],
+        range: [s.distribution.low, s.distribution.high],
       })
     } else {
       // categorical
@@ -152,13 +153,18 @@ const plotCoordinate = (
       dimensions.push({
         label: breakLabelIfTooLong(s.name),
         values: values,
-        range: [Math.min(...values), Math.max(...values)],
+        range: [0, s.distribution.choices.length - 1],
         // @ts-ignore
         tickvals: tickvals,
         ticktext: vocabArr,
       })
     }
   })
+  const objectiveId = target.getObjectiveId()
+  const reversescale =
+    objectiveId !== null && study.directions.length > objectiveId
+      ? study.directions[objectiveId] === "maximize"
+      : "minimize"
   const plotData: Partial<plotly.PlotData>[] = [
     {
       type: "parcoords",
@@ -170,10 +176,10 @@ const plotCoordinate = (
         // @ts-ignore
         colorscale: "Blues",
         colorbar: {
-          title: "Objective value",
+          title: target.toLabel(study.objective_names),
         },
         showscale: true,
-        reversescale: study.directions[objectiveId] === "maximize",
+        reversescale: reversescale,
       },
     },
   ]

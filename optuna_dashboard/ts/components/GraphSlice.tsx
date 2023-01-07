@@ -160,7 +160,10 @@ const plotSlice = (
     },
     xaxis: {
       title: selectedParamTarget?.toLabel() || "",
-      type: selectedParamSpace !== null && isLogScale(selectedParamSpace) ? "log" : "linear",
+      type:
+        selectedParamSpace !== null && isLogScale(selectedParamSpace)
+          ? "log"
+          : "linear",
       gridwidth: 1,
       automargin: true,
     },
@@ -173,7 +176,11 @@ const plotSlice = (
     showlegend: false,
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
-  if (selectedParamSpace === null || selectedParamTarget === null || trials.length === 0) {
+  if (
+    selectedParamSpace === null ||
+    selectedParamTarget === null ||
+    trials.length === 0
+  ) {
     plotly.react(plotDomId, [], layout)
     return
   }
@@ -181,7 +188,9 @@ const plotSlice = (
   const objectiveValues: number[] = trials.map(
     (t) => objectiveTarget.getTargetValue(t) as number
   )
-  const values = trials.map((t) => selectedParamTarget.getTargetValue(t) as number)
+  const values = trials.map(
+    (t) => selectedParamTarget.getTargetValue(t) as number
+  )
 
   const trialNumbers: number[] = trials.map((t) => t.number)
   if (selectedParamSpace.distribution.type !== "CategoricalDistribution") {
