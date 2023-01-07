@@ -52,7 +52,7 @@ export const GraphParetoFront: FC<{
         {study !== null && study.directions.length !== 1 ? (
           <>
             <FormControl component="fieldset">
-              <FormLabel component="legend">Objective X ID:</FormLabel>
+              <FormLabel component="legend">Objective X:</FormLabel>
               <Select value={objectiveXId} onChange={handleObjectiveXChange}>
                 {study.directions.map((d, i) => (
                   <MenuItem value={i} key={i}>
@@ -64,7 +64,7 @@ export const GraphParetoFront: FC<{
               </Select>
             </FormControl>
             <FormControl component="fieldset">
-              <FormLabel component="legend">Objective Y ID:</FormLabel>
+              <FormLabel component="legend">Objective Y:</FormLabel>
               <Select value={objectiveYId} onChange={handleObjectiveYChange}>
                 {study.directions.map((d, i) => (
                   <MenuItem value={i} key={i}>
