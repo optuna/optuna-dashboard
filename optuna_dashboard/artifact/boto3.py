@@ -6,8 +6,8 @@ import boto3
 
 
 if TYPE_CHECKING:
-    from typing import Optional
     from typing import BinaryIO
+    from typing import Optional
 
     from mypy_boto3_s3 import S3Client
 

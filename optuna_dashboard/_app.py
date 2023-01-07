@@ -326,6 +326,10 @@ def create_app(
     @app.delete("/api/studies/<study_id:int>")
     @json_api_view
     def delete_study(study_id: int) -> BottleViewReturn:
+        if artifact_backend is not None:
+            system_attrs = storage.get_study_system_attrs(study_id)
+            artifact._delete_all_artifacts(artifact_backend, system_attrs)
+
         try:
             storage.delete_study(study_id)
         except KeyError:
@@ -453,8 +457,7 @@ def create_app(
                 filename = gz_filename
         return static_file(filename, root=STATIC_DIR)
 
-    if artifact_backend is not None:
-        artifact.register_artifact_route(app, storage, artifact_backend)
+    artifact.register_artifact_route(app, storage, artifact_backend)
     return app
 
 

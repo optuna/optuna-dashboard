@@ -123,7 +123,17 @@ def _get_artifact_meta(storage: BaseStorage, trial_id: int, artifact_id: str) ->
     raise ValueError("Artifact not found")
 
 
-def _list_artifacts(study_system_attrs: dict[str, Any], trial_id: int) -> list[ArtifactMeta]:
+def _delete_all_artifacts(backend: ArtifactBackend, study_system_attrs: dict[str, Any]) -> None:
+    artifact_meta_list: list[ArtifactMeta] = [
+        json.loads(value)
+        for key, value in study_system_attrs.items()
+        if key.startswith(ARTIFACTS_ATTR_PREFIX)
+    ]
+    for meta in artifact_meta_list:
+        backend.remove(meta["artifact_id"])
+
+
+def _list_trial_artifacts(study_system_attrs: dict[str, Any], trial_id: int) -> list[ArtifactMeta]:
     return [
         json.loads(value)
         for key, value in study_system_attrs.items()
