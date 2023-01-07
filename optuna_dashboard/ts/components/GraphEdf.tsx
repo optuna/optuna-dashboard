@@ -23,8 +23,8 @@ export const GraphEdf: FC<{
   const [targets, selected, setTarget] = useObjectiveTargets(study)
   const trials = useFilteredTrials(study, [selected], false, false)
 
-  const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
-    setTarget(event.target.value as number)
+  const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
+    setTarget(event.target.value)
   }
 
   useEffect(() => {
@@ -47,9 +47,12 @@ export const GraphEdf: FC<{
         {study !== null && study.directions.length !== 1 ? (
           <FormControl component="fieldset">
             <FormLabel component="legend">Objective:</FormLabel>
-            <Select value={selected.getObjectiveId() || 0} onChange={handleObjectiveChange}>
+            <Select
+              value={selected.identifier()}
+              onChange={handleObjectiveChange}
+            >
               {targets.map((target, i) => (
-                <MenuItem value={i} key={i}>
+                <MenuItem value={target.identifier()} key={i}>
                   {target.toLabel(study?.objective_names)}
                 </MenuItem>
               ))}

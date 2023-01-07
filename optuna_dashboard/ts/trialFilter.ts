@@ -1,4 +1,4 @@
-import {useMemo, useState} from "react"
+import { useMemo, useState } from "react"
 import { mergeUnionSearchSpace } from "./searchSpace"
 
 type TargetKind = "objective" | "user_attr" | "params"
@@ -27,6 +27,10 @@ export class Target {
       }
     }
     return true
+  }
+
+  identifier(): string {
+    return `${this.kind}:${this.key}`
   }
 
   toLabel(objectiveNames?: string[]): string {
@@ -113,16 +117,25 @@ export const useFilteredTrials = (
     })
   }, [study?.trials, targets, filterComplete, filterPruned])
 
-export const useObjectiveTargets = (study: StudyDetail | null): [Target[], Target, (index: number) => void] => {
-  const [targetIndex, setTargetIndex] = useState<number>(0)
+export const useObjectiveTargets = (
+  study: StudyDetail | null
+): [Target[], Target, (ident: string) => void] => {
+  const defaultTarget = new Target("objective", 0)
+  const [selected, setTargetIdent] = useState<string>(
+    defaultTarget.identifier()
+  )
   const targetList = useMemo<Target[]>(() => {
     if (study !== null) {
       return study.directions.map((v, i) => new Target("objective", i))
     } else {
-      return [new Target("objective", 0)]
+      return [defaultTarget]
     }
   }, [study?.directions])
-  return [targetList, targetList[targetIndex], setTargetIndex]
+  const selectedTarget = useMemo<Target>(
+    () => targetList.find((t) => t.identifier() === selected) || defaultTarget,
+    [targetList, selected]
+  )
+  return [targetList, selectedTarget, setTargetIdent]
 }
 
 export const useParamTargets = (
@@ -140,8 +153,12 @@ export const useParamTargets = (
 
 export const useObjectiveAndSystemAttrTargets = (
   study: StudyDetail | null
-): Target[] =>
-  useMemo<Target[]>(() => {
+): [Target[], Target, (ident: string) => void] => {
+  const defaultTarget = new Target("objective", 0)
+  const [selected, setTargetIdent] = useState<string>(
+    defaultTarget.identifier()
+  )
+  const targetList = useMemo<Target[]>(() => {
     if (study !== null) {
       return [
         ...study.directions.map((v, i) => new Target("objective", i)),
@@ -150,6 +167,12 @@ export const useObjectiveAndSystemAttrTargets = (
           .map((attr) => new Target("user_attr", attr.key)),
       ]
     } else {
-      return [new Target("objective", 0)]
+      return [defaultTarget]
     }
   }, [study?.directions, study?.union_user_attrs])
+  const selectedTarget = useMemo<Target>(
+    () => targetList.find((t) => t.identifier() === selected) || defaultTarget,
+    [targetList, selected]
+  )
+  return [targetList, selectedTarget, setTargetIdent]
+}

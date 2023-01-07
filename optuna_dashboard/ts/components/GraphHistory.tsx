@@ -33,12 +33,10 @@ export const GraphHistory: FC<{
   const [filterCompleteTrial, setFilterCompleteTrial] = useState<boolean>(false)
   const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
 
-  const objectiveNames: string[] = study?.objective_names || []
-  const targetList = useObjectiveAndSystemAttrTargets(study)
-  const [targetIndex, setTargetIndex] = useState<number>(0)
+  const [targets, selected, setTarget] = useObjectiveAndSystemAttrTargets(study)
   const trials = useFilteredTrials(
     study,
-    [targetList[targetIndex]],
+    [selected],
     filterCompleteTrial,
     filterPrunedTrial
   )
@@ -48,7 +46,7 @@ export const GraphHistory: FC<{
       plotHistory(
         trials,
         study.directions,
-        targetList[targetIndex],
+        selected,
         xAxis,
         logScale,
         theme.palette.mode
@@ -57,8 +55,7 @@ export const GraphHistory: FC<{
   }, [
     trials,
     study?.directions,
-    targetIndex,
-    targetList,
+    selected,
     logScale,
     xAxis,
     filterPrunedTrial,
@@ -66,8 +63,8 @@ export const GraphHistory: FC<{
     theme.palette.mode,
   ])
 
-  const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
-    setTargetIndex(event.target.value as number)
+  const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
+    setTarget(event.target.value)
   }
 
   const handleXAxisChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -98,16 +95,19 @@ export const GraphHistory: FC<{
         <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
           History
         </Typography>
-        {study !== null && targetList.length >= 2 ? (
+        {targets.length >= 2 ? (
           <FormControl
             component="fieldset"
             sx={{ marginBottom: theme.spacing(2) }}
           >
             <FormLabel component="legend">y Axis</FormLabel>
-            <Select value={targetIndex} onChange={handleObjectiveChange}>
-              {targetList.map((t, i) => (
-                <MenuItem value={i} key={i}>
-                  {t.toLabel(objectiveNames)}
+            <Select
+              value={selected.identifier()}
+              onChange={handleObjectiveChange}
+            >
+              {targets.map((t, i) => (
+                <MenuItem value={t.identifier()} key={i}>
+                  {t.toLabel(study?.objective_names)}
                 </MenuItem>
               ))}
             </Select>
