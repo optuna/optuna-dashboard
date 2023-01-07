@@ -1,4 +1,5 @@
 import { useMemo } from "react"
+import { mergeUnionSearchSpace } from "./searchSpace"
 
 type TargetKind = "objective" | "user_attr" | "params"
 
@@ -28,10 +29,10 @@ export class Target {
     return true
   }
 
-  toLabel(objectiveNames: string[]): string {
+  toLabel(objectiveNames?: string[]): string {
     if (this.kind === "objective") {
       const objectiveId: number = this.key as number
-      if (objectiveNames.length > objectiveId) {
+      if (objectiveNames !== undefined && objectiveNames.length > objectiveId) {
         return objectiveNames[objectiveId]
       }
       return `Objective ${objectiveId}`
@@ -120,6 +121,19 @@ export const useObjectiveTargets = (study: StudyDetail | null): Target[] =>
       return [new Target("objective", 0)]
     }
   }, [study?.directions])
+
+export const useParamTargets = (
+  study: StudyDetail | null
+): [Target[], SearchSpaceItem[]] =>
+  useMemo<[Target[], SearchSpaceItem[]]>(() => {
+    if (study !== null) {
+      const searchSpace = mergeUnionSearchSpace(study.union_search_space)
+      const targets = searchSpace.map((s) => new Target("params", s.name))
+      return [targets, searchSpace]
+    } else {
+      return [[], []]
+    }
+  }, [study?.union_search_space])
 
 export const useObjectiveAndSystemAttrTargets = (
   study: StudyDetail | null

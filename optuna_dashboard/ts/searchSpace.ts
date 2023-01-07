@@ -1,6 +1,6 @@
 import { useMemo } from "react"
 
-export const aggregateSearchSpace = (
+export const mergeUnionSearchSpace = (
   unionSearchSpace: SearchSpaceItem[]
 ): SearchSpaceItem[] => {
   const knownElements = new Map<string, Distribution>()
@@ -29,9 +29,9 @@ export const aggregateSearchSpace = (
     }))
 }
 
-export const useSearchSpace = (
+export const useMergedUnionSearchSpace = (
   unionSearchSpaces?: SearchSpaceItem[]
 ): SearchSpaceItem[] =>
   useMemo(() => {
-    return aggregateSearchSpace(unionSearchSpaces || [])
+    return mergeUnionSearchSpace(unionSearchSpaces || [])
   }, [unionSearchSpaces])

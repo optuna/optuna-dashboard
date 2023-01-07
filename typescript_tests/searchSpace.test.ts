@@ -1,9 +1,9 @@
-import { aggregateSearchSpace } from "../optuna_dashboard/ts/searchSpace"
+import { mergeUnionSearchSpace } from "../optuna_dashboard/ts/searchSpace"
 
 global.URL.createObjectURL = jest.fn()
 
 it("Aggregate SearchSpaceItem", () => {
-  const aggregated = aggregateSearchSpace([
+  const aggregated = mergeUnionSearchSpace([
     {
       name: "float1",
       distribution: {

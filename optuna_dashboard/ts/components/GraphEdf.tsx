@@ -23,7 +23,6 @@ export const Edf: FC<{
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const targets = useObjectiveTargets(study)
   const trials = useFilteredTrials(study, [targets[objectiveId]], false, false)
-  const objectiveNames: string[] = study?.objective_names || []
 
   const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
     setObjectiveId(event.target.value as number)
@@ -52,7 +51,7 @@ export const Edf: FC<{
             <Select value={objectiveId} onChange={handleObjectiveChange}>
               {targets.map((target, i) => (
                 <MenuItem value={i} key={i}>
-                  {target.toLabel(objectiveNames)}
+                  {target.toLabel(study?.objective_names)}
                 </MenuItem>
               ))}
             </Select>

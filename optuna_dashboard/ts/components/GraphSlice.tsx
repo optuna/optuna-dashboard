@@ -1,5 +1,5 @@
 import * as plotly from "plotly.js-dist-min"
-import React, { ChangeEvent, FC, useEffect, useMemo, useState } from "react"
+import React, { ChangeEvent, FC, useEffect, useState } from "react"
 import {
   Grid,
   FormControl,
@@ -13,21 +13,14 @@ import {
   Box,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
-import { Target, useFilteredTrials, useObjectiveTargets } from "../trialFilter"
-import { useSnackbar } from "notistack"
+import {
+  Target,
+  useFilteredTrials,
+  useObjectiveTargets,
+  useParamTargets,
+} from "../trialFilter"
 
 const plotDomId = "graph-slice"
-
-const useSearchSpace = (
-  unionSearchSpaces?: SearchSpaceItem[]
-): SearchSpaceItem[] =>
-  useMemo(
-    () =>
-      Array.from(unionSearchSpaces || []).sort((a, b) =>
-        a.name > b.name ? 1 : a.name < b.name ? -1 : 0
-      ),
-    [unionSearchSpaces]
-  )
 
 const isLogScale = (s: SearchSpaceItem): boolean => {
   if (s.distribution.type === "CategoricalDistribution") {
@@ -40,49 +33,43 @@ export const GraphSlice: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
-  const { enqueueSnackbar } = useSnackbar()
 
   const [objectiveId, setObjectiveId] = useState<number>(0)
-  const [selected, setSelected] = useState<SearchSpaceItem | null>(null)
+  const objectiveTargets = useObjectiveTargets(study)
+  const [paramTargetsIndex, setParamTargetsIndex] = useState<number>(0)
+  const [paramTargets, searchSpace] = useParamTargets(study)
   const [logYScale, setLogYScale] = useState<boolean>(false)
-  const searchSpaces = useSearchSpace(study?.union_search_space)
 
-  const targets = useObjectiveTargets(study)
-  const filterTargets: Target[] = [targets[objectiveId]]
-  if (selected !== null) filterTargets.push(new Target("params", selected.name))
+  const filterTargets: Target[] = [objectiveTargets[objectiveId]]
+  if (paramTargets.length > paramTargetsIndex)
+    filterTargets.push(paramTargets[paramTargetsIndex])
   const trials = useFilteredTrials(study, filterTargets, false, false)
-
-  const objectiveNames: string[] = study?.objective_names || []
-  if (selected === null && searchSpaces.length > 0) {
-    setSelected(searchSpaces[0])
-  }
 
   useEffect(() => {
     plotSlice(
       trials,
-      targets[objectiveId],
-      selected,
+      objectiveTargets[objectiveId],
+      searchSpace.length > paramTargetsIndex
+        ? searchSpace[paramTargetsIndex]
+        : null,
       logYScale,
       theme.palette.mode
     )
-  }, [trials, targets[objectiveId], selected, logYScale, theme.palette.mode])
+  }, [
+    trials,
+    objectiveTargets[objectiveId],
+    searchSpace,
+    paramTargetsIndex,
+    logYScale,
+    theme.palette.mode,
+  ])
 
   const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
     setObjectiveId(event.target.value as number)
   }
 
-  const handleSelectedParam = (e: SelectChangeEvent<string>) => {
-    const s = searchSpaces.find((s) => s.name === e.target.value)
-    if (s === undefined) {
-      enqueueSnackbar(
-        `Cannot find ${e.target.value} param in the search space.`,
-        {
-          variant: "error",
-        }
-      )
-      return
-    }
-    setSelected(s)
+  const handleSelectedParam = (e: SelectChangeEvent<number>) => {
+    setParamTargetsIndex(e.target.value as number)
   }
 
   const handleLogYScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -105,28 +92,26 @@ export const GraphSlice: FC<{
           <FormControl component="fieldset">
             <FormLabel component="legend">Objective ID:</FormLabel>
             <Select value={objectiveId} onChange={handleObjectiveChange}>
-              {study.directions.map((d, i) => (
+              {objectiveTargets.map((t, i) => (
                 <MenuItem value={i} key={i}>
-                  {objectiveNames.length === study?.directions.length
-                    ? objectiveNames[i]
-                    : `${i}`}
+                  {t.toLabel(study?.objective_names)}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
         )}
-        <FormControl component="fieldset">
-          <FormLabel component="legend">Parameter:</FormLabel>
-          <Select value={selected?.name || ""} onChange={handleSelectedParam}>
-            {searchSpaces?.map((s, i) => (
-              <MenuItem value={s.name} key={i}>
-                {objectiveNames.length === study?.directions.length
-                  ? objectiveNames[i]
-                  : `${i}`}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+        {paramTargets.length !== 0 && paramTargetsIndex !== null && (
+          <FormControl component="fieldset">
+            <FormLabel component="legend">Parameter:</FormLabel>
+            <Select value={paramTargetsIndex} onChange={handleSelectedParam}>
+              {paramTargets.map((t, i) => (
+                <MenuItem value={i} key={i}>
+                  {t.toLabel()}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
         <FormControl component="fieldset">
           <FormLabel component="legend">Log y scale:</FormLabel>
           <Switch
@@ -145,7 +130,7 @@ export const GraphSlice: FC<{
 
 const plotSlice = (
   trials: Trial[],
-  target: Target,
+  objectiveTarget: Target,
   selected: SearchSpaceItem | null,
   logYScale: boolean,
   mode: string
@@ -186,7 +171,7 @@ const plotSlice = (
   }
 
   const objectiveValues: number[] = trials.map(
-    (t) => target.getTargetValue(t) as number
+    (t) => objectiveTarget.getTargetValue(t) as number
   )
   const paramTarget = new Target("params", selected.name)
   const values = trials.map((t) => paramTarget.getTargetValue(t) as number)

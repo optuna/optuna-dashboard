@@ -12,7 +12,7 @@ import {
   Box,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
-import { useSearchSpace } from "../searchSpace"
+import { useMergedUnionSearchSpace } from "../searchSpace"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const unique = (array: any[]) => {
@@ -39,27 +39,27 @@ export const Contour: FC<{
 }> = ({ study = null }) => {
   const theme = useTheme()
   const [objectiveId, setObjectiveId] = useState<number>(0)
-  const searchSpaces = useSearchSpace(study?.union_search_space)
+  const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
   const [xParam, setXParam] = useState<SearchSpaceItem | null>(null)
   const [yParam, setYParam] = useState<SearchSpaceItem | null>(null)
   const objectiveNames: string[] = study?.objective_names || []
 
-  if (xParam === null && searchSpaces.length > 0) {
-    setXParam(searchSpaces[0])
+  if (xParam === null && searchSpace.length > 0) {
+    setXParam(searchSpace[0])
   }
-  if (yParam === null && searchSpaces.length > 1) {
-    setYParam(searchSpaces[1])
+  if (yParam === null && searchSpace.length > 1) {
+    setYParam(searchSpace[1])
   }
 
   const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
     setObjectiveId(event.target.value as number)
   }
   const handleXParamChange = (event: SelectChangeEvent<string>) => {
-    const param = searchSpaces.find((s) => s.name === event.target.value)
+    const param = searchSpace.find((s) => s.name === event.target.value)
     setXParam(param || null)
   }
   const handleYParamChange = (event: SelectChangeEvent<string>) => {
-    const param = searchSpaces.find((s) => s.name === event.target.value)
+    const param = searchSpace.find((s) => s.name === event.target.value)
     setYParam(param || null)
   }
 
