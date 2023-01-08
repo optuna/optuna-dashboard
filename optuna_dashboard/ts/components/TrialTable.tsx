@@ -1,4 +1,4 @@
-import React, { FC } from "react"
+import React, { FC, useState } from "react"
 import { Typography, Grid, Box, IconButton } from "@mui/material"
 import LinkIcon from "@mui/icons-material/Link"
 
@@ -262,7 +262,20 @@ export const TrialTable: FC<{
     { field: "value", label: "Value", sortable: true },
   ]
 
+
   const collapseBody = (index: number) => {
+    const [value, setValue] = useState(0.0)
+    const handleSubmit = (e) => {
+      e.preventDefault()
+      console.log({
+        index,
+        value,
+      })
+    }
+    const handleChangeValue = (e) => {
+      setValue(e.target.value)
+    }
+
     return (
       <Grid container direction="row">
         <Grid item xs={6}>
@@ -291,6 +304,24 @@ export const TrialTable: FC<{
               dense={true}
               rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
             />
+          </Box>
+        </Grid>
+        <Grid item xs={6}>
+          <Box margin={1}>
+            <Typography variant="h6" gutterBottom component="div">
+              Trial interactive operations
+            </Typography>
+            <div className="tio">
+              <form onSubmit={handleSubmit}>
+                <div>
+                  <label htmlFor="value">Value</label>
+                  <input id="value" name="value" value={value} onChange={handleChangeValue} />
+                </div>
+                <div>
+                  <button type="submit">Submit</button>
+                </div>
+              </form>
+            </div>
           </Box>
         </Grid>
       </Grid>
