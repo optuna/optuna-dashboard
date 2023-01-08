@@ -269,16 +269,17 @@ export const actionCreator = () => {
   const saveTrialValue = (
     studyId: number,
     trialId: number,
-    value: number
+    value: string
   ) => {
     saveTrialValueAPI(studyId, trialId, value)
       .then(() => {
-        enqueueSnackbar(`Success to update trial value (id=${studyId})`, {
+        enqueueSnackbar(`Success to update trial value (id=${trialId}, value=${value})`, {
           variant: "success",
         })
       })
       .catch((err) => {
-        enqueueSnackbar(`Failed to update trial value (id=${studyId})`, {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(`Failed to update trial value (id=${trialId}, value=${value}). Reason: ${reason}`, {
           variant: "error",
         })
         console.log(err)

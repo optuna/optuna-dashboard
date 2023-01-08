@@ -411,18 +411,30 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
         response.status = 204  # No content
         return {}
 
-    @app.put("/api/studies/<study_id:int>/<trial_id:int>")
+    @app.post("/api/studies/<study_id:int>/<trial_id:int>/tell")
     @json_api_view
-    def save_trial_value(study_id: int, trial_id: int) -> BottleViewReturn:
-        value = float(request.json.get("value", None))
+    def tell_trial_value(study_id: int, trial_id: int) -> BottleViewReturn:
+        try:
+            value = float(request.json.get("value", None))
+        except ValueError:
+            response.status = 400  # Bad request
+            return {"reason": "You need to pass float castable value"}
+ 
         try:
             study_name = storage.get_study_name_from_id(study_id)
-            study = optuna.load_study(storage=storage, study_name=study_name)
         except KeyError:
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
-        study.tell(trial_id, value)
-        response.status = 204  # No content
+
+        study = optuna.load_study(storage=storage, study_name=study_name)
+
+        try:
+            study.tell(trial_id, value)
+        except Exception as e:
+            response.status = 400  # Bad request
+            return {"reason": e.args}
+
+        response.status = 201
         return {}
 
     @app.put("/api/studies/<study_id:int>/<trial_id:int>/note")

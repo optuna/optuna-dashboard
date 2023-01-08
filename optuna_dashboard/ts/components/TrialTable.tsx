@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react"
+import React, { ChangeEvent, FC, FormEvent, useState } from "react"
 import { Typography, Grid, Box, IconButton } from "@mui/material"
 import LinkIcon from "@mui/icons-material/Link"
 
@@ -268,19 +268,13 @@ export const TrialTable: FC<{
 
   const collapseBody = (index: number) => {
     const [value, setValue] = useState("")
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
       e.preventDefault()
-      const v = (+value) as number;
       const studyId = (studyDetail as StudyDetail).id
       const trialId = trials[index].number
-      action.saveTrialValue(studyId, trialId, v)
-      console.log({
-        index,
-        value,
-      })
-
+      action.saveTrialValue(studyId, trialId, value)
     }
-    const handleChangeValue = (e) => {
+    const handleChangeValue = (e: ChangeEvent<HTMLInputElement>): void => {
       setValue(e.target.value)
     }
 

@@ -220,10 +220,10 @@ export const saveTrialNoteAPI = (
 export const saveTrialValueAPI = (
   studyId: number,
   trialId: number,
-  value: number,
+  value: string,
 ): Promise<void> => {
   return axiosInstance
-    .put<void>(`/api/studies/${studyId}/${trialId}`, {value: value})
+    .post<void>(`/api/studies/${studyId}/${trialId}/tell`, {value: value})
     .then((res) => {
       return
     })
