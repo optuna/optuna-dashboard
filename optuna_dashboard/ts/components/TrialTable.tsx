@@ -5,6 +5,8 @@ import LinkIcon from "@mui/icons-material/Link"
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { Link } from "react-router-dom"
 
+import { actionCreator } from "../action"
+
 export const TrialTable: FC<{
   studyDetail: StudyDetail | null
   isBeta: boolean
@@ -12,6 +14,7 @@ export const TrialTable: FC<{
 }> = ({ studyDetail, isBeta, initialRowsPerPage }) => {
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
   const objectiveNames: string[] = studyDetail?.objective_names || []
+  const action = actionCreator()
 
   const columns: DataGridColumn<Trial>[] = [
     { field: "number", label: "Number", sortable: true, padding: "none" },
@@ -264,13 +267,18 @@ export const TrialTable: FC<{
 
 
   const collapseBody = (index: number) => {
-    const [value, setValue] = useState(0.0)
+    const [value, setValue] = useState("")
     const handleSubmit = (e) => {
       e.preventDefault()
+      const v = (+value) as number;
+      const studyId = (studyDetail as StudyDetail).id
+      const trialId = trials[index].number
+      action.saveTrialValue(studyId, trialId, v)
       console.log({
         index,
         value,
       })
+
     }
     const handleChangeValue = (e) => {
       setValue(e.target.value)

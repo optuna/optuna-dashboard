@@ -8,6 +8,7 @@ import {
   deleteStudyAPI,
   saveStudyNoteAPI,
   saveTrialNoteAPI,
+  saveTrialValueAPI,
   renameStudyAPI,
 } from "./apiClient"
 import {
@@ -265,6 +266,25 @@ export const actionCreator = () => {
       })
   }
 
+  const saveTrialValue = (
+    studyId: number,
+    trialId: number,
+    value: number
+  ) => {
+    saveTrialValueAPI(studyId, trialId, value)
+      .then(() => {
+        enqueueSnackbar(`Success to update trial value (id=${studyId})`, {
+          variant: "success",
+        })
+      })
+      .catch((err) => {
+        enqueueSnackbar(`Failed to update trial value (id=${studyId})`, {
+          variant: "error",
+        })
+        console.log(err)
+      })
+  }
+
   return {
     updateStudyDetail,
     updateStudySummaries,
@@ -276,6 +296,7 @@ export const actionCreator = () => {
     saveGraphVisibility,
     saveStudyNote,
     saveTrialNote,
+    saveTrialValue,
   }
 }
 
