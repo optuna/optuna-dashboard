@@ -424,17 +424,17 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             return {"reason": "You need to pass float castable values"}
 
         string2State = {
-           "Running": TrialState.RUNNING,
-           "Complete": TrialState.COMPLETE,
-           "Pruned": TrialState.PRUNED,
-           "Fail": TrialState.FAIL,
-           "Waiting": TrialState.WAITING,
+            "Running": TrialState.RUNNING,
+            "Complete": TrialState.COMPLETE,
+            "Pruned": TrialState.PRUNED,
+            "Fail": TrialState.FAIL,
+            "Waiting": TrialState.WAITING,
         }
         if s not in string2State:
             response.status = 400  # Bad request
             return {"reason": f"You passed {s} as a state, which is not defined in Optuna."}
         state = string2State[s]
- 
+
         try:
             study_name = storage.get_study_name_from_id(study_id)
         except KeyError:
