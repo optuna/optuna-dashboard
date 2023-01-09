@@ -1,15 +1,18 @@
 import React, { ChangeEvent, FC, FormEvent, MouseEvent, useState } from "react"
-import { Typography, Grid, Box, Button, IconButton, TextField } from "@mui/material"
+import {
+  Typography,
+  Grid,
+  Box,
+  Button,
+  IconButton,
+  TextField,
+} from "@mui/material"
 import LinkIcon from "@mui/icons-material/Link"
 
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { Link } from "react-router-dom"
 
 import { actionCreator } from "../action"
-
-interface objectiveValueFormInterface {
-  value: string
-}
 
 export const TrialTable: FC<{
   studyDetail: StudyDetail | null
@@ -269,24 +272,28 @@ export const TrialTable: FC<{
     { field: "value", label: "Value", sortable: true },
   ]
 
-
   const collapseBody = (index: number) => {
     const objectiveValuesLength = studyDetail?.directions.length
-    const [objectiveValues, setObjectiveValues] = useState(Array(objectiveValuesLength).fill(""))
+    const [objectiveValues, setObjectiveValues] = useState(
+      Array(objectiveValuesLength).fill("")
+    )
     const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
       e.preventDefault()
       const studyId = (studyDetail as StudyDetail).id
       const trialId = trials[index].number
-      action.tellTrial(studyId, trialId, "Complete" as TrialState, objectiveValues)
+      action.tellTrial(
+        studyId,
+        trialId,
+        "Complete" as TrialState,
+        objectiveValues
+      )
     }
-    const handleChangeValue = (index: number, e: ChangeEvent<HTMLInputElement>): void => {
-      const newValues = objectiveValues.map((v, i) => {
-        if (i === index) {
-          return e.target.value
-        } else {
-          return v
-        }
-      })
+    const handleChangeValue = (
+      index: number,
+      e: ChangeEvent<HTMLInputElement>
+    ): void => {
+      const newValues = [...objectiveValues]
+      newValues[index] = e.target.value
       setObjectiveValues(newValues)
     }
     const handleFailTrial = (e: MouseEvent<HTMLButtonElement>): void => {
@@ -333,16 +340,25 @@ export const TrialTable: FC<{
             <form onSubmit={handleSubmit}>
               <Box margin={1}>
                 {objectiveValues.map((value, i) => (
-                  <TextField id={`objective-${i}`} label={`Objective ${i}`} type="number" value={objectiveValues[i]} onChange={(e) => handleChangeValue(i, e)} />
+                  <TextField
+                    id={`objective-${i}`}
+                    key={`objective-${i}`}
+                    label={`Objective ${i}`}
+                    type="number"
+                    value={objectiveValues[i]}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => handleChangeValue(i, e)}
+                  />
                 ))}
               </Box>
-              <Button variant="contained" type="submit">
-                Submit
-              </Button>
+              <Box margin={1}>
+                <Button variant="contained" type="submit">
+                  Submit
+                </Button>
+                <Button variant="outlined" color="error" onClick={handleFailTrial}>
+                  Fail trial
+                </Button>
+              </Box>
             </form>
-            <Button variant="outlined" color="error" onClick={handleFailTrial}>
-              Fail trial
-            </Button>
           </Box>
         </Grid>
       </Grid>

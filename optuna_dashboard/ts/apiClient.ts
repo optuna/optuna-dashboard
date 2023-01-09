@@ -223,7 +223,7 @@ export const tellTrialAPI = (
   state: TrialState,
   values?: string[]
 ): Promise<void> => {
-  const req: { [name: string]: TrialState | string[] } = {state: state}
+  const req: { [name: string]: TrialState | string[] } = { state: state }
   if (values !== undefined) {
     req["values"] = values
   }

@@ -272,7 +272,10 @@ export const actionCreator = () => {
     state: TrialState,
     values?: string[]
   ) => {
-    const message = values === undefined ? `id=${trialId}, state=${state}` : `id=${trialId}, state=${state}, values=${values}`
+    const message =
+      values === undefined
+        ? `id=${trialId}, state=${state}`
+        : `id=${trialId}, state=${state}, values=${values}`
     tellTrialAPI(studyId, trialId, state, values)
       .then(() => {
         enqueueSnackbar(`Success to update trial (${message})`, {
@@ -281,9 +284,12 @@ export const actionCreator = () => {
       })
       .catch((err) => {
         const reason = err.response?.data.reason
-        enqueueSnackbar(`Failed to update trial (${message}). Reason: ${reason}`, {
-          variant: "error",
-        })
+        enqueueSnackbar(
+          `Failed to update trial (${message}). Reason: ${reason}`,
+          {
+            variant: "error",
+          }
+        )
         console.log(err)
       })
   }
