@@ -7,6 +7,10 @@ import { Link } from "react-router-dom"
 
 import { actionCreator } from "../action"
 
+interface objectiveValueFormInterface {
+  value: string
+}
+
 export const TrialTable: FC<{
   studyDetail: StudyDetail | null
   isBeta: boolean
@@ -267,15 +271,23 @@ export const TrialTable: FC<{
 
 
   const collapseBody = (index: number) => {
-    const [objectiveValue, setObjectiveValue] = useState("")
+    const objectiveValuesLength = studyDetail?.directions.length
+    const [objectiveValues, setObjectiveValues] = useState(Array(objectiveValuesLength).fill(""))
     const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
       e.preventDefault()
       const studyId = (studyDetail as StudyDetail).id
       const trialId = trials[index].number
-      action.tellTrial(studyId, trialId, "Complete" as TrialState, [objectiveValue])
+      action.tellTrial(studyId, trialId, "Complete" as TrialState, objectiveValues)
     }
-    const handleChangeValue = (e: ChangeEvent<HTMLInputElement>): void => {
-      setObjectiveValue(e.target.value)
+    const handleChangeValue = (index: number, e: ChangeEvent<HTMLInputElement>): void => {
+      const newValues = objectiveValues.map((v, i) => {
+        if (i === index) {
+          return e.target.value
+        } else {
+          return v
+        }
+      })
+      setObjectiveValues(newValues)
     }
     const handleFailTrial = (e: MouseEvent<HTMLButtonElement>): void => {
       const studyId = (studyDetail as StudyDetail).id
@@ -320,8 +332,9 @@ export const TrialTable: FC<{
             </Typography>
             <form onSubmit={handleSubmit}>
               <Box margin={1}>
-                <TextField id="objective-0" label="Objective 0" type="number" value={objectiveValue} onChange={handleChangeValue} />
-                <TextField id="objective-1" label="Objective 1" type="number" />
+                {objectiveValues.map((value, i) => (
+                  <TextField id={`objective-${i}`} label={`Objective ${i}`} type="number" value={objectiveValues[i]} onChange={(e) => handleChangeValue(i, e)} />
+                ))}
               </Box>
               <Button variant="contained" type="submit">
                 Submit
