@@ -221,11 +221,11 @@ export const tellTrialAPI = (
   studyId: number,
   trialId: number,
   state: TrialState,
-  value?: string
+  values?: string[]
 ): Promise<void> => {
-  const req: { [name: string]: string } = {state: state}
-  if (value !== undefined) {
-    req["value"] = value
+  const req: { [name: string]: TrialState | string[] } = {state: state}
+  if (values !== undefined) {
+    req["values"] = values
   }
 
   return axiosInstance

@@ -415,13 +415,13 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
     @json_api_view
     def tell_trial(study_id: int, trial_id: int) -> BottleViewReturn:
         s = request.json.get("state", None)
-        v = request.json.get("value", None)
+        vs = request.json.get("values", None)
 
         try:
-            value = float(v) if v is not None else v
+            values = [float(v) for v in vs] if vs is not None else vs
         except ValueError:
             response.status = 400  # Bad request
-            return {"reason": "You need to pass float castable value"}
+            return {"reason": "You need to pass float castable values"}
 
         string2State = {
            "Running": TrialState.RUNNING,
@@ -444,7 +444,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
         study = optuna.load_study(storage=storage, study_name=study_name)
 
         try:
-            study.tell(trial_id, values=value, state=state)
+            study.tell(trial_id, values=values, state=state)
         except Exception as e:
             response.status = 400  # Bad request
             return {"reason": e.args}

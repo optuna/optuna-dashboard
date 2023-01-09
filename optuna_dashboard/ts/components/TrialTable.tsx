@@ -267,15 +267,15 @@ export const TrialTable: FC<{
 
 
   const collapseBody = (index: number) => {
-    const [value, setValue] = useState("")
+    const [objectiveValue, setObjectiveValue] = useState("")
     const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
       e.preventDefault()
       const studyId = (studyDetail as StudyDetail).id
       const trialId = trials[index].number
-      action.tellTrial(studyId, trialId, "Complete" as TrialState, value)
+      action.tellTrial(studyId, trialId, "Complete" as TrialState, [objectiveValue])
     }
     const handleChangeValue = (e: ChangeEvent<HTMLInputElement>): void => {
-      setValue(e.target.value)
+      setObjectiveValue(e.target.value)
     }
     const handleFailTrial = (e: MouseEvent<HTMLButtonElement>): void => {
       const studyId = (studyDetail as StudyDetail).id
@@ -320,7 +320,7 @@ export const TrialTable: FC<{
             </Typography>
             <form onSubmit={handleSubmit}>
               <Box margin={1}>
-                <TextField id="objective-0" label="Objective 0" type="number" value={value} onChange={handleChangeValue} />
+                <TextField id="objective-0" label="Objective 0" type="number" value={objectiveValue} onChange={handleChangeValue} />
                 <TextField id="objective-1" label="Objective 1" type="number" />
               </Box>
               <Button variant="contained" type="submit">

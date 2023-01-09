@@ -270,10 +270,10 @@ export const actionCreator = () => {
     studyId: number,
     trialId: number,
     state: TrialState,
-    value?: string
+    values?: string[]
   ) => {
-    const message = value === undefined ? `id=${trialId}, state=${state}` : `id=${trialId}, state=${state}, value=${value}`
-    tellTrialAPI(studyId, trialId, state, value)
+    const message = values === undefined ? `id=${trialId}, state=${state}` : `id=${trialId}, state=${state}, values=${values}`
+    tellTrialAPI(studyId, trialId, state, values)
       .then(() => {
         enqueueSnackbar(`Success to update trial (${message})`, {
           variant: "success",
