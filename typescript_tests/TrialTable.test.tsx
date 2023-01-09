@@ -2,7 +2,7 @@ import React from "react"
 global.URL.createObjectURL = jest.fn()
 
 import { SnackbarProvider } from "notistack"
-import {RecoilRoot} from 'recoil'
+import { RecoilRoot } from "recoil"
 import { cleanup, render, within, fireEvent } from "@testing-library/react"
 import { TrialTable } from "../optuna_dashboard/ts/components/TrialTable"
 
