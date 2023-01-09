@@ -31,7 +31,8 @@ from optuna.storages import BaseStorage
 from optuna.storages import RDBStorage
 from optuna.study import StudyDirection
 from optuna.study import StudySummary
-from optuna.trial import FrozenTrial, TrialState
+from optuna.trial import FrozenTrial
+from optuna.trial import TrialState
 from optuna.version import __version__ as optuna_ver
 from packaging import version
 
