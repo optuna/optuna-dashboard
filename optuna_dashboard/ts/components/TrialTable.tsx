@@ -346,7 +346,9 @@ export const TrialTable: FC<{
                     label={`Objective ${i}`}
                     type="number"
                     value={objectiveValues[i]}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => handleChangeValue(i, e)}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      handleChangeValue(i, e)
+                    }
                   />
                 ))}
               </Box>
@@ -354,7 +356,11 @@ export const TrialTable: FC<{
                 <Button variant="contained" type="submit">
                   Submit
                 </Button>
-                <Button variant="outlined" color="error" onClick={handleFailTrial}>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={handleFailTrial}
+                >
                   Fail trial
                 </Button>
               </Box>
