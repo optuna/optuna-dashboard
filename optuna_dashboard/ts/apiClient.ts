@@ -217,13 +217,19 @@ export const saveTrialNoteAPI = (
     })
 }
 
-export const saveTrialValueAPI = (
+export const tellTrialAPI = (
   studyId: number,
   trialId: number,
-  value: string,
+  state: TrialState,
+  value?: string
 ): Promise<void> => {
+  const req: { [name: string]: string } = {state: state}
+  if (value !== undefined) {
+    req["value"] = value
+  }
+
   return axiosInstance
-    .post<void>(`/api/studies/${studyId}/${trialId}/tell`, {value: value})
+    .post<void>(`/api/studies/${studyId}/${trialId}/tell`, req)
     .then((res) => {
       return
     })

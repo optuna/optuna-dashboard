@@ -1,5 +1,5 @@
-import React, { ChangeEvent, FC, FormEvent, useState } from "react"
-import { Typography, Grid, Box, IconButton } from "@mui/material"
+import React, { ChangeEvent, FC, FormEvent, MouseEvent, useState } from "react"
+import { Typography, Grid, Box, Button, IconButton, TextField } from "@mui/material"
 import LinkIcon from "@mui/icons-material/Link"
 
 import { DataGridColumn, DataGrid } from "./DataGrid"
@@ -272,10 +272,15 @@ export const TrialTable: FC<{
       e.preventDefault()
       const studyId = (studyDetail as StudyDetail).id
       const trialId = trials[index].number
-      action.saveTrialValue(studyId, trialId, value)
+      action.tellTrial(studyId, trialId, "Complete" as TrialState, value)
     }
     const handleChangeValue = (e: ChangeEvent<HTMLInputElement>): void => {
       setValue(e.target.value)
+    }
+    const handleFailTrial = (e: MouseEvent<HTMLButtonElement>): void => {
+      const studyId = (studyDetail as StudyDetail).id
+      const trialId = trials[index].number
+      action.tellTrial(studyId, trialId, "Fail" as TrialState)
     }
 
     return (
@@ -308,22 +313,23 @@ export const TrialTable: FC<{
             />
           </Box>
         </Grid>
-        <Grid item xs={6}>
+        <Grid item xs={12}>
           <Box margin={1}>
             <Typography variant="h6" gutterBottom component="div">
-              Trial interactive operations
+              Trial tell operations
             </Typography>
-            <div className="tio">
-              <form onSubmit={handleSubmit}>
-                <div>
-                  <label htmlFor="value">Value</label>
-                  <input id="value" name="value" value={value} onChange={handleChangeValue} />
-                </div>
-                <div>
-                  <button type="submit">Submit</button>
-                </div>
-              </form>
-            </div>
+            <form onSubmit={handleSubmit}>
+              <Box margin={1}>
+                <TextField id="objective-0" label="Objective 0" type="number" value={value} onChange={handleChangeValue} />
+                <TextField id="objective-1" label="Objective 1" type="number" />
+              </Box>
+              <Button variant="contained" type="submit">
+                Submit
+              </Button>
+            </form>
+            <Button variant="outlined" color="error" onClick={handleFailTrial}>
+              Fail trial
+            </Button>
           </Box>
         </Grid>
       </Grid>

@@ -31,7 +31,7 @@ from optuna.storages import BaseStorage
 from optuna.storages import RDBStorage
 from optuna.study import StudyDirection
 from optuna.study import StudySummary
-from optuna.trial import FrozenTrial
+from optuna.trial import FrozenTrial, TrialState
 from optuna.version import __version__ as optuna_ver
 from packaging import version
 
@@ -413,12 +413,27 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
 
     @app.post("/api/studies/<study_id:int>/<trial_id:int>/tell")
     @json_api_view
-    def tell_trial_value(study_id: int, trial_id: int) -> BottleViewReturn:
+    def tell_trial(study_id: int, trial_id: int) -> BottleViewReturn:
+        s = request.json.get("state", None)
+        v = request.json.get("value", None)
+
         try:
-            value = float(request.json.get("value", None))
+            value = float(v) if v is not None else v
         except ValueError:
             response.status = 400  # Bad request
             return {"reason": "You need to pass float castable value"}
+
+        string2State = {
+           "Running": TrialState.RUNNING,
+           "Complete": TrialState.COMPLETE,
+           "Pruned": TrialState.PRUNED,
+           "Fail": TrialState.FAIL,
+           "Waiting": TrialState.WAITING,
+        }
+        if s not in string2State:
+            response.status = 400  # Bad request
+            return {"reason": f"You passed {s} as a state, which is not defined in Optuna."}
+        state = string2State[s]
  
         try:
             study_name = storage.get_study_name_from_id(study_id)
@@ -429,7 +444,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
         study = optuna.load_study(storage=storage, study_name=study_name)
 
         try:
-            study.tell(trial_id, value)
+            study.tell(trial_id, values=value, state=state)
         except Exception as e:
             response.status = 400  # Bad request
             return {"reason": e.args}

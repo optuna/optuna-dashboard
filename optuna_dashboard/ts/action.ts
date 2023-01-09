@@ -8,7 +8,7 @@ import {
   deleteStudyAPI,
   saveStudyNoteAPI,
   saveTrialNoteAPI,
-  saveTrialValueAPI,
+  tellTrialAPI,
   renameStudyAPI,
 } from "./apiClient"
 import {
@@ -266,20 +266,22 @@ export const actionCreator = () => {
       })
   }
 
-  const saveTrialValue = (
+  const tellTrial = (
     studyId: number,
     trialId: number,
-    value: string
+    state: TrialState,
+    value?: string
   ) => {
-    saveTrialValueAPI(studyId, trialId, value)
+    const message = value === undefined ? `id=${trialId}, state=${state}` : `id=${trialId}, state=${state}, value=${value}`
+    tellTrialAPI(studyId, trialId, state, value)
       .then(() => {
-        enqueueSnackbar(`Success to update trial value (id=${trialId}, value=${value})`, {
+        enqueueSnackbar(`Success to update trial (${message})`, {
           variant: "success",
         })
       })
       .catch((err) => {
         const reason = err.response?.data.reason
-        enqueueSnackbar(`Failed to update trial value (id=${trialId}, value=${value}). Reason: ${reason}`, {
+        enqueueSnackbar(`Failed to update trial (${message}). Reason: ${reason}`, {
           variant: "error",
         })
         console.log(err)
@@ -297,7 +299,7 @@ export const actionCreator = () => {
     saveGraphVisibility,
     saveStudyNote,
     saveTrialNote,
-    saveTrialValue,
+    tellTrial,
   }
 }
 
