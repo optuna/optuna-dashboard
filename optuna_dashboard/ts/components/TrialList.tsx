@@ -268,6 +268,9 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                     if (e.shiftKey) {
                       let next: number[]
                       const selectedNumbers = selected.map((t) => t.number)
+                      if (selectedNumbers.length === 0) {
+                        selectedNumbers.push(trials[0].number)
+                      }
                       const alreadySelected =
                         selectedNumbers.findIndex((n) => n === trial.number) >=
                         0
