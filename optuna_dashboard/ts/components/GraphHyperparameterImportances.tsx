@@ -19,7 +19,6 @@ import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { actionCreator } from "../action"
 import { useParamImportanceValue, useStudyDirections } from "../state"
 const plotDomId = "graph-hyperparameter-importances"
-const getPlotDomId = (objectiveId: number) => `graph-importance-${objectiveId}`
 
 export const GraphHyperparameterImportanceBeta: FC<{
   studyId: number
@@ -32,7 +31,10 @@ export const GraphHyperparameterImportanceBeta: FC<{
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
   const nObjectives = useStudyDirections(studyId)?.length
-  const objectiveNames: string[] = study?.objective_names || []
+  const objectiveNames: string[] =
+    study?.objective_names ||
+    study?.directions.map((d, i) => `Objective ${i}`) ||
+    []
 
   useEffect(() => {
     action.updateParamImportance(studyId)
@@ -40,43 +42,27 @@ export const GraphHyperparameterImportanceBeta: FC<{
 
   useEffect(() => {
     if (importances !== null && nObjectives === importances.length) {
-      plotParamImportancesBeta(importances, theme.palette.mode)
+      plotParamImportancesBeta(importances, objectiveNames, theme.palette.mode)
     }
   }, [nObjectives, importances, theme.palette.mode])
 
   return (
-    <>
-      {Array.from({ length: nObjectives || 1 }, (_, i) => {
-        let title = `Importance for the Objective Value`
-        if (nObjectives != null && nObjectives > 1) {
-          if (objectiveNames.length == nObjectives) {
-            title = `Importance for ${objectiveNames[i]} (Objective ${i})`
-          } else {
-            title = `Importance for the Objective ${i}`
-          }
-        }
-        return (
-          <Grid2 key={i} xs={6}>
-            <Card>
-              <CardContent>
-                <Typography
-                  variant="h6"
-                  sx={{ margin: "1em 0", fontWeight: 600 }}
-                >
-                  {title}
-                </Typography>
-                <Box id={getPlotDomId(i)} sx={{ height: graphHeight }} />
-              </CardContent>
-            </Card>
-          </Grid2>
-        )
-      })}
-    </>
+    <Grid2 xs={6}>
+      <Card>
+        <CardContent>
+          <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+            Hyperparameter Importance
+          </Typography>
+          <Box id={plotDomId} sx={{ height: graphHeight }} />
+        </CardContent>
+      </Card>
+    </Grid2>
   )
 }
 
 const plotParamImportancesBeta = (
   importances: ParamImportance[][],
+  objectiveNames: string[],
   mode: string
 ) => {
   const layout: Partial<plotly.Layout> = {
@@ -93,37 +79,36 @@ const plotParamImportancesBeta = (
       r: 50,
       b: 50,
     },
-    showlegend: false,
+    barmode: "group",
+    bargap: 0.15,
+    bargroupgap: 0.1,
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
-  importances.forEach((importance, objectiveId) => {
-    if (document.getElementById(getPlotDomId(objectiveId)) === null) {
-      return
-    }
-
-    const reversed = [...importance].reverse()
-    const importance_values = reversed.map((p) => p.importance)
-    const param_names = reversed.map((p) => p.name)
-    const param_hover_templates = reversed.map(
-      (p) => `${p.name} (${p.distribution}): ${p.importance} <extra></extra>`
-    )
-    const plotData: Partial<plotly.PlotData>[] = [
-      {
+  if (document.getElementById(plotDomId) === null) {
+    return
+  }
+  const traces: Partial<plotly.PlotData>[] = importances.map(
+    (importance, i) => {
+      const reversed = [...importance].reverse()
+      const importance_values = reversed.map((p) => p.importance)
+      const param_names = reversed.map((p) => p.name)
+      const param_hover_templates = reversed.map(
+        (p) => `${p.name} (${p.distribution}): ${p.importance} <extra></extra>`
+      )
+      return {
         type: "bar",
         orientation: "h",
+        name: objectiveNames[i],
         x: importance_values,
         y: param_names,
         text: importance_values.map((v) => String(v.toFixed(2))),
         textposition: "outside",
         hovertemplate: param_hover_templates,
-        marker: {
-          color: "rgb(66,146,198)",
-        },
-      },
-    ]
-    plotly.react(getPlotDomId(objectiveId), plotData, layout)
-  })
+      }
+    }
+  )
+  plotly.react(plotDomId, traces, layout)
 }
 
 export const GraphHyperparameterImportances: FC<{
