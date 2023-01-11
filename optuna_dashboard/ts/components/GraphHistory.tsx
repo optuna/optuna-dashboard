@@ -26,7 +26,8 @@ const plotDomId = "graph-history"
 
 export const GraphHistory: FC<{
   study: StudyDetail | null
-}> = ({ study = null }) => {
+  isBeta: boolean
+}> = ({ study, isBeta }) => {
   const theme = useTheme()
   const [xAxis, setXAxis] = useState<string>("number")
   const [logScale, setLogScale] = useState<boolean>(false)
@@ -149,34 +150,36 @@ export const GraphHistory: FC<{
             label="Pruned"
           />
         </FormControl>
-        <FormControl
-          component="fieldset"
-          sx={{ marginBottom: theme.spacing(2) }}
-        >
-          <FormLabel component="legend">X-axis:</FormLabel>
-          <RadioGroup
-            aria-label="gender"
-            name="gender1"
-            value={xAxis}
-            onChange={handleXAxisChange}
+        {!isBeta && (
+          <FormControl
+            component="fieldset"
+            sx={{ marginBottom: theme.spacing(2) }}
           >
-            <FormControlLabel
-              value="number"
-              control={<Radio />}
-              label="Number"
-            />
-            <FormControlLabel
-              value="datetime_start"
-              control={<Radio />}
-              label="Datetime start"
-            />
-            <FormControlLabel
-              value="datetime_complete"
-              control={<Radio />}
-              label="Datetime complete"
-            />
-          </RadioGroup>
-        </FormControl>
+            <FormLabel component="legend">X-axis:</FormLabel>
+            <RadioGroup
+              aria-label="gender"
+              name="gender1"
+              value={xAxis}
+              onChange={handleXAxisChange}
+            >
+              <FormControlLabel
+                value="number"
+                control={<Radio />}
+                label="Number"
+              />
+              <FormControlLabel
+                value="datetime_start"
+                control={<Radio />}
+                label="Datetime start"
+              />
+              <FormControlLabel
+                value="datetime_complete"
+                control={<Radio />}
+                label="Datetime complete"
+              />
+            </RadioGroup>
+          </FormControl>
+        )}
       </Grid>
       <Grid item xs={9}>
         <div id={plotDomId} />
