@@ -49,17 +49,6 @@ export const BestTrialsCard: FC<{
             .join(", ")}
           ]
         </Typography>
-        <Typography>
-          Intermediate Values = [
-          {bestTrial.intermediate_values
-            .map((p) => `${p.step}: ${p.value}`)
-            .join(", ")}
-          ]
-        </Typography>
-        <Typography>
-          User Attributes = [
-          {bestTrial.user_attrs.map((p) => `${p.key}: ${p.value}`).join(", ")}]
-        </Typography>
         <Button
           variant="outlined"
           startIcon={<LinkIcon />}
