@@ -296,8 +296,14 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
     React.useState<null | HTMLElement>(null)
   const openFilterMenu = Boolean(filterMenuAnchorEl)
+  const trialCounts = useMemo<number[]>(() => {
+    const allTrials = studyDetail?.trials || []
+    return states.map(
+      (state) => allTrials.filter((t) => t.state === state).length
+    )
+  }, [studyDetail?.trials])
 
-  const trialListWidth = 240
+  const trialListWidth = 200
 
   const showDetailTrials =
     selected.length > 0 ? selected : trials.length > 0 ? [trials[0]] : []
@@ -336,7 +342,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                 setFilterMenuAnchorEl(null)
               }}
             >
-              {states.map((state) => (
+              {states.map((state, i) => (
                 <MenuItem
                   key={state}
                   onClick={(e) => {
@@ -354,6 +360,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       getTrialListLink(studyDetail.id, excludedStates, numbers)
                     )
                   }}
+                  disabled={trialCounts[i] === 0}
                 >
                   <ListItemIcon>
                     {excludedStates.find((s) => s === state) !== undefined ? (
@@ -362,7 +369,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       <CheckBoxIcon color="primary" />
                     )}
                   </ListItemIcon>
-                  {state}
+                  {state} ({trialCounts[i]})
                 </MenuItem>
               ))}
             </Menu>
@@ -411,7 +418,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                     <Chip
                       color={getChipColor(trial.state)}
                       label={trial.state}
-                      sx={{ margin: theme.spacing(1, 0) }}
+                      sx={{ margin: theme.spacing(0) }}
                       size="small"
                     />
                     {isBestTrial(trial.trial_id) ? (
