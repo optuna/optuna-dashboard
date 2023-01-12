@@ -145,7 +145,11 @@ export const StudyDetailBeta: FC<{
         <HomeIcon />
       </IconButton>
       <ChevronRightIcon sx={{ marginRight: theme.spacing(1) }} />
-      <Typography variant="h5" noWrap component="div">
+      <Typography
+        noWrap
+        component="div"
+        sx={{ fontWeight: theme.typography.fontWeightBold }}
+      >
         {title}
       </Typography>
     </>

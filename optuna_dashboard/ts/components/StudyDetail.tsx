@@ -149,7 +149,7 @@ export const StudyDetail: FC<{
             variant="h4"
             sx={{
               margin: `${theme.spacing(4)} ${theme.spacing(2)}`,
-              fontWeight: 700,
+              fontWeight: theme.typography.fontWeightBold,
               fontSize: "1.8rem",
               ...(theme.palette.mode === "dark" && {
                 color: theme.palette.primary.light,
@@ -165,7 +165,7 @@ export const StudyDetail: FC<{
               }}
             >
               <CardContent>
-                <GraphHistory study={studyDetail} isBeta={false} />
+                <GraphHistory study={studyDetail} />
               </CardContent>
             </Card>
           ) : null}

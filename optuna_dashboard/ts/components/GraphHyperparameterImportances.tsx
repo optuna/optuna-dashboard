@@ -48,7 +48,10 @@ export const GraphHyperparameterImportanceBeta: FC<{
   return (
     <Card>
       <CardContent>
-        <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+        <Typography
+          variant="h6"
+          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
+        >
           Hyperparameter Importance
         </Typography>
         <Box id={plotDomId} sx={{ height: graphHeight }} />
@@ -142,7 +145,10 @@ export const GraphHyperparameterImportances: FC<{
         direction="column"
         sx={{ paddingRight: theme.spacing(2) }}
       >
-        <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+        <Typography
+          variant="h6"
+          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
+        >
           Hyperparameter importance
         </Typography>
         {study !== null && study.directions.length !== 1 ? (

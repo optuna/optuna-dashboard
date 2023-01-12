@@ -46,7 +46,10 @@ export const GraphParetoFront: FC<{
         direction="column"
         sx={{ paddingRight: theme.spacing(2) }}
       >
-        <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+        <Typography
+          variant="h6"
+          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
+        >
           Pareto Front
         </Typography>
         {study !== null && study.directions.length !== 1 ? (

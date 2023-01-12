@@ -59,7 +59,10 @@ export const useRenameStudyDialog = (
         </DialogTitle>
         <DialogContent>
           <DialogContentText
-            sx={{ fontWeight: 600, marginBottom: theme.spacing(1) }}
+            sx={{
+              fontWeight: theme.typography.fontWeightBold,
+              marginBottom: theme.spacing(1),
+            }}
           >
             Please note that the study_id will be changed because this function
             internally creates a new study and copies all trials to it.
