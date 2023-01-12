@@ -140,67 +140,67 @@ const TrialListDetail: FC<{
   ]
 
   return (
-    <Box sx={{ width: "100%" }}>
-      <Card sx={{ margin: theme.spacing(2) }}>
-        <CardHeader
-          title={`Trial ${trial.number} (trial_id=${trial.trial_id})`}
+    <Box sx={{ width: "100%", padding: theme.spacing(2, 2, 0, 2) }}>
+      <Typography
+        variant="h4"
+        sx={{
+          marginBottom: theme.spacing(2),
+          fontWeight: theme.typography.fontWeightBold,
+        }}
+      >
+        Trial {trial.number} (trial_id={trial.trial_id})
+      </Typography>
+      <Box sx={{ marginBottom: theme.spacing(1) }}>
+        <Chip
+          color={getChipColor(trial.state)}
+          label={trial.state}
+          sx={{ marginRight: theme.spacing(1) }}
         />
-        <CardContent sx={{ paddingTop: 0 }}>
-          <Box sx={{ marginBottom: theme.spacing(1) }}>
-            <Chip
-              color={getChipColor(trial.state)}
-              label={trial.state}
-              sx={{ marginRight: theme.spacing(1) }}
-            />
-            {isBestTrial(trial.trial_id) ? (
-              <Chip label={"Best Trial"} color="secondary" />
-            ) : null}
-          </Box>
+        {isBestTrial(trial.trial_id) ? (
+          <Chip label={"Best Trial"} color="secondary" />
+        ) : null}
+      </Box>
+      <Box sx={{ marginBottom: theme.spacing(2) }}>
+        <Typography>
+          Values = [{trial.values?.map((v) => v.toString()).join(" ") || "None"}
+          ]
+        </Typography>
+        {trial.state !== "Waiting" ? (
           <Typography>
-            Values = [
-            {trial.values?.map((v) => v.toString()).join(" ") || "None"}]
+            Params = [
+            {trial.params
+              .map((p) => `${p.name}: ${p.param_external_value}`)
+              .join(", ")}
+            ]
           </Typography>
-          {trial.state !== "Waiting" ? (
-            <Typography>
-              Params = [
-              {trial.params
-                .map((p) => `${p.name}: ${p.param_external_value}`)
-                .join(", ")}
-              ]
-            </Typography>
-          ) : (
-            <Typography>
-              Params = [
-              {trial.fixed_params
-                .map((p) => `${p.name}: ${p.param_external_value}`)
-                .join(", ")}
-              ]
-            </Typography>
-          )}
+        ) : (
           <Typography>
-            Started At ={" "}
-            {trial?.datetime_start ? trial?.datetime_start.toString() : null}
+            Params = [
+            {trial.fixed_params
+              .map((p) => `${p.name}: ${p.param_external_value}`)
+              .join(", ")}
+            ]
           </Typography>
-          <Typography>
-            Completed At ={" "}
-            {trial?.datetime_complete
-              ? trial?.datetime_complete.toString()
-              : null}
-          </Typography>
-          <Typography>Duration = {duration} ms</Typography>
-        </CardContent>
-      </Card>
+        )}
+        <Typography>
+          Started At ={" "}
+          {trial?.datetime_start ? trial?.datetime_start.toString() : null}
+        </Typography>
+        <Typography>
+          Completed At ={" "}
+          {trial?.datetime_complete
+            ? trial?.datetime_complete.toString()
+            : null}
+        </Typography>
+        <Typography>Duration = {duration} ms</Typography>
+      </Box>
       <TrialNote
         studyId={trial.study_id}
         trialId={trial.trial_id}
         latestNote={trial.note}
+        cardSx={{ marginBottom: theme.spacing(2) }}
       />
-      <Grid
-        container
-        direction="row"
-        spacing={2}
-        sx={{ p: theme.spacing(0, 2) }}
-      >
+      <Grid container direction="row" spacing={2}>
         <Grid item xs={6}>
           <Card>
             <CardHeader title="Intermediate Values" />
@@ -253,7 +253,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
     <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
       <Box
         sx={{
-          width: trialListWidth,
+          minWidth: trialListWidth,
           overflow: "auto",
           height: `calc(100vh - ${theme.spacing(8)})`,
         }}
