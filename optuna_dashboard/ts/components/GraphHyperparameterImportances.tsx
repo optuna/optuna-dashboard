@@ -13,7 +13,6 @@ import {
   Card,
   CardContent,
 } from "@mui/material"
-import Grid2 from "@mui/material/Unstable_Grid2"
 
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { actionCreator } from "../action"
@@ -47,16 +46,14 @@ export const GraphHyperparameterImportanceBeta: FC<{
   }, [nObjectives, importances, theme.palette.mode])
 
   return (
-    <Grid2 xs={6}>
-      <Card>
-        <CardContent>
-          <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
-            Hyperparameter Importance
-          </Typography>
-          <Box id={plotDomId} sx={{ height: graphHeight }} />
-        </CardContent>
-      </Card>
-    </Grid2>
+    <Card>
+      <CardContent>
+        <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+          Hyperparameter Importance
+        </Typography>
+        <Box id={plotDomId} sx={{ height: graphHeight }} />
+      </CardContent>
+    </Card>
   )
 }
 

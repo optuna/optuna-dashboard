@@ -13,28 +13,21 @@ import Grid2 from "@mui/material/Unstable_Grid2"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import HomeIcon from "@mui/icons-material/Home"
 
-import { GraphHistory } from "./GraphHistory"
 import { StudyNote } from "./Note"
 import { actionCreator } from "../action"
 import {
   reloadIntervalState,
   useStudyDetailValue,
-  useStudyDirections,
   useStudyName,
-  useStudySummaryValue,
 } from "../state"
 import { TrialTable } from "./TrialTable"
 import { AppDrawer, PageId } from "./AppDrawer"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { Contour } from "./GraphContour"
-import { GraphHyperparameterImportanceBeta } from "./GraphHyperparameterImportances"
 import { GraphSlice } from "./GraphSlice"
-import { GraphParetoFront } from "./GraphParetoFront"
-import { DataGrid, DataGridColumn } from "./DataGrid"
-import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphEdfBeta } from "./GraphEdf"
 import { TrialList } from "./TrialList"
-import { BestTrialsCard } from "./BestTrialsCard"
+import { StudyHistory } from "./StudyHistory"
 
 interface ParamTypes {
   studyId: string
@@ -55,10 +48,7 @@ export const StudyDetailBeta: FC<{
   const studyId = useURLVars()
   const studyDetail = useStudyDetailValue(studyId)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
-  const studySummary = useStudySummaryValue(studyId)
-  const directions = useStudyDirections(studyId)
   const studyName = useStudyName(studyId)
-  const userAttrs = studySummary?.user_attrs || []
 
   const title =
     studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
@@ -77,78 +67,9 @@ export const StudyDetailBeta: FC<{
     return () => clearInterval(intervalId)
   }, [reloadInterval, studyDetail, page])
 
-  const userAttrColumns: DataGridColumn<Attribute>[] = [
-    { field: "key", label: "Key", sortable: true },
-    { field: "value", label: "Value", sortable: true },
-  ]
-  const trials: Trial[] = studyDetail?.trials || []
-
   let content = null
   if (page === "history") {
-    content = (
-      <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
-        {directions !== null && directions.length > 1 ? (
-          <Card sx={{ margin: theme.spacing(2) }}>
-            <CardContent>
-              <GraphParetoFront study={studyDetail} />
-            </CardContent>
-          </Card>
-        ) : null}
-        <Card
-          sx={{
-            margin: theme.spacing(2),
-          }}
-        >
-          <CardContent>
-            <GraphHistory study={studyDetail} />
-          </CardContent>
-        </Card>
-        {studyDetail !== null &&
-        studyDetail.directions.length == 1 &&
-        studyDetail.has_intermediate_values ? (
-          <Card sx={{ margin: theme.spacing(2) }}>
-            <CardContent>
-              <GraphIntermediateValues trials={trials} />
-            </CardContent>
-          </Card>
-        ) : null}
-        <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
-          <GraphHyperparameterImportanceBeta
-            studyId={studyId}
-            study={studyDetail}
-            graphHeight="450px"
-          />
-          <Grid2 xs={6} spacing={2}>
-            <BestTrialsCard studyDetail={studyDetail} />
-          </Grid2>
-          <Grid2 xs={6}>
-            <Card>
-              <CardContent
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                }}
-              >
-                <Typography
-                  variant="h6"
-                  sx={{ margin: "1em 0", fontWeight: 600 }}
-                >
-                  Study User Attributes
-                </Typography>
-                <DataGrid<Attribute>
-                  columns={userAttrColumns}
-                  rows={userAttrs}
-                  keyField={"key"}
-                  dense={true}
-                  initialRowsPerPage={5}
-                  rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
-                />
-              </CardContent>
-            </Card>
-          </Grid2>
-        </Grid2>
-      </Box>
-    )
+    content = <StudyHistory studyId={studyId} />
   } else if (page === "analytics") {
     content = (
       <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>

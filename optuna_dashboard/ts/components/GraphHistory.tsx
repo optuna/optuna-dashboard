@@ -26,9 +26,13 @@ const plotDomId = "graph-history"
 
 export const GraphHistory: FC<{
   study: StudyDetail | null
-}> = ({ study = null }) => {
+  betaLogScale?: boolean
+  betaIncludePruned?: boolean
+}> = ({ study, betaLogScale, betaIncludePruned }) => {
   const theme = useTheme()
-  const [xAxis, setXAxis] = useState<string>("number")
+  const [xAxis, setXAxis] = useState<
+    "number" | "datetime_start" | "datetime_complete"
+  >("number")
   const [logScale, setLogScale] = useState<boolean>(false)
   const [filterCompleteTrial, setFilterCompleteTrial] = useState<boolean>(false)
   const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
@@ -38,7 +42,7 @@ export const GraphHistory: FC<{
     study,
     [selected],
     filterCompleteTrial,
-    filterPrunedTrial
+    betaIncludePruned === undefined ? filterPrunedTrial : !betaIncludePruned
   )
 
   useEffect(() => {
@@ -48,7 +52,7 @@ export const GraphHistory: FC<{
         study.directions,
         selected,
         xAxis,
-        logScale,
+        betaLogScale === undefined ? logScale : betaLogScale,
         theme.palette.mode
       )
     }
@@ -57,9 +61,8 @@ export const GraphHistory: FC<{
     study?.directions,
     selected,
     logScale,
+    betaLogScale,
     xAxis,
-    filterPrunedTrial,
-    filterCompleteTrial,
     theme.palette.mode,
   ])
 
@@ -68,7 +71,13 @@ export const GraphHistory: FC<{
   }
 
   const handleXAxisChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setXAxis(e.target.value)
+    if (e.target.value === "number") {
+      setXAxis("number")
+    } else if (e.target.value === "datetime_start") {
+      setXAxis("datetime_start")
+    } else if (e.target.value === "datetime_complete") {
+      setXAxis("datetime_complete")
+    }
   }
 
   const handleLogScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -113,42 +122,46 @@ export const GraphHistory: FC<{
             </Select>
           </FormControl>
         ) : null}
-        <FormControl
-          component="fieldset"
-          sx={{ marginBottom: theme.spacing(2) }}
-        >
-          <FormLabel component="legend">Log y scale:</FormLabel>
-          <Switch
-            checked={logScale}
-            onChange={handleLogScaleChange}
-            value="enable"
-          />
-        </FormControl>
-        <FormControl
-          component="fieldset"
-          sx={{ marginBottom: theme.spacing(2) }}
-        >
-          <FormLabel component="legend">Filter state:</FormLabel>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={!filterCompleteTrial}
-                onChange={handleFilterCompleteChange}
-              />
-            }
-            label="Complete"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={!filterPrunedTrial}
-                disabled={!study?.has_intermediate_values}
-                onChange={handleFilterPrunedChange}
-              />
-            }
-            label="Pruned"
-          />
-        </FormControl>
+        {betaLogScale === undefined ? (
+          <FormControl
+            component="fieldset"
+            sx={{ marginBottom: theme.spacing(2) }}
+          >
+            <FormLabel component="legend">Log y scale:</FormLabel>
+            <Switch
+              checked={logScale}
+              onChange={handleLogScaleChange}
+              value="enable"
+            />
+          </FormControl>
+        ) : null}
+        {betaIncludePruned === undefined ? (
+          <FormControl
+            component="fieldset"
+            sx={{ marginBottom: theme.spacing(2) }}
+          >
+            <FormLabel component="legend">Filter state:</FormLabel>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={!filterCompleteTrial}
+                  onChange={handleFilterCompleteChange}
+                />
+              }
+              label="Complete"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={!filterPrunedTrial}
+                  disabled={!study?.has_intermediate_values}
+                  onChange={handleFilterPrunedChange}
+                />
+              }
+              label="Pruned"
+            />
+          </FormControl>
+        ) : null}
         <FormControl
           component="fieldset"
           sx={{ marginBottom: theme.spacing(2) }}
@@ -189,7 +202,7 @@ const plotHistory = (
   trials: Trial[],
   directions: StudyDirection[],
   target: Target,
-  xAxis: string,
+  xAxis: "number" | "datetime_start" | "datetime_complete",
   logScale: boolean,
   mode: string
 ) => {

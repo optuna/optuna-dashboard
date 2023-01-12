@@ -9,10 +9,41 @@ import {
   Grid,
   Typography,
   useTheme,
+  CardContent,
+  Card,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-intermediate-values"
+
+export const GraphIntermediateValuesBeta: FC<{
+  trials: Trial[]
+  includePruned: boolean
+  logScale: boolean
+}> = ({ trials, includePruned, logScale }) => {
+  const theme = useTheme()
+
+  useEffect(() => {
+    plotIntermediateValue(
+      trials,
+      theme.palette.mode,
+      false,
+      !includePruned,
+      logScale
+    )
+  }, [trials, theme.palette.mode, false, includePruned, logScale])
+
+  return (
+    <Card>
+      <CardContent>
+        <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+          Intermediate values
+        </Typography>
+        <Box id={plotDomId} sx={{ height: "450px" }} />
+      </CardContent>
+    </Card>
+  )
+}
 
 export const GraphIntermediateValues: FC<{
   trials: Trial[]
@@ -26,7 +57,8 @@ export const GraphIntermediateValues: FC<{
       trials,
       theme.palette.mode,
       filterCompleteTrial,
-      filterPrunedTrial
+      filterPrunedTrial,
+      false
     )
   }, [trials, theme.palette.mode, filterCompleteTrial, filterPrunedTrial])
 
@@ -86,7 +118,8 @@ const plotIntermediateValue = (
   trials: Trial[],
   mode: string,
   filterCompleteTrial: boolean,
-  filterPrunedTrial: boolean
+  filterPrunedTrial: boolean,
+  logScale: boolean
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -98,6 +131,14 @@ const plotIntermediateValue = (
       t: 0,
       r: 50,
       b: 0,
+    },
+    yaxis: {
+      title: "Objective Value",
+      type: logScale ? "log" : "linear",
+    },
+    xaxis: {
+      title: "Step",
+      type: "linear",
     },
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
