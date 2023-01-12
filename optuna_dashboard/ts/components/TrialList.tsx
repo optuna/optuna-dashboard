@@ -183,9 +183,10 @@ const TrialListDetail: FC<{
           color={getChipColor(trial.state)}
           label={trial.state}
           sx={{ marginRight: theme.spacing(1) }}
+          variant="outlined"
         />
         {isBestTrial(trial.trial_id) ? (
-          <Chip label={"Best Trial"} color="secondary" />
+          <Chip label={"Best Trial"} color="secondary" variant="outlined" />
         ) : null}
       </Box>
       <Box sx={{ marginBottom: theme.spacing(2) }}>
@@ -374,6 +375,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
               ))}
             </Menu>
           </ListSubheader>
+          <Divider />
           {trials.map((trial, i) => {
             return (
               <ListItem key={trial.trial_id} disablePadding>
@@ -420,6 +422,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       label={trial.state}
                       sx={{ margin: theme.spacing(0) }}
                       size="small"
+                      variant="outlined"
                     />
                     {isBestTrial(trial.trial_id) ? (
                       <Chip
@@ -427,6 +430,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                         color="secondary"
                         sx={{ marginLeft: theme.spacing(1) }}
                         size="small"
+                        variant="outlined"
                       />
                     ) : null}
                   </Box>
