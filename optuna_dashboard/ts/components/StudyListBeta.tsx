@@ -209,7 +209,7 @@ export const StudyListBeta: FC<{
                     </Typography>
                   </CardContent>
                 </CardActionArea>
-                <CardActions disableSpacing>
+                <CardActions disableSpacing sx={{ paddingTop: 0 }}>
                   <Box sx={{ flexGrow: 1 }} />
                   <IconButton
                     aria-label="rename study"
