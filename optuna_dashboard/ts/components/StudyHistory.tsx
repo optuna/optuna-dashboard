@@ -133,7 +133,10 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
             >
               <Typography
                 variant="h6"
-                sx={{ margin: "1em 0", fontWeight: 600 }}
+                sx={{
+                  margin: "1em 0",
+                  fontWeight: theme.typography.fontWeightBold,
+                }}
               >
                 Study User Attributes
               </Typography>

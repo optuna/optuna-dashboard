@@ -101,7 +101,10 @@ export const GraphHistory: FC<{
         direction="column"
         sx={{ paddingRight: theme.spacing(2) }}
       >
-        <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+        <Typography
+          variant="h6"
+          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
+        >
           History
         </Typography>
         {targets.length >= 2 ? (

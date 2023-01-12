@@ -34,7 +34,10 @@ export const BestTrialsCard: FC<{
       <>
         <Typography
           variant="h3"
-          sx={{ fontWeight: 600, marginBottom: theme.spacing(2) }}
+          sx={{
+            fontWeight: theme.typography.fontWeightBold,
+            marginBottom: theme.spacing(2),
+          }}
           color="secondary"
         >
           {bestTrial.values}
@@ -124,7 +127,10 @@ export const BestTrialsCard: FC<{
           flexDirection: "column",
         }}
       >
-        <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+        <Typography
+          variant="h6"
+          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
+        >
           {header}
         </Typography>
         {content}

@@ -36,7 +36,10 @@ export const GraphEdfBeta: FC<{
   }, [trials, target, domId, theme.palette.mode])
   return (
     <Box>
-      <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+      <Typography
+        variant="h6"
+        sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
+      >
         {`EDF for ${target.toLabel(study?.objective_names)}`}
       </Typography>
       <Box id={domId} sx={{ height: "450px" }} />
@@ -69,7 +72,10 @@ export const GraphEdf: FC<{
         direction="column"
         sx={{ paddingRight: theme.spacing(2) }}
       >
-        <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+        <Typography
+          variant="h6"
+          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
+        >
           EDF
         </Typography>
         {study !== null && study.directions.length !== 1 ? (

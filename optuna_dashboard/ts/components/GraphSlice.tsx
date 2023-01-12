@@ -90,7 +90,10 @@ export const GraphSlice: FC<{
         direction="column"
         sx={{ paddingRight: theme.spacing(2) }}
       >
-        <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+        <Typography
+          variant="h6"
+          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
+        >
           Slice
         </Typography>
         {study !== null && study.directions.length !== 1 && (

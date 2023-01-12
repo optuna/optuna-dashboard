@@ -36,7 +36,10 @@ export const GraphIntermediateValuesBeta: FC<{
   return (
     <Card>
       <CardContent>
-        <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+        <Typography
+          variant="h6"
+          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
+        >
           Intermediate values
         </Typography>
         <Box id={plotDomId} sx={{ height: "450px" }} />
@@ -79,7 +82,10 @@ export const GraphIntermediateValues: FC<{
         direction="column"
         sx={{ paddingRight: theme.spacing(2) }}
       >
-        <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+        <Typography
+          variant="h6"
+          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
+        >
           Intermediate values
         </Typography>
         <FormControl
