@@ -16,7 +16,7 @@ import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import {
   Target,
   useFilteredTrials,
-  useObjectiveTargets,
+  useObjectiveAndUserAttrTargets,
   useParamTargets,
 } from "../trialFilter"
 import { useMergedUnionSearchSpace } from "../searchSpace"
@@ -36,7 +36,7 @@ export const GraphSlice: FC<{
   const theme = useTheme()
 
   const [objectiveTargets, selectedObjective, setObjectiveTarget] =
-    useObjectiveTargets(study)
+    useObjectiveAndUserAttrTargets(study)
   const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
   const [paramTargets, selectedParamTarget, setParamTarget] =
     useParamTargets(searchSpace)
@@ -96,7 +96,7 @@ export const GraphSlice: FC<{
         >
           Slice
         </Typography>
-        {study !== null && study.directions.length !== 1 && (
+        {objectiveTargets.length !== 1 && (
           <FormControl component="fieldset">
             <FormLabel component="legend">Objective:</FormLabel>
             <Select

@@ -254,11 +254,11 @@ class _CachedExtraStudyPropertyUserAttrs(TestCase):
 
     def test_infer_sortable(self) -> None:
         user_attrs_list: list[dict[str, Any]] = [
-            {"a": 1, "b": 1, "c": 1, "d": "a", "e": 1},
+            {"a": 1, "b": 1, "c": 1, "d": "a", "e": 1, "f": True},
             {"a": 2, "b": "a", "c": "a", "d": "a"},
             {"a": 3, "b": None, "c": 3, "d": "a", "e": 3},
         ]
-        expected = {"a": True, "b": False, "c": False, "d": False, "e": True}
+        expected = {"a": True, "b": False, "c": False, "d": False, "e": True, "f": False}
 
         trials = []
         for user_attrs in user_attrs_list:
