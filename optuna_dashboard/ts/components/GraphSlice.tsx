@@ -15,7 +15,8 @@ import {
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import {
   Target,
-  useFilteredTrials, useObjectiveAndUserAttrTargets,
+  useFilteredTrials,
+  useObjectiveAndUserAttrTargets,
   useParamTargets,
 } from "../trialFilter"
 import { useMergedUnionSearchSpace } from "../searchSpace"
