@@ -88,7 +88,10 @@ class _CachedExtraStudyProperty:
 
     def _update_user_attrs(self, trial: FrozenTrial) -> None:
         # TODO(c-bata): Support numpy-specific number types.
-        current_user_attrs = {k: isinstance(v, (int, float)) for k, v in trial.user_attrs.items()}
+        current_user_attrs = {
+            k: not isinstance(v, bool) and isinstance(v, (int, float))
+            for k, v in trial.user_attrs.items()
+        }
         for attr_name, current_is_sortable in current_user_attrs.items():
             is_sortable = self._union_user_attrs.get(attr_name)
             if is_sortable is None:
