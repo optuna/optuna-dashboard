@@ -138,7 +138,7 @@ const TrialListDetail: FC<{
       "Intermediate Values",
       <Box>
         {trial.intermediate_values.map((v) => (
-          <Typography>
+          <Typography key={v.step}>
             {v.step} {v.value}
           </Typography>
         ))}
@@ -148,7 +148,7 @@ const TrialListDetail: FC<{
       "Parameter",
       <Box>
         {params.map((p) => (
-          <Typography>
+          <Typography key={p.name}>
             {p.name} {p.param_external_value}
           </Typography>
         ))}
@@ -167,7 +167,7 @@ const TrialListDetail: FC<{
       "User Attributes",
       <Box>
         {trial.user_attrs.map((t) => (
-          <Typography>
+          <Typography key={t.key}>
             {t.key} {t.value}
           </Typography>
         ))}
@@ -179,6 +179,7 @@ const TrialListDetail: FC<{
     value: string | null | ReactNode
   ): ReactNode => (
     <Box
+      key={key}
       sx={{
         display: "flex",
         flexDirection: "row",
