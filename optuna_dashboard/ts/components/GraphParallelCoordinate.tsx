@@ -33,6 +33,9 @@ const useTargets = (
     if (allTargets.length !== checked.length) {
       setChecked(
         allTargets.map((t) => {
+          if (t.kind === "user_attr") {
+            return false
+          }
           if (t.kind !== "params" || study === null) {
             return true
           }
