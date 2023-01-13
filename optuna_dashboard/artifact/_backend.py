@@ -15,19 +15,14 @@ from .._bottle_util import json_api_view
 from .._bottle_util import parse_data_uri
 
 
-try:
-    from typing import Protocol
-except ImportError:
-    from typing_extensions import Protocol  # type: ignore
-
-
 if TYPE_CHECKING:
     from typing import Any
-    from typing import BinaryIO
     from typing import Optional
     from typing import TypedDict
 
     from optuna.storages import BaseStorage
+
+    from .protocol import ArtifactBackend
 
     ArtifactMeta = TypedDict(
         "ArtifactMeta",
@@ -42,17 +37,6 @@ if TYPE_CHECKING:
 
 ARTIFACTS_ATTR_PREFIX = "dashboard:artifacts:"
 DEFAULT_MIME_TYPE = "application/octet-stream"
-
-
-class ArtifactBackend(Protocol):
-    def open(self, artifact_id: str) -> BinaryIO:
-        ...
-
-    def write(self, artifact_id: str, content_body: BinaryIO) -> None:
-        ...
-
-    def remove(self, artifact_id: str) -> None:
-        ...
 
 
 def register_artifact_route(

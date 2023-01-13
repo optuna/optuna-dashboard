@@ -26,6 +26,6 @@ class FileSystemBackend:
 if TYPE_CHECKING:
     # A mypy-runtime assertion to ensure that LocalArtifactBackend
     # implements all abstract methods in ArtifactBackendProtocol.
-    from ._backend import ArtifactBackend
+    from .protocol import ArtifactBackend
 
     _: ArtifactBackend = FileSystemBackend("")

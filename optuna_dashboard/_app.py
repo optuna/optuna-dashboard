@@ -29,7 +29,6 @@ from optuna.version import __version__ as optuna_ver
 from packaging import version
 
 from . import _note as note
-from . import artifact
 from ._bottle_util import BottleViewReturn
 from ._bottle_util import json_api_view
 from ._cached_extra_study_property import get_cached_extra_study_property
@@ -43,6 +42,7 @@ from .artifact._backend import register_artifact_route
 
 if typing.TYPE_CHECKING:
     from _typeshed.wsgi import WSGIApplication
+    from optuna_dashboard.artifact.protocol import ArtifactBackend
 
     try:
         from optuna.study._frozen import FrozenStudy
@@ -182,7 +182,7 @@ def get_trials(storage: BaseStorage, study_id: int, ttl_seconds: int = 10) -> li
 
 def create_app(
     storage: BaseStorage,
-    artifact_backend: Optional[artifact.ArtifactBackend] = None,
+    artifact_backend: Optional[ArtifactBackend] = None,
     debug: bool = False,
 ) -> Bottle:
     app = Bottle()

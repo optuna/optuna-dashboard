@@ -51,6 +51,6 @@ class Boto3Backend:
 if TYPE_CHECKING:
     # A mypy-runtime assertion to ensure that Boto3Backend
     # implements all abstract methods in ArtifactBackendProtocol.
-    from ._backend import ArtifactBackend
+    from .protocol import ArtifactBackend
 
     _: ArtifactBackend = Boto3Backend("")
