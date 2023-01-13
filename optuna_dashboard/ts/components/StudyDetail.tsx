@@ -235,7 +235,11 @@ export const StudyDetail: FC<{
             <TrialTable studyDetail={studyDetail} isBeta={false} />
           </Card>
           {studyDetail !== null ? (
-            <StudyNote studyId={studyIdNumber} latestNote={studyDetail.note} />
+            <StudyNote
+              studyId={studyIdNumber}
+              latestNote={studyDetail.note}
+              cardSx={{ margin: theme.spacing(2) }}
+            />
           ) : null}
         </div>
       </Container>

@@ -364,7 +364,7 @@ const NoteBase: FC<{
 
   const defaultBody = ""
   return (
-    <Card sx={{ margin: theme.spacing(2), overflow: "scroll", ...cardSx }}>
+    <Card sx={{ overflow: "scroll", ...cardSx }}>
       <CardHeader
         title="Note"
         action={

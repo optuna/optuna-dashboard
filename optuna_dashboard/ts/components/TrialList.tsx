@@ -7,6 +7,9 @@ import {
   useTheme,
   CardHeader,
   Grid,
+  IconButton,
+  Menu,
+  MenuItem,
 } from "@mui/material"
 import Chip from "@mui/material/Chip"
 import Divider from "@mui/material/Divider"
@@ -15,10 +18,22 @@ import ListItem from "@mui/material/ListItem"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
+import FilterListIcon from "@mui/icons-material/FilterList"
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
+import CheckBoxIcon from "@mui/icons-material/CheckBox"
 
 import { TrialNote } from "./Note"
 import { DataGrid, DataGridColumn } from "./DataGrid"
 import { useHistory, useLocation } from "react-router-dom"
+import ListItemIcon from "@mui/material/ListItemIcon"
+
+const states: TrialState[] = [
+  "Complete",
+  "Pruned",
+  "Fail",
+  "Running",
+  "Waiting",
+]
 
 type Color =
   | "default"
@@ -50,23 +65,36 @@ const useQuery = (): URLSearchParams => {
   return useMemo(() => new URLSearchParams(search), [search])
 }
 
+const useExcludedStates = (query: URLSearchParams): TrialState[] => {
+  return useMemo(() => {
+    const exclude = query.get("exclude")
+    if (exclude === null) {
+      return []
+    }
+    const excluded: TrialState[] = exclude
+      .split(",")
+      .map((s): TrialState | undefined => {
+        return states.find((state) => state.toUpperCase() === s.toUpperCase())
+      })
+      .filter((s): s is TrialState => s !== undefined)
+    return excluded
+  }, [query])
+}
+
 const useTrials = (
   studyDetail: StudyDetail | null,
-  query: URLSearchParams
+  excludedStates: TrialState[]
 ): Trial[] => {
   return useMemo(() => {
     let result = studyDetail !== null ? studyDetail.trials : []
-
-    const exclude = query.get("exclude")
-    if (exclude === null) {
+    if (excludedStates.length === 0) {
       return result
     }
-    const states = exclude.split(",").map((s) => s.toUpperCase())
-    states.forEach((s) => {
-      result = result.filter((t) => t.state.toUpperCase() !== s)
+    excludedStates.forEach((s) => {
+      result = result.filter((t) => t.state !== s)
     })
     return result
-  }, [studyDetail, query])
+  }, [studyDetail, excludedStates])
 }
 
 const useSelectedTrials = (
@@ -140,67 +168,68 @@ const TrialListDetail: FC<{
   ]
 
   return (
-    <Box sx={{ width: "100%" }}>
-      <Card sx={{ margin: theme.spacing(2) }}>
-        <CardHeader
-          title={`Trial ${trial.number} (trial_id=${trial.trial_id})`}
+    <Box sx={{ width: "100%", padding: theme.spacing(2, 2, 0, 2) }}>
+      <Typography
+        variant="h4"
+        sx={{
+          marginBottom: theme.spacing(2),
+          fontWeight: theme.typography.fontWeightBold,
+        }}
+      >
+        Trial {trial.number} (trial_id={trial.trial_id})
+      </Typography>
+      <Box sx={{ marginBottom: theme.spacing(1) }}>
+        <Chip
+          color={getChipColor(trial.state)}
+          label={trial.state}
+          sx={{ marginRight: theme.spacing(1) }}
+          variant="outlined"
         />
-        <CardContent sx={{ paddingTop: 0 }}>
-          <Box sx={{ marginBottom: theme.spacing(1) }}>
-            <Chip
-              color={getChipColor(trial.state)}
-              label={trial.state}
-              sx={{ marginRight: theme.spacing(1) }}
-            />
-            {isBestTrial(trial.trial_id) ? (
-              <Chip label={"Best Trial"} color="secondary" />
-            ) : null}
-          </Box>
+        {isBestTrial(trial.trial_id) ? (
+          <Chip label={"Best Trial"} color="secondary" variant="outlined" />
+        ) : null}
+      </Box>
+      <Box sx={{ marginBottom: theme.spacing(2) }}>
+        <Typography>
+          Values = [{trial.values?.map((v) => v.toString()).join(" ") || "None"}
+          ]
+        </Typography>
+        {trial.state !== "Waiting" ? (
           <Typography>
-            Values = [
-            {trial.values?.map((v) => v.toString()).join(" ") || "None"}]
+            Params = [
+            {trial.params
+              .map((p) => `${p.name}: ${p.param_external_value}`)
+              .join(", ")}
+            ]
           </Typography>
-          {trial.state !== "Waiting" ? (
-            <Typography>
-              Params = [
-              {trial.params
-                .map((p) => `${p.name}: ${p.param_external_value}`)
-                .join(", ")}
-              ]
-            </Typography>
-          ) : (
-            <Typography>
-              Params = [
-              {trial.fixed_params
-                .map((p) => `${p.name}: ${p.param_external_value}`)
-                .join(", ")}
-              ]
-            </Typography>
-          )}
+        ) : (
           <Typography>
-            Started At ={" "}
-            {trial?.datetime_start ? trial?.datetime_start.toString() : null}
+            Params = [
+            {trial.fixed_params
+              .map((p) => `${p.name}: ${p.param_external_value}`)
+              .join(", ")}
+            ]
           </Typography>
-          <Typography>
-            Completed At ={" "}
-            {trial?.datetime_complete
-              ? trial?.datetime_complete.toString()
-              : null}
-          </Typography>
-          <Typography>Duration = {duration} ms</Typography>
-        </CardContent>
-      </Card>
+        )}
+        <Typography>
+          Started At ={" "}
+          {trial?.datetime_start ? trial?.datetime_start.toString() : null}
+        </Typography>
+        <Typography>
+          Completed At ={" "}
+          {trial?.datetime_complete
+            ? trial?.datetime_complete.toString()
+            : null}
+        </Typography>
+        <Typography>Duration = {duration} ms</Typography>
+      </Box>
       <TrialNote
         studyId={trial.study_id}
         trialId={trial.trial_id}
         latestNote={trial.note}
+        cardSx={{ marginBottom: theme.spacing(2) }}
       />
-      <Grid
-        container
-        direction="row"
-        spacing={2}
-        sx={{ p: theme.spacing(0, 2) }}
-      >
+      <Grid container direction="row" spacing={2}>
         <Grid item xs={6}>
           <Card>
             <CardHeader title="Intermediate Values" />
@@ -234,17 +263,48 @@ const TrialListDetail: FC<{
   )
 }
 
+const getTrialListLink = (
+  studyId: number,
+  exclude: TrialState[],
+  numbers: number[]
+): string => {
+  const base = URL_PREFIX + `/studies/${studyId}/trials`
+  if (exclude.length > 0 && numbers.length > 0) {
+    return (
+      base +
+      `?exclude=${exclude.join(",")}&numbers=${numbers
+        .map((n) => n.toString())
+        .join(",")}`
+    )
+  } else if (exclude.length > 0) {
+    return base + "?exclude=" + exclude.join(",")
+  } else if (numbers.length > 0) {
+    return base + "?numbers=" + numbers.map((n) => n.toString()).join(",")
+  }
+  return base
+}
+
 export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   studyDetail,
 }) => {
   const theme = useTheme()
   const query = useQuery()
   const history = useHistory()
-  const trials = useTrials(studyDetail, query)
+  const excludedStates = useExcludedStates(query)
+  const trials = useTrials(studyDetail, excludedStates)
   const isBestTrial = useIsBestTrial(studyDetail)
   const selected = useSelectedTrials(trials, query)
+  const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
+    React.useState<null | HTMLElement>(null)
+  const openFilterMenu = Boolean(filterMenuAnchorEl)
+  const trialCounts = useMemo<number[]>(() => {
+    const allTrials = studyDetail?.trials || []
+    return states.map(
+      (state) => allTrials.filter((t) => t.state === state).length
+    )
+  }, [studyDetail?.trials])
 
-  const trialListWidth = 240
+  const trialListWidth = 200
 
   const showDetailTrials =
     selected.length > 0 ? selected : trials.length > 0 ? [trials[0]] : []
@@ -253,13 +313,69 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
     <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
       <Box
         sx={{
-          width: trialListWidth,
+          minWidth: trialListWidth,
           overflow: "auto",
           height: `calc(100vh - ${theme.spacing(8)})`,
         }}
       >
         <List>
-          <ListSubheader>{`${trials.length} Trials`}</ListSubheader>
+          <ListSubheader sx={{ display: "flex", flexDirection: "row" }}>
+            <Typography sx={{ p: theme.spacing(1, 0) }}>
+              {trials.length} Trials
+            </Typography>
+            <Box sx={{ flexGrow: 1 }} />
+            <IconButton
+              aria-label="Filter"
+              aria-controls={openFilterMenu ? "filter-trials" : undefined}
+              aria-haspopup="true"
+              aria-expanded={openFilterMenu ? "true" : undefined}
+              onClick={(e) => {
+                setFilterMenuAnchorEl(e.currentTarget)
+              }}
+            >
+              <FilterListIcon fontSize="small" />
+            </IconButton>
+            <Menu
+              anchorEl={filterMenuAnchorEl}
+              id="filter-trials"
+              open={openFilterMenu}
+              onClose={() => {
+                setFilterMenuAnchorEl(null)
+              }}
+            >
+              {states.map((state, i) => (
+                <MenuItem
+                  key={state}
+                  onClick={(e) => {
+                    if (studyDetail === null) {
+                      return
+                    }
+                    const index = excludedStates.findIndex((s) => s === state)
+                    if (index === -1) {
+                      excludedStates.push(state)
+                    } else {
+                      excludedStates.splice(index, 1)
+                    }
+                    const numbers = selected.map((t) => t.number)
+                    history.push(
+                      getTrialListLink(studyDetail.id, excludedStates, numbers)
+                    )
+                  }}
+                  disabled={trialCounts[i] === 0}
+                >
+                  <ListItemIcon>
+                    {excludedStates.find((s) => s === state) !== undefined ? (
+                      <CheckBoxOutlineBlankIcon color="primary" />
+                    ) : (
+                      <CheckBoxIcon color="primary" />
+                    )}
+                  </ListItemIcon>
+                  {state} ({trialCounts[i]})
+                </MenuItem>
+              ))}
+            </Menu>
+          </ListSubheader>
+          <Divider />
           {trials.map((trial, i) => {
             return (
               <ListItem key={trial.trial_id} disablePadding>
@@ -279,24 +395,14 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       } else {
                         next = [...selectedNumbers, trial.number]
                       }
-                      const trialNumbers = next
-                        .map((n) => n.toString())
-                        .join(",")
-
-                      if (trialNumbers.length > 0) {
-                        history.push(
-                          URL_PREFIX +
-                            `/studies/${trial.study_id}/trials?numbers=${trialNumbers}`
-                        )
-                      } else {
-                        history.push(
-                          URL_PREFIX + `/studies/${trial.study_id}/trials`
-                        )
-                      }
+                      history.push(
+                        getTrialListLink(trial.study_id, excludedStates, next)
+                      )
                     } else {
                       history.push(
-                        URL_PREFIX +
-                          `/studies/${trial.study_id}/trials?numbers=${trial.number}`
+                        getTrialListLink(trial.study_id, excludedStates, [
+                          trial.number,
+                        ])
                       )
                     }
                   }}
@@ -314,8 +420,9 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                     <Chip
                       color={getChipColor(trial.state)}
                       label={trial.state}
-                      sx={{ margin: theme.spacing(1, 0) }}
+                      sx={{ margin: theme.spacing(0) }}
                       size="small"
+                      variant="outlined"
                     />
                     {isBestTrial(trial.trial_id) ? (
                       <Chip
@@ -323,6 +430,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                         color="secondary"
                         sx={{ marginLeft: theme.spacing(1) }}
                         size="small"
+                        variant="outlined"
                       />
                     ) : null}
                   </Box>
