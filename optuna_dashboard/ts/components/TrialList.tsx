@@ -1,12 +1,8 @@
-import React, { FC, useMemo } from "react"
+import React, { FC, ReactNode, useMemo } from "react"
 import {
   Typography,
   Box,
-  Card,
-  CardContent,
   useTheme,
-  CardHeader,
-  Grid,
   IconButton,
   Menu,
   MenuItem,
@@ -23,7 +19,6 @@ import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
 
 import { TrialNote } from "./Note"
-import { DataGrid, DataGridColumn } from "./DataGrid"
 import { useHistory, useLocation } from "react-router-dom"
 import ListItemIcon from "@mui/material/ListItemIcon"
 
@@ -135,37 +130,87 @@ const TrialListDetail: FC<{
   if (startMs !== undefined && completeMs !== undefined) {
     duration = (completeMs - startMs).toString()
   }
-  const collapseIntermediateValueColumns: DataGridColumn<TrialIntermediateValue>[] =
+
+  const params = trial.state === "Waiting" ? trial.fixed_params : trial.params
+  const info: [string, string | null | ReactNode][] = [
+    ["Value", trial.values?.map((v) => v.toString()).join(" ") || "None"],
     [
-      { field: "step", label: "Step", sortable: true },
-      {
-        field: "value",
-        label: "Value",
-        sortable: true,
-        less: (firstEl, secondEl): number => {
-          const firstVal = firstEl.value
-          const secondVal = secondEl.value
-          if (firstVal === secondVal) {
-            return 0
-          }
-          if (firstVal === "nan") {
-            return -1
-          } else if (secondVal === "nan") {
-            return 1
-          }
-          if (firstVal === "-inf" || secondVal === "inf") {
-            return 1
-          } else if (secondVal === "-inf" || firstVal === "inf") {
-            return -1
-          }
-          return firstVal < secondVal ? 1 : -1
-        },
-      },
-    ]
-  const collapseAttrColumns: DataGridColumn<Attribute>[] = [
-    { field: "key", label: "Key", sortable: true },
-    { field: "value", label: "Value", sortable: true },
+      "Intermediate Values",
+      <Box>
+        {trial.intermediate_values.map((v) => (
+          <Typography>
+            {v.step} {v.value}
+          </Typography>
+        ))}
+      </Box>,
+    ],
+    [
+      "Parameter",
+      <Box>
+        {params.map((p) => (
+          <Typography>
+            {p.name} {p.param_external_value}
+          </Typography>
+        ))}
+      </Box>,
+    ],
+    [
+      "Started At",
+      trial?.datetime_start ? trial?.datetime_start.toString() : null,
+    ],
+    [
+      "Completed At",
+      trial?.datetime_complete ? trial?.datetime_complete.toString() : null,
+    ],
+    ["Duration", `${duration} ms`],
+    [
+      "User Attributes",
+      <Box>
+        {trial.user_attrs.map((t) => (
+          <Typography>
+            {t.key} {t.value}
+          </Typography>
+        ))}
+      </Box>,
+    ],
   ]
+  const renderInfo = (
+    key: string,
+    value: string | null | ReactNode
+  ): ReactNode => (
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "row",
+        marginBottom: theme.spacing(0.5),
+      }}
+    >
+      <Typography
+        sx={{ p: theme.spacing(1) }}
+        color="text.secondary"
+        minWidth={"200px"}
+        fontWeight={theme.typography.fontWeightLight}
+        fontSize={theme.typography.fontSize}
+      >
+        {key}
+      </Typography>
+      <Box
+        sx={{
+          bgcolor:
+            theme.palette.mode === "dark"
+              ? "rgba(255, 255, 255, 0.05)"
+              : "rgba(0, 0, 0, 0.05)",
+          width: "100%",
+          p: theme.spacing(0.5, 1),
+          borderRadius: theme.shape.borderRadius * 0.2,
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        {value}
+      </Box>
+    </Box>
+  )
 
   return (
     <Box sx={{ width: "100%", padding: theme.spacing(2, 2, 0, 2) }}>
@@ -189,39 +234,14 @@ const TrialListDetail: FC<{
           <Chip label={"Best Trial"} color="secondary" variant="outlined" />
         ) : null}
       </Box>
-      <Box sx={{ marginBottom: theme.spacing(2) }}>
-        <Typography>
-          Values = [{trial.values?.map((v) => v.toString()).join(" ") || "None"}
-          ]
-        </Typography>
-        {trial.state !== "Waiting" ? (
-          <Typography>
-            Params = [
-            {trial.params
-              .map((p) => `${p.name}: ${p.param_external_value}`)
-              .join(", ")}
-            ]
-          </Typography>
-        ) : (
-          <Typography>
-            Params = [
-            {trial.fixed_params
-              .map((p) => `${p.name}: ${p.param_external_value}`)
-              .join(", ")}
-            ]
-          </Typography>
-        )}
-        <Typography>
-          Started At ={" "}
-          {trial?.datetime_start ? trial?.datetime_start.toString() : null}
-        </Typography>
-        <Typography>
-          Completed At ={" "}
-          {trial?.datetime_complete
-            ? trial?.datetime_complete.toString()
-            : null}
-        </Typography>
-        <Typography>Duration = {duration} ms</Typography>
+      <Box
+        sx={{
+          marginBottom: theme.spacing(2),
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        {info.map(([key, value]) => renderInfo(key, value))}
       </Box>
       <TrialNote
         studyId={trial.study_id}
@@ -229,36 +249,6 @@ const TrialListDetail: FC<{
         latestNote={trial.note}
         cardSx={{ marginBottom: theme.spacing(2) }}
       />
-      <Grid container direction="row" spacing={2}>
-        <Grid item xs={6}>
-          <Card>
-            <CardHeader title="Intermediate Values" />
-            <CardContent>
-              <DataGrid<TrialIntermediateValue>
-                columns={collapseIntermediateValueColumns}
-                rows={trial.intermediate_values}
-                keyField={"step"}
-                dense={true}
-                rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
-              />
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={6}>
-          <Card>
-            <CardHeader title="User Attributes" />
-            <CardContent>
-              <DataGrid<Attribute>
-                columns={collapseAttrColumns}
-                rows={trial.user_attrs}
-                keyField={"key"}
-                dense={true}
-                rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
-              />
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
     </Box>
   )
 }
