@@ -217,6 +217,23 @@ export const saveTrialNoteAPI = (
     })
 }
 
+export const uploadArtifactAPI = (
+  studyId: number,
+  trialId: number,
+  fileName: string,
+  dataUrl: string
+): Promise<Artifact> => {
+  return axiosInstance
+    .post<Artifact>(`/api/studies/${studyId}/artifacts`, {
+      trial_id: trialId,
+      file: dataUrl,
+      filename: fileName,
+    })
+    .then((res) => {
+      return res.data
+    })
+}
+
 interface ParamImportancesResponse {
   param_importances: ParamImportance[][]
 }

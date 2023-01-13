@@ -15,7 +15,13 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import React, { FC, createRef, useState, useEffect } from "react"
+import React, {
+  FC,
+  createRef,
+  useState,
+  useEffect,
+  DragEventHandler,
+} from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import remarkMath from "remark-math"
@@ -36,6 +42,8 @@ import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { darcula } from "react-syntax-highlighter/dist/esm/styles/prism"
 
 import { actionCreator } from "../action"
+import { useRecoilValue } from "recoil"
+import { isFileUploading } from "../state"
 
 const placeholder = `## What is this feature for?
 
@@ -171,9 +179,11 @@ const MarkdownEditorModal: FC<{
       window.onbeforeunload = null
     })
 
+  const [dragOver, setDragOver] = useState<boolean>(false)
   const [saving, setSaving] = useState(false)
   const [edited, setEdited] = useState(false)
   const [curNote, setCurNote] = useState({ version: 0, body: "" })
+  const uploading = useRecoilValue<boolean>(isFileUploading)
   const textAreaRef = createRef<HTMLTextAreaElement>()
   const notLatest = latestNote.version > curNote.version
 
@@ -225,6 +235,37 @@ const MarkdownEditorModal: FC<{
     window.onbeforeunload = null
   }
 
+  const handleDrop: DragEventHandler = (e) => {
+    if (trialId === undefined) {
+      return
+    }
+    e.stopPropagation()
+    e.preventDefault()
+    const file = e.dataTransfer.files[0]
+    setDragOver(false)
+    action.uploadArtifact(studyId, trialId, file)
+  }
+
+  const handleDragOver: DragEventHandler = (e) => {
+    if (trialId === undefined) {
+      return
+    }
+    e.stopPropagation()
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "copy"
+    setDragOver(true)
+  }
+
+  const handleDragLeave: DragEventHandler = (e) => {
+    if (trialId === undefined) {
+      return
+    }
+    e.stopPropagation()
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "copy"
+    setDragOver(false)
+  }
+
   // See https://github.com/iamhosseindhv/notistack/issues/231#issuecomment-825924840
   const zIndex = theme.zIndex.snackbar - 2
 
@@ -273,10 +314,15 @@ const MarkdownEditorModal: FC<{
       >
         <MarkdownRenderer body={previewMarkdown} />
       </Box>
+      <Typography>{dragOver ? "DragOver=true" : "DragOver=false"}</Typography>
+      <Typography>{uploading ? "uploading=true" : "not uploading"}</Typography>
       <TextField
         disabled={saving}
         multiline={true}
         placeholder={placeholder}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
         sx={{
           position: "relative",
           resize: "none",

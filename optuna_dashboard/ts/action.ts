@@ -1,4 +1,4 @@
-import { useRecoilState } from "recoil"
+import { useRecoilState, useSetRecoilState } from "recoil"
 import { useSnackbar } from "notistack"
 import {
   getStudyDetailAPI,
@@ -9,12 +9,14 @@ import {
   saveStudyNoteAPI,
   saveTrialNoteAPI,
   renameStudyAPI,
+  uploadArtifactAPI,
 } from "./apiClient"
 import {
   graphVisibilityState,
   studyDetailsState,
   studySummariesState,
   paramImportanceState,
+  isFileUploading,
 } from "./state"
 
 const localStorageGraphVisibility = "graphVisibility"
@@ -29,6 +31,7 @@ export const actionCreator = () => {
     useRecoilState<GraphVisibility>(graphVisibilityState)
   const [paramImportance, setParamImportance] =
     useRecoilState<StudyParamImportance>(paramImportanceState)
+  const setUploading = useSetRecoilState<boolean>(isFileUploading)
 
   const setStudyDetailState = (studyId: number, study: StudyDetail) => {
     const newVal = Object.assign({}, studyDetails)
@@ -265,6 +268,33 @@ export const actionCreator = () => {
       })
   }
 
+  const uploadArtifact = (
+    studyId: number,
+    trialId: number,
+    file: File
+  ): void => {
+    const reader = new FileReader()
+    setUploading(true)
+    reader.readAsDataURL(file)
+    reader.onload = (upload: any) => {
+      uploadArtifactAPI(studyId, trialId, file.name, upload.target.result)
+        .then((artifact) => {
+          setUploading(false)
+          // TODO: update global state
+          console.dir(artifact)
+        })
+        .catch((err) => {
+          setUploading(false)
+          const reason = err.response?.data.reason
+          enqueueSnackbar(`Failed to upload ${reason}`, { variant: "error" })
+        })
+    }
+    reader.onerror = (error) => {
+      enqueueSnackbar(`Failed to read the file ${error}`, { variant: "error" })
+      console.log(error)
+    }
+  }
+
   return {
     updateStudyDetail,
     updateStudySummaries,
@@ -276,6 +306,7 @@ export const actionCreator = () => {
     saveGraphVisibility,
     saveStudyNote,
     saveTrialNote,
+    uploadArtifact,
   }
 }
 

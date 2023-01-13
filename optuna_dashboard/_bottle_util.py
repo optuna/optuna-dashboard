@@ -13,6 +13,7 @@ from typing import TypeVar
 from typing import Union
 
 from bottle import BaseResponse
+from bottle import HTTPError
 from bottle import response
 
 
@@ -29,6 +30,9 @@ def json_api_view(view: BottleAPIView) -> BottleAPIView:
             response.content_type = "application/json"
             response_body = view(*args, **kwargs)
             return response_body
+        except HTTPError as e:
+            response.status = e.status_code
+            return json.dumps({"reason": str(e.body)})
         except Exception as e:
             response.status = 500
             response.content_type = "application/json"

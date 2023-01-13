@@ -39,6 +39,11 @@ export const drawerOpenState = atom<boolean>({
   default: false,
 })
 
+export const isFileUploading = atom<boolean>({
+  key: "isFileUploading",
+  default: false,
+})
+
 export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
   return studyDetails[studyId] || null

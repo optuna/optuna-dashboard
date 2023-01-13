@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import io
 import json
 import mimetypes
 import os.path
 from typing import TYPE_CHECKING
 import uuid
 
+from bottle import BaseRequest
 from bottle import Bottle
 from bottle import request
 from bottle import response
@@ -37,6 +39,9 @@ if TYPE_CHECKING:
 
 ARTIFACTS_ATTR_PREFIX = "dashboard:artifacts:"
 DEFAULT_MIME_TYPE = "application/octet-stream"
+BaseRequest.MEMFILE_MAX = int(
+    os.environ.get("OPTUNA_DASHBOARD_MEMFILE_MAX", 1024 * 1024 * 128)
+)  # 128MB
 
 
 def register_artifact_route(
@@ -56,22 +61,22 @@ def register_artifact_route(
             body = f.read()
         return body
 
-    @app.post("/api/artifacts/<trial_id:int>/")
+    @app.post("/api/studies/<study_id:int>/artifacts")
     @json_api_view
-    def upload_artifact(trial_id: int) -> dict[str, Any]:
+    def upload_artifact_api(study_id: int) -> dict[str, Any]:
         if artifact_backend is None:
             response.status = 400  # Bad Request
             return {"reason": "Cannot access to the artifacts."}
         file = request.json.get("file")
-        if file is None:
+        trial_id = request.json.get("trial_id")
+        if file is None or trial_id is None:
             response.status = 400
             return {"reason": "Please specify the 'file' key."}
 
         _, data = parse_data_uri(file)
         filename = request.json.get("filename", "")
         artifact_id = str(uuid.uuid4())
-        with artifact_backend.open(artifact_id=artifact_id) as f:
-            f.write(data)
+        artifact_backend.write(artifact_id, io.BytesIO(data))
 
         mimetype, encoding = mimetypes.guess_type(filename)
         artifact = {
@@ -81,7 +86,7 @@ def register_artifact_route(
             "encoding": encoding,
         }
         attr_key = _artifact_prefix(trial_id=trial_id) + artifact_id
-        storage.set_study_system_attr(trial_id, attr_key, json.dumps(artifact))
+        storage.set_study_system_attr(study_id, attr_key, json.dumps(artifact))
         response.status = 201
         return artifact
 
@@ -124,6 +129,7 @@ def upload_artifact(
     filename = os.path.basename(file_path)
     storage = trial.storage
     trial_id = trial._trial_id
+    study_id = trial._study_id
     artifact_id = str(uuid.uuid4())
     guess_mimetype, guess_encoding = mimetypes.guess_type(filename)
     artifact: ArtifactMeta = {
@@ -133,7 +139,7 @@ def upload_artifact(
         "filename": filename,
     }
     attr_key = _artifact_prefix(trial_id=trial_id) + artifact_id
-    storage.set_study_system_attr(trial_id, attr_key, json.dumps(artifact))
+    storage.set_study_system_attr(study_id, attr_key, json.dumps(artifact))
 
     with open(file_path, "rb") as f:
         backend.write(artifact_id, f)
