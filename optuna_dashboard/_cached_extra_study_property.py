@@ -33,8 +33,8 @@ def get_cached_extra_study_property(
         cached_extra_study_property.update(trials)
         cached_extra_study_property_cache[study_id] = cached_extra_study_property
         return (
-            cached_extra_study_property.intersection,
-            cached_extra_study_property.union,
+            cached_extra_study_property.intersection_search_space,
+            cached_extra_study_property.union_search_space,
             cached_extra_study_property.union_user_attrs,
             cached_extra_study_property.has_intermediate_values,
         )
@@ -43,24 +43,22 @@ def get_cached_extra_study_property(
 class _CachedExtraStudyProperty:
     def __init__(self) -> None:
         self._cursor: int = -1
-        # TODO: intersection_search_space and union_search_space look more clear since now we have
-        # union_user_attrs.
-        self._intersection: Optional[SearchSpaceSetT] = None
-        self._union: SearchSpaceSetT = set()
+        self._intersection_search_space: Optional[SearchSpaceSetT] = None
+        self._union_search_space: SearchSpaceSetT = set()
         self._union_user_attrs: dict[str, bool] = {}  # attr_name: is_sortable (= is_number)
         self.has_intermediate_values: bool = False
 
     @property
-    def intersection(self) -> SearchSpaceListT:
-        if self._intersection is None:
+    def intersection_search_space(self) -> SearchSpaceListT:
+        if self._intersection_search_space is None:
             return []
-        intersection = list(self._intersection)
+        intersection = list(self._intersection_search_space)
         intersection.sort(key=lambda x: x[0])
         return intersection
 
     @property
-    def union(self) -> SearchSpaceListT:
-        union = list(self._union)
+    def union_search_space(self) -> SearchSpaceListT:
+        union = list(self._union_search_space)
         union.sort(key=lambda x: x[0])
         return union
 
@@ -105,9 +103,9 @@ class _CachedExtraStudyProperty:
 
     def _update_search_space(self, trial: FrozenTrial) -> None:
         current = set([(n, d) for n, d in trial.distributions.items()])
-        self._union = self._union.union(current)
+        self._union_search_space = self._union_search_space.union(current)
 
-        if self._intersection is None:
-            self._intersection = copy.copy(current)
+        if self._intersection_search_space is None:
+            self._intersection_search_space = copy.copy(current)
         else:
-            self._intersection = self._intersection.intersection(current)
+            self._intersection_search_space = self._intersection_search_space.intersection(current)
