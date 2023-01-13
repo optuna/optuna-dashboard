@@ -46,8 +46,8 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
         cached_extra_study_property = _CachedExtraStudyProperty()
         cached_extra_study_property.update(trials)
 
-        self.assertEqual(len(cached_extra_study_property.intersection), 2)
-        self.assertEqual(len(cached_extra_study_property.union), 2)
+        self.assertEqual(len(cached_extra_study_property.intersection_search_space), 2)
+        self.assertEqual(len(cached_extra_study_property.union_search_space), 2)
 
     def test_different_distributions(self) -> None:
         distributions: list[dict[str, BaseDistribution]] = [
@@ -77,8 +77,8 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
         cached_extra_study_property = _CachedExtraStudyProperty()
         cached_extra_study_property.update(trials)
 
-        self.assertEqual(len(cached_extra_study_property.intersection), 1)
-        self.assertEqual(len(cached_extra_study_property.union), 3)
+        self.assertEqual(len(cached_extra_study_property.intersection_search_space), 1)
+        self.assertEqual(len(cached_extra_study_property.union_search_space), 3)
 
     def test_dynamic_search_space(self) -> None:
         distributions: list[dict[str, BaseDistribution]] = [
@@ -115,8 +115,8 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
         cached_extra_study_property = _CachedExtraStudyProperty()
         cached_extra_study_property.update(trials)
 
-        self.assertEqual(len(cached_extra_study_property.intersection), 0)
-        self.assertEqual(len(cached_extra_study_property.union), 3)
+        self.assertEqual(len(cached_extra_study_property.intersection_search_space), 0)
+        self.assertEqual(len(cached_extra_study_property.union_search_space), 3)
 
     def test_contains_failed_trials(self) -> None:
         distributions: dict[str, BaseDistribution] = {
@@ -139,8 +139,8 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
         cached_extra_study_property = _CachedExtraStudyProperty()
         cached_extra_study_property.update(trials)
 
-        self.assertEqual(len(cached_extra_study_property.intersection), 2)
-        self.assertEqual(len(cached_extra_study_property.union), 2)
+        self.assertEqual(len(cached_extra_study_property.intersection_search_space), 2)
+        self.assertEqual(len(cached_extra_study_property.union_search_space), 2)
 
 
 class _CachedExtraStudyPropertyIntermediateTestCase(TestCase):
