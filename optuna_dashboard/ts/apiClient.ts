@@ -236,13 +236,24 @@ export const uploadArtifactAPI = (
   dataUrl: string
 ): Promise<Artifact> => {
   return axiosInstance
-    .post<Artifact>(`/api/studies/${studyId}/artifacts`, {
-      trial_id: trialId,
+    .post<Artifact>(`/api/artifacts/${studyId}/${trialId}`, {
       file: dataUrl,
       filename: fileName,
     })
     .then((res) => {
       return res.data
+    })
+}
+
+export const deleteArtifactAPI = (
+  studyId: number,
+  trialId: number,
+  artifactId: string
+): Promise<void> => {
+  return axiosInstance
+    .delete<void>(`/api/artifacts/${studyId}/${trialId}/${artifactId}`)
+    .then((res) => {
+      return
     })
 }
 

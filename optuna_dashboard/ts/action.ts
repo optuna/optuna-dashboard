@@ -11,6 +11,7 @@ import {
   renameStudyAPI,
   uploadArtifactAPI,
   getMetaInfoAPI,
+  deleteArtifactAPI,
 } from "./apiClient"
 import {
   graphVisibilityState,
@@ -326,6 +327,25 @@ export const actionCreator = () => {
     }
   }
 
+  const deleteArtifact = (
+    studyId: number,
+    trialId: number,
+    artifactId: string
+  ): void => {
+    deleteArtifactAPI(studyId, trialId, artifactId)
+      .then(() => {
+        enqueueSnackbar(`Success to delete an artifact.`, {
+          variant: "success",
+        })
+      })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(`Failed to delete ${reason}.`, {
+          variant: "error",
+        })
+      })
+  }
+
   return {
     updateAPIMeta,
     updateStudyDetail,
@@ -339,6 +359,7 @@ export const actionCreator = () => {
     saveStudyNote,
     saveTrialNote,
     uploadArtifact,
+    deleteArtifact,
   }
 }
 

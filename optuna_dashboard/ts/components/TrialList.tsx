@@ -31,6 +31,7 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import UploadFileIcon from "@mui/icons-material/UploadFile"
 import EditIcon from "@mui/icons-material/Edit"
 import DownloadIcon from "@mui/icons-material/Download"
+import DeleteIcon from "@mui/icons-material/Delete"
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 
 import { TrialNote } from "./Note"
@@ -355,6 +356,20 @@ const TrialListDetail: FC<{
                         {a.filename}
                       </Typography>
                       <Box sx={{ flexGrow: 1 }} />
+                      <IconButton
+                        aria-label="delete artifact"
+                        size="small"
+                        color="inherit"
+                        onClick={() => {
+                          action.deleteArtifact(
+                            trial.study_id,
+                            trial.trial_id,
+                            a.artifact_id
+                          )
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
                       <IconButton
                         aria-label="download artifact"
                         size="small"

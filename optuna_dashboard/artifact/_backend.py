@@ -61,15 +61,14 @@ def register_artifact_route(
             body = f.read()
         return body
 
-    @app.post("/api/studies/<study_id:int>/artifacts")
+    @app.post("/api/artifacts/<study_id:int>/<trial_id:int>")
     @json_api_view
-    def upload_artifact_api(study_id: int) -> dict[str, Any]:
+    def upload_artifact_api(study_id: int, trial_id: int) -> dict[str, Any]:
         if artifact_backend is None:
             response.status = 400  # Bad Request
             return {"reason": "Cannot access to the artifacts."}
         file = request.json.get("file")
-        trial_id = request.json.get("trial_id")
-        if file is None or trial_id is None:
+        if file is None:
             response.status = 400
             return {"reason": "Please specify the 'file' key."}
 
@@ -90,13 +89,16 @@ def register_artifact_route(
         response.status = 201
         return artifact
 
-    @app.delete("/api/artifacts/<artifact_id:re:[0-9a-fA-F-]+>")
+    @app.delete("/api/artifacts/<study_id:int>/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
     @json_api_view
-    def delete_artifact(artifact_id: str) -> dict[str, Any]:
+    def delete_artifact(study_id: int, trial_id: int, artifact_id: str) -> dict[str, Any]:
         if artifact_backend is None:
             response.status = 400  # Bad Request
             return {"reason": "Cannot access to the artifacts."}
         artifact_backend.remove(artifact_id)
+
+        attr_key = _artifact_prefix(trial_id) + artifact_id
+        storage.set_study_system_attr(study_id, attr_key, json.dumps(None))
         response.status = 204
         return {}
 
@@ -150,7 +152,9 @@ def _artifact_prefix(trial_id: int) -> str:
     return ARTIFACTS_ATTR_PREFIX + f"{trial_id}:"
 
 
-def _get_artifact_meta(storage: BaseStorage, study_id: int, trial_id: int, artifact_id: str) -> Optional[ArtifactMeta]:
+def _get_artifact_meta(
+    storage: BaseStorage, study_id: int, trial_id: int, artifact_id: str
+) -> Optional[ArtifactMeta]:
     study_system_attr = storage.get_study_system_attrs(study_id)
     attr_key = _artifact_prefix(trial_id=trial_id) + artifact_id
     artifact_meta = study_system_attr.get(attr_key)
@@ -170,8 +174,9 @@ def delete_all_artifacts(backend: ArtifactBackend, study_system_attrs: dict[str,
 
 
 def list_trial_artifacts(study_system_attrs: dict[str, Any], trial_id: int) -> list[ArtifactMeta]:
-    return [
+    artifact_metas = [
         json.loads(value)
         for key, value in study_system_attrs.items()
         if key.startswith(_artifact_prefix(trial_id))
     ]
+    return [a for a in artifact_metas if a is not None]
