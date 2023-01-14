@@ -53,6 +53,9 @@ def register_artifact_route(
             response.status = 400  # Bad Request
             return b"Cannot access to the artifacts."
         artifact_dict = _get_artifact_meta(storage, study_id, trial_id, artifact_id)
+        if artifact_dict is None:
+            response.status = 404
+            return b"Not Found"
         response.set_header("Content-Type", artifact_dict["mimetype"])
         if artifact_dict.get("encoding"):
             response.set_header("Content-Encodings", artifact_dict.get("encoding"))
