@@ -20,6 +20,8 @@ import ListSubheader from "@mui/material/ListSubheader"
 import FilterListIcon from "@mui/icons-material/FilterList"
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import EditIcon from '@mui/icons-material/Edit';
 
 import { TrialNote } from "./Note"
 import { useHistory, useLocation } from "react-router-dom"
@@ -125,10 +127,9 @@ const useIsBestTrial = (
 }
 
 const TrialListDetail: FC<{
-  studyId: number
   trial: Trial
   isBestTrial: (trialId: number) => boolean
-}> = ({ studyId, trial, isBestTrial }) => {
+}> = ({ trial, isBestTrial }) => {
   const theme = useTheme()
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
   const startMs = trial.datetime_start?.getTime()
@@ -251,12 +252,36 @@ const TrialListDetail: FC<{
       >
         {info.map(([key, value]) => renderInfo(key, value))}
       </Box>
-      <TrialNote
-        studyId={trial.study_id}
-        trialId={trial.trial_id}
-        latestNote={trial.note}
-        cardSx={{ marginBottom: theme.spacing(2) }}
-      />
+      <Typography
+          variant="h5"
+          sx={{ fontWeight: theme.typography.fontWeightBold, marginBottom: theme.spacing(1) }}
+      >
+        Note
+      </Typography>
+      { trial.note.body === "" ? (
+          <Card sx={{
+            marginBottom: theme.spacing(2),
+          }}>
+            <CardContent sx={{
+              display: "flex",
+              height: "100%",
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+              cursor: "pointer",
+            }}>
+              <EditIcon sx={{ fontSize: 40, marginRight: theme.spacing(2) }} />
+              <Typography>Write a Note</Typography>
+            </CardContent>
+          </Card>
+      ) : (
+          <TrialNote
+              studyId={trial.study_id}
+              trialId={trial.trial_id}
+              latestNote={trial.note}
+              cardSx={{ marginBottom: theme.spacing(2) }}
+          />
+      )}
       {artifactEnabled && (
         <>
           <Typography
@@ -281,7 +306,7 @@ const TrialListDetail: FC<{
                     <CardMedia
                       component="img"
                       height="210"
-                      image={`/artifacts/${studyId}/${trial.trial_id}/${a.artifact_id}`}
+                      image={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
                       alt={a.filename}
                     />
                     <CardContent>
@@ -310,8 +335,16 @@ const TrialListDetail: FC<{
               margin: theme.spacing(0, 1, 1, 0),
               border: `1px dashed ${"white"}`
             }}>
-              <CardContent>
-                <Typography>Upload a new artifact</Typography>
+              <CardContent sx={{
+                display: "flex",
+                height: "100%",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                cursor: "pointer",
+              }}>
+                <UploadFileIcon sx={{ fontSize: 80, marginBottom: theme.spacing(2) }} />
+                <Typography>Upload a New Artifact</Typography>
               </CardContent>
             </Card>
           </Box>
@@ -507,12 +540,11 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
         }}
       >
         <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
-          {studyDetail === null || showDetailTrials.length === 0
+          {showDetailTrials.length === 0
             ? null
             : showDetailTrials.map((t) => (
                 <TrialListDetail
                   key={t.trial_id}
-                  studyId={studyDetail.id}
                   trial={t}
                   isBestTrial={isBestTrial}
                 />
