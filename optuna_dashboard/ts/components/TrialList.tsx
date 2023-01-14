@@ -20,8 +20,8 @@ import ListSubheader from "@mui/material/ListSubheader"
 import FilterListIcon from "@mui/icons-material/FilterList"
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
-import UploadFileIcon from '@mui/icons-material/UploadFile';
-import EditIcon from '@mui/icons-material/Edit';
+import UploadFileIcon from "@mui/icons-material/UploadFile"
+import EditIcon from "@mui/icons-material/Edit"
 
 import { TrialNote } from "./Note"
 import { useHistory, useLocation } from "react-router-dom"
@@ -253,34 +253,41 @@ const TrialListDetail: FC<{
         {info.map(([key, value]) => renderInfo(key, value))}
       </Box>
       <Typography
-          variant="h5"
-          sx={{ fontWeight: theme.typography.fontWeightBold, marginBottom: theme.spacing(1) }}
+        variant="h5"
+        sx={{
+          fontWeight: theme.typography.fontWeightBold,
+          marginBottom: theme.spacing(1),
+        }}
       >
         Note
       </Typography>
-      { trial.note.body === "" ? (
-          <Card sx={{
+      {trial.note.body === "" ? (
+        <Card
+          sx={{
             marginBottom: theme.spacing(2),
-          }}>
-            <CardContent sx={{
+          }}
+        >
+          <CardContent
+            sx={{
               display: "flex",
               height: "100%",
               flexDirection: "row",
               justifyContent: "center",
               alignItems: "center",
               cursor: "pointer",
-            }}>
-              <EditIcon sx={{ fontSize: 40, marginRight: theme.spacing(2) }} />
-              <Typography>Write a Note</Typography>
-            </CardContent>
-          </Card>
+            }}
+          >
+            <EditIcon sx={{ fontSize: 40, marginRight: theme.spacing(2) }} />
+            <Typography>Write a Note</Typography>
+          </CardContent>
+        </Card>
       ) : (
-          <TrialNote
-              studyId={trial.study_id}
-              trialId={trial.trial_id}
-              latestNote={trial.note}
-              cardSx={{ marginBottom: theme.spacing(2) }}
-          />
+        <TrialNote
+          studyId={trial.study_id}
+          trialId={trial.trial_id}
+          latestNote={trial.note}
+          cardSx={{ marginBottom: theme.spacing(2) }}
+        />
       )}
       {artifactEnabled && (
         <>
@@ -297,6 +304,7 @@ const TrialListDetail: FC<{
               if (a.mimetype.startsWith("image")) {
                 return (
                   <Card
+                    key={a.artifact_id}
                     sx={{
                       marginBottom: theme.spacing(2),
                       width: "280px",
@@ -316,11 +324,14 @@ const TrialListDetail: FC<{
                 )
               } else {
                 return (
-                  <Card sx={{
-                    marginBottom: theme.spacing(2),
-                    width: "280px",
-                    margin: theme.spacing(0, 1, 1, 0),
-                  }}>
+                  <Card
+                    key={a.artifact_id}
+                    sx={{
+                      marginBottom: theme.spacing(2),
+                      width: "280px",
+                      margin: theme.spacing(0, 1, 1, 0),
+                    }}
+                  >
                     <CardContent>
                       <Typography>{a.filename}</Typography>
                     </CardContent>
@@ -328,23 +339,29 @@ const TrialListDetail: FC<{
                 )
               }
             })}
-            <Card sx={{
-              marginBottom: theme.spacing(2),
-              width: "280px",
-              minHeight: "210px",
-              margin: theme.spacing(0, 1, 1, 0),
-              border: `1px dashed ${"white"}`
-            }}>
-              <CardContent sx={{
-                display: "flex",
-                height: "100%",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                cursor: "pointer",
-              }}>
-                <UploadFileIcon sx={{ fontSize: 80, marginBottom: theme.spacing(2) }} />
-                <Typography>Upload a New Artifact</Typography>
+            <Card
+              sx={{
+                marginBottom: theme.spacing(2),
+                width: "280px",
+                minHeight: "210px",
+                margin: theme.spacing(0, 1, 1, 0),
+                border: `1px dashed ${"white"}`,
+              }}
+            >
+              <CardContent
+                sx={{
+                  display: "flex",
+                  height: "100%",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  cursor: "pointer",
+                }}
+              >
+                <UploadFileIcon
+                  sx={{ fontSize: 80, marginBottom: theme.spacing(2) }}
+                />
+                <Typography>Upload a New File</Typography>
               </CardContent>
             </Card>
           </Box>

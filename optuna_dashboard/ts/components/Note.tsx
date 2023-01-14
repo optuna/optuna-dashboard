@@ -165,7 +165,10 @@ const MarkdownRenderer: FC<{ body: string }> = ({ body }) => (
     children={body}
     remarkPlugins={[remarkGfm, remarkMath]}
     rehypePlugins={[rehypeMathjax]}
-    components={{ code: CodeBlock }}
+    components={{
+      code: CodeBlock,
+      img: (props) => <img {...props} style={{ maxWidth: "100%" }} />,
+    }}
   />
 )
 
@@ -236,6 +239,18 @@ const MarkdownEditorModal: FC<{
     textAreaRef.current.value = latestNote.body
     setCurNote(latestNote)
     window.onbeforeunload = null
+  }
+
+  const insertTextFromCursorPoint = (text: string) => {
+    if (textAreaRef.current === null) {
+      return
+    }
+    const cursorPosition = textAreaRef.current.selectionStart
+    const currentBody = textAreaRef.current.value
+    textAreaRef.current.value =
+      currentBody.substring(0, cursorPosition) +
+      text +
+      currentBody.substring(cursorPosition, currentBody.length)
   }
 
   // See https://github.com/iamhosseindhv/notistack/issues/231#issuecomment-825924840
@@ -319,7 +334,11 @@ const MarkdownEditorModal: FC<{
           }}
         />
         {artifactEnabled && trialId !== undefined && (
-          <ArtifactUploader studyId={studyId} trialId={trialId} />
+          <ArtifactUploader
+            studyId={studyId}
+            trialId={trialId}
+            insert={insertTextFromCursorPoint}
+          />
         )}
       </Box>
       <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
@@ -380,13 +399,15 @@ const MarkdownEditorModal: FC<{
 const ArtifactUploader: FC<{
   studyId: number
   trialId: number
-}> = ({ studyId, trialId }) => {
+  insert: (text: string) => void
+}> = ({ studyId, trialId, insert }) => {
   const theme = useTheme()
   const action = actionCreator()
 
   const uploading = useRecoilValue<boolean>(isFileUploading)
   const artifacts = useArtifacts(studyId, trialId)
   const [dragOver, setDragOver] = useState<boolean>(false)
+  const [selected, setSelected] = useState<number>(-1)
 
   const handleDrop: DragEventHandler = (e) => {
     e.stopPropagation()
@@ -428,7 +449,7 @@ const ArtifactUploader: FC<{
           margin: theme.spacing(1, 0),
         }}
       >
-        Artifact
+        Image
       </Typography>
       <LoadingButton
         loading={uploading}
@@ -440,17 +461,30 @@ const ArtifactUploader: FC<{
       </LoadingButton>
       <Box
         sx={{
-          border: dragOver ? `2px dashed #ffffff` : `1px solid #fff`,
+          border: dragOver
+            ? `2px dashed #ffffff`
+            : `1px solid ${theme.palette.divider}`,
           height: "100%",
           margin: theme.spacing(1, 0),
           borderRadius: "4px",
         }}
       >
-        <ImageList cols={1}>
+        <ImageList cols={1} sx={{ margin: 0 }}>
           {artifacts
             .filter((a) => a.mimetype.startsWith("image"))
-            .map((a) => (
-              <ImageListItem key={a.artifact_id}>
+            .map((a, i) => (
+              <ImageListItem
+                key={a.artifact_id}
+                onClick={(e) => {
+                  setSelected(i)
+                }}
+                sx={{
+                  border:
+                    selected === i
+                      ? `2px solid ${theme.palette.primary.main}`
+                      : "none",
+                }}
+              >
                 <img
                   src={`/artifacts/${studyId}/${trialId}/${a.artifact_id}`}
                 />
@@ -459,7 +493,22 @@ const ArtifactUploader: FC<{
             ))}
         </ImageList>
       </Box>
-      <Button variant="outlined">Insert an image</Button>
+      <Button
+        variant="outlined"
+        disabled={selected === -1}
+        onClick={(e) => {
+          if (selected === -1 || artifacts.length <= selected) {
+            return
+          }
+          const artifact = artifacts[selected]
+          insert(
+            `![${artifact.filename}](/artifacts/${studyId}/${trialId}/${artifact.artifact_id})`
+          )
+          setSelected(-1)
+        }}
+      >
+        Insert an image
+      </Button>
     </Box>
   )
 }
