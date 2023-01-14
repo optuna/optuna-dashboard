@@ -10,6 +10,7 @@ import {
   saveTrialNoteAPI,
   renameStudyAPI,
   uploadArtifactAPI,
+  getMetaInfoAPI,
 } from "./apiClient"
 import {
   graphVisibilityState,
@@ -17,6 +18,7 @@ import {
   studySummariesState,
   paramImportanceState,
   isFileUploading,
+  artifactIsAvailable,
 } from "./state"
 
 const localStorageGraphVisibility = "graphVisibility"
@@ -32,6 +34,7 @@ export const actionCreator = () => {
   const [paramImportance, setParamImportance] =
     useRecoilState<StudyParamImportance>(paramImportanceState)
   const setUploading = useSetRecoilState<boolean>(isFileUploading)
+  const setArtifactIsAvailable = useSetRecoilState<boolean>(artifactIsAvailable)
 
   const setStudyDetailState = (studyId: number, study: StudyDetail) => {
     const newVal = Object.assign({}, studyDetails)
@@ -59,6 +62,12 @@ export const actionCreator = () => {
     const newVal = Object.assign({}, paramImportance)
     newVal[studyId] = importance
     setParamImportance(newVal)
+  }
+
+  const updateAPIMeta = () => {
+    getMetaInfoAPI().then((r) => {
+      setArtifactIsAvailable(r.artifact_is_available)
+    })
   }
 
   const updateStudySummaries = (successMsg?: string) => {
@@ -296,6 +305,7 @@ export const actionCreator = () => {
   }
 
   return {
+    updateAPIMeta,
     updateStudyDetail,
     updateStudySummaries,
     updateParamImportance,

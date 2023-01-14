@@ -2,6 +2,16 @@ import axios from "axios"
 
 const axiosInstance = axios.create({ baseURL: API_ENDPOINT })
 
+type APIMeta = {
+  artifact_is_available: boolean
+}
+
+export const getMetaInfoAPI = (): Promise<APIMeta> => {
+  return axiosInstance
+    .get<APIMeta>(`/api/meta`)
+    .then<APIMeta>((res) => res.data)
+}
+
 interface TrialResponse {
   trial_id: number
   study_id: number

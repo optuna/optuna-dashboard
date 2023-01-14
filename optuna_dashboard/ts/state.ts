@@ -44,6 +44,11 @@ export const isFileUploading = atom<boolean>({
   default: false,
 })
 
+export const artifactIsAvailable = atom<boolean>({
+  key: "artifactIsAvailable",
+  default: false,
+})
+
 export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
   return studyDetails[studyId] || null

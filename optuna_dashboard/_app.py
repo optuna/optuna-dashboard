@@ -227,6 +227,13 @@ def create_app(
             rdb_schema_needs_migrate = False
         return redirect("/dashboard", 302)
 
+    @app.get("/api/meta")
+    @json_api_view
+    def api_meta() -> dict[str, Any]:
+        return {
+            "artifact_is_available": artifact_backend is not None,
+        }
+
     @app.get("/api/studies")
     @json_api_view
     def list_study_summaries() -> dict[str, Any]:
