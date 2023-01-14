@@ -9,6 +9,7 @@ import {
   Card,
   CardContent,
   CardMedia,
+  CardActions,
 } from "@mui/material"
 import Chip from "@mui/material/Chip"
 import Divider from "@mui/material/Divider"
@@ -22,6 +23,8 @@ import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import UploadFileIcon from "@mui/icons-material/UploadFile"
 import EditIcon from "@mui/icons-material/Edit"
+import DownloadIcon from "@mui/icons-material/Download"
+import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 
 import { TrialNote } from "./Note"
 import { useHistory, useLocation } from "react-router-dom"
@@ -317,8 +320,26 @@ const TrialListDetail: FC<{
                       image={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
                       alt={a.filename}
                     />
-                    <CardContent>
-                      <Typography>{a.filename}</Typography>
+                    <CardContent
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        padding: `${theme.spacing(1)} !important`,
+                      }}
+                    >
+                      <Typography sx={{ p: theme.spacing(0.5, 0) }}>
+                        {a.filename}
+                      </Typography>
+                      <Box sx={{ flexGrow: 1 }} />
+                      <IconButton
+                        aria-label="download artifact"
+                        size="small"
+                        color="inherit"
+                        download={a.filename}
+                        href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                      >
+                        <DownloadIcon />
+                      </IconButton>
                     </CardContent>
                   </Card>
                 )
@@ -328,12 +349,43 @@ const TrialListDetail: FC<{
                     key={a.artifact_id}
                     sx={{
                       marginBottom: theme.spacing(2),
+                      display: "flex",
+                      flexDirection: "column",
                       width: "280px",
+                      minHeight: "100%",
                       margin: theme.spacing(0, 1, 1, 0),
                     }}
                   >
-                    <CardContent>
-                      <Typography>{a.filename}</Typography>
+                    <Box
+                      sx={{
+                        flexGrow: 1,
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <InsertDriveFileIcon sx={{ fontSize: 80 }} />
+                    </Box>
+                    <CardContent
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        padding: `${theme.spacing(1)} !important`,
+                      }}
+                    >
+                      <Typography sx={{ p: theme.spacing(0.5, 0) }}>
+                        {a.filename}
+                      </Typography>
+                      <Box sx={{ flexGrow: 1 }} />
+                      <IconButton
+                        aria-label="download artifact"
+                        size="small"
+                        color="inherit"
+                        download={a.filename}
+                        href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                      >
+                        <DownloadIcon />
+                      </IconButton>
                     </CardContent>
                   </Card>
                 )
