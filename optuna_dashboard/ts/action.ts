@@ -60,7 +60,20 @@ export const actionCreator = () => {
     setTrial(studyId, index, newTrial)
   }
 
-  const appendTrialArtifacts = (
+  const setTrialArtifacts = (
+    studyId: number,
+    trialIndex: number,
+    artifacts: Artifact[]
+  ) => {
+    const newTrial: Trial = Object.assign(
+      {},
+      studyDetails[studyId].trials[trialIndex]
+    )
+    newTrial.artifacts = artifacts
+    setTrial(studyId, trialIndex, newTrial)
+  }
+
+  const appendTrialArtifact = (
     studyId: number,
     trialId: number,
     artifact: Artifact
@@ -71,12 +84,30 @@ export const actionCreator = () => {
     if (index === -1) {
       return
     }
-    const newTrial: Trial = Object.assign(
-      {},
-      studyDetails[studyId].trials[index]
+    const artifacts = studyDetails[studyId].trials[index].artifacts
+    setTrialArtifacts(studyId, index, [...artifacts, artifact])
+  }
+
+  const deleteTrialArtifact = (
+    studyId: number,
+    trialId: number,
+    artifact_id: string
+  ) => {
+    const index = studyDetails[studyId].trials.findIndex(
+      (t) => t.trial_id === trialId
     )
-    newTrial.artifacts = [...newTrial.artifacts, artifact]
-    setTrial(studyId, index, newTrial)
+    if (index === -1) {
+      return
+    }
+    const artifacts = studyDetails[studyId].trials[index].artifacts
+    const artifactIndex = artifacts.findIndex(
+      (a) => a.artifact_id === artifact_id
+    )
+    const newArtifacts = [
+      ...artifacts.slice(0, artifactIndex),
+      ...artifacts.slice(artifactIndex + 1, artifacts.length),
+    ]
+    setTrialArtifacts(studyId, index, newArtifacts)
   }
 
   const setStudyParamImportanceState = (
@@ -313,7 +344,7 @@ export const actionCreator = () => {
       uploadArtifactAPI(studyId, trialId, file.name, upload.target.result)
         .then((artifact) => {
           setUploading(false)
-          appendTrialArtifacts(studyId, trialId, artifact)
+          appendTrialArtifact(studyId, trialId, artifact)
         })
         .catch((err) => {
           setUploading(false)
@@ -334,6 +365,7 @@ export const actionCreator = () => {
   ): void => {
     deleteArtifactAPI(studyId, trialId, artifactId)
       .then(() => {
+        deleteTrialArtifact(studyId, trialId, artifactId)
         enqueueSnackbar(`Success to delete an artifact.`, {
           variant: "success",
         })

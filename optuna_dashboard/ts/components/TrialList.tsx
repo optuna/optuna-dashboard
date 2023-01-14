@@ -40,6 +40,7 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import { useRecoilValue } from "recoil"
 import { artifactIsAvailable } from "../state"
 import { actionCreator } from "../action"
+import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
 
 const states: TrialState[] = [
   "Complete",
@@ -147,6 +148,8 @@ const TrialListDetail: FC<{
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
+  const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
+    useDeleteArtifactDialog()
   let duration = ""
   if (startMs !== undefined && completeMs !== undefined) {
     duration = (completeMs - startMs).toString()
@@ -361,10 +364,10 @@ const TrialListDetail: FC<{
                         size="small"
                         color="inherit"
                         onClick={() => {
-                          action.deleteArtifact(
+                          openDeleteArtifactDialog(
                             trial.study_id,
                             trial.trial_id,
-                            a.artifact_id
+                            a
                           )
                         }}
                       >
@@ -470,6 +473,7 @@ const TrialListDetail: FC<{
           </Box>
         </>
       )}
+      {renderDeleteArtifactDialog()}
     </Box>
   )
 }
