@@ -1,10 +1,12 @@
 import React, {
   ChangeEventHandler,
+  DragEventHandler,
   FC,
   MouseEventHandler,
   ReactNode,
   useMemo,
   useRef,
+  useState,
 } from "react"
 import {
   Typography,
@@ -312,6 +314,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
   const action = actionCreator()
   const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
     useDeleteArtifactDialog()
+  const [dragOver, setDragOver] = useState<boolean>(false)
 
   const inputRef = useRef<HTMLInputElement>(null)
   const handleClick: MouseEventHandler = (e) => {
@@ -326,6 +329,25 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
       return
     }
     action.uploadArtifact(trial.study_id, trial.trial_id, files[0])
+  }
+  const handleDrop: DragEventHandler = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    const file = e.dataTransfer.files[0]
+    setDragOver(false)
+    action.uploadArtifact(trial.study_id, trial.trial_id, file)
+  }
+  const handleDragOver: DragEventHandler = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "copy"
+    setDragOver(true)
+  }
+  const handleDragLeave: DragEventHandler = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "copy"
+    setDragOver(false)
   }
   return (
     <>
@@ -444,8 +466,15 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
             width: "280px",
             minHeight: "210px",
             margin: theme.spacing(0, 1, 1, 0),
-            border: `1px dashed ${"white"}`,
+            border: dragOver
+              ? `3px dashed ${
+                  theme.palette.mode === "dark" ? "white" : "black"
+                }`
+              : `1px solid ${theme.palette.divider}`,
           }}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
         >
           <CardActionArea
             onClick={handleClick}
