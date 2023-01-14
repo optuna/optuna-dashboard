@@ -296,7 +296,7 @@ const MarkdownEditorModal: FC<{
       />
       <Box
         sx={{
-          height: "100%",
+          flexGrow: 1,
           padding: theme.spacing(2),
           display: preview ? "default" : "none",
           overflow: "scroll",
@@ -307,7 +307,7 @@ const MarkdownEditorModal: FC<{
       <Box
         sx={{
           width: "100%",
-          height: "100%",
+          flexGrow: 1,
           display: preview ? "none" : "flex",
           flexDirection: "row",
           margin: theme.spacing(1, 0),
@@ -487,11 +487,13 @@ const ArtifactUploader: FC<{
       <Box
         sx={{
           border: dragOver
-            ? `2px dashed #ffffff`
+            ? `3px dashed ${theme.palette.mode === "dark" ? "white" : "black"}`
             : `1px solid ${theme.palette.divider}`,
-          height: "100%",
           margin: theme.spacing(1, 0),
           borderRadius: "4px",
+          flexGrow: 1,
+            flexBasis: 0,
+          overflow: "scroll",
         }}
       >
         <ImageList cols={1} sx={{ margin: 0 }}>
@@ -501,7 +503,11 @@ const ArtifactUploader: FC<{
               <ImageListItem
                 key={a.artifact_id}
                 onClick={(e) => {
-                  setSelected(i)
+                  if (selected === i) {
+                    setSelected(-1)
+                  } else {
+                    setSelected(i)
+                  }
                 }}
                 sx={{
                   border:
@@ -527,7 +533,7 @@ const ArtifactUploader: FC<{
           }
           const artifact = artifacts[selected]
           insert(
-            `![${artifact.filename}](/artifacts/${studyId}/${trialId}/${artifact.artifact_id})`
+            `![${artifact.filename}](/artifacts/${studyId}/${trialId}/${artifact.artifact_id})\n`
           )
           setSelected(-1)
         }}
