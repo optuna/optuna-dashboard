@@ -1,4 +1,11 @@
-import React, { FC, ReactNode, useMemo } from "react"
+import React, {
+  ChangeEventHandler,
+  FC,
+  MouseEventHandler,
+  ReactNode,
+  useMemo,
+  useRef,
+} from "react"
 import {
   Typography,
   Box,
@@ -9,7 +16,7 @@ import {
   Card,
   CardContent,
   CardMedia,
-  CardActions,
+  CardActionArea,
 } from "@mui/material"
 import Chip from "@mui/material/Chip"
 import Divider from "@mui/material/Divider"
@@ -24,13 +31,14 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import UploadFileIcon from "@mui/icons-material/UploadFile"
 import EditIcon from "@mui/icons-material/Edit"
 import DownloadIcon from "@mui/icons-material/Download"
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 
 import { TrialNote } from "./Note"
 import { useHistory, useLocation } from "react-router-dom"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useRecoilValue } from "recoil"
 import { artifactIsAvailable } from "../state"
+import { actionCreator } from "../action"
 
 const states: TrialState[] = [
   "Complete",
@@ -134,6 +142,7 @@ const TrialListDetail: FC<{
   isBestTrial: (trialId: number) => boolean
 }> = ({ trial, isBestTrial }) => {
   const theme = useTheme()
+  const action = actionCreator()
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
@@ -223,6 +232,21 @@ const TrialListDetail: FC<{
       </Box>
     </Box>
   )
+
+  const inputRef = useRef<HTMLInputElement>(null)
+  const handleClick: MouseEventHandler = (e) => {
+    if (!inputRef || !inputRef.current) {
+      return
+    }
+    inputRef.current.click()
+  }
+  const handleOnChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const files = e.target.files
+    if (files === null) {
+      return
+    }
+    action.uploadArtifact(trial.study_id, trial.trial_id, files[0])
+  }
 
   return (
     <Box sx={{ width: "100%", padding: theme.spacing(2, 2, 0, 2) }}>
@@ -400,21 +424,33 @@ const TrialListDetail: FC<{
                 border: `1px dashed ${"white"}`,
               }}
             >
-              <CardContent
+              <CardActionArea
+                onClick={handleClick}
                 sx={{
-                  display: "flex",
                   height: "100%",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  cursor: "pointer",
                 }}
               >
-                <UploadFileIcon
-                  sx={{ fontSize: 80, marginBottom: theme.spacing(2) }}
-                />
-                <Typography>Upload a New File</Typography>
-              </CardContent>
+                <CardContent
+                  sx={{
+                    display: "flex",
+                    height: "100%",
+                    flexDirection: "column",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <UploadFileIcon
+                    sx={{ fontSize: 80, marginBottom: theme.spacing(2) }}
+                  />
+                  <input
+                    type="file"
+                    ref={inputRef}
+                    onChange={handleOnChange}
+                    style={{ display: "none" }}
+                  />
+                  <Typography>Upload a New File</Typography>
+                </CardContent>
+              </CardActionArea>
             </Card>
           </Box>
         </>

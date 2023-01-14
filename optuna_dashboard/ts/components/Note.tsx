@@ -24,6 +24,9 @@ import React, {
   useState,
   useEffect,
   DragEventHandler,
+  useRef,
+  MouseEventHandler,
+  ChangeEventHandler,
 } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -409,6 +412,21 @@ const ArtifactUploader: FC<{
   const [dragOver, setDragOver] = useState<boolean>(false)
   const [selected, setSelected] = useState<number>(-1)
 
+  const inputRef = useRef<HTMLInputElement>(null)
+  const handleClick: MouseEventHandler = (e) => {
+    if (!inputRef || !inputRef.current) {
+      return
+    }
+    inputRef.current.click()
+  }
+  const handleOnChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const files = e.target.files
+    if (files === null) {
+      return
+    }
+    action.uploadArtifact(studyId, trialId, files[0])
+  }
+
   const handleDrop: DragEventHandler = (e) => {
     e.stopPropagation()
     e.preventDefault()
@@ -455,10 +473,17 @@ const ArtifactUploader: FC<{
         loading={uploading}
         loadingPosition="start"
         startIcon={<UploadFileIcon />}
+        onClick={handleClick}
         variant="outlined"
       >
         Upload
       </LoadingButton>
+      <input
+        type="file"
+        ref={inputRef}
+        onChange={handleOnChange}
+        style={{ display: "none" }}
+      />
       <Box
         sx={{
           border: dragOver
