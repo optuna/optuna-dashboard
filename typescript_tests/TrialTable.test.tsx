@@ -46,6 +46,7 @@ const trials: Trial[] = [
       body: "",
       version: 0,
     },
+    artifacts: [],
   },
   {
     trial_id: 2,
@@ -79,6 +80,7 @@ const trials: Trial[] = [
       body: "",
       version: 0,
     },
+    artifacts: [],
   },
 ]
 
