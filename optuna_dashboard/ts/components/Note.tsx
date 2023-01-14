@@ -492,7 +492,7 @@ const ArtifactUploader: FC<{
           margin: theme.spacing(1, 0),
           borderRadius: "4px",
           flexGrow: 1,
-            flexBasis: 0,
+          flexBasis: 0,
           overflow: "scroll",
         }}
       >
