@@ -254,6 +254,7 @@ const MarkdownEditorModal: FC<{
       currentBody.substring(0, cursorPosition) +
       text +
       currentBody.substring(cursorPosition, currentBody.length)
+    setEdited(true)
   }
 
   // See https://github.com/iamhosseindhv/notistack/issues/231#issuecomment-825924840
