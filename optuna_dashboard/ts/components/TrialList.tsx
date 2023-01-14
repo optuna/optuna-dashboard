@@ -144,12 +144,9 @@ const TrialListDetail: FC<{
   isBestTrial: (trialId: number) => boolean
 }> = ({ trial, isBestTrial }) => {
   const theme = useTheme()
-  const action = actionCreator()
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
-  const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
-    useDeleteArtifactDialog()
   let duration = ""
   if (startMs !== undefined && completeMs !== undefined) {
     duration = (completeMs - startMs).toString()
@@ -237,21 +234,6 @@ const TrialListDetail: FC<{
     </Box>
   )
 
-  const inputRef = useRef<HTMLInputElement>(null)
-  const handleClick: MouseEventHandler = (e) => {
-    if (!inputRef || !inputRef.current) {
-      return
-    }
-    inputRef.current.click()
-  }
-  const handleOnChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const files = e.target.files
-    if (files === null) {
-      return
-    }
-    action.uploadArtifact(trial.study_id, trial.trial_id, files[0])
-  }
-
   return (
     <Box sx={{ width: "100%", padding: theme.spacing(2, 2, 0, 2) }}>
       <Typography
@@ -320,161 +302,187 @@ const TrialListDetail: FC<{
           cardSx={{ marginBottom: theme.spacing(2) }}
         />
       )}
-      {artifactEnabled && (
-        <>
-          <Typography
-            variant="h5"
-            sx={{ fontWeight: theme.typography.fontWeightBold }}
-          >
-            Artifacts
-          </Typography>
-          <Box
-            sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}
-          >
-            {trial.artifacts.map((a) => {
-              if (a.mimetype.startsWith("image")) {
-                return (
-                  <Card
-                    key={a.artifact_id}
-                    sx={{
-                      marginBottom: theme.spacing(2),
-                      width: "280px",
-                      margin: theme.spacing(0, 1, 1, 0),
-                    }}
-                  >
-                    <CardMedia
-                      component="img"
-                      height="210"
-                      image={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
-                      alt={a.filename}
-                    />
-                    <CardContent
-                      sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        padding: `${theme.spacing(1)} !important`,
-                      }}
-                    >
-                      <Typography sx={{ p: theme.spacing(0.5, 0) }}>
-                        {a.filename}
-                      </Typography>
-                      <Box sx={{ flexGrow: 1 }} />
-                      <IconButton
-                        aria-label="delete artifact"
-                        size="small"
-                        color="inherit"
-                        onClick={() => {
-                          openDeleteArtifactDialog(
-                            trial.study_id,
-                            trial.trial_id,
-                            a
-                          )
-                        }}
-                      >
-                        <DeleteIcon />
-                      </IconButton>
-                      <IconButton
-                        aria-label="download artifact"
-                        size="small"
-                        color="inherit"
-                        download={a.filename}
-                        href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
-                      >
-                        <DownloadIcon />
-                      </IconButton>
-                    </CardContent>
-                  </Card>
-                )
-              } else {
-                return (
-                  <Card
-                    key={a.artifact_id}
-                    sx={{
-                      marginBottom: theme.spacing(2),
-                      display: "flex",
-                      flexDirection: "column",
-                      width: "280px",
-                      minHeight: "100%",
-                      margin: theme.spacing(0, 1, 1, 0),
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        flexGrow: 1,
-                        display: "flex",
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      <InsertDriveFileIcon sx={{ fontSize: 80 }} />
-                    </Box>
-                    <CardContent
-                      sx={{
-                        display: "flex",
-                        flexDirection: "row",
-                        padding: `${theme.spacing(1)} !important`,
-                      }}
-                    >
-                      <Typography sx={{ p: theme.spacing(0.5, 0) }}>
-                        {a.filename}
-                      </Typography>
-                      <Box sx={{ flexGrow: 1 }} />
-                      <IconButton
-                        aria-label="download artifact"
-                        size="small"
-                        color="inherit"
-                        download={a.filename}
-                        href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
-                      >
-                        <DownloadIcon />
-                      </IconButton>
-                    </CardContent>
-                  </Card>
-                )
-              }
-            })}
-            <Card
-              sx={{
-                marginBottom: theme.spacing(2),
-                width: "280px",
-                minHeight: "210px",
-                margin: theme.spacing(0, 1, 1, 0),
-                border: `1px dashed ${"white"}`,
-              }}
-            >
-              <CardActionArea
-                onClick={handleClick}
+      {artifactEnabled && <TrialArtifact trial={trial} />}
+    </Box>
+  )
+}
+
+const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
+  const theme = useTheme()
+  const action = actionCreator()
+  const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
+    useDeleteArtifactDialog()
+
+  const inputRef = useRef<HTMLInputElement>(null)
+  const handleClick: MouseEventHandler = (e) => {
+    if (!inputRef || !inputRef.current) {
+      return
+    }
+    inputRef.current.click()
+  }
+  const handleOnChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const files = e.target.files
+    if (files === null) {
+      return
+    }
+    action.uploadArtifact(trial.study_id, trial.trial_id, files[0])
+  }
+  return (
+    <>
+      <Typography
+        variant="h5"
+        sx={{ fontWeight: theme.typography.fontWeightBold }}
+      >
+        Artifacts
+      </Typography>
+      <Box sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}>
+        {trial.artifacts.map((a) => {
+          if (a.mimetype.startsWith("image")) {
+            return (
+              <Card
+                key={a.artifact_id}
                 sx={{
-                  height: "100%",
+                  marginBottom: theme.spacing(2),
+                  width: "280px",
+                  margin: theme.spacing(0, 1, 1, 0),
                 }}
               >
+                <CardMedia
+                  component="img"
+                  height="210"
+                  image={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                  alt={a.filename}
+                />
                 <CardContent
                   sx={{
                     display: "flex",
-                    height: "100%",
-                    flexDirection: "column",
+                    flexDirection: "row",
+                    padding: `${theme.spacing(1)} !important`,
+                  }}
+                >
+                  <Typography sx={{ p: theme.spacing(0.5, 0) }}>
+                    {a.filename}
+                  </Typography>
+                  <Box sx={{ flexGrow: 1 }} />
+                  <IconButton
+                    aria-label="delete artifact"
+                    size="small"
+                    color="inherit"
+                    onClick={() => {
+                      openDeleteArtifactDialog(
+                        trial.study_id,
+                        trial.trial_id,
+                        a
+                      )
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                  <IconButton
+                    aria-label="download artifact"
+                    size="small"
+                    color="inherit"
+                    download={a.filename}
+                    href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                  >
+                    <DownloadIcon />
+                  </IconButton>
+                </CardContent>
+              </Card>
+            )
+          } else {
+            return (
+              <Card
+                key={a.artifact_id}
+                sx={{
+                  marginBottom: theme.spacing(2),
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "280px",
+                  minHeight: "100%",
+                  margin: theme.spacing(0, 1, 1, 0),
+                }}
+              >
+                <Box
+                  sx={{
+                    flexGrow: 1,
+                    display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
                   }}
                 >
-                  <UploadFileIcon
-                    sx={{ fontSize: 80, marginBottom: theme.spacing(2) }}
-                  />
-                  <input
-                    type="file"
-                    ref={inputRef}
-                    onChange={handleOnChange}
-                    style={{ display: "none" }}
-                  />
-                  <Typography>Upload a New File</Typography>
+                  <InsertDriveFileIcon sx={{ fontSize: 80 }} />
+                </Box>
+                <CardContent
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    padding: `${theme.spacing(1)} !important`,
+                  }}
+                >
+                  <Typography sx={{ p: theme.spacing(0.5, 0) }}>
+                    {a.filename}
+                  </Typography>
+                  <Box sx={{ flexGrow: 1 }} />
+                  <IconButton
+                    aria-label="download artifact"
+                    size="small"
+                    color="inherit"
+                    download={a.filename}
+                    href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                  >
+                    <DownloadIcon />
+                  </IconButton>
                 </CardContent>
-              </CardActionArea>
-            </Card>
-          </Box>
-        </>
-      )}
+              </Card>
+            )
+          }
+        })}
+        <Card
+          sx={{
+            marginBottom: theme.spacing(2),
+            width: "280px",
+            minHeight: "210px",
+            margin: theme.spacing(0, 1, 1, 0),
+            border: `1px dashed ${"white"}`,
+          }}
+        >
+          <CardActionArea
+            onClick={handleClick}
+            sx={{
+              height: "100%",
+            }}
+          >
+            <CardContent
+              sx={{
+                display: "flex",
+                height: "100%",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <UploadFileIcon
+                sx={{ fontSize: 80, marginBottom: theme.spacing(2) }}
+              />
+              <input
+                type="file"
+                ref={inputRef}
+                onChange={handleOnChange}
+                style={{ display: "none" }}
+              />
+              <Typography>Upload a New File</Typography>
+              <Typography
+                sx={{ textAlign: "center", color: theme.palette.grey.A400 }}
+              >
+                Drag your file here or click to browse.
+              </Typography>
+            </CardContent>
+          </CardActionArea>
+        </Card>
+      </Box>
       {renderDeleteArtifactDialog()}
-    </Box>
+    </>
   )
 }
 
