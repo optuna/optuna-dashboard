@@ -10,6 +10,9 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
+  ImageList,
+  ImageListItem,
+  ImageListItemBar,
   SxProps,
   TextField,
   Typography,
@@ -38,12 +41,13 @@ import {
 } from "react-markdown/lib/ast-to-react"
 import HtmlIcon from "@mui/icons-material/Html"
 import ModeEditIcon from "@mui/icons-material/ModeEdit"
+import UploadFileIcon from "@mui/icons-material/UploadFile"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { darcula } from "react-syntax-highlighter/dist/esm/styles/prism"
 
 import { actionCreator } from "../action"
 import { useRecoilValue } from "recoil"
-import { isFileUploading } from "../state"
+import { artifactIsAvailable, isFileUploading, useArtifacts } from "../state"
 
 const placeholder = `## What is this feature for?
 
@@ -179,13 +183,12 @@ const MarkdownEditorModal: FC<{
       window.onbeforeunload = null
     })
 
-  const [dragOver, setDragOver] = useState<boolean>(false)
   const [saving, setSaving] = useState(false)
   const [edited, setEdited] = useState(false)
   const [curNote, setCurNote] = useState({ version: 0, body: "" })
-  const uploading = useRecoilValue<boolean>(isFileUploading)
   const textAreaRef = createRef<HTMLTextAreaElement>()
   const notLatest = latestNote.version > curNote.version
+  const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
 
   const [previewMarkdown, setPreviewMarkdown] = useState<string>("")
   const [preview, setPreview] = useState<boolean>(false)
@@ -233,37 +236,6 @@ const MarkdownEditorModal: FC<{
     textAreaRef.current.value = latestNote.body
     setCurNote(latestNote)
     window.onbeforeunload = null
-  }
-
-  const handleDrop: DragEventHandler = (e) => {
-    if (trialId === undefined) {
-      return
-    }
-    e.stopPropagation()
-    e.preventDefault()
-    const file = e.dataTransfer.files[0]
-    setDragOver(false)
-    action.uploadArtifact(studyId, trialId, file)
-  }
-
-  const handleDragOver: DragEventHandler = (e) => {
-    if (trialId === undefined) {
-      return
-    }
-    e.stopPropagation()
-    e.preventDefault()
-    e.dataTransfer.dropEffect = "copy"
-    setDragOver(true)
-  }
-
-  const handleDragLeave: DragEventHandler = (e) => {
-    if (trialId === undefined) {
-      return
-    }
-    e.stopPropagation()
-    e.preventDefault()
-    e.dataTransfer.dropEffect = "copy"
-    setDragOver(false)
   }
 
   // See https://github.com/iamhosseindhv/notistack/issues/231#issuecomment-825924840
@@ -314,36 +286,42 @@ const MarkdownEditorModal: FC<{
       >
         <MarkdownRenderer body={previewMarkdown} />
       </Box>
-      <Typography>{dragOver ? "DragOver=true" : "DragOver=false"}</Typography>
-      <Typography>{uploading ? "uploading=true" : "not uploading"}</Typography>
-      <TextField
-        disabled={saving}
-        multiline={true}
-        placeholder={placeholder}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-        onDrop={handleDrop}
+      <Box
         sx={{
-          position: "relative",
-          resize: "none",
           width: "100%",
           height: "100%",
+          display: preview ? "none" : "flex",
+          flexDirection: "row",
           margin: theme.spacing(1, 0),
-          display: preview ? "none" : "default",
-          "& .MuiInputBase-root": { height: "100%" },
         }}
-        inputProps={{
-          style: { resize: "none", overflow: "scroll", height: "100%" },
-        }}
-        inputRef={textAreaRef}
-        defaultValue={latestNote.body}
-        onChange={() => {
-          const cur = textAreaRef.current ? textAreaRef.current.value : ""
-          if (edited !== (cur !== curNote.body)) {
-            setEdited(cur !== curNote.body)
-          }
-        }}
-      />
+      >
+        <TextField
+          disabled={saving}
+          multiline={true}
+          placeholder={placeholder}
+          sx={{
+            position: "relative",
+            resize: "none",
+            width: "100%",
+            height: "100%",
+            "& .MuiInputBase-root": { height: "100%" },
+          }}
+          inputProps={{
+            style: { resize: "none", overflow: "scroll", height: "100%" },
+          }}
+          inputRef={textAreaRef}
+          defaultValue={latestNote.body}
+          onChange={() => {
+            const cur = textAreaRef.current ? textAreaRef.current.value : ""
+            if (edited !== (cur !== curNote.body)) {
+              setEdited(cur !== curNote.body)
+            }
+          }}
+        />
+        {artifactEnabled && trialId !== undefined && (
+          <ArtifactUploader studyId={studyId} trialId={trialId} />
+        )}
+      </Box>
       <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
         {notLatest && !saving && (
           <>
@@ -396,6 +374,93 @@ const MarkdownEditorModal: FC<{
       </Box>
       {renderConfirmCloseDialog()}
     </Card>
+  )
+}
+
+const ArtifactUploader: FC<{
+  studyId: number
+  trialId: number
+}> = ({ studyId, trialId }) => {
+  const theme = useTheme()
+  const action = actionCreator()
+
+  const uploading = useRecoilValue<boolean>(isFileUploading)
+  const artifacts = useArtifacts(studyId, trialId)
+  const [dragOver, setDragOver] = useState<boolean>(false)
+
+  const handleDrop: DragEventHandler = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    const file = e.dataTransfer.files[0]
+    setDragOver(false)
+    action.uploadArtifact(studyId, trialId, file)
+  }
+
+  const handleDragOver: DragEventHandler = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "copy"
+    setDragOver(true)
+  }
+
+  const handleDragLeave: DragEventHandler = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "copy"
+    setDragOver(false)
+  }
+
+  return (
+    <Box
+      sx={{
+        width: "300px",
+        padding: theme.spacing(0, 1),
+        display: "flex",
+        flexDirection: "column",
+      }}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      <Typography
+        sx={{
+          fontWeight: theme.typography.fontWeightBold,
+          margin: theme.spacing(1, 0),
+        }}
+      >
+        Artifact
+      </Typography>
+      <LoadingButton
+        loading={uploading}
+        loadingPosition="start"
+        startIcon={<UploadFileIcon />}
+        variant="outlined"
+      >
+        Upload
+      </LoadingButton>
+      <Box
+        sx={{
+          border: dragOver ? `2px dashed #ffffff` : `1px solid #fff`,
+          height: "100%",
+          margin: theme.spacing(1, 0),
+          borderRadius: "4px",
+        }}
+      >
+        <ImageList cols={1}>
+          {artifacts
+            .filter((a) => a.mimetype.startsWith("image"))
+            .map((a) => (
+              <ImageListItem key={a.artifact_id}>
+                <img
+                  src={`/artifacts/${studyId}/${trialId}/${a.artifact_id}`}
+                />
+                <ImageListItemBar title={a.filename} />
+              </ImageListItem>
+            ))}
+        </ImageList>
+      </Box>
+      <Button variant="outlined">Insert an image</Button>
+    </Box>
   )
 }
 

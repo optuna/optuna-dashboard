@@ -80,3 +80,12 @@ export const useStudyName = (studyId: number): string | null => {
   const studySummary = useStudySummaryValue(studyId)
   return studyDetail?.name || studySummary?.study_name || null
 }
+
+export const useArtifacts = (studyId: number, trialId: number): Artifact[] => {
+  const study = useStudyDetailValue(studyId)
+  const trial = study?.trials.find((t) => t.trial_id === trialId)
+  if (trial === undefined) {
+    return []
+  }
+  return trial.artifacts
+}

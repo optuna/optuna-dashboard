@@ -42,17 +42,40 @@ export const actionCreator = () => {
     setStudyDetails(newVal)
   }
 
+  const setTrial = (studyId: number, trialIndex: number, trial: Trial) => {
+    const newTrials: Trial[] = [...studyDetails[studyId].trials]
+    newTrials[trialIndex] = trial
+    const newStudy: StudyDetail = Object.assign({}, studyDetails[studyId])
+    newStudy.trials = newTrials
+    setStudyDetailState(studyId, newStudy)
+  }
+
   const setTrialNote = (studyId: number, index: number, note: Note) => {
     const newTrial: Trial = Object.assign(
       {},
       studyDetails[studyId].trials[index]
     )
     newTrial.note = note
-    const newTrials: Trial[] = [...studyDetails[studyId].trials]
-    newTrials[index] = newTrial
-    const newStudy: StudyDetail = Object.assign({}, studyDetails[studyId])
-    newStudy.trials = newTrials
-    setStudyDetailState(studyId, newStudy)
+    setTrial(studyId, index, newTrial)
+  }
+
+  const appendTrialArtifacts = (
+    studyId: number,
+    trialId: number,
+    artifact: Artifact
+  ) => {
+    const index = studyDetails[studyId].trials.findIndex(
+      (t) => t.trial_id === trialId
+    )
+    if (index === -1) {
+      return
+    }
+    const newTrial: Trial = Object.assign(
+      {},
+      studyDetails[studyId].trials[index]
+    )
+    newTrial.artifacts = [...newTrial.artifacts, artifact]
+    setTrial(studyId, index, newTrial)
   }
 
   const setStudyParamImportanceState = (
@@ -289,8 +312,7 @@ export const actionCreator = () => {
       uploadArtifactAPI(studyId, trialId, file.name, upload.target.result)
         .then((artifact) => {
           setUploading(false)
-          // TODO: update global state
-          console.dir(artifact)
+          appendTrialArtifacts(studyId, trialId, artifact)
         })
         .catch((err) => {
           setUploading(false)

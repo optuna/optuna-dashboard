@@ -47,12 +47,12 @@ BaseRequest.MEMFILE_MAX = int(
 def register_artifact_route(
     app: Bottle, storage: BaseStorage, artifact_backend: Optional[ArtifactBackend]
 ) -> None:
-    @app.get("/artifacts/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
-    def proxy_artifact(trial_id: int, artifact_id: str) -> bytes:
+    @app.get("/artifacts/<study_id:int>/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
+    def proxy_artifact(study_id: int, trial_id: int, artifact_id: str) -> bytes:
         if artifact_backend is None:
             response.status = 400  # Bad Request
             return b"Cannot access to the artifacts."
-        artifact_dict = _get_artifact_meta(storage, trial_id, artifact_id)
+        artifact_dict = _get_artifact_meta(storage, study_id, trial_id, artifact_id)
         response.set_header("Content-Type", artifact_dict["mimetype"])
         if artifact_dict.get("encoding"):
             response.set_header("Content-Encodings", artifact_dict.get("encoding"))
@@ -150,14 +150,13 @@ def _artifact_prefix(trial_id: int) -> str:
     return ARTIFACTS_ATTR_PREFIX + f"{trial_id}:"
 
 
-def _get_artifact_meta(storage: BaseStorage, trial_id: int, artifact_id: str) -> ArtifactMeta:
-    artifact_key = ARTIFACTS_ATTR_PREFIX + artifact_id
-    storage.get_trial_system_attrs(trial_id)
-
-    for key, value in storage.get_trial_system_attrs(trial_id).items():
-        if key == artifact_key:
-            return json.loads(value)
-    raise ValueError("Artifact not found")
+def _get_artifact_meta(storage: BaseStorage, study_id: int, trial_id: int, artifact_id: str) -> Optional[ArtifactMeta]:
+    study_system_attr = storage.get_study_system_attrs(study_id)
+    attr_key = _artifact_prefix(trial_id=trial_id) + artifact_id
+    artifact_meta = study_system_attr.get(attr_key)
+    if artifact_meta is None:
+        return None
+    return json.loads(artifact_meta)
 
 
 def delete_all_artifacts(backend: ArtifactBackend, study_system_attrs: dict[str, Any]) -> None:

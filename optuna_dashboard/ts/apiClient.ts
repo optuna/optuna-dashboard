@@ -29,6 +29,7 @@ interface TrialResponse {
   user_attrs: Attribute[]
   system_attrs: Attribute[]
   note: Note
+  artifacts: Artifact[]
 }
 
 const convertTrialResponse = (res: TrialResponse): Trial => {
@@ -50,6 +51,7 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
     user_attrs: res.user_attrs,
     system_attrs: res.system_attrs,
     note: res.note,
+    artifacts: res.artifacts,
   }
 }
 
