@@ -6,6 +6,9 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Card,
+  CardContent,
+  CardMedia,
 } from "@mui/material"
 import Chip from "@mui/material/Chip"
 import Divider from "@mui/material/Divider"
@@ -21,6 +24,8 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import { TrialNote } from "./Note"
 import { useHistory, useLocation } from "react-router-dom"
 import ListItemIcon from "@mui/material/ListItemIcon"
+import { useRecoilValue } from "recoil"
+import { artifactIsAvailable } from "../state"
 
 const states: TrialState[] = [
   "Complete",
@@ -120,10 +125,12 @@ const useIsBestTrial = (
 }
 
 const TrialListDetail: FC<{
+  studyId: number
   trial: Trial
   isBestTrial: (trialId: number) => boolean
-}> = ({ trial, isBestTrial }) => {
+}> = ({ studyId, trial, isBestTrial }) => {
   const theme = useTheme()
+  const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
   let duration = ""
@@ -250,6 +257,66 @@ const TrialListDetail: FC<{
         latestNote={trial.note}
         cardSx={{ marginBottom: theme.spacing(2) }}
       />
+      {artifactEnabled && (
+        <>
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: theme.typography.fontWeightBold }}
+          >
+            Artifacts
+          </Typography>
+          <Box
+            sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}
+          >
+            {trial.artifacts.map((a) => {
+              if (a.mimetype.startsWith("image")) {
+                return (
+                  <Card
+                    sx={{
+                      marginBottom: theme.spacing(2),
+                      width: "280px",
+                      margin: theme.spacing(0, 1, 1, 0),
+                    }}
+                  >
+                    <CardMedia
+                      component="img"
+                      height="210"
+                      image={`/artifacts/${studyId}/${trial.trial_id}/${a.artifact_id}`}
+                      alt={a.filename}
+                    />
+                    <CardContent>
+                      <Typography>{a.filename}</Typography>
+                    </CardContent>
+                  </Card>
+                )
+              } else {
+                return (
+                  <Card sx={{
+                    marginBottom: theme.spacing(2),
+                    width: "280px",
+                    margin: theme.spacing(0, 1, 1, 0),
+                  }}>
+                    <CardContent>
+                      <Typography>{a.filename}</Typography>
+                    </CardContent>
+                  </Card>
+                )
+              }
+            })}
+            <Card sx={{
+              marginBottom: theme.spacing(2),
+              width: "280px",
+              minHeight: "210px",
+              margin: theme.spacing(0, 1, 1, 0),
+              border: `1px dashed ${"white"}`
+            }}>
+              <CardContent>
+                <Typography>Upload a new artifact</Typography>
+              </CardContent>
+            </Card>
+          </Box>
+        </>
+      )}
     </Box>
   )
 }
@@ -440,11 +507,12 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
         }}
       >
         <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
-          {showDetailTrials.length === 0
+          {studyDetail === null || showDetailTrials.length === 0
             ? null
             : showDetailTrials.map((t) => (
                 <TrialListDetail
                   key={t.trial_id}
+                  studyId={studyDetail.id}
                   trial={t}
                   isBestTrial={isBestTrial}
                 />
