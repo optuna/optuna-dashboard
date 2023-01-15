@@ -68,6 +68,8 @@ optional arguments:
   --host HOST           hostname (default: 127.0.0.1)
   --server {wsgiref,gunicorn}
                         server (default: auto)
+  --artifact-dir ARTIFACT_DIR
+                        directory to store artifact files
   --version, -v         show program's version number and exit
   --quiet, -q           quiet
 ```
