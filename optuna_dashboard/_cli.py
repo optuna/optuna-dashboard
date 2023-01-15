@@ -13,11 +13,11 @@ from bottle import run
 from optuna.storages import BaseStorage
 from optuna.storages import RDBStorage
 
-from optuna_dashboard.artifact.file_system import FileSystemBackend
 from . import __version__
 from ._app import create_app
 from ._app import get_storage
 from ._sql_profiler import register_profiler_view
+from .artifact.file_system import FileSystemBackend
 
 
 if TYPE_CHECKING:
