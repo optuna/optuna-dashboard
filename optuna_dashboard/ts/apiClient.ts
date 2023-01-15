@@ -229,14 +229,19 @@ export const saveTrialNoteAPI = (
     })
 }
 
+type UploadArtifactAPIResponse = {
+  artifact_id: string
+  artifacts: Artifact[]
+}
+
 export const uploadArtifactAPI = (
   studyId: number,
   trialId: number,
   fileName: string,
   dataUrl: string
-): Promise<Artifact> => {
+): Promise<UploadArtifactAPIResponse> => {
   return axiosInstance
-    .post<Artifact>(`/api/artifacts/${studyId}/${trialId}`, {
+    .post<UploadArtifactAPIResponse>(`/api/artifacts/${studyId}/${trialId}`, {
       file: dataUrl,
       filename: fileName,
     })

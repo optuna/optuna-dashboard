@@ -310,9 +310,11 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
   const handleDrop: DragEventHandler = (e) => {
     e.stopPropagation()
     e.preventDefault()
-    const file = e.dataTransfer.files[0]
+    const files = e.dataTransfer.files
     setDragOver(false)
-    action.uploadArtifact(trial.study_id, trial.trial_id, file)
+    for (let i = 0; i < files.length; i++) {
+      action.uploadArtifact(trial.study_id, trial.trial_id, files[i])
+    }
   }
   const handleDragOver: DragEventHandler = (e) => {
     e.stopPropagation()
@@ -359,14 +361,21 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                     padding: `${theme.spacing(1)} !important`,
                   }}
                 >
-                  <Typography sx={{ p: theme.spacing(0.5, 0) }}>
+                  <Typography
+                    sx={{
+                      p: theme.spacing(0.5, 0),
+                      flexGrow: 1,
+                      wordWrap: "break-word",
+                      maxWidth: `calc(100% - ${theme.spacing(8)})`,
+                    }}
+                  >
                     {a.filename}
                   </Typography>
-                  <Box sx={{ flexGrow: 1 }} />
                   <IconButton
                     aria-label="delete artifact"
                     size="small"
                     color="inherit"
+                    sx={{ margin: "auto 0" }}
                     onClick={() => {
                       openDeleteArtifactDialog(
                         trial.study_id,
@@ -382,6 +391,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                     size="small"
                     color="inherit"
                     download={a.filename}
+                    sx={{ margin: "auto 0" }}
                     href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
                   >
                     <DownloadIcon />
@@ -419,14 +429,35 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                     padding: `${theme.spacing(1)} !important`,
                   }}
                 >
-                  <Typography sx={{ p: theme.spacing(0.5, 0) }}>
+                  <Typography
+                    sx={{
+                      p: theme.spacing(0.5, 0),
+                      flexGrow: 1,
+                      maxWidth: `calc(100% - ${theme.spacing(8)})`,
+                    }}
+                  >
                     {a.filename}
                   </Typography>
-                  <Box sx={{ flexGrow: 1 }} />
+                  <IconButton
+                    aria-label="delete artifact"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    onClick={() => {
+                      openDeleteArtifactDialog(
+                        trial.study_id,
+                        trial.trial_id,
+                        a
+                      )
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
                   <IconButton
                     aria-label="download artifact"
                     size="small"
                     color="inherit"
+                    sx={{ margin: "auto 0" }}
                     download={a.filename}
                     href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
                   >

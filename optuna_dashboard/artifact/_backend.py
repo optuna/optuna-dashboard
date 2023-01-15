@@ -90,7 +90,11 @@ def register_artifact_route(
         attr_key = _artifact_prefix(trial_id=trial_id) + artifact_id
         storage.set_study_system_attr(study_id, attr_key, json.dumps(artifact))
         response.status = 201
-        return artifact
+
+        return {
+            "artifact_id": artifact_id,
+            "artifacts": list_trial_artifacts(storage.get_study_system_attrs(study_id), trial_id),
+        }
 
     @app.delete("/api/artifacts/<study_id:int>/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
     @json_api_view

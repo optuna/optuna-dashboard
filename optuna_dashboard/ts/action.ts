@@ -73,21 +73,6 @@ export const actionCreator = () => {
     setTrial(studyId, trialIndex, newTrial)
   }
 
-  const appendTrialArtifact = (
-    studyId: number,
-    trialId: number,
-    artifact: Artifact
-  ) => {
-    const index = studyDetails[studyId].trials.findIndex(
-      (t) => t.trial_id === trialId
-    )
-    if (index === -1) {
-      return
-    }
-    const artifacts = studyDetails[studyId].trials[index].artifacts
-    setTrialArtifacts(studyId, index, [...artifacts, artifact])
-  }
-
   const deleteTrialArtifact = (
     studyId: number,
     trialId: number,
@@ -342,9 +327,15 @@ export const actionCreator = () => {
     reader.readAsDataURL(file)
     reader.onload = (upload: any) => {
       uploadArtifactAPI(studyId, trialId, file.name, upload.target.result)
-        .then((artifact) => {
+        .then((res) => {
           setUploading(false)
-          appendTrialArtifact(studyId, trialId, artifact)
+          const index = studyDetails[studyId].trials.findIndex(
+            (t) => t.trial_id === trialId
+          )
+          if (index === -1) {
+            return
+          }
+          setTrialArtifacts(studyId, index, res.artifacts)
         })
         .catch((err) => {
           setUploading(false)
