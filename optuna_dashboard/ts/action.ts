@@ -50,6 +50,25 @@ export const actionCreator = () => {
     setStudyDetailState(studyId, newStudy)
   }
 
+  const setTrialState = (
+    studyId: number,
+    index: number,
+    state: TrialState,
+    values?: TrialValueNumber[]
+  ) => {
+    const newTrial: Trial = Object.assign(
+      {},
+      studyDetails[studyId].trials[index]
+    )
+    newTrial.state = state
+    newTrial.values = values
+    const newTrials: Trial[] = [...studyDetails[studyId].trials]
+    newTrials[index] = newTrial
+    const newStudy: StudyDetail = Object.assign({}, studyDetails[studyId])
+    newStudy.trials = newTrials
+    setStudyDetailState(studyId, newStudy)
+  }
+
   const setStudyParamImportanceState = (
     studyId: number,
     importance: ParamImportance[][]
@@ -271,13 +290,23 @@ export const actionCreator = () => {
     trialId: number,
     state: TrialState,
     values?: string[]
-  ) => {
+  ): Promise<void> => {
     const message =
       values === undefined
         ? `id=${trialId}, state=${state}`
         : `id=${trialId}, state=${state}, values=${values}`
-    tellTrialAPI(studyId, trialId, state, values)
+    return tellTrialAPI(studyId, trialId, state, values)
       .then(() => {
+        const index = studyDetails[studyId].trials.findIndex(
+          (t) => t.trial_id === trialId
+        )
+        if (index === -1) {
+          enqueueSnackbar(`Unexpected error happens. Please reload the page.`, {
+            variant: "error",
+          })
+          return
+        }
+        setTrialState(studyId, index, state, values?.map(Number))
         enqueueSnackbar(`Success to update trial (${message})`, {
           variant: "success",
         })

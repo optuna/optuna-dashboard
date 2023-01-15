@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   IconButton,
+  Stack,
   TextField,
 } from "@mui/material"
 import LinkIcon from "@mui/icons-material/Link"
@@ -332,41 +333,47 @@ export const TrialTable: FC<{
             />
           </Box>
         </Grid>
-        <Grid item xs={12}>
-          <Box margin={1}>
-            <Typography variant="h6" gutterBottom component="div">
-              Trial tell operations
-            </Typography>
-            <form onSubmit={handleSubmit}>
-              <Box margin={1}>
-                {objectiveValues.map((value, i) => (
-                  <TextField
-                    id={`objective-${i}`}
-                    key={`objective-${i}`}
-                    label={`Objective ${i}`}
-                    type="number"
-                    value={objectiveValues[i]}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                      handleChangeValue(i, e)
-                    }
-                  />
-                ))}
-              </Box>
-              <Box margin={1}>
-                <Button variant="contained" type="submit">
-                  Submit
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={handleFailTrial}
-                >
-                  Fail trial
-                </Button>
-              </Box>
-            </form>
-          </Box>
-        </Grid>
+        {trials[index].state === ("Running" as TrialState) ? (
+          <Grid item xs={12}>
+            <Box margin={1}>
+              <Typography variant="h6" gutterBottom component="div">
+                Trial tell operations
+              </Typography>
+              <form onSubmit={handleSubmit}>
+                <Box margin={1}>
+                  <Stack direction="row" spacing={1}>
+                    {objectiveValues.map((value, i) => (
+                      <TextField
+                        id={`objective-${i}`}
+                        key={`objective-${i}`}
+                        label={`Objective ${i}`}
+                        type="number"
+                        value={objectiveValues[i]}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                          handleChangeValue(i, e)
+                        }
+                      />
+                    ))}
+                  </Stack>
+                </Box>
+                <Box margin={1}>
+                  <Stack direction="row" spacing={1}>
+                    <Button variant="contained" type="submit">
+                      Submit
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={handleFailTrial}
+                    >
+                      Fail Trial
+                    </Button>
+                  </Stack>
+                </Box>
+              </form>
+            </Box>
+          </Grid>
+        ) : null}
       </Grid>
     )
   }

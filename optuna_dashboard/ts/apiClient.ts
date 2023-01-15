@@ -223,9 +223,9 @@ export const tellTrialAPI = (
   state: TrialState,
   values?: string[]
 ): Promise<void> => {
-  const req: { [name: string]: TrialState | string[] } = { state: state }
-  if (values !== undefined) {
-    req["values"] = values
+  const req: { state: TrialState; values?: string[] } = {
+    state: state,
+    values: values,
   }
 
   return axiosInstance
