@@ -410,7 +410,7 @@ const ArtifactUploader: FC<{
   const uploading = useRecoilValue<boolean>(isFileUploading)
   const artifacts = useArtifacts(studyId, trialId)
   const [dragOver, setDragOver] = useState<boolean>(false)
-  const [selected, setSelected] = useState<number>(-1)
+  const [selectedArtifactId, setSelectedArtifactId] = useState<string>("")
 
   const inputRef = useRef<HTMLInputElement>(null)
   const handleClick: MouseEventHandler = (e) => {
@@ -530,15 +530,15 @@ const ArtifactUploader: FC<{
               <ImageListItem
                 key={a.artifact_id}
                 onClick={(e) => {
-                  if (selected === i) {
-                    setSelected(-1)
+                  if (selectedArtifactId === a.artifact_id) {
+                    setSelectedArtifactId("")
                   } else {
-                    setSelected(i)
+                    setSelectedArtifactId(a.artifact_id)
                   }
                 }}
                 sx={{
                   border:
-                    selected === i
+                    selectedArtifactId === a.artifact_id
                       ? `2px solid ${theme.palette.primary.main}`
                       : "none",
                 }}
@@ -553,16 +553,21 @@ const ArtifactUploader: FC<{
       </Box>
       <Button
         variant="outlined"
-        disabled={selected === -1}
+        disabled={selectedArtifactId === ""}
         onClick={(e) => {
-          if (selected === -1 || artifacts.length <= selected) {
+          if (selectedArtifactId === "") {
             return
           }
-          const artifact = artifacts[selected]
+          const artifact = artifacts.find(
+            (a) => a.artifact_id === selectedArtifactId
+          )
+          if (artifact === undefined) {
+            return
+          }
           insert(
             `![${artifact.filename}](/artifacts/${studyId}/${trialId}/${artifact.artifact_id})\n`
           )
-          setSelected(-1)
+          setSelectedArtifactId("")
         }}
       >
         Insert an image
