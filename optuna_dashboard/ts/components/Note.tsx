@@ -36,7 +36,6 @@ import LoadingButton from "@mui/lab/LoadingButton"
 import SaveIcon from "@mui/icons-material/Save"
 import CloseIcon from "@mui/icons-material/Close"
 import EditIcon from "@mui/icons-material/Edit"
-import Divider from "@mui/material/Divider"
 import { Theme } from "@mui/material/styles"
 import {
   CodeComponent,
@@ -497,6 +496,33 @@ const ArtifactUploader: FC<{
           overflow: "scroll",
         }}
       >
+        {dragOver && (
+          <Box
+            sx={{
+              width: "100%",
+              height: "100%",
+              position: "relative",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor:
+                theme.palette.mode === "dark"
+                  ? "rgba(255, 255, 255, 0.3)"
+                  : "rgba(0,0,0,0.3)",
+            }}
+          >
+            <UploadFileIcon
+              sx={{ fontSize: 80, marginBottom: theme.spacing(2) }}
+            />
+            <Typography>Upload a New Image</Typography>
+            <Typography
+              sx={{ textAlign: "center", color: theme.palette.grey.A400 }}
+            >
+              Drag your file here.
+            </Typography>
+          </Box>
+        )}
         <ImageList cols={1} sx={{ margin: 0 }}>
           {artifacts
             .filter((a) => a.mimetype.startsWith("image"))
@@ -557,22 +583,27 @@ const NoteBase: FC<{
   const defaultBody = ""
   return (
     <Card sx={{ overflow: "scroll", ...cardSx }}>
-      <CardHeader
-        title="Note"
-        action={
-          <IconButton
-            onClick={() => {
-              setEditorMounted(true)
-            }}
-          >
-            <EditIcon />
-          </IconButton>
-        }
-        sx={{ paddingBottom: 0 }}
-      />
-      <CardContent sx={{ paddingTop: theme.spacing(1) }}>
-        <Divider />
+      <CardContent
+        sx={{
+          paddingTop: theme.spacing(1),
+          position: "relative",
+          minHeight: theme.spacing(7),
+        }}
+      >
         <MarkdownRenderer body={latestNote.body || defaultBody} />
+        <IconButton
+          sx={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            margin: theme.spacing(1),
+          }}
+          onClick={() => {
+            setEditorMounted(true)
+          }}
+        >
+          <EditIcon />
+        </IconButton>
       </CardContent>
       {editorMounted && (
         <MarkdownEditorModal

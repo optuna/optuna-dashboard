@@ -266,6 +266,15 @@ const TrialListDetail: FC<{
       >
         {info.map(([key, value]) => renderInfo(key, value))}
       </Box>
+      <Typography
+        variant="h5"
+        sx={{
+          fontWeight: theme.typography.fontWeightBold,
+          marginBottom: theme.spacing(1),
+        }}
+      >
+        Note
+      </Typography>
       <TrialNote
         studyId={trial.study_id}
         trialId={trial.trial_id}
