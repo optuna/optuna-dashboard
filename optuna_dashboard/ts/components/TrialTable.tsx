@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, FormEvent, MouseEvent, useState } from "react"
+import React, {ChangeEvent, createRef, FC, FormEvent, MouseEvent, useState} from "react"
 import {
   Typography,
   Grid,
@@ -274,33 +274,28 @@ export const TrialTable: FC<{
   ]
 
   const collapseBody = (index: number) => {
-    const objectiveValuesLength = studyDetail?.directions.length
-    const [objectiveValues, setObjectiveValues] = useState(
-      Array(objectiveValuesLength).fill("")
-    )
+    const objectiveFormRefs = studyDetail?.directions.map(d => createRef<HTMLInputElement>())
     const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
+      if (objectiveFormRefs === undefined) {
+        return
+      }
+
       e.preventDefault()
       const studyId = (studyDetail as StudyDetail).id
       const trialId = trials[index].number
+      const objectiveValues = objectiveFormRefs.map(ref => ref.current ? ref.current.value : "")
+      console.dir(objectiveValues)
       action.tellTrial(
         studyId,
         trialId,
-        "Complete" as TrialState,
+        "Complete",
         objectiveValues
       )
-    }
-    const handleChangeValue = (
-      index: number,
-      e: ChangeEvent<HTMLInputElement>
-    ): void => {
-      const newValues = [...objectiveValues]
-      newValues[index] = e.target.value
-      setObjectiveValues(newValues)
     }
     const handleFailTrial = (e: MouseEvent<HTMLButtonElement>): void => {
       const studyId = (studyDetail as StudyDetail).id
       const trialId = trials[index].number
-      action.tellTrial(studyId, trialId, "Fail" as TrialState)
+      action.tellTrial(studyId, trialId, "Fail")
     }
 
     return (
@@ -333,7 +328,7 @@ export const TrialTable: FC<{
             />
           </Box>
         </Grid>
-        {trials[index].state === ("Running" as TrialState) ? (
+        {trials[index].state === "Running" ? (
           <Grid item xs={12}>
             <Box margin={1}>
               <Typography variant="h6" gutterBottom component="div">
@@ -342,16 +337,13 @@ export const TrialTable: FC<{
               <form onSubmit={handleSubmit}>
                 <Box margin={1}>
                   <Stack direction="row" spacing={1}>
-                    {objectiveValues.map((value, i) => (
+                    {objectiveFormRefs !== undefined && objectiveFormRefs.map((ref, i) => (
                       <TextField
                         id={`objective-${i}`}
                         key={`objective-${i}`}
                         label={`Objective ${i}`}
                         type="number"
-                        value={objectiveValues[i]}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                          handleChangeValue(i, e)
-                        }
+                        inputRef={ref}
                       />
                     ))}
                   </Stack>

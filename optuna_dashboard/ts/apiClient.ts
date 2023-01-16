@@ -220,7 +220,7 @@ export const saveTrialNoteAPI = (
 export const tellTrialAPI = (
   studyId: number,
   trialId: number,
-  state: TrialState,
+  state: TrialStateFinished,
   values?: string[]
 ): Promise<void> => {
   const req: { state: TrialState; values?: string[] } = {

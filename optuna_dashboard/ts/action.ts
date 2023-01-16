@@ -288,7 +288,7 @@ export const actionCreator = () => {
   const tellTrial = (
     studyId: number,
     trialId: number,
-    state: TrialState,
+    state: TrialStateFinished,
     values?: string[]
   ): Promise<void> => {
     const message =
