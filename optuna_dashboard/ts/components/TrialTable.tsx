@@ -1,9 +1,4 @@
-import React, {
-  createRef,
-  FC,
-  FormEvent,
-  MouseEvent,
-} from "react"
+import React, { createRef, FC, FormEvent, MouseEvent } from "react"
 import {
   Typography,
   Grid,
@@ -352,7 +347,12 @@ export const TrialTable: FC<{
                               ? objectiveNames[i]
                               : `Objective ${i}`
                           }
-                          inputProps={{ inputMode: 'numeric', pattern: '[+-]?([0-9]+(.[0-9]*)?|.[0-9]+)([eE][+-]?[0-9]+)?', title: "Please input a float number"}}
+                          inputProps={{
+                            inputMode: "numeric",
+                            pattern:
+                              "[+-]?([0-9]+(.[0-9]*)?|.[0-9]+)([eE][+-]?[0-9]+)?",
+                            title: "Please input a float number",
+                          }}
                           inputRef={ref}
                         />
                       ))}
