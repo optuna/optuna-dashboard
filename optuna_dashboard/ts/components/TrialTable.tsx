@@ -1,4 +1,11 @@
-import React, {ChangeEvent, createRef, FC, FormEvent, MouseEvent, useState} from "react"
+import React, {
+  ChangeEvent,
+  createRef,
+  FC,
+  FormEvent,
+  MouseEvent,
+  useState,
+} from "react"
 import {
   Typography,
   Grid,
@@ -274,7 +281,9 @@ export const TrialTable: FC<{
   ]
 
   const collapseBody = (index: number) => {
-    const objectiveFormRefs = studyDetail?.directions.map(d => createRef<HTMLInputElement>())
+    const objectiveFormRefs = studyDetail?.directions.map((d) =>
+      createRef<HTMLInputElement>()
+    )
     const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
       if (objectiveFormRefs === undefined) {
         return
@@ -283,14 +292,11 @@ export const TrialTable: FC<{
       e.preventDefault()
       const studyId = (studyDetail as StudyDetail).id
       const trialId = trials[index].number
-      const objectiveValues = objectiveFormRefs.map(ref => ref.current ? ref.current.value : "")
-      console.dir(objectiveValues)
-      action.tellTrial(
-        studyId,
-        trialId,
-        "Complete",
-        objectiveValues
+      const objectiveValues = objectiveFormRefs.map((ref) =>
+        ref.current ? ref.current.value : ""
       )
+      console.dir(objectiveValues)
+      action.tellTrial(studyId, trialId, "Complete", objectiveValues)
     }
     const handleFailTrial = (e: MouseEvent<HTMLButtonElement>): void => {
       const studyId = (studyDetail as StudyDetail).id
@@ -337,15 +343,16 @@ export const TrialTable: FC<{
               <form onSubmit={handleSubmit}>
                 <Box margin={1}>
                   <Stack direction="row" spacing={1}>
-                    {objectiveFormRefs !== undefined && objectiveFormRefs.map((ref, i) => (
-                      <TextField
-                        id={`objective-${i}`}
-                        key={`objective-${i}`}
-                        label={`Objective ${i}`}
-                        type="number"
-                        inputRef={ref}
-                      />
-                    ))}
+                    {objectiveFormRefs !== undefined &&
+                      objectiveFormRefs.map((ref, i) => (
+                        <TextField
+                          id={`objective-${i}`}
+                          key={`objective-${i}`}
+                          label={`Objective ${i}`}
+                          type="number"
+                          inputRef={ref}
+                        />
+                      ))}
                   </Stack>
                 </Box>
                 <Box margin={1}>

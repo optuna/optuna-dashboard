@@ -221,9 +221,9 @@ export const tellTrialAPI = (
   studyId: number,
   trialId: number,
   state: TrialStateFinished,
-  values?: string[]
+  values?: number[]
 ): Promise<void> => {
-  const req: { state: TrialState; values?: string[] } = {
+  const req: { state: TrialState; values?: number[] } = {
     state: state,
     values: values,
   }

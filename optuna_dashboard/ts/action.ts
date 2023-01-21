@@ -289,7 +289,7 @@ export const actionCreator = () => {
     studyId: number,
     trialId: number,
     state: TrialStateFinished,
-    values?: string[]
+    values?: number[]
   ): Promise<void> => {
     const message =
       values === undefined
