@@ -1,10 +1,8 @@
 import React, {
-  ChangeEvent,
   createRef,
   FC,
   FormEvent,
   MouseEvent,
-  useState,
 } from "react"
 import {
   Typography,
@@ -293,9 +291,8 @@ export const TrialTable: FC<{
       const studyId = (studyDetail as StudyDetail).id
       const trialId = trials[index].number
       const objectiveValues = objectiveFormRefs.map((ref) =>
-        ref.current ? ref.current.value : ""
+        ref.current ? Number(ref.current.value) : NaN
       )
-      console.dir(objectiveValues)
       action.tellTrial(studyId, trialId, "Complete", objectiveValues)
     }
     const handleFailTrial = (e: MouseEvent<HTMLButtonElement>): void => {
@@ -346,6 +343,7 @@ export const TrialTable: FC<{
                     {objectiveFormRefs !== undefined &&
                       objectiveFormRefs.map((ref, i) => (
                         <TextField
+                          required
                           id={`objective-${i}`}
                           key={`objective-${i}`}
                           label={
@@ -354,8 +352,7 @@ export const TrialTable: FC<{
                               ? objectiveNames[i]
                               : `Objective ${i}`
                           }
-                          type="text"
-                          pattern="^([1-9]\d*|0)(\.\d+)?$"
+                          inputProps={{ inputMode: 'numeric', pattern: '[+-]?([0-9]+(.[0-9]*)?|.[0-9]+)([eE][+-]?[0-9]+)?', title: "Please input a float number"}}
                           inputRef={ref}
                         />
                       ))}

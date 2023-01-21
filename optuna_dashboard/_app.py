@@ -443,7 +443,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
         study = optuna.load_study(storage=storage, study_name=study_name)
 
         try:
-            study.tell(trial_id, values=values, state=state)
+            study._storage.set_trial_state_values(trial_id, state, values)
         except Exception as e:
             response.status = 400  # Bad request
             return {"reason": e.args}
