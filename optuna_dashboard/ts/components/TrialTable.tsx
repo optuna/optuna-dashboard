@@ -348,8 +348,14 @@ export const TrialTable: FC<{
                         <TextField
                           id={`objective-${i}`}
                           key={`objective-${i}`}
-                          label={`Objective ${i}`}
-                          type="number"
+                          label={
+                            objectiveNames.length ===
+                            studyDetail?.directions.length
+                              ? objectiveNames[i]
+                              : `Objective ${i}`
+                          }
+                          type="text"
+                          pattern="^([1-9]\d*|0)(\.\d+)?$"
                           inputRef={ref}
                         />
                       ))}
