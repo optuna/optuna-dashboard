@@ -86,7 +86,7 @@ def get_param_importance_from_trials_cache(
 ) -> list[ImportanceType]:
     completed_trials = [t for t in trials if t.state == TrialState.COMPLETE]
     n_completed_trials = len(completed_trials)
-    if n_completed_trials == 0:
+    if n_completed_trials <= 1:
         return []
 
     cache_key = f"{study_id}:{objective_id}"
