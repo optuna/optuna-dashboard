@@ -56,6 +56,13 @@ BottleViewReturn = Union[str, bytes, Dict[str, Any], BaseResponse]
 BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])
 
 logger = logging.getLogger(__name__)
+str_to_trial_state = {
+    "Running": TrialState.RUNNING,
+    "Waiting": TrialState.WAITING,
+    "Complete": TrialState.COMPLETE,
+    "Pruned": TrialState.PRUNED,
+    "Fail": TrialState.FAIL,
+}
 
 # Static files
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -415,32 +422,25 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
     @app.post("/api/trials/<trial_id:int>/tell")
     @json_api_view
     def tell_trial(trial_id: int) -> BottleViewReturn:
-        s = request.json.get("state", None)
-        vs = request.json.get("values", None)
-
-        try:
-            values = [float(v) for v in vs] if vs is not None else vs
-        except ValueError:
-            response.status = 400  # Bad request
-            return {"reason": "You need to pass float castable values"}
-
-        str_to_state = {
-            "Complete": TrialState.COMPLETE,
-            "Pruned": TrialState.PRUNED,
-            "Fail": TrialState.FAIL,
-        }
-        if s not in str_to_state:
+        state = str_to_trial_state.get(request.json.get("state"))
+        if state is None or not state.is_finished():
             response.status = 400  # Bad request
             return {
-                "reason": f"You passed {s} as a state, but only 'Complete', 'Pruned' and 'Fail'"
-                "are acceptable states."
+                "reason": f"state must be either 'Complete', 'Pruned' or 'Fail'."
             }
-        if s == "Complete" and values is None:
-            response.status = 400  # Bad request
-            return {
-                "reason": "When you passed 'Complete' as a state, you also need to specify values."
-            }
-        state = str_to_state[s]
+        values = None
+        if state == TrialState.COMPLETE:
+            vs = request.json.get("values")
+            if vs is None:
+                response.status = 400  # Bad request
+                return {
+                    "reason": "values attribute is required when state is 'Complete'."
+                }
+            try:
+                values = [float(v) for v in vs]
+            except (ValueError, TypeError):
+                response.status = 400  # Bad request
+                return {"reason": "values attribute must be number's array"}
 
         try:
             storage.set_trial_state_values(trial_id, state, values)
