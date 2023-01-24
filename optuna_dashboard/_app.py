@@ -412,9 +412,9 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
         response.status = 204  # No content
         return {}
 
-    @app.post("/api/studies/<study_id:int>/<trial_id:int>/tell")
+    @app.post("/api/studies/<trial_id:int>/tell")
     @json_api_view
-    def tell_trial(study_id: int, trial_id: int) -> BottleViewReturn:
+    def tell_trial(trial_id: int) -> BottleViewReturn:
         s = request.json.get("state", None)
         vs = request.json.get("values", None)
 
@@ -431,19 +431,19 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
         }
         if s not in str_to_state:
             response.status = 400  # Bad request
-            return {"reason": f"You passed {s} as a state, which is not defined in Optuna."}
+            return {
+                "reason": f"You passed {s} as a state, but only 'Complete', 'Pruned' and 'Fail'"
+                "are acceptable states."
+            }
+        if s == "Complete" and values in None:
+            response.status = 400  # Bad request
+            return {
+                "reason": "When you passed 'Complete' as a state, you also need to specify values."
+            }
         state = str_to_state[s]
 
         try:
-            study_name = storage.get_study_name_from_id(study_id)
-        except KeyError:
-            response.status = 404  # Not found
-            return {"reason": f"study_id={study_id} is not found"}
-
-        study = optuna.load_study(storage=storage, study_name=study_name)
-
-        try:
-            study._storage.set_trial_state_values(trial_id, state, values)
+            storage.set_trial_state_values(trial_id, state, values)
         except Exception as e:
             response.status = 400  # Bad request
             return {"reason": e.args}

@@ -295,7 +295,7 @@ export const actionCreator = () => {
       values === undefined
         ? `id=${trialId}, state=${state}`
         : `id=${trialId}, state=${state}, values=${values}`
-    return tellTrialAPI(studyId, trialId, state, values)
+    return tellTrialAPI(trialId, state, values)
       .then(() => {
         const index = studyDetails[studyId].trials.findIndex(
           (t) => t.trial_id === trialId
@@ -306,7 +306,7 @@ export const actionCreator = () => {
           })
           return
         }
-        setTrialState(studyId, index, state, values?.map(Number))
+        setTrialState(studyId, index, state, values)
         enqueueSnackbar(`Success to update trial (${message})`, {
           variant: "success",
         })

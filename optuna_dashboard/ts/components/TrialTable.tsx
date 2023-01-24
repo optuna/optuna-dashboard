@@ -281,17 +281,28 @@ export const TrialTable: FC<{
       if (objectiveFormRefs === undefined) {
         return
       }
+      if (studyDetail === null) {
+        return
+      }
 
       e.preventDefault()
-      const studyId = (studyDetail as StudyDetail).id
+      const studyId = studyDetail.id
       const trialId = trials[index].trial_id
       const objectiveValues = objectiveFormRefs.map((ref) =>
         ref.current ? Number(ref.current.value) : NaN
       )
+      if (objectiveValues.includes(NaN)) {
+        return
+      }
+
       action.tellTrial(studyId, trialId, "Complete", objectiveValues)
     }
+
     const handleFailTrial = (e: MouseEvent<HTMLButtonElement>): void => {
-      const studyId = (studyDetail as StudyDetail).id
+      if (studyDetail === null) {
+        return
+      }
+      const studyId = studyDetail.id
       const trialId = trials[index].trial_id
       action.tellTrial(studyId, trialId, "Fail")
     }

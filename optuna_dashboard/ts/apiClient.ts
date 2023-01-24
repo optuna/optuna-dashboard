@@ -218,7 +218,6 @@ export const saveTrialNoteAPI = (
 }
 
 export const tellTrialAPI = (
-  studyId: number,
   trialId: number,
   state: TrialStateFinished,
   values?: number[]
@@ -229,7 +228,7 @@ export const tellTrialAPI = (
   }
 
   return axiosInstance
-    .post<void>(`/api/studies/${studyId}/${trialId}/tell`, req)
+    .post<void>(`/api/studies/${trialId}/tell`, req)
     .then((res) => {
       return
     })
