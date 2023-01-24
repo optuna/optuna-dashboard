@@ -284,7 +284,7 @@ export const TrialTable: FC<{
 
       e.preventDefault()
       const studyId = (studyDetail as StudyDetail).id
-      const trialId = trials[index].number
+      const trialId = trials[index].trial_id
       const objectiveValues = objectiveFormRefs.map((ref) =>
         ref.current ? Number(ref.current.value) : NaN
       )
@@ -292,7 +292,7 @@ export const TrialTable: FC<{
     }
     const handleFailTrial = (e: MouseEvent<HTMLButtonElement>): void => {
       const studyId = (studyDetail as StudyDetail).id
-      const trialId = trials[index].number
+      const trialId = trials[index].trial_id
       action.tellTrial(studyId, trialId, "Fail")
     }
 
