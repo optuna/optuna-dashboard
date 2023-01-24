@@ -435,7 +435,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
                 "reason": f"You passed {s} as a state, but only 'Complete', 'Pruned' and 'Fail'"
                 "are acceptable states."
             }
-        if s == "Complete" and values in None:
+        if s == "Complete" and values is None:
             response.status = 400  # Bad request
             return {
                 "reason": "When you passed 'Complete' as a state, you also need to specify values."
