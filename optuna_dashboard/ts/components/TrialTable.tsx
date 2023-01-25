@@ -341,7 +341,7 @@ export const TrialTable: FC<{
           <Grid item xs={12}>
             <Box margin={1}>
               <Typography variant="h6" gutterBottom component="div">
-                Trial tell operations
+                Trial tell
               </Typography>
               <form onSubmit={handleSubmit}>
                 <Box margin={1}>

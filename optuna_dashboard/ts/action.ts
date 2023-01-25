@@ -50,7 +50,7 @@ export const actionCreator = () => {
     setStudyDetailState(studyId, newStudy)
   }
 
-  const setTrialState = (
+  const setTrialStateValues = (
     studyId: number,
     index: number,
     state: TrialState,
@@ -307,7 +307,7 @@ export const actionCreator = () => {
           return
         }
         setTrialState(studyId, index, state, values)
-        enqueueSnackbar(`Success to update trial (${message})`, {
+        enqueueSnackbar(`Successfully updated trial (${message})`, {
           variant: "success",
         })
       })

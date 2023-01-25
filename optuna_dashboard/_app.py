@@ -436,7 +436,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
                 values = [float(v) for v in vs]
             except (ValueError, TypeError):
                 response.status = 400  # Bad request
-                return {"reason": "values attribute must be number's array"}
+                return {"reason": "values attribute must be an array of numbers"}
 
         try:
             storage.set_trial_state_values(trial_id, state, values)
