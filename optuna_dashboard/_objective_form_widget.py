@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import json
 from typing import TYPE_CHECKING
+from typing import Union
 
 import optuna
 
@@ -12,7 +13,6 @@ if TYPE_CHECKING:
     from typing import Literal
     from typing import Optional
     from typing import TypedDict
-    from typing import Union
 
     ChoiceWidgetJSON = TypedDict(
         "ChoiceWidgetJSON",

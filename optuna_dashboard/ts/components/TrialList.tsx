@@ -126,10 +126,6 @@ const TrialListDetail: FC<{
   const theme = useTheme()
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
-  let duration = ""
-  if (startMs !== undefined && completeMs !== undefined) {
-    duration = (completeMs - startMs).toString()
-  }
 
   const params = trial.state === "Waiting" ? trial.fixed_params : trial.params
   const info: [string, string | null | ReactNode][] = [
@@ -162,7 +158,7 @@ const TrialListDetail: FC<{
       "Completed At",
       trial?.datetime_complete ? trial?.datetime_complete.toString() : null,
     ],
-    ["Duration", `${duration} ms`],
+    ["Duration (ms)", (startMs !== undefined && completeMs !== undefined) ? (completeMs - startMs).toString() : null],
     [
       "User Attributes",
       <Box>
@@ -242,7 +238,7 @@ const TrialListDetail: FC<{
           flexDirection: "column",
         }}
       >
-        {info.map(([key, value]) => renderInfo(key, value))}
+        {info.map(([key, value]) => value !== null ? renderInfo(key, value) : null)}
       </Box>
       <TrialNote
         studyId={trial.study_id}
