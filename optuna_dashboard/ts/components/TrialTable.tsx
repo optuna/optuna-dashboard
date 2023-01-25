@@ -1,9 +1,19 @@
-import React, { FC } from "react"
-import { Typography, Grid, Box, IconButton } from "@mui/material"
+import React, { createRef, FC, FormEvent, MouseEvent } from "react"
+import {
+  Typography,
+  Grid,
+  Box,
+  Button,
+  IconButton,
+  Stack,
+  TextField,
+} from "@mui/material"
 import LinkIcon from "@mui/icons-material/Link"
 
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { Link } from "react-router-dom"
+
+import { actionCreator } from "../action"
 
 export const TrialTable: FC<{
   studyDetail: StudyDetail | null
@@ -12,6 +22,7 @@ export const TrialTable: FC<{
 }> = ({ studyDetail, isBeta, initialRowsPerPage }) => {
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
   const objectiveNames: string[] = studyDetail?.objective_names || []
+  const action = actionCreator()
 
   const columns: DataGridColumn<Trial>[] = [
     { field: "number", label: "Number", sortable: true, padding: "none" },
@@ -263,6 +274,39 @@ export const TrialTable: FC<{
   ]
 
   const collapseBody = (index: number) => {
+    const objectiveFormRefs = studyDetail?.directions.map((d) =>
+      createRef<HTMLInputElement>()
+    )
+    const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
+      if (objectiveFormRefs === undefined) {
+        return
+      }
+      if (studyDetail === null) {
+        return
+      }
+
+      e.preventDefault()
+      const studyId = studyDetail.id
+      const trialId = trials[index].trial_id
+      const objectiveValues = objectiveFormRefs.map((ref) =>
+        ref.current ? Number(ref.current.value) : NaN
+      )
+      if (objectiveValues.includes(NaN)) {
+        return
+      }
+
+      action.tellTrial(studyId, trialId, "Complete", objectiveValues)
+    }
+
+    const handleFailTrial = (e: MouseEvent<HTMLButtonElement>): void => {
+      if (studyDetail === null) {
+        return
+      }
+      const studyId = studyDetail.id
+      const trialId = trials[index].trial_id
+      action.tellTrial(studyId, trialId, "Fail")
+    }
+
     return (
       <Grid container direction="row">
         <Grid item xs={6}>
@@ -293,6 +337,56 @@ export const TrialTable: FC<{
             />
           </Box>
         </Grid>
+        {trials[index].state === "Running" ? (
+          <Grid item xs={12}>
+            <Box margin={1}>
+              <Typography variant="h6" gutterBottom component="div">
+                Trial tell operations
+              </Typography>
+              <form onSubmit={handleSubmit}>
+                <Box margin={1}>
+                  <Stack direction="row" spacing={1}>
+                    {objectiveFormRefs !== undefined &&
+                      objectiveFormRefs.map((ref, i) => (
+                        <TextField
+                          required
+                          id={`objective-${i}`}
+                          key={`objective-${i}`}
+                          label={
+                            objectiveNames.length ===
+                            studyDetail?.directions.length
+                              ? objectiveNames[i]
+                              : `Objective ${i}`
+                          }
+                          inputProps={{
+                            inputMode: "numeric",
+                            pattern:
+                              "[+-]?([0-9]+(.[0-9]*)?|.[0-9]+)([eE][+-]?[0-9]+)?",
+                            title: "Please input a float number",
+                          }}
+                          inputRef={ref}
+                        />
+                      ))}
+                  </Stack>
+                </Box>
+                <Box margin={1}>
+                  <Stack direction="row" spacing={1}>
+                    <Button variant="contained" type="submit">
+                      Submit
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      onClick={handleFailTrial}
+                    >
+                      Fail Trial
+                    </Button>
+                  </Stack>
+                </Box>
+              </form>
+            </Box>
+          </Grid>
+        ) : null}
       </Grid>
     )
   }

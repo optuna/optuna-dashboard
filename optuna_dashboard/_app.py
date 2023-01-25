@@ -32,6 +32,7 @@ from optuna.storages import RDBStorage
 from optuna.study import StudyDirection
 from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
+from optuna.trial import TrialState
 from optuna.version import __version__ as optuna_ver
 from packaging import version
 
@@ -55,6 +56,13 @@ BottleViewReturn = Union[str, bytes, Dict[str, Any], BaseResponse]
 BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])
 
 logger = logging.getLogger(__name__)
+str_to_trial_state = {
+    "Running": TrialState.RUNNING,
+    "Waiting": TrialState.WAITING,
+    "Complete": TrialState.COMPLETE,
+    "Pruned": TrialState.PRUNED,
+    "Fail": TrialState.FAIL,
+}
 
 # Static files
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -409,6 +417,34 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
 
         note.save_note_with_version(storage, study_id, None, req_note_ver, req_note_body)
         response.status = 204  # No content
+        return {}
+
+    @app.post("/api/trials/<trial_id:int>/tell")
+    @json_api_view
+    def tell_trial(trial_id: int) -> BottleViewReturn:
+        state = str_to_trial_state.get(request.json.get("state"))
+        if state is None or not state.is_finished():
+            response.status = 400  # Bad request
+            return {"reason": "state must be either 'Complete', 'Pruned' or 'Fail'."}
+        values = None
+        if state == TrialState.COMPLETE:
+            vs = request.json.get("values")
+            if vs is None:
+                response.status = 400  # Bad request
+                return {"reason": "values attribute is required when state is 'Complete'."}
+            try:
+                values = [float(v) for v in vs]
+            except (ValueError, TypeError):
+                response.status = 400  # Bad request
+                return {"reason": "values attribute must be number's array"}
+
+        try:
+            storage.set_trial_state_values(trial_id, state, values)
+        except Exception as e:
+            response.status = 500
+            return {"reason": f"Internal server error: {e}"}
+
+        response.status = 204
         return {}
 
     @app.put("/api/studies/<study_id:int>/<trial_id:int>/note")
