@@ -24,15 +24,20 @@ if TYPE_CHECKING:
             "values": list[float],
         },
     )
+    SliderWidgetLabels = TypedDict(
+        "SliderWidgetLabels",
+        {"value": float, "label": str},
+    )
     SliderWidgetJSON = TypedDict(
         "SliderWidgetJSON",
         {
             "type": Literal["slider"],
             "objective_name": str,
             "description": Optional[str],
-            "range": tuple[float, float],
+            "min": float,
+            "max": float,
             "step": Optional[float],
-            "labels": Optional[list[tuple[float, str]]],
+            "labels": Optional[list[SliderWidgetLabels]],
         },
     )
     TextInputWidgetJSON = TypedDict(
@@ -62,7 +67,8 @@ class ChoiceWidget:
 @dataclass
 class SliderWidget:
     objective_name: str
-    range: tuple[float, float]
+    min: float
+    max: float
     step: Optional[float]
     labels: Optional[list[tuple[float, str]]]
     description: Optional[str] = None
@@ -72,7 +78,8 @@ class SliderWidget:
             "type": "slider",
             "objective_name": self.objective_name,
             "description": self.description,
-            "range": self.range,
+            "min": self.min,
+            "max": self.max,
             "step": self.step,
             "labels": self.labels,
         }
