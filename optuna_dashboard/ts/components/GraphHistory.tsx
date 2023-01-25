@@ -29,6 +29,7 @@ export const GraphHistory: FC<{
   betaLogScale?: boolean
   betaIncludePruned?: boolean
 }> = ({ study, betaLogScale, betaIncludePruned }) => {
+  console.log(study)
   const theme = useTheme()
   const [xAxis, setXAxis] = useState<
     "number" | "datetime_start" | "datetime_complete"

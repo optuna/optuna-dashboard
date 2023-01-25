@@ -180,6 +180,15 @@ export const StudyListBeta: FC<{
                 >
                   Create
                 </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<AddBoxIcon />}
+                  component={Link}
+                  to={`${URL_PREFIX}/compare-studies`}
+                  sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
+                >
+                  Compare
+                </Button>
               </Box>
             </CardContent>
           </Card>
