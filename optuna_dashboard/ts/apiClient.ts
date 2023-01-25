@@ -228,7 +228,7 @@ export const tellTrialAPI = (
   }
 
   return axiosInstance
-    .post<void>(`/api/studies/${trialId}/tell`, req)
+    .post<void>(`/api/trials/${trialId}/tell`, req)
     .then((res) => {
       return
     })
