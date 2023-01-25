@@ -56,13 +56,6 @@ BottleViewReturn = Union[str, bytes, Dict[str, Any], BaseResponse]
 BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])
 
 logger = logging.getLogger(__name__)
-str_to_trial_state = {
-    "Running": TrialState.RUNNING,
-    "Waiting": TrialState.WAITING,
-    "Complete": TrialState.COMPLETE,
-    "Pruned": TrialState.PRUNED,
-    "Fail": TrialState.FAIL,
-}
 
 # Static files
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -422,10 +415,21 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
     @app.post("/api/trials/<trial_id:int>/tell")
     @json_api_view
     def tell_trial(trial_id: int) -> BottleViewReturn:
-        state = str_to_trial_state.get(request.json.get("state"))
-        if state is None or not state.is_finished():
+
+        if "state" not in request.json:
             response.status = 400  # Bad request
-            return {"reason": "state must be either 'Complete', 'Pruned' or 'Fail'."}
+            return {"reason": "state must be specified."}
+
+        try:
+            state = TrialState[request.json["state"].upper()]
+        except Exception:  # To catch KeyError and Exception by non str case.
+            response.status = 400  # Bad request
+            return {"reason": "state must be either 'Complete' or 'Fail'."}
+
+        if state not in [TrialState.COMPLETE, TrialState.FAIL]:
+            response.status = 400  # Bad request
+            return {"reason": "state must be either 'Complete' or 'Fail'."}
+
         values = None
         if state == TrialState.COMPLETE:
             vs = request.json.get("values")

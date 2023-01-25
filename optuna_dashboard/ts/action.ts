@@ -306,7 +306,7 @@ export const actionCreator = () => {
           })
           return
         }
-        setTrialState(studyId, index, state, values)
+        setTrialStateValues(studyId, index, state, values)
         enqueueSnackbar(`Successfully updated trial (${message})`, {
           variant: "success",
         })
