@@ -412,7 +412,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
         response.status = 204  # No content
         return {}
 
-    @app.post("/api/studies/<trial_id:int>/tell")
+    @app.post("/api/trials/<trial_id:int>/tell")
     @json_api_view
     def tell_trial(trial_id: int) -> BottleViewReturn:
         s = request.json.get("state", None)
@@ -445,10 +445,10 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
         try:
             storage.set_trial_state_values(trial_id, state, values)
         except Exception as e:
-            response.status = 400  # Bad request
-            return {"reason": e.args}
+            response.status = 500
+            return {"reason": f"Internal server error: {e}"}
 
-        response.status = 201
+        response.status = 204
         return {}
 
     @app.put("/api/studies/<study_id:int>/<trial_id:int>/note")
