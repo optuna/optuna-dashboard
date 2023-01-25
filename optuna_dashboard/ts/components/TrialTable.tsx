@@ -361,7 +361,7 @@ export const TrialTable: FC<{
                           inputProps={{
                             inputMode: "numeric",
                             pattern:
-                              "[+-]?([0-9]+(.[0-9]*)?|.[0-9]+)([eE][+-]?[0-9]+)?",
+                              "[-+]?[0-9]*.?[0-9]+([eE][-+]?[0-9]+)?",
                             title: "Please input a float number",
                           }}
                           inputRef={ref}
