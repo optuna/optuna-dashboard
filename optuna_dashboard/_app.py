@@ -425,17 +425,13 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
         state = str_to_trial_state.get(request.json.get("state"))
         if state is None or not state.is_finished():
             response.status = 400  # Bad request
-            return {
-                "reason": f"state must be either 'Complete', 'Pruned' or 'Fail'."
-            }
+            return {"reason": "state must be either 'Complete', 'Pruned' or 'Fail'."}
         values = None
         if state == TrialState.COMPLETE:
             vs = request.json.get("values")
             if vs is None:
                 response.status = 400  # Bad request
-                return {
-                    "reason": "values attribute is required when state is 'Complete'."
-                }
+                return {"reason": "values attribute is required when state is 'Complete'."}
             try:
                 values = [float(v) for v in vs]
             except (ValueError, TypeError):
