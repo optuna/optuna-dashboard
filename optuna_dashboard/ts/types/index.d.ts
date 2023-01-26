@@ -89,6 +89,13 @@ type Note = {
   body: string
 }
 
+type Artifact = {
+  artifact_id: string
+  filename: string
+  mimetype: string
+  encoding: string
+}
+
 type Trial = {
   trial_id: number
   study_id: number
@@ -106,6 +113,7 @@ type Trial = {
   user_attrs: Attribute[]
   system_attrs: Attribute[]
   note: Note
+  artifacts: Artifact[]
 }
 
 type StudySummary = {

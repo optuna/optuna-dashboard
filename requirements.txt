@@ -2,12 +2,18 @@
 optuna>=2.4
 bottle
 scikit-learn
+typing-extensions;python_version<"3.8"
 
 # lint
 black
 flake8
 isort
+mypy-boto3-s3
 mypy
 
-# test
+# unit test
+boto3
+moto[s3]
+
+# visual regression tests
 pyppeteer

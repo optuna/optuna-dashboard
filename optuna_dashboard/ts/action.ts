@@ -1,4 +1,4 @@
-import { useRecoilState } from "recoil"
+import { useRecoilState, useSetRecoilState } from "recoil"
 import { useSnackbar } from "notistack"
 import {
   getStudyDetailAPI,
@@ -10,12 +10,17 @@ import {
   saveTrialNoteAPI,
   tellTrialAPI,
   renameStudyAPI,
+  uploadArtifactAPI,
+  getMetaInfoAPI,
+  deleteArtifactAPI,
 } from "./apiClient"
 import {
   graphVisibilityState,
   studyDetailsState,
   studySummariesState,
   paramImportanceState,
+  isFileUploading,
+  artifactIsAvailable,
 } from "./state"
 
 const localStorageGraphVisibility = "graphVisibility"
@@ -30,11 +35,21 @@ export const actionCreator = () => {
     useRecoilState<GraphVisibility>(graphVisibilityState)
   const [paramImportance, setParamImportance] =
     useRecoilState<StudyParamImportance>(paramImportanceState)
+  const setUploading = useSetRecoilState<boolean>(isFileUploading)
+  const setArtifactIsAvailable = useSetRecoilState<boolean>(artifactIsAvailable)
 
   const setStudyDetailState = (studyId: number, study: StudyDetail) => {
     const newVal = Object.assign({}, studyDetails)
     newVal[studyId] = study
     setStudyDetails(newVal)
+  }
+
+  const setTrial = (studyId: number, trialIndex: number, trial: Trial) => {
+    const newTrials: Trial[] = [...studyDetails[studyId].trials]
+    newTrials[trialIndex] = trial
+    const newStudy: StudyDetail = Object.assign({}, studyDetails[studyId])
+    newStudy.trials = newTrials
+    setStudyDetailState(studyId, newStudy)
   }
 
   const setTrialNote = (studyId: number, index: number, note: Note) => {
@@ -43,11 +58,42 @@ export const actionCreator = () => {
       studyDetails[studyId].trials[index]
     )
     newTrial.note = note
-    const newTrials: Trial[] = [...studyDetails[studyId].trials]
-    newTrials[index] = newTrial
-    const newStudy: StudyDetail = Object.assign({}, studyDetails[studyId])
-    newStudy.trials = newTrials
-    setStudyDetailState(studyId, newStudy)
+    setTrial(studyId, index, newTrial)
+  }
+
+  const setTrialArtifacts = (
+    studyId: number,
+    trialIndex: number,
+    artifacts: Artifact[]
+  ) => {
+    const newTrial: Trial = Object.assign(
+      {},
+      studyDetails[studyId].trials[trialIndex]
+    )
+    newTrial.artifacts = artifacts
+    setTrial(studyId, trialIndex, newTrial)
+  }
+
+  const deleteTrialArtifact = (
+    studyId: number,
+    trialId: number,
+    artifact_id: string
+  ) => {
+    const index = studyDetails[studyId].trials.findIndex(
+      (t) => t.trial_id === trialId
+    )
+    if (index === -1) {
+      return
+    }
+    const artifacts = studyDetails[studyId].trials[index].artifacts
+    const artifactIndex = artifacts.findIndex(
+      (a) => a.artifact_id === artifact_id
+    )
+    const newArtifacts = [
+      ...artifacts.slice(0, artifactIndex),
+      ...artifacts.slice(artifactIndex + 1, artifacts.length),
+    ]
+    setTrialArtifacts(studyId, index, newArtifacts)
   }
 
   const setTrialStateValues = (
@@ -76,6 +122,12 @@ export const actionCreator = () => {
     const newVal = Object.assign({}, paramImportance)
     newVal[studyId] = importance
     setParamImportance(newVal)
+  }
+
+  const updateAPIMeta = () => {
+    getMetaInfoAPI().then((r) => {
+      setArtifactIsAvailable(r.artifact_is_available)
+    })
   }
 
   const updateStudySummaries = (successMsg?: string) => {
@@ -285,6 +337,58 @@ export const actionCreator = () => {
       })
   }
 
+  const uploadArtifact = (
+    studyId: number,
+    trialId: number,
+    file: File
+  ): void => {
+    const reader = new FileReader()
+    setUploading(true)
+    reader.readAsDataURL(file)
+    reader.onload = (upload: any) => {
+      uploadArtifactAPI(studyId, trialId, file.name, upload.target.result)
+        .then((res) => {
+          setUploading(false)
+          const index = studyDetails[studyId].trials.findIndex(
+            (t) => t.trial_id === trialId
+          )
+          if (index === -1) {
+            return
+          }
+          setTrialArtifacts(studyId, index, res.artifacts)
+        })
+        .catch((err) => {
+          setUploading(false)
+          const reason = err.response?.data.reason
+          enqueueSnackbar(`Failed to upload ${reason}`, { variant: "error" })
+        })
+    }
+    reader.onerror = (error) => {
+      enqueueSnackbar(`Failed to read the file ${error}`, { variant: "error" })
+      console.log(error)
+    }
+  }
+
+  const deleteArtifact = (
+    studyId: number,
+    trialId: number,
+    artifactId: string
+  ): void => {
+    deleteArtifactAPI(studyId, trialId, artifactId)
+      .then(() => {
+        deleteTrialArtifact(studyId, trialId, artifactId)
+        enqueueSnackbar(`Success to delete an artifact.`, {
+          variant: "success",
+        })
+      })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(`Failed to delete ${reason}.`, {
+          variant: "error",
+        })
+      })
+  }
+
   const tellTrial = (
     studyId: number,
     trialId: number,
@@ -324,6 +428,7 @@ export const actionCreator = () => {
   }
 
   return {
+    updateAPIMeta,
     updateStudyDetail,
     updateStudySummaries,
     updateParamImportance,
@@ -334,6 +439,8 @@ export const actionCreator = () => {
     saveGraphVisibility,
     saveStudyNote,
     saveTrialNote,
+    uploadArtifact,
+    deleteArtifact,
     tellTrial,
   }
 }

@@ -3,21 +3,14 @@ from __future__ import annotations
 from datetime import datetime
 from datetime import timedelta
 import functools
-import json
 import logging
 import os
 import threading
-import traceback
 import typing
 from typing import Any
-from typing import Callable
-from typing import cast
-from typing import Dict
 from typing import Optional
-from typing import TypeVar
 from typing import Union
 
-from bottle import BaseResponse
 from bottle import Bottle
 from bottle import redirect
 from bottle import request
@@ -37,23 +30,26 @@ from optuna.version import __version__ as optuna_ver
 from packaging import version
 
 from . import _note as note
+from ._bottle_util import BottleViewReturn
+from ._bottle_util import json_api_view
 from ._cached_extra_study_property import get_cached_extra_study_property
 from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
 from ._serializer import serialize_study_detail
 from ._serializer import serialize_study_summary
+from .artifact._backend import delete_all_artifacts
+from .artifact._backend import register_artifact_route
 
 
 if typing.TYPE_CHECKING:
     from _typeshed.wsgi import WSGIApplication
+    from optuna_dashboard.artifact.protocol import ArtifactBackend
 
     try:
         from optuna.study._frozen import FrozenStudy
     except ImportError:
         FrozenStudy = None  # type: ignore
 
-BottleViewReturn = Union[str, bytes, Dict[str, Any], BaseResponse]
-BottleView = TypeVar("BottleView", bound=Callable[..., BottleViewReturn])
 
 logger = logging.getLogger(__name__)
 
@@ -127,23 +123,6 @@ def update_schema_compatibility_flags(storage: BaseStorage) -> None:
         rdb_schema_unsupported = current_version not in storage.get_all_versions()
 
 
-def json_api_view(view: BottleView) -> BottleView:
-    @functools.wraps(view)
-    def decorated(*args: list[Any], **kwargs: dict[str, Any]) -> BottleViewReturn:
-        try:
-            response.content_type = "application/json"
-            response_body = view(*args, **kwargs)
-            return response_body
-        except Exception as e:
-            response.status = 500
-            response.content_type = "application/json"
-            stacktrace = "\n".join(traceback.format_tb(e.__traceback__))
-            logger.error(f"Exception: {e}\n{stacktrace}")
-            return json.dumps({"reason": "internal server error"})
-
-    return cast(BottleView, decorated)
-
-
 def get_study_summaries(storage: BaseStorage) -> list[StudySummary]:
     if version.parse(optuna_ver) >= version.Version("3.0.0rc0.dev"):
         frozen_studies = storage.get_all_studies()  # type: ignore
@@ -202,7 +181,11 @@ def get_trials(storage: BaseStorage, study_id: int, ttl_seconds: int = 10) -> li
     return trials
 
 
-def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
+def create_app(
+    storage: BaseStorage,
+    artifact_backend: Optional[ArtifactBackend] = None,
+    debug: bool = False,
+) -> Bottle:
     app = Bottle()
     update_schema_compatibility_flags(storage)
 
@@ -245,9 +228,16 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
             rdb_schema_needs_migrate = False
         return redirect("/dashboard", 302)
 
+    @app.get("/api/meta")
+    @json_api_view
+    def api_meta() -> dict[str, Any]:
+        return {
+            "artifact_is_available": artifact_backend is not None,
+        }
+
     @app.get("/api/studies")
     @json_api_view
-    def list_study_summaries() -> BottleViewReturn:
+    def list_study_summaries() -> dict[str, Any]:
         summaries = get_study_summaries(storage)
         serialized = [serialize_study_summary(summary) for summary in summaries]
         return {
@@ -256,7 +246,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
 
     @app.post("/api/studies")
     @json_api_view
-    def create_study() -> BottleViewReturn:
+    def create_study() -> dict[str, Any]:
         study_name = request.json.get("study_name", None)
         request_directions = [d.lower() for d in request.json.get("directions", [])]
         if (
@@ -286,7 +276,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
 
     @app.post("/api/studies/<study_id:int>/rename")
     @json_api_view
-    def rename_study(study_id: int) -> BottleViewReturn:
+    def rename_study(study_id: int) -> dict[str, Any]:
         dst_study_name = request.json.get("study_name", None)
         if dst_study_name is None:
             response.status = 400  # Bad request
@@ -321,18 +311,22 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
 
     @app.delete("/api/studies/<study_id:int>")
     @json_api_view
-    def delete_study(study_id: int) -> BottleViewReturn:
+    def delete_study(study_id: int) -> dict[str, Any]:
+        if artifact_backend is not None:
+            system_attrs = storage.get_study_system_attrs(study_id)
+            delete_all_artifacts(artifact_backend, system_attrs)
+
         try:
             storage.delete_study(study_id)
         except KeyError:
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
         response.status = 204  # No content
-        return ""
+        return {}
 
     @app.get("/api/studies/<study_id:int>")
     @json_api_view
-    def get_study_detail(study_id: int) -> BottleViewReturn:
+    def get_study_detail(study_id: int) -> dict[str, Any]:
         try:
             after = int(request.params["after"])
             assert after >= 0
@@ -372,7 +366,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
 
     @app.get("/api/studies/<study_id:int>/param_importances")
     @json_api_view
-    def get_param_importances(study_id: int) -> BottleViewReturn:
+    def get_param_importances(study_id: int) -> dict[str, Any]:
         try:
             n_directions = len(storage.get_study_directions(study_id))
         except KeyError:
@@ -392,7 +386,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
 
     @app.put("/api/studies/<study_id:int>/note")
     @json_api_view
-    def save_study_note(study_id: int) -> BottleViewReturn:
+    def save_study_note(study_id: int) -> dict[str, Any]:
         req_note_ver = request.json.get("version", None)
         req_note_body = request.json.get("body", None)
         if req_note_ver is None or req_note_body is None:
@@ -414,7 +408,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
 
     @app.post("/api/trials/<trial_id:int>/tell")
     @json_api_view
-    def tell_trial(trial_id: int) -> BottleViewReturn:
+    def tell_trial(trial_id: int) -> dict[str, Any]:
 
         if "state" not in request.json:
             response.status = 400  # Bad request
@@ -453,7 +447,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
 
     @app.put("/api/studies/<study_id:int>/<trial_id:int>/note")
     @json_api_view
-    def save_trial_note(study_id: int, trial_id: int) -> BottleViewReturn:
+    def save_trial_note(study_id: int, trial_id: int) -> dict[str, Any]:
         req_note_ver = request.json.get("version", None)
         req_note_body = request.json.get("body", None)
         if req_note_ver is None or req_note_body is None:
@@ -488,6 +482,7 @@ def create_app(storage: BaseStorage, debug: bool = False) -> Bottle:
                 filename = gz_filename
         return static_file(filename, root=STATIC_DIR)
 
+    register_artifact_route(app, storage, artifact_backend)
     return app
 
 

@@ -17,6 +17,7 @@ from . import __version__
 from ._app import create_app
 from ._app import get_storage
 from ._sql_profiler import register_profiler_view
+from .artifact.file_system import FileSystemBackend
 
 
 if TYPE_CHECKING:
@@ -94,13 +95,22 @@ def main() -> None:
         default="auto",
         choices=SERVER_CHOICES,
     )
+    parser.add_argument(
+        "--artifact-dir",
+        help="directory to store artifact files",
+        default=None,
+    )
     parser.add_argument("--version", "-v", action="version", version=__version__)
     parser.add_argument("--quiet", "-q", help="quiet", action="store_true")
     args = parser.parse_args()
 
     storage: BaseStorage
     storage = get_storage(args.storage)
-    app = create_app(storage, debug=DEBUG)
+
+    artifact_backend = None
+    if args.artifact_dir is not None:
+        artifact_backend = FileSystemBackend(args.artifact_dir)
+    app = create_app(storage, artifact_backend=artifact_backend, debug=DEBUG)
 
     if DEBUG and isinstance(storage, RDBStorage):
         app = register_profiler_view(app, storage)
