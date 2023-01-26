@@ -2,6 +2,16 @@ import axios from "axios"
 
 const axiosInstance = axios.create({ baseURL: API_ENDPOINT })
 
+type APIMeta = {
+  artifact_is_available: boolean
+}
+
+export const getMetaInfoAPI = (): Promise<APIMeta> => {
+  return axiosInstance
+    .get<APIMeta>(`/api/meta`)
+    .then<APIMeta>((res) => res.data)
+}
+
 interface TrialResponse {
   trial_id: number
   study_id: number
@@ -19,6 +29,7 @@ interface TrialResponse {
   user_attrs: Attribute[]
   system_attrs: Attribute[]
   note: Note
+  artifacts: Artifact[]
 }
 
 const convertTrialResponse = (res: TrialResponse): Trial => {
@@ -40,6 +51,7 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
     user_attrs: res.user_attrs,
     system_attrs: res.system_attrs,
     note: res.note,
+    artifacts: res.artifacts,
   }
 }
 
@@ -214,6 +226,39 @@ export const saveTrialNoteAPI = (
 ): Promise<void> => {
   return axiosInstance
     .put<void>(`/api/studies/${studyId}/${trialId}/note`, note)
+    .then((res) => {
+      return
+    })
+}
+
+type UploadArtifactAPIResponse = {
+  artifact_id: string
+  artifacts: Artifact[]
+}
+
+export const uploadArtifactAPI = (
+  studyId: number,
+  trialId: number,
+  fileName: string,
+  dataUrl: string
+): Promise<UploadArtifactAPIResponse> => {
+  return axiosInstance
+    .post<UploadArtifactAPIResponse>(`/api/artifacts/${studyId}/${trialId}`, {
+      file: dataUrl,
+      filename: fileName,
+    })
+    .then((res) => {
+      return res.data
+    })
+}
+
+export const deleteArtifactAPI = (
+  studyId: number,
+  trialId: number,
+  artifactId: string
+): Promise<void> => {
+  return axiosInstance
+    .delete<void>(`/api/artifacts/${studyId}/${trialId}/${artifactId}`)
     .then((res) => {
       return
     })

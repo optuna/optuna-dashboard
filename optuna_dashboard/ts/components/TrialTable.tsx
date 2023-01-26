@@ -341,7 +341,7 @@ export const TrialTable: FC<{
           <Grid item xs={12}>
             <Box margin={1}>
               <Typography variant="h6" gutterBottom component="div">
-                Trial tell operations
+                Trial tell
               </Typography>
               <form onSubmit={handleSubmit}>
                 <Box margin={1}>
@@ -360,8 +360,7 @@ export const TrialTable: FC<{
                           }
                           inputProps={{
                             inputMode: "numeric",
-                            pattern:
-                              "[+-]?([0-9]+(.[0-9]*)?|.[0-9]+)([eE][+-]?[0-9]+)?",
+                            pattern: "[-+]?[0-9]*.?[0-9]+([eE][-+]?[0-9]+)?",
                             title: "Please input a float number",
                           }}
                           inputRef={ref}

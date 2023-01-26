@@ -14,6 +14,7 @@ from optuna.trial import FrozenTrial
 from . import _note as note
 from ._named_objectives import get_objective_names
 from ._objective_form_widget import get_objective_form_widgets
+from .artifact._backend import list_trial_artifacts
 
 
 if TYPE_CHECKING:
@@ -107,7 +108,7 @@ def serialize_study_summary(summary: StudySummary) -> dict[str, Any]:
     }
 
     if summary.datetime_start is not None:
-        serialized["datetime_start"] = (summary.datetime_start.isoformat(),)
+        serialized["datetime_start"] = summary.datetime_start.isoformat()
 
     return serialized
 
@@ -166,7 +167,7 @@ def serialize_frozen_trial(
                 "distribution": serialize_distribution(distribution),
             }
         )
-    trial_system_attrs = getattr(trial, "_system_attrs", {})
+    trial_system_attrs: dict[str, Any] = getattr(trial, "_system_attrs", {})
     fixed_params = trial_system_attrs.get("fixed_params", {})
     serialized = {
         "trial_id": trial._trial_id,
@@ -179,8 +180,11 @@ def serialize_frozen_trial(
             for param_name in fixed_params
         ],
         "user_attrs": serialize_attrs(trial.user_attrs),
-        "system_attrs": serialize_attrs(trial_system_attrs),
+        "system_attrs": serialize_attrs(
+            {k: trial_system_attrs[k] for k in trial_system_attrs if not k.startswith("dashboard")}
+        ),
         "note": note.get_note_from_system_attrs(study_system_attrs, trial._trial_id),
+        "artifacts": list_trial_artifacts(study_system_attrs, trial._trial_id),
     }
 
     serialized_intermediate_values: list[IntermediateValue] = []

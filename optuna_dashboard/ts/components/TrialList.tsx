@@ -1,4 +1,13 @@
-import React, { FC, ReactNode, useMemo } from "react"
+import React, {
+  ChangeEventHandler,
+  DragEventHandler,
+  FC,
+  MouseEventHandler,
+  ReactNode,
+  useMemo,
+  useRef,
+  useState,
+} from "react"
 import {
   Typography,
   Box,
@@ -6,6 +15,10 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Card,
+  CardContent,
+  CardMedia,
+  CardActionArea,
 } from "@mui/material"
 import Chip from "@mui/material/Chip"
 import Divider from "@mui/material/Divider"
@@ -17,10 +30,18 @@ import ListSubheader from "@mui/material/ListSubheader"
 import FilterListIcon from "@mui/icons-material/FilterList"
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
+import UploadFileIcon from "@mui/icons-material/UploadFile"
+import DownloadIcon from "@mui/icons-material/Download"
+import DeleteIcon from "@mui/icons-material/Delete"
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 
 import { TrialNote } from "./Note"
 import { useHistory, useLocation } from "react-router-dom"
 import ListItemIcon from "@mui/material/ListItemIcon"
+import { useRecoilValue } from "recoil"
+import { artifactIsAvailable } from "../state"
+import { actionCreator } from "../action"
+import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
 
 const states: TrialState[] = [
   "Complete",
@@ -124,6 +145,7 @@ const TrialListDetail: FC<{
   isBestTrial: (trialId: number) => boolean
 }> = ({ trial, isBestTrial }) => {
   const theme = useTheme()
+  const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
 
@@ -240,13 +262,260 @@ const TrialListDetail: FC<{
       >
         {info.map(([key, value]) => value !== null ? renderInfo(key, value) : null)}
       </Box>
+      <Typography
+        variant="h5"
+        sx={{
+          fontWeight: theme.typography.fontWeightBold,
+          marginBottom: theme.spacing(1),
+        }}
+      >
+        Note
+      </Typography>
       <TrialNote
         studyId={trial.study_id}
         trialId={trial.trial_id}
         latestNote={trial.note}
         cardSx={{ marginBottom: theme.spacing(2) }}
       />
+      {artifactEnabled && <TrialArtifact trial={trial} />}
     </Box>
+  )
+}
+
+const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
+  const theme = useTheme()
+  const action = actionCreator()
+  const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
+    useDeleteArtifactDialog()
+  const [dragOver, setDragOver] = useState<boolean>(false)
+
+  const inputRef = useRef<HTMLInputElement>(null)
+  const handleClick: MouseEventHandler = (e) => {
+    if (!inputRef || !inputRef.current) {
+      return
+    }
+    inputRef.current.click()
+  }
+  const handleOnChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const files = e.target.files
+    if (files === null) {
+      return
+    }
+    action.uploadArtifact(trial.study_id, trial.trial_id, files[0])
+  }
+  const handleDrop: DragEventHandler = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    const files = e.dataTransfer.files
+    setDragOver(false)
+    for (let i = 0; i < files.length; i++) {
+      action.uploadArtifact(trial.study_id, trial.trial_id, files[i])
+    }
+  }
+  const handleDragOver: DragEventHandler = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "copy"
+    setDragOver(true)
+  }
+  const handleDragLeave: DragEventHandler = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "copy"
+    setDragOver(false)
+  }
+  return (
+    <>
+      <Typography
+        variant="h5"
+        sx={{ fontWeight: theme.typography.fontWeightBold }}
+      >
+        Artifacts
+      </Typography>
+      <Box sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}>
+        {trial.artifacts.map((a) => {
+          if (a.mimetype.startsWith("image")) {
+            return (
+              <Card
+                key={a.artifact_id}
+                sx={{
+                  marginBottom: theme.spacing(2),
+                  width: "280px",
+                  margin: theme.spacing(0, 1, 1, 0),
+                }}
+              >
+                <CardMedia
+                  component="img"
+                  height="210"
+                  image={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                  alt={a.filename}
+                />
+                <CardContent
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    padding: `${theme.spacing(1)} !important`,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      p: theme.spacing(0.5, 0),
+                      flexGrow: 1,
+                      wordWrap: "break-word",
+                      maxWidth: `calc(100% - ${theme.spacing(8)})`,
+                    }}
+                  >
+                    {a.filename}
+                  </Typography>
+                  <IconButton
+                    aria-label="delete artifact"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    onClick={() => {
+                      openDeleteArtifactDialog(
+                        trial.study_id,
+                        trial.trial_id,
+                        a
+                      )
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                  <IconButton
+                    aria-label="download artifact"
+                    size="small"
+                    color="inherit"
+                    download={a.filename}
+                    sx={{ margin: "auto 0" }}
+                    href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                  >
+                    <DownloadIcon />
+                  </IconButton>
+                </CardContent>
+              </Card>
+            )
+          } else {
+            return (
+              <Card
+                key={a.artifact_id}
+                sx={{
+                  marginBottom: theme.spacing(2),
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "280px",
+                  minHeight: "100%",
+                  margin: theme.spacing(0, 1, 1, 0),
+                }}
+              >
+                <Box
+                  sx={{
+                    flexGrow: 1,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <InsertDriveFileIcon sx={{ fontSize: 80 }} />
+                </Box>
+                <CardContent
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    padding: `${theme.spacing(1)} !important`,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      p: theme.spacing(0.5, 0),
+                      flexGrow: 1,
+                      maxWidth: `calc(100% - ${theme.spacing(8)})`,
+                    }}
+                  >
+                    {a.filename}
+                  </Typography>
+                  <IconButton
+                    aria-label="delete artifact"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    onClick={() => {
+                      openDeleteArtifactDialog(
+                        trial.study_id,
+                        trial.trial_id,
+                        a
+                      )
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                  <IconButton
+                    aria-label="download artifact"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    download={a.filename}
+                    href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                  >
+                    <DownloadIcon />
+                  </IconButton>
+                </CardContent>
+              </Card>
+            )
+          }
+        })}
+        <Card
+          sx={{
+            marginBottom: theme.spacing(2),
+            width: "280px",
+            minHeight: "210px",
+            margin: theme.spacing(0, 1, 1, 0),
+            border: dragOver
+              ? `3px dashed ${
+                  theme.palette.mode === "dark" ? "white" : "black"
+                }`
+              : `1px solid ${theme.palette.divider}`,
+          }}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          <CardActionArea
+            onClick={handleClick}
+            sx={{
+              height: "100%",
+            }}
+          >
+            <CardContent
+              sx={{
+                display: "flex",
+                height: "100%",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <UploadFileIcon
+                sx={{ fontSize: 80, marginBottom: theme.spacing(2) }}
+              />
+              <input
+                type="file"
+                ref={inputRef}
+                onChange={handleOnChange}
+                style={{ display: "none" }}
+              />
+              <Typography>Upload a New File</Typography>
+              <Typography
+                sx={{ textAlign: "center", color: theme.palette.grey.A400 }}
+              >
+                Drag your file here or click to browse.
+              </Typography>
+            </CardContent>
+          </CardActionArea>
+        </Card>
+      </Box>
+      {renderDeleteArtifactDialog()}
+    </>
   )
 }
 

@@ -39,6 +39,16 @@ export const drawerOpenState = atom<boolean>({
   default: false,
 })
 
+export const isFileUploading = atom<boolean>({
+  key: "isFileUploading",
+  default: false,
+})
+
+export const artifactIsAvailable = atom<boolean>({
+  key: "artifactIsAvailable",
+  default: false,
+})
+
 export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
   return studyDetails[studyId] || null
@@ -69,4 +79,13 @@ export const useStudyName = (studyId: number): string | null => {
   const studyDetail = useStudyDetailValue(studyId)
   const studySummary = useStudySummaryValue(studyId)
   return studyDetail?.name || studySummary?.study_name || null
+}
+
+export const useArtifacts = (studyId: number, trialId: number): Artifact[] => {
+  const study = useStudyDetailValue(studyId)
+  const trial = study?.trials.find((t) => t.trial_id === trialId)
+  if (trial === undefined) {
+    return []
+  }
+  return trial.artifacts
 }

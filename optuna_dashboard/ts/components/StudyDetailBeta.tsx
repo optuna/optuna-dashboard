@@ -55,6 +55,7 @@ export const StudyDetailBeta: FC<{
 
   useEffect(() => {
     action.updateStudyDetail(studyId)
+    action.updateAPIMeta()
   }, [])
 
   useEffect(() => {
@@ -125,11 +126,29 @@ export const StudyDetailBeta: FC<{
     content = <TrialList studyDetail={studyDetail} />
   } else if (page === "note" && studyDetail !== null) {
     content = (
-      <StudyNote
-        studyId={studyId}
-        latestNote={studyDetail.note}
-        cardSx={{ height: "90vh" }}
-      />
+      <Box
+        sx={{
+          height: `calc(100vh - ${theme.spacing(8)})`,
+          display: "flex",
+          flexDirection: "column",
+          padding: theme.spacing(2),
+        }}
+      >
+        <Typography
+          variant="h5"
+          sx={{
+            fontWeight: theme.typography.fontWeightBold,
+            margin: theme.spacing(2, 0),
+          }}
+        >
+          Note
+        </Typography>
+        <StudyNote
+          studyId={studyId}
+          latestNote={studyDetail.note}
+          cardSx={{ flexGrow: 1 }}
+        />
+      </Box>
     )
   }
 
