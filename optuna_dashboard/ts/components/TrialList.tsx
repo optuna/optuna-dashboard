@@ -19,6 +19,13 @@ import {
   CardContent,
   CardMedia,
   CardActionArea,
+  TextField,
+  Button,
+  Slider,
+  FormControl,
+  FormLabel,
+  RadioGroup,
+  Radio,
 } from "@mui/material"
 import Chip from "@mui/material/Chip"
 import Divider from "@mui/material/Divider"
@@ -42,6 +49,7 @@ import { useRecoilValue } from "recoil"
 import { artifactIsAvailable } from "../state"
 import { actionCreator } from "../action"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
+import FormControlLabel from "@mui/material/FormControlLabel"
 
 const states: TrialState[] = [
   "Complete",
@@ -143,7 +151,16 @@ const useIsBestTrial = (
 const TrialListDetail: FC<{
   trial: Trial
   isBestTrial: (trialId: number) => boolean
-}> = ({ trial, isBestTrial }) => {
+  directions: StudyDirection[]
+  objectiveNames: string[]
+  objectiveFormWidgets: ObjectiveFormWidget[]
+}> = ({
+  trial,
+  isBestTrial,
+  directions,
+  objectiveNames,
+  objectiveFormWidgets,
+}) => {
   const theme = useTheme()
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
   const startMs = trial.datetime_start?.getTime()
@@ -180,7 +197,12 @@ const TrialListDetail: FC<{
       "Completed At",
       trial?.datetime_complete ? trial?.datetime_complete.toString() : null,
     ],
-    ["Duration (ms)", (startMs !== undefined && completeMs !== undefined) ? (completeMs - startMs).toString() : null],
+    [
+      "Duration (ms)",
+      startMs !== undefined && completeMs !== undefined
+        ? (completeMs - startMs).toString()
+        : null,
+    ],
     [
       "User Attributes",
       <Box>
@@ -260,7 +282,9 @@ const TrialListDetail: FC<{
           flexDirection: "column",
         }}
       >
-        {info.map(([key, value]) => value !== null ? renderInfo(key, value) : null)}
+        {info.map(([key, value]) =>
+          value !== null ? renderInfo(key, value) : null
+        )}
       </Box>
       <Typography
         variant="h5"
@@ -277,8 +301,149 @@ const TrialListDetail: FC<{
         latestNote={trial.note}
         cardSx={{ marginBottom: theme.spacing(2) }}
       />
+      {trial.state === "Running" && directions.length > 0 && (
+        <ObjectiveForms
+          trial={trial}
+          directions={directions}
+          names={objectiveNames}
+          widgets={objectiveFormWidgets}
+        />
+      )}
       {artifactEnabled && <TrialArtifact trial={trial} />}
     </Box>
+  )
+}
+
+const ObjectiveForms: FC<{
+  trial: Trial
+  directions: StudyDirection[]
+  names: string[]
+  widgets: ObjectiveFormWidget[]
+}> = ({ trial, directions, names, widgets }) => {
+  const theme = useTheme()
+  const action = actionCreator()
+
+  return (
+    <>
+      <Typography
+        variant="h5"
+        sx={{ fontWeight: theme.typography.fontWeightBold }}
+      >
+        Tell Objective Values
+      </Typography>
+      <Box sx={{ p: theme.spacing(1, 0) }}>
+        <Card
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            marginBottom: theme.spacing(2),
+            margin: theme.spacing(0, 1, 1, 0),
+            p: theme.spacing(1),
+          }}
+        >
+          {directions.map((d, i) => {
+            const widget = widgets.at(i)
+            const key = `objective-${i}`
+            if (widget === undefined) {
+              return (
+                <FormControl sx={{ margin: theme.spacing(1, 2) }}>
+                  <FormLabel>{names.at(i) || `Objective ${i}`}</FormLabel>
+                  <TextField
+                    required
+                    id={key}
+                    key={key}
+                    inputProps={{
+                      inputMode: "numeric",
+                      pattern: "[-+]?[0-9]*.?[0-9]+([eE][-+]?[0-9]+)?",
+                      title: "Please input a float number",
+                    }}
+                  />
+                </FormControl>
+              )
+            } else if (widget.type === "text") {
+              return (
+                <FormControl sx={{ margin: theme.spacing(1, 2) }}>
+                  <FormLabel>{names.at(i) || `Objective ${i}`}</FormLabel>
+                  <TextField
+                    required
+                    id={key}
+                    key={key}
+                    inputProps={{
+                      inputMode: "numeric",
+                      pattern: "[-+]?[0-9]*.?[0-9]+([eE][-+]?[0-9]+)?",
+                      title: widget.description,
+                    }}
+                  />
+                </FormControl>
+              )
+            } else if (widget.type === "choice") {
+              return (
+                <FormControl sx={{ margin: theme.spacing(1, 2) }}>
+                  <FormLabel>{names.at(i) || `Objective ${i}`}</FormLabel>
+                  <RadioGroup
+                    id={key}
+                    key={key}
+                    row
+                    defaultValue={widget.values.at(0)}
+                  >
+                    {widget.choices.map((c, i) => (
+                      <FormControlLabel
+                        value={widget.values.at(i)}
+                        control={<Radio />}
+                        label={c}
+                      />
+                    ))}
+                  </RadioGroup>
+                </FormControl>
+              )
+            } else if (widget.type === "slider") {
+              return (
+                <FormControl sx={{ margin: theme.spacing(1, 2) }}>
+                  <FormLabel>{names.at(i) || `Objective ${i}`}</FormLabel>
+                  <Box sx={{ padding: theme.spacing(0, 2) }}>
+                    <Slider
+                      id={key}
+                      key={key}
+                      defaultValue={widget.min}
+                      min={widget.min}
+                      max={widget.max}
+                      step={widget.step}
+                      marks={widget.labels}
+                      valueLabelDisplay="auto"
+                    />
+                  </Box>
+                </FormControl>
+              )
+            }
+            return null
+          })}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "row",
+              margin: theme.spacing(1, 2),
+            }}
+          >
+            <Button
+              variant="contained"
+              type="submit"
+              sx={{ marginRight: theme.spacing(1) }}
+            >
+              Submit
+            </Button>
+            <Button
+              variant="outlined"
+              color="error"
+              onClick={() => {
+                action.tellTrial(trial.study_id, trial.trial_id, "Fail")
+              }}
+            >
+              Fail Trial
+            </Button>
+          </Box>
+        </Card>
+      </Box>
+    </>
   )
 }
 
@@ -712,6 +877,11 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                   key={t.trial_id}
                   trial={t}
                   isBestTrial={isBestTrial}
+                  directions={studyDetail?.directions || []}
+                  objectiveNames={studyDetail?.objective_names || []}
+                  objectiveFormWidgets={
+                    studyDetail?.objective_form_widgets || []
+                  }
                 />
               ))}
         </Box>
