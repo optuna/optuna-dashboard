@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
 import json
 from typing import TYPE_CHECKING
@@ -18,7 +19,6 @@ if TYPE_CHECKING:
         "ChoiceWidgetJSON",
         {
             "type": Literal["choice"],
-            "objective_name": str,
             "description": Optional[str],
             "choices": list[str],
             "values": list[float],
@@ -32,7 +32,6 @@ if TYPE_CHECKING:
         "SliderWidgetJSON",
         {
             "type": Literal["slider"],
-            "objective_name": str,
             "description": Optional[str],
             "min": float,
             "max": float,
@@ -42,14 +41,14 @@ if TYPE_CHECKING:
     )
     TextInputWidgetJSON = TypedDict(
         "TextInputWidgetJSON",
-        {"type": Literal["text"], "objective_name": str, "description": Optional[str]},
+        {"type": Literal["text"], "description": Optional[str]},
     )
     UserAttrRefJSON = TypedDict("UserAttrRefJSON", {"type": Literal["user_attr"], "key": str})
+    ObjectiveFormWidgetJSON = Union[ChoiceWidgetJSON, SliderWidgetJSON, TextInputWidgetJSON, UserAttrRefJSON]
 
 
 @dataclass
-class ChoiceWidget:
-    objective_name: str
+class ObjectiveChoiceWidget:
     choices: list[str]
     values: list[float]
     description: Optional[str] = None
@@ -57,7 +56,6 @@ class ChoiceWidget:
     def to_dict(self) -> ChoiceWidgetJSON:
         return {
             "type": "choice",
-            "objective_name": self.objective_name,
             "description": self.description,
             "choices": self.choices,
             "values": self.values,
@@ -65,8 +63,7 @@ class ChoiceWidget:
 
 
 @dataclass
-class SliderWidget:
-    objective_name: str
+class ObjectiveSliderWidget:
     min: float
     max: float
     step: Optional[float]
@@ -76,30 +73,27 @@ class SliderWidget:
     def to_dict(self) -> SliderWidgetJSON:
         return {
             "type": "slider",
-            "objective_name": self.objective_name,
             "description": self.description,
             "min": self.min,
             "max": self.max,
             "step": self.step,
-            "labels": self.labels,
+            "labels": [{"value": value, "label": label} for value, label in self.labels],
         }
 
 
 @dataclass
-class TextInputWidget:
-    objective_name: str
+class ObjectiveTextInputWidget:
     description: Optional[str] = None
 
     def to_dict(self) -> TextInputWidgetJSON:
         return {
             "type": "text",
-            "objective_name": self.objective_name,
             "description": self.description,
         }
 
 
 @dataclass
-class UserAttrRef:
+class ObjectiveUserAttrRef:
     key: str
 
     def to_dict(self) -> UserAttrRefJSON:
@@ -109,19 +103,22 @@ class UserAttrRef:
         }
 
 
-ObjectiveWidget = Union[ChoiceWidget, SliderWidget, TextInputWidget, UserAttrRef]
-SYSTEM_ATTR_KEY = "dashboard:user_action"
+
+ObjectiveFormWidget = Union[ObjectiveChoiceWidget, ObjectiveSliderWidget, ObjectiveTextInputWidget, ObjectiveUserAttrRef]
+SYSTEM_ATTR_KEY = "dashboard:objective_form_widgets"
 
 
-def register_objective_form_widgets(study: optuna.Study, actions: list[ObjectiveWidget]):
-    if len(study.directions) != len(actions):
+def register_objective_form_widgets(study: optuna.Study, widgets: list[ObjectiveFormWidget]):
+    if len(study.directions) != len(widgets):
         raise ValueError("The length of actions must be the same with the number of objectives.")
-    study._storage.set_study_system_attr(study._study_id, SYSTEM_ATTR_KEY, json.dumps(actions))
+    widget_dicts = [w.to_dict() for w in widgets]
+    study._storage.set_study_system_attr(study._study_id, SYSTEM_ATTR_KEY, json.dumps(widget_dicts))
 
 
-def get_objective_form_widgets(
+def get_objective_form_widgets_json(
     study_system_attr: dict[str, Any]
-) -> Optional[list[ObjectiveWidget]]:
-    actions_json = study_system_attr.get(SYSTEM_ATTR_KEY)
-    if actions_json is not None:
-        return json.loads(actions_json)
+) -> Optional[list[ObjectiveFormWidgetJSON]]:
+    widgets_json = study_system_attr.get(SYSTEM_ATTR_KEY)
+    if widgets_json is None:
+        return None
+    return json.loads(widgets_json)

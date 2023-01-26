@@ -13,7 +13,7 @@ from optuna.trial import FrozenTrial
 
 from . import _note as note
 from ._named_objectives import get_objective_names
-from ._objective_form_widget import get_objective_form_widgets
+from ._objective_form_widget import get_objective_form_widgets_json
 from .artifact._backend import list_trial_artifacts
 
 
@@ -144,7 +144,7 @@ def serialize_study_detail(
     objective_names = get_objective_names(system_attrs)
     if objective_names:
         serialized["objective_names"] = objective_names
-    objective_form_widgets = get_objective_form_widgets(system_attrs)
+    objective_form_widgets = get_objective_form_widgets_json(system_attrs)
     if objective_form_widgets:
         serialized["objective_form_widgets"] = objective_form_widgets
     return serialized

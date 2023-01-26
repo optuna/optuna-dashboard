@@ -127,7 +127,6 @@ type StudySummary = {
 
 type ObjectiveChoiceWidget = {
   type: "choice"
-  objective_name: string
   description: string
   choices: string[]
   values: number[]
@@ -135,7 +134,6 @@ type ObjectiveChoiceWidget = {
 
 type ObjectiveSliderWidget = {
   type: "slider"
-  objective_name: string
   description: string
   min: number
   max: number
@@ -148,13 +146,11 @@ type ObjectiveSliderWidget = {
 
 type ObjectiveTextInputWidget = {
   type: "text"
-  objective_name: string
   description: string
 }
 
 type ObjectiveUserAttrRef = {
   type: "user_attr"
-  objective_name: string
   key: string
 }
 
