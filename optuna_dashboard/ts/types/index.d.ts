@@ -10,6 +10,7 @@ declare const URL_PREFIX: string
 type TrialValueNumber = number | "inf" | "-inf"
 type TrialIntermediateValueNumber = number | "inf" | "-inf" | "nan"
 type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting"
+type TrialStateFinished = "Complete" | "Fail" | "Pruned"
 type StudyDirection = "maximize" | "minimize" | "not_set"
 
 type FloatDistribution = {

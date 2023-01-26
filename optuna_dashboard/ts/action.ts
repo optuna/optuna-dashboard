@@ -8,6 +8,7 @@ import {
   deleteStudyAPI,
   saveStudyNoteAPI,
   saveTrialNoteAPI,
+  tellTrialAPI,
   renameStudyAPI,
   uploadArtifactAPI,
   getMetaInfoAPI,
@@ -93,6 +94,25 @@ export const actionCreator = () => {
       ...artifacts.slice(artifactIndex + 1, artifacts.length),
     ]
     setTrialArtifacts(studyId, index, newArtifacts)
+  }
+
+  const setTrialStateValues = (
+    studyId: number,
+    index: number,
+    state: TrialState,
+    values?: TrialValueNumber[]
+  ) => {
+    const newTrial: Trial = Object.assign(
+      {},
+      studyDetails[studyId].trials[index]
+    )
+    newTrial.state = state
+    newTrial.values = values
+    const newTrials: Trial[] = [...studyDetails[studyId].trials]
+    newTrials[index] = newTrial
+    const newStudy: StudyDetail = Object.assign({}, studyDetails[studyId])
+    newStudy.trials = newTrials
+    setStudyDetailState(studyId, newStudy)
   }
 
   const setStudyParamImportanceState = (
@@ -369,6 +389,44 @@ export const actionCreator = () => {
       })
   }
 
+  const tellTrial = (
+    studyId: number,
+    trialId: number,
+    state: TrialStateFinished,
+    values?: number[]
+  ): Promise<void> => {
+    const message =
+      values === undefined
+        ? `id=${trialId}, state=${state}`
+        : `id=${trialId}, state=${state}, values=${values}`
+    return tellTrialAPI(trialId, state, values)
+      .then(() => {
+        const index = studyDetails[studyId].trials.findIndex(
+          (t) => t.trial_id === trialId
+        )
+        if (index === -1) {
+          enqueueSnackbar(`Unexpected error happens. Please reload the page.`, {
+            variant: "error",
+          })
+          return
+        }
+        setTrialStateValues(studyId, index, state, values)
+        enqueueSnackbar(`Successfully updated trial (${message})`, {
+          variant: "success",
+        })
+      })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(
+          `Failed to update trial (${message}). Reason: ${reason}`,
+          {
+            variant: "error",
+          }
+        )
+        console.log(err)
+      })
+  }
+
   return {
     updateAPIMeta,
     updateStudyDetail,
@@ -383,6 +441,7 @@ export const actionCreator = () => {
     saveTrialNote,
     uploadArtifact,
     deleteArtifact,
+    tellTrial,
   }
 }
 
