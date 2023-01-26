@@ -217,6 +217,23 @@ export const saveTrialNoteAPI = (
     })
 }
 
+export const tellTrialAPI = (
+  trialId: number,
+  state: TrialStateFinished,
+  values?: number[]
+): Promise<void> => {
+  const req: { state: TrialState; values?: number[] } = {
+    state: state,
+    values: values,
+  }
+
+  return axiosInstance
+    .post<void>(`/api/trials/${trialId}/tell`, req)
+    .then((res) => {
+      return
+    })
+}
+
 interface ParamImportancesResponse {
   param_importances: ParamImportance[][]
 }
