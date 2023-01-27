@@ -23,8 +23,8 @@ if TYPE_CHECKING:
             "values": list[float],
         },
     )
-    SliderWidgetLabels = TypedDict(
-        "SliderWidgetLabels",
+    SliderWidgetLabel = TypedDict(
+        "SliderWidgetLabel",
         {"value": float, "label": str},
     )
     SliderWidgetJSON = TypedDict(
@@ -35,7 +35,7 @@ if TYPE_CHECKING:
             "min": float,
             "max": float,
             "step": Optional[float],
-            "labels": Optional[list[SliderWidgetLabels]],
+            "labels": Optional[list[SliderWidgetLabel]],
         },
     )
     TextInputWidgetJSON = TypedDict(
@@ -67,18 +67,21 @@ class ObjectiveChoiceWidget:
 class ObjectiveSliderWidget:
     min: float
     max: float
-    step: Optional[float]
-    labels: Optional[list[tuple[float, str]]]
+    step: Optional[float] = None
+    labels: Optional[list[tuple[float, str]]] = None
     description: Optional[str] = None
 
     def to_dict(self) -> SliderWidgetJSON:
+        labels: Optional[list[SliderWidgetLabel]] = None
+        if self.labels is not None:
+            labels = [{"value": value, "label": label} for value, label in self.labels]
         return {
             "type": "slider",
             "description": self.description,
             "min": self.min,
             "max": self.max,
             "step": self.step,
-            "labels": [{"value": value, "label": label} for value, label in self.labels],
+            "labels": labels,
         }
 
 
@@ -110,7 +113,9 @@ ObjectiveFormWidget = Union[
 SYSTEM_ATTR_KEY = "dashboard:objective_form_widgets"
 
 
-def register_objective_form_widgets(study: optuna.Study, widgets: list[ObjectiveFormWidget]):
+def register_objective_form_widgets(
+    study: optuna.Study, widgets: list[ObjectiveFormWidget]
+) -> None:
     if len(study.directions) != len(widgets):
         raise ValueError("The length of actions must be the same with the number of objectives.")
     widget_dicts = [w.to_dict() for w in widgets]

@@ -138,10 +138,12 @@ type ObjectiveSliderWidget = {
   min: number
   max: number
   step: number
-  labels: {
-    value: number
-    label: string
-  }[]
+  labels:
+    | {
+        value: number
+        label: string
+      }[]
+    | null
 }
 
 type ObjectiveTextInputWidget = {
