@@ -175,11 +175,23 @@ export const ObjectiveForm: FC<{
                     {getObjectiveName(i)} - {widget.description}
                   </FormLabel>
                   <RadioGroup row defaultValue={widget.values.at(0)}>
-                    {widget.choices.map((c, i) => (
+                    {widget.choices.map((c, j) => (
                       <FormControlLabel
                         key={c}
-                        value={widget.values.at(i)}
-                        control={<Radio />}
+                        control={
+                          <Radio
+                            checked={value === widget.values.at(j)}
+                            onChange={(e) => {
+                              const selected = widget.values.at(j)
+                              if (e.target.checked) {
+                                setValue(
+                                  i,
+                                  selected === undefined ? null : selected
+                                )
+                              }
+                            }}
+                          />
+                        }
                         label={c}
                       />
                     ))}
@@ -194,6 +206,10 @@ export const ObjectiveForm: FC<{
                   </FormLabel>
                   <Box sx={{ padding: theme.spacing(0, 2) }}>
                     <Slider
+                      onChange={(e) => {
+                        // @ts-ignore
+                        setValue(i, e.target.value as number)
+                      }}
                       defaultValue={widget.min}
                       min={widget.min}
                       max={widget.max}
