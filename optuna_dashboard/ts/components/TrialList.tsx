@@ -42,6 +42,7 @@ import { useRecoilValue } from "recoil"
 import { artifactIsAvailable } from "../state"
 import { actionCreator } from "../action"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
+import { ObjectiveForm } from "./ObjectiveForm"
 
 const states: TrialState[] = [
   "Complete",
@@ -143,15 +144,20 @@ const useIsBestTrial = (
 const TrialListDetail: FC<{
   trial: Trial
   isBestTrial: (trialId: number) => boolean
-}> = ({ trial, isBestTrial }) => {
+  directions: StudyDirection[]
+  objectiveNames: string[]
+  objectiveFormWidgets: ObjectiveFormWidget[]
+}> = ({
+  trial,
+  isBestTrial,
+  directions,
+  objectiveNames,
+  objectiveFormWidgets,
+}) => {
   const theme = useTheme()
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
-  let duration = ""
-  if (startMs !== undefined && completeMs !== undefined) {
-    duration = (completeMs - startMs).toString()
-  }
 
   const params = trial.state === "Waiting" ? trial.fixed_params : trial.params
   const info: [string, string | null | ReactNode][] = [
@@ -184,7 +190,12 @@ const TrialListDetail: FC<{
       "Completed At",
       trial?.datetime_complete ? trial?.datetime_complete.toString() : null,
     ],
-    ["Duration", `${duration} ms`],
+    [
+      "Duration (ms)",
+      startMs !== undefined && completeMs !== undefined
+        ? (completeMs - startMs).toString()
+        : null,
+    ],
     [
       "User Attributes",
       <Box>
@@ -264,7 +275,9 @@ const TrialListDetail: FC<{
           flexDirection: "column",
         }}
       >
-        {info.map(([key, value]) => renderInfo(key, value))}
+        {info.map(([key, value]) =>
+          value !== null ? renderInfo(key, value) : null
+        )}
       </Box>
       <Typography
         variant="h5"
@@ -281,6 +294,14 @@ const TrialListDetail: FC<{
         latestNote={trial.note}
         cardSx={{ marginBottom: theme.spacing(2) }}
       />
+      {trial.state === "Running" && directions.length > 0 && (
+        <ObjectiveForm
+          trial={trial}
+          directions={directions}
+          names={objectiveNames}
+          widgets={objectiveFormWidgets}
+        />
+      )}
       {artifactEnabled && <TrialArtifact trial={trial} />}
     </Box>
   )
@@ -716,6 +737,11 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                   key={t.trial_id}
                   trial={t}
                   isBestTrial={isBestTrial}
+                  directions={studyDetail?.directions || []}
+                  objectiveNames={studyDetail?.objective_names || []}
+                  objectiveFormWidgets={
+                    studyDetail?.objective_form_widgets || []
+                  }
                 />
               ))}
         </Box>

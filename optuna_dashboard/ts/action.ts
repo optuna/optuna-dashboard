@@ -394,12 +394,12 @@ export const actionCreator = () => {
     trialId: number,
     state: TrialStateFinished,
     values?: number[]
-  ): Promise<void> => {
+  ): void => {
     const message =
       values === undefined
         ? `id=${trialId}, state=${state}`
         : `id=${trialId}, state=${state}, values=${values}`
-    return tellTrialAPI(trialId, state, values)
+    tellTrialAPI(trialId, state, values)
       .then(() => {
         const index = studyDetails[studyId].trials.findIndex(
           (t) => t.trial_id === trialId

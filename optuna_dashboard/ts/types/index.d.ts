@@ -125,6 +125,43 @@ type StudySummary = {
   datetime_start?: Date
 }
 
+type ObjectiveChoiceWidget = {
+  type: "choice"
+  description: string
+  choices: string[]
+  values: number[]
+}
+
+type ObjectiveSliderWidget = {
+  type: "slider"
+  description: string
+  min: number
+  max: number
+  step: number
+  labels:
+    | {
+        value: number
+        label: string
+      }[]
+    | null
+}
+
+type ObjectiveTextInputWidget = {
+  type: "text"
+  description: string
+}
+
+type ObjectiveUserAttrRef = {
+  type: "user_attr"
+  key: string
+}
+
+type ObjectiveFormWidget =
+  | ObjectiveChoiceWidget
+  | ObjectiveSliderWidget
+  | ObjectiveTextInputWidget
+  | ObjectiveUserAttrRef
+
 type StudyDetail = {
   id: number
   name: string
@@ -138,6 +175,7 @@ type StudyDetail = {
   has_intermediate_values: boolean
   note: Note
   objective_names?: string[]
+  objective_form_widgets?: ObjectiveFormWidget[]
 }
 
 type StudyDetails = {
