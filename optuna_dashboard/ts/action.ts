@@ -21,9 +21,15 @@ import {
   paramImportanceState,
   isFileUploading,
   artifactIsAvailable,
+  reloadIntervalState,
 } from "./state"
 
 const localStorageGraphVisibility = "graphVisibility"
+const localStorageReloadInterval = "reloadInterval"
+
+type LocalStorageReloadInterval = {
+  reloadInterval?: number
+}
 
 export const actionCreator = () => {
   const { enqueueSnackbar } = useSnackbar()
@@ -33,6 +39,7 @@ export const actionCreator = () => {
     useRecoilState<StudyDetails>(studyDetailsState)
   const [graphVisibility, setGraphVisibility] =
     useRecoilState<GraphVisibility>(graphVisibilityState)
+  const setReloadInterval = useSetRecoilState<number>(reloadIntervalState)
   const [paramImportance, setParamImportance] =
     useRecoilState<StudyParamImportance>(paramImportanceState)
   const setUploading = useSetRecoilState<boolean>(isFileUploading)
@@ -264,6 +271,25 @@ export const actionCreator = () => {
     localStorage.setItem(localStorageGraphVisibility, JSON.stringify(value))
   }
 
+  const loadReloadInterval = () => {
+    const reloadIntervalJSON = localStorage.getItem(localStorageReloadInterval)
+    if (reloadIntervalJSON === null) {
+      return
+    }
+    const gp = JSON.parse(reloadIntervalJSON) as LocalStorageReloadInterval
+    if (gp.reloadInterval !== undefined) {
+      setReloadInterval(gp.reloadInterval)
+    }
+  }
+
+  const saveReloadInterval = (interval: number) => {
+    setReloadInterval(interval)
+    const value: LocalStorageReloadInterval = {
+      reloadInterval: interval,
+    }
+    localStorage.setItem(localStorageReloadInterval, JSON.stringify(value))
+  }
+
   const saveStudyNote = (studyId: number, note: Note): Promise<void> => {
     return saveStudyNoteAPI(studyId, note)
       .then(() => {
@@ -437,6 +463,8 @@ export const actionCreator = () => {
     renameStudy,
     getGraphVisibility,
     saveGraphVisibility,
+    loadReloadInterval,
+    saveReloadInterval,
     saveStudyNote,
     saveTrialNote,
     uploadArtifact,

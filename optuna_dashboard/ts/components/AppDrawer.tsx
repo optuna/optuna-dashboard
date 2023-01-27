@@ -1,5 +1,5 @@
 import React, { FC } from "react"
-import { useRecoilState } from "recoil"
+import { useRecoilState, useRecoilValue } from "recoil"
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles"
 import Box from "@mui/material/Box"
 import MuiDrawer from "@mui/material/Drawer"
@@ -30,6 +30,7 @@ import GitHubIcon from "@mui/icons-material/GitHub"
 import OpenInNewIcon from "@mui/icons-material/OpenInNew"
 import QueryStatsIcon from "@mui/icons-material/QueryStats"
 import { Switch } from "@mui/material"
+import { actionCreator } from "../action"
 
 const drawerWidth = 240
 
@@ -117,9 +118,9 @@ export const AppDrawer: FC<{
   children?: React.ReactNode
 }> = ({ studyId, toggleColorMode, page, toolbar, children }) => {
   const theme = useTheme()
+  const action = actionCreator()
   const [open, setOpen] = useRecoilState<boolean>(drawerOpenState)
-  const [reloadInterval, updateReloadInterval] =
-    useRecoilState<number>(reloadIntervalState)
+  const reloadInterval = useRecoilValue<number>(reloadIntervalState)
 
   const styleListItem = {
     display: "block",
@@ -256,7 +257,7 @@ export const AppDrawer: FC<{
               <ListItemButton
                 sx={styleListItemButton}
                 onClick={() => {
-                  updateReloadInterval(reloadInterval === -1 ? 10 : -1)
+                  action.saveReloadInterval(reloadInterval === -1 ? 10 : -1)
                 }}
               >
                 <ListItemIcon sx={styleListItemIcon}>
