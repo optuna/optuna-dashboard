@@ -1,13 +1,14 @@
 import React, { FC } from "react"
 import { styled } from "@mui/system"
-import { useRecoilState } from "recoil"
+import { useRecoilValue } from "recoil"
 import { reloadIntervalState } from "../state"
 import { MenuItem, TextField, alpha } from "@mui/material"
 import { Cached } from "@mui/icons-material"
+import { actionCreator } from "../action"
 
 export const ReloadIntervalSelect: FC = () => {
-  const [reloadInterval, updateReloadInterval] =
-    useRecoilState<number>(reloadIntervalState)
+  const action = actionCreator()
+  const reloadInterval = useRecoilValue<number>(reloadIntervalState)
 
   const Wrapper = styled("div")(({ theme }) => ({
     position: "relative",
@@ -71,7 +72,7 @@ export const ReloadIntervalSelect: FC = () => {
         select
         value={reloadInterval}
         onChange={(e) => {
-          updateReloadInterval(e.target.value as unknown as number)
+          action.saveReloadInterval(e.target.value as unknown as number)
         }}
       >
         <MenuItem value={-1}>stop</MenuItem>

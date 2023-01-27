@@ -66,6 +66,7 @@ export const StudyDetail: FC<{
     usePreferenceDialog(studyDetail)
 
   useEffect(() => {
+    action.loadReloadInterval()
     action.updateStudyDetail(studyIdNumber)
   }, [])
 
