@@ -36,8 +36,5 @@ export const getDominatedTrials = (
     })
     dominatedTrials.push(dominated)
   })
-  console.log(normalizedValues)
-  console.log(dominatedTrials)
-  console.log(filteredTrials)
   return filteredTrials.filter((_, i) => !dominatedTrials.at(i))
 }
