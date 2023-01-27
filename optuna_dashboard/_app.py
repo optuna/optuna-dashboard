@@ -516,19 +516,25 @@ def get_storage(storage: Union[str, BaseStorage]) -> BaseStorage:
 
 
 def run_server(
-    storage: Union[str, BaseStorage], host: str = "localhost", port: int = 8080
+    storage: Union[str, BaseStorage],
+    host: str = "localhost",
+    port: int = 8080,
+    artifact_backend: Optional[ArtifactBackend] = None,
 ) -> None:
     """Start running optuna-dashboard and blocks until the server terminates.
     This function uses wsgiref module which is not intended for the production
     use. If you want to run optuna-dashboard more secure and/or more fast,
     please use WSGI server like Gunicorn or uWSGI via `wsgi()` function.
     """
-    app = create_app(get_storage(storage))
+    app = create_app(get_storage(storage), artifact_backend=artifact_backend)
     run(app, host=host, port=port)
 
 
-def wsgi(storage: Union[str, BaseStorage]) -> WSGIApplication:
+def wsgi(
+    storage: Union[str, BaseStorage],
+    artifact_backend: Optional[ArtifactBackend] = None,
+) -> WSGIApplication:
     """This function exposes WSGI interface for people who want to run on the
     production-class WSGI servers like Gunicorn or uWSGI.
     """
-    return create_app(get_storage(storage))
+    return create_app(get_storage(storage), artifact_backend=artifact_backend)
