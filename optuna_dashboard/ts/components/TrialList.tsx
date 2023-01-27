@@ -50,6 +50,7 @@ import { artifactIsAvailable } from "../state"
 import { actionCreator } from "../action"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
 import FormControlLabel from "@mui/material/FormControlLabel"
+import { DebouncedInputTextField } from "./Debounce"
 
 const states: TrialState[] = [
   "Complete",
@@ -322,6 +323,65 @@ const ObjectiveForms: FC<{
 }> = ({ trial, directions, names, widgets }) => {
   const theme = useTheme()
   const action = actionCreator()
+  const [values, setValues] = useState<(number | null)[]>(
+    directions.map((d, i) => {
+      const widget = widgets.at(i)
+      if (widget === undefined) {
+        return null
+      } else if (widget.type === "text") {
+        return null
+      } else if (widget.type === "choice") {
+        return widget.values.at(0) || null
+      } else if (widget.type === "slider") {
+        return widget.min
+      } else if (widget.type === "user_attr") {
+        const attr = trial.user_attrs.find((attr) => attr.key == widget.key)
+        if (attr === undefined) {
+          return null
+        } else {
+          const n = Number(attr.value)
+          return isNaN(n) ? null : n
+        }
+      } else {
+        return null
+      }
+    })
+  )
+
+  const setValue = (objectiveId: number, value: number | null) => {
+    const newValues = [...values]
+    if (newValues.length <= objectiveId) {
+      return
+    }
+    newValues[objectiveId] = value
+    setValues(newValues)
+  }
+
+  const disableSubmit = useMemo<boolean>(
+    () => values.findIndex((v) => v === null) >= 0,
+    [values]
+  )
+
+  const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>): void => {
+    e.preventDefault()
+    const filtered = values.filter<number>((v): v is number => v !== null)
+    if (filtered.length !== directions.length) {
+      return
+    }
+    action.tellTrial(trial.study_id, trial.trial_id, "Complete", filtered)
+  }
+
+  const getObjectiveName = (i: number): string => {
+    const n = names.at(i)
+    if (n !== undefined) {
+      return n
+    }
+    if (directions.length == 1) {
+      return `Objective`
+    } else {
+      return `Objective ${i}`
+    }
+  }
 
   return (
     <>
@@ -329,7 +389,7 @@ const ObjectiveForms: FC<{
         variant="h5"
         sx={{ fontWeight: theme.typography.fontWeightBold }}
       >
-        Tell Objective Values
+        {directions.length > 1 ? "Set Objective Values" : "Set Objective Value"}
       </Typography>
       <Box sx={{ p: theme.spacing(1, 0) }}>
         <Card
@@ -343,51 +403,80 @@ const ObjectiveForms: FC<{
         >
           {directions.map((d, i) => {
             const widget = widgets.at(i)
+            const value = values.at(i)
             const key = `objective-${i}`
             if (widget === undefined) {
               return (
-                <FormControl sx={{ margin: theme.spacing(1, 2) }}>
-                  <FormLabel>{names.at(i) || `Objective ${i}`}</FormLabel>
-                  <TextField
-                    required
-                    id={key}
-                    key={key}
-                    inputProps={{
-                      inputMode: "numeric",
-                      pattern: "[-+]?[0-9]*.?[0-9]+([eE][-+]?[0-9]+)?",
-                      title: "Please input a float number",
+                <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
+                  <FormLabel>{getObjectiveName(i)}</FormLabel>
+                  <DebouncedInputTextField
+                    onChange={(s, valid) => {
+                      const n = Number(s)
+                      if (s.length > 0 && valid && !isNaN(n)) {
+                        setValue(i, n)
+                        return
+                      } else if (values.at(i) !== null) {
+                        setValue(i, null)
+                      }
+                    }}
+                    delay={500}
+                    textFieldProps={{
+                      required: true,
+                      autoFocus: true,
+                      fullWidth: true,
+                      helperText:
+                        value === null || value === undefined
+                          ? `Please input the float number.`
+                          : "",
+                      label: getObjectiveName(i),
+                      type: "text",
                     }}
                   />
                 </FormControl>
               )
             } else if (widget.type === "text") {
               return (
-                <FormControl sx={{ margin: theme.spacing(1, 2) }}>
-                  <FormLabel>{names.at(i) || `Objective ${i}`}</FormLabel>
-                  <TextField
-                    required
-                    id={key}
-                    key={key}
-                    inputProps={{
-                      inputMode: "numeric",
-                      pattern: "[-+]?[0-9]*.?[0-9]+([eE][-+]?[0-9]+)?",
-                      title: widget.description,
+                <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
+                  <FormLabel>
+                    {getObjectiveName(i)} - {widget.description}
+                  </FormLabel>
+                  <DebouncedInputTextField
+                    onChange={(s, valid) => {
+                      const n = Number(s)
+                      if (s.length > 0 && valid && !isNaN(n)) {
+                        setValue(i, n)
+                        return
+                      } else if (values.at(i) !== null) {
+                        setValue(i, null)
+                      }
+                    }}
+                    delay={500}
+                    textFieldProps={{
+                      required: true,
+                      autoFocus: true,
+                      fullWidth: true,
+                      helperText:
+                        value === null || value === undefined
+                          ? `Please input the float number.`
+                          : "",
+                      type: "text",
+                      inputProps: {
+                        pattern: "[-+]?[0-9]*.?[0-9]+([eE][-+]?[0-9]+)?",
+                      },
                     }}
                   />
                 </FormControl>
               )
             } else if (widget.type === "choice") {
               return (
-                <FormControl sx={{ margin: theme.spacing(1, 2) }}>
-                  <FormLabel>{names.at(i) || `Objective ${i}`}</FormLabel>
-                  <RadioGroup
-                    id={key}
-                    key={key}
-                    row
-                    defaultValue={widget.values.at(0)}
-                  >
+                <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
+                  <FormLabel>
+                    {getObjectiveName(i)} - {widget.description}
+                  </FormLabel>
+                  <RadioGroup row defaultValue={widget.values.at(0)}>
                     {widget.choices.map((c, i) => (
                       <FormControlLabel
+                        key={c}
                         value={widget.values.at(i)}
                         control={<Radio />}
                         label={c}
@@ -398,20 +487,36 @@ const ObjectiveForms: FC<{
               )
             } else if (widget.type === "slider") {
               return (
-                <FormControl sx={{ margin: theme.spacing(1, 2) }}>
-                  <FormLabel>{names.at(i) || `Objective ${i}`}</FormLabel>
+                <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
+                  <FormLabel>
+                    {getObjectiveName(i)} - {widget.description}
+                  </FormLabel>
                   <Box sx={{ padding: theme.spacing(0, 2) }}>
                     <Slider
-                      id={key}
-                      key={key}
                       defaultValue={widget.min}
                       min={widget.min}
                       max={widget.max}
                       step={widget.step}
-                      marks={widget.labels}
+                      marks={widget.labels.length > 0 ? widget.labels : true}
                       valueLabelDisplay="auto"
                     />
                   </Box>
+                </FormControl>
+              )
+            } else if (widget.type === "user_attr") {
+              return (
+                <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
+                  <FormLabel>{getObjectiveName(i)}</FormLabel>
+                  <TextField
+                    inputProps={{ readOnly: true }}
+                    value={value || undefined}
+                    error={value === null}
+                    helperText={
+                      value === null || value === undefined
+                        ? `This objective value is referred from trial.user_attrs[${widget.key}].`
+                        : ""
+                    }
+                  />
                 </FormControl>
               )
             }
@@ -428,9 +533,12 @@ const ObjectiveForms: FC<{
               variant="contained"
               type="submit"
               sx={{ marginRight: theme.spacing(1) }}
+              disabled={disableSubmit}
+              onClick={handleSubmit}
             >
               Submit
             </Button>
+            <Box sx={{ flexGrow: 1 }} />
             <Button
               variant="outlined"
               color="error"
