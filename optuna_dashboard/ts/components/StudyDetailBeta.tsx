@@ -60,7 +60,7 @@ export const StudyDetailBeta: FC<{
   }, [])
 
   useEffect(() => {
-    if (reloadInterval < 0 || page === "trialTable" || page === "trialList") {
+    if (reloadInterval < 0 || page === "trialTable") {
       return
     }
     const intervalId = setInterval(function () {
