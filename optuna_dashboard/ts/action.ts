@@ -23,6 +23,7 @@ import {
   artifactIsAvailable,
   reloadIntervalState,
 } from "./state"
+import { getDominatedTrials } from "./dominatedTrials"
 
 const localStorageGraphVisibility = "graphVisibility"
 const localStorageReloadInterval = "reloadInterval"
@@ -119,6 +120,34 @@ export const actionCreator = () => {
     newTrials[index] = newTrial
     const newStudy: StudyDetail = Object.assign({}, studyDetails[studyId])
     newStudy.trials = newTrials
+
+    // Update Best Trials
+    if (state === "Complete" && newStudy.directions.length === 1) {
+      // Single objective optimization
+      const bestValue = newStudy.best_trials.at(0)?.values?.at(0)
+      const currentValue = values?.at(0)
+      if (newStudy.best_trials.length === 0) {
+        newStudy.best_trials.push(newTrial)
+      } else if (bestValue !== undefined && currentValue !== undefined) {
+        if (newStudy.directions[0] === "minimize" && currentValue < bestValue) {
+          newStudy.best_trials = [newTrial]
+        } else if (
+          newStudy.directions[0] === "maximize" &&
+          currentValue > bestValue
+        ) {
+          newStudy.best_trials = [newTrial]
+        } else if (currentValue == bestValue) {
+          newStudy.best_trials.push(newTrial)
+        }
+      }
+    } else if (state === "Complete") {
+      // Multi objective optimization
+      newStudy.best_trials = getDominatedTrials(
+        newStudy.trials,
+        newStudy.directions
+      )
+    }
+
     setStudyDetailState(studyId, newStudy)
   }
 
