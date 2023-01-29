@@ -1,21 +1,11 @@
 import * as plotly from "plotly.js-dist-min"
-import React, { FC, ChangeEvent, useEffect, useMemo, useState } from "react"
+import React, { FC, useEffect, useMemo, useState } from "react"
 import { useRecoilValue } from "recoil"
 import {
   Grid,
-  FormControl,
-  FormLabel,
-  FormControlLabel,
-  Checkbox,
-  MenuItem,
-  Switch,
-  Select,
-  Radio,
-  RadioGroup,
   Card,
   CardContent,
   Typography,
-  SelectChangeEvent,
   Box,
   useTheme,
 } from "@mui/material"
@@ -29,14 +19,8 @@ import ListSubheader from "@mui/material/ListSubheader"
 import { actionCreator } from "../action"
 import {
   studySummariesState,
-  useStudyDetailValue,
   studyDetailsState,
 } from "../state"
-import {
-  useFilteredTrials,
-  Target,
-  useObjectiveAndUserAttrTargets,
-} from "../trialFilter"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { useHistory, useLocation } from "react-router-dom"
 
@@ -73,26 +57,6 @@ const getStudyListLink = (numbers: number[]): string => {
     return base + "?numbers=" + numbers.map((n) => n.toString()).join(",")
   }
   return base
-}
-
-const StudyListDetail: FC<{
-  study: StudyDetail
-}> = ({ study }) => {
-  const theme = useTheme()
-
-  return (
-    <Box sx={{ width: "100%", padding: theme.spacing(2, 2, 0, 2) }}>
-      <Typography
-        variant="h4"
-        sx={{
-          marginBottom: theme.spacing(2),
-          fontWeight: theme.typography.fontWeightBold,
-        }}
-      >
-        Study {study.name} (study_id={study.id})
-      </Typography>
-    </Box>
-  )
 }
 
 export const StudiesDetail: FC<null> = () => {
@@ -183,11 +147,7 @@ export const StudiesDetail: FC<null> = () => {
         }}
       >
         <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
-          {showDetailStudies.length === 0 ? null : (
-            <StudyHistories
-              studyIds={showDetailStudies.map((s) => s.study_id)}
-            />
-          )}
+          <StudyHistories studyIds={showDetailStudies.map((s) => s.study_id)} />
         </Box>
       </Box>
     </Box>
@@ -301,8 +261,7 @@ const GraphHistories: FC<{
         </Typography>
       </Grid>
       <Grid item xs={9}>
-        {/* <div id={`${plotDomId}-${study.id}`} /> */}
-        <div id={`${plotDomId}s`} />
+        <div id={`${plotDomId}`} />
       </Grid>
     </Grid>
   )
@@ -314,7 +273,7 @@ const plotHistories = (
   logScale: boolean,
   mode: string
 ) => {
-  if (document.getElementById(`${plotDomId}s`) === null) {
+  if (document.getElementById(`${plotDomId}`) === null) {
     return
   }
 
@@ -362,5 +321,5 @@ const plotHistories = (
     }
   })
 
-  plotly.react(`${plotDomId}s`, plotData, layout)
+  plotly.react(`${plotDomId}`, plotData, layout)
 }
