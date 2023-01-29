@@ -15,12 +15,11 @@ import ListItem from "@mui/material/ListItem"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
+import HomeIcon from "@mui/icons-material/Home"
 
 import { actionCreator } from "../action"
-import {
-  studySummariesState,
-  studyDetailsState,
-} from "../state"
+import { studySummariesState, studyDetailsState } from "../state"
+import { AppDrawer } from "./AppDrawer"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { useHistory, useLocation } from "react-router-dom"
 
@@ -59,7 +58,9 @@ const getStudyListLink = (numbers: number[]): string => {
   return base
 }
 
-export const StudiesDetail: FC<null> = () => {
+export const StudiesDetail: FC<{
+  toggleColorMode: () => void
+}> = ({ toggleColorMode }) => {
   const theme = useTheme()
   const query = useQuery()
   const history = useHistory()
@@ -70,100 +71,109 @@ export const StudiesDetail: FC<null> = () => {
 
   const trialListWidth = 200
 
-  const showDetailStudies =
+  const showStudies =
     selected.length > 0 ? selected : studies.length > 0 ? [studies[0]] : []
 
   useEffect(() => {
     action.updateStudySummaries()
   }, [])
 
+  const toolbar = <HomeIcon sx={{ margin: theme.spacing(0, 1) }} />
+
   return (
-    <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
-      <Box
-        sx={{
-          minWidth: trialListWidth,
-          overflow: "auto",
-          height: `calc(100vh - ${theme.spacing(8)})`,
-        }}
-      >
-        <List>
-          <ListSubheader sx={{ display: "flex", flexDirection: "row" }}>
-            <Typography sx={{ p: theme.spacing(1, 0) }}>
-              {studies.length} Studies
-            </Typography>
-            <Box sx={{ flexGrow: 1 }} />
-          </ListSubheader>
-          <Divider />
-          {studies.map((study, i) => {
-            return (
-              <ListItem key={study.study_id} disablePadding>
-                <ListItemButton
-                  onClick={(e) => {
-                    if (e.shiftKey) {
-                      let next: number[]
-                      const selectedNumbers = selected.map((s) => s.study_id)
-                      if (selectedNumbers.length === 0) {
-                        selectedNumbers.push(studies[0].study_id)
-                      }
-                      const alreadySelected =
-                        selectedNumbers.findIndex(
-                          (n) => n === study.study_id
-                        ) >= 0
-                      if (alreadySelected) {
-                        next = selectedNumbers.filter(
-                          (n) => n !== study.study_id
-                        )
-                      } else {
-                        next = [...selectedNumbers, study.study_id]
-                      }
-                      history.push(getStudyListLink(next))
-                    } else {
-                      history.push(getStudyListLink([study.study_id]))
-                    }
-                  }}
-                  selected={
-                    selected.findIndex((s) => s.study_id === study.study_id) !==
-                    -1
-                  }
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <ListItemText primary={`Study ${study.study_id}`} />
-                </ListItemButton>
-              </ListItem>
-            )
-          })}
-        </List>
-      </Box>
-      <Divider orientation="vertical" flexItem />
-      <Box
-        sx={{
-          flexGrow: 1,
-          overflow: "auto",
-          height: `calc(100vh - ${theme.spacing(8)})`,
-        }}
-      >
+    <Box sx={{ display: "flex" }}>
+      <AppDrawer toggleColorMode={toggleColorMode} toolbar={toolbar}>
         <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
-          <StudyHistories studyIds={showDetailStudies.map((s) => s.study_id)} />
+          <Box
+            sx={{
+              minWidth: trialListWidth,
+              overflow: "auto",
+              height: `calc(100vh - ${theme.spacing(8)})`,
+            }}
+          >
+            <List>
+              <ListSubheader sx={{ display: "flex", flexDirection: "row" }}>
+                <Typography sx={{ p: theme.spacing(1, 0) }}>
+                  {studies.length} Studies
+                </Typography>
+                <Box sx={{ flexGrow: 1 }} />
+              </ListSubheader>
+              <Divider />
+              {studies.map((study, i) => {
+                return (
+                  <ListItem key={study.study_id} disablePadding>
+                    <ListItemButton
+                      onClick={(e) => {
+                        if (e.shiftKey) {
+                          let next: number[]
+                          const selectedNumbers = selected.map(
+                            (s) => s.study_id
+                          )
+                          if (selectedNumbers.length === 0) {
+                            selectedNumbers.push(studies[0].study_id)
+                          }
+                          const alreadySelected =
+                            selectedNumbers.findIndex(
+                              (n) => n === study.study_id
+                            ) >= 0
+                          if (alreadySelected) {
+                            next = selectedNumbers.filter(
+                              (n) => n !== study.study_id
+                            )
+                          } else {
+                            next = [...selectedNumbers, study.study_id]
+                          }
+                          history.push(getStudyListLink(next))
+                        } else {
+                          history.push(getStudyListLink([study.study_id]))
+                        }
+                      }}
+                      selected={
+                        selected.findIndex(
+                          (s) => s.study_id === study.study_id
+                        ) !== -1
+                      }
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      <ListItemText primary={`Study ${study.study_id}`} />
+                    </ListItemButton>
+                  </ListItem>
+                )
+              })}
+            </List>
+          </Box>
+          <Divider orientation="vertical" flexItem />
+          <Box
+            sx={{
+              flexGrow: 1,
+              overflow: "auto",
+              height: `calc(100vh - ${theme.spacing(8)})`,
+            }}
+          >
+            <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
+              <StudyHistories studies={showStudies} />
+            </Box>
+          </Box>
         </Box>
-      </Box>
+      </AppDrawer>
     </Box>
   )
 }
 
-const StudyHistories: FC<{ studyIds: number[] }> = ({ studyIds }) => {
+const StudyHistories: FC<{ studies: StudySummary[] }> = ({ studies }) => {
   const theme = useTheme()
   const action = actionCreator()
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
 
   useEffect(() => {
-    studyIds.forEach((study_id) => {
-      action.updateStudyDetail(study_id)
+    studies.forEach((study) => {
+      action.updateStudyDetail(study.study_id)
     })
-  }, [studyIds.join(",")])
+  }, [studies])
 
   return (
     <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
@@ -173,7 +183,7 @@ const StudyHistories: FC<{ studyIds: number[] }> = ({ studyIds }) => {
         }}
       >
         <CardContent>
-          <GraphHistories studies={studyIds.map((id) => studyDetails[id])} />
+          <GraphHistories studies={studies.map((study) => studyDetails[study.study_id])} />
         </CardContent>
       </Card>
     </Box>
@@ -261,7 +271,7 @@ const GraphHistories: FC<{
         </Typography>
       </Grid>
       <Grid item xs={9}>
-        <div id={`${plotDomId}`} />
+        <div id={plotDomId} />
       </Grid>
     </Grid>
   )
@@ -273,7 +283,7 @@ const plotHistories = (
   logScale: boolean,
   mode: string
 ) => {
-  if (document.getElementById(`${plotDomId}`) === null) {
+  if (document.getElementById(plotDomId) === null) {
     return
   }
 
@@ -321,5 +331,5 @@ const plotHistories = (
     }
   })
 
-  plotly.react(`${plotDomId}`, plotData, layout)
+  plotly.react(plotDomId, plotData, layout)
 }
