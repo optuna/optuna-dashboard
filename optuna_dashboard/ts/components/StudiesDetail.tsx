@@ -183,7 +183,9 @@ const StudyHistories: FC<{ studies: StudySummary[] }> = ({ studies }) => {
         }}
       >
         <CardContent>
-          <GraphHistories studies={studies.map((study) => studyDetails[study.study_id])} />
+          <GraphHistories
+            studies={studies.map((study) => studyDetails[study.study_id])}
+          />
         </CardContent>
       </Card>
     </Box>
