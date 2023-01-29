@@ -27,7 +27,11 @@ import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
 
 import { actionCreator } from "../action"
-import { studySummariesState, useStudyDetailValue } from "../state"
+import {
+  studySummariesState,
+  useStudyDetailValue,
+  studyDetailsState,
+} from "../state"
 import {
   useFilteredTrials,
   Target,
@@ -72,7 +76,7 @@ const getStudyListLink = (numbers: number[]): string => {
 }
 
 const StudyListDetail: FC<{
-  study: StudySummary
+  study: StudyDetail
 }> = ({ study }) => {
   const theme = useTheme()
 
@@ -85,7 +89,7 @@ const StudyListDetail: FC<{
           fontWeight: theme.typography.fontWeightBold,
         }}
       >
-        Study {study.study_id} (study_id={study.study_id})
+        Study {study.name} (study_id={study.id})
       </Typography>
     </Box>
   )
@@ -179,30 +183,27 @@ export const StudiesDetail: FC<null> = () => {
         }}
       >
         <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
-          {showDetailStudies.length === 0
-            ? null
-            : showDetailStudies.map((s) => {
-                return (
-                  <Box key={`tmp-list-${s.study_id}`}>
-                    <StudyHistories studyId={s.study_id} />
-                    <StudyListDetail key={s.study_id} study={s} />
-                  </Box>
-                )
-              })}
+          {showDetailStudies.length === 0 ? null : (
+            <StudyHistories
+              studyIds={showDetailStudies.map((s) => s.study_id)}
+            />
+          )}
         </Box>
       </Box>
     </Box>
   )
 }
 
-const StudyHistories: FC<{ studyId: number }> = ({ studyId }) => {
+const StudyHistories: FC<{ studyIds: number[] }> = ({ studyIds }) => {
   const theme = useTheme()
   const action = actionCreator()
-  const studyDetail = useStudyDetailValue(studyId)
+  const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
 
   useEffect(() => {
-    action.updateStudyDetail(studyId)
-  }, [])
+    studyIds.forEach((study_id) => {
+      action.updateStudyDetail(study_id)
+    })
+  }, [studyIds.join(",")])
 
   return (
     <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
@@ -212,18 +213,49 @@ const StudyHistories: FC<{ studyId: number }> = ({ studyId }) => {
         }}
       >
         <CardContent>
-          <GraphHistories study={studyDetail} />
+          <GraphHistories studies={studyIds.map((id) => studyDetails[id])} />
         </CardContent>
       </Card>
     </Box>
   )
 }
 
+interface HistoryPlotInfo {
+  study_name: string
+  trials: Trial[]
+  directions: StudyDirection[]
+}
+
+const getFilteredTrials = (
+  study: StudyDetail | null,
+  filterComplete: boolean,
+  filterPruned: boolean
+): Trial[] => {
+  if (study === null) {
+    return []
+  }
+  return study.trials.filter((t) => {
+    if (t.state !== "Complete" && t.state !== "Pruned") {
+      return false
+    }
+    if (t.state === "Complete" && filterComplete) {
+      return false
+    }
+    if (t.state === "Pruned" && filterPruned) {
+      return false
+    }
+    return true
+  })
+}
+
 const GraphHistories: FC<{
-  study: StudyDetail | null
-  betaLogScale?: boolean
-  betaIncludePruned?: boolean
-}> = ({ study, betaLogScale, betaIncludePruned }) => {
+  studies: StudyDetail[] | null
+}> = ({ studies }) => {
+  console.log(studies)
+  if (!studies.every((s) => s)) {
+    return null
+  }
+
   const theme = useTheme()
   const [xAxis, setXAxis] = useState<
     "number" | "datetime_start" | "datetime_complete"
@@ -232,60 +264,25 @@ const GraphHistories: FC<{
   const [filterCompleteTrial, setFilterCompleteTrial] = useState<boolean>(false)
   const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
 
-  const [targets, selected, setTarget] = useObjectiveAndUserAttrTargets(study)
-  const trials = useFilteredTrials(
-    study,
-    [selected],
-    filterCompleteTrial,
-    betaIncludePruned === undefined ? filterPrunedTrial : !betaIncludePruned
-  )
+  const historyPlotInfos = studies.map((study) => {
+    const trials = getFilteredTrials(
+      study,
+      filterCompleteTrial,
+      filterPrunedTrial
+    )
+    const h: HistoryPlotInfo = {
+      study_name: study.name,
+      trials: trials,
+      directions: study.directions,
+    }
+    return h
+  })
 
   useEffect(() => {
-    if (study !== null) {
-      plotHistory(
-        trials,
-        study.directions,
-        selected,
-        xAxis,
-        betaLogScale === undefined ? logScale : betaLogScale,
-        theme.palette.mode
-      )
+    if (studies !== null) {
+      plotHistories(historyPlotInfos, xAxis, logScale, theme.palette.mode)
     }
-  }, [
-    trials,
-    study?.directions,
-    selected,
-    logScale,
-    betaLogScale,
-    xAxis,
-    theme.palette.mode,
-  ])
-
-  const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
-    setTarget(event.target.value)
-  }
-
-  const handleXAxisChange = (e: ChangeEvent<HTMLInputElement>) => {
-    if (e.target.value === "number") {
-      setXAxis("number")
-    } else if (e.target.value === "datetime_start") {
-      setXAxis("datetime_start")
-    } else if (e.target.value === "datetime_complete") {
-      setXAxis("datetime_complete")
-    }
-  }
-
-  const handleLogScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setLogScale(!logScale)
-  }
-
-  const handleFilterCompleteChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFilterCompleteTrial(!filterCompleteTrial)
-  }
-
-  const handleFilterPrunedChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setFilterPrunedTrial(!filterPrunedTrial)
-  }
+  }, [historyPlotInfos, logScale, xAxis, theme.palette.mode])
 
   return (
     <Grid container direction="row">
@@ -302,109 +299,22 @@ const GraphHistories: FC<{
         >
           History
         </Typography>
-        {targets.length >= 2 ? (
-          <FormControl
-            component="fieldset"
-            sx={{ marginBottom: theme.spacing(2) }}
-          >
-            <FormLabel component="legend">y Axis</FormLabel>
-            <Select
-              value={selected.identifier()}
-              onChange={handleObjectiveChange}
-            >
-              {targets.map((t, i) => (
-                <MenuItem value={t.identifier()} key={i}>
-                  {t.toLabel(study?.objective_names)}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        ) : null}
-        {betaLogScale === undefined ? (
-          <FormControl
-            component="fieldset"
-            sx={{ marginBottom: theme.spacing(2) }}
-          >
-            <FormLabel component="legend">Log y scale:</FormLabel>
-            <Switch
-              checked={logScale}
-              onChange={handleLogScaleChange}
-              value="enable"
-            />
-          </FormControl>
-        ) : null}
-        {betaIncludePruned === undefined ? (
-          <FormControl
-            component="fieldset"
-            sx={{ marginBottom: theme.spacing(2) }}
-          >
-            <FormLabel component="legend">Filter state:</FormLabel>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={!filterCompleteTrial}
-                  onChange={handleFilterCompleteChange}
-                />
-              }
-              label="Complete"
-            />
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={!filterPrunedTrial}
-                  disabled={!study?.has_intermediate_values}
-                  onChange={handleFilterPrunedChange}
-                />
-              }
-              label="Pruned"
-            />
-          </FormControl>
-        ) : null}
-        <FormControl
-          component="fieldset"
-          sx={{ marginBottom: theme.spacing(2) }}
-        >
-          <FormLabel component="legend">X-axis:</FormLabel>
-          <RadioGroup
-            aria-label="gender"
-            name="gender1"
-            value={xAxis}
-            onChange={handleXAxisChange}
-          >
-            <FormControlLabel
-              value="number"
-              control={<Radio />}
-              label="Number"
-            />
-            <FormControlLabel
-              value="datetime_start"
-              control={<Radio />}
-              label="Datetime start"
-            />
-            <FormControlLabel
-              value="datetime_complete"
-              control={<Radio />}
-              label="Datetime complete"
-            />
-          </RadioGroup>
-        </FormControl>
       </Grid>
       <Grid item xs={9}>
-        <div id={plotDomId} />
+        {/* <div id={`${plotDomId}-${study.id}`} /> */}
+        <div id={`${plotDomId}s`} />
       </Grid>
     </Grid>
   )
 }
 
-const plotHistory = (
-  trials: Trial[],
-  directions: StudyDirection[],
-  target: Target,
+const plotHistories = (
+  historyPlotInfos: HistoryPlotInfo[],
   xAxis: "number" | "datetime_start" | "datetime_complete",
   logScale: boolean,
   mode: string
 ) => {
-  if (document.getElementById(plotDomId) === null) {
+  if (document.getElementById(`${plotDomId}s`) === null) {
     return
   }
 
@@ -426,75 +336,31 @@ const plotHistory = (
     showlegend: true,
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
-  if (trials.length === 0) {
-    plotly.react(plotDomId, [], layout)
-    return
+
+  const getAxisX = (trial: Trial): number => {
+    return trial.number
   }
 
-  const getAxisX = (trial: Trial): number | Date => {
-    return xAxis === "number"
-      ? trial.number
-      : xAxis === "datetime_start"
-      ? trial.datetime_start!
-      : trial.datetime_complete!
+  const getTargetValue = (trial: Trial): number | null => {
+    if (trial.values === undefined) {
+      return null
+    }
+    const value = trial.values[0]
+    if (value === "inf" || value === "-inf") {
+      return null
+    }
+    return value
   }
 
-  const plotData: Partial<plotly.PlotData>[] = [
-    {
-      x: trials.map(getAxisX),
-      y: trials.map((t: Trial): number => target.getTargetValue(t) as number),
-      name: "Objective Value",
+  const plotData: Partial<plotly.PlotData>[] = historyPlotInfos.map((h) => {
+    return {
+      x: h.trials.map(getAxisX),
+      y: h.trials.map(getTargetValue),
+      name: `Objective Value ${h.study_name}`,
       mode: "markers",
       type: "scatter",
-    },
-  ]
-
-  const objectiveId = target.getObjectiveId()
-  if (objectiveId !== null) {
-    const xForLinePlot: (number | Date)[] = []
-    const yForLinePlot: number[] = []
-    let currentBest: number | null = null
-    for (let i = 0; i < trials.length; i++) {
-      const t = trials[i]
-      if (currentBest === null) {
-        currentBest = t.values![objectiveId] as number
-        xForLinePlot.push(getAxisX(t))
-        yForLinePlot.push(t.values![objectiveId] as number)
-      } else if (
-        directions[objectiveId] === "maximize" &&
-        t.values![objectiveId] > currentBest
-      ) {
-        const p = trials[i - 1]
-        if (!xForLinePlot.includes(getAxisX(p))) {
-          xForLinePlot.push(getAxisX(p))
-          yForLinePlot.push(currentBest)
-        }
-        currentBest = t.values![objectiveId] as number
-        xForLinePlot.push(getAxisX(t))
-        yForLinePlot.push(t.values![objectiveId] as number)
-      } else if (
-        directions[objectiveId] === "minimize" &&
-        t.values![objectiveId] < currentBest
-      ) {
-        const p = trials[i - 1]
-        if (!xForLinePlot.includes(getAxisX(p))) {
-          xForLinePlot.push(getAxisX(p))
-          yForLinePlot.push(currentBest)
-        }
-        currentBest = t.values![objectiveId] as number
-        xForLinePlot.push(getAxisX(t))
-        yForLinePlot.push(t.values![objectiveId] as number)
-      }
     }
-    xForLinePlot.push(getAxisX(trials[trials.length - 1]))
-    yForLinePlot.push(yForLinePlot[yForLinePlot.length - 1])
-    plotData.push({
-      x: xForLinePlot,
-      y: yForLinePlot,
-      name: "Best Value",
-      mode: "lines",
-      type: "scatter",
-    })
-  }
-  plotly.react(plotDomId, plotData, layout)
+  })
+
+  plotly.react(`${plotDomId}s`, plotData, layout)
 }
