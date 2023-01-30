@@ -1,6 +1,15 @@
-import React, { FC, useEffect, useMemo } from "react"
+import React, { FC, useEffect, useMemo, useState } from "react"
 import { useRecoilValue } from "recoil"
-import { Card, CardContent, Typography, Box, useTheme } from "@mui/material"
+import {
+  Card,
+  CardContent,
+  FormControl,
+  Switch,
+  Typography,
+  Box,
+  useTheme,
+} from "@mui/material"
+import FormControlLabel from "@mui/material/FormControlLabel"
 import Divider from "@mui/material/Divider"
 import List from "@mui/material/List"
 import ListItem from "@mui/material/ListItem"
@@ -158,6 +167,16 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
   const theme = useTheme()
   const action = actionCreator()
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
+  const [logScale, setLogScale] = useState<boolean>(false)
+  const [includePruned, setIncludePruned] = useState<boolean>(true)
+
+  const handleLogScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setLogScale(!logScale)
+  }
+
+  const handleIncludePrunedChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setIncludePruned(!includePruned)
+  }
 
   useEffect(() => {
     studies.forEach((study) => {
@@ -167,6 +186,36 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
 
   return (
     <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
+      <FormControl
+        component="fieldset"
+        sx={{
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "flex-end",
+          padding: theme.spacing(2),
+        }}
+      >
+        <FormControlLabel
+          control={
+            <Switch
+              checked={logScale}
+              onChange={handleLogScaleChange}
+              value="enable"
+            />
+          }
+          label="Log y scale"
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={includePruned}
+              onChange={handleIncludePrunedChange}
+              value="enable"
+            />
+          }
+          label="Include PRUNED trials"
+        />
+      </FormControl>
       <Card
         sx={{
           margin: theme.spacing(2),
@@ -175,6 +224,8 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
         <CardContent>
           <GraphHistories
             studies={studies.map((study) => studyDetails[study.study_id])}
+            includePruned={includePruned}
+            logScale={logScale}
           />
         </CardContent>
       </Card>
