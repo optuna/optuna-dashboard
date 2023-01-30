@@ -1,14 +1,6 @@
-import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect, useMemo, useState } from "react"
+import React, { FC, useEffect, useMemo } from "react"
 import { useRecoilValue } from "recoil"
-import {
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  Box,
-  useTheme,
-} from "@mui/material"
+import { Card, CardContent, Typography, Box, useTheme } from "@mui/material"
 import Divider from "@mui/material/Divider"
 import List from "@mui/material/List"
 import ListItem from "@mui/material/ListItem"
@@ -20,10 +12,8 @@ import HomeIcon from "@mui/icons-material/Home"
 import { actionCreator } from "../action"
 import { studySummariesState, studyDetailsState } from "../state"
 import { AppDrawer } from "./AppDrawer"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import { GraphHistories } from "./GraphHistories"
 import { useHistory, useLocation } from "react-router-dom"
-
-const plotDomId = "graph-histories"
 
 const useQuery = (): URLSearchParams => {
   const { search } = useLocation()
@@ -190,148 +180,4 @@ const StudyHistories: FC<{ studies: StudySummary[] }> = ({ studies }) => {
       </Card>
     </Box>
   )
-}
-
-interface HistoryPlotInfo {
-  study_name: string
-  trials: Trial[]
-  directions: StudyDirection[]
-}
-
-const getFilteredTrials = (
-  study: StudyDetail | null,
-  filterComplete: boolean,
-  filterPruned: boolean
-): Trial[] => {
-  if (study === null) {
-    return []
-  }
-  return study.trials.filter((t) => {
-    if (t.state !== "Complete" && t.state !== "Pruned") {
-      return false
-    }
-    if (t.state === "Complete" && filterComplete) {
-      return false
-    }
-    if (t.state === "Pruned" && filterPruned) {
-      return false
-    }
-    return true
-  })
-}
-
-const GraphHistories: FC<{
-  studies: StudyDetail[] | null
-}> = ({ studies }) => {
-  console.log(studies)
-  if (!studies.every((s) => s)) {
-    return null
-  }
-
-  const theme = useTheme()
-  const [xAxis, setXAxis] = useState<
-    "number" | "datetime_start" | "datetime_complete"
-  >("number")
-  const [logScale, setLogScale] = useState<boolean>(false)
-  const [filterCompleteTrial, setFilterCompleteTrial] = useState<boolean>(false)
-  const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
-
-  const historyPlotInfos = studies.map((study) => {
-    const trials = getFilteredTrials(
-      study,
-      filterCompleteTrial,
-      filterPrunedTrial
-    )
-    const h: HistoryPlotInfo = {
-      study_name: study.name,
-      trials: trials,
-      directions: study.directions,
-    }
-    return h
-  })
-
-  useEffect(() => {
-    if (studies !== null) {
-      plotHistories(historyPlotInfos, xAxis, logScale, theme.palette.mode)
-    }
-  }, [historyPlotInfos, logScale, xAxis, theme.palette.mode])
-
-  return (
-    <Grid container direction="row">
-      <Grid
-        item
-        xs={3}
-        container
-        direction="column"
-        sx={{ paddingRight: theme.spacing(2) }}
-      >
-        <Typography
-          variant="h6"
-          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
-        >
-          History
-        </Typography>
-      </Grid>
-      <Grid item xs={9}>
-        <div id={plotDomId} />
-      </Grid>
-    </Grid>
-  )
-}
-
-const plotHistories = (
-  historyPlotInfos: HistoryPlotInfo[],
-  xAxis: "number" | "datetime_start" | "datetime_complete",
-  logScale: boolean,
-  mode: string
-) => {
-  if (document.getElementById(plotDomId) === null) {
-    return
-  }
-
-  const layout: Partial<plotly.Layout> = {
-    margin: {
-      l: 50,
-      t: 0,
-      r: 50,
-      b: 0,
-    },
-    yaxis: {
-      title: "Objective Value",
-      type: logScale ? "log" : "linear",
-    },
-    xaxis: {
-      title: xAxis === "number" ? "Trial" : "Time",
-      type: xAxis === "number" ? "linear" : "date",
-    },
-    showlegend: true,
-    template: mode === "dark" ? plotlyDarkTemplate : {},
-  }
-
-  const getAxisX = (trial: Trial): number => {
-    return trial.number
-  }
-
-  const getTargetValue = (trial: Trial): number | null => {
-    if (trial.values === undefined) {
-      return null
-    }
-    const value = trial.values[0]
-    if (value === "inf" || value === "-inf") {
-      return null
-    }
-    return value
-  }
-
-  const plotData: Partial<plotly.PlotData>[] = historyPlotInfos.map((h) => {
-    return {
-      x: h.trials.map(getAxisX),
-      y: h.trials.map(getTargetValue),
-      name: `Objective Value ${h.study_name}`,
-      mode: "markers",
-      type: "scatter",
-    }
-  })
-
-  plotly.react(plotDomId, plotData, layout)
 }
