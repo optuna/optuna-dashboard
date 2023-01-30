@@ -145,7 +145,7 @@ export const StudiesDetail: FC<{
             }}
           >
             <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
-              <StudyHistories studies={showStudies} />
+              <StudiesGraph studies={showStudies} />
             </Box>
           </Box>
         </Box>
@@ -154,7 +154,7 @@ export const StudiesDetail: FC<{
   )
 }
 
-const StudyHistories: FC<{ studies: StudySummary[] }> = ({ studies }) => {
+const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
   const theme = useTheme()
   const action = actionCreator()
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
