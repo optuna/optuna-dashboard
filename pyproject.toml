@@ -40,9 +40,11 @@ optuna-dashboard = "optuna_dashboard._cli:main"
 version = {attr = "optuna_dashboard.__version__"}
 
 [tool.setuptools]
-packages = ["optuna_dashboard"]
 include-package-data = false
 package-data = { "optuna_dashboard" = ["public/*", "img/*", "index.html"] }
+
+[tool.setuptools.packages.find]
+include = ["optuna_dashboard*"]
 
 [project.urls]
 "Homepage" = "https://github.com/optuna/optuna-dashboard"
