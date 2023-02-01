@@ -9,4 +9,4 @@ from ._objective_form_widget import ObjectiveUserAttrRef  # noqa
 from ._objective_form_widget import register_objective_form_widgets  # noqa
 
 
-__version__ = "0.9.0b4"
+__version__ = "0.9.0b5"
