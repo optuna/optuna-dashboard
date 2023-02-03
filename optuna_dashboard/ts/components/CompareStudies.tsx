@@ -182,6 +182,8 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
     })
   }, [studies])
 
+  const showStudyDetails = studies.map((study) => studyDetails[study.study_id])
+
   return (
     <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
       <FormControl
@@ -221,7 +223,7 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
       >
         <CardContent>
           <GraphHistories
-            studies={studies.map((study) => studyDetails[study.study_id])}
+            studies={showStudyDetails}
             includePruned={includePruned}
             logScale={logScale}
           />
@@ -234,7 +236,7 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
       >
         <CardContent>
           <GraphEdfs
-            studies={studies.map((study) => studyDetails[study.study_id])}
+            studies={showStudyDetails}
           />
         </CardContent>
       </Card>

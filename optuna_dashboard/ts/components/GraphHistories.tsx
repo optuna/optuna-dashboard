@@ -26,24 +26,6 @@ interface HistoryPlotInfo {
   directions: StudyDirection[]
 }
 
-const getFilteredTrials = (
-  study: StudyDetail | null,
-  filterPruned: boolean
-): Trial[] => {
-  if (study === null) {
-    return []
-  }
-  return study.trials.filter((t) => {
-    if (t.state !== "Complete" && t.state !== "Pruned") {
-      return false
-    }
-    if (t.state === "Pruned" && filterPruned) {
-      return false
-    }
-    return true
-  })
-}
-
 export const GraphHistories: FC<{
   studies: StudyDetail[]
   logScale: boolean

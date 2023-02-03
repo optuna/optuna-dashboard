@@ -46,7 +46,7 @@ export const GraphEdfs: FC<{
 
   useEffect(() => {
     if (studies != null) {
-      plotEdfs(studies, selected, plotDomId, theme.palette.mode)
+      plotEdfs(edfPlotInfos, selected, plotDomId, theme.palette.mode)
     }
   }, [edfPlotInfos, selected, theme.palette.mode])
 
@@ -117,6 +117,7 @@ const plotEdfs = (
   }
 
   const plotData: Partial<plotly.PlotData>[] = edfPlotInfos.map((h) => {
+    console.log(h)
     const values = h.trials.map((t) => target.getTargetValue(t) as number)
     const numValues = values.length
     const minX = Math.min(...values)
