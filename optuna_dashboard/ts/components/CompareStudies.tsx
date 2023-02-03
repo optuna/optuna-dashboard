@@ -21,6 +21,7 @@ import HomeIcon from "@mui/icons-material/Home"
 import { actionCreator } from "../action"
 import { studySummariesState, studyDetailsState } from "../state"
 import { AppDrawer } from "./AppDrawer"
+import { GraphEdfs } from "./GraphEdfs"
 import { GraphHistories } from "./GraphHistories"
 import { useHistory, useLocation } from "react-router-dom"
 
@@ -223,6 +224,17 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
             studies={studies.map((study) => studyDetails[study.study_id])}
             includePruned={includePruned}
             logScale={logScale}
+          />
+        </CardContent>
+      </Card>
+      <Card
+        sx={{
+          margin: theme.spacing(2),
+        }}
+      >
+        <CardContent>
+          <GraphEdfs
+            studies={studies.map((study) => studyDetails[study.study_id])}
           />
         </CardContent>
       </Card>

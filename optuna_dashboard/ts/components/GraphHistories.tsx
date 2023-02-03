@@ -40,7 +40,7 @@ const getFilteredTrials = (
 }
 
 export const GraphHistories: FC<{
-  studies: StudyDetail[] | null
+  studies: StudyDetail[]
   logScale: boolean
   includePruned: boolean
 }> = ({ studies, logScale, includePruned }) => {
