@@ -1,5 +1,5 @@
 import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect, useState } from "react"
+import React, { ChangeEvent, FC, useEffect, useState } from "react"
 import {
   Grid,
   FormControl,
@@ -12,6 +12,11 @@ import {
 } from "@mui/material"
 
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import {
+  useFilteredTrials,
+  Target,
+  useObjectiveAndUserAttrTargets,
+} from "../trialFilter"
 
 const plotDomId = "graph-histories"
 
@@ -44,7 +49,7 @@ export const GraphHistories: FC<{
   logScale: boolean
   includePruned: boolean
 }> = ({ studies, logScale, includePruned }) => {
-  if (!studies.every((s) => s)) {
+  if (studies.length == 0 || !studies.every((s) => s)) {
     return null
   }
 
@@ -52,9 +57,12 @@ export const GraphHistories: FC<{
   const [xAxis, setXAxis] = useState<
     "number" | "datetime_start" | "datetime_complete"
   >("number")
+  const [targets, selected, setTarget] = useObjectiveAndUserAttrTargets(
+    studies[0]
+  )
 
   const historyPlotInfos = studies.map((study) => {
-    const trials = getFilteredTrials(study, !includePruned)
+    const trials = useFilteredTrials(study, [selected], false, !includePruned)
     const h: HistoryPlotInfo = {
       study_name: study.name,
       trials: trials,
@@ -67,7 +75,7 @@ export const GraphHistories: FC<{
     if (studies !== null) {
       plotHistories(historyPlotInfos, xAxis, logScale, theme.palette.mode)
     }
-  }, [historyPlotInfos, logScale, xAxis, theme.palette.mode])
+  }, [historyPlotInfos, selected, logScale, xAxis, theme.palette.mode])
 
   const handleXAxisChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.value === "number") {
