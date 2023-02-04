@@ -9,10 +9,12 @@ import {
   Box,
   useTheme,
 } from "@mui/material"
+import Chip from "@mui/material/Chip"
 import FormControlLabel from "@mui/material/FormControlLabel"
 import Divider from "@mui/material/Divider"
 import List from "@mui/material/List"
 import ListItem from "@mui/material/ListItem"
+import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
@@ -27,7 +29,6 @@ import { useHistory, useLocation } from "react-router-dom"
 
 const useQuery = (): URLSearchParams => {
   const { search } = useLocation()
-
   return useMemo(() => new URLSearchParams(search), [search])
 }
 
@@ -136,7 +137,32 @@ export const CompareStudies: FC<{
                         alignItems: "flex-start",
                       }}
                     >
-                      <ListItemText primary={`Study ${study.study_id}`} />
+                      <ListItemText primary={study.study_name} />
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "row",
+                          width: "100%",
+                        }}
+                      >
+                        <Typography
+                          color={theme.palette.grey.A400}
+                          sx={{ p: theme.spacing(0, 1) }}
+                        >
+                          {`# ${study.study_id}`}
+                        </Typography>
+                        <Chip
+                          color="primary"
+                          label={
+                            study.directions.length === 1
+                              ? `${study.directions.length} objective`
+                              : `${study.directions.length} objectives`
+                          }
+                          sx={{ margin: theme.spacing(0) }}
+                          size="small"
+                          variant="outlined"
+                        />
+                      </Box>
                     </ListItemButton>
                   </ListItem>
                 )
