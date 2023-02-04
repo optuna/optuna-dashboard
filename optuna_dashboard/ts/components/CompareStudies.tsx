@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useMemo, useState } from "react"
+import React, { ChangeEvent, FC, useEffect, useMemo, useState } from "react"
 import { useRecoilValue } from "recoil"
 import {
   Card,
@@ -229,6 +229,7 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
           />
         </CardContent>
       </Card>
+      {/*
       <Card
         sx={{
           margin: theme.spacing(2),
@@ -240,6 +241,7 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
           />
         </CardContent>
       </Card>
+      */}
     </Box>
   )
 }

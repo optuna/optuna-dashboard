@@ -5,7 +5,10 @@ import {
   FormControl,
   FormLabel,
   FormControlLabel,
+  MenuItem,
   Typography,
+  SelectChangeEvent,
+  Select,
   Radio,
   RadioGroup,
   useTheme,
@@ -13,6 +16,7 @@ import {
 
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import {
+  getFilteredTrials,
   useFilteredTrials,
   Target,
   useObjectiveAndUserAttrTargets,
@@ -31,7 +35,7 @@ export const GraphHistories: FC<{
   logScale: boolean
   includePruned: boolean
 }> = ({ studies, logScale, includePruned }) => {
-  if (studies.length == 0 || !studies.every((s) => s)) {
+  if (!studies | (studies.length === 0) || !studies.every((s) => s)) {
     return null
   }
 
@@ -44,7 +48,7 @@ export const GraphHistories: FC<{
   )
 
   const historyPlotInfos = studies.map((study) => {
-    const trials = useFilteredTrials(study, [selected], false, !includePruned)
+    const trials = getFilteredTrials(study, [selected], false, !includePruned)
     const h: HistoryPlotInfo = {
       study_name: study.name,
       trials: trials,
@@ -55,9 +59,27 @@ export const GraphHistories: FC<{
 
   useEffect(() => {
     if (studies !== null) {
-      plotHistories(historyPlotInfos, xAxis, logScale, theme.palette.mode)
+      plotHistories(
+        historyPlotInfos,
+        studies[0].directions,
+        selected,
+        xAxis,
+        logScale,
+        theme.palette.mode
+      )
     }
-  }, [historyPlotInfos, selected, logScale, xAxis, theme.palette.mode])
+  }, [
+    historyPlotInfos,
+    studies[0].directions,
+    selected,
+    logScale,
+    xAxis,
+    theme.palette.mode,
+  ])
+
+  const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
+    setTarget(event.target.value)
+  }
 
   const handleXAxisChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.value === "number") {
@@ -84,6 +106,24 @@ export const GraphHistories: FC<{
         >
           History
         </Typography>
+        {targets.length >= 2 ? (
+          <FormControl
+            component="fieldset"
+            sx={{ marginBottom: theme.spacing(2) }}
+          >
+            <FormLabel component="legend">y Axis</FormLabel>
+            <Select
+              value={selected.identifier()}
+              onChange={handleObjectiveChange}
+            >
+              {targets.map((t, i) => (
+                <MenuItem value={t.identifier()} key={i}>
+                  {t.toLabel(studies[0].objective_names)}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        ) : null}
         <FormControl
           component="fieldset"
           sx={{ marginBottom: theme.spacing(2) }}
@@ -122,6 +162,8 @@ export const GraphHistories: FC<{
 
 const plotHistories = (
   historyPlotInfos: HistoryPlotInfo[],
+  directions: StudyDirection[],
+  target: Target,
   xAxis: "number" | "datetime_start" | "datetime_complete",
   logScale: boolean,
   mode: string
@@ -149,45 +191,30 @@ const plotHistories = (
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
-  const getAxisX = (trial: Trial): number => {
-    return trial.number
-  }
-
-  const getTargetValue = (trial: Trial): number | null => {
-    if (trial.values === undefined) {
-      return null
-    }
-    const value = trial.values[0]
-    if (value === "inf" || value === "-inf") {
-      return null
-    }
-    return value
-  }
-
-  const minimum = (arr) => {
-    const r: number[] = []
-    let t = Number.MAX_VALUE
-    arr.forEach((v) => {
-      t = Math.min(t, v)
-      r.push(t)
-    })
-    return r
-  }
-
-  const maximum = (arr) => {
-    const r: number[] = []
-    let t = Number.MIN_VALUE
-    arr.forEach((v) => {
-      t = Math.max(t, v)
-      r.push(t)
-    })
-    return r
+  const getAxisX = (trial: Trial): number | Date => {
+    return xAxis === "number"
+      ? trial.number
+      : xAxis === "datetime_start"
+      ? trial.datetime_start!
+      : trial.datetime_complete!
   }
 
   const plotData: Partial<plotly.PlotData>[] = []
   historyPlotInfos.forEach((h) => {
+    if (h.trials.length === 0) {
+      plotData.push({
+        x: [],
+        y: [],
+        name: `Objective Value of ${h.study_name}`,
+        mode: "markers",
+        type: "scatter",
+      })
+      return
+    }
     const x = h.trials.map(getAxisX)
-    const y = h.trials.map(getTargetValue)
+    const y = h.trials.map(
+      (t: Trial): number => target.getTargetValue(t) as number
+    )
     plotData.push({
       x: x,
       y: y,
@@ -196,13 +223,56 @@ const plotHistories = (
       type: "scatter",
     })
 
-    plotData.push({
-      x: x,
-      y: h.directions[0] === "minimize" ? minimum(y) : maximum(y),
-      name: `Best Value of ${h.study_name}`,
-      mode: "lines",
-      type: "scatter",
-    })
+    const objectiveId = target.getObjectiveId()
+    if (objectiveId !== null) {
+      const xForLinePlot: (number | Date)[] = []
+      const yForLinePlot: number[] = []
+      let currentBest: number | null = null
+      for (let i = 0; i < h.trials.length; i++) {
+        const t = h.trials[i]
+        const value = target.getTargetValue(t) as number
+        console.log(value)
+        if (value === null) {
+        } else if (currentBest === null) {
+          currentBest = value
+          xForLinePlot.push(getAxisX(t))
+          yForLinePlot.push(value)
+        } else if (
+          directions[objectiveId] === "maximize" &&
+          value > currentBest
+        ) {
+          const p = h.trials[i - 1]
+          if (!xForLinePlot.includes(getAxisX(p))) {
+            xForLinePlot.push(getAxisX(p))
+            yForLinePlot.push(currentBest)
+          }
+          currentBest = value
+          xForLinePlot.push(getAxisX(t))
+          yForLinePlot.push(value)
+        } else if (
+          directions[objectiveId] === "minimize" &&
+          value < currentBest
+        ) {
+          const p = h.trials[i - 1]
+          if (!xForLinePlot.includes(getAxisX(p))) {
+            xForLinePlot.push(getAxisX(p))
+            yForLinePlot.push(currentBest)
+          }
+          currentBest = value
+          xForLinePlot.push(getAxisX(t))
+          yForLinePlot.push(value)
+        }
+      }
+      xForLinePlot.push(getAxisX(h.trials[h.trials.length - 1]))
+      yForLinePlot.push(yForLinePlot[yForLinePlot.length - 1])
+      plotData.push({
+        x: xForLinePlot,
+        y: yForLinePlot,
+        name: `Best Value of ${h.study_name}`,
+        mode: "lines",
+        type: "scatter",
+      })
+    }
   })
 
   plotly.react(plotDomId, plotData, layout)

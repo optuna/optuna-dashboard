@@ -116,6 +116,29 @@ export const useFilteredTrials = (
     })
   }, [study?.trials, targets, filterComplete, filterPruned])
 
+export const getFilteredTrials = (
+  study: StudyDetail | null,
+  targets: Target[],
+  filterComplete: boolean,
+  filterPruned: boolean
+): Trial[] => {
+  if (study === null) {
+    return []
+  }
+  return study.trials.filter((t) => {
+    if (t.state !== "Complete" && t.state !== "Pruned") {
+      return false
+    }
+    if (t.state === "Complete" && filterComplete) {
+      return false
+    }
+    if (t.state === "Pruned" && filterPruned) {
+      return false
+    }
+    return targets.every((target) => !target.getTargetValue(t) !== null)
+  })
+}
+
 export const useObjectiveTargets = (
   study: StudyDetail | null
 ): [Target[], Target, (ident: string) => void] => {
