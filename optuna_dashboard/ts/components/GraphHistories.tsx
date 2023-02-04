@@ -17,7 +17,6 @@ import {
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import {
   getFilteredTrials,
-  useFilteredTrials,
   Target,
   useObjectiveAndUserAttrTargets,
 } from "../trialFilter"
@@ -35,10 +34,6 @@ export const GraphHistories: FC<{
   logScale: boolean
   includePruned: boolean
 }> = ({ studies, logScale, includePruned }) => {
-  if (!studies | (studies.length === 0) || !studies.every((s) => s)) {
-    return null
-  }
-
   const theme = useTheme()
   const [xAxis, setXAxis] = useState<
     "number" | "datetime_start" | "datetime_complete"
@@ -231,7 +226,6 @@ const plotHistories = (
       for (let i = 0; i < h.trials.length; i++) {
         const t = h.trials[i]
         const value = target.getTargetValue(t) as number
-        console.log(value)
         if (value === null) {
         } else if (currentBest === null) {
           currentBest = value

@@ -216,32 +216,36 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
           label="Include PRUNED trials"
         />
       </FormControl>
-      <Card
-        sx={{
-          margin: theme.spacing(2),
-        }}
-      >
-        <CardContent>
-          <GraphHistories
-            studies={showStudyDetails}
-            includePruned={includePruned}
-            logScale={logScale}
-          />
-        </CardContent>
-      </Card>
-      {/*
-      <Card
-        sx={{
-          margin: theme.spacing(2),
-        }}
-      >
-        <CardContent>
-          <GraphEdfs
-            studies={showStudyDetails}
-          />
-        </CardContent>
-      </Card>
-      */}
+      {showStudyDetails !== null &&
+      showStudyDetails.length > 0 &&
+      showStudyDetails.every((s) => s) ? (
+        <Card
+          sx={{
+            margin: theme.spacing(2),
+          }}
+        >
+          <CardContent>
+            <GraphHistories
+              studies={showStudyDetails}
+              includePruned={includePruned}
+              logScale={logScale}
+            />
+          </CardContent>
+        </Card>
+      ) : null}
+      {showStudyDetails !== null &&
+      showStudyDetails.length > 0 &&
+      showStudyDetails.every((s) => s) ? (
+        <Card
+          sx={{
+            margin: theme.spacing(2),
+          }}
+        >
+          <CardContent>
+            <GraphEdfs studies={showStudyDetails} />
+          </CardContent>
+        </Card>
+      ) : null}
     </Box>
   )
 }
