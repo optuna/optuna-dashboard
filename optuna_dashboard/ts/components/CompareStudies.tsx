@@ -136,6 +136,12 @@ export const CompareStudies: FC<{
                         flexDirection: "column",
                         alignItems: "flex-start",
                       }}
+                      disabled={
+                        selected.length === 0
+                          ? false
+                          : selected[0].directions.length !==
+                            study.directions.length
+                      }
                     >
                       <ListItemText primary={study.study_name} />
                       <Box

@@ -196,16 +196,6 @@ const plotHistories = (
 
   const plotData: Partial<plotly.PlotData>[] = []
   historyPlotInfos.forEach((h) => {
-    if (h.trials.length === 0) {
-      plotData.push({
-        x: [],
-        y: [],
-        name: `Objective Value of ${h.study_name}`,
-        mode: "markers",
-        type: "scatter",
-      })
-      return
-    }
     const x = h.trials.map(getAxisX)
     const y = h.trials.map(
       (t: Trial): number => target.getTargetValue(t) as number
@@ -257,8 +247,10 @@ const plotHistories = (
           yForLinePlot.push(value)
         }
       }
-      xForLinePlot.push(getAxisX(h.trials[h.trials.length - 1]))
-      yForLinePlot.push(yForLinePlot[yForLinePlot.length - 1])
+      if (h.trials.length !== 0) {
+        xForLinePlot.push(getAxisX(h.trials[h.trials.length - 1]))
+        yForLinePlot.push(yForLinePlot[yForLinePlot.length - 1])
+      }
       plotData.push({
         x: xForLinePlot,
         y: yForLinePlot,
