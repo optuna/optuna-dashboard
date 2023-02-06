@@ -14,7 +14,6 @@ import FormControlLabel from "@mui/material/FormControlLabel"
 import Divider from "@mui/material/Divider"
 import List from "@mui/material/List"
 import ListItem from "@mui/material/ListItem"
-import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
@@ -107,9 +106,6 @@ export const CompareStudies: FC<{
                           const selectedNumbers = selected.map(
                             (s) => s.study_id
                           )
-                          if (selectedNumbers.length === 0) {
-                            selectedNumbers.push(studies[0].study_id)
-                          }
                           const alreadySelected =
                             selectedNumbers.findIndex(
                               (n) => n === study.study_id
@@ -119,7 +115,13 @@ export const CompareStudies: FC<{
                               (n) => n !== study.study_id
                             )
                           } else {
-                            next = [...selectedNumbers, study.study_id]
+                            if (
+                              selected.length > 0 &&
+                              selected[0].directions.length ===
+                                study.directions.length
+                            ) {
+                              next = [...selectedNumbers, study.study_id]
+                            }
                           }
                           history.push(getStudyListLink(next))
                         } else {
@@ -136,12 +138,6 @@ export const CompareStudies: FC<{
                         flexDirection: "column",
                         alignItems: "flex-start",
                       }}
-                      disabled={
-                        selected.length === 0
-                          ? false
-                          : selected[0].directions.length !==
-                            study.directions.length
-                      }
                     >
                       <ListItemText primary={study.study_name} />
                       <Box

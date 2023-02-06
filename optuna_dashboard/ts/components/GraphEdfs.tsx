@@ -1,5 +1,5 @@
 import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect, useMemo } from "react"
+import React, { FC, useEffect } from "react"
 import {
   Grid,
   FormControl,
@@ -44,7 +44,7 @@ export const GraphEdfs: FC<{
     if (studies != null) {
       plotEdfs(edfPlotInfos, selected, plotDomId, theme.palette.mode)
     }
-  }, [edfPlotInfos, selected, theme.palette.mode])
+  }, [studies, selected, theme.palette.mode])
 
   return (
     <Grid container direction="row">

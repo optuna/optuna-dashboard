@@ -63,14 +63,7 @@ export const GraphHistories: FC<{
         theme.palette.mode
       )
     }
-  }, [
-    historyPlotInfos,
-    studies[0].directions,
-    selected,
-    logScale,
-    xAxis,
-    theme.palette.mode,
-  ])
+  }, [studies, selected, logScale, xAxis, theme.palette.mode])
 
   const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
     setTarget(event.target.value)
@@ -217,6 +210,7 @@ const plotHistories = (
         const t = h.trials[i]
         const value = target.getTargetValue(t) as number
         if (value === null) {
+          continue
         } else if (currentBest === null) {
           currentBest = value
           xForLinePlot.push(getAxisX(t))
