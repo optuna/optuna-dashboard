@@ -13,7 +13,8 @@ from optuna.trial import FrozenTrial
 
 from . import _note as note
 from ._named_objectives import get_objective_names
-from ._objective_form_widget import get_objective_form_widgets_json, is_tell_trial_disabled
+from ._objective_form_widget import get_objective_form_widgets_json
+from ._objective_form_widget import is_tell_trial_disabled
 from .artifact._backend import list_trial_artifacts
 
 

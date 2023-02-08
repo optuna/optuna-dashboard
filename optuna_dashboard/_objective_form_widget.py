@@ -148,7 +148,5 @@ def disable_tell_trial_value(trial: optuna.Trial) -> Generator[None, None, None]
         storage.set_trial_system_attr(trial_id, SYSTEM_ATTR_KEY_TELL_DISABLED, False)
 
 
-def is_tell_trial_disabled(
-    trial_system_attr: dict[str, Any]
-) -> bool:
+def is_tell_trial_disabled(trial_system_attr: dict[str, Any]) -> bool:
     return trial_system_attr.get(SYSTEM_ATTR_KEY_TELL_DISABLED, False)
