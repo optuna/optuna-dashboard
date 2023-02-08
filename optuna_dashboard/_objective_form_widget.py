@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import contextmanager
 from dataclasses import dataclass
 import json
 from typing import TYPE_CHECKING
@@ -111,6 +112,7 @@ ObjectiveFormWidget = Union[
     ObjectiveChoiceWidget, ObjectiveSliderWidget, ObjectiveTextInputWidget, ObjectiveUserAttrRef
 ]
 SYSTEM_ATTR_KEY = "dashboard:objective_form_widgets"
+SYSTEM_ATTR_KEY_TELL_DISABLED = "dashboard:tell_disabled"
 
 
 def register_objective_form_widgets(
@@ -131,3 +133,15 @@ def get_objective_form_widgets_json(
     if widgets_json is None:
         return None
     return json.loads(widgets_json)
+
+
+@contextmanager
+def disable_tell_trial_value(trial: optuna.Trial):
+    trial_id = trial._trial_id
+    storage = trial.storage
+
+    storage.set_trial_system_attr(trial_id, SYSTEM_ATTR_KEY_TELL_DISABLED, True)
+    try:
+        yield
+    finally:
+        storage.set_trial_system_attr(trial_id, SYSTEM_ATTR_KEY_TELL_DISABLED, False)
