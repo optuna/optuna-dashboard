@@ -275,3 +275,133 @@ export const ObjectiveForm: FC<{
     </>
   )
 }
+
+export const ReadonlyObjectiveForm: FC<{
+  trial: Trial
+  directions: StudyDirection[]
+  names: string[]
+  widgets: ObjectiveFormWidget[]
+}> = ({ trial, directions, names, widgets }) => {
+  const theme = useTheme()
+  const getObjectiveName = (i: number): string => {
+    const n = names.at(i)
+    if (n !== undefined) {
+      return n
+    }
+    if (directions.length == 1) {
+      return `Objective`
+    } else {
+      return `Objective ${i}`
+    }
+  }
+  return (
+    <>
+      <Typography
+        variant="h5"
+        sx={{ fontWeight: theme.typography.fontWeightBold }}
+      >
+        {directions.length > 1 ? "Set Objective Values" : "Set Objective Value"}
+      </Typography>
+      <Box sx={{ p: theme.spacing(1, 0) }}>
+        <Card
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            marginBottom: theme.spacing(2),
+            margin: theme.spacing(0, 1, 1, 0),
+            p: theme.spacing(1),
+          }}
+        >
+          {directions.map((d, i) => {
+            const widget = widgets.at(i)
+            const key = `objective-${i}`
+            if (widget === undefined) {
+              return (
+                <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
+                  <FormLabel>{getObjectiveName(i)}</FormLabel>
+                  <TextField
+                    inputProps={{ readOnly: true }}
+                    value={trial.values?.at(i)}
+                  />
+                </FormControl>
+              )
+            } else if (widget.type === "text") {
+              return (
+                <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
+                  <FormLabel>
+                    {getObjectiveName(i)} - {widget.description}
+                  </FormLabel>
+                  <TextField
+                    inputProps={{ readOnly: true }}
+                    value={trial.values?.at(i)}
+                  />
+                </FormControl>
+              )
+            } else if (widget.type === "choice") {
+              return (
+                <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
+                  <FormLabel>
+                    {getObjectiveName(i)} - {widget.description}
+                  </FormLabel>
+                  <RadioGroup row defaultValue={trial.values?.at(i)}>
+                    {widget.choices.map((c, j) => (
+                      <FormControlLabel
+                        key={c}
+                        control={
+                          <Radio
+                            checked={
+                              trial.values?.at(i) === widget.values.at(j)
+                            }
+                          />
+                        }
+                        label={c}
+                        disabled
+                      />
+                    ))}
+                  </RadioGroup>
+                </FormControl>
+              )
+            } else if (widget.type === "slider") {
+              const value = trial.values?.at(i)
+              return (
+                <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
+                  <FormLabel>
+                    {getObjectiveName(i)} - {widget.description}
+                  </FormLabel>
+                  <Box sx={{ padding: theme.spacing(0, 2) }}>
+                    <Slider
+                      defaultValue={
+                        value === "inf" || value === "-inf" ? undefined : value
+                      }
+                      min={widget.min}
+                      max={widget.max}
+                      step={widget.step}
+                      marks={
+                        widget.labels === null || widget.labels.length == 0
+                          ? true
+                          : widget.labels
+                      }
+                      valueLabelDisplay="auto"
+                      disabled
+                    />
+                  </Box>
+                </FormControl>
+              )
+            } else if (widget.type === "user_attr") {
+              return (
+                <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
+                  <FormLabel>{getObjectiveName(i)}</FormLabel>
+                  <TextField
+                    inputProps={{ readOnly: true }}
+                    value={trial.values?.at(i)}
+                  />
+                </FormControl>
+              )
+            }
+            return null
+          })}
+        </Card>
+      </Box>
+    </>
+  )
+}

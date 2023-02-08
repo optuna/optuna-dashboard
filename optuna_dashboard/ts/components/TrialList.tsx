@@ -42,7 +42,7 @@ import { useRecoilValue } from "recoil"
 import { artifactIsAvailable } from "../state"
 import { actionCreator } from "../action"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
-import { ObjectiveForm } from "./ObjectiveForm"
+import { ObjectiveForm, ReadonlyObjectiveForm } from "./ObjectiveForm"
 
 const states: TrialState[] = [
   "Complete",
@@ -296,6 +296,14 @@ const TrialListDetail: FC<{
       />
       {trial.state === "Running" && directions.length > 0 && (
         <ObjectiveForm
+          trial={trial}
+          directions={directions}
+          names={objectiveNames}
+          widgets={objectiveFormWidgets}
+        />
+      )}
+      {trial.state === "Complete" && directions.length > 0 && (
+        <ReadonlyObjectiveForm
           trial={trial}
           directions={directions}
           names={objectiveNames}
