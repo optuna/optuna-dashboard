@@ -11,6 +11,7 @@ import optuna
 
 if TYPE_CHECKING:
     from typing import Any
+    from typing import Generator
     from typing import Literal
     from typing import Optional
     from typing import TypedDict
@@ -136,7 +137,7 @@ def get_objective_form_widgets_json(
 
 
 @contextmanager
-def disable_tell_trial_value(trial: optuna.Trial):
+def disable_tell_trial_value(trial: optuna.Trial) -> Generator[None, None, None]:
     trial_id = trial._trial_id
     storage = trial.storage
 
@@ -145,3 +146,9 @@ def disable_tell_trial_value(trial: optuna.Trial):
         yield
     finally:
         storage.set_trial_system_attr(trial_id, SYSTEM_ATTR_KEY_TELL_DISABLED, False)
+
+
+def is_tell_trial_disabled(
+    trial_system_attr: dict[str, Any]
+) -> bool:
+    return trial_system_attr.get(SYSTEM_ATTR_KEY_TELL_DISABLED, False)

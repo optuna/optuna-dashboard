@@ -30,6 +30,7 @@ interface TrialResponse {
   system_attrs: Attribute[]
   note: Note
   artifacts: Artifact[]
+  is_tell_disabled: boolean
 }
 
 const convertTrialResponse = (res: TrialResponse): Trial => {
@@ -52,6 +53,7 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
     system_attrs: res.system_attrs,
     note: res.note,
     artifacts: res.artifacts,
+    is_tell_disabled: res.is_tell_disabled,
   }
 }
 

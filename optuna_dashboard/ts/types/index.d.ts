@@ -114,6 +114,7 @@ type Trial = {
   system_attrs: Attribute[]
   note: Note
   artifacts: Artifact[]
+  is_tell_disabled: boolean
 }
 
 type StudySummary = {

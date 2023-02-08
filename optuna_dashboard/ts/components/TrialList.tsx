@@ -294,14 +294,17 @@ const TrialListDetail: FC<{
         latestNote={trial.note}
         cardSx={{ marginBottom: theme.spacing(2) }}
       />
-      {trial.state === "Running" && directions.length > 0 && (
-        <ObjectiveForm
-          trial={trial}
-          directions={directions}
-          names={objectiveNames}
-          widgets={objectiveFormWidgets}
-        />
-      )}
+      {trial.state === "Running" &&
+        !trial.is_tell_disabled &&
+        trial.params.length > 0 &&
+        directions.length > 0 && (
+          <ObjectiveForm
+            trial={trial}
+            directions={directions}
+            names={objectiveNames}
+            widgets={objectiveFormWidgets}
+          />
+        )}
       {trial.state === "Complete" && directions.length > 0 && (
         <ReadonlyObjectiveForm
           trial={trial}
