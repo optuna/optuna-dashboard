@@ -409,7 +409,6 @@ def create_app(
     @app.post("/api/trials/<trial_id:int>/tell")
     @json_api_view
     def tell_trial(trial_id: int) -> dict[str, Any]:
-
         if "state" not in request.json:
             response.status = 400  # Bad request
             return {"reason": "state must be specified."}
