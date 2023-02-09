@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-import json
 from typing import TYPE_CHECKING
 from typing import Union
 
@@ -119,15 +118,10 @@ def register_objective_form_widgets(
     if len(study.directions) != len(widgets):
         raise ValueError("The length of actions must be the same with the number of objectives.")
     widget_dicts = [w.to_dict() for w in widgets]
-    study._storage.set_study_system_attr(
-        study._study_id, SYSTEM_ATTR_KEY, json.dumps(widget_dicts)
-    )
+    study._storage.set_study_system_attr(study._study_id, SYSTEM_ATTR_KEY, widget_dicts)
 
 
 def get_objective_form_widgets_json(
     study_system_attr: dict[str, Any]
 ) -> Optional[list[ObjectiveFormWidgetJSON]]:
-    widgets_json = study_system_attr.get(SYSTEM_ATTR_KEY)
-    if widgets_json is None:
-        return None
-    return json.loads(widgets_json)
+    return study_system_attr.get(SYSTEM_ATTR_KEY)
