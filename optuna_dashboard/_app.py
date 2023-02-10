@@ -37,6 +37,7 @@ from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
 from ._serializer import serialize_study_detail
 from ._serializer import serialize_study_summary
+from ._storage_url import get_storage
 from .artifact._backend import delete_all_artifacts
 from .artifact._backend import register_artifact_route
 
@@ -501,19 +502,6 @@ def _frozen_study_to_study_summary(frozen_study: "FrozenStudy") -> StudySummary:
         n_trials=-1,  # This field isn't used by Dashboard.
         datetime_start=None,
     )
-
-
-def get_storage(storage: Union[str, BaseStorage]) -> BaseStorage:
-    if isinstance(storage, str):
-        if storage.startswith("redis"):
-            raise ValueError(
-                "RedisStorage is unsupported from Optuna v3.1 or Optuna Dashboard v0.8.0"
-            )
-        elif version.parse(optuna_ver) >= version.Version("v3.0.0"):
-            return RDBStorage(storage, skip_compatibility_check=True, skip_table_creation=True)
-        else:
-            return RDBStorage(storage, skip_compatibility_check=True)
-    return storage
 
 
 def run_server(
