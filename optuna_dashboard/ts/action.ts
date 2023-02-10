@@ -127,7 +127,7 @@ export const actionCreator = () => {
       const bestValue = newStudy.best_trials.at(0)?.values?.at(0)
       const currentValue = values?.at(0)
       if (newStudy.best_trials.length === 0) {
-        newStudy.best_trials.push(newTrial)
+        newStudy.best_trials = [newTrial]
       } else if (bestValue !== undefined && currentValue !== undefined) {
         if (newStudy.directions[0] === "minimize" && currentValue < bestValue) {
           newStudy.best_trials = [newTrial]
@@ -137,7 +137,7 @@ export const actionCreator = () => {
         ) {
           newStudy.best_trials = [newTrial]
         } else if (currentValue == bestValue) {
-          newStudy.best_trials.push(newTrial)
+          newStudy.best_trials = [...newStudy.best_trials, newTrial]
         }
       }
     } else if (state === "Complete") {
