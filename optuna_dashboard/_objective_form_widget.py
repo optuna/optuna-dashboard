@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 from typing import TYPE_CHECKING
 from typing import Union
 
@@ -109,7 +110,7 @@ class ObjectiveUserAttrRef:
 ObjectiveFormWidget = Union[
     ObjectiveChoiceWidget, ObjectiveSliderWidget, ObjectiveTextInputWidget, ObjectiveUserAttrRef
 ]
-SYSTEM_ATTR_KEY = "dashboard:objective_form_widgets"
+SYSTEM_ATTR_KEY = "dashboard:objective_form_widgets:v1"
 
 
 def register_objective_form_widgets(
@@ -124,4 +125,9 @@ def register_objective_form_widgets(
 def get_objective_form_widgets_json(
     study_system_attr: dict[str, Any]
 ) -> Optional[list[ObjectiveFormWidgetJSON]]:
-    return study_system_attr.get(SYSTEM_ATTR_KEY)
+    if SYSTEM_ATTR_KEY in study_system_attr:
+        return study_system_attr[SYSTEM_ATTR_KEY]
+    # For optuna-dashboard v0.9.0b5 users
+    if "dashboard:objective_form_widgets" in study_system_attr:
+        return json.loads(study_system_attr["dashboard:objective_form_widgets"])
+    return None
