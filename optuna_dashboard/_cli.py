@@ -15,8 +15,8 @@ from optuna.storages import RDBStorage
 
 from . import __version__
 from ._app import create_app
-from ._app import get_storage
 from ._sql_profiler import register_profiler_view
+from ._storage_url import get_storage
 from .artifact.file_system import FileSystemBackend
 
 
@@ -84,7 +84,13 @@ def auto_select_server(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Real-time dashboard for Optuna.")
-    parser.add_argument("storage", help="DB URL (e.g. sqlite:///example.db)", type=str)
+    parser.add_argument("storage", help="Storage URL (e.g. sqlite:///example.db)", type=str)
+    parser.add_argument(
+        "--storage-class",
+        help="Storage class hint (e.g. JournalFileStorage)",
+        type=str,
+        default=None,
+    )
     parser.add_argument(
         "--port", help="port number (default: %(default)s)", type=int, default=8080
     )
@@ -105,7 +111,7 @@ def main() -> None:
     args = parser.parse_args()
 
     storage: BaseStorage
-    storage = get_storage(args.storage)
+    storage = get_storage(args.storage, storage_class=args.storage_class)
 
     artifact_backend = None
     if args.artifact_dir is not None:
