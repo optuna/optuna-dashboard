@@ -43,17 +43,17 @@ class GetStorageTestCase(TestCase):
     def test_get_journal_file_storage_valid(self) -> None:
         with tempfile.NamedTemporaryFile() as file:
             storage = get_storage(file.name)
-            self.assertIsInstance(storage, JournalStorage)
+            assert isinstance(storage, JournalStorage)
             self.assertIsInstance(storage._backend, JournalFileStorage)
 
         with tempfile.NamedTemporaryFile() as file:
             storage = get_storage(file.name, storage_class="JournalFileStorage")
-            self.assertIsInstance(storage, JournalStorage)
+            assert isinstance(storage, JournalStorage)
             self.assertIsInstance(storage._backend, JournalFileStorage)
 
         with tempfile.NamedTemporaryFile() as file:
             storage = get_storage(file.name, storage_class="JournalFileStorage")
-            self.assertIsInstance(storage, JournalStorage)
+            assert isinstance(storage, JournalStorage)
             self.assertIsInstance(storage._backend, JournalFileStorage)
 
     def test_get_journal_file_storage_invalid(self) -> None:
