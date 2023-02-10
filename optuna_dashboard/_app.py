@@ -126,6 +126,8 @@ def update_schema_compatibility_flags(storage: BaseStorage) -> None:
 def get_study_summaries(storage: BaseStorage) -> list[StudySummary]:
     if version.parse(optuna_ver) >= version.Version("3.0.0rc0.dev"):
         frozen_studies = storage.get_all_studies()  # type: ignore
+        if isinstance(storage, RDBStorage):
+            frozen_studies = sorted(frozen_studies, key=lambda s: s._study_id)
         return [_frozen_study_to_study_summary(s) for s in frozen_studies]
     elif version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
         return storage.get_all_study_summaries(include_best_trial=False)  # type: ignore
