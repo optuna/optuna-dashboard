@@ -428,6 +428,78 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                 </CardContent>
               </Card>
             )
+          } else if (a.mimetype.startsWith("audio")) {
+            return (
+              <Card
+                key={a.artifact_id}
+                sx={{
+                  marginBottom: theme.spacing(2),
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "280px",
+                  minHeight: "100%",
+                  margin: theme.spacing(0, 1, 1, 0),
+                }}
+              >
+                <Box
+                  sx={{
+                    flexGrow: 1,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <audio controls>
+                    <source
+                      src={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                      type={a.mimetype}
+                    />
+                  </audio>
+                </Box>
+                <CardContent
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    padding: `${theme.spacing(1)} !important`,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      p: theme.spacing(0.5, 0),
+                      flexGrow: 1,
+                      maxWidth: `calc(100% - ${theme.spacing(8)})`,
+                    }}
+                  >
+                    {a.filename}
+                  </Typography>
+                  <IconButton
+                    aria-label="delete artifact"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    onClick={() => {
+                      openDeleteArtifactDialog(
+                        trial.study_id,
+                        trial.trial_id,
+                        a
+                      )
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                  <IconButton
+                    aria-label="download artifact"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    download={a.filename}
+                    href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                  >
+                    <DownloadIcon />
+                  </IconButton>
+                </CardContent>
+              </Card>
+            )
           } else {
             return (
               <Card
