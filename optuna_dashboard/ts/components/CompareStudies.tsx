@@ -25,7 +25,7 @@ import HomeIcon from "@mui/icons-material/Home"
 import { actionCreator } from "../action"
 import { studySummariesState, studyDetailsState } from "../state"
 import { AppDrawer } from "./AppDrawer"
-import { GraphEdfs } from "./GraphEdfs"
+import { GraphEdf } from "./GraphEdf"
 import { GraphHistories } from "./GraphHistories"
 import { useHistory, useLocation } from "react-router-dom"
 
@@ -294,7 +294,7 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
           }}
         >
           <CardContent>
-            <GraphEdfs studies={showStudyDetails} />
+            <GraphEdf studies={showStudyDetails} />
           </CardContent>
         </Card>
       ) : null}

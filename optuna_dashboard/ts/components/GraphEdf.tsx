@@ -12,35 +12,46 @@ import {
   Box,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
-import { Target, useFilteredTrials, useObjectiveTargets } from "../trialFilter"
+import { Target, useFilteredTrials, useFilteredTrials1, useObjectiveTargets } from "../trialFilter"
 
 const plotDomId = "graph-edf"
 const getPlotDomId = (objectiveId: number) => `graph-edf-${objectiveId}`
 
+interface EdfPlotInfo {
+  study_name: string
+  trials: Trial[]
+}
+
 export const GraphEdfBeta: FC<{
-  study: StudyDetail | null
+  studies: StudyDetail[] | null
   objectiveId: number
-}> = ({ study, objectiveId }) => {
+}> = ({ studies, objectiveId }) => {
   const theme = useTheme()
   const domId = getPlotDomId(objectiveId)
   const target = useMemo<Target>(
     () => new Target("objective", objectiveId),
     [objectiveId]
   )
-  const trials = useFilteredTrials(study, [target], false, false)
+  const trials = useFilteredTrials1(studies, [target], false, false)
+  const edfPlotInfos = studies.map((study, index) => {
+    const h: EdfPlotInfo = {
+      study_name: study.name,
+      trials: trials[index],
+    }
+    return h
+  })
 
   useEffect(() => {
-    if (study !== null) {
-      plotEdf(trials, target, domId, theme.palette.mode)
-    }
-  }, [trials, target, domId, theme.palette.mode])
+    plotEdf(edfPlotInfos, target, domId, theme.palette.mode)
+  }, [studies, target, domId, theme.palette.mode])
+
   return (
     <Box>
       <Typography
         variant="h6"
         sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
       >
-        {`EDF for ${target.toLabel(study?.objective_names)}`}
+        {`EDF for ${target.toLabel(studies[0].objective_names)}`}
       </Typography>
       <Box id={domId} sx={{ height: "450px" }} />
     </Box>
@@ -48,21 +59,28 @@ export const GraphEdfBeta: FC<{
 }
 
 export const GraphEdf: FC<{
-  study: StudyDetail | null
-}> = ({ study = null }) => {
+  studies: StudyDetail[] | null
+}> = ({ studies = null }) => {
   const theme = useTheme()
-  const [targets, selected, setTarget] = useObjectiveTargets(study)
-  const trials = useFilteredTrials(study, [selected], false, false)
+  const [targets, selected, setTarget] = useObjectiveTargets(studies ? studies[0] : null)
+
+  const trials = useFilteredTrials1(studies, [selected], false, false)
+  const edfPlotInfos = studies.map((study, index) => {
+    const h: EdfPlotInfo = {
+      study_name: study?.name,
+      trials: trials[index],
+    }
+    return h
+  })
 
   const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
     setTarget(event.target.value)
   }
 
   useEffect(() => {
-    if (study != null) {
-      plotEdf(trials, selected, plotDomId, theme.palette.mode)
-    }
-  }, [trials, selected, theme.palette.mode])
+    plotEdf(edfPlotInfos, selected, plotDomId, theme.palette.mode)
+  }, [studies, selected, theme.palette.mode])
+  
   return (
     <Grid container direction="row">
       <Grid
@@ -78,7 +96,7 @@ export const GraphEdf: FC<{
         >
           EDF
         </Typography>
-        {study !== null && study.directions.length !== 1 ? (
+        {studies[0] !== null && studies[0].directions.length !== 1 ? (
           <FormControl component="fieldset">
             <FormLabel component="legend">Objective:</FormLabel>
             <Select
@@ -87,7 +105,7 @@ export const GraphEdf: FC<{
             >
               {targets.map((target, i) => (
                 <MenuItem value={target.identifier()} key={i}>
-                  {target.toLabel(study?.objective_names)}
+                  {target.toLabel(studies[0].objective_names)}
                 </MenuItem>
               ))}
             </Select>
@@ -102,7 +120,7 @@ export const GraphEdf: FC<{
 }
 
 const plotEdf = (
-  trials: Trial[],
+  edfPlotInfos: EdfPlotInfo[],
   target: Target,
   domId: string,
   mode: string
@@ -110,7 +128,7 @@ const plotEdf = (
   if (document.getElementById(domId) === null) {
     return
   }
-  if (trials.length === 0) {
+  if (edfPlotInfos.length === 0) {
     plotly.react(domId, [], {
       template: mode === "dark" ? plotlyDarkTemplate : {},
     })
@@ -134,27 +152,28 @@ const plotEdf = (
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
-  const values = trials.map((t) => target.getTargetValue(t) as number)
-  const numValues = values.length
-  const minX = Math.min(...values)
-  const maxX = Math.max(...values)
-  const numStep = 100
-  const _step = (maxX - minX) / (numStep - 1)
+  const plotData: Partial<plotly.PlotData>[] = edfPlotInfos.map((h) => {
+    const values = h.trials.map((t) => target.getTargetValue(t) as number)
+    const numValues = values.length
+    const minX = Math.min(...values)
+    const maxX = Math.max(...values)
+    const numStep = 100
+    const _step = (maxX - minX) / (numStep - 1)
 
-  const xValues = []
-  const yValues = []
-  for (let i = 0; i < numStep; i++) {
-    const boundary_right = minX + _step * i
-    xValues.push(boundary_right)
-    yValues.push(values.filter((v) => v <= boundary_right).length / numValues)
-  }
+    const xValues = []
+    const yValues = []
+    for (let i = 0; i < numStep; i++) {
+      const boundary_right = minX + _step * i
+      xValues.push(boundary_right)
+      yValues.push(values.filter((v) => v <= boundary_right).length / numValues)
+    }
 
-  const plotData: Partial<plotly.PlotData>[] = [
-    {
+    return {
       type: "scatter",
+      name: `${h.study_name}`,
       x: xValues,
       y: yValues,
-    },
-  ]
+    }
+  })
   plotly.react(domId, plotData, layout)
 }
