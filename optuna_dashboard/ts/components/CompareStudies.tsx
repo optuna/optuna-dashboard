@@ -1,5 +1,6 @@
 import React, { ChangeEvent, FC, useEffect, useMemo, useState } from "react"
 import { useRecoilValue } from "recoil"
+import { Link } from "react-router-dom"
 import {
   Card,
   CardContent,
@@ -8,7 +9,9 @@ import {
   Typography,
   Box,
   useTheme,
+  IconButton,
 } from "@mui/material"
+import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import Chip from "@mui/material/Chip"
 import FormControlLabel from "@mui/material/FormControlLabel"
 import Divider from "@mui/material/Divider"
@@ -70,12 +73,33 @@ export const CompareStudies: FC<{
   const selected = useSelectedStudies(studies, query)
 
   const studyListWidth = 200
+  const title = "Compare Studies"
 
   useEffect(() => {
     action.updateStudySummaries()
   }, [])
 
-  const toolbar = <HomeIcon sx={{ margin: theme.spacing(0, 1) }} />
+  const toolbar = (
+    <>
+      <IconButton
+        component={Link}
+        to={URL_PREFIX + "/beta"}
+        sx={{ marginRight: theme.spacing(1) }}
+        color="inherit"
+        title="Return to the top page"
+      >
+        <HomeIcon />
+      </IconButton>
+      <ChevronRightIcon sx={{ marginRight: theme.spacing(1) }} />
+      <Typography
+        noWrap
+        component="div"
+        sx={{ fontWeight: theme.typography.fontWeightBold }}
+      >
+        {title}
+      </Typography>
+    </>
+  )
 
   return (
     <Box sx={{ display: "flex" }}>
