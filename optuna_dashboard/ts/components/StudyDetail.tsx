@@ -166,7 +166,7 @@ export const StudyDetail: FC<{
               }}
             >
               <CardContent>
-                <GraphHistory study={studyDetail} />
+                <GraphHistory studies={[studyDetail, ]} />
               </CardContent>
             </Card>
           ) : null}

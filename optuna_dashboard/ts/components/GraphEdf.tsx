@@ -12,7 +12,7 @@ import {
   Box,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
-import { Target, useFilteredTrials, useFilteredTrials1, useObjectiveTargets } from "../trialFilter"
+import { Target, useFilteredTrialsFromStudies, useObjectiveTargets } from "../trialFilter"
 
 const plotDomId = "graph-edf"
 const getPlotDomId = (objectiveId: number) => `graph-edf-${objectiveId}`
@@ -32,7 +32,7 @@ export const GraphEdfBeta: FC<{
     () => new Target("objective", objectiveId),
     [objectiveId]
   )
-  const trials = useFilteredTrials1(studies, [target], false, false)
+  const trials = useFilteredTrialsFromStudies(studies, [target], false, false)
   const edfPlotInfos = studies.map((study, index) => {
     const h: EdfPlotInfo = {
       study_name: study.name,
@@ -64,7 +64,7 @@ export const GraphEdf: FC<{
   const theme = useTheme()
   const [targets, selected, setTarget] = useObjectiveTargets(studies ? studies[0] : null)
 
-  const trials = useFilteredTrials1(studies, [selected], false, false)
+  const trials = useFilteredTrialsFromStudies(studies, [selected], false, false)
   const edfPlotInfos = studies.map((study, index) => {
     const h: EdfPlotInfo = {
       study_name: study?.name,

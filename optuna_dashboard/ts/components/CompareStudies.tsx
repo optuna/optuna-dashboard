@@ -26,7 +26,7 @@ import { actionCreator } from "../action"
 import { studySummariesState, studyDetailsState } from "../state"
 import { AppDrawer } from "./AppDrawer"
 import { GraphEdf } from "./GraphEdf"
-import { GraphHistories } from "./GraphHistories"
+import { GraphHistory } from "./GraphHistory"
 import { useHistory, useLocation } from "react-router-dom"
 
 const useQuery = (): URLSearchParams => {
@@ -277,10 +277,10 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
           }}
         >
           <CardContent>
-            <GraphHistories
+            <GraphHistory
               studies={showStudyDetails}
-              includePruned={includePruned}
-              logScale={logScale}
+              betaIncludePruned={includePruned}
+              betaLogScale={logScale}
             />
           </CardContent>
         </Card>
