@@ -3,14 +3,24 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Optuna Dashboard's documentation!
-============================================
+Optuna Dashboard
+================
+
+Real-time dashboard for `Optuna <https://github.com/optuna/optuna>`_.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 3
    :caption: Contents:
 
+   installation
+   api
 
+
+Links
+=====
+
+* `Github <https://github.com/optuna/optuna-dashboard>`_
+* `PyPI <https://pypi.python.org/pypi/optuna-dashboard>`_
 
 Indices and tables
 ==================

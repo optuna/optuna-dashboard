@@ -14,5 +14,5 @@ tmp/
 *.sqlite3
 *.db
 
-_build/
-
+docs/_build/
+docs/_generated/
