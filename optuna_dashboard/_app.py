@@ -511,9 +511,12 @@ def run_server(
     artifact_backend: Optional[ArtifactBackend] = None,
 ) -> None:
     """Start running optuna-dashboard and blocks until the server terminates.
+
     This function uses wsgiref module which is not intended for the production
     use. If you want to run optuna-dashboard more secure and/or more fast,
-    please use WSGI server like Gunicorn or uWSGI via `wsgi()` function.
+    please use WSGI server like Gunicorn or uWSGI via :func:`wsgi` function.
+
+
     """
     app = create_app(get_storage(storage), artifact_backend=artifact_backend)
     run(app, host=host, port=port)
