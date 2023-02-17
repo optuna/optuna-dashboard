@@ -17,3 +17,7 @@ moto[s3]
 
 # visual regression tests
 pyppeteer
+
+# docs
+sphinx
+sphinx_rtd_theme

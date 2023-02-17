@@ -13,3 +13,6 @@ tmp/
 
 *.sqlite3
 *.db
+
+docs/_build/
+docs/_generated/
