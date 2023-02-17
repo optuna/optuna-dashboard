@@ -53,7 +53,8 @@ export const GraphHistory: FC<{
         selected,
         xAxis,
         betaLogScale === undefined ? logScale : betaLogScale,
-        theme.palette.mode
+        theme.palette.mode,
+        study?.objective_names
       )
     }
   }, [
@@ -64,6 +65,7 @@ export const GraphHistory: FC<{
     betaLogScale,
     xAxis,
     theme.palette.mode,
+    study?.objective_names,
   ])
 
   const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
@@ -207,7 +209,8 @@ const plotHistory = (
   target: Target,
   xAxis: "number" | "datetime_start" | "datetime_complete",
   logScale: boolean,
-  mode: string
+  mode: string,
+  objectiveNames?: string[]
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -221,7 +224,7 @@ const plotHistory = (
       b: 0,
     },
     yaxis: {
-      title: "Objective Value",
+      title: target.toLabel(objectiveNames),
       type: logScale ? "log" : "linear",
     },
     xaxis: {
@@ -248,7 +251,7 @@ const plotHistory = (
     {
       x: trials.map(getAxisX),
       y: trials.map((t: Trial): number => target.getTargetValue(t) as number),
-      name: "Objective Value",
+      name: target.toLabel(objectiveNames),
       mode: "markers",
       type: "scatter",
     },
