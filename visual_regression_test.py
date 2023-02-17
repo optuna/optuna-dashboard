@@ -48,6 +48,11 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
 
     study.optimize(objective_single, n_trials=50)
 
+    # A single objective study with a single trial
+    # Refs: https://github.com/optuna/optuna-dashboard/issues/401
+    study = optuna.create_study(study_name="single-trial", storage=storage, sampler=sampler)
+    study.optimize(objective_single, n_trials=1)
+
     # Single-objective study with 1 parameter
     study = optuna.create_study(
         study_name="single-1-param", storage=storage, direction="maximize", sampler=sampler
