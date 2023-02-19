@@ -1,5 +1,6 @@
 import React, { ChangeEvent, FC, useEffect, useMemo, useState } from "react"
 import { useRecoilValue } from "recoil"
+import { useSnackbar } from "notistack"
 import { Link } from "react-router-dom"
 import {
   Card,
@@ -64,6 +65,7 @@ const getStudyListLink = (numbers: number[]): string => {
 export const CompareStudies: FC<{
   toggleColorMode: () => void
 }> = ({ toggleColorMode }) => {
+  const { enqueueSnackbar } = useSnackbar()
   const theme = useTheme()
   const query = useQuery()
   const history = useHistory()
@@ -140,11 +142,15 @@ export const CompareStudies: FC<{
                             )
                           } else {
                             if (
-                              selected.length > 0 &&
+                              selected.length === 0 || (selected.length > 0 &&
                               selected[0].directions.length ===
-                                study.directions.length
+                                study.directions.length)
                             ) {
                               next = [...selectedNumbers, study.study_id]
+                            } else {
+                              enqueueSnackbar("Failed to add this study, because you can add a study that has the same objective number.", {
+                                variant: "error",
+                              })
                             }
                           }
                           history.push(getStudyListLink(next))
