@@ -142,15 +142,19 @@ export const CompareStudies: FC<{
                             )
                           } else {
                             if (
-                              selected.length === 0 || (selected.length > 0 &&
-                              selected[0].directions.length ===
-                                study.directions.length)
+                              selected.length === 0 ||
+                              (selected.length > 0 &&
+                                selected[0].directions.length ===
+                                  study.directions.length)
                             ) {
                               next = [...selectedNumbers, study.study_id]
                             } else {
-                              enqueueSnackbar("Failed to add this study, because you can add a study that has the same objective number.", {
-                                variant: "error",
-                              })
+                              enqueueSnackbar(
+                                "Failed to add this study, because you can add a study that has the same objective number.",
+                                {
+                                  variant: "error",
+                                }
+                              )
                             }
                           }
                           history.push(getStudyListLink(next))

@@ -28,10 +28,11 @@ interface HistoryPlotInfo {
   study_name: string
   trials: Trial[]
   directions: StudyDirection[]
+  objective_names?: string[]
 }
 
 export const GraphHistory: FC<{
-  studies: StudyDetail[] | null
+  studies: StudyDetail[]
   betaLogScale?: boolean
   betaIncludePruned?: boolean
 }> = ({ studies, betaLogScale, betaIncludePruned }) => {
@@ -43,15 +44,22 @@ export const GraphHistory: FC<{
   const [filterCompleteTrial, setFilterCompleteTrial] = useState<boolean>(false)
   const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
 
-  const [targets, selected, setTarget] = useObjectiveAndUserAttrTargets(studies ? studies[0] : null)
+  const [targets, selected, setTarget] = useObjectiveAndUserAttrTargets(
+    studies ? studies[0] : null
+  )
 
-  const trials = useFilteredTrialsFromStudies(studies, [selected], filterCompleteTrial, betaIncludePruned === undefined ? filterPrunedTrial : !betaIncludePruned
+  const trials = useFilteredTrialsFromStudies(
+    studies,
+    [selected],
+    filterCompleteTrial,
+    betaIncludePruned === undefined ? filterPrunedTrial : !betaIncludePruned
   )
   const historyPlotInfos = studies.map((study, index) => {
     const h: HistoryPlotInfo = {
       study_name: study?.name,
       trials: trials[index],
       directions: study?.directions,
+      objective_names: study?.objective_names,
     }
     return h
   })
@@ -63,17 +71,8 @@ export const GraphHistory: FC<{
       xAxis,
       betaLogScale === undefined ? logScale : betaLogScale,
       theme.palette.mode
-      study?.objective_names
     )
-  }, [
-    studies,
-    selected,
-    logScale,
-    betaLogScale,
-    xAxis,
-    theme.palette.mode,
-    study?.objective_names,
-  ])
+  }, [studies, selected, logScale, betaLogScale, xAxis, theme.palette.mode])
 
   const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
     setTarget(event.target.value)
@@ -215,14 +214,13 @@ const plotHistory = (
   target: Target,
   xAxis: "number" | "datetime_start" | "datetime_complete",
   logScale: boolean,
-  mode: string,
-  objectiveNames?: string[]
+  mode: string
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
   if (historyPlotInfos.length === 0) {
-    plotly.react(domId, [], {
+    plotly.react(plotDomId, [], {
       template: mode === "dark" ? plotlyDarkTemplate : {},
     })
     return
@@ -236,7 +234,7 @@ const plotHistory = (
       b: 0,
     },
     yaxis: {
-      title: target.toLabel(objectiveNames),
+      title: target.toLabel(historyPlotInfos[0].objective_names),
       type: logScale ? "log" : "linear",
     },
     xaxis: {
@@ -264,7 +262,7 @@ const plotHistory = (
     plotData.push({
       x: x,
       y: y,
-      name: `${target.toLabel(objectiveNames)} of ${h.study_name}`,
+      name: `${target.toLabel(h.objective_names)} of ${h.study_name}`,
       mode: "markers",
       type: "scatter",
     })

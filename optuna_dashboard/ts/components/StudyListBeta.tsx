@@ -185,7 +185,11 @@ export const StudyListBeta: FC<{
                   variant="outlined"
                   startIcon={<CompareIcon />}
                   component={Link}
-                  to={studies.length > 0 ? `${URL_PREFIX}/compare-studies?numbers=0` : `${URL_PREFIX}/compare-studies`}
+                  to={
+                    studies.length > 0
+                      ? `${URL_PREFIX}/compare-studies?numbers=0`
+                      : `${URL_PREFIX}/compare-studies`
+                  }
                   sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
                 >
                   Compare

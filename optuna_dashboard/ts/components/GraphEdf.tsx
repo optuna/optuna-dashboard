@@ -12,7 +12,11 @@ import {
   Box,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
-import { Target, useFilteredTrialsFromStudies, useObjectiveTargets } from "../trialFilter"
+import {
+  Target,
+  useFilteredTrialsFromStudies,
+  useObjectiveTargets,
+} from "../trialFilter"
 
 const plotDomId = "graph-edf"
 const getPlotDomId = (objectiveId: number) => `graph-edf-${objectiveId}`
@@ -23,7 +27,7 @@ interface EdfPlotInfo {
 }
 
 export const GraphEdfBeta: FC<{
-  studies: StudyDetail[] | null
+  studies: StudyDetail[]
   objectiveId: number
 }> = ({ studies, objectiveId }) => {
   const theme = useTheme()
@@ -59,10 +63,12 @@ export const GraphEdfBeta: FC<{
 }
 
 export const GraphEdf: FC<{
-  studies: StudyDetail[] | null
-}> = ({ studies = null }) => {
+  studies: StudyDetail[]
+}> = ({ studies }) => {
   const theme = useTheme()
-  const [targets, selected, setTarget] = useObjectiveTargets(studies ? studies[0] : null)
+  const [targets, selected, setTarget] = useObjectiveTargets(
+    studies ? studies[0] : null
+  )
 
   const trials = useFilteredTrialsFromStudies(studies, [selected], false, false)
   const edfPlotInfos = studies.map((study, index) => {
@@ -80,7 +86,7 @@ export const GraphEdf: FC<{
   useEffect(() => {
     plotEdf(edfPlotInfos, selected, plotDomId, theme.palette.mode)
   }, [studies, selected, theme.palette.mode])
-  
+
   return (
     <Grid container direction="row">
       <Grid
