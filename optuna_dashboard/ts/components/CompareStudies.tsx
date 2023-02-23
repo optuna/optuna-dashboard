@@ -150,7 +150,7 @@ export const CompareStudies: FC<{
                               next = [...selectedNumbers, study.study_id]
                             } else {
                               enqueueSnackbar(
-                                "Failed to add this study, because you can add a study that has the same objective number.",
+                                "You can only compare studies with that has the same number of objectives.",
                                 {
                                   variant: "error",
                                 }
