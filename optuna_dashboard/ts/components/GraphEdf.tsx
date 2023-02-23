@@ -38,11 +38,11 @@ export const GraphEdfBeta: FC<{
   )
   const trials = useFilteredTrialsFromStudies(studies, [target], false, false)
   const edfPlotInfos = studies.map((study, index) => {
-    const h: EdfPlotInfo = {
+    const e: EdfPlotInfo = {
       study_name: study.name,
       trials: trials[index],
     }
-    return h
+    return e
   })
 
   useEffect(() => {
