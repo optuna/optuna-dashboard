@@ -40,24 +40,24 @@ const useSelectedStudies = (
   query: URLSearchParams
 ): StudySummary[] => {
   return useMemo(() => {
-    const selected = query.get("numbers")
+    const selected = query.get("ids")
     if (selected === null) {
       return []
     }
-    const numbers = selected
+    const ids = selected
       .split(",")
       .map((s) => parseInt(s))
       .filter((n) => !isNaN(n))
     return studies.filter(
-      (t) => numbers.findIndex((n) => n === t.study_id) !== -1
+      (t) => ids.findIndex((n) => n === t.study_id) !== -1
     )
   }, [studies, query])
 }
 
-const getStudyListLink = (numbers: number[]): string => {
+const getStudyListLink = (ids: number[]): string => {
   const base = URL_PREFIX + "/compare-studies"
-  if (numbers.length > 0) {
-    return base + "?numbers=" + numbers.map((n) => n.toString()).join(",")
+  if (ids.length > 0) {
+    return base + "?ids=" + ids.map((n) => n.toString()).join(",")
   }
   return base
 }
