@@ -134,6 +134,9 @@ export const CompareStudies: FC<{
                           const selectedNumbers = selected.map(
                             (s) => s.study_id
                           )
+                          if (selectedNumbers.length === 0) {
+                            selectedNumbers.push(studies[0].number)
+                          }
                           const alreadySelected =
                             selectedNumbers.findIndex(
                               (n) => n === study.study_id
