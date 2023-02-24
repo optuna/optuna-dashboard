@@ -48,9 +48,7 @@ const useSelectedStudies = (
       .split(",")
       .map((s) => parseInt(s))
       .filter((n) => !isNaN(n))
-    return studies.filter(
-      (t) => ids.findIndex((n) => n === t.study_id) !== -1
-    )
+    return studies.filter((t) => ids.findIndex((n) => n === t.study_id) !== -1)
   }, [studies, query])
 }
 
@@ -72,9 +70,9 @@ export const CompareStudies: FC<{
 
   const action = actionCreator()
   const studies = useRecoilValue<StudySummary[]>(studySummariesState)
-  const queried = useSelectedStudies(studies, query)
-  const selected =
-    queried.length > 0 ? queried : studies.length > 0 ? [studies[0]] : []
+  const selected = useSelectedStudies(studies, query)
+  const showStudySummaries =
+    selected.length > 0 ? selected : studies.length > 0 ? [studies[0]] : []
 
   const studyListWidth = 200
   const title = "Compare Studies"
@@ -135,7 +133,7 @@ export const CompareStudies: FC<{
                             (s) => s.study_id
                           )
                           if (selectedNumbers.length === 0) {
-                            selectedNumbers.push(studies[0].number)
+                            selectedNumbers.push(studies[0].study_id)
                           }
                           const alreadySelected =
                             selectedNumbers.findIndex(
@@ -219,7 +217,7 @@ export const CompareStudies: FC<{
             }}
           >
             <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
-              <StudiesGraph studies={selected} />
+              <StudiesGraph studies={showStudySummaries} />
             </Box>
           </Box>
         </Box>
