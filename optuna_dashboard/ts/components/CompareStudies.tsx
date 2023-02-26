@@ -35,16 +35,16 @@ const useQuery = (): URLSearchParams => {
   return useMemo(() => new URLSearchParams(search), [search])
 }
 
-const useSelectedStudies = (
+const useQueriedStudies = (
   studies: StudySummary[],
   query: URLSearchParams
 ): StudySummary[] => {
   return useMemo(() => {
-    const selected = query.get("ids")
-    if (selected === null) {
+    const queried = query.get("ids")
+    if (queried === null) {
       return []
     }
-    const ids = selected
+    const ids = queried
       .split(",")
       .map((s) => parseInt(s))
       .filter((n) => !isNaN(n))
@@ -60,6 +60,19 @@ const getStudyListLink = (ids: number[]): string => {
   return base
 }
 
+const isEqualDirections = (
+  array1: StudyDirection[],
+  array2: StudyDirection[]
+): boolean => {
+  let i = array1.length
+  if (i !== array2.length) return false
+
+  while (i--) {
+    if (array1[i] !== array2[i]) return false
+  }
+  return true
+}
+
 export const CompareStudies: FC<{
   toggleColorMode: () => void
 }> = ({ toggleColorMode }) => {
@@ -70,13 +83,9 @@ export const CompareStudies: FC<{
 
   const action = actionCreator()
   const studies = useRecoilValue<StudySummary[]>(studySummariesState)
-  const selected = useSelectedStudies(studies, query)
-  const showStudySummaries = useMemo(() => {
-    return selected.length > 0
-      ? selected
-      : studies.length > 0
-      ? [studies[0]]
-      : []
+  const queried = useQueriedStudies(studies, query)
+  const selected = useMemo(() => {
+    return queried.length > 0 ? queried : studies.length > 0 ? [studies[0]] : []
   }, [studies, query])
 
   const studyListWidth = 200
@@ -137,9 +146,6 @@ export const CompareStudies: FC<{
                           const selectedNumbers = selected.map(
                             (s) => s.study_id
                           )
-                          if (selectedNumbers.length === 0) {
-                            selectedNumbers.push(studies[0].study_id)
-                          }
                           const alreadySelected =
                             selectedNumbers.findIndex(
                               (n) => n === study.study_id
@@ -150,13 +156,10 @@ export const CompareStudies: FC<{
                             )
                           } else {
                             if (
-                              selected.length === 0 ||
-                              (selected.length > 0 &&
-                                selected[0].directions.length ===
-                                  study.directions.length)
+                              selected.length > 0 &&
+                              selected[0].directions.length !==
+                                study.directions.length
                             ) {
-                              next = [...selectedNumbers, study.study_id]
-                            } else {
                               enqueueSnackbar(
                                 "You can only compare studies with that has the same number of objectives.",
                                 {
@@ -164,6 +167,22 @@ export const CompareStudies: FC<{
                                 }
                               )
                               next = selectedNumbers
+                            } else if (
+                              selected.length > 0 &&
+                              !isEqualDirections(
+                                selected[0].directions,
+                                study.directions
+                              )
+                            ) {
+                              enqueueSnackbar(
+                                "You can only compare studies with that has the same directions.",
+                                {
+                                  variant: "error",
+                                }
+                              )
+                              next = selectedNumbers
+                            } else {
+                              next = [...selectedNumbers, study.study_id]
                             }
                           }
                           history.push(getStudyListLink(next))
@@ -223,7 +242,7 @@ export const CompareStudies: FC<{
             }}
           >
             <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
-              <StudiesGraph studies={showStudySummaries} />
+              <StudiesGraph studies={selected} />
             </Box>
           </Box>
         </Box>
