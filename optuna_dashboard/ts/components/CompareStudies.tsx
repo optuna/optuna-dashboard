@@ -71,8 +71,13 @@ export const CompareStudies: FC<{
   const action = actionCreator()
   const studies = useRecoilValue<StudySummary[]>(studySummariesState)
   const selected = useSelectedStudies(studies, query)
-  const showStudySummaries =
-    selected.length > 0 ? selected : studies.length > 0 ? [studies[0]] : []
+  const showStudySummaries = useMemo(() => {
+    return selected.length > 0
+      ? selected
+      : studies.length > 0
+      ? [studies[0]]
+      : []
+  }, [studies, query])
 
   const studyListWidth = 200
   const title = "Compare Studies"
@@ -158,6 +163,7 @@ export const CompareStudies: FC<{
                                   variant: "error",
                                 }
                               )
+                              next = selectedNumbers
                             }
                           }
                           history.push(getStudyListLink(next))
