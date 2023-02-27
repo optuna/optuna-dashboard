@@ -143,15 +143,13 @@ export const CompareStudies: FC<{
                       onClick={(e) => {
                         if (e.shiftKey) {
                           let next: number[]
-                          const selectedNumbers = selected.map(
-                            (s) => s.study_id
-                          )
+                          const selectedIds = selected.map((s) => s.study_id)
                           const alreadySelected =
-                            selectedNumbers.findIndex(
+                            selectedIds.findIndex(
                               (n) => n === study.study_id
                             ) >= 0
                           if (alreadySelected) {
-                            next = selectedNumbers.filter(
+                            next = selectedIds.filter(
                               (n) => n !== study.study_id
                             )
                           } else {
@@ -161,12 +159,12 @@ export const CompareStudies: FC<{
                                 study.directions.length
                             ) {
                               enqueueSnackbar(
-                                "You can only compare studies with that has the same number of objectives.",
+                                "You can only compare studies that has the same number of objectives.",
                                 {
                                   variant: "error",
                                 }
                               )
-                              next = selectedNumbers
+                              next = selectedIds
                             } else if (
                               selected.length > 0 &&
                               !isEqualDirections(
@@ -175,14 +173,14 @@ export const CompareStudies: FC<{
                               )
                             ) {
                               enqueueSnackbar(
-                                "You can only compare studies with that has the same directions.",
+                                "You can only compare studies that has the same directions.",
                                 {
                                   variant: "error",
                                 }
                               )
-                              next = selectedNumbers
+                              next = selectedIds
                             } else {
-                              next = [...selectedNumbers, study.study_id]
+                              next = [...selectedIds, study.study_id]
                             }
                           }
                           history.push(getStudyListLink(next))
