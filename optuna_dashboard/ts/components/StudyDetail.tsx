@@ -159,7 +159,7 @@ export const StudyDetail: FC<{
           >
             {title}
           </Typography>
-          {graphVisibility.history ? (
+          {studyDetail !== null && graphVisibility.history ? (
             <Card
               sx={{
                 margin: theme.spacing(2),
@@ -198,7 +198,7 @@ export const StudyDetail: FC<{
               </CardContent>
             </Card>
           ) : null}
-          {graphVisibility.edf ? (
+          {studyDetail !== null && graphVisibility.edf ? (
             <Card sx={{ margin: theme.spacing(2) }}>
               <CardContent>
                 <GraphEdf studies={[studyDetail]} />
