@@ -444,16 +444,44 @@ export const actionCreator = () => {
       })
   }
 
-  const tellTrial = (
+  const makeTrialFail = (studyId: number, trialId: number): void => {
+    const state = "Fail"
+    const message = `id=${trialId}, state=${state}`
+    tellTrialAPI(trialId, state)
+      .then(() => {
+        const index = studyDetails[studyId].trials.findIndex(
+          (t) => t.trial_id === trialId
+        )
+        if (index === -1) {
+          enqueueSnackbar(`Unexpected error happens. Please reload the page.`, {
+            variant: "error",
+          })
+          return
+        }
+        setTrialStateValues(studyId, index, state)
+        enqueueSnackbar(`Successfully updated trial (${message})`, {
+          variant: "success",
+        })
+      })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(
+          `Failed to update trial (${message}). Reason: ${reason}`,
+          {
+            variant: "error",
+          }
+        )
+        console.log(err)
+      })
+  }
+
+  const makeTrialComplete = (
     studyId: number,
     trialId: number,
-    state: TrialStateFinished,
-    values?: number[]
+    values: number[]
   ): void => {
-    const message =
-      values === undefined
-        ? `id=${trialId}, state=${state}`
-        : `id=${trialId}, state=${state}, values=${values}`
+    const state = "Complete"
+    const message = `id=${trialId}, state=${state}, values=${values}`
     tellTrialAPI(trialId, state, values)
       .then(() => {
         const index = studyDetails[studyId].trials.findIndex(
@@ -498,7 +526,8 @@ export const actionCreator = () => {
     saveTrialNote,
     uploadArtifact,
     deleteArtifact,
-    tellTrial,
+    makeTrialComplete,
+    makeTrialFail,
   }
 }
 

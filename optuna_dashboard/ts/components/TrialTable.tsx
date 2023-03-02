@@ -295,7 +295,7 @@ export const TrialTable: FC<{
         return
       }
 
-      action.tellTrial(studyId, trialId, "Complete", objectiveValues)
+      action.makeTrialComplete(studyId, trialId, objectiveValues)
     }
 
     const handleFailTrial = (e: MouseEvent<HTMLButtonElement>): void => {
@@ -304,7 +304,7 @@ export const TrialTable: FC<{
       }
       const studyId = studyDetail.id
       const trialId = trials[index].trial_id
-      action.tellTrial(studyId, trialId, "Fail")
+      action.makeTrialFail(studyId, trialId)
     }
 
     return (
