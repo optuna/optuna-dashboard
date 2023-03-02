@@ -119,7 +119,7 @@ $ isort .
 
 The release process(compiling TypeScript files, packaging Python distributions and uploading to PyPI) is fully automated by GitHub Actions.
 
-1. Replace `optuna_dashboard.version.__version__` to the next version.
-2. Create a git tag and push it to GitHub. If succeeded, GitHub Action will build sdist/wheel packages and create a draft GitHub release.
-3. Edit a GitHub release, generate release note, and mark "Create [a discussion](https://github.com/optuna/optuna-dashboard/discussions/categories/announcements) for this release" checkbox. Then make it publish. GitHub Action will release the new version to PyPI.
+1. Replace `optuna_dashboard.version.__version__` to the next version (e.g. 0.8.0).
+2. Create a git tag (e.g. v0.8.0) and push it to GitHub. If succeeded, GitHub Action will build sdist/wheel packages and create a draft GitHub release.
+3. Edit a GitHub release, generate release note, write highlights of this release if needed, and mark "Create [a discussion](https://github.com/optuna/optuna-dashboard/discussions/categories/announcements) for this release" checkbox. Then make it publish. GitHub Action will release the new version to PyPI.
 
