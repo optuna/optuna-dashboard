@@ -11,8 +11,8 @@ from optuna.storages import BaseStorage
 from optuna.study import Study
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
-
 from optuna_dashboard._cached_extra_study_property import get_cached_extra_study_property
+
 
 _logger = logging.getLogger(__name__)
 
@@ -110,7 +110,9 @@ def get_param_importance_from_trials_cache(
             # when all objective values are same.
             _, union_search_space, _, _ = get_cached_extra_study_property(study_id, trials)
             importance_value = 1 / len(union_search_space)
-            importance = {param_name: importance_value for param_name, distribution in union_search_space}
+            importance = {
+                param_name: importance_value for param_name, distribution in union_search_space
+            }
         converted = convert_to_importance_type(importance, trials)
         param_importance_cache[cache_key] = (n_completed_trials, converted)
     return converted
