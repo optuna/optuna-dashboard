@@ -114,16 +114,13 @@ const useTrials = (
   }, [studyDetail, excludedStates])
 }
 
-const useSelectedTrials = (
-  trials: Trial[],
-  query: URLSearchParams
-): Trial[] => {
+const useQueriedTrials = (trials: Trial[], query: URLSearchParams): Trial[] => {
   return useMemo(() => {
-    const selected = query.get("numbers")
-    if (selected === null) {
+    const queried = query.get("numbers")
+    if (queried === null) {
       return []
     }
-    const numbers = selected
+    const numbers = queried
       .split(",")
       .map((s) => parseInt(s))
       .filter((n) => !isNaN(n))
@@ -654,7 +651,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const excludedStates = useExcludedStates(query)
   const trials = useTrials(studyDetail, excludedStates)
   const isBestTrial = useIsBestTrial(studyDetail)
-  const selected = useSelectedTrials(trials, query)
+  const queried = useQueriedTrials(trials, query)
   const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
     React.useState<null | HTMLElement>(null)
   const openFilterMenu = Boolean(filterMenuAnchorEl)
@@ -667,8 +664,8 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
 
   const trialListWidth = 200
 
-  const showDetailTrials =
-    selected.length > 0 ? selected : trials.length > 0 ? [trials[0]] : []
+  const selected =
+    queried.length > 0 ? queried : trials.length > 0 ? [trials[0]] : []
 
   return (
     <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
@@ -745,9 +742,6 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                     if (e.shiftKey) {
                       let next: number[]
                       const selectedNumbers = selected.map((t) => t.number)
-                      if (selectedNumbers.length === 0) {
-                        selectedNumbers.push(trials[0].number)
-                      }
                       const alreadySelected =
                         selectedNumbers.findIndex((n) => n === trial.number) >=
                         0
@@ -810,9 +804,9 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
         }}
       >
         <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
-          {showDetailTrials.length === 0
+          {selected.length === 0
             ? null
-            : showDetailTrials.map((t) => (
+            : selected.map((t) => (
                 <TrialListDetail
                   key={t.trial_id}
                   trial={t}
