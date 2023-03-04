@@ -445,9 +445,8 @@ export const actionCreator = () => {
   }
 
   const makeTrialFail = (studyId: number, trialId: number): void => {
-    const state = "Fail"
-    const message = `id=${trialId}, state=${state}`
-    tellTrialAPI(trialId, state)
+    const message = `id=${trialId}, state=Fail`
+    tellTrialAPI(trialId, "Fail")
       .then(() => {
         const index = studyDetails[studyId].trials.findIndex(
           (t) => t.trial_id === trialId
@@ -458,7 +457,7 @@ export const actionCreator = () => {
           })
           return
         }
-        setTrialStateValues(studyId, index, state)
+        setTrialStateValues(studyId, index, "Fail")
         enqueueSnackbar(`Successfully updated trial (${message})`, {
           variant: "success",
         })
@@ -480,9 +479,8 @@ export const actionCreator = () => {
     trialId: number,
     values: number[]
   ): void => {
-    const state = "Complete"
-    const message = `id=${trialId}, state=${state}, values=${values}`
-    tellTrialAPI(trialId, state, values)
+    const message = `id=${trialId}, state=Complete, values=${values}`
+    tellTrialAPI(trialId, "Complete", values)
       .then(() => {
         const index = studyDetails[studyId].trials.findIndex(
           (t) => t.trial_id === trialId
@@ -493,7 +491,7 @@ export const actionCreator = () => {
           })
           return
         }
-        setTrialStateValues(studyId, index, state, values)
+        setTrialStateValues(studyId, index, "Complete", values)
         enqueueSnackbar(`Successfully updated trial (${message})`, {
           variant: "success",
         })
