@@ -444,17 +444,9 @@ export const actionCreator = () => {
       })
   }
 
-  const tellTrial = (
-    studyId: number,
-    trialId: number,
-    state: TrialStateFinished,
-    values?: number[]
-  ): void => {
-    const message =
-      values === undefined
-        ? `id=${trialId}, state=${state}`
-        : `id=${trialId}, state=${state}, values=${values}`
-    tellTrialAPI(trialId, state, values)
+  const makeTrialFail = (studyId: number, trialId: number): void => {
+    const message = `id=${trialId}, state=Fail`
+    tellTrialAPI(trialId, "Fail")
       .then(() => {
         const index = studyDetails[studyId].trials.findIndex(
           (t) => t.trial_id === trialId
@@ -465,7 +457,41 @@ export const actionCreator = () => {
           })
           return
         }
-        setTrialStateValues(studyId, index, state, values)
+        setTrialStateValues(studyId, index, "Fail")
+        enqueueSnackbar(`Successfully updated trial (${message})`, {
+          variant: "success",
+        })
+      })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(
+          `Failed to update trial (${message}). Reason: ${reason}`,
+          {
+            variant: "error",
+          }
+        )
+        console.log(err)
+      })
+  }
+
+  const makeTrialComplete = (
+    studyId: number,
+    trialId: number,
+    values: number[]
+  ): void => {
+    const message = `id=${trialId}, state=Complete, values=${values}`
+    tellTrialAPI(trialId, "Complete", values)
+      .then(() => {
+        const index = studyDetails[studyId].trials.findIndex(
+          (t) => t.trial_id === trialId
+        )
+        if (index === -1) {
+          enqueueSnackbar(`Unexpected error happens. Please reload the page.`, {
+            variant: "error",
+          })
+          return
+        }
+        setTrialStateValues(studyId, index, "Complete", values)
         enqueueSnackbar(`Successfully updated trial (${message})`, {
           variant: "success",
         })
@@ -498,7 +524,8 @@ export const actionCreator = () => {
     saveTrialNote,
     uploadArtifact,
     deleteArtifact,
-    tellTrial,
+    makeTrialComplete,
+    makeTrialFail,
   }
 }
 

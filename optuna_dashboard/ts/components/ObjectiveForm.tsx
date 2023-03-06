@@ -69,7 +69,7 @@ export const ObjectiveForm: FC<{
     if (filtered.length !== directions.length) {
       return
     }
-    action.tellTrial(trial.study_id, trial.trial_id, "Complete", filtered)
+    action.makeTrialComplete(trial.study_id, trial.trial_id, filtered)
   }
 
   const getObjectiveName = (i: number): string => {
@@ -264,7 +264,7 @@ export const ObjectiveForm: FC<{
               variant="outlined"
               color="error"
               onClick={() => {
-                action.tellTrial(trial.study_id, trial.trial_id, "Fail")
+                action.makeTrialFail(trial.study_id, trial.trial_id)
               }}
             >
               Fail Trial
