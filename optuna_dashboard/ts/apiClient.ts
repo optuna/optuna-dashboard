@@ -281,6 +281,19 @@ export const tellTrialAPI = (
     })
 }
 
+export const saveTrialUserAttrsAPI = (
+  trialId: number,
+  user_attrs: { [key: string]: number }
+): Promise<void> => {
+  const req = { user_attrs: user_attrs }
+
+  return axiosInstance
+    .post<void>(`/api/trials/${trialId}/user-attrs`, req)
+    .then((res) => {
+      return
+    })
+}
+
 interface ParamImportancesResponse {
   param_importances: ParamImportance[][]
 }

@@ -13,6 +13,7 @@ import {
   uploadArtifactAPI,
   getMetaInfoAPI,
   deleteArtifactAPI,
+  saveTrialUserAttrsAPI,
 } from "./apiClient"
 import {
   graphVisibilityState,
@@ -482,6 +483,32 @@ export const actionCreator = () => {
       })
   }
 
+  const saveTrialUserAttrs = (
+    studyId: number,
+    trialId: number,
+    user_attrs: {[key: string]: number},
+  ): void => {
+    console.log("user_attrs", user_attrs)
+    // TODO(knshnb): Update rendering of `user_attrs`.
+    const message = `id=${trialId}, user_attrs=${user_attrs}`
+    saveTrialUserAttrsAPI(trialId, user_attrs)
+      .then(() => {
+        // TODO(knshnb): Update states.
+        enqueueSnackbar(`Successfully updated trial (${message})`, {
+          variant: "success",
+        })
+      })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(
+          `Failed to update trial (${message}). Reason: ${reason}`,
+          {
+            variant: "error",
+          }
+        )
+        console.log(err)
+      })
+  }
   return {
     updateAPIMeta,
     updateStudyDetail,
@@ -499,6 +526,7 @@ export const actionCreator = () => {
     uploadArtifact,
     deleteArtifact,
     tellTrial,
+    saveTrialUserAttrs,
   }
 }
 

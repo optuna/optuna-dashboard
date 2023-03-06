@@ -65,11 +65,8 @@ export const ObjectiveForm: FC<{
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>): void => {
     e.preventDefault()
-    const filtered = values.filter<number>((v): v is number => v !== null)
-    if (filtered.length !== directions.length) {
-      return
-    }
-    action.tellTrial(trial.study_id, trial.trial_id, "Complete", filtered)
+    const user_attrs = Object.fromEntries(widgets.map((widget, i) => [widget.description, values[i]]))
+    action.saveTrialUserAttrs(trial.study_id, trial.trial_id, user_attrs)
   }
 
   const getObjectiveName = (i: number): string => {
