@@ -7,6 +7,7 @@ from ._objective_form_widget import ObjectiveSliderWidget  # noqa
 from ._objective_form_widget import ObjectiveTextInputWidget  # noqa
 from ._objective_form_widget import ObjectiveUserAttrRef  # noqa
 from ._objective_form_widget import register_objective_form_widgets  # noqa
+from ._objective_form_widget import register_user_attr_form_widgets  # noqa
 
 
 __version__ = "0.9.0b6"

@@ -176,6 +176,7 @@ type StudyDetail = {
   note: Note
   objective_names?: string[]
   objective_form_widgets?: ObjectiveFormWidget[]
+  form_widgets_output_type?: string
 }
 
 type StudyDetails = {

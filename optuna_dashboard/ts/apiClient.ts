@@ -68,6 +68,7 @@ interface StudyDetailResponse {
   note: Note
   objective_names?: string[]
   objective_form_widgets?: ObjectiveFormWidget[]
+  form_widgets_output_type?: string
 }
 
 export const getStudyDetailAPI = (
@@ -101,6 +102,7 @@ export const getStudyDetailAPI = (
         note: res.data.note,
         objective_names: res.data.objective_names,
         objective_form_widgets: res.data.objective_form_widgets,
+        form_widgets_output_type: res.data.form_widgets_output_type,
       }
     })
 }

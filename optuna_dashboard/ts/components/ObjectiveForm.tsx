@@ -21,7 +21,8 @@ export const ObjectiveForm: FC<{
   directions: StudyDirection[]
   names: string[]
   widgets: ObjectiveFormWidget[]
-}> = ({ trial, directions, names, widgets }) => {
+  outputType: string
+}> = ({ trial, directions, names, widgets, outputType }) => {
   const theme = useTheme()
   const action = actionCreator()
   const [values, setValues] = useState<(number | null)[]>(
@@ -64,8 +65,16 @@ export const ObjectiveForm: FC<{
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>): void => {
     e.preventDefault()
-    const user_attrs = Object.fromEntries(widgets.map((widget, i) => [widget.description, values[i]]))
-    action.saveTrialUserAttrs(trial.study_id, trial.trial_id, user_attrs)
+    if (outputType == "objective") {
+      const filtered = values.filter<number>((v): v is number => v !== null)
+      if (filtered.length !== directions.length) {
+        return
+      }
+      action.tellTrial(trial.study_id, trial.trial_id, "Complete", filtered)
+    } else if (outputType == "user_attr") {
+      const user_attrs = Object.fromEntries(widgets.map((widget, i) => [widget.description, values[i]]))
+      action.saveTrialUserAttrs(trial.study_id, trial.trial_id, user_attrs)
+    }
   }
 
   const getObjectiveName = (i: number): string => {

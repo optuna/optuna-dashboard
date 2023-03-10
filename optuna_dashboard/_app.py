@@ -34,6 +34,7 @@ from ._bottle_util import BottleViewReturn
 from ._bottle_util import json_api_view
 from ._cached_extra_study_property import get_cached_extra_study_property
 from ._importance import get_param_importance_from_trials_cache
+from ._objective_form_widget import SYSTEM_ATTR_OUTPUT_TYPE_KEY
 from ._pareto_front import get_pareto_front_trials
 from ._serializer import serialize_study_detail
 from ._serializer import serialize_study_summary
@@ -357,6 +358,7 @@ def create_app(
             union_user_attrs,
             has_intermediate_values,
         ) = get_cached_extra_study_property(study_id, trials)
+        form_widgets_output_type = storage.get_study_system_attrs(study_id).get(SYSTEM_ATTR_OUTPUT_TYPE_KEY)
         return serialize_study_detail(
             summary,
             best_trials,
@@ -365,6 +367,7 @@ def create_app(
             union,
             union_user_attrs,
             has_intermediate_values,
+            form_widgets_output_type,
         )
 
     @app.get("/api/studies/<study_id:int>/param_importances")

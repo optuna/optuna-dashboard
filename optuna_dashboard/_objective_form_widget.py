@@ -111,6 +111,7 @@ ObjectiveFormWidget = Union[
     ObjectiveChoiceWidget, ObjectiveSliderWidget, ObjectiveTextInputWidget, ObjectiveUserAttrRef
 ]
 SYSTEM_ATTR_KEY = "dashboard:objective_form_widgets:v1"
+SYSTEM_ATTR_OUTPUT_TYPE_KEY = "dashboard:form_widgets_output_type:v1"
 
 
 def register_objective_form_widgets(
@@ -120,6 +121,15 @@ def register_objective_form_widgets(
         raise ValueError("The length of actions must be the same with the number of objectives.")
     widget_dicts = [w.to_dict() for w in widgets]
     study._storage.set_study_system_attr(study._study_id, SYSTEM_ATTR_KEY, widget_dicts)
+    study._storage.set_study_system_attr(study._study_id, SYSTEM_ATTR_OUTPUT_TYPE_KEY, "objective")
+
+
+def register_user_attr_form_widgets(
+    study: optuna.Study, widgets: list[ObjectiveFormWidget]
+) -> None:
+    widget_dicts = [w.to_dict() for w in widgets]
+    study._storage.set_study_system_attr(study._study_id, SYSTEM_ATTR_KEY, widget_dicts)
+    study._storage.set_study_system_attr(study._study_id, SYSTEM_ATTR_OUTPUT_TYPE_KEY, "user_attr")
 
 
 def get_objective_form_widgets_json(

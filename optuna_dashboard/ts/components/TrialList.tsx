@@ -144,12 +144,14 @@ const TrialListDetail: FC<{
   directions: StudyDirection[]
   objectiveNames: string[]
   objectiveFormWidgets: ObjectiveFormWidget[]
+  formWigetsOutputType: string
 }> = ({
   trial,
   isBestTrial,
   directions,
   objectiveNames,
   objectiveFormWidgets,
+  formWigetsOutputType
 }) => {
   const theme = useTheme()
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
@@ -297,6 +299,7 @@ const TrialListDetail: FC<{
           directions={directions}
           names={objectiveNames}
           widgets={objectiveFormWidgets}
+          outputType={formWigetsOutputType}
         />
       )}
       {trial.state === "Complete" && directions.length > 0 && (
@@ -815,6 +818,9 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                   objectiveNames={studyDetail?.objective_names || []}
                   objectiveFormWidgets={
                     studyDetail?.objective_form_widgets || []
+                  }
+                  formWigetsOutputType={
+                    studyDetail?.form_widgets_output_type || ""
                   }
                 />
               ))}

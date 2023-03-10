@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from typing import Any
+from typing import Optional
 from typing import TYPE_CHECKING
 from typing import Union
 
@@ -121,6 +122,7 @@ def serialize_study_detail(
     union: list[tuple[str, BaseDistribution]],
     union_user_attrs: list[tuple[str, bool]],
     has_intermediate_values: bool,
+    form_widgets_output_type: Optional[str],
 ) -> dict[str, Any]:
     serialized: dict[str, Any] = {
         "name": summary.study_name,
@@ -147,6 +149,7 @@ def serialize_study_detail(
     objective_form_widgets = get_objective_form_widgets_json(system_attrs)
     if objective_form_widgets:
         serialized["objective_form_widgets"] = objective_form_widgets
+    serialized["form_widgets_output_type"] = form_widgets_output_type
     return serialized
 
 
