@@ -25,8 +25,7 @@ export const ObjectiveForm: FC<{
   const theme = useTheme()
   const action = actionCreator()
   const [values, setValues] = useState<(number | null)[]>(
-    directions.map((d, i) => {
-      const widget = widgets.at(i)
+    widgets.map(widget => {
       if (widget === undefined) {
         return null
       } else if (widget.type === "text") {
@@ -99,8 +98,7 @@ export const ObjectiveForm: FC<{
             p: theme.spacing(1),
           }}
         >
-          {directions.map((d, i) => {
-            const widget = widgets.at(i)
+          {widgets.map((widget, i) => {
             const value = values.at(i)
             const key = `objective-${i}`
             if (widget === undefined) {
@@ -309,8 +307,7 @@ export const ReadonlyObjectiveForm: FC<{
             p: theme.spacing(1),
           }}
         >
-          {directions.map((d, i) => {
-            const widget = widgets.at(i)
+          {widgets.map((widget, i) => {
             const key = `objective-${i}`
             if (widget === undefined) {
               return (
