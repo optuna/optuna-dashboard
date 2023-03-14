@@ -67,7 +67,7 @@ export const GraphEdf: FC<{
 }> = ({ studies }) => {
   const theme = useTheme()
   const [targets, selected, setTarget] = useObjectiveTargets(
-    studies ? studies[0] : null
+    studies.length !== 0 ? studies[0] : null
   )
 
   const trials = useFilteredTrialsFromStudies(studies, [selected], false, false)
