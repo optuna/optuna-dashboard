@@ -489,8 +489,7 @@ export const actionCreator = () => {
     user_attrs: {[key: string]: number},
   ): void => {
     console.log("user_attrs", user_attrs)
-    // TODO(knshnb): Update rendering of `user_attrs`.
-    const message = `id=${trialId}, user_attrs=${user_attrs}`
+    const message = `id=${trialId}, user_attrs=${JSON.stringify(user_attrs)}`
     saveTrialUserAttrsAPI(trialId, user_attrs)
       .then(() => {
         // TODO(knshnb): Update states.
