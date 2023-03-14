@@ -1,30 +1,15 @@
-import { useRecoilState, useSetRecoilState } from "recoil"
 import { useSnackbar } from "notistack"
+import { useRecoilState, useSetRecoilState } from "recoil"
 import {
-  getStudyDetailAPI,
-  getStudySummariesAPI,
-  getParamImportances,
-  createNewStudyAPI,
-  deleteStudyAPI,
-  saveStudyNoteAPI,
-  saveTrialNoteAPI,
-  tellTrialAPI,
-  renameStudyAPI,
-  uploadArtifactAPI,
-  getMetaInfoAPI,
-  deleteArtifactAPI,
-  saveTrialUserAttrsAPI,
+  createNewStudyAPI, deleteArtifactAPI, deleteStudyAPI, getMetaInfoAPI, getParamImportances, getStudyDetailAPI,
+  getStudySummariesAPI, renameStudyAPI, saveStudyNoteAPI,
+  saveTrialNoteAPI, saveTrialUserAttrsAPI, tellTrialAPI, uploadArtifactAPI
 } from "./apiClient"
-import {
-  graphVisibilityState,
-  studyDetailsState,
-  studySummariesState,
-  paramImportanceState,
-  isFileUploading,
-  artifactIsAvailable,
-  reloadIntervalState,
-} from "./state"
 import { getDominatedTrials } from "./dominatedTrials"
+import {
+  artifactIsAvailable, graphVisibilityState, isFileUploading, paramImportanceState, reloadIntervalState, studyDetailsState,
+  studySummariesState
+} from "./state"
 
 const localStorageGraphVisibility = "graphVisibility"
 const localStorageReloadInterval = "reloadInterval"
@@ -149,6 +134,23 @@ export const actionCreator = () => {
       )
     }
 
+    setStudyDetailState(studyId, newStudy)
+  }
+
+  const setTrialUserAttrs = (
+    studyId: number,
+    index: number,
+    user_attrs: { [key: string]: number },
+  ) => {
+    const newTrial: Trial = Object.assign(
+      {},
+      studyDetails[studyId].trials[index]
+    )
+    newTrial.user_attrs = Object.keys(user_attrs).map(key => ({ key: key, value: user_attrs[key].toString() }))
+    const newTrials: Trial[] = [...studyDetails[studyId].trials]
+    newTrials[index] = newTrial
+    const newStudy: StudyDetail = Object.assign({}, studyDetails[studyId])
+    newStudy.trials = newTrials
     setStudyDetailState(studyId, newStudy)
   }
 
@@ -486,13 +488,22 @@ export const actionCreator = () => {
   const saveTrialUserAttrs = (
     studyId: number,
     trialId: number,
-    user_attrs: {[key: string]: number},
+    user_attrs: { [key: string]: number },
   ): void => {
     console.log("user_attrs", user_attrs)
     const message = `id=${trialId}, user_attrs=${JSON.stringify(user_attrs)}`
     saveTrialUserAttrsAPI(trialId, user_attrs)
       .then(() => {
-        // TODO(knshnb): Update states.
+        const index = studyDetails[studyId].trials.findIndex(
+          (t) => t.trial_id === trialId
+        )
+        if (index === -1) {
+          enqueueSnackbar(`Unexpected error happens. Please reload the page.`, {
+            variant: "error",
+          })
+          return
+        }
+        setTrialUserAttrs(studyId, index, user_attrs)
         enqueueSnackbar(`Successfully updated trial (${message})`, {
           variant: "success",
         })
