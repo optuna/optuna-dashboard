@@ -32,16 +32,22 @@ export const BestTrialsCard: FC<{
     header = `Best Trial (number=${bestTrial.number})`
     content = (
       <>
-        <Typography
-          variant="h3"
-          sx={{
-            fontWeight: theme.typography.fontWeightBold,
-            marginBottom: theme.spacing(2),
-          }}
-          color="secondary"
-        >
-          {bestTrial.values}
-        </Typography>
+        {bestTrial.values === undefined || bestTrial.values.length === 1 ? (
+          <Typography
+            variant="h3"
+            sx={{
+              fontWeight: theme.typography.fontWeightBold,
+              marginBottom: theme.spacing(2),
+            }}
+            color="secondary"
+          >
+            {bestTrial.values}
+          </Typography>
+        ) : (
+          <Typography>
+            Objective Values = [{bestTrial.values?.join(", ")}]
+          </Typography>
+        )}
         <Typography>
           Params = [
           {bestTrial.params
