@@ -102,7 +102,7 @@ export const GraphEdf: FC<{
         >
           EDF
         </Typography>
-        {studies[0] !== null && studies[0].directions.length !== 1 ? (
+        {studies.length > 0 && studies[0].directions.length !== 1 ? (
           <FormControl component="fieldset">
             <FormLabel component="legend">Objective:</FormLabel>
             <Select
