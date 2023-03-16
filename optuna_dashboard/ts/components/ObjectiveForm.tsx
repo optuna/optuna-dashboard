@@ -70,7 +70,7 @@ export const ObjectiveForm: FC<{
       if (filtered.length !== directions.length) {
         return
       }
-      action.tellTrial(trial.study_id, trial.trial_id, "Complete", filtered)
+      action.makeTrialComplete(trial.study_id, trial.trial_id, filtered)
     } else if (outputType == "user_attr") {
       const user_attrs = Object.fromEntries(widgets.map((widget, i) => [widget.description, values[i]]))
       action.saveTrialUserAttrs(trial.study_id, trial.trial_id, user_attrs)
@@ -268,7 +268,7 @@ export const ObjectiveForm: FC<{
               variant="outlined"
               color="error"
               onClick={() => {
-                action.tellTrial(trial.study_id, trial.trial_id, "Fail")
+                action.makeTrialFail(trial.study_id, trial.trial_id)
               }}
             >
               Fail Trial

@@ -160,7 +160,7 @@ const TrialListDetail: FC<{
 
   const params = trial.state === "Waiting" ? trial.fixed_params : trial.params
   const info: [string, string | null | ReactNode][] = [
-    ["Value", trial.values?.map((v) => v.toString()).join(" ") || "None"],
+    ["Value", trial.values?.map((v) => v.toString()).join(", ") || "None"],
     [
       "Intermediate Values",
       <Box>
