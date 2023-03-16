@@ -285,6 +285,7 @@ export const ReadonlyObjectiveForm: FC<{
   directions: StudyDirection[]
   names: string[]
   widgets: ObjectiveFormWidget[]
+  outputType: string
 }> = ({ trial, directions, names, widgets }) => {
   const theme = useTheme()
   const getObjectiveName = (i: number): string => {

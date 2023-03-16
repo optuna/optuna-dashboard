@@ -308,6 +308,7 @@ const TrialListDetail: FC<{
           directions={directions}
           names={objectiveNames}
           widgets={objectiveFormWidgets}
+          outputType={formWigetsOutputType}
         />
       )}
       {artifactEnabled && <TrialArtifact trial={trial} />}
