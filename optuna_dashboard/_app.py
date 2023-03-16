@@ -358,7 +358,11 @@ def create_app(
             union_user_attrs,
             has_intermediate_values,
         ) = get_cached_extra_study_property(study_id, trials)
-        form_widgets_output_type = storage.get_study_system_attrs(study_id).get(SYSTEM_ATTR_OUTPUT_TYPE_KEY)
+        form_widgets_output_type = storage.get_study_system_attrs(study_id).get(
+            SYSTEM_ATTR_OUTPUT_TYPE_KEY
+        )
+        if form_widgets_output_type is None:
+            form_widgets_output_type = "objective"
         return serialize_study_detail(
             summary,
             best_trials,
