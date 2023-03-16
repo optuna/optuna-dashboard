@@ -492,9 +492,6 @@ export const actionCreator = () => {
           return
         }
         setTrialStateValues(studyId, index, "Complete", values)
-        enqueueSnackbar(`Successfully updated trial (${message})`, {
-          variant: "success",
-        })
       })
       .catch((err) => {
         const reason = err.response?.data.reason
