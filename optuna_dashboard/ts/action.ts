@@ -1,15 +1,29 @@
-import { useSnackbar } from "notistack"
 import { useRecoilState, useSetRecoilState } from "recoil"
+import { useSnackbar } from "notistack"
 import {
-  createNewStudyAPI, deleteArtifactAPI, deleteStudyAPI, getMetaInfoAPI, getParamImportances, getStudyDetailAPI,
-  getStudySummariesAPI, renameStudyAPI, saveStudyNoteAPI,
-  saveTrialNoteAPI, saveTrialUserAttrsAPI, tellTrialAPI, uploadArtifactAPI
+  getStudyDetailAPI,
+  getStudySummariesAPI,
+  getParamImportances,
+  createNewStudyAPI,
+  deleteStudyAPI,
+  saveStudyNoteAPI,
+  saveTrialNoteAPI,
+  tellTrialAPI,
+  renameStudyAPI,
+  uploadArtifactAPI,
+  getMetaInfoAPI,
+  deleteArtifactAPI,
 } from "./apiClient"
-import { getDominatedTrials } from "./dominatedTrials"
 import {
-  artifactIsAvailable, graphVisibilityState, isFileUploading, paramImportanceState, reloadIntervalState, studyDetailsState,
-  studySummariesState
+  graphVisibilityState,
+  studyDetailsState,
+  studySummariesState,
+  paramImportanceState,
+  isFileUploading,
+  artifactIsAvailable,
+  reloadIntervalState,
 } from "./state"
+import { getDominatedTrials } from "./dominatedTrials"
 
 const localStorageGraphVisibility = "graphVisibility"
 const localStorageReloadInterval = "reloadInterval"
