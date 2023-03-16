@@ -128,6 +128,7 @@ type StudySummary = {
 type ObjectiveChoiceWidget = {
   type: "choice"
   description: string
+  user_attr_key?: string
   choices: string[]
   values: number[]
 }
@@ -135,6 +136,7 @@ type ObjectiveChoiceWidget = {
 type ObjectiveSliderWidget = {
   type: "slider"
   description: string
+  user_attr_key?: string
   min: number
   max: number
   step: number
@@ -149,11 +151,13 @@ type ObjectiveSliderWidget = {
 type ObjectiveTextInputWidget = {
   type: "text"
   description: string
+  user_attr_key?: string
 }
 
 type ObjectiveUserAttrRef = {
   type: "user_attr"
   key: string
+  user_attr_key?: string
 }
 
 type ObjectiveFormWidget =

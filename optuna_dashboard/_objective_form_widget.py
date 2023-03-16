@@ -21,6 +21,7 @@ if TYPE_CHECKING:
             "description": Optional[str],
             "choices": list[str],
             "values": list[float],
+            "user_attr_key": Optional[str],
         },
     )
     SliderWidgetLabel = TypedDict(
@@ -36,13 +37,16 @@ if TYPE_CHECKING:
             "max": float,
             "step": Optional[float],
             "labels": Optional[list[SliderWidgetLabel]],
+            "user_attr_key": Optional[str],
         },
     )
     TextInputWidgetJSON = TypedDict(
         "TextInputWidgetJSON",
-        {"type": Literal["text"], "description": Optional[str]},
+        {"type": Literal["text"], "description": Optional[str], "user_attr_key": Optional[str]},
     )
-    UserAttrRefJSON = TypedDict("UserAttrRefJSON", {"type": Literal["user_attr"], "key": str})
+    UserAttrRefJSON = TypedDict(
+        "UserAttrRefJSON", {"type": Literal["user_attr"], "user_attr_key": str}
+    )
     ObjectiveFormWidgetJSON = Union[
         ChoiceWidgetJSON, SliderWidgetJSON, TextInputWidgetJSON, UserAttrRefJSON
     ]
@@ -53,6 +57,7 @@ class ObjectiveChoiceWidget:
     choices: list[str]
     values: list[float]
     description: Optional[str] = None
+    user_attr_key: Optional[str] = None
 
     def to_dict(self) -> ChoiceWidgetJSON:
         return {
@@ -60,6 +65,7 @@ class ObjectiveChoiceWidget:
             "description": self.description,
             "choices": self.choices,
             "values": self.values,
+            "user_attr_key": self.user_attr_key,
         }
 
 
@@ -70,6 +76,7 @@ class ObjectiveSliderWidget:
     step: Optional[float] = None
     labels: Optional[list[tuple[float, str]]] = None
     description: Optional[str] = None
+    user_attr_key: Optional[str] = None
 
     def to_dict(self) -> SliderWidgetJSON:
         labels: Optional[list[SliderWidgetLabel]] = None
@@ -82,28 +89,33 @@ class ObjectiveSliderWidget:
             "max": self.max,
             "step": self.step,
             "labels": labels,
+            "user_attr_key": self.user_attr_key,
         }
 
 
 @dataclass
 class ObjectiveTextInputWidget:
     description: Optional[str] = None
+    user_attr_key: Optional[str] = None
 
     def to_dict(self) -> TextInputWidgetJSON:
         return {
             "type": "text",
             "description": self.description,
+            "user_attr_key": self.user_attr_key,
         }
 
 
 @dataclass
 class ObjectiveUserAttrRef:
     key: str
+    user_attr_key: Optional[str] = None
 
     def to_dict(self) -> UserAttrRefJSON:
         return {
             "type": "user_attr",
             "key": self.key,
+            "user_attr_key": self.user_attr_key,
         }
 
 

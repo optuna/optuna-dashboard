@@ -72,7 +72,7 @@ export const ObjectiveForm: FC<{
       }
       action.makeTrialComplete(trial.study_id, trial.trial_id, filtered)
     } else if (outputType == "user_attr") {
-      const user_attrs = Object.fromEntries(widgets.map((widget, i) => [widget.description, values[i]]))
+      const user_attrs = Object.fromEntries(widgets.map((widget, i) => [widget.user_attr_key, values[i]]))
       action.saveTrialUserAttrs(trial.study_id, trial.trial_id, user_attrs)
     }
   }
