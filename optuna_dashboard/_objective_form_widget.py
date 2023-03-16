@@ -45,7 +45,8 @@ if TYPE_CHECKING:
         {"type": Literal["text"], "description": Optional[str], "user_attr_key": Optional[str]},
     )
     UserAttrRefJSON = TypedDict(
-        "UserAttrRefJSON", {"type": Literal["user_attr"], "user_attr_key": Optional[str]}
+        "UserAttrRefJSON",
+        {"type": Literal["user_attr"], "key": str, "user_attr_key": Optional[str]},
     )
     ObjectiveFormWidgetJSON = Union[
         ChoiceWidgetJSON, SliderWidgetJSON, TextInputWidgetJSON, UserAttrRefJSON
