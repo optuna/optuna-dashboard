@@ -117,36 +117,7 @@ export const ObjectiveForm: FC<{
           {widgets.map((widget, i) => {
             const value = values.at(i)
             const key = `objective-${i}`
-            if (widget === undefined) {
-              return (
-                <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
-                  <FormLabel>{getMetricName(i)}</FormLabel>
-                  <DebouncedInputTextField
-                    onChange={(s, valid) => {
-                      const n = Number(s)
-                      if (s.length > 0 && valid && !isNaN(n)) {
-                        setValue(i, n)
-                        return
-                      } else if (values.at(i) !== null) {
-                        setValue(i, null)
-                      }
-                    }}
-                    delay={500}
-                    textFieldProps={{
-                      required: true,
-                      autoFocus: true,
-                      fullWidth: true,
-                      helperText:
-                        value === null || value === undefined
-                          ? `Please input the float number.`
-                          : "",
-                      label: getMetricName(i),
-                      type: "text",
-                    }}
-                  />
-                </FormControl>
-              )
-            } else if (widget.type === "text") {
+            if (widget.type === "text") {
               return (
                 <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
                   <FormLabel>
@@ -331,17 +302,7 @@ export const ReadonlyObjectiveForm: FC<{
         >
           {widgets.map((widget, i) => {
             const key = `objective-${i}`
-            if (widget === undefined) {
-              return (
-                <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
-                  <FormLabel>{getMetricName(i)}</FormLabel>
-                  <TextField
-                    inputProps={{ readOnly: true }}
-                    value={trial.values?.at(i)}
-                  />
-                </FormControl>
-              )
-            } else if (widget.type === "text") {
+            if (widget.type === "text") {
               return (
                 <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
                   <FormLabel>
