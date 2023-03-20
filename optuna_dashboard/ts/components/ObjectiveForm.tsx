@@ -26,7 +26,7 @@ export const ObjectiveForm: FC<{
   const theme = useTheme()
   const action = actionCreator()
   const [values, setValues] = useState<(number | null)[]>(
-    widgets.map(widget => {
+    widgets.map((widget) => {
       if (widget === undefined) {
         return null
       } else if (widget.type === "text") {
@@ -72,7 +72,9 @@ export const ObjectiveForm: FC<{
       }
       action.makeTrialComplete(trial.study_id, trial.trial_id, filtered)
     } else if (outputType == "user_attr") {
-      const user_attrs = Object.fromEntries(widgets.map((widget, i) => [widget.user_attr_key, values[i]]))
+      const user_attrs = Object.fromEntries(
+        widgets.map((widget, i) => [widget.user_attr_key, values[i]])
+      )
       action.saveTrialUserAttrs(trial.study_id, trial.trial_id, user_attrs)
     }
   }

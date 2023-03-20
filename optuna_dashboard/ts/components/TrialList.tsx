@@ -151,7 +151,7 @@ const TrialListDetail: FC<{
   directions,
   objectiveNames,
   objectiveFormWidgets,
-  formWigetsOutputType
+  formWigetsOutputType,
 }) => {
   const theme = useTheme()
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)

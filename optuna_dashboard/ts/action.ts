@@ -155,13 +155,16 @@ export const actionCreator = () => {
   const setTrialUserAttrs = (
     studyId: number,
     index: number,
-    user_attrs: { [key: string]: number },
+    user_attrs: { [key: string]: number }
   ) => {
     const newTrial: Trial = Object.assign(
       {},
       studyDetails[studyId].trials[index]
     )
-    newTrial.user_attrs = Object.keys(user_attrs).map(key => ({ key: key, value: user_attrs[key].toString() }))
+    newTrial.user_attrs = Object.keys(user_attrs).map((key) => ({
+      key: key,
+      value: user_attrs[key].toString(),
+    }))
     const newTrials: Trial[] = [...studyDetails[studyId].trials]
     newTrials[index] = newTrial
     const newStudy: StudyDetail = Object.assign({}, studyDetails[studyId])
@@ -529,7 +532,7 @@ export const actionCreator = () => {
   const saveTrialUserAttrs = (
     studyId: number,
     trialId: number,
-    user_attrs: { [key: string]: number },
+    user_attrs: { [key: string]: number }
   ): void => {
     console.log("user_attrs", user_attrs)
     const message = `id=${trialId}, user_attrs=${JSON.stringify(user_attrs)}`
