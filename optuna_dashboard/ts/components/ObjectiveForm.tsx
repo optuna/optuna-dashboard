@@ -77,16 +77,21 @@ export const ObjectiveForm: FC<{
     }
   }
 
-  const getObjectiveName = (i: number): string => {
-    const n = names.at(i)
-    if (n !== undefined) {
-      return n
+  const getMetricName = (i: number): string => {
+    if (outputType == "objective") {
+      const n = names.at(i)
+      if (n !== undefined) {
+        return n
+      }
+      if (directions.length == 1) {
+        return `Objective`
+      } else {
+        return `Objective ${i}`
+      }
+    } else if (outputType == "user_attr") {
+      return widgets[i].user_attr_key as string
     }
-    if (directions.length == 1) {
-      return `Objective`
-    } else {
-      return `Objective ${i}`
-    }
+    return "Unkown metric name"
   }
 
   return (
@@ -113,7 +118,7 @@ export const ObjectiveForm: FC<{
             if (widget === undefined) {
               return (
                 <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
-                  <FormLabel>{getObjectiveName(i)}</FormLabel>
+                  <FormLabel>{getMetricName(i)}</FormLabel>
                   <DebouncedInputTextField
                     onChange={(s, valid) => {
                       const n = Number(s)
@@ -133,7 +138,7 @@ export const ObjectiveForm: FC<{
                         value === null || value === undefined
                           ? `Please input the float number.`
                           : "",
-                      label: getObjectiveName(i),
+                      label: getMetricName(i),
                       type: "text",
                     }}
                   />
@@ -143,7 +148,7 @@ export const ObjectiveForm: FC<{
               return (
                 <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
                   <FormLabel>
-                    {getObjectiveName(i)} - {widget.description}
+                    {getMetricName(i)} - {widget.description}
                   </FormLabel>
                   <DebouncedInputTextField
                     onChange={(s, valid) => {
@@ -176,7 +181,7 @@ export const ObjectiveForm: FC<{
               return (
                 <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
                   <FormLabel>
-                    {getObjectiveName(i)} - {widget.description}
+                    {getMetricName(i)} - {widget.description}
                   </FormLabel>
                   <RadioGroup row defaultValue={widget.values.at(0)}>
                     {widget.choices.map((c, j) => (
@@ -206,7 +211,7 @@ export const ObjectiveForm: FC<{
               return (
                 <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
                   <FormLabel>
-                    {getObjectiveName(i)} - {widget.description}
+                    {getMetricName(i)} - {widget.description}
                   </FormLabel>
                   <Box sx={{ padding: theme.spacing(0, 2) }}>
                     <Slider
@@ -231,7 +236,7 @@ export const ObjectiveForm: FC<{
             } else if (widget.type === "user_attr") {
               return (
                 <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
-                  <FormLabel>{getObjectiveName(i)}</FormLabel>
+                  <FormLabel>{getMetricName(i)}</FormLabel>
                   <TextField
                     inputProps={{ readOnly: true }}
                     value={value || undefined}
@@ -286,18 +291,23 @@ export const ReadonlyObjectiveForm: FC<{
   names: string[]
   widgets: ObjectiveFormWidget[]
   outputType: string
-}> = ({ trial, directions, names, widgets }) => {
+}> = ({ trial, directions, names, widgets, outputType }) => {
   const theme = useTheme()
-  const getObjectiveName = (i: number): string => {
-    const n = names.at(i)
-    if (n !== undefined) {
-      return n
+  const getMetricName = (i: number): string => {
+    if (outputType == "objective") {
+      const n = names.at(i)
+      if (n !== undefined) {
+        return n
+      }
+      if (directions.length == 1) {
+        return `Objective`
+      } else {
+        return `Objective ${i}`
+      }
+    } else if (outputType == "user_attr") {
+      return widgets[i].user_attr_key as string
     }
-    if (directions.length == 1) {
-      return `Objective`
-    } else {
-      return `Objective ${i}`
-    }
+    return "Unkown metric name"
   }
   return (
     <>
@@ -322,7 +332,7 @@ export const ReadonlyObjectiveForm: FC<{
             if (widget === undefined) {
               return (
                 <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
-                  <FormLabel>{getObjectiveName(i)}</FormLabel>
+                  <FormLabel>{getMetricName(i)}</FormLabel>
                   <TextField
                     inputProps={{ readOnly: true }}
                     value={trial.values?.at(i)}
@@ -333,7 +343,7 @@ export const ReadonlyObjectiveForm: FC<{
               return (
                 <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
                   <FormLabel>
-                    {getObjectiveName(i)} - {widget.description}
+                    {getMetricName(i)} - {widget.description}
                   </FormLabel>
                   <TextField
                     inputProps={{ readOnly: true }}
@@ -345,7 +355,7 @@ export const ReadonlyObjectiveForm: FC<{
               return (
                 <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
                   <FormLabel>
-                    {getObjectiveName(i)} - {widget.description}
+                    {getMetricName(i)} - {widget.description}
                   </FormLabel>
                   <RadioGroup row defaultValue={trial.values?.at(i)}>
                     {widget.choices.map((c, j) => (
@@ -370,7 +380,7 @@ export const ReadonlyObjectiveForm: FC<{
               return (
                 <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
                   <FormLabel>
-                    {getObjectiveName(i)} - {widget.description}
+                    {getMetricName(i)} - {widget.description}
                   </FormLabel>
                   <Box sx={{ padding: theme.spacing(0, 2) }}>
                     <Slider
@@ -394,7 +404,7 @@ export const ReadonlyObjectiveForm: FC<{
             } else if (widget.type === "user_attr") {
               return (
                 <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
-                  <FormLabel>{getObjectiveName(i)}</FormLabel>
+                  <FormLabel>{getMetricName(i)}</FormLabel>
                   <TextField
                     inputProps={{ readOnly: true }}
                     value={trial.values?.at(i)}
