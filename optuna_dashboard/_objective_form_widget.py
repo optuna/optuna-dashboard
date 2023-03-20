@@ -55,7 +55,7 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class ObjectiveChoiceWidget:
+class ChoiceWidget:
     choices: list[str]
     values: list[float]
     description: Optional[str] = None
@@ -72,7 +72,7 @@ class ObjectiveChoiceWidget:
 
 
 @dataclass
-class ObjectiveSliderWidget:
+class SliderWidget:
     min: float
     max: float
     step: Optional[float] = None
@@ -96,7 +96,7 @@ class ObjectiveSliderWidget:
 
 
 @dataclass
-class ObjectiveTextInputWidget:
+class TextInputWidget:
     description: Optional[str] = None
     user_attr_key: Optional[str] = None
 
@@ -121,9 +121,11 @@ class ObjectiveUserAttrRef:
         }
 
 
-ObjectiveFormWidget = Union[
-    ObjectiveChoiceWidget, ObjectiveSliderWidget, ObjectiveTextInputWidget, ObjectiveUserAttrRef
-]
+ObjectiveFormWidget = Union[ChoiceWidget, SliderWidget, TextInputWidget, ObjectiveUserAttrRef]
+# For backward compatibility.
+ObjectiveChoiceWidget = ChoiceWidget
+ObjectiveSliderWidget = SliderWidget
+ObjectiveTextInputWidget = TextInputWidget
 SYSTEM_ATTR_KEY = "dashboard:objective_form_widgets:v1"
 SYSTEM_ATTR_OUTPUT_TYPE_KEY = "dashboard:form_widgets_output_type:v1"
 
