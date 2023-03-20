@@ -9,6 +9,7 @@ import {
   saveStudyNoteAPI,
   saveTrialNoteAPI,
   tellTrialAPI,
+  saveTrialUserAttrsAPI,
   renameStudyAPI,
   uploadArtifactAPI,
   getMetaInfoAPI,
