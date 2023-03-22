@@ -48,7 +48,7 @@ def get_artifact_path(
     trial: optuna.Trial,
     artifact_id: str,
 ) -> str:
-    """API path to get artifact"""
+    """Get the URL path for a given artifact ID."""
     study_id = trial._study_id
     trial_id = trial._trial_id
     return f"/artifacts/{study_id}/{trial_id}/{artifact_id}"
