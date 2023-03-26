@@ -161,7 +161,7 @@ export const CompareStudies: FC<{
                               enqueueSnackbar(
                                 "You can only compare studies that has the same number of objectives.",
                                 {
-                                  variant: "error",
+                                  variant: "info",
                                 }
                               )
                               next = selectedIds
@@ -175,7 +175,7 @@ export const CompareStudies: FC<{
                               enqueueSnackbar(
                                 "You can only compare studies that has the same directions.",
                                 {
-                                  variant: "error",
+                                  variant: "info",
                                 }
                               )
                               next = selectedIds

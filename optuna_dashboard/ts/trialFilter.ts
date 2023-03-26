@@ -92,7 +92,7 @@ export class Target {
   }
 }
 
-const getFilteredTrials = (
+const filterTrials = (
   study: StudyDetail | null,
   targets: Target[],
   filterComplete: boolean,
@@ -122,7 +122,7 @@ export const useFilteredTrials = (
   filterPruned: boolean
 ): Trial[] =>
   useMemo<Trial[]>(() => {
-    return getFilteredTrials(study, targets, filterComplete, filterPruned)
+    return filterTrials(study, targets, filterComplete, filterPruned)
   }, [study?.trials, targets, filterComplete, filterPruned])
 
 export const useFilteredTrialsFromStudies = (
@@ -133,7 +133,7 @@ export const useFilteredTrialsFromStudies = (
 ): Trial[][] =>
   useMemo<Trial[][]>(() => {
     return studies.map((s) =>
-      getFilteredTrials(s, targets, filterComplete, filterPruned)
+      filterTrials(s, targets, filterComplete, filterPruned)
     )
   }, [studies, targets, filterComplete, filterPruned])
 
