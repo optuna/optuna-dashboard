@@ -26,8 +26,8 @@ import HomeIcon from "@mui/icons-material/Home"
 import { actionCreator } from "../action"
 import { studySummariesState, studyDetailsState } from "../state"
 import { AppDrawer } from "./AppDrawer"
-import { GraphEdf } from "./GraphEdf"
-import { GraphHistory } from "./GraphHistory"
+import { GraphEdfMultStudies } from "./GraphEdf"
+import { GraphHistoryMultiStudies } from "./GraphHistory"
 import { useHistory, useLocation } from "react-router-dom"
 
 const useQuery = (): URLSearchParams => {
@@ -313,7 +313,7 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
           }}
         >
           <CardContent>
-            <GraphHistory
+            <GraphHistoryMultiStudies
               studies={showStudyDetails}
               betaIncludePruned={includePruned}
               betaLogScale={logScale}
@@ -330,7 +330,7 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
           }}
         >
           <CardContent>
-            <GraphEdf studies={showStudyDetails} />
+            <GraphEdfMultStudies studies={showStudyDetails} />
           </CardContent>
         </Card>
       ) : null}

@@ -209,6 +209,184 @@ export const GraphHistory: FC<{
   )
 }
 
+export const GraphHistoryMultiStudies: FC<{
+  studies: StudyDetail[]
+  betaLogScale?: boolean
+  betaIncludePruned?: boolean
+}> = ({ studies, betaLogScale, betaIncludePruned }) => {
+  const theme = useTheme()
+  const [xAxis, setXAxis] = useState<
+    "number" | "datetime_start" | "datetime_complete"
+  >("number")
+  const [logScale, setLogScale] = useState<boolean>(false)
+  const [filterCompleteTrial, setFilterCompleteTrial] = useState<boolean>(false)
+  const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
+
+  const [targets, selected, setTarget] = useObjectiveAndUserAttrTargets(
+    studies.length !== 0 ? studies[0] : null
+  )
+
+  const trials = useFilteredTrialsFromStudies(
+    studies,
+    [selected],
+    filterCompleteTrial,
+    betaIncludePruned === undefined ? filterPrunedTrial : !betaIncludePruned
+  )
+  const historyPlotInfos = studies.map((study, index) => {
+    const h: HistoryPlotInfo = {
+      study_name: study?.name,
+      trials: trials[index],
+      directions: study?.directions,
+      objective_names: study?.objective_names,
+    }
+    return h
+  })
+
+  useEffect(() => {
+    plotHistory(
+      historyPlotInfos,
+      selected,
+      xAxis,
+      betaLogScale === undefined ? logScale : betaLogScale,
+      theme.palette.mode
+    )
+  }, [studies, selected, logScale, betaLogScale, xAxis, theme.palette.mode])
+
+  const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
+    setTarget(event.target.value)
+  }
+
+  const handleXAxisChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value === "number") {
+      setXAxis("number")
+    } else if (e.target.value === "datetime_start") {
+      setXAxis("datetime_start")
+    } else if (e.target.value === "datetime_complete") {
+      setXAxis("datetime_complete")
+    }
+  }
+
+  const handleLogScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setLogScale(!logScale)
+  }
+
+  const handleFilterCompleteChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setFilterCompleteTrial(!filterCompleteTrial)
+  }
+
+  const handleFilterPrunedChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setFilterPrunedTrial(!filterPrunedTrial)
+  }
+
+  return (
+    <Grid container direction="row">
+      <Grid
+        item
+        xs={3}
+        container
+        direction="column"
+        sx={{ paddingRight: theme.spacing(2) }}
+      >
+        <Typography
+          variant="h6"
+          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
+        >
+          History
+        </Typography>
+        {studies[0] !== null && targets.length >= 2 ? (
+          <FormControl
+            component="fieldset"
+            sx={{ marginBottom: theme.spacing(2) }}
+          >
+            <FormLabel component="legend">y Axis</FormLabel>
+            <Select
+              value={selected.identifier()}
+              onChange={handleObjectiveChange}
+            >
+              {targets.map((t, i) => (
+                <MenuItem value={t.identifier()} key={i}>
+                  {t.toLabel(studies[0].objective_names)}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        ) : null}
+        {betaLogScale === undefined ? (
+          <FormControl
+            component="fieldset"
+            sx={{ marginBottom: theme.spacing(2) }}
+          >
+            <FormLabel component="legend">Log y scale:</FormLabel>
+            <Switch
+              checked={logScale}
+              onChange={handleLogScaleChange}
+              value="enable"
+            />
+          </FormControl>
+        ) : null}
+        {betaIncludePruned === undefined ? (
+          <FormControl
+            component="fieldset"
+            sx={{ marginBottom: theme.spacing(2) }}
+          >
+            <FormLabel component="legend">Filter state:</FormLabel>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={!filterCompleteTrial}
+                  onChange={handleFilterCompleteChange}
+                />
+              }
+              label="Complete"
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={!filterPrunedTrial}
+                  disabled={!studies[0]?.has_intermediate_values}
+                  onChange={handleFilterPrunedChange}
+                />
+              }
+              label="Pruned"
+            />
+          </FormControl>
+        ) : null}
+        <FormControl
+          component="fieldset"
+          sx={{ marginBottom: theme.spacing(2) }}
+        >
+          <FormLabel component="legend">X-axis:</FormLabel>
+          <RadioGroup
+            aria-label="gender"
+            name="gender1"
+            value={xAxis}
+            onChange={handleXAxisChange}
+          >
+            <FormControlLabel
+              value="number"
+              control={<Radio />}
+              label="Number"
+            />
+            <FormControlLabel
+              value="datetime_start"
+              control={<Radio />}
+              label="Datetime start"
+            />
+            <FormControlLabel
+              value="datetime_complete"
+              control={<Radio />}
+              label="Datetime complete"
+            />
+          </RadioGroup>
+        </FormControl>
+      </Grid>
+      <Grid item xs={9}>
+        <div id={plotDomId} />
+      </Grid>
+    </Grid>
+  )
+}
+
 const plotHistory = (
   historyPlotInfos: HistoryPlotInfo[],
   target: Target,
