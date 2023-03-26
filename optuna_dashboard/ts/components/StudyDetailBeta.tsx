@@ -102,7 +102,7 @@ export const StudyDetailBeta: FC<{
                 <Grid2 xs={6} key={i}>
                   <Card>
                     <CardContent>
-                      <GraphEdfBeta studies={[studyDetail]} objectiveId={i} />
+                      <GraphEdfBeta study={studyDetail} objectiveId={i} />
                     </CardContent>
                   </Card>
                 </Grid2>
