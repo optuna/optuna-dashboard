@@ -17,6 +17,7 @@ import {
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import {
+  useFilteredTrials,
   useFilteredTrialsFromStudies,
   Target,
   useObjectiveAndUserAttrTargets,
@@ -32,10 +33,10 @@ interface HistoryPlotInfo {
 }
 
 export const GraphHistory: FC<{
-  studies: StudyDetail[]
+  study: StudyDetail | null
   betaLogScale?: boolean
   betaIncludePruned?: boolean
-}> = ({ studies, betaLogScale, betaIncludePruned }) => {
+}> = ({ study, betaLogScale, betaIncludePruned }) => {
   const theme = useTheme()
   const [xAxis, setXAxis] = useState<
     "number" | "datetime_start" | "datetime_complete"
@@ -44,35 +45,36 @@ export const GraphHistory: FC<{
   const [filterCompleteTrial, setFilterCompleteTrial] = useState<boolean>(false)
   const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
 
-  const [targets, selected, setTarget] = useObjectiveAndUserAttrTargets(
-    studies.length !== 0 ? studies[0] : null
-  )
-
-  const trials = useFilteredTrialsFromStudies(
-    studies,
+  const [targets, selected, setTarget] = useObjectiveAndUserAttrTargets(study)
+  const trials = useFilteredTrials(
+    study,
     [selected],
     filterCompleteTrial,
     betaIncludePruned === undefined ? filterPrunedTrial : !betaIncludePruned
   )
-  const historyPlotInfos = studies.map((study, index) => {
-    const h: HistoryPlotInfo = {
-      study_name: study?.name,
-      trials: trials[index],
-      directions: study?.directions,
-      objective_names: study?.objective_names,
-    }
-    return h
-  })
 
   useEffect(() => {
-    plotHistory(
-      historyPlotInfos,
-      selected,
-      xAxis,
-      betaLogScale === undefined ? logScale : betaLogScale,
-      theme.palette.mode
-    )
-  }, [studies, selected, logScale, betaLogScale, xAxis, theme.palette.mode])
+    if (study !== null) {
+      plotHistory(
+        trials,
+        study.directions,
+        selected,
+        xAxis,
+        betaLogScale === undefined ? logScale : betaLogScale,
+        theme.palette.mode,
+        study?.objective_names
+      )
+    }
+  }, [
+    trials,
+    study?.directions,
+    selected,
+    logScale,
+    betaLogScale,
+    xAxis,
+    theme.palette.mode,
+    study?.objective_names,
+  ])
 
   const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
     setTarget(event.target.value)
@@ -115,7 +117,7 @@ export const GraphHistory: FC<{
         >
           History
         </Typography>
-        {studies[0] !== null && targets.length >= 2 ? (
+        {targets.length >= 2 ? (
           <FormControl
             component="fieldset"
             sx={{ marginBottom: theme.spacing(2) }}
@@ -127,7 +129,7 @@ export const GraphHistory: FC<{
             >
               {targets.map((t, i) => (
                 <MenuItem value={t.identifier()} key={i}>
-                  {t.toLabel(studies[0].objective_names)}
+                  {t.toLabel(study?.objective_names)}
                 </MenuItem>
               ))}
             </Select>
@@ -165,7 +167,7 @@ export const GraphHistory: FC<{
               control={
                 <Checkbox
                   checked={!filterPrunedTrial}
-                  disabled={!studies[0]?.has_intermediate_values}
+                  disabled={!study?.has_intermediate_values}
                   onChange={handleFilterPrunedChange}
                 />
               }
@@ -243,7 +245,7 @@ export const GraphHistoryMultiStudies: FC<{
   })
 
   useEffect(() => {
-    plotHistory(
+    plotHistoryMultiStudies(
       historyPlotInfos,
       selected,
       xAxis,
@@ -388,6 +390,110 @@ export const GraphHistoryMultiStudies: FC<{
 }
 
 const plotHistory = (
+  trials: Trial[],
+  directions: StudyDirection[],
+  target: Target,
+  xAxis: "number" | "datetime_start" | "datetime_complete",
+  logScale: boolean,
+  mode: string,
+  objectiveNames?: string[]
+) => {
+  if (document.getElementById(plotDomId) === null) {
+    return
+  }
+
+  const layout: Partial<plotly.Layout> = {
+    margin: {
+      l: 50,
+      t: 0,
+      r: 50,
+      b: 0,
+    },
+    yaxis: {
+      title: target.toLabel(objectiveNames),
+      type: logScale ? "log" : "linear",
+    },
+    xaxis: {
+      title: xAxis === "number" ? "Trial" : "Time",
+      type: xAxis === "number" ? "linear" : "date",
+    },
+    showlegend: true,
+    template: mode === "dark" ? plotlyDarkTemplate : {},
+  }
+  if (trials.length === 0) {
+    plotly.react(plotDomId, [], layout)
+    return
+  }
+
+  const getAxisX = (trial: Trial): number | Date => {
+    return xAxis === "number"
+      ? trial.number
+      : xAxis === "datetime_start"
+      ? trial.datetime_start!
+      : trial.datetime_complete!
+  }
+
+  const plotData: Partial<plotly.PlotData>[] = [
+    {
+      x: trials.map(getAxisX),
+      y: trials.map((t: Trial): number => target.getTargetValue(t) as number),
+      name: target.toLabel(objectiveNames),
+      mode: "markers",
+      type: "scatter",
+    },
+  ]
+
+  const objectiveId = target.getObjectiveId()
+  if (objectiveId !== null) {
+    const xForLinePlot: (number | Date)[] = []
+    const yForLinePlot: number[] = []
+    let currentBest: number | null = null
+    for (let i = 0; i < trials.length; i++) {
+      const t = trials[i]
+      if (currentBest === null) {
+        currentBest = t.values![objectiveId] as number
+        xForLinePlot.push(getAxisX(t))
+        yForLinePlot.push(t.values![objectiveId] as number)
+      } else if (
+        directions[objectiveId] === "maximize" &&
+        t.values![objectiveId] > currentBest
+      ) {
+        const p = trials[i - 1]
+        if (!xForLinePlot.includes(getAxisX(p))) {
+          xForLinePlot.push(getAxisX(p))
+          yForLinePlot.push(currentBest)
+        }
+        currentBest = t.values![objectiveId] as number
+        xForLinePlot.push(getAxisX(t))
+        yForLinePlot.push(t.values![objectiveId] as number)
+      } else if (
+        directions[objectiveId] === "minimize" &&
+        t.values![objectiveId] < currentBest
+      ) {
+        const p = trials[i - 1]
+        if (!xForLinePlot.includes(getAxisX(p))) {
+          xForLinePlot.push(getAxisX(p))
+          yForLinePlot.push(currentBest)
+        }
+        currentBest = t.values![objectiveId] as number
+        xForLinePlot.push(getAxisX(t))
+        yForLinePlot.push(t.values![objectiveId] as number)
+      }
+    }
+    xForLinePlot.push(getAxisX(trials[trials.length - 1]))
+    yForLinePlot.push(yForLinePlot[yForLinePlot.length - 1])
+    plotData.push({
+      x: xForLinePlot,
+      y: yForLinePlot,
+      name: "Best Value",
+      mode: "lines",
+      type: "scatter",
+    })
+  }
+  plotly.react(plotDomId, plotData, layout)
+}
+
+const plotHistoryMultiStudies = (
   historyPlotInfos: HistoryPlotInfo[],
   target: Target,
   xAxis: "number" | "datetime_start" | "datetime_complete",
