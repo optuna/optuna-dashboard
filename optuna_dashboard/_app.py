@@ -457,7 +457,7 @@ def create_app(
     @app.post("/api/trials/<trial_id:int>/user-attrs")
     @json_api_view
     def save_trial_user_attrs(trial_id: int) -> dict[str, Any]:
-        user_attrs = requests.json.get("user_attrs", {})
+        user_attrs = request.json.get("user_attrs", {})
         if not user_attrs:
             response.status = 400  # Bad request
             return {"reason": "user_attrs must be specified."}
