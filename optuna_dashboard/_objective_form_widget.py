@@ -126,8 +126,8 @@ ObjectiveFormWidget = Union[ChoiceWidget, SliderWidget, TextInputWidget, Objecti
 ObjectiveChoiceWidget = ChoiceWidget
 ObjectiveSliderWidget = SliderWidget
 ObjectiveTextInputWidget = TextInputWidget
-SYSTEM_ATTR_KEY = "dashboard:objective_form_widgets:v1"
-SYSTEM_ATTR_OUTPUT_TYPE_KEY = "dashboard:form_widgets_output_type:v1"
+FORM_WIDGETS_KEY = "dashboard:form_widgets:v2"
+FORM_WIDGETS_OUTPUT_TYPE_KEY = "dashboard:form_widgets_output_type:v2"
 
 
 def register_objective_form_widgets(
@@ -138,8 +138,10 @@ def register_objective_form_widgets(
     if any(w.user_attr_key is not None for w in widgets):
         warnings.warn("`user_attr_key` specified, but it will not be used.")
     widget_dicts = [w.to_dict() for w in widgets]
-    study._storage.set_study_system_attr(study._study_id, SYSTEM_ATTR_KEY, widget_dicts)
-    study._storage.set_study_system_attr(study._study_id, SYSTEM_ATTR_OUTPUT_TYPE_KEY, "objective")
+    study._storage.set_study_system_attr(study._study_id, FORM_WIDGETS_KEY, widget_dicts)
+    study._storage.set_study_system_attr(
+        study._study_id, FORM_WIDGETS_OUTPUT_TYPE_KEY, "objective"
+    )
 
 
 def register_user_attr_form_widgets(
@@ -150,15 +152,17 @@ def register_user_attr_form_widgets(
     if len(widgets) != len(set(w.user_attr_key for w in widgets)):
         raise ValueError("`user_attr_key` must be unique for each widget.")
     widget_dicts = [w.to_dict() for w in widgets]
-    study._storage.set_study_system_attr(study._study_id, SYSTEM_ATTR_KEY, widget_dicts)
-    study._storage.set_study_system_attr(study._study_id, SYSTEM_ATTR_OUTPUT_TYPE_KEY, "user_attr")
+    study._storage.set_study_system_attr(study._study_id, FORM_WIDGETS_KEY, widget_dicts)
+    study._storage.set_study_system_attr(
+        study._study_id, FORM_WIDGETS_OUTPUT_TYPE_KEY, "user_attr"
+    )
 
 
 def get_objective_form_widgets_json(
     study_system_attr: dict[str, Any]
 ) -> Optional[list[ObjectiveFormWidgetJSON]]:
-    if SYSTEM_ATTR_KEY in study_system_attr:
-        return study_system_attr[SYSTEM_ATTR_KEY]
+    if FORM_WIDGETS_KEY in study_system_attr:
+        return study_system_attr[FORM_WIDGETS_KEY]
     # For optuna-dashboard v0.9.0b5 users
     if "dashboard:objective_form_widgets" in study_system_attr:
         return json.loads(study_system_attr["dashboard:objective_form_widgets"])
