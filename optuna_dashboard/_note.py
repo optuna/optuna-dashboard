@@ -11,7 +11,6 @@ if TYPE_CHECKING:
     from typing import Any
     from typing import Optional
     from typing import TypedDict
-    from typing import Union
 
     NoteType = TypedDict(
         "NoteType",
@@ -24,7 +23,7 @@ if TYPE_CHECKING:
 SYSTEM_ATTR_MAX_LENGTH = 2045
 
 
-def save_note(study_or_trial: Union[optuna.Study, optuna.Trial], body: str) -> None:
+def save_note(study_or_trial: optuna.Study | optuna.Trial, body: str) -> None:
     """Save the note (Markdown format) to the Study or Trial.
 
     Example:
@@ -68,6 +67,37 @@ def save_note(study_or_trial: Union[optuna.Study, optuna.Trial], body: str) -> N
     system_attrs = storage.get_study_system_attrs(study_id)
     next_ver = system_attrs.get(note_ver_key(trial_id), 0) + 1
     save_note_with_version(storage, study_id, trial_id, next_ver, body)
+
+
+def get_note(study_or_trial: optuna.Study | optuna.Trial) -> str:
+    """Get the note (Markdown format) from the Study or Trial.
+
+    Example:
+
+       .. code-block:: python
+
+          import optuna
+          from optuna_dashboard import save_note, get_note
+
+          study = optuna.create_study()
+          save_note(study, "**Hello** World")
+
+          text = get_note(study)
+          print(text)  # '**Hello** World'
+    """
+    storage: BaseStorage
+    study_id: int
+    trial_id: Optional[int] = None
+    if isinstance(study_or_trial, optuna.Study):
+        storage = study_or_trial._storage
+        study_id = study_or_trial._study_id
+    else:
+        storage = study_or_trial.storage
+        study_id = study_or_trial.study._study_id
+        trial_id = study_or_trial._trial_id
+    system_attrs = storage.get_study_system_attrs(study_id)
+    note = get_note_from_system_attrs(system_attrs, trial_id)
+    return note["body"]
 
 
 def note_ver_key(trial_id: Optional[int]) -> str:

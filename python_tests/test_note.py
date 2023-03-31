@@ -5,6 +5,7 @@ from unittest.mock import patch
 
 import optuna
 from optuna_dashboard import _note as note
+from optuna_dashboard import get_note
 from optuna_dashboard import save_note
 
 
@@ -29,6 +30,10 @@ class NoteTestCase(TestCase):
             with self.subTest(body):
                 save_note(study, body)
                 system_attrs = study._storage.get_study_system_attrs(study._study_id)
+
+                actual = get_note(study)
+                assert actual == body
+
                 note_dict = note.get_note_from_system_attrs(system_attrs, None)
                 assert note_dict["body"] == body
                 assert note_dict["version"] == expected_ver
@@ -41,6 +46,10 @@ class NoteTestCase(TestCase):
             with self.subTest(body):
                 save_note(trial, body)
                 system_attrs = study._storage.get_study_system_attrs(study._study_id)
+
+                actual = get_note(trial)
+                assert actual == body
+
                 note_dict = note.get_note_from_system_attrs(system_attrs, trial._trial_id)
                 assert note_dict["body"] == body
                 assert note_dict["version"] == expected_ver

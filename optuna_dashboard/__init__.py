@@ -1,6 +1,7 @@
 from ._app import run_server  # noqa
 from ._app import wsgi  # noqa
 from ._named_objectives import set_objective_names  # noqa
+from ._note import get_note  # noqa
 from ._note import save_note  # noqa
 from ._objective_form_widget import ObjectiveChoiceWidget  # noqa
 from ._objective_form_widget import ObjectiveSliderWidget  # noqa
