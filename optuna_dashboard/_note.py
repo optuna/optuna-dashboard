@@ -53,8 +53,6 @@ def save_note(study_or_trial: optuna.Study | optuna.Trial, body: str) -> None:
           '''))
           study.optimize(objective, n_trials=10)
     """
-    storage: BaseStorage
-    study_id: int
     trial_id: Optional[int] = None
     if isinstance(study_or_trial, optuna.Study):
         storage = study_or_trial._storage
@@ -85,8 +83,6 @@ def get_note(study_or_trial: optuna.Study | optuna.Trial) -> str:
           text = get_note(study)
           print(text)  # '**Hello** World'
     """
-    storage: BaseStorage
-    study_id: int
     trial_id: Optional[int] = None
     if isinstance(study_or_trial, optuna.Study):
         storage = study_or_trial._storage
