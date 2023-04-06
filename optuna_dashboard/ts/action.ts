@@ -22,6 +22,7 @@ import {
   isFileUploading,
   artifactIsAvailable,
   reloadIntervalState,
+  finishedTrialsEditable,
 } from "./state"
 import { getDominatedTrials } from "./dominatedTrials"
 
@@ -45,6 +46,9 @@ export const actionCreator = () => {
     useRecoilState<StudyParamImportance>(paramImportanceState)
   const setUploading = useSetRecoilState<boolean>(isFileUploading)
   const setArtifactIsAvailable = useSetRecoilState<boolean>(artifactIsAvailable)
+  const setFinishedTrialsEditable = useSetRecoilState<boolean>(
+    finishedTrialsEditable
+  )
 
   const setStudyDetailState = (studyId: number, study: StudyDetail) => {
     const newVal = Object.assign({}, studyDetails)
@@ -163,6 +167,7 @@ export const actionCreator = () => {
   const updateAPIMeta = () => {
     getMetaInfoAPI().then((r) => {
       setArtifactIsAvailable(r.artifact_is_available)
+      setFinishedTrialsEditable(r.finished_trials_editable)
     })
   }
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
 from typing import Container
 from typing import Optional
@@ -11,6 +12,9 @@ from optuna.study import StudyDirection
 from optuna.study._frozen import FrozenStudy
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
+
+
+_logger = logging.getLogger(__name__)
 
 
 def _get_study_system_attr_key_to_values(trial_id: int) -> str:
@@ -79,6 +83,7 @@ class ValueEditableStorage(BaseStorage):
             if trial_id in self._trial_id_to_study_id:
                 study_id = self._trial_id_to_study_id[trial_id]
                 self._set_trial_values_in_study_system_attrs(study_id, trial_id, list(values))
+                _logger.debug(f"Update objective values of a finished trial(trial_id={trial_id})")
                 return False
             else:
                 raise

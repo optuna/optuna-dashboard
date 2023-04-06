@@ -49,6 +49,11 @@ export const artifactIsAvailable = atom<boolean>({
   default: false,
 })
 
+export const finishedTrialsEditable = atom<boolean>({
+  key: "finishedTrialsEditable",
+  default: false,
+})
+
 export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
   return studyDetails[studyId] || null

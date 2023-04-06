@@ -1,4 +1,4 @@
-import React, { FC, useMemo, useState } from "react"
+import React, { FC, useEffect, useMemo, useState } from "react"
 import {
   Typography,
   Box,
@@ -30,10 +30,22 @@ export const ObjectiveForm: FC<{
       if (widget === undefined) {
         return null
       } else if (widget.type === "text") {
+        const value = trial.values?.at(i)
+        if (value !== undefined && value !== "inf" && value !== "-inf") {
+          return value
+        }
         return null
       } else if (widget.type === "choice") {
+        const value = trial.values?.at(i)
+        if (value !== undefined && value !== "inf" && value !== "-inf") {
+          return value
+        }
         return widget.values.at(0) || null
       } else if (widget.type === "slider") {
+        const value = trial.values?.at(i)
+        if (value !== undefined && value !== "inf" && value !== "-inf") {
+          return value
+        }
         return widget.min
       } else if (widget.type === "user_attr") {
         const attr = trial.user_attrs.find((attr) => attr.key == widget.key)
@@ -210,7 +222,11 @@ export const ObjectiveForm: FC<{
                         // @ts-ignore
                         setValue(i, e.target.value as number)
                       }}
-                      defaultValue={widget.min}
+                      defaultValue={
+                        value !== undefined && value !== null
+                          ? value
+                          : widget.min
+                      }
                       min={widget.min}
                       max={widget.max}
                       step={widget.step}

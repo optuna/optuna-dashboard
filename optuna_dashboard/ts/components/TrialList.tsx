@@ -39,7 +39,7 @@ import { TrialNote } from "./Note"
 import { useHistory, useLocation } from "react-router-dom"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useRecoilValue } from "recoil"
-import { artifactIsAvailable } from "../state"
+import { artifactIsAvailable, finishedTrialsEditable } from "../state"
 import { actionCreator } from "../action"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
 import { ObjectiveForm, ReadonlyObjectiveForm } from "./ObjectiveForm"
@@ -153,6 +153,9 @@ const TrialListDetail: FC<{
 }) => {
   const theme = useTheme()
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
+  const finishedTrialsAreEditable = useRecoilValue<boolean>(
+    finishedTrialsEditable
+  )
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
 
@@ -291,22 +294,25 @@ const TrialListDetail: FC<{
         latestNote={trial.note}
         cardSx={{ marginBottom: theme.spacing(2) }}
       />
-      {trial.state === "Running" && directions.length > 0 && (
-        <ObjectiveForm
-          trial={trial}
-          directions={directions}
-          names={objectiveNames}
-          widgets={objectiveFormWidgets}
-        />
-      )}
-      {trial.state === "Complete" && directions.length > 0 && (
-        <ReadonlyObjectiveForm
-          trial={trial}
-          directions={directions}
-          names={objectiveNames}
-          widgets={objectiveFormWidgets}
-        />
-      )}
+      {(trial.state === "Running" || finishedTrialsAreEditable) &&
+        directions.length > 0 && (
+          <ObjectiveForm
+            trial={trial}
+            directions={directions}
+            names={objectiveNames}
+            widgets={objectiveFormWidgets}
+          />
+        )}
+      {!finishedTrialsAreEditable &&
+        trial.state === "Complete" &&
+        directions.length > 0 && (
+          <ReadonlyObjectiveForm
+            trial={trial}
+            directions={directions}
+            names={objectiveNames}
+            widgets={objectiveFormWidgets}
+          />
+        )}
       {artifactEnabled && <TrialArtifact trial={trial} />}
     </Box>
   )

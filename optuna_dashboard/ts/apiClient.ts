@@ -4,6 +4,7 @@ const axiosInstance = axios.create({ baseURL: API_ENDPOINT })
 
 type APIMeta = {
   artifact_is_available: boolean
+  finished_trials_editable: boolean
 }
 
 export const getMetaInfoAPI = (): Promise<APIMeta> => {
