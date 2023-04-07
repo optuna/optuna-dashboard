@@ -1,17 +1,22 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
-from typing import Container
-from typing import Optional
-from typing import Sequence
+from typing import TYPE_CHECKING
 
-from optuna.distributions import BaseDistribution
 from optuna.storages import BaseStorage
-from optuna.study import StudyDirection
-from optuna.study._frozen import FrozenStudy
-from optuna.trial import FrozenTrial
-from optuna.trial import TrialState
+
+
+if TYPE_CHECKING:
+    from typing import Any
+    from typing import Container
+    from typing import Optional
+    from typing import Sequence
+
+    from optuna.distributions import BaseDistribution
+    from optuna.study import StudyDirection
+    from optuna.study._frozen import FrozenStudy
+    from optuna.trial import FrozenTrial
+    from optuna.trial import TrialState
 
 
 _logger = logging.getLogger(__name__)
@@ -30,6 +35,7 @@ class EditableObjectiveValueStorage(BaseStorage):
     Args:
         backend: The backend BaseStorage object.
     """
+
     def __init__(self, backend: BaseStorage) -> None:
         self._backend = backend
         self._trial_id_to_study_id = {}
@@ -121,7 +127,8 @@ class EditableObjectiveValueStorage(BaseStorage):
     ) -> list[FrozenTrial]:
         study_system_attrs = self._backend.get_study_system_attrs(study_id)
 
-        # Here, we can set deepcopy=True although self._update_objective_value() updates trial.values.
+        # Here, we can set deepcopy=True although self._update_objective_value() updates
+        # trial.values.
         trials = self._backend.get_all_trials(study_id, deepcopy=deepcopy, states=states)
         for trial in trials:
             self._trial_id_to_study_id[trial._trial_id] = study_id
