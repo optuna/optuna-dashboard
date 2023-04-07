@@ -37,7 +37,7 @@ from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
 from ._serializer import serialize_study_detail
 from ._serializer import serialize_study_summary
-from ._storage import ValueEditableStorage
+from ._storage import EditableObjectiveValueStorage
 from ._storage_url import get_storage
 from .artifact._backend import delete_all_artifacts
 from .artifact._backend import register_artifact_route
@@ -237,7 +237,7 @@ def create_app(
     def api_meta() -> dict[str, Any]:
         return {
             "artifact_is_available": artifact_backend is not None,
-            "finished_trials_editable": isinstance(storage, ValueEditableStorage),
+            "finished_trials_editable": isinstance(storage, EditableObjectiveValueStorage),
         }
 
     @app.get("/api/studies")

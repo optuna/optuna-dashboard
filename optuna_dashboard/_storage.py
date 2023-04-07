@@ -21,7 +21,15 @@ def _get_study_system_attr_key_to_values(trial_id: int) -> str:
     return f"objective_values:{trial_id}"
 
 
-class ValueEditableStorage(BaseStorage):
+class EditableObjectiveValueStorage(BaseStorage):
+    """A storage middleware that allows for updating the objective values of finished trials.
+
+    This class extends a given `backend` storage object and adds the capability to update the
+    objective values of finished trials via the `set_trial_state_values` method.
+
+    Args:
+        backend: The backend BaseStorage object.
+    """
     def __init__(self, backend: BaseStorage) -> None:
         self._backend = backend
         self._trial_id_to_study_id = {}
