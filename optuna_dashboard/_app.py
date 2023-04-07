@@ -158,9 +158,18 @@ def create_new_study(
     return study_id
 
 
-def get_trials(storage: BaseStorage, study_id: int, ttl_seconds: int = 10) -> list[FrozenTrial]:
+def get_trials(storage: BaseStorage, study_id: int) -> list[FrozenTrial]:
     with trials_cache_lock:
         trials = trials_cache.get(study_id, None)
+
+        # Not a big fan of the heuristic, but I can't think of anything better.
+        if len(trials) < 100:
+            ttl_seconds = 2
+        elif len(trials) < 500:
+            ttl_seconds = 5
+        else:
+            ttl_seconds = 10
+
         last_fetched_at = trials_last_fetched_at.get(study_id, None)
         if (
             trials is not None
