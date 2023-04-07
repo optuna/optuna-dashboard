@@ -7,6 +7,18 @@ const filterFunc = (trial: Trial, directions: StudyDirection[]): boolean => {
   )
 }
 
+export const getBestTrials = (
+  trials: Trial[],
+  direction: StudyDirection
+): Trial[] => {
+  const values = trials
+    .map((t) => t.values?.at(0))
+    .filter((v): v is number => v !== undefined && v !== "inf" && v !== "-inf")
+  const bestValue =
+    direction === "minimize" ? Math.min(...values) : Math.max(...values)
+  return trials.filter((t) => t.values?.at(0) === bestValue)
+}
+
 export const getDominatedTrials = (
   trials: Trial[],
   directions: StudyDirection[]

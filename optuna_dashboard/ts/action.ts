@@ -24,7 +24,7 @@ import {
   reloadIntervalState,
   finishedTrialsEditable,
 } from "./state"
-import { getDominatedTrials } from "./dominatedTrials"
+import { getBestTrials, getDominatedTrials } from "./dominatedTrials"
 
 const localStorageGraphVisibility = "graphVisibility"
 const localStorageReloadInterval = "reloadInterval"
@@ -126,7 +126,11 @@ export const actionCreator = () => {
     newStudy.trials = newTrials
 
     // Update Best Trials
-    if (state === "Complete" && newStudy.directions.length === 1) {
+    if (
+      state === "Complete" &&
+      newStudy.directions.length === 1 &&
+      !finishedTrialsEditable
+    ) {
       // Single objective optimization
       const bestValue = newStudy.best_trials.at(0)?.values?.at(0)
       const currentValue = values?.at(0)
@@ -144,6 +148,12 @@ export const actionCreator = () => {
           newStudy.best_trials = [...newStudy.best_trials, newTrial]
         }
       }
+    } else if (state === "Complete" && newStudy.directions.length === 1) {
+      // Single objective optimization
+      newStudy.best_trials = getBestTrials(
+        newStudy.trials,
+        newStudy.directions[0]
+      )
     } else if (state === "Complete") {
       // Multi objective optimization
       newStudy.best_trials = getDominatedTrials(
