@@ -14,6 +14,7 @@ Real-time dashboard for `Optuna <https://github.com/optuna/optuna>`_.
 
    installation
    api
+   errors
 
 
 Links
