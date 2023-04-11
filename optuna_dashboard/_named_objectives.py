@@ -35,8 +35,7 @@ def set_objective_names(study: optuna.Study, names: list[str]) -> None:
             "Please use `study.set_metric_names([...])` instead.",
             category=FutureWarning,
         )
-        # TODO(c-bata): Remove the following `type: ignore` after released Optuna v3.2.
-        study.set_metric_names(names)  # type: ignore
+        study.set_metric_names(names)
         return
 
     storage = study._storage
