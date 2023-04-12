@@ -166,6 +166,11 @@ type ObjectiveFormWidget =
   | ObjectiveTextInputWidget
   | ObjectiveUserAttrRef
 
+type FormWidgets = {
+  "output_type": string
+  "widgets": ObjectiveFormWidget[]
+}
+
 type StudyDetail = {
   id: number
   name: string
@@ -179,8 +184,7 @@ type StudyDetail = {
   has_intermediate_values: boolean
   note: Note
   objective_names?: string[]
-  objective_form_widgets?: ObjectiveFormWidget[]
-  form_widgets_output_type?: string
+  objective_form_widgets?: FormWidgets
 }
 
 type StudyDetails = {

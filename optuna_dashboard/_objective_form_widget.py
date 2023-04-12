@@ -49,9 +49,13 @@ if TYPE_CHECKING:
         "UserAttrRefJSON",
         {"type": Literal["user_attr"], "key": str, "user_attr_key": Optional[str]},
     )
-    ObjectiveFormWidgetJSON = Union[
-        ChoiceWidgetJSON, SliderWidgetJSON, TextInputWidgetJSON, UserAttrRefJSON
-    ]
+    FormWidgetJSON = TypedDict(
+        "FormWidgetJSON",
+        {
+            "output_type": Literal["objective", "user_attr"],
+            "widgets": list[Union[ChoiceWidgetJSON, SliderWidgetJSON, TextInputWidgetJSON, UserAttrRefJSON]]
+        }
+    )
 
 
 @dataclass
@@ -127,7 +131,6 @@ ObjectiveChoiceWidget = ChoiceWidget
 ObjectiveSliderWidget = SliderWidget
 ObjectiveTextInputWidget = TextInputWidget
 FORM_WIDGETS_KEY = "dashboard:form_widgets:v2"
-FORM_WIDGETS_OUTPUT_TYPE_KEY = "dashboard:form_widgets_output_type:v2"
 
 
 def register_objective_form_widgets(
@@ -137,11 +140,11 @@ def register_objective_form_widgets(
         raise ValueError("The length of actions must be the same with the number of objectives.")
     if any(w.user_attr_key is not None for w in widgets):
         warnings.warn("`user_attr_key` specified, but it will not be used.")
-    widget_dicts = [w.to_dict() for w in widgets]
-    study._storage.set_study_system_attr(study._study_id, FORM_WIDGETS_KEY, widget_dicts)
-    study._storage.set_study_system_attr(
-        study._study_id, FORM_WIDGETS_OUTPUT_TYPE_KEY, "objective"
-    )
+    form_widgets: FormWidgetJSON = {
+        "output_type": "objective",
+        "widgets": [w.to_dict() for w in widgets],
+    }
+    study._storage.set_study_system_attr(study._study_id, FORM_WIDGETS_KEY, form_widgets)
 
 
 def register_user_attr_form_widgets(
@@ -151,19 +154,28 @@ def register_user_attr_form_widgets(
         raise ValueError("`user_attr_key` is not specified.")
     if len(widgets) != len(set(w.user_attr_key for w in widgets)):
         raise ValueError("`user_attr_key` must be unique for each widget.")
-    widget_dicts = [w.to_dict() for w in widgets]
-    study._storage.set_study_system_attr(study._study_id, FORM_WIDGETS_KEY, widget_dicts)
-    study._storage.set_study_system_attr(
-        study._study_id, FORM_WIDGETS_OUTPUT_TYPE_KEY, "user_attr"
-    )
+    form_widgets: FormWidgetJSON = {
+        "output_type": "user_attr",
+        "widgets": [w.to_dict() for w in widgets],
+    }
+    study._storage.set_study_system_attr(study._study_id, FORM_WIDGETS_KEY, form_widgets)
 
 
-def get_objective_form_widgets_json(
-    study_system_attr: dict[str, Any]
-) -> Optional[list[ObjectiveFormWidgetJSON]]:
+def get_form_widgets_json(study_system_attr: dict[str, Any]) -> Optional[FormWidgetJSON]:
     if FORM_WIDGETS_KEY in study_system_attr:
         return study_system_attr[FORM_WIDGETS_KEY]
+
+    # For optuna-dashboard v0.9.0 and v0.9.0b6 users
+    if "dashboard:objective_form_widgets:v1" in study_system_attr:
+        return {
+            "output_type": "objective",
+            "widgets": study_system_attr["dashboard:objective_form_widgets:v1"]
+        }
+
     # For optuna-dashboard v0.9.0b5 users
     if "dashboard:objective_form_widgets" in study_system_attr:
-        return json.loads(study_system_attr["dashboard:objective_form_widgets"])
+        return {
+            "output_type": "objective",
+            "widgets": json.loads(study_system_attr["dashboard:objective_form_widgets"])
+        }
     return None

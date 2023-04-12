@@ -818,10 +818,10 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                   directions={studyDetail?.directions || []}
                   objectiveNames={studyDetail?.objective_names || []}
                   objectiveFormWidgets={
-                    studyDetail?.objective_form_widgets || []
+                    studyDetail?.objective_form_widgets?.widgets || []
                   }
                   formWigetsOutputType={
-                    studyDetail?.form_widgets_output_type || ""
+                    studyDetail?.objective_form_widgets?.output_type || ""
                   }
                 />
               ))}
