@@ -53,8 +53,10 @@ if TYPE_CHECKING:
         "FormWidgetJSON",
         {
             "output_type": Literal["objective", "user_attr"],
-            "widgets": list[Union[ChoiceWidgetJSON, SliderWidgetJSON, TextInputWidgetJSON, UserAttrRefJSON]]
-        }
+            "widgets": list[
+                Union[ChoiceWidgetJSON, SliderWidgetJSON, TextInputWidgetJSON, UserAttrRefJSON]
+            ],
+        },
     )
 
 
@@ -169,13 +171,13 @@ def get_form_widgets_json(study_system_attr: dict[str, Any]) -> Optional[FormWid
     if "dashboard:objective_form_widgets:v1" in study_system_attr:
         return {
             "output_type": "objective",
-            "widgets": study_system_attr["dashboard:objective_form_widgets:v1"]
+            "widgets": study_system_attr["dashboard:objective_form_widgets:v1"],
         }
 
     # For optuna-dashboard v0.9.0b5 users
     if "dashboard:objective_form_widgets" in study_system_attr:
         return {
             "output_type": "objective",
-            "widgets": json.loads(study_system_attr["dashboard:objective_form_widgets"])
+            "widgets": json.loads(study_system_attr["dashboard:objective_form_widgets"]),
         }
     return None

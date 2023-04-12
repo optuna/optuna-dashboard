@@ -167,8 +167,8 @@ type ObjectiveFormWidget =
   | ObjectiveUserAttrRef
 
 type FormWidgets = {
-  "output_type": string
-  "widgets": ObjectiveFormWidget[]
+  output_type: string
+  widgets: ObjectiveFormWidget[]
 }
 
 type StudyDetail = {
