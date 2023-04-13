@@ -163,7 +163,7 @@ def get_trials(storage: BaseStorage, study_id: int) -> list[FrozenTrial]:
         trials = trials_cache.get(study_id, None)
 
         # Not a big fan of the heuristic, but I can't think of anything better.
-        if len(trials) < 100:
+        if trials is None or len(trials) < 100:
             ttl_seconds = 2
         elif len(trials) < 500:
             ttl_seconds = 5
