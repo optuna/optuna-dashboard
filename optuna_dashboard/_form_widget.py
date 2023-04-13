@@ -150,14 +150,13 @@ class TextInputWidget:
 @dataclass
 class ObjectiveUserAttrRef:
     key: str
-    # TODO(c-bata): Remove this attribute
-    user_attr_key: Optional[str] = None
 
     def to_dict(self) -> UserAttrRefJSON:
         return {
             "type": "user_attr",
             "key": self.key,
-            "user_attr_key": self.user_attr_key,
+            # Set 'user_attr_key' to simplify the frontend source code.
+            "user_attr_key": self.key,
         }
 
     @classmethod
