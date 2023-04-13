@@ -143,16 +143,8 @@ const TrialListDetail: FC<{
   isBestTrial: (trialId: number) => boolean
   directions: StudyDirection[]
   objectiveNames: string[]
-  objectiveFormWidgets: ObjectiveFormWidget[]
-  formWigetsOutputType: string
-}> = ({
-  trial,
-  isBestTrial,
-  directions,
-  objectiveNames,
-  objectiveFormWidgets,
-  formWigetsOutputType,
-}) => {
+  formWidgets?: FormWidgets
+}> = ({ trial, isBestTrial, directions, objectiveNames, formWidgets }) => {
   const theme = useTheme()
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
   const startMs = trial.datetime_start?.getTime()
@@ -293,24 +285,26 @@ const TrialListDetail: FC<{
         latestNote={trial.note}
         cardSx={{ marginBottom: theme.spacing(2) }}
       />
-      {trial.state === "Running" && directions.length > 0 && (
-        <ObjectiveForm
-          trial={trial}
-          directions={directions}
-          names={objectiveNames}
-          widgets={objectiveFormWidgets}
-          outputType={formWigetsOutputType}
-        />
-      )}
-      {trial.state === "Complete" && directions.length > 0 && (
-        <ReadonlyObjectiveForm
-          trial={trial}
-          directions={directions}
-          names={objectiveNames}
-          widgets={objectiveFormWidgets}
-          outputType={formWigetsOutputType}
-        />
-      )}
+      {trial.state === "Running" &&
+        directions.length > 0 &&
+        formWidgets !== undefined && (
+          <ObjectiveForm
+            trial={trial}
+            directions={directions}
+            names={objectiveNames}
+            formWidgets={formWidgets}
+          />
+        )}
+      {trial.state === "Complete" &&
+        directions.length > 0 &&
+        formWidgets !== undefined && (
+          <ReadonlyObjectiveForm
+            trial={trial}
+            directions={directions}
+            names={objectiveNames}
+            formWidgets={formWidgets}
+          />
+        )}
       {artifactEnabled && <TrialArtifact trial={trial} />}
     </Box>
   )
@@ -817,12 +811,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                   isBestTrial={isBestTrial}
                   directions={studyDetail?.directions || []}
                   objectiveNames={studyDetail?.objective_names || []}
-                  objectiveFormWidgets={
-                    studyDetail?.objective_form_widgets?.widgets || []
-                  }
-                  formWigetsOutputType={
-                    studyDetail?.objective_form_widgets?.output_type || ""
-                  }
+                  formWidgets={studyDetail?.form_widgets}
                 />
               ))}
         </Box>

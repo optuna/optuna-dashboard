@@ -160,6 +160,7 @@ type ObjectiveUserAttrRef = {
   user_attr_key?: string
 }
 
+// TODO(kenshin): Rename this type to FormWidget or something.
 type ObjectiveFormWidget =
   | ObjectiveChoiceWidget
   | ObjectiveSliderWidget
@@ -167,7 +168,7 @@ type ObjectiveFormWidget =
   | ObjectiveUserAttrRef
 
 type FormWidgets = {
-  output_type: string
+  output_type: "objective" | "user_attr"
   widgets: ObjectiveFormWidget[]
 }
 
@@ -184,7 +185,7 @@ type StudyDetail = {
   has_intermediate_values: boolean
   note: Note
   objective_names?: string[]
-  objective_form_widgets?: FormWidgets
+  form_widgets?: FormWidgets
 }
 
 type StudyDetails = {

@@ -20,13 +20,12 @@ export const ObjectiveForm: FC<{
   trial: Trial
   directions: StudyDirection[]
   names: string[]
-  widgets: ObjectiveFormWidget[]
-  outputType: string
-}> = ({ trial, directions, names, widgets, outputType }) => {
+  formWidgets: FormWidgets
+}> = ({ trial, directions, names, formWidgets }) => {
   const theme = useTheme()
   const action = actionCreator()
   const [values, setValues] = useState<(number | null)[]>(
-    widgets.map((widget) => {
+    formWidgets.widgets.map((widget) => {
       if (widget === undefined) {
         return null
       } else if (widget.type === "text") {
@@ -65,22 +64,25 @@ export const ObjectiveForm: FC<{
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>): void => {
     e.preventDefault()
-    if (outputType == "objective") {
+    if (formWidgets.output_type == "objective") {
       const filtered = values.filter<number>((v): v is number => v !== null)
       if (filtered.length !== directions.length) {
         return
       }
       action.makeTrialComplete(trial.study_id, trial.trial_id, filtered)
-    } else if (outputType == "user_attr") {
+    } else if (formWidgets.output_type == "user_attr") {
       const user_attrs = Object.fromEntries(
-        widgets.map((widget, i) => [widget.user_attr_key, values[i]])
+        formWidgets.widgets.map((widget, i) => [
+          widget.user_attr_key,
+          values[i],
+        ])
       )
       action.saveTrialUserAttrs(trial.study_id, trial.trial_id, user_attrs)
     }
   }
 
   const getMetricName = (i: number): string => {
-    if (outputType == "objective") {
+    if (formWidgets.output_type == "objective") {
       const n = names.at(i)
       if (n !== undefined) {
         return n
@@ -90,8 +92,8 @@ export const ObjectiveForm: FC<{
       } else {
         return `Objective ${i}`
       }
-    } else if (outputType == "user_attr") {
-      return widgets[i].user_attr_key as string
+    } else if (formWidgets.output_type == "user_attr") {
+      return formWidgets.widgets[i].user_attr_key as string
     }
     return "Unkown metric name"
   }
@@ -114,7 +116,7 @@ export const ObjectiveForm: FC<{
             p: theme.spacing(1),
           }}
         >
-          {widgets.map((widget, i) => {
+          {formWidgets.widgets.map((widget, i) => {
             const value = values.at(i)
             const key = `objective-${i}`
             if (widget.type === "text") {
@@ -262,12 +264,11 @@ export const ReadonlyObjectiveForm: FC<{
   trial: Trial
   directions: StudyDirection[]
   names: string[]
-  widgets: ObjectiveFormWidget[]
-  outputType: string
-}> = ({ trial, directions, names, widgets, outputType }) => {
+  formWidgets: FormWidgets
+}> = ({ trial, directions, names, formWidgets }) => {
   const theme = useTheme()
   const getMetricName = (i: number): string => {
-    if (outputType == "objective") {
+    if (formWidgets.output_type == "objective") {
       const n = names.at(i)
       if (n !== undefined) {
         return n
@@ -277,8 +278,8 @@ export const ReadonlyObjectiveForm: FC<{
       } else {
         return `Objective ${i}`
       }
-    } else if (outputType == "user_attr") {
-      return widgets[i].user_attr_key as string
+    } else if (formWidgets.output_type == "user_attr") {
+      return formWidgets.widgets[i].user_attr_key as string
     }
     return "Unkown metric name"
   }
@@ -300,7 +301,7 @@ export const ReadonlyObjectiveForm: FC<{
             p: theme.spacing(1),
           }}
         >
-          {widgets.map((widget, i) => {
+          {formWidgets.widgets.map((widget, i) => {
             const key = `objective-${i}`
             if (widget.type === "text") {
               return (

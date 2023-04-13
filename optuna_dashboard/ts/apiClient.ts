@@ -67,7 +67,7 @@ interface StudyDetailResponse {
   has_intermediate_values: boolean
   note: Note
   objective_names?: string[]
-  objective_form_widgets?: FormWidgets
+  form_widgets?: FormWidgets
 }
 
 export const getStudyDetailAPI = (
@@ -100,7 +100,7 @@ export const getStudyDetailAPI = (
         has_intermediate_values: res.data.has_intermediate_values,
         note: res.data.note,
         objective_names: res.data.objective_names,
-        objective_form_widgets: res.data.objective_form_widgets,
+        form_widgets: res.data.form_widgets,
       }
     })
 }
