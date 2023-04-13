@@ -146,6 +146,7 @@ const plotIntermediateValue = (
       title: "Step",
       type: "linear",
     },
+    uirevision: 'true',
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
   if (trials.length === 0) {

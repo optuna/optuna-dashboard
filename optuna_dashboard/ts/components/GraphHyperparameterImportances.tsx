@@ -82,6 +82,7 @@ const plotParamImportancesBeta = (
     barmode: "group",
     bargap: 0.15,
     bargroupgap: 0.1,
+    uirevision: 'true',
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 

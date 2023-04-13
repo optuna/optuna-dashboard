@@ -144,6 +144,7 @@ const plotCoordinate = (
       b: 100,
     },
     template: mode === "dark" ? plotlyDarkTemplate : {},
+    uirevision: 'true',
   }
   if (trials.length === 0 || targets.length === 0) {
     plotly.react(plotDomId, [], layout)

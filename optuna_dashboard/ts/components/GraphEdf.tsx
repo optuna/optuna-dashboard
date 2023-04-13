@@ -131,6 +131,7 @@ const plotEdf = (
       r: 50,
       b: 50,
     },
+    uirevision: 'true',
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 

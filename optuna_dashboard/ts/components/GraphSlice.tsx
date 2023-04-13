@@ -177,6 +177,7 @@ const plotSlice = (
       automargin: true,
     },
     showlegend: false,
+    uirevision: 'true',
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
   if (
