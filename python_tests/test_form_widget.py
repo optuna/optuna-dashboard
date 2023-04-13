@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+from typing import Any
+from typing import cast
+from typing import Dict
 from unittest import TestCase
 
 from optuna_dashboard import ChoiceWidget
@@ -7,11 +10,12 @@ from optuna_dashboard import dict_to_form_widget
 from optuna_dashboard import ObjectiveUserAttrRef
 from optuna_dashboard import SliderWidget
 from optuna_dashboard import TextInputWidget
+from optuna_dashboard._form_widget import ObjectiveFormWidget
 
 
 class FormWidgetsTestCase(TestCase):
     def test_widget_to_dict_from_dict(self) -> None:
-        widgets = [
+        widgets: list[ObjectiveFormWidget] = [
             ChoiceWidget(choices=["Good", "Bad"], values=[1, -1]),
             ChoiceWidget(
                 choices=["Good", "Bad"],
@@ -35,6 +39,6 @@ class FormWidgetsTestCase(TestCase):
 
         for i, widget in enumerate(widgets):
             with self.subTest(f"{widget.__class__}-{i}"):
-                d = widget.to_dict()
+                d = cast(Dict[str, Any], widget.to_dict())
                 restored = dict_to_form_widget(d)
                 assert widget == restored
