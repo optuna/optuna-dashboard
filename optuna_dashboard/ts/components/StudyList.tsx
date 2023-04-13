@@ -212,12 +212,22 @@ export const StudyList: FC<{
       >
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
+            <Typography
+              variant="h5"
+              style={{ paddingBottom: theme.spacing(1) }}
+            >
+              Announcement
+            </Typography>
             <Typography>
-              {`We would appreciate your feedback on the new dashboard UI. Click `}
+              {`Please go to `}
               <Link to={`${URL_PREFIX}/beta`} style={{ color: linkColor }}>
-                here
+                our experimental new UI page
               </Link>
-              {" to try it out and share your thoughts with us."}
+              {" and share your thoughts with us via "}
+              <Link to={`${URL_PREFIX}/beta`} style={{ color: linkColor }}>
+                the GitHub Discussion's post
+              </Link>
+              {"."}
             </Typography>
           </CardContent>
         </Card>
