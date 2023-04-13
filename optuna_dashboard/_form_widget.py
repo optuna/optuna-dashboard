@@ -46,10 +46,7 @@ if TYPE_CHECKING:
         "TextInputWidgetJSON",
         {"type": Literal["text"], "description": Optional[str], "user_attr_key": Optional[str]},
     )
-    UserAttrRefJSON = TypedDict(
-        "UserAttrRefJSON",
-        {"type": Literal["user_attr"], "key": str, "user_attr_key": Optional[str]},
-    )
+    UserAttrRefJSON = TypedDict("UserAttrRefJSON", {"type": Literal["user_attr"], "key": str})
     FormWidgetJSON = TypedDict(
         "FormWidgetJSON",
         {
@@ -156,8 +153,6 @@ class ObjectiveUserAttrRef:
         return {
             "type": "user_attr",
             "key": self.key,
-            # Set 'user_attr_key' to simplify the frontend source code.
-            "user_attr_key": self.key,
         }
 
     @classmethod
@@ -202,7 +197,9 @@ def register_objective_form_widgets(
 ) -> None:
     if len(study.directions) != len(widgets):
         raise ValueError("The length of actions must be the same with the number of objectives.")
-    if any(not isinstance(w, ObjectiveUserAttrRef) and w.user_attr_key is not None for w in widgets):
+    if any(
+        not isinstance(w, ObjectiveUserAttrRef) and w.user_attr_key is not None for w in widgets
+    ):
         warnings.warn("`user_attr_key` specified, but it will not be used.")
     form_widgets: FormWidgetJSON = {
         "output_type": "objective",
@@ -218,7 +215,7 @@ def register_user_attr_form_widgets(
     widget_dicts: list[Union[ChoiceWidgetJSON, SliderWidgetJSON, TextInputWidgetJSON]] = []
     for w in widgets:
         if isinstance(w, ObjectiveUserAttrRef):
-            raise ValueError("ObjectiveUserAttrRef can't be specified in register_user_attr_form_widgets.")
+            raise ValueError("ObjectiveUserAttrRef can't be specified.")
         if w.user_attr_key is None:
             raise ValueError("`user_attr_key` is not specified.")
         user_attr_keys.add(w.user_attr_key)
