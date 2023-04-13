@@ -232,6 +232,7 @@ const plotHistory = (
       type: xAxis === "number" ? "linear" : "date",
     },
     showlegend: true,
+    uirevision: "true",
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
   if (trials.length === 0) {
