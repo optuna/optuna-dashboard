@@ -60,12 +60,23 @@ export const StudyDetailBeta: FC<{
   }, [])
 
   useEffect(() => {
-    if (reloadInterval < 0 || page === "trialTable") {
+    if (reloadInterval < 0) {
       return
     }
+    const nTrials = studyDetail ? studyDetail.trials.length : 0
+    let interval = reloadInterval * 1000
+
+    // For Human-in-the-loop Optimization, the interval is set to 2 seconds
+    // when the number of trials is small and the page is "trialList".
+    if (page === "trialList" && nTrials < 100) {
+      interval = 2000
+    } else if (page === "trialList" && nTrials < 500) {
+      interval = 5000
+    }
+
     const intervalId = setInterval(function () {
       action.updateStudyDetail(studyId)
-    }, reloadInterval * 1000)
+    }, interval)
     return () => clearInterval(intervalId)
   }, [reloadInterval, studyDetail, page])
 
