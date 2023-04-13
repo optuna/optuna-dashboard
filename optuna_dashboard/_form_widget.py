@@ -115,7 +115,7 @@ class SliderWidget:
         assert d.get("type") == "slider"
         labels = d.get("labels")
         if labels is not None:
-            labels = [(l["value"], l["label"]) for l in labels]
+            labels = [(label["value"], label["label"]) for label in labels]
         return cls(
             description=d.get("description"),
             min=d["min"],
