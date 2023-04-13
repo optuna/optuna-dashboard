@@ -447,6 +447,24 @@ def create_app(
         response.status = 204
         return {}
 
+    @app.post("/api/trials/<trial_id:int>/user-attrs")
+    @json_api_view
+    def save_trial_user_attrs(trial_id: int) -> dict[str, Any]:
+        user_attrs = request.json.get("user_attrs", {})
+        if not user_attrs:
+            response.status = 400  # Bad request
+            return {"reason": "user_attrs must be specified."}
+
+        try:
+            for key, val in user_attrs.items():
+                storage.set_trial_user_attr(trial_id, key, val)
+        except Exception as e:
+            response.status = 500
+            return {"reason": f"Internal server error: {e}"}
+
+        response.status = 204
+        return {}
+
     @app.put("/api/studies/<study_id:int>/<trial_id:int>/note")
     @json_api_view
     def save_trial_note(study_id: int, trial_id: int) -> dict[str, Any]:

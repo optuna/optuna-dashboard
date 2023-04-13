@@ -128,6 +128,7 @@ type StudySummary = {
 type ObjectiveChoiceWidget = {
   type: "choice"
   description: string
+  user_attr_key?: string
   choices: string[]
   values: number[]
 }
@@ -135,6 +136,7 @@ type ObjectiveChoiceWidget = {
 type ObjectiveSliderWidget = {
   type: "slider"
   description: string
+  user_attr_key?: string
   min: number
   max: number
   step: number
@@ -149,18 +151,26 @@ type ObjectiveSliderWidget = {
 type ObjectiveTextInputWidget = {
   type: "text"
   description: string
+  user_attr_key?: string
 }
 
 type ObjectiveUserAttrRef = {
   type: "user_attr"
   key: string
+  user_attr_key?: string
 }
 
+// TODO(kenshin): Rename this type to FormWidget or something.
 type ObjectiveFormWidget =
   | ObjectiveChoiceWidget
   | ObjectiveSliderWidget
   | ObjectiveTextInputWidget
   | ObjectiveUserAttrRef
+
+type FormWidgets = {
+  output_type: "objective" | "user_attr"
+  widgets: ObjectiveFormWidget[]
+}
 
 type StudyDetail = {
   id: number
@@ -175,7 +185,7 @@ type StudyDetail = {
   has_intermediate_values: boolean
   note: Note
   objective_names?: string[]
-  objective_form_widgets?: ObjectiveFormWidget[]
+  form_widgets?: FormWidgets
 }
 
 type StudyDetails = {

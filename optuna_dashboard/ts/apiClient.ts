@@ -67,7 +67,7 @@ interface StudyDetailResponse {
   has_intermediate_values: boolean
   note: Note
   objective_names?: string[]
-  objective_form_widgets?: ObjectiveFormWidget[]
+  form_widgets?: FormWidgets
 }
 
 export const getStudyDetailAPI = (
@@ -100,7 +100,7 @@ export const getStudyDetailAPI = (
         has_intermediate_values: res.data.has_intermediate_values,
         note: res.data.note,
         objective_names: res.data.objective_names,
-        objective_form_widgets: res.data.objective_form_widgets,
+        form_widgets: res.data.form_widgets,
       }
     })
 }
@@ -276,6 +276,19 @@ export const tellTrialAPI = (
 
   return axiosInstance
     .post<void>(`/api/trials/${trialId}/tell`, req)
+    .then((res) => {
+      return
+    })
+}
+
+export const saveTrialUserAttrsAPI = (
+  trialId: number,
+  user_attrs: { [key: string]: number }
+): Promise<void> => {
+  const req = { user_attrs: user_attrs }
+
+  return axiosInstance
+    .post<void>(`/api/trials/${trialId}/user-attrs`, req)
     .then((res) => {
       return
     })
