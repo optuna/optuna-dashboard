@@ -76,6 +76,16 @@ class ChoiceWidget:
             "user_attr_key": self.user_attr_key,
         }
 
+    @classmethod
+    def _from_dict(cls, d: dict[str, Any]) -> ChoiceWidget:
+        assert d.get("type") == "choice"
+        return cls(
+            description=d.get("description"),
+            choices=d["choices"],
+            values=d["values"],
+            user_attr_key=d.get("user_attr_key"),
+        )
+
 
 @dataclass
 class SliderWidget:
@@ -100,6 +110,21 @@ class SliderWidget:
             "user_attr_key": self.user_attr_key,
         }
 
+    @classmethod
+    def _from_dict(cls, d: dict[str, Any]) -> SliderWidget:
+        assert d.get("type") == "slider"
+        labels = d.get("labels")
+        if labels is not None:
+            labels = [(l["value"], l["label"]) for l in labels]
+        return cls(
+            description=d.get("description"),
+            min=d["min"],
+            max=d["max"],
+            step=d.get("step"),
+            labels=labels,
+            user_attr_key=d.get("user_attr_key"),
+        )
+
 
 @dataclass
 class TextInputWidget:
@@ -113,10 +138,19 @@ class TextInputWidget:
             "user_attr_key": self.user_attr_key,
         }
 
+    @classmethod
+    def _from_dict(cls, d: dict[str, Any]) -> TextInputWidget:
+        assert d.get("type") == "text"
+        return cls(
+            description=d.get("description"),
+            user_attr_key=d.get("user_attr_key"),
+        )
+
 
 @dataclass
 class ObjectiveUserAttrRef:
     key: str
+    # TODO(c-bata): Remove this attribute
     user_attr_key: Optional[str] = None
 
     def to_dict(self) -> UserAttrRefJSON:
@@ -126,6 +160,13 @@ class ObjectiveUserAttrRef:
             "user_attr_key": self.user_attr_key,
         }
 
+    @classmethod
+    def _from_dict(cls, d: dict[str, Any]) -> ObjectiveUserAttrRef:
+        assert d.get("type") == "user_attr"
+        return cls(
+            key=d["key"],
+        )
+
 
 ObjectiveFormWidget = Union[ChoiceWidget, SliderWidget, TextInputWidget, ObjectiveUserAttrRef]
 # For backward compatibility.
@@ -133,6 +174,27 @@ ObjectiveChoiceWidget = ChoiceWidget
 ObjectiveSliderWidget = SliderWidget
 ObjectiveTextInputWidget = TextInputWidget
 FORM_WIDGETS_KEY = "dashboard:form_widgets:v2"
+
+
+def dict_to_form_widget(d: dict[str, Any]) -> ObjectiveFormWidget:
+    """Restore form widget objects from the dictionary.
+
+    Args:
+        d: A dictionary object.
+
+    Returns:
+        object: an instance of the restored form widget class.
+    """
+    widget_type = d.get("type", None)
+    if widget_type == "choice":
+        return ChoiceWidget._from_dict(d)
+    elif widget_type == "slider":
+        return SliderWidget._from_dict(d)
+    elif widget_type == "text":
+        return TextInputWidget._from_dict(d)
+    elif widget_type == "user_attr":
+        return ObjectiveUserAttrRef._from_dict(d)
+    raise ValueError("Unexpected widget type")
 
 
 def register_objective_form_widgets(
