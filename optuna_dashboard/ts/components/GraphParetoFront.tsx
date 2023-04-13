@@ -183,7 +183,7 @@ const plotParetoFront = (
       b: 0,
     },
     template: mode === "dark" ? plotlyDarkTemplate : {},
-    uirevision: 'true',
+    uirevision: "true",
   }
 
   const trials: Trial[] = study ? study.trials : []

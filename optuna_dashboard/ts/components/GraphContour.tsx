@@ -230,7 +230,7 @@ const plotContour = (
       r: 50,
       b: 50,
     },
-    uirevision: 'true',
+    uirevision: "true",
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
   plotly.react(plotDomId, plotData, layout)
