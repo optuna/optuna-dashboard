@@ -157,20 +157,28 @@ type ObjectiveTextInputWidget = {
 type ObjectiveUserAttrRef = {
   type: "user_attr"
   key: string
-  user_attr_key?: string
 }
 
-// TODO(kenshin): Rename this type to FormWidget or something.
 type ObjectiveFormWidget =
   | ObjectiveChoiceWidget
   | ObjectiveSliderWidget
   | ObjectiveTextInputWidget
   | ObjectiveUserAttrRef
 
-type FormWidgets = {
-  output_type: "objective" | "user_attr"
-  widgets: ObjectiveFormWidget[]
-}
+type UserAttrFormWidget =
+  | ObjectiveChoiceWidget
+  | ObjectiveSliderWidget
+  | ObjectiveTextInputWidget
+
+type FormWidgets =
+  | {
+      output_type: "objective"
+      widgets: ObjectiveFormWidget[]
+    }
+  | {
+      output_type: "user_attr"
+      widgets: UserAttrFormWidget[]
+    }
 
 type StudyDetail = {
   id: number

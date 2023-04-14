@@ -13,6 +13,7 @@ if TYPE_CHECKING:
     from typing import Any
     from typing import Literal
     from typing import Optional
+    from typing import Sequence
     from typing import TypedDict
 
     ChoiceWidgetJSON = TypedDict(
@@ -45,15 +46,12 @@ if TYPE_CHECKING:
         "TextInputWidgetJSON",
         {"type": Literal["text"], "description": Optional[str], "user_attr_key": Optional[str]},
     )
-    UserAttrRefJSON = TypedDict(
-        "UserAttrRefJSON",
-        {"type": Literal["user_attr"], "key": str, "user_attr_key": Optional[str]},
-    )
+    UserAttrRefJSON = TypedDict("UserAttrRefJSON", {"type": Literal["user_attr"], "key": str})
     FormWidgetJSON = TypedDict(
         "FormWidgetJSON",
         {
             "output_type": Literal["objective", "user_attr"],
-            "widgets": list[
+            "widgets": Sequence[
                 Union[ChoiceWidgetJSON, SliderWidgetJSON, TextInputWidgetJSON, UserAttrRefJSON]
             ],
         },
@@ -150,14 +148,11 @@ class TextInputWidget:
 @dataclass
 class ObjectiveUserAttrRef:
     key: str
-    # TODO(c-bata): Remove this attribute
-    user_attr_key: Optional[str] = None
 
     def to_dict(self) -> UserAttrRefJSON:
         return {
             "type": "user_attr",
             "key": self.key,
-            "user_attr_key": self.user_attr_key,
         }
 
     @classmethod
@@ -202,7 +197,9 @@ def register_objective_form_widgets(
 ) -> None:
     if len(study.directions) != len(widgets):
         raise ValueError("The length of actions must be the same with the number of objectives.")
-    if any(w.user_attr_key is not None for w in widgets):
+    if any(
+        not isinstance(w, ObjectiveUserAttrRef) and w.user_attr_key is not None for w in widgets
+    ):
         warnings.warn("`user_attr_key` specified, but it will not be used.")
     form_widgets: FormWidgetJSON = {
         "output_type": "objective",
@@ -214,13 +211,22 @@ def register_objective_form_widgets(
 def register_user_attr_form_widgets(
     study: optuna.Study, widgets: list[ObjectiveFormWidget]
 ) -> None:
-    if any(w.user_attr_key is None for w in widgets):
-        raise ValueError("`user_attr_key` is not specified.")
-    if len(widgets) != len(set(w.user_attr_key for w in widgets)):
+    user_attr_keys = set()
+    widget_dicts: list[Union[ChoiceWidgetJSON, SliderWidgetJSON, TextInputWidgetJSON]] = []
+    for w in widgets:
+        if isinstance(w, ObjectiveUserAttrRef):
+            raise ValueError("ObjectiveUserAttrRef can't be specified.")
+        if w.user_attr_key is None:
+            raise ValueError("`user_attr_key` is not specified.")
+        user_attr_keys.add(w.user_attr_key)
+        widget_dicts.append(w.to_dict())
+
+    if len(widget_dicts) != len(user_attr_keys):
         raise ValueError("`user_attr_key` must be unique for each widget.")
+
     form_widgets: FormWidgetJSON = {
         "output_type": "user_attr",
-        "widgets": [w.to_dict() for w in widgets],
+        "widgets": widget_dicts,
     }
     study._storage.set_study_system_attr(study._study_id, FORM_WIDGETS_KEY, form_widgets)
 
