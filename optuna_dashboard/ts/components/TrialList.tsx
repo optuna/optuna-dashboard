@@ -259,6 +259,41 @@ const TrialListDetail: FC<{
           <Chip label={"Best Trial"} color="secondary" variant="outlined" />
         ) : null}
       </Box>
+        <Typography
+            variant="h5"
+            sx={{
+                fontWeight: theme.typography.fontWeightBold,
+                marginBottom: theme.spacing(1),
+            }}
+        >
+            Note
+        </Typography>
+        <TrialNote
+            studyId={trial.study_id}
+            trialId={trial.trial_id}
+            latestNote={trial.note}
+            cardSx={{ marginBottom: theme.spacing(2) }}
+        />
+        {trial.state === "Running" &&
+            directions.length > 0 &&
+            formWidgets !== undefined && (
+                <ObjectiveForm
+                    trial={trial}
+                    directions={directions}
+                    names={objectiveNames}
+                    formWidgets={formWidgets}
+                />
+            )}
+        {trial.state === "Complete" &&
+            directions.length > 0 &&
+            formWidgets !== undefined && (
+                <ReadonlyObjectiveForm
+                    trial={trial}
+                    directions={directions}
+                    names={objectiveNames}
+                    formWidgets={formWidgets}
+                />
+            )}
       <Box
         sx={{
           marginBottom: theme.spacing(2),
@@ -270,41 +305,6 @@ const TrialListDetail: FC<{
           value !== null ? renderInfo(key, value) : null
         )}
       </Box>
-      <Typography
-        variant="h5"
-        sx={{
-          fontWeight: theme.typography.fontWeightBold,
-          marginBottom: theme.spacing(1),
-        }}
-      >
-        Note
-      </Typography>
-      <TrialNote
-        studyId={trial.study_id}
-        trialId={trial.trial_id}
-        latestNote={trial.note}
-        cardSx={{ marginBottom: theme.spacing(2) }}
-      />
-      {trial.state === "Running" &&
-        directions.length > 0 &&
-        formWidgets !== undefined && (
-          <ObjectiveForm
-            trial={trial}
-            directions={directions}
-            names={objectiveNames}
-            formWidgets={formWidgets}
-          />
-        )}
-      {trial.state === "Complete" &&
-        directions.length > 0 &&
-        formWidgets !== undefined && (
-          <ReadonlyObjectiveForm
-            trial={trial}
-            directions={directions}
-            names={objectiveNames}
-            formWidgets={formWidgets}
-          />
-        )}
       {artifactEnabled && <TrialArtifact trial={trial} />}
     </Box>
   )
@@ -316,6 +316,9 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
   const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
     useDeleteArtifactDialog()
   const [dragOver, setDragOver] = useState<boolean>(false)
+
+  const width = "200px"
+  const height = "150px"
 
   const inputRef = useRef<HTMLInputElement>(null)
   const handleClick: MouseEventHandler = (e) => {
@@ -368,13 +371,13 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                 key={a.artifact_id}
                 sx={{
                   marginBottom: theme.spacing(2),
-                  width: "280px",
+                  width: width,
                   margin: theme.spacing(0, 1, 1, 0),
                 }}
               >
                 <CardMedia
                   component="img"
-                  height="210"
+                  height={height}
                   image={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
                   alt={a.filename}
                 />
@@ -431,7 +434,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                   marginBottom: theme.spacing(2),
                   display: "flex",
                   flexDirection: "column",
-                  width: "280px",
+                  width: width,
                   minHeight: "100%",
                   margin: theme.spacing(0, 1, 1, 0),
                 }}
@@ -503,7 +506,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                   marginBottom: theme.spacing(2),
                   display: "flex",
                   flexDirection: "column",
-                  width: "280px",
+                  width: width,
                   minHeight: "100%",
                   margin: theme.spacing(0, 1, 1, 0),
                 }}
@@ -567,8 +570,8 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
         <Card
           sx={{
             marginBottom: theme.spacing(2),
-            width: "280px",
-            minHeight: "210px",
+            width: width,
+            minHeight: height,
             margin: theme.spacing(0, 1, 1, 0),
             border: dragOver
               ? `3px dashed ${
