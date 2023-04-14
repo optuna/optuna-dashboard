@@ -259,41 +259,41 @@ const TrialListDetail: FC<{
           <Chip label={"Best Trial"} color="secondary" variant="outlined" />
         ) : null}
       </Box>
-        <Typography
-            variant="h5"
-            sx={{
-                fontWeight: theme.typography.fontWeightBold,
-                marginBottom: theme.spacing(1),
-            }}
-        >
-            Note
-        </Typography>
-        <TrialNote
-            studyId={trial.study_id}
-            trialId={trial.trial_id}
-            latestNote={trial.note}
-            cardSx={{ marginBottom: theme.spacing(2) }}
-        />
-        {trial.state === "Running" &&
-            directions.length > 0 &&
-            formWidgets !== undefined && (
-                <ObjectiveForm
-                    trial={trial}
-                    directions={directions}
-                    names={objectiveNames}
-                    formWidgets={formWidgets}
-                />
-            )}
-        {trial.state === "Complete" &&
-            directions.length > 0 &&
-            formWidgets !== undefined && (
-                <ReadonlyObjectiveForm
-                    trial={trial}
-                    directions={directions}
-                    names={objectiveNames}
-                    formWidgets={formWidgets}
-                />
-            )}
+      <Typography
+        variant="h5"
+        sx={{
+          fontWeight: theme.typography.fontWeightBold,
+          marginBottom: theme.spacing(1),
+        }}
+      >
+        Note
+      </Typography>
+      <TrialNote
+        studyId={trial.study_id}
+        trialId={trial.trial_id}
+        latestNote={trial.note}
+        cardSx={{ marginBottom: theme.spacing(2) }}
+      />
+      {trial.state === "Running" &&
+        directions.length > 0 &&
+        formWidgets !== undefined && (
+          <ObjectiveForm
+            trial={trial}
+            directions={directions}
+            names={objectiveNames}
+            formWidgets={formWidgets}
+          />
+        )}
+      {trial.state === "Complete" &&
+        directions.length > 0 &&
+        formWidgets !== undefined && (
+          <ReadonlyObjectiveForm
+            trial={trial}
+            directions={directions}
+            names={objectiveNames}
+            formWidgets={formWidgets}
+          />
+        )}
       <Box
         sx={{
           marginBottom: theme.spacing(2),
