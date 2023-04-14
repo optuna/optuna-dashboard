@@ -32,7 +32,7 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import remarkMath from "remark-math"
 import rehypeMathjax from "rehype-mathjax"
-import rehypeRaw from "rehype-raw";
+import rehypeRaw from "rehype-raw"
 import LoadingButton from "@mui/lab/LoadingButton"
 import SaveIcon from "@mui/icons-material/Save"
 import CloseIcon from "@mui/icons-material/Close"
