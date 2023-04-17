@@ -158,9 +158,18 @@ def create_new_study(
     return study_id
 
 
-def get_trials(storage: BaseStorage, study_id: int, ttl_seconds: int = 10) -> list[FrozenTrial]:
+def get_trials(storage: BaseStorage, study_id: int) -> list[FrozenTrial]:
     with trials_cache_lock:
         trials = trials_cache.get(study_id, None)
+
+        # Not a big fan of the heuristic, but I can't think of anything better.
+        if trials is None or len(trials) < 100:
+            ttl_seconds = 2
+        elif len(trials) < 500:
+            ttl_seconds = 5
+        else:
+            ttl_seconds = 10
+
         last_fetched_at = trials_last_fetched_at.get(study_id, None)
         if (
             trials is not None
@@ -440,6 +449,24 @@ def create_app(
 
         try:
             storage.set_trial_state_values(trial_id, state, values)
+        except Exception as e:
+            response.status = 500
+            return {"reason": f"Internal server error: {e}"}
+
+        response.status = 204
+        return {}
+
+    @app.post("/api/trials/<trial_id:int>/user-attrs")
+    @json_api_view
+    def save_trial_user_attrs(trial_id: int) -> dict[str, Any]:
+        user_attrs = request.json.get("user_attrs", {})
+        if not user_attrs:
+            response.status = 400  # Bad request
+            return {"reason": "user_attrs must be specified."}
+
+        try:
+            for key, val in user_attrs.items():
+                storage.set_trial_user_attr(trial_id, key, val)
         except Exception as e:
             response.status = 500
             return {"reason": f"Internal server error: {e}"}

@@ -23,9 +23,10 @@ Human-in-the-loop
    :nosignatures:
 
    optuna_dashboard.register_objective_form_widgets
-   optuna_dashboard.ObjectiveChoiceWidget
-   optuna_dashboard.ObjectiveSliderWidget
-   optuna_dashboard.ObjectiveTextInputWidget
+   optuna_dashboard.dict_to_form_widget
+   optuna_dashboard.ChoiceWidget
+   optuna_dashboard.SliderWidget
+   optuna_dashboard.TextInputWidget
    optuna_dashboard.ObjectiveUserAttrRef
 
 Artifact
