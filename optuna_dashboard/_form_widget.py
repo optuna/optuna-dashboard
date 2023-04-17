@@ -60,12 +60,34 @@ if TYPE_CHECKING:
 
 @dataclass
 class ChoiceWidget:
+    """A widget representing a choice with associated values.
+
+    Attributes:
+        choices: A list of strings representing the available choices.
+        values: A list of float values associated with each choice.
+        description: A description of the widget. Defaults to None.
+        user_attr_key: The key used by `register_user_attr_form_widgets`.
+            Form output is saved as `trial.user_attrs[user_attr_key]`. Defaults to None.
+
+    Example:
+        .. code-block:: python
+
+            choice_widget = ChoiceWidget(
+                choices=["A", "B", "C"], values=[1.0, 2.0, 3.0], description="Choose one"
+            )
+    """
+
     choices: list[str]
     values: list[float]
     description: Optional[str] = None
     user_attr_key: Optional[str] = None
 
     def to_dict(self) -> ChoiceWidgetJSON:
+        """Convert the ChoiceWidget object to a dictionary.
+
+        Returns:
+            ChoiceWidgetJSON: A dictionary representing the ChoiceWidget object.
+        """
         return {
             "type": "choice",
             "description": self.description,
