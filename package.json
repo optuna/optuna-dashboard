@@ -31,6 +31,7 @@
     "react-syntax-highlighter": "^15.5.0",
     "recoil": "^0.7.6",
     "rehype-mathjax": "^4.0.2",
+    "rehype-raw": "^6.1.1",
     "remark-gfm": "^3.0.1",
     "remark-math": "^5.1.1"
   },
