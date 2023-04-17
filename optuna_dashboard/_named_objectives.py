@@ -29,10 +29,10 @@ def set_objective_names(study: optuna.Study, names: list[str]) -> None:
     """
 
     if hasattr(study, "set_metric_names"):
-        # TODO(c-bata): List this warning on errors.rst in docs.
         warnings.warn(
             "`set_objective_names()` function is deprecated."
-            "Please use `study.set_metric_names([...])` instead.",
+            " Please use `study.set_metric_names()` instead."
+            " See https://optuna-dashboard.readthedocs.io/en/latest/errors.html for details.",
             category=FutureWarning,
         )
         study.set_metric_names(names)
