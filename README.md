@@ -43,7 +43,7 @@ Listening on http://localhost:8080/
 Hit Ctrl-C to quit.
 ```
 
-Please check out [our documentation](https://optuna-dashboard.readthedocs.io) for more details.
+Please check out [our documentation](https://optuna-dashboard.readthedocs.io/en/latest/getting-started.html) for more details.
 
 ## Using an official Docker image
 
