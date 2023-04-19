@@ -1,0 +1,251 @@
+Tutorial: Human-in-the-loop Optimization
+========================================
+
+In tasks involving image generation, natural language, or speech synthesis, evaluating results mechanically can be tough, and human evaluation becomes crucial. Until now, managing such tasks with Optuna has been challenging. However, the introduction of Optuna Dashboard enables humans and optimization algorithms to work interactively and execute the optimization process.
+
+In this tutorial, we will explain how to optimize hyperparameters to generate a simple image  using Optuna Dashboard. While the tutorial focuses on a simple task, the same approach can be applied to for instance optimize more complex images, natural language, and speech.
+
+The tutorial is organized as follows:
+
+* What is human-in-the-loop optimization?
+* Main tutorial
+
+  * Theme
+  * System architecture
+  * Steps
+  * Script explanation
+
+What is human-in-the-loop optimization?
+---------------------------------------
+
+Human-in-the-loop (HITL) is a concept where humans play a role in machine learning or artificial intelligence systems. In HITL optimization in particular, humans are part of the optimization process. This is useful when it's difficult for machines to evaluate the results and human evaluation is crucial. In such cases, humans will assess the results instead.
+
+Generally, HITL optimization involves the following steps:
+
+1. An optimization algorithm suggests hyperparameters
+2. An output is computed given the hyperparameters
+3. An evaluator (human) evaluates the output
+
+Steps 1 to 3 are repeated to find the best hyperparameters.
+
+HITL optimization is valuable in areas where human judgment is essential, like art and design, since it's hard for machines to evaluate the output. For instance, it can optimize images created by generative models or improve cooking methods and ingredients for foods like coffee.
+
+Main tutorial
+-------------
+
+Theme
+~~~~~
+
+In this tutorial, we will interactively optimize RGB values between 0 and 255 to generate a color that the user perceives as the "color of the sunset." If someone already knows the RGB hyperparameter characteristics for their ideal "color of the sunset," they can specify those values directly. However, even without knowing such characteristics, interactive optimization allows us to find good hyperparameters. Although the task is simple, this serves as a practical introduction to human-in-the-loop optimization, and can be applied to image generation, natural language generation, speech synthesis, and more.
+
+.. image:: ./images/hitl2.jpeg
+    :width: 45%
+
+.. image:: ./images/hitl3.jpeg
+    :width: 45%
+
+To implement HITL optimization, you need a way to interactively execute the optimization process, typically through a user interface (UI) or other means. Usually, users would have to implement their own, but with Optuna Dashboard, everything is already set up for you. This is a major advantage of using Optuna Dashboard for this purpose.
+
+System architecture
+~~~~~~~~~~~~~~~~~~~
+
+The system architecture for this tutorial’s example is as follows:
+
+In HITL optimization using Optuna Dashboard, there are primarily the following components:
+
+1. Evaluator (human) who evaluates the outputs
+2. Optuna Dashboard for displaying the outputs and making evaluations
+3. Database and File Storage to store the experiment’s data (Study)
+4. Script that samples hyperparameters from Optuna and generates outputs
+
+Our script repeatedly performs these steps:
+1. Monitor the Study's state to maintain a constant number of Trials in progress (Running).
+2. Sample hyperparameters using the optimization algorithm and generate RGB images.
+3. Upload the generated RGB images to the Artifact Store.
+
+Additionally, the evaluator, Optuna Dashboard, and Optuna perform the following processes:
+
+a. Optuna Dashboard retrieves the RGB images uploaded to the Artifact Store
+b. Optuna Dashboard displays the retrieved RGB images to the evaluator
+c. The evaluator reviews the displayed RGB images
+d. The evaluator inputs their evaluation of how close the displayed image is to the "color of the sunset" into the Optuna Dashboard
+e. Optuna Dashboard saves the evaluation results in the database
+
+In the example of this tutorial, processes 1-3 and a-e are executed in parallel.
+
+Steps
+~~~~~
+
+Given the above system, we carry out HITL optimization as follows:
+
+1. Environment setup
+2. Execution of the HITL optimization script
+3. Launching Optuna Dashboard
+4. Interactively performing HITL optimization
+
+Environment setup
+^^^^^^^^^^^^^^^^^
+
+To run the script used in this tutorial, you need to install two libraries:
+
+.. code-block:: console
+
+    $ pip install optuna-dashboard pillow
+
+
+You will use SQLite for the storage backend in this tutorial. Ensure that the following library is installed:
+
+* `SQLite <https://sqlite.org/index.html>`_
+
+Execution of the HITL optimization script
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Use this command to launch Optuna Dashboard in a separate process.
+
+.. code-block:: console
+
+    $ python main.py
+
+In the main.py script, the storage is set to "sqlite:///db.sqlite3" to persist Optuna's trial history. To store the artifacts, --artifact-dir ./artifact is specified.
+
+.. code-block:: console
+
+    Listening on http://127.0.0.1:8080/
+    Hit Ctrl-C to quit.
+
+When you run the script, you will see a message like the one above. Open `http://127.0.0.1:8080/dashboard/beta` in your browser.
+
+Interactive HITL optimization
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You will see the main screen.
+
+In this example, a study is created with the name "Human-in-the-loop Optimization." Click on it. You will be directed to the page related to that study.
+
+Click the third item in the sidebar. You will see a list of all trials.
+
+For each trial, you can see its details such as RGB parameter values and importantly, the generated image based on these values. 
+
+.. image:: ./images/hitl11.gif
+    :width: 90%
+
+Let's evaluate some of the images. For the first image, which is far from the "color of the sunset," we rated it as "Bad." For the next image, which is somewhat closer to the "color of the sunset," we rated it as "So-so." Continue this evaluation process for several trials. After evaluating about 30 trials, we should see an improvement.
+
+We can review the progress of the HITL optimization through graphs and other visualizations.
+
+By looking at the History plot, you can see that colors gradually get closer to the "color of the sunset".
+
+Additionally, by looking at the Parallel Coordinate plot, you can get an insight into the relationship between the evaluation and each hyperparameter.
+
+Various other plots are available. Try exploring.
+
+Script explanation
+~~~~~~~~~~~~~~~~~~
+
+Let’s walk through the script we used for the optimization.
+
+.. code-block:: python
+    :linenos:
+
+    url = "sqlite:///db.sqlite3"      
+    storage = optuna.storages.RDBStorage(url=url)                                            
+    artifact_path = os.path.join(os.path.dirname(__file__), "artifact")
+    tmp_path = os.path.join(os.path.dirname(__file__), "tmp")                           
+    artifact_backend = FileSystemBackend(base_path=artifact_path)
+
+First, the locations of the Optuna Storage and Artifact Store are set. Optuna Storage is the place where the information of the Study is stored. The Artifact Store is a place for storing artifacts (data, files, etc.) for the Optuna Dashboard. In this case, it is used as a storage location for the RGB images.
+
+* At Line 2, Optuna's RDBStorage is created. This storage is used to store the trial results of Optuna in a database. RDBStorage supports various relational databases (RDBs), but in this code, SQLite3 is used. The URL "sqlite:///db.sqlite3" indicates the location of the SQLite3 database file. This database file is used to store the trial history of Optuna. The results of the HITL optimization will be saved in this file.
+* At Line 5, the FileSystemBackend is created, which is one of the Artifact Storage options used in the Optuna Dashboard. Artifact Storage is used to store artifacts (data, files, etc.) generated during Optuna trials. For more information, please refer to the API Reference.
+
+.. code-block:: python
+    :linenos:
+
+    def suggest_and_generate_image(study: optuna.Study) -> None:
+        # Ask new parameters                                                                 
+        trial = study.ask()
+        r = trial.suggest_int("r", 0, 255)
+        g = trial.suggest_int("g", 0, 255)
+        b = trial.suggest_int("b", 0, 255)
+    
+        # Generate image
+        image_path = f"tmp/sample-{trial.number}.png"
+        image = Image.new("RGB", (320, 240), color=(r, g, b))
+        image.save(image_path)
+    
+        # Upload Artifact
+        artifact_id = upload_artifact(artifact_backend, trial, image_path)
+        artifact_path = get_artifact_path(trial, artifact_id)
+    
+        # Save Note
+        note = textwrap.dedent(
+            f"""\
+        ## Trial {trial.number}
+    
+        ![generated-image]({artifact_path})
+        """
+        )
+        save_note(trial, note)
+
+In the suggest_and_generate_image function, a new Trial is obtained and new hyperparameters are suggested for that Trial. Based on those hyperparameters, an RGB image is generated as an artifact. The generated image is then uploaded to the Artifact Storage of the Optuna Dashboard, and the image is also displayed in the Dashboard's Note. For more information on how to use the Note feature, please refer to the API Reference.
+
+.. code-block:: python
+    :linenos:
+
+    def start_preferential_optimization() -> NoReturn:
+        # Create Study
+        seed = 42
+        sampler = optuna.samplers.TPESampler(constant_liar=True, seed=seed)
+        study = optuna.create_study(
+            study_name="Human-in-the-loop Optimization",
+            storage=storage,
+            sampler=sampler,
+            load_if_exists=True,
+        )
+        set_objective_names(study, ["Looks like sunset color?"])
+        register_objective_form_widgets(
+            study,
+            widgets=[
+                ChoiceWidget(
+                    choices=["Good 👍", "So-so👌", "Bad 👎"],
+                    values=[-1, 0, 1],
+                    description="Please input your score!",
+                ),
+            ],
+        )
+    
+        # Start Preferential Optimization
+        n_batch = 8
+        while True:
+            running_trials = study.get_trials(deepcopy=False, states=(TrialState.RUNNING,))
+            if len(running_trials) >= n_batch:
+                time.sleep(1)
+                continue
+            suggest_and_generate_image(study)
+
+
+The function start_preferential_optimization defines our loop for HITL optimization to generate an image resembling a sunset color.
+
+* First, at Line. 4, a Study of Optuna is created using TPESampler. Setting load_if_exists=True allows a Study to exist and be reused and the experiment to be resumed if it has already been created. The reason for setting constant_liar=True in TPESampler is to prevent similar hyperparameters from being sampled even if the trial is executed several times simultaneously (in this example, eight times).
+* At Line. 11, the name of the objective that the ChoiceWidget targets is set using the set_objective_names function. In this case, the name "Looks like sunset color?" is set.
+* At Line. 15-19, the ChoiceWidget is registered using the register_objective_form_widgets function. This widget is used to ask users for evaluation to find the optimal hyperparameters. In this case, there are three options: "Good 👍", "So-so👌", and "Bad 👎", each with an evaluation value of -1, 0, and 1, respectively. Note that Optuna minimizes objective values by default, so -1 is Good. Other widgets for evaluation are also available, so please refer to the API Reference for details.
+* At Line. 25-30, the suggest_and_generate_image function is used to generate an RGB image. Here, the number of currently running (TrialState.RUNNING) trials is periodically checked to ensure that eight trials are running simultaneously. The reason why trials are executed in batches like this is that it generally may take a long time to obtain results from trial execution. By performing batch parallel processing, time waiting for the next results can be reduced. In this case, because generating the images is instant, it’s not necessary, but demonstrates practices.
+
+.. code-block:: python
+    :linenos:
+
+    def main() -> NoReturn:
+        if not os.path.exists(artifact_path):
+            os.mkdir(artifact_path)
+    
+        if not os.path.exists(tmp_path):
+            os.mkdir(tmp_path)
+    
+        # Run optimize loop
+        start_preferential_optimization()
+    
+    
+    if __name__ == "__main__":
+        main()
+
+In the main function, two folders are created, artifact and tmp, and then start_preferential_optimization function is called to start the HITL optimization using Optuna.

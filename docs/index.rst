@@ -9,12 +9,13 @@ Optuna Dashboard
 Real-time dashboard for `Optuna <https://github.com/optuna/optuna>`_.
 
 .. toctree::
-   :maxdepth: 3
+   :maxdepth: 2
    :caption: Contents:
 
    getting-started
    api
    errors
+   tutorials/index
 
 
 Links
