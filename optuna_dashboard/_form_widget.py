@@ -7,6 +7,8 @@ from typing import Union
 import warnings
 
 import optuna
+from optuna.version import __version__ as optuna_ver
+from packaging import version
 
 
 if TYPE_CHECKING:
@@ -330,6 +332,15 @@ def register_objective_form_widgets(
                 ],
             )
     """
+    if version.parse(optuna_ver) < version.Version("3.2") and isinstance(
+        study._storage, optuna.storages._CachedStorage
+    ):
+        warnings.warn(
+            "Human-in-the-loop optimization will not work with _CachedStorage in Optuna prior"
+            " to v3.2. See https://optuna-dashboard.readthedocs.io/en/latest/errors.html"
+            " for details."
+        )
+
     if len(study.directions) != len(widgets):
         raise ValueError("The length of actions must be the same with the number of objectives.")
     if any(
@@ -387,6 +398,15 @@ def register_user_attr_form_widgets(
                 ],
             )
     """
+    if version.parse(optuna_ver) < version.Version("3.2") and isinstance(
+        study._storage, optuna.storages._CachedStorage
+    ):
+        warnings.warn(
+            "Human-in-the-loop optimization will not work with _CachedStorage in Optuna prior"
+            " to v3.2. See https://optuna-dashboard.readthedocs.io/en/latest/errors.html"
+            " for details."
+        )
+
     user_attr_keys = set()
     widget_dicts: list[Union[ChoiceWidgetJSON, SliderWidgetJSON, TextInputWidgetJSON]] = []
     for w in widgets:

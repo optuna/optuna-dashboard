@@ -12,8 +12,9 @@ Real-time dashboard for `Optuna <https://github.com/optuna/optuna>`_.
    :maxdepth: 3
    :caption: Contents:
 
-   installation
+   getting-started
    api
+   errors
 
 
 Links

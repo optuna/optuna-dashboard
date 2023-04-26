@@ -14,12 +14,6 @@ You can install optuna-dashboard via [PyPI](https://pypi.org/project/optuna-dash
 $ pip install optuna-dashboard
 ```
 
-Also, you can install following optional dependencies to make optuna-dashboard faster.
-
-```console
-$ pip install optuna-fast-fanova gunicorn
-```
-
 ## Getting Started
 
 First, please specify the storage URL to persistent your study using the [RDB backend](https://optuna.readthedocs.io/en/stable/tutorial/20_recipes/001_rdb.html).
@@ -49,56 +43,7 @@ Listening on http://localhost:8080/
 Hit Ctrl-C to quit.
 ```
 
-<details>
-
-<summary>More command line options</summary>
-
-```console
-$ optuna-dashboard -h
-usage: optuna-dashboard [-h] [--port PORT] [--host HOST] [--version] [--quiet] storage
-
-Real-time dashboard for Optuna.
-
-positional arguments:
-  storage        DB URL (e.g. sqlite:///example.db)
-
-optional arguments:
-  -h, --help            show this help message and exit
-  --port PORT           port number (default: 8080)
-  --host HOST           hostname (default: 127.0.0.1)
-  --server {wsgiref,gunicorn}
-                        server (default: auto)
-  --artifact-dir ARTIFACT_DIR
-                        directory to store artifact files
-  --version, -v         show program's version number and exit
-  --quiet, -q           quiet
-```
-
-</details>
-
-<details>
-
-<summary>Python Interface</summary>
-
-**`run_server(storage: Union[str, BaseStorage], host: str = 'localhost', port: int = 8080) -> None`**
-
-Start running optuna-dashboard and blocks until the server terminates.
-This function uses wsgiref module which is not intended for the production use.
-
-**`wsgi(storage: Union[str, BaseStorage]) -> WSGIApplication`**
-
-This function exposes WSGI interface for people who want to run on the
-production-class WSGI servers like Gunicorn or uWSGI.
-
-**`save_note(study_or_trial: Union[Study, Trial], body: str) -> None`**
-
-Save the note (Markdown format) to the Study or the Trial.
-
-**`set_objective_names(study: Study, names: list[str]) -> None`**
-
-Set the names of objectives.
-
-</details>
+Please check out [our documentation](https://optuna-dashboard.readthedocs.io/en/latest/getting-started.html) for more details.
 
 ## Using an official Docker image
 
