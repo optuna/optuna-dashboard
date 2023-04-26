@@ -224,8 +224,8 @@ class TextInputWidget:
 class ObjectiveUserAttrRef:
     """
     A class representing a reference to a value of `trial.user_attrs`.
-    When combined with `register_objective_form_widgets`, users can tell values that are registered to
-    `trial.user_attrs` during the human-in-the-loop optimization.
+    When combined with `register_objective_form_widgets`, users can tell values that are
+    registered to `trial.user_attrs` during the human-in-the-loop optimization.
 
     Args:
         key: The key of `trial.user_attrs` being referenced.
