@@ -291,6 +291,45 @@ def dict_to_form_widget(d: dict[str, Any]) -> ObjectiveFormWidget:
 def register_objective_form_widgets(
     study: optuna.Study, widgets: list[ObjectiveFormWidget]
 ) -> None:
+    """
+    Register a list of form widgets to an Optuna study.
+
+    Submitted values to the forms are told as each trial's objective values.
+
+    Args:
+        study: The Optuna study object to register the form widgets for.
+        widgets: A list of ObjectiveFormWidget objects to be registered in the study.
+
+    Raises:
+        ValueError: If the length of study directions is not equal to the length of widgets.
+        Warning: If any widget has `user_attr_key` specified, but it will not be used.
+
+    Examples:
+        .. code-block:: python
+
+            import optuna
+            from optuna_dashboard import ChoiceWidget, SliderWidget
+            from optuna_dashboard import register_objective_form_widgets
+
+
+            study = optuna.create_study()
+            register_objective_form_widgets(
+                study,
+                widgets=[
+                    ObjectiveChoiceWidget(
+                        choices=["Good 👍", "Bad 👎"],
+                        values=[-1, 1],
+                        description="Please input your score!",
+                    ),
+                    ObjectiveSliderWidget(
+                        min=1,
+                        max=10,
+                        step=1,
+                        description="Higher is better.",
+                    ),
+                ],
+            )
+    """
     if len(study.directions) != len(widgets):
         raise ValueError("The length of actions must be the same with the number of objectives.")
     if any(
@@ -307,6 +346,47 @@ def register_objective_form_widgets(
 def register_user_attr_form_widgets(
     study: optuna.Study, widgets: list[ObjectiveFormWidget]
 ) -> None:
+    """
+    Register a list of form widgets to an Optuna study.
+
+    Submitted values to the forms are registered as each trial's user_attrs.
+
+    Args:
+        study: The Optuna study object to register the form widgets for.
+        widgets: A list of ObjectiveFormWidget objects to be registered in the study.
+
+    Raises:
+        ValueError: If an ObjectiveUserAttrRef is specified or if `user_attr_key` is not specified.
+        ValueError: If `user_attr_key` is not unique for each widget.
+
+    Examples:
+        .. code-block:: python
+
+            import optuna
+            from optuna_dashboard import ChoiceWidget, SliderWidget
+            from optuna_dashboard import register_user_attr_form_widgets
+
+
+            study = optuna.create_study()
+            register_user_attr_form_widgets(
+                study,
+                widgets=[
+                    ChoiceWidget(
+                        choices=["Good 👍", "Bad 👎"],
+                        values=[-1, 1],
+                        description="Please input your score!",
+                        user_attr_key="hitl/choice",
+                    ),
+                    SliderWidget(
+                        min=1,
+                        max=10,
+                        step=1,
+                        description="Higher is better.",
+                        user_attr_key="hitl/slider",
+                    ),
+                ],
+            )
+    """
     user_attr_keys = set()
     widget_dicts: list[Union[ChoiceWidgetJSON, SliderWidgetJSON, TextInputWidgetJSON]] = []
     for w in widgets:
