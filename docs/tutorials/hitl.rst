@@ -61,6 +61,8 @@ In HITL optimization using Optuna Dashboard, there are primarily the following c
 3. Database and File Storage to store the experiment’s data (Study)
 4. Script that samples hyperparameters from Optuna and generates outputs
 
+The DB is the place where the information of the Study is stored. The Artifact Store is a place for storing artifacts (data, files, etc.) for the Optuna Dashboard. In this case, it is used as a storage location for the RGB images.
+
 .. image:: ./images/hitl5.png
 
 Our script repeatedly performs these steps:
@@ -177,7 +179,7 @@ Let’s walk through the script we used for the optimization.
     tmp_path = os.path.join(os.path.dirname(__file__), "tmp")                           
     artifact_backend = FileSystemBackend(base_path=artifact_path)
 
-First, the locations of the Optuna Storage and Artifact Store are set. Optuna Storage is the place where the information of the Study is stored. The Artifact Store is a place for storing artifacts (data, files, etc.) for the Optuna Dashboard. In this case, it is used as a storage location for the RGB images.
+The locations of the Optuna Storage and Artifact Store are set. 
 
 * At Line 2, Optuna's RDBStorage is created. This storage is used to store the trial results of Optuna in a database. RDBStorage supports various relational databases (RDBs), but in this code, SQLite3 is used. The URL "sqlite:///db.sqlite3" indicates the location of the SQLite3 database file. This database file is used to store the trial history of Optuna. The results of the HITL optimization will be saved in this file.
 * At Line 5, the FileSystemBackend is created, which is one of the Artifact Storage options used in the Optuna Dashboard. Artifact Storage is used to store artifacts (data, files, etc.) generated during Optuna trials. For more information, please refer to the API Reference.
