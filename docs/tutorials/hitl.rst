@@ -96,7 +96,7 @@ Given the above system, we carry out HITL optimization as follows:
 Environment setup
 ^^^^^^^^^^^^^^^^^
 
-To run `the script <https://github.com/optuna/optuna-dashboard/blob/main/optuna_dashboard/__init__.py>`_ used in this tutorial, you need to install two libraries:
+To run `the script <https://github.com/optuna/optuna-dashboard/blob/main/examples/hitl/main.py>`_ used in this tutorial, you need to install two libraries:
 
 .. code-block:: console
 
