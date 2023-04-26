@@ -27,7 +27,7 @@ Generally, HITL optimization involves the following steps:
 1. An output is computed given the hyperparameters suggested by an optimization algorithm
 2. An evaluator (human) evaluates the output
 
-Steps 1 to 3 are repeated to find the best hyperparameters.
+Steps 1 to 2 are repeated to find the best hyperparameters.
 
 HITL optimization is valuable in areas where human judgment is essential, like art and design, since it's hard for machines to evaluate the output. For instance, it can optimize images created by generative models or improve cooking methods and ingredients for foods like coffee.
 
