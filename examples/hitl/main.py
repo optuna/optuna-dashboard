@@ -3,14 +3,15 @@ import textwrap
 from typing import NoReturn
 
 import optuna
-from PIL import Image
 from optuna.trial import TrialState
-
-from optuna_dashboard import ObjectiveChoiceWidget, save_note
+from optuna_dashboard import ObjectiveChoiceWidget
 from optuna_dashboard import register_objective_form_widgets
+from optuna_dashboard import save_note
 from optuna_dashboard import set_objective_names
-from optuna_dashboard.artifact import get_artifact_path, upload_artifact
+from optuna_dashboard.artifact import get_artifact_path
+from optuna_dashboard.artifact import upload_artifact
 from optuna_dashboard.artifact.file_system import FileSystemBackend
+from PIL import Image
 
 
 def suggest_and_generate_image(study: optuna.Study, artifact_backend: FileSystemBackend) -> None:
