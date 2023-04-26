@@ -1,6 +1,8 @@
 Tutorial: Human-in-the-loop Optimization
 ========================================
 
+.. image:: ./images/hitl1.png
+
 In tasks involving image generation, natural language, or speech synthesis, evaluating results mechanically can be tough, and human evaluation becomes crucial. Until now, managing such tasks with Optuna has been challenging. However, the introduction of Optuna Dashboard enables humans and optimization algorithms to work interactively and execute the optimization process.
 
 In this tutorial, we will explain how to optimize hyperparameters to generate a simple image  using Optuna Dashboard. While the tutorial focuses on a simple task, the same approach can be applied to for instance optimize more complex images, natural language, and speech.
@@ -22,9 +24,8 @@ Human-in-the-loop (HITL) is a concept where humans play a role in machine learni
 
 Generally, HITL optimization involves the following steps:
 
-1. An optimization algorithm suggests hyperparameters
-2. An output is computed given the hyperparameters
-3. An evaluator (human) evaluates the output
+1. An output is computed given the hyperparameters suggested by an optimization algorithm
+2. An evaluator (human) evaluates the output
 
 Steps 1 to 3 are repeated to find the best hyperparameters.
 
@@ -51,6 +52,8 @@ System architecture
 
 The system architecture for this tutorial’s example is as follows:
 
+.. image:: ./images/hitl4.png
+
 In HITL optimization using Optuna Dashboard, there are primarily the following components:
 
 1. Evaluator (human) who evaluates the outputs
@@ -58,10 +61,15 @@ In HITL optimization using Optuna Dashboard, there are primarily the following c
 3. Database and File Storage to store the experiment’s data (Study)
 4. Script that samples hyperparameters from Optuna and generates outputs
 
+.. image:: ./images/hitl5.png
+
 Our script repeatedly performs these steps:
+
 1. Monitor the Study's state to maintain a constant number of Trials in progress (Running).
 2. Sample hyperparameters using the optimization algorithm and generate RGB images.
 3. Upload the generated RGB images to the Artifact Store.
+
+.. image:: ./images/hitl6.png
 
 Additionally, the evaluator, Optuna Dashboard, and Optuna perform the following processes:
 
@@ -118,11 +126,19 @@ When you run the script, you will see a message like the one above. Open `http:/
 Interactive HITL optimization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. image:: ./images/hitl7.png
+
 You will see the main screen.
+
+.. image:: ./images/hitl8.png
 
 In this example, a study is created with the name "Human-in-the-loop Optimization." Click on it. You will be directed to the page related to that study.
 
+.. image:: ./images/hitl9.png
+
 Click the third item in the sidebar. You will see a list of all trials.
+
+.. image:: ./images/hitl10.png
 
 For each trial, you can see its details such as RGB parameter values and importantly, the generated image based on these values. 
 
@@ -133,7 +149,15 @@ Let's evaluate some of the images. For the first image, which is far from the "c
 
 We can review the progress of the HITL optimization through graphs and other visualizations.
 
+.. image:: ./images/hitl12.png
+
+Also, this image is an array of images up to 30 trials. The best ones are surrounded by thick lines.
+
+.. image:: ./images/hitl13.png
+
 By looking at the History plot, you can see that colors gradually get closer to the "color of the sunset".
+
+.. image:: ./images/hitl14.png
 
 Additionally, by looking at the Parallel Coordinate plot, you can get an insight into the relationship between the evaluation and each hyperparameter.
 
