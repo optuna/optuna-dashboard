@@ -4,7 +4,7 @@ from typing import NoReturn
 
 import optuna
 from optuna.trial import TrialState
-from optuna_dashboard import ObjectiveChoiceWidget
+from optuna_dashboard import ChoiceWidget
 from optuna_dashboard import register_objective_form_widgets
 from optuna_dashboard import save_note
 from optuna_dashboard import set_objective_names
@@ -41,7 +41,7 @@ def suggest_and_generate_image(study: optuna.Study, artifact_backend: FileSystem
     save_note(trial, note)
 
 
-def start_preferential_optimization(
+def start_optimization(
     storage: optuna.storages.BaseStorage, artifact_backend: FileSystemBackend
 ) -> NoReturn:
     # 1. Create Study
@@ -60,7 +60,7 @@ def start_preferential_optimization(
     register_objective_form_widgets(
         study,
         widgets=[
-            ObjectiveChoiceWidget(
+            ChoiceWidget(
                 choices=["Good 👍", "So-so👌", "Bad 👎"],
                 values=[-1, 0, 1],
                 description="Please input your score!",
@@ -68,7 +68,7 @@ def start_preferential_optimization(
         ],
     )
 
-    # 4. Start Preferential Optimization
+    # 4. Start Human-in-the-loop Optimization
     n_batch = 4
     while True:
         running_trials = study.get_trials(deepcopy=False, states=(TrialState.RUNNING,))
@@ -95,7 +95,7 @@ def main() -> NoReturn:
         os.mkdir(tmp_path)
 
     # 3. Run optimize loop
-    start_preferential_optimization(storage, artifact_backend)
+    start_optimization(storage, artifact_backend)
 
 
 if __name__ == "__main__":
