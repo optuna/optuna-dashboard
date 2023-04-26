@@ -38,3 +38,4 @@ Artifact
 
    optuna_dashboard.artifact.upload_artifact
    optuna_dashboard.artifact.file_system.FileSystemBackend
+   optuna_dashboard.artifact.boto3.Boto3Backend
