@@ -62,7 +62,7 @@ if TYPE_CHECKING:
 class ChoiceWidget:
     """A widget representing a choice with associated values.
 
-    Attributes:
+    Args:
         choices: A list of strings representing the available choices.
         values: A list of float values associated with each choice.
         description: A description of the widget. Defaults to None.
@@ -109,6 +109,23 @@ class ChoiceWidget:
 
 @dataclass
 class SliderWidget:
+    """A widget representing a slider for selecting a value within a range.
+
+    Args:
+        min: The minimum value of the slider.
+        max: The maximum value of the slider.
+        step: The step size for the slider. Defaults to None.
+        labels: A list of tuples containing value and label for the slider. Defaults to None.
+        description: A description for the slider. Defaults to None.
+        user_attr_key: The key used by `register_user_attr_form_widgets`.
+            Form output is saved as `trial.user_attrs[user_attr_key]`. Defaults to None.
+
+    Example:
+        .. code-block:: python
+
+            slide_widget = SliderWidget(min=0, max=10, step=1, description="Example slider")
+    """
+
     min: float
     max: float
     step: Optional[float] = None
@@ -117,6 +134,11 @@ class SliderWidget:
     user_attr_key: Optional[str] = None
 
     def to_dict(self) -> SliderWidgetJSON:
+        """Convert the SliderWidget instance to a dictionary.
+
+        Returns:
+            SliderWidgetJSON: A dictionary representation of the SliderWidget instance.
+        """
         labels: Optional[list[SliderWidgetLabel]] = None
         if self.labels is not None:
             labels = [{"value": value, "label": label} for value, label in self.labels]
@@ -148,10 +170,30 @@ class SliderWidget:
 
 @dataclass
 class TextInputWidget:
+    """
+    A text input widget class that defines a text input field.
+
+    Args:
+        description: A description of the text input field.
+        user_attr_key: The key used by `register_user_attr_form_widgets`.
+            Form output is saved as `trial.user_attrs[user_attr_key]`. Defaults to None.
+
+    Example:
+        .. code-block:: python
+
+            text_input = TextInputWidget(description="Text Input Example")
+    """
+
     description: Optional[str] = None
     user_attr_key: Optional[str] = None
 
     def to_dict(self) -> TextInputWidgetJSON:
+        """
+        Converts the TextInputWidget instance to a dictionary representation.
+
+        Returns:
+            TextInputWidgetJSON: The dictionary representation of the TextInputWidget instance.
+        """
         return {
             "type": "text",
             "description": self.description,
@@ -169,9 +211,29 @@ class TextInputWidget:
 
 @dataclass
 class ObjectiveUserAttrRef:
+    """
+    A class representing a reference to a value of `trial.user_attrs`.
+    When combined with `register_objective_form_widgets`, users can tell values that are registered to
+    `trial.user_attrs` during the human-in-the-loop optimization.
+
+    Args:
+        key: The key of `trial.user_attrs` being referenced.
+
+    Example:
+        .. code-block:: python
+
+            user_attr_ref = ObjectiveUserAttrRef(key="key")
+    """
+
     key: str
 
     def to_dict(self) -> UserAttrRefJSON:
+        """
+        Converts the ObjectiveUserAttrRef instance to a dictionary representation.
+
+        Returns:
+            UserAttrRefJSON: The dictionary representation of the ObjectiveUserAttrRef instance.
+        """
         return {
             "type": "user_attr",
             "key": self.key,
