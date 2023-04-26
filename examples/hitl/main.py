@@ -1,6 +1,5 @@
 import os
 import textwrap
-import time
 from typing import NoReturn
 
 import optuna
@@ -94,7 +93,7 @@ def main() -> NoReturn:
     if not os.path.exists(tmp_path):
         os.mkdir(tmp_path)
 
-    # Run optimize loop
+    # 3. Run optimize loop
     start_preferential_optimization(storage, artifact_backend)
 
 
