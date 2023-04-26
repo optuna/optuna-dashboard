@@ -72,6 +72,9 @@ class ChoiceWidget:
     Example:
         .. code-block:: python
 
+            from optuna_dashboard import ChoiceWidget
+
+
             choice_widget = ChoiceWidget(
                 choices=["A", "B", "C"], values=[1.0, 2.0, 3.0], description="Choose one"
             )
@@ -122,6 +125,9 @@ class SliderWidget:
 
     Example:
         .. code-block:: python
+
+            from optuna_dashboard import SliderWidget
+
 
             slide_widget = SliderWidget(min=0, max=10, step=1, description="Example slider")
     """
@@ -181,6 +187,9 @@ class TextInputWidget:
     Example:
         .. code-block:: python
 
+            from optuna_dashboard import TextInputWidget
+
+
             text_input = TextInputWidget(description="Text Input Example")
     """
 
@@ -221,6 +230,9 @@ class ObjectiveUserAttrRef:
 
     Example:
         .. code-block:: python
+
+            from optuna_dashboard import ObjectiveUserAttrRef
+
 
             user_attr_ref = ObjectiveUserAttrRef(key="key")
     """
