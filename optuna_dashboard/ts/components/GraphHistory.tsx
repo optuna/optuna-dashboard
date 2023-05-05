@@ -224,6 +224,7 @@ export const GraphHistoryMultiStudies: FC<{
   const [filterCompleteTrial, setFilterCompleteTrial] = useState<boolean>(false)
   const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
 
+  // TODO(umezawa): Prepare targets with all studies.
   const [targets, selected, setTarget] = useObjectiveAndUserAttrTargets(
     studies.length !== 0 ? studies[0] : null
   )

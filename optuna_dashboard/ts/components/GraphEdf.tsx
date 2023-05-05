@@ -111,7 +111,7 @@ export const GraphEdf: FC<{
   )
 }
 
-export const GraphEdfMultStudies: FC<{
+export const GraphEdfMultiStudies: FC<{
   studies: StudyDetail[]
 }> = ({ studies }) => {
   const theme = useTheme()
