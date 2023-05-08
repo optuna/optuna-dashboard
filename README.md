@@ -1,6 +1,8 @@
 # optuna-dashboard
 
-![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square) [![PyPI - Downloads](https://img.shields.io/pypi/dm/optuna-dashboard)](https://pypistats.org/packages/optuna-dashboard)
+![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/optuna-dashboard)](https://pypistats.org/packages/optuna-dashboard)
+[![Read the Docs](https://readthedocs.org/projects/optuna-dashboard/badge/?version=latest)](https://optuna-dashboard.readthedocs.io/en/latest/?badge=latest)
 
 
 Real-time dashboard for [Optuna](https://github.com/optuna/optuna).
