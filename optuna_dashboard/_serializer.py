@@ -91,6 +91,8 @@ def serialize_attrs(attrs: dict[str, Any]) -> list[Attribute]:
         value: str
         if isinstance(v, bytes):
             value = "<binary object>"
+        elif isinstance(v, str):
+            value = v
         else:
             value = json.dumps(v)
             value = value[:MAX_ATTR_LENGTH] if len(value) > MAX_ATTR_LENGTH else value

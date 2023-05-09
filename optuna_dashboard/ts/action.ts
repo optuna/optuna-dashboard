@@ -531,7 +531,6 @@ export const actionCreator = () => {
     trialId: number,
     user_attrs: { [key: string]: string | number }
   ): void => {
-    console.log("user_attrs", user_attrs)
     const message = `id=${trialId}, user_attrs=${JSON.stringify(user_attrs)}`
     saveTrialUserAttrsAPI(trialId, user_attrs)
       .then(() => {

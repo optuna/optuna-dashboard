@@ -24,31 +24,35 @@ export const ObjectiveForm: FC<{
 }> = ({ trial, directions, names, formWidgets }) => {
   const theme = useTheme()
   const action = actionCreator()
-  const [values, setValues] = useState<(number | string | null)[]>(
+  const [values, setValues] = useState<(number | string)[]>(
     formWidgets.widgets.map((widget) => {
-      if (widget === undefined) {
-        return null
-      } else if (widget.type === "text") {
+      if (widget.type === "text") {
         return ""
       } else if (widget.type === "choice") {
-        return widget.values.at(0) || null
+        const value = widget.values.at(0)
+        if (value === undefined) {
+          console.error("Must not reach ehere")
+          return 0
+        }
+        return value
       } else if (widget.type === "slider") {
         return widget.min
       } else if (widget.type === "user_attr") {
         const attr = trial.user_attrs.find((attr) => attr.key == widget.key)
         if (attr === undefined) {
-          return null
+          return 0
         } else {
           const n = Number(attr.value)
-          return isNaN(n) ? null : n
+          return isNaN(n) ? 0 : n
         }
       } else {
-        return null
+        console.error("Must not reach here")
+        return ""
       }
     })
   )
 
-  const setValue = (objectiveId: number, value: number | null) => {
+  const setValue = (objectiveId: number, value: number | string) => {
     const newValues = [...values]
     if (newValues.length <= objectiveId) {
       return
@@ -58,13 +62,18 @@ export const ObjectiveForm: FC<{
   }
 
   const disableSubmit = useMemo<boolean>(
-    () => values.findIndex((v, i) => {
+    () =>
+      values.findIndex((v, i) => {
         const w = formWidgets.widgets[i]
-        if (formWidgets.output_type === "user_attr" && w.type === "text" && w.optional) {
-            return false
+        if (
+          formWidgets.output_type === "user_attr" &&
+          w.type === "text" &&
+          w.optional
+        ) {
+          return false
         }
         return v === null
-    }) >= 0,
+      }) >= 0,
     [values, formWidgets]
   )
 
@@ -104,13 +113,20 @@ export const ObjectiveForm: FC<{
     return "Unkown metric name"
   }
 
+  const headerText =
+    formWidgets.output_type === "user_attr"
+      ? "Set User Attributes Form"
+      : directions.length > 1
+      ? "Set Objective Values Form"
+      : "Set Objective Value Form"
+
   return (
     <>
       <Typography
         variant="h5"
         sx={{ fontWeight: theme.typography.fontWeightBold }}
       >
-        {directions.length > 1 ? "Set Objective Values" : "Set Objective Value"}
+        {headerText}
       </Typography>
       <Box sx={{ p: theme.spacing(1, 0) }}>
         <Card
@@ -123,40 +139,20 @@ export const ObjectiveForm: FC<{
           }}
         >
           {formWidgets.widgets.map((widget, i) => {
-            const value = values.at(i)
+            const value = values.at(i) || ""
             const key = `objective-${i}`
             if (widget.type === "text") {
               return (
-                <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
-                  <FormLabel>
-                    {getMetricName(i)} - {widget.description}
-                  </FormLabel>
-                  <DebouncedInputTextField
-                    onChange={(s, valid) => {
-                      const n = Number(s)
-                      if (s.length > 0 && valid && !isNaN(n)) {
-                        setValue(i, n)
-                        return
-                      } else if (values.at(i) !== null) {
-                        setValue(i, null)
-                      }
-                    }}
-                    delay={500}
-                    textFieldProps={{
-                      required: !widget.optional,
-                      autoFocus: true,
-                      fullWidth: true,
-                      helperText:
-                        !widget.optional && (value === null || value === undefined)
-                          ? `Please input the float number.`
-                          : "",
-                      type: "text",
-                      inputProps: formWidgets.output_type === "user_attr" ? undefined : {
-                        pattern: "[-+]?[0-9]*.?[0-9]+([eE][-+]?[0-9]+)?",
-                      },
-                    }}
-                  />
-                </FormControl>
+                <TextInputWidget
+                  key={key}
+                  metricName={getMetricName(i)}
+                  widget={widget}
+                  widgetType={formWidgets.output_type}
+                  setValue={(value) => {
+                    setValue(i, value)
+                  }}
+                  value={value}
+                />
               )
             } else if (widget.type === "choice") {
               return (
@@ -173,11 +169,11 @@ export const ObjectiveForm: FC<{
                             checked={value === widget.values.at(j)}
                             onChange={(e) => {
                               const selected = widget.values.at(j)
+                              if (selected === undefined) {
+                                console.error("Must not reach here.")
+                              }
                               if (e.target.checked) {
-                                setValue(
-                                  i,
-                                  selected === undefined ? null : selected
-                                )
+                                setValue(i, selected || 0)
                               }
                             }}
                           />
@@ -266,6 +262,56 @@ export const ObjectiveForm: FC<{
   )
 }
 
+const TextInputWidget: FC<{
+  widget: ObjectiveTextInputWidget
+  widgetType: "user_attr" | "objective"
+  metricName: string
+  value: number | string
+  setValue: (value: number | string) => void
+}> = ({ widget, widgetType, metricName, value, setValue }) => {
+  const theme = useTheme()
+  const inputProps =
+    widgetType === "objective"
+      ? {
+          pattern: "[-+]?[0-9]*.?[0-9]+([eE][-+]?[0-9]+)?",
+        }
+      : undefined
+  const helperText =
+    !widget.optional && value === "" ? `Please input the float number.` : ""
+
+  return (
+    <FormControl sx={{ margin: theme.spacing(1, 2) }}>
+      <FormLabel>
+        {metricName} - {widget.description}
+      </FormLabel>
+      <DebouncedInputTextField
+        onChange={(s, valid) => {
+          if (widgetType === "user_attr") {
+            setValue(s)
+            return
+          }
+
+          const n = Number(s)
+          if (s.length > 0 && valid && !isNaN(n)) {
+            setValue(n)
+          } else if (value === "") {
+            setValue("")
+          }
+        }}
+        delay={500}
+        textFieldProps={{
+          type: "text",
+          autoFocus: true,
+          fullWidth: true,
+          required: !widget.optional,
+          helperText,
+          inputProps,
+        }}
+      />
+    </FormControl>
+  )
+}
+
 export const ReadonlyObjectiveForm: FC<{
   trial: Trial
   directions: StudyDirection[]
@@ -289,6 +335,23 @@ export const ReadonlyObjectiveForm: FC<{
     }
     return "Unkown metric name"
   }
+
+  const getValue = (i: number): string | TrialValueNumber => {
+    if (formWidgets.output_type === "user_attr") {
+      const widget = formWidgets.widgets[i] as UserAttrFormWidget
+      return (
+        trial.user_attrs.find((attr) => attr.key === widget.user_attr_key)
+          ?.value || ""
+      )
+    }
+    const value = trial.values?.at(i)
+    if (value === undefined) {
+      console.error("Must not reach here.")
+      return 0
+    }
+    return value
+  }
+
   return (
     <>
       <Typography
@@ -317,7 +380,7 @@ export const ReadonlyObjectiveForm: FC<{
                   </FormLabel>
                   <TextField
                     inputProps={{ readOnly: true }}
-                    value={trial.values?.at(i)}
+                    value={getValue(i)}
                   />
                 </FormControl>
               )
