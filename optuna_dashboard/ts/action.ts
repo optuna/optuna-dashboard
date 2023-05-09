@@ -23,6 +23,7 @@ import {
   isFileUploading,
   artifactIsAvailable,
   reloadIntervalState,
+  trialsUpdatingState,
 } from "./state"
 import { getDominatedTrials } from "./dominatedTrials"
 
@@ -45,6 +46,7 @@ export const actionCreator = () => {
   const [paramImportance, setParamImportance] =
     useRecoilState<StudyParamImportance>(paramImportanceState)
   const setUploading = useSetRecoilState<boolean>(isFileUploading)
+  const setTrialsUpdating = useSetRecoilState(trialsUpdatingState)
   const setArtifactIsAvailable = useSetRecoilState<boolean>(artifactIsAvailable)
 
   const setStudyDetailState = (studyId: number, study: StudyDetail) => {
@@ -59,6 +61,13 @@ export const actionCreator = () => {
     const newStudy: StudyDetail = Object.assign({}, studyDetails[studyId])
     newStudy.trials = newTrials
     setStudyDetailState(studyId, newStudy)
+  }
+  const setTrialUpdating = (trialId: number, updating: boolean) => {
+    setTrialsUpdating((prev) => {
+      const newVal = Object.assign({}, prev)
+      newVal[trialId] = updating
+      return newVal
+    })
   }
 
   const setTrialNote = (studyId: number, index: number, note: Note) => {
@@ -467,6 +476,7 @@ export const actionCreator = () => {
 
   const makeTrialFail = (studyId: number, trialId: number): void => {
     const message = `id=${trialId}, state=Fail`
+    setTrialUpdating(trialId, true)
     tellTrialAPI(trialId, "Fail")
       .then(() => {
         const index = studyDetails[studyId].trials.findIndex(
@@ -484,6 +494,7 @@ export const actionCreator = () => {
         })
       })
       .catch((err) => {
+        setTrialUpdating(trialId, false)
         const reason = err.response?.data.reason
         enqueueSnackbar(
           `Failed to update trial (${message}). Reason: ${reason}`,
@@ -501,6 +512,7 @@ export const actionCreator = () => {
     values: number[]
   ): void => {
     const message = `id=${trialId}, state=Complete, values=${values}`
+    setTrialUpdating(trialId, true)
     tellTrialAPI(trialId, "Complete", values)
       .then(() => {
         const index = studyDetails[studyId].trials.findIndex(
@@ -515,6 +527,7 @@ export const actionCreator = () => {
         setTrialStateValues(studyId, index, "Complete", values)
       })
       .catch((err) => {
+        setTrialUpdating(trialId, false)
         const reason = err.response?.data.reason
         enqueueSnackbar(
           `Failed to update trial (${message}). Reason: ${reason}`,
@@ -532,6 +545,7 @@ export const actionCreator = () => {
     user_attrs: { [key: string]: string | number }
   ): void => {
     const message = `id=${trialId}, user_attrs=${JSON.stringify(user_attrs)}`
+    setTrialUpdating(trialId, true)
     saveTrialUserAttrsAPI(trialId, user_attrs)
       .then(() => {
         const index = studyDetails[studyId].trials.findIndex(
@@ -549,6 +563,7 @@ export const actionCreator = () => {
         })
       })
       .catch((err) => {
+        setTrialUpdating(trialId, false)
         const reason = err.response?.data.reason
         enqueueSnackbar(
           `Failed to update trial (${message}). Reason: ${reason}`,

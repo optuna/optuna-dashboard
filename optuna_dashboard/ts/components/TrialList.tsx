@@ -39,7 +39,7 @@ import { TrialNote } from "./Note"
 import { useHistory, useLocation } from "react-router-dom"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useRecoilValue } from "recoil"
-import { artifactIsAvailable } from "../state"
+import { artifactIsAvailable, useTrialUpdatingValue } from "../state"
 import { actionCreator } from "../action"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
 import { ObjectiveForm, ReadonlyObjectiveForm } from "./ObjectiveForm"
@@ -147,6 +147,7 @@ const TrialListDetail: FC<{
 }> = ({ trial, isBestTrial, directions, objectiveNames, formWidgets }) => {
   const theme = useTheme()
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
+  const formWidgetLoading = useTrialUpdatingValue(trial.trial_id)
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
 
@@ -275,6 +276,7 @@ const TrialListDetail: FC<{
         cardSx={{ marginBottom: theme.spacing(2) }}
       />
       {trial.state === "Running" &&
+        !formWidgetLoading &&
         directions.length > 0 &&
         formWidgets !== undefined && (
           <ObjectiveForm
@@ -284,7 +286,7 @@ const TrialListDetail: FC<{
             formWidgets={formWidgets}
           />
         )}
-      {trial.state === "Complete" &&
+      {(trial.state === "Complete" || formWidgetLoading) &&
         directions.length > 0 &&
         formWidgets !== undefined && (
           <ReadonlyObjectiveForm

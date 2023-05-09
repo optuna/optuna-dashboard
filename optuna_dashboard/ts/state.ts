@@ -10,6 +10,13 @@ export const studyDetailsState = atom<StudyDetails>({
   default: {},
 })
 
+export const trialsUpdatingState = atom<{
+  [trialId: string]: boolean
+}>({
+  key: "trialsUpdating",
+  default: {},
+})
+
 export const paramImportanceState = atom<StudyParamImportance>({
   key: "paramImportance",
   default: {},
@@ -57,6 +64,11 @@ export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
 export const useStudySummaryValue = (studyId: number): StudySummary | null => {
   const studySummaries = useRecoilValue<StudySummary[]>(studySummariesState)
   return studySummaries.find((s) => s.study_id == studyId) || null
+}
+
+export const useTrialUpdatingValue = (trialId: number): boolean => {
+  const updating = useRecoilValue(trialsUpdatingState)
+  return updating[trialId] || false
 }
 
 export const useParamImportanceValue = (
