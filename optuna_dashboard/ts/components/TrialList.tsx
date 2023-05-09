@@ -39,10 +39,10 @@ import { TrialNote } from "./Note"
 import { useHistory, useLocation } from "react-router-dom"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useRecoilValue } from "recoil"
-import { artifactIsAvailable, useTrialUpdatingValue } from "../state"
+import { artifactIsAvailable } from "../state"
 import { actionCreator } from "../action"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
-import { ObjectiveForm, ReadonlyObjectiveForm } from "./ObjectiveForm"
+import { TrialFormWidgets } from "./TrialFormWidgets"
 
 const states: TrialState[] = [
   "Complete",
@@ -147,7 +147,6 @@ const TrialListDetail: FC<{
 }> = ({ trial, isBestTrial, directions, objectiveNames, formWidgets }) => {
   const theme = useTheme()
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
-  const formWidgetLoading = useTrialUpdatingValue(trial.trial_id)
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
 
@@ -275,27 +274,14 @@ const TrialListDetail: FC<{
         latestNote={trial.note}
         cardSx={{ marginBottom: theme.spacing(2) }}
       />
-      {trial.state === "Running" &&
-        !formWidgetLoading &&
-        directions.length > 0 &&
-        formWidgets !== undefined && (
-          <ObjectiveForm
-            trial={trial}
-            directions={directions}
-            names={objectiveNames}
-            formWidgets={formWidgets}
-          />
-        )}
-      {(trial.state === "Complete" || formWidgetLoading) &&
-        directions.length > 0 &&
-        formWidgets !== undefined && (
-          <ReadonlyObjectiveForm
-            trial={trial}
-            directions={directions}
-            names={objectiveNames}
-            formWidgets={formWidgets}
-          />
-        )}
+      {formWidgets !== undefined && (
+        <TrialFormWidgets
+          trial={trial}
+          directions={directions}
+          objectiveNames={objectiveNames}
+          formWidgets={formWidgets}
+        />
+      )}
       <Box
         sx={{
           marginBottom: theme.spacing(2),
