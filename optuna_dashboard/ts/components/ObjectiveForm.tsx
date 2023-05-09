@@ -24,12 +24,12 @@ export const ObjectiveForm: FC<{
 }> = ({ trial, directions, names, formWidgets }) => {
   const theme = useTheme()
   const action = actionCreator()
-  const [values, setValues] = useState<(number | null)[]>(
+  const [values, setValues] = useState<(number | string | null)[]>(
     formWidgets.widgets.map((widget) => {
       if (widget === undefined) {
         return null
       } else if (widget.type === "text") {
-        return null
+        return ""
       } else if (widget.type === "choice") {
         return widget.values.at(0) || null
       } else if (widget.type === "slider") {
@@ -58,8 +58,14 @@ export const ObjectiveForm: FC<{
   }
 
   const disableSubmit = useMemo<boolean>(
-    () => values.findIndex((v) => v === null) >= 0,
-    [values]
+    () => values.findIndex((v, i) => {
+        const w = formWidgets.widgets[i]
+        if (formWidgets.output_type === "user_attr" && w.type === "text" && w.optional) {
+            return false
+        }
+        return v === null
+    }) >= 0,
+    [values, formWidgets]
   )
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>): void => {
@@ -74,7 +80,7 @@ export const ObjectiveForm: FC<{
       const user_attrs = Object.fromEntries(
         formWidgets.widgets.map((widget, i) => [
           widget.user_attr_key,
-          values[i],
+          values[i] !== null ? values[i] : "",
         ])
       )
       action.saveTrialUserAttrs(trial.study_id, trial.trial_id, user_attrs)
@@ -137,15 +143,15 @@ export const ObjectiveForm: FC<{
                     }}
                     delay={500}
                     textFieldProps={{
-                      required: true,
+                      required: !widget.optional,
                       autoFocus: true,
                       fullWidth: true,
                       helperText:
-                        value === null || value === undefined
+                        !widget.optional && (value === null || value === undefined)
                           ? `Please input the float number.`
                           : "",
                       type: "text",
-                      inputProps: {
+                      inputProps: formWidgets.output_type === "user_attr" ? undefined : {
                         pattern: "[-+]?[0-9]*.?[0-9]+([eE][-+]?[0-9]+)?",
                       },
                     }}

@@ -151,6 +151,7 @@ type ObjectiveSliderWidget = {
 type ObjectiveTextInputWidget = {
   type: "text"
   description: string
+  optional: boolean
   user_attr_key?: string
 }
 

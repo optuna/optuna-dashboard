@@ -155,7 +155,7 @@ export const actionCreator = () => {
   const setTrialUserAttrs = (
     studyId: number,
     index: number,
-    user_attrs: { [key: string]: number }
+    user_attrs: { [key: string]: number | string }
   ) => {
     const newTrial: Trial = Object.assign(
       {},
@@ -529,7 +529,7 @@ export const actionCreator = () => {
   const saveTrialUserAttrs = (
     studyId: number,
     trialId: number,
-    user_attrs: { [key: string]: number }
+    user_attrs: { [key: string]: string | number }
   ): void => {
     console.log("user_attrs", user_attrs)
     const message = `id=${trialId}, user_attrs=${JSON.stringify(user_attrs)}`
