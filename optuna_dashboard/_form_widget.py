@@ -216,7 +216,7 @@ def register_objective_form_widgets(
     ):
         warnings.warn("`user_attr_key` specified, but it will not be used.")
     if any(
-        isinstance(w, TextInputWidget) and w.optional is False for w in widgets
+        isinstance(w, TextInputWidget) and w.optional for w in widgets
     ):
         raise ValueError("TextInputWidget.optional must be False.")
     form_widgets: FormWidgetJSON = {
