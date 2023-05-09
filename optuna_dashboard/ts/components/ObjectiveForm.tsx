@@ -31,48 +31,19 @@ export const ObjectiveForm: FC<{
   const theme = useTheme()
   const action = actionCreator()
 
-  const getMetricName = (i: number): string => {
-    if (formWidgets.output_type == "objective") {
-      if (names.at(i) !== undefined) {
-        return names[i]
-      }
-      return directions.length == 1 ? "Objective" : `Objective ${i}`
-    } else if (formWidgets.output_type == "user_attr") {
-      const key = formWidgets.widgets.at(i)?.user_attr_key
-      if (key !== undefined) {
-        return key
-      }
-    }
-    console.error("Must not reach here")
-    return "Unknown"
-  }
-
   const widgetStates = formWidgets.widgets
     .map((w, i) => {
       const key = `${formWidgets.output_type}-${i}`
+      const outputType = formWidgets.output_type
+      const metricName = getMetricName(formWidgets, names, directions, i)
       if (w.type === "text") {
-        return useTextInputWidget(
-          key,
-          formWidgets.output_type,
-          w,
-          getMetricName(i)
-        )
+        return useTextInputWidget(key, outputType, w, metricName)
       } else if (w.type === "choice") {
-        return useChoiceWidget(
-          key,
-          formWidgets.output_type,
-          w,
-          getMetricName(i)
-        )
+        return useChoiceWidget(key, outputType, w, metricName)
       } else if (w.type === "slider") {
-        return useSliderWidget(
-          key,
-          formWidgets.output_type,
-          w,
-          getMetricName(i)
-        )
+        return useSliderWidget(key, outputType, w, metricName)
       } else if (w.type === "user_attr") {
-        return useUserAttrRefWidget(key, w, getMetricName(i), trial)
+        return useUserAttrRefWidget(key, w, metricName, trial)
       }
       console.error("Must not reach here")
       return undefined
@@ -345,22 +316,6 @@ export const ReadonlyObjectiveForm: FC<{
   formWidgets: FormWidgets
 }> = ({ trial, directions, names, formWidgets }) => {
   const theme = useTheme()
-  const getMetricName = (i: number): string => {
-    if (formWidgets.output_type == "objective") {
-      if (names.at(i) !== undefined) {
-        return names[i]
-      }
-      return directions.length == 1 ? "Objective" : `Objective ${i}`
-    } else if (formWidgets.output_type == "user_attr") {
-      const key = formWidgets.widgets.at(i)?.user_attr_key
-      if (key !== undefined) {
-        return key
-      }
-    }
-    console.error("Must not reach here")
-    return "Unknown"
-  }
-
   const getValue = (i: number): string | TrialValueNumber => {
     if (formWidgets.output_type === "user_attr") {
       const widget = formWidgets.widgets[i] as UserAttrFormWidget
@@ -397,11 +352,12 @@ export const ReadonlyObjectiveForm: FC<{
         >
           {formWidgets.widgets.map((widget, i) => {
             const key = `objective-${i}`
+            const metricName = getMetricName(formWidgets, names, directions, i)
             if (widget.type === "text") {
               return (
                 <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
                   <FormLabel>
-                    {getMetricName(i)} - {widget.description}
+                    {metricName} - {widget.description}
                   </FormLabel>
                   <TextField
                     inputProps={{ readOnly: true }}
@@ -413,7 +369,7 @@ export const ReadonlyObjectiveForm: FC<{
               return (
                 <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
                   <FormLabel>
-                    {getMetricName(i)} - {widget.description}
+                    {metricName} - {widget.description}
                   </FormLabel>
                   <RadioGroup row defaultValue={trial.values?.at(i)}>
                     {widget.choices.map((c, j) => (
@@ -438,7 +394,7 @@ export const ReadonlyObjectiveForm: FC<{
               return (
                 <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
                   <FormLabel>
-                    {getMetricName(i)} - {widget.description}
+                    {metricName} - {widget.description}
                   </FormLabel>
                   <Box sx={{ padding: theme.spacing(0, 2) }}>
                     <Slider
@@ -462,7 +418,7 @@ export const ReadonlyObjectiveForm: FC<{
             } else if (widget.type === "user_attr") {
               return (
                 <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
-                  <FormLabel>{getMetricName(i)}</FormLabel>
+                  <FormLabel>{metricName}</FormLabel>
                   <TextField
                     inputProps={{ readOnly: true }}
                     value={trial.values?.at(i)}
@@ -477,4 +433,25 @@ export const ReadonlyObjectiveForm: FC<{
       </Box>
     </>
   )
+}
+
+const getMetricName = (
+  formWidgets: FormWidgets,
+  names: string[],
+  directions: StudyDirection[],
+  i: number
+): string => {
+  if (formWidgets.output_type == "objective") {
+    if (names.at(i) !== undefined) {
+      return names[i]
+    }
+    return directions.length == 1 ? "Objective" : `Objective ${i}`
+  } else if (formWidgets.output_type == "user_attr") {
+    const key = formWidgets.widgets.at(i)?.user_attr_key
+    if (key !== undefined) {
+      return key
+    }
+  }
+  console.error("Must not reach here")
+  return "Unknown"
 }
