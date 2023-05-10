@@ -182,9 +182,9 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
 
 
 async def contains_study_name(page: Page, study_name: str) -> bool:
-    h4_elements = await page.querySelectorAll("h4")
-    for element in h4_elements:
-        title = await page.evaluate("(element) => element.textContent", element)
+    typography_elements = await page.querySelectorAll("div.MuiTypography-root")
+    for element in typography_elements:
+        title = await page.evaluate("(element) => element.innerText", element)
         if title == study_name:
             return True
     return False
