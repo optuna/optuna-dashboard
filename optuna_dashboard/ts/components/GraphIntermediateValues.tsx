@@ -1,22 +1,11 @@
 import * as plotly from "plotly.js-dist-min"
-import React, { ChangeEvent, FC, useEffect, useState } from "react"
-import {
-  Box,
-  Checkbox,
-  FormControl,
-  FormLabel,
-  FormControlLabel,
-  Grid,
-  Typography,
-  useTheme,
-  CardContent,
-  Card,
-} from "@mui/material"
+import React, { FC, useEffect } from "react"
+import { Box, Typography, useTheme, CardContent, Card } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-intermediate-values"
 
-export const GraphIntermediateValuesBeta: FC<{
+export const GraphIntermediateValues: FC<{
   trials: Trial[]
   includePruned: boolean
   logScale: boolean
@@ -45,78 +34,6 @@ export const GraphIntermediateValuesBeta: FC<{
         <Box id={plotDomId} sx={{ height: "450px" }} />
       </CardContent>
     </Card>
-  )
-}
-
-export const GraphIntermediateValues: FC<{
-  trials: Trial[]
-}> = ({ trials = [] }) => {
-  const theme = useTheme()
-  const [filterCompleteTrial, setFilterCompleteTrial] = useState<boolean>(false)
-  const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
-
-  useEffect(() => {
-    plotIntermediateValue(
-      trials,
-      theme.palette.mode,
-      filterCompleteTrial,
-      filterPrunedTrial,
-      false
-    )
-  }, [trials, theme.palette.mode, filterCompleteTrial, filterPrunedTrial])
-
-  const handleFilterCompleteChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault()
-    setFilterCompleteTrial(!filterCompleteTrial)
-  }
-  const handleFilterPrunedChange = (e: ChangeEvent<HTMLInputElement>) => {
-    e.preventDefault()
-    setFilterPrunedTrial(!filterPrunedTrial)
-  }
-  return (
-    <Grid container direction="row">
-      <Grid
-        item
-        xs={3}
-        container
-        direction="column"
-        sx={{ paddingRight: theme.spacing(2) }}
-      >
-        <Typography
-          variant="h6"
-          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
-        >
-          Intermediate values
-        </Typography>
-        <FormControl
-          component="fieldset"
-          sx={{ marginBottom: theme.spacing(2) }}
-        >
-          <FormLabel component="legend">Filter state:</FormLabel>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={!filterCompleteTrial}
-                onChange={handleFilterCompleteChange}
-              />
-            }
-            label="Complete"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={!filterPrunedTrial}
-                onChange={handleFilterPrunedChange}
-              />
-            }
-            label="Pruned"
-          />
-        </FormControl>
-      </Grid>
-      <Grid item xs={9}>
-        <Box id={plotDomId} sx={{ height: "450px" }} />
-      </Grid>
-    </Grid>
   )
 }
 

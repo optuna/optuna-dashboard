@@ -15,8 +15,6 @@ import {
 import { CompareStudies } from "./CompareStudies"
 import { StudyDetail } from "./StudyDetail"
 import { StudyList } from "./StudyList"
-import { StudyDetailBeta } from "./StudyDetailBeta"
-import { StudyListBeta } from "./StudyListBeta"
 
 export const App: FC = () => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)")
@@ -54,18 +52,9 @@ export const App: FC = () => {
             <Router>
               <Switch>
                 <Route
-                  path={URL_PREFIX + "/studies/:studyId/beta"}
-                  children={
-                    <StudyDetailBeta
-                      toggleColorMode={toggleColorMode}
-                      page={"history"}
-                    />
-                  }
-                />
-                <Route
                   path={URL_PREFIX + "/studies/:studyId/analytics"}
                   children={
-                    <StudyDetailBeta
+                    <StudyDetail
                       toggleColorMode={toggleColorMode}
                       page={"analytics"}
                     />
@@ -74,7 +63,7 @@ export const App: FC = () => {
                 <Route
                   path={URL_PREFIX + "/studies/:studyId/trials"}
                   children={
-                    <StudyDetailBeta
+                    <StudyDetail
                       toggleColorMode={toggleColorMode}
                       page={"trialList"}
                     />
@@ -83,7 +72,7 @@ export const App: FC = () => {
                 <Route
                   path={URL_PREFIX + "/studies/:studyId/trials"}
                   children={
-                    <StudyDetailBeta
+                    <StudyDetail
                       toggleColorMode={toggleColorMode}
                       page={"trialList"}
                     />
@@ -92,7 +81,7 @@ export const App: FC = () => {
                 <Route
                   path={URL_PREFIX + "/studies/:studyId/trialTable"}
                   children={
-                    <StudyDetailBeta
+                    <StudyDetail
                       toggleColorMode={toggleColorMode}
                       page={"trialTable"}
                     />
@@ -101,7 +90,7 @@ export const App: FC = () => {
                 <Route
                   path={URL_PREFIX + "/studies/:studyId/note"}
                   children={
-                    <StudyDetailBeta
+                    <StudyDetail
                       toggleColorMode={toggleColorMode}
                       page={"note"}
                     />
@@ -109,17 +98,18 @@ export const App: FC = () => {
                 />
                 <Route
                   path={URL_PREFIX + "/studies/:studyId"}
-                  children={<StudyDetail toggleColorMode={toggleColorMode} />}
+                  children={
+                    <StudyDetail
+                      toggleColorMode={toggleColorMode}
+                      page={"history"}
+                    />
+                  }
                 />
                 <Route
                   path={URL_PREFIX + "/compare-studies"}
                   children={
                     <CompareStudies toggleColorMode={toggleColorMode} />
                   }
-                />
-                <Route
-                  path={URL_PREFIX + "/beta"}
-                  children={<StudyListBeta toggleColorMode={toggleColorMode} />}
                 />
                 <Route
                   path={URL_PREFIX + "/"}

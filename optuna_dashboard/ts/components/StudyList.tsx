@@ -1,35 +1,43 @@
-import React, { FC, useEffect, useMemo } from "react"
+import React, { FC, useEffect, useState } from "react"
 import { useRecoilValue } from "recoil"
 import { Link } from "react-router-dom"
 import {
-  AppBar,
-  Toolbar,
   Typography,
   Container,
   Card,
-  Grid,
+  CardActionArea,
   Box,
+  Button,
   IconButton,
+  MenuItem,
   useTheme,
   InputAdornment,
   SvgIcon,
   CardContent,
+  TextField,
+  CardActions,
 } from "@mui/material"
-import { AddBox, Delete, Refresh, Search } from "@mui/icons-material"
+import { Delete, Refresh, Search } from "@mui/icons-material"
+import SortIcon from "@mui/icons-material/Sort"
+import HomeIcon from "@mui/icons-material/Home"
+import AddBoxIcon from "@mui/icons-material/AddBox"
+import CompareIcon from "@mui/icons-material/Compare"
+import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"
 
 import { actionCreator } from "../action"
-import { DataGrid, DataGridColumn } from "./DataGrid"
 import { DebouncedInputTextField } from "./Debounce"
 import { studySummariesState } from "../state"
-import Brightness7Icon from "@mui/icons-material/Brightness7"
-import Brightness4Icon from "@mui/icons-material/Brightness4"
-import { useDeleteStudyDialog } from "./DeleteStudyDialog"
+import { styled } from "@mui/system"
+import { AppDrawer } from "./AppDrawer"
 import { useCreateStudyDialog } from "./CreateStudyDialog"
+import { useDeleteStudyDialog } from "./DeleteStudyDialog"
+import { useRenameStudyDialog } from "./RenameStudyDialog"
 
 export const StudyList: FC<{
   toggleColorMode: () => void
 }> = ({ toggleColorMode }) => {
   const theme = useTheme()
+  const action = actionCreator()
 
   const [studyFilterText, setStudyFilterText] = React.useState<string>("")
   const studyFilter = (row: StudySummary) => {
@@ -41,116 +49,69 @@ export const StudyList: FC<{
       return row.study_name.indexOf(k) >= 0
     })
   }
-  const [openDeleteStudyDialog, renderDeleteStudyDialog] =
-    useDeleteStudyDialog()
+  const studies = useRecoilValue<StudySummary[]>(studySummariesState)
   const [openCreateStudyDialog, renderCreateStudyDialog] =
     useCreateStudyDialog()
+  const [openDeleteStudyDialog, renderDeleteStudyDialog] =
+    useDeleteStudyDialog()
+  const [openRenameStudyDialog, renderRenameStudyDialog] =
+    useRenameStudyDialog(studies)
+  const [sortBy, setSortBy] = useState<"id-asc" | "id-desc">("id-asc")
 
-  const linkColor = useMemo(
-    () =>
-      theme.palette.mode === "dark"
-        ? theme.palette.primary.light
-        : theme.palette.primary.dark,
-    [theme.palette.mode]
-  )
-
-  const action = actionCreator()
-  const studies = useRecoilValue<StudySummary[]>(studySummariesState)
+  let filteredStudies = studies.filter((s) => !studyFilter(s))
+  if (sortBy === "id-desc") {
+    filteredStudies = filteredStudies.reverse()
+  }
 
   useEffect(() => {
     action.updateStudySummaries()
   }, [])
 
-  const columns: DataGridColumn<StudySummary>[] = [
-    {
-      field: "study_id",
-      label: "Study ID",
-      sortable: true,
+  const Select = styled(TextField)(({ theme }) => ({
+    "& .MuiInputBase-input": {
+      // vertical padding + font size from searchIcon
+      paddingLeft: `calc(1em + ${theme.spacing(4)})`,
     },
-    {
-      field: "study_name",
-      label: "Name",
-      sortable: true,
-      toCellValue: (i) => (
-        <Link
-          to={`${URL_PREFIX}/studies/${studies[i].study_id}`}
-          style={{ color: linkColor }}
-        >
-          {studies[i].study_name}
-        </Link>
-      ),
-    },
-    {
-      field: "directions",
-      label: "Direction",
-      sortable: false,
-      toCellValue: (i) => studies[i].directions.join(),
-    },
-    {
-      field: "study_name",
-      label: "",
-      sortable: false,
-      padding: "none",
-      toCellValue: (i) => (
-        <IconButton
-          aria-label="delete study"
-          size="small"
-          color="inherit"
-          onClick={() => {
-            openDeleteStudyDialog(studies[i].study_id)
-          }}
-        >
-          <Delete />
-        </IconButton>
-      ),
-    },
-  ]
+  }))
+  const sortBySelect = (
+    <Box
+      sx={{
+        position: "relative",
+        borderRadius: theme.shape.borderRadius,
+        margin: theme.spacing(0, 2),
+      }}
+    >
+      <Box
+        sx={{
+          padding: theme.spacing(0, 2),
+          height: "100%",
+          position: "absolute",
+          pointerEvents: "none",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <SortIcon />
+      </Box>
+      <Select
+        select
+        value={sortBy}
+        onChange={(e) => {
+          setSortBy(e.target.value as "id-asc" | "id-desc")
+        }}
+      >
+        <MenuItem value={"id-asc"}>Sort ascending</MenuItem>
+        <MenuItem value={"id-desc"}>Sort descending</MenuItem>
+      </Select>
+    </Box>
+  )
 
-  const collapseAttrColumns: DataGridColumn<Attribute>[] = [
-    { field: "key", label: "Key", sortable: true },
-    { field: "value", label: "Value", sortable: true },
-  ]
-
-  const collapseBody = (index: number) => {
-    return (
-      <Grid container direction="row">
-        <Grid item xs={6}>
-          <Box margin={1}>
-            <Typography variant="h6" gutterBottom component="div">
-              Study user attributes
-            </Typography>
-            <DataGrid<Attribute>
-              columns={collapseAttrColumns}
-              rows={studies[index].user_attrs}
-              keyField={"key"}
-              dense={true}
-              initialRowsPerPage={5}
-              rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
-            />
-          </Box>
-        </Grid>
-        <Grid item xs={6}>
-          <Box margin={1}>
-            <Typography variant="h6" gutterBottom component="div">
-              Study system attributes
-            </Typography>
-            <DataGrid<Attribute>
-              columns={collapseAttrColumns}
-              rows={studies[index].system_attrs}
-              keyField={"key"}
-              dense={true}
-              initialRowsPerPage={5}
-              rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
-            />
-          </Box>
-        </Grid>
-      </Grid>
-    )
-  }
+  const toolbar = <HomeIcon sx={{ margin: theme.spacing(0, 1) }} />
 
   return (
-    <>
-      <AppBar position="static">
+    <Box sx={{ display: "flex" }}>
+      <AppDrawer toggleColorMode={toggleColorMode} toolbar={toolbar}>
         <Container
           sx={{
             ["@media (min-width: 1280px)"]: {
@@ -158,120 +119,122 @@ export const StudyList: FC<{
             },
           }}
         >
-          <Toolbar>
-            <Typography variant="h6">{APP_BAR_TITLE}</Typography>
-            <Box sx={{ flexGrow: 1 }} />
-            <IconButton
-              onClick={() => {
-                toggleColorMode()
-              }}
-              color="inherit"
-              title={
-                theme.palette.mode === "dark"
-                  ? "Switch to light mode"
-                  : "Switch to dark mode"
-              }
-            >
-              {theme.palette.mode === "dark" ? (
-                <Brightness7Icon />
-              ) : (
-                <Brightness4Icon />
-              )}
-            </IconButton>
-            <IconButton
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={() => {
-                action.updateStudySummaries("Success to reload")
-              }}
-              color="inherit"
-              title="Reload studies"
-            >
-              <Refresh />
-            </IconButton>
-            <IconButton
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={(e) => {
-                openCreateStudyDialog()
-              }}
-              color="inherit"
-              title="Create new study"
-            >
-              <AddBox />
-            </IconButton>
-          </Toolbar>
+          <Card sx={{ margin: theme.spacing(2) }}>
+            <CardContent>
+              <Box sx={{ display: "flex" }}>
+                <DebouncedInputTextField
+                  onChange={(s) => {
+                    setStudyFilterText(s)
+                  }}
+                  delay={500}
+                  textFieldProps={{
+                    fullWidth: true,
+                    id: "search-study",
+                    variant: "outlined",
+                    placeholder: "Search study",
+                    sx: { maxWidth: 500 },
+                    InputProps: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <SvgIcon fontSize="small" color="action">
+                            <Search />
+                          </SvgIcon>
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+                {sortBySelect}
+                <Box sx={{ flexGrow: 1 }} />
+                <Button
+                  variant="outlined"
+                  startIcon={<Refresh />}
+                  onClick={(e) => {
+                    action.updateStudySummaries("Success to reload")
+                  }}
+                  sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
+                >
+                  Reload
+                </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<AddBoxIcon />}
+                  onClick={(e) => {
+                    openCreateStudyDialog()
+                  }}
+                  sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
+                >
+                  Create
+                </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<CompareIcon />}
+                  component={Link}
+                  to={`${URL_PREFIX}/compare-studies`}
+                  sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
+                >
+                  Compare
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+          <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+            {filteredStudies.map((study) => (
+              <Card
+                key={study.study_id}
+                sx={{ margin: theme.spacing(2), width: "500px" }}
+              >
+                <CardActionArea
+                  component={Link}
+                  to={`${URL_PREFIX}/studies/${study.study_id}`}
+                >
+                  <CardContent>
+                    <Typography variant="h5">
+                      {study.study_id}. {study.study_name}
+                    </Typography>
+                    <Typography
+                      variant="subtitle1"
+                      color="text.secondary"
+                      component="div"
+                    >
+                      {"Direction: " +
+                        study.directions
+                          .map((d) => d.toString().toUpperCase())
+                          .join(", ")}
+                    </Typography>
+                  </CardContent>
+                </CardActionArea>
+                <CardActions disableSpacing sx={{ paddingTop: 0 }}>
+                  <Box sx={{ flexGrow: 1 }} />
+                  <IconButton
+                    aria-label="rename study"
+                    size="small"
+                    color="inherit"
+                    onClick={() => {
+                      openRenameStudyDialog(study.study_id, study.study_name)
+                    }}
+                  >
+                    <DriveFileRenameOutlineIcon />
+                  </IconButton>
+                  <IconButton
+                    aria-label="delete study"
+                    size="small"
+                    color="inherit"
+                    onClick={() => {
+                      openDeleteStudyDialog(study.study_id)
+                    }}
+                  >
+                    <Delete />
+                  </IconButton>
+                </CardActions>
+              </Card>
+            ))}
+          </Box>
         </Container>
-      </AppBar>
-      <Container
-        sx={{
-          ["@media (min-width: 1280px)"]: {
-            maxWidth: "100%",
-          },
-        }}
-      >
-        <Card sx={{ margin: theme.spacing(2) }}>
-          <CardContent>
-            <Typography
-              variant="h5"
-              style={{ paddingBottom: theme.spacing(1) }}
-            >
-              Announcement
-            </Typography>
-            <Typography>
-              {`Please go to `}
-              <Link to={`${URL_PREFIX}/beta`} style={{ color: linkColor }}>
-                our experimental new UI page
-              </Link>
-              {" and share your thoughts with us via "}
-              <Link to={`${URL_PREFIX}/beta`} style={{ color: linkColor }}>
-                the GitHub Discussion's post
-              </Link>
-              {"."}
-            </Typography>
-          </CardContent>
-        </Card>
-        <Card sx={{ margin: theme.spacing(2) }}>
-          <CardContent>
-            <Box sx={{ maxWidth: 500 }}>
-              <DebouncedInputTextField
-                onChange={(s) => {
-                  setStudyFilterText(s)
-                }}
-                delay={500}
-                textFieldProps={{
-                  fullWidth: true,
-                  id: "search-study",
-                  variant: "outlined",
-                  placeholder: "Search study",
-                  InputProps: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SvgIcon fontSize="small" color="action">
-                          <Search />
-                        </SvgIcon>
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-            </Box>
-          </CardContent>
-        </Card>
-        <Card sx={{ margin: theme.spacing(2) }}>
-          <DataGrid<StudySummary>
-            columns={columns}
-            rows={studies}
-            keyField={"study_id"}
-            collapseBody={collapseBody}
-            initialRowsPerPage={10}
-            rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
-            defaultFilter={studyFilter}
-          />
-        </Card>
-      </Container>
+      </AppDrawer>
       {renderCreateStudyDialog()}
       {renderDeleteStudyDialog()}
-    </>
+      {renderRenameStudyDialog()}
+    </Box>
   )
 }

@@ -27,7 +27,7 @@ interface EdfPlotInfo {
   trials: Trial[]
 }
 
-export const GraphEdfBeta: FC<{
+export const GraphEdf: FC<{
   study: StudyDetail | null
   objectiveId: number
 }> = ({ study, objectiveId }) => {
@@ -37,7 +37,7 @@ export const GraphEdfBeta: FC<{
     () => new Target("objective", objectiveId),
     [objectiveId]
   )
-  const trials = useFilteredTrials(study, [target], false, false)
+  const trials = useFilteredTrials(study, [target], false)
 
   useEffect(() => {
     if (study !== null) {
@@ -57,60 +57,6 @@ export const GraphEdfBeta: FC<{
   )
 }
 
-export const GraphEdf: FC<{
-  study: StudyDetail | null
-}> = ({ study = null }) => {
-  const theme = useTheme()
-  const [targets, selected, setTarget] = useObjectiveTargets(study)
-  const trials = useFilteredTrials(study, [selected], false, false)
-
-  const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
-    setTarget(event.target.value)
-  }
-
-  useEffect(() => {
-    if (study != null) {
-      plotEdf(trials, selected, plotDomId, theme.palette.mode)
-    }
-  }, [trials, selected, theme.palette.mode])
-  return (
-    <Grid container direction="row">
-      <Grid
-        item
-        xs={3}
-        container
-        direction="column"
-        sx={{ paddingRight: theme.spacing(2) }}
-      >
-        <Typography
-          variant="h6"
-          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
-        >
-          EDF
-        </Typography>
-        {study !== null && study.directions.length !== 1 ? (
-          <FormControl component="fieldset">
-            <FormLabel component="legend">Objective:</FormLabel>
-            <Select
-              value={selected.identifier()}
-              onChange={handleObjectiveChange}
-            >
-              {targets.map((target, i) => (
-                <MenuItem value={target.identifier()} key={i}>
-                  {target.toLabel(study?.objective_names)}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        ) : null}
-      </Grid>
-      <Grid item xs={9}>
-        <Box id={plotDomId} sx={{ height: "450px" }} />
-      </Grid>
-    </Grid>
-  )
-}
-
 export const GraphEdfMultiStudies: FC<{
   studies: StudyDetail[]
 }> = ({ studies }) => {
@@ -119,7 +65,7 @@ export const GraphEdfMultiStudies: FC<{
     studies.length !== 0 ? studies[0] : null
   )
 
-  const trials = useFilteredTrialsFromStudies(studies, [selected], false, false)
+  const trials = useFilteredTrialsFromStudies(studies, [selected], false)
   const edfPlotInfos = studies.map((study, index) => {
     const e: EdfPlotInfo = {
       study_name: study?.name,

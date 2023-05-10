@@ -89,7 +89,7 @@ export const CompareStudies: FC<{
   }, [studies, query])
 
   const studyListWidth = 200
-  const title = "Compare Studies"
+  const title = "Compare Studies (Experimental)"
 
   useEffect(() => {
     action.updateStudySummaries()
@@ -99,7 +99,7 @@ export const CompareStudies: FC<{
     <>
       <IconButton
         component={Link}
-        to={URL_PREFIX + "/beta"}
+        to={URL_PREFIX + "/"}
         sx={{ marginRight: theme.spacing(1) }}
         color="inherit"
         title="Return to the top page"
@@ -131,7 +131,7 @@ export const CompareStudies: FC<{
             <List>
               <ListSubheader sx={{ display: "flex", flexDirection: "row" }}>
                 <Typography sx={{ p: theme.spacing(1, 0) }}>
-                  {studies.length} Studies
+                  Compare studies with Shift+Click
                 </Typography>
                 <Box sx={{ flexGrow: 1 }} />
               </ListSubheader>
@@ -315,8 +315,8 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
           <CardContent>
             <GraphHistoryMultiStudies
               studies={showStudyDetails}
-              betaIncludePruned={includePruned}
-              betaLogScale={logScale}
+              includePruned={includePruned}
+              logScale={logScale}
             />
           </CardContent>
         </Card>

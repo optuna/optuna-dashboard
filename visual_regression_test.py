@@ -182,10 +182,10 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
 
 
 async def contains_study_name(page: Page, study_name: str) -> bool:
-    h4_elements = await page.querySelectorAll("h4")
-    for element in h4_elements:
-        title = await page.evaluate("(element) => element.textContent", element)
-        if title == study_name:
+    typography_elements = await page.querySelectorAll("div.MuiTypography-root")
+    for element in typography_elements:
+        title = await page.evaluate("(element) => element.innerText", element)
+        if study_name in title:
             return True
     return False
 
@@ -205,6 +205,7 @@ async def take_screenshots(storage: optuna.storages.BaseStorage) -> list[str]:
     summaries = get_all_study_summaries(storage)
     study_ids = {s._study_id: s.study_name for s in summaries}
     for study_id, study_name in study_ids.items():
+        # TODO(c-bata): Check "Analysis" tab.
         await page.goto(f"http://{args.host}:{args.port}/dashboard/studies/{study_id}")
         time.sleep(args.sleep)
 

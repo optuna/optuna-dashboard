@@ -47,7 +47,6 @@ export const GraphSlice: FC<{
     selectedParamTarget !== null
       ? [selectedObjective, selectedParamTarget]
       : [selectedObjective],
-    false,
     false
   )
 
