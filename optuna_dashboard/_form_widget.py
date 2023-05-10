@@ -185,6 +185,7 @@ class TextInputWidget:
         description: A description of the text input field.
         user_attr_key: The key used by `register_user_attr_form_widgets`.
             Form output is saved as `trial.user_attrs[user_attr_key]`. Defaults to None.
+        optional: If True, an empty string is acceptable.
 
     Example:
         .. code-block:: python
