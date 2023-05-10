@@ -226,10 +226,13 @@ const TrialListDetail: FC<{
               ? "rgba(255, 255, 255, 0.05)"
               : "rgba(0, 0, 0, 0.05)",
           width: "100%",
+          maxWidth: "1000px",
+          maxHeight: "150px",
+          overflow: "auto",
           p: theme.spacing(0.5, 1),
           borderRadius: theme.shape.borderRadius * 0.2,
           display: "flex",
-          alignItems: "center",
+          whiteSpace: "nowrap",
         }}
       >
         {value}
