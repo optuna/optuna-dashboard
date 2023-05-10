@@ -37,7 +37,7 @@ export const GraphEdfBeta: FC<{
     () => new Target("objective", objectiveId),
     [objectiveId]
   )
-  const trials = useFilteredTrials(study, [target], false, false)
+  const trials = useFilteredTrials(study, [target], false)
 
   useEffect(() => {
     if (study !== null) {
@@ -62,7 +62,7 @@ export const GraphEdf: FC<{
 }> = ({ study = null }) => {
   const theme = useTheme()
   const [targets, selected, setTarget] = useObjectiveTargets(study)
-  const trials = useFilteredTrials(study, [selected], false, false)
+  const trials = useFilteredTrials(study, [selected], false)
 
   const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
     setTarget(event.target.value)
@@ -119,7 +119,7 @@ export const GraphEdfMultiStudies: FC<{
     studies.length !== 0 ? studies[0] : null
   )
 
-  const trials = useFilteredTrialsFromStudies(studies, [selected], false, false)
+  const trials = useFilteredTrialsFromStudies(studies, [selected], false)
   const edfPlotInfos = studies.map((study, index) => {
     const e: EdfPlotInfo = {
       study_name: study?.name,

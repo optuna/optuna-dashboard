@@ -13,8 +13,6 @@ import {
 } from "@mui/material"
 
 import { CompareStudies } from "./CompareStudies"
-import { StudyDetail } from "./StudyDetail"
-import { StudyList } from "./StudyList"
 import { StudyDetailBeta } from "./StudyDetailBeta"
 import { StudyListBeta } from "./StudyListBeta"
 
@@ -53,15 +51,6 @@ export const App: FC = () => {
           <SnackbarProvider maxSnack={3}>
             <Router>
               <Switch>
-                <Route
-                  path={URL_PREFIX + "/studies/:studyId/beta"}
-                  children={
-                    <StudyDetailBeta
-                      toggleColorMode={toggleColorMode}
-                      page={"history"}
-                    />
-                  }
-                />
                 <Route
                   path={URL_PREFIX + "/studies/:studyId/analytics"}
                   children={
@@ -109,7 +98,12 @@ export const App: FC = () => {
                 />
                 <Route
                   path={URL_PREFIX + "/studies/:studyId"}
-                  children={<StudyDetail toggleColorMode={toggleColorMode} />}
+                  children={
+                    <StudyDetailBeta
+                      toggleColorMode={toggleColorMode}
+                      page={"history"}
+                    />
+                  }
                 />
                 <Route
                   path={URL_PREFIX + "/compare-studies"}
@@ -118,12 +112,8 @@ export const App: FC = () => {
                   }
                 />
                 <Route
-                  path={URL_PREFIX + "/beta"}
-                  children={<StudyListBeta toggleColorMode={toggleColorMode} />}
-                />
-                <Route
                   path={URL_PREFIX + "/"}
-                  children={<StudyList toggleColorMode={toggleColorMode} />}
+                  children={<StudyListBeta toggleColorMode={toggleColorMode} />}
                 />
               </Switch>
             </Router>

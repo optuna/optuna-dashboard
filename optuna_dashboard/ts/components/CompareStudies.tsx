@@ -99,7 +99,7 @@ export const CompareStudies: FC<{
     <>
       <IconButton
         component={Link}
-        to={URL_PREFIX + "/beta"}
+        to={URL_PREFIX + "/"}
         sx={{ marginRight: theme.spacing(1) }}
         color="inherit"
         title="Return to the top page"
@@ -315,8 +315,8 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
           <CardContent>
             <GraphHistoryMultiStudies
               studies={showStudyDetails}
-              betaIncludePruned={includePruned}
-              betaLogScale={logScale}
+              includePruned={includePruned}
+              logScale={logScale}
             />
           </CardContent>
         </Card>

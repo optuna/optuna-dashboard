@@ -96,8 +96,8 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
         <CardContent>
           <GraphHistory
             study={studyDetail}
-            betaIncludePruned={includePruned}
-            betaLogScale={logScale}
+            includePruned={includePruned}
+            logScale={logScale}
           />
         </CardContent>
       </Card>

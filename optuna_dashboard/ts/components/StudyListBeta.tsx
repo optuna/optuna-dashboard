@@ -17,7 +17,6 @@ import {
   TextField,
   CardActions,
 } from "@mui/material"
-import MuiLink from "@mui/material/Link"
 import { Delete, Refresh, Search } from "@mui/icons-material"
 import SortIcon from "@mui/icons-material/Sort"
 import HomeIcon from "@mui/icons-material/Home"
@@ -122,20 +121,6 @@ export const StudyListBeta: FC<{
         >
           <Card sx={{ margin: theme.spacing(2) }}>
             <CardContent>
-              <Typography>
-                {`Thank you for testing the new UI! We would appreciate it if you could send us the feedback via `}
-                <MuiLink
-                  target="_blank"
-                  href="https://github.com/optuna/optuna-dashboard/discussions/332"
-                >
-                  this post
-                </MuiLink>
-                {" on GitHub Discussions."}
-              </Typography>
-            </CardContent>
-          </Card>
-          <Card sx={{ margin: theme.spacing(2) }}>
-            <CardContent>
               <Box sx={{ display: "flex" }}>
                 <DebouncedInputTextField
                   onChange={(s) => {
@@ -201,7 +186,7 @@ export const StudyListBeta: FC<{
               >
                 <CardActionArea
                   component={Link}
-                  to={`${URL_PREFIX}/studies/${study.study_id}/beta`}
+                  to={`${URL_PREFIX}/studies/${study.study_id}`}
                 >
                   <CardContent>
                     <Typography variant="h5">

@@ -168,7 +168,7 @@ export const StudyDetailBeta: FC<{
     <>
       <IconButton
         component={Link}
-        to={URL_PREFIX + "/beta"}
+        to={URL_PREFIX + "/"}
         sx={{ marginRight: theme.spacing(1) }}
         color="inherit"
         title="Return to the top page"

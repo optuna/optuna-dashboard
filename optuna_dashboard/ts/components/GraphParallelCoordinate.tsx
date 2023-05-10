@@ -90,7 +90,7 @@ export const GraphParallelCoordinate: FC<{
   const theme = useTheme()
   const [targets, searchSpace, renderCheckBoxes] = useTargets(study)
 
-  const trials = useFilteredTrials(study, targets, false, false)
+  const trials = useFilteredTrials(study, targets, false)
   useEffect(() => {
     if (study !== null) {
       plotCoordinate(study, trials, targets, searchSpace, theme.palette.mode)

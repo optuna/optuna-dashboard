@@ -24,7 +24,6 @@ import Brightness4Icon from "@mui/icons-material/Brightness4"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
 import TableViewIcon from "@mui/icons-material/TableView"
 import RateReviewIcon from "@mui/icons-material/RateReview"
-import ClearIcon from "@mui/icons-material/Clear"
 import MenuIcon from "@mui/icons-material/Menu"
 import GitHubIcon from "@mui/icons-material/GitHub"
 import OpenInNewIcon from "@mui/icons-material/OpenInNew"
@@ -185,7 +184,7 @@ export const AppDrawer: FC<{
             <ListItem key="History" disablePadding sx={styleListItem}>
               <ListItemButton
                 component={Link}
-                to={`${URL_PREFIX}/studies/${studyId}/beta`}
+                to={`${URL_PREFIX}/studies/${studyId}`}
                 sx={styleListItemButton}
                 selected={page === "history"}
               >
@@ -304,7 +303,7 @@ export const AppDrawer: FC<{
           <ListItem key="Feedback" disablePadding sx={styleListItem}>
             <ListItemButton
               target="_blank"
-              href="https://github.com/optuna/optuna-dashboard/discussions/332"
+              href="https://github.com/optuna/optuna-dashboard/discussions/new/choose"
               sx={styleListItemButton}
             >
               <ListItemIcon sx={styleListItemIcon}>
@@ -312,21 +311,6 @@ export const AppDrawer: FC<{
               </ListItemIcon>
               <ListItemText primary="Send Feedback" sx={styleListItemText} />
               <OpenInNewIcon sx={styleSwitch} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem key="BetaUI" disablePadding sx={styleListItem}>
-            <ListItemButton
-              component={Link}
-              to={URL_PREFIX}
-              sx={styleListItemButton}
-            >
-              <ListItemIcon sx={styleListItemIcon}>
-                <ClearIcon />
-              </ListItemIcon>
-              <ListItemText
-                primary="Switch to stable UI"
-                sx={styleListItemText}
-              />
             </ListItemButton>
           </ListItem>
         </List>
