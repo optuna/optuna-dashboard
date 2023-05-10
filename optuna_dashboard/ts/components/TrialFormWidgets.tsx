@@ -27,10 +27,17 @@ export const TrialFormWidgets: FC<{
   trial: Trial
   objectiveNames: string[]
   directions: StudyDirection[]
-  formWidgets: FormWidgets
+  formWidgets?: FormWidgets
 }> = ({ trial, objectiveNames, directions, formWidgets }) => {
+  if (
+    formWidgets === undefined ||
+    trial.state === "Pruned" ||
+    trial.state === "Fail"
+  ) {
+    return null
+  }
   const theme = useTheme()
-  const formWidgetLoading = useTrialUpdatingValue(trial.trial_id)
+  const trialNowUpdating = useTrialUpdatingValue(trial.trial_id)
   const headerText =
     formWidgets.output_type === "user_attr"
       ? "Set User Attributes Form"
@@ -51,6 +58,7 @@ export const TrialFormWidgets: FC<{
     console.error("Must not reach here")
     return "Unknown"
   })
+
   return (
     <>
       <Typography
@@ -59,28 +67,24 @@ export const TrialFormWidgets: FC<{
       >
         {headerText}
       </Typography>
-      {trial.state === "Running" &&
-        !formWidgetLoading &&
-        directions.length > 0 && (
-          <_FormWidgets
-            trial={trial}
-            widgetNames={widgetNames}
-            formWidgets={formWidgets}
-          />
-        )}
-      {(trial.state === "Complete" || formWidgetLoading) &&
-        directions.length > 0 && (
-          <ReadonlyFormWidgets
-            trial={trial}
-            widgetNames={widgetNames}
-            formWidgets={formWidgets}
-          />
-        )}
+      {trial.state === "Running" && !trialNowUpdating ? (
+        <UpdatableFormWidgets
+          trial={trial}
+          widgetNames={widgetNames}
+          formWidgets={formWidgets}
+        />
+      ) : (
+        <ReadonlyFormWidgets
+          trial={trial}
+          widgetNames={widgetNames}
+          formWidgets={formWidgets}
+        />
+      )}
     </>
   )
 }
 
-const _FormWidgets: FC<{
+const UpdatableFormWidgets: FC<{
   trial: Trial
   widgetNames: string[]
   formWidgets: FormWidgets

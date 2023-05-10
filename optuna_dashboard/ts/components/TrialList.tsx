@@ -274,14 +274,12 @@ const TrialListDetail: FC<{
         latestNote={trial.note}
         cardSx={{ marginBottom: theme.spacing(2) }}
       />
-      {formWidgets !== undefined && (
-        <TrialFormWidgets
-          trial={trial}
-          directions={directions}
-          objectiveNames={objectiveNames}
-          formWidgets={formWidgets}
-        />
-      )}
+      <TrialFormWidgets
+        trial={trial}
+        directions={directions}
+        objectiveNames={objectiveNames}
+        formWidgets={formWidgets}
+      />
       <Box
         sx={{
           marginBottom: theme.spacing(2),
