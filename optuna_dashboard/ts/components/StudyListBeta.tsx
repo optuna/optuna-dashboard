@@ -22,6 +22,7 @@ import { Delete, Refresh, Search } from "@mui/icons-material"
 import SortIcon from "@mui/icons-material/Sort"
 import HomeIcon from "@mui/icons-material/Home"
 import AddBoxIcon from "@mui/icons-material/AddBox"
+import CompareIcon from "@mui/icons-material/Compare"
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"
 
 import { actionCreator } from "../action"
@@ -179,6 +180,15 @@ export const StudyListBeta: FC<{
                   sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
                 >
                   Create
+                </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<CompareIcon />}
+                  component={Link}
+                  to={`${URL_PREFIX}/compare-studies`}
+                  sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
+                >
+                  Compare
                 </Button>
               </Box>
             </CardContent>

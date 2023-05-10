@@ -12,6 +12,7 @@ import {
   CssBaseline,
 } from "@mui/material"
 
+import { CompareStudies } from "./CompareStudies"
 import { StudyDetail } from "./StudyDetail"
 import { StudyList } from "./StudyList"
 import { StudyDetailBeta } from "./StudyDetailBeta"
@@ -109,6 +110,12 @@ export const App: FC = () => {
                 <Route
                   path={URL_PREFIX + "/studies/:studyId"}
                   children={<StudyDetail toggleColorMode={toggleColorMode} />}
+                />
+                <Route
+                  path={URL_PREFIX + "/compare-studies"}
+                  children={
+                    <CompareStudies toggleColorMode={toggleColorMode} />
+                  }
                 />
                 <Route
                   path={URL_PREFIX + "/beta"}

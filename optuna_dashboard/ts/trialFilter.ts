@@ -92,6 +92,29 @@ export class Target {
   }
 }
 
+const filterTrials = (
+  study: StudyDetail | null,
+  targets: Target[],
+  filterComplete: boolean,
+  filterPruned: boolean
+): Trial[] => {
+  if (study === null) {
+    return []
+  }
+  return study.trials.filter((t) => {
+    if (t.state !== "Complete" && t.state !== "Pruned") {
+      return false
+    }
+    if (t.state === "Complete" && filterComplete) {
+      return false
+    }
+    if (t.state === "Pruned" && filterPruned) {
+      return false
+    }
+    return targets.every((target) => target.getTargetValue(t) !== null)
+  })
+}
+
 export const useFilteredTrials = (
   study: StudyDetail | null,
   targets: Target[],
@@ -99,22 +122,20 @@ export const useFilteredTrials = (
   filterPruned: boolean
 ): Trial[] =>
   useMemo<Trial[]>(() => {
-    if (study === null) {
-      return []
-    }
-    return study.trials.filter((t) => {
-      if (t.state !== "Complete" && t.state !== "Pruned") {
-        return false
-      }
-      if (t.state === "Complete" && filterComplete) {
-        return false
-      }
-      if (t.state === "Pruned" && filterPruned) {
-        return false
-      }
-      return targets.every((target) => target.getTargetValue(t) !== null)
-    })
+    return filterTrials(study, targets, filterComplete, filterPruned)
   }, [study?.trials, targets, filterComplete, filterPruned])
+
+export const useFilteredTrialsFromStudies = (
+  studies: StudyDetail[],
+  targets: Target[],
+  filterComplete: boolean,
+  filterPruned: boolean
+): Trial[][] =>
+  useMemo<Trial[][]>(() => {
+    return studies.map((s) =>
+      filterTrials(s, targets, filterComplete, filterPruned)
+    )
+  }, [studies, targets, filterComplete, filterPruned])
 
 export const useObjectiveTargets = (
   study: StudyDetail | null

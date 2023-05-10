@@ -48,9 +48,11 @@ export const actionCreator = () => {
   const setArtifactIsAvailable = useSetRecoilState<boolean>(artifactIsAvailable)
 
   const setStudyDetailState = (studyId: number, study: StudyDetail) => {
-    const newVal = Object.assign({}, studyDetails)
-    newVal[studyId] = study
-    setStudyDetails(newVal)
+    setStudyDetails((prevVal) => {
+      const newVal = Object.assign({}, prevVal)
+      newVal[studyId] = study
+      return newVal
+    })
   }
 
   const setTrial = (studyId: number, trialIndex: number, trial: Trial) => {
