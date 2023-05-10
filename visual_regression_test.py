@@ -185,7 +185,7 @@ async def contains_study_name(page: Page, study_name: str) -> bool:
     typography_elements = await page.querySelectorAll("div.MuiTypography-root")
     for element in typography_elements:
         title = await page.evaluate("(element) => element.innerText", element)
-        if title == study_name:
+        if study_name in title:
             return True
     return False
 
@@ -205,6 +205,7 @@ async def take_screenshots(storage: optuna.storages.BaseStorage) -> list[str]:
     summaries = get_all_study_summaries(storage)
     study_ids = {s._study_id: s.study_name for s in summaries}
     for study_id, study_name in study_ids.items():
+        # TODO(c-bata): Check "Analysis" tab.
         await page.goto(f"http://{args.host}:{args.port}/dashboard/studies/{study_id}")
         time.sleep(args.sleep)
 
