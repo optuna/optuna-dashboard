@@ -1,28 +1,16 @@
-import React, { createRef, FC, FormEvent, MouseEvent } from "react"
-import {
-  Typography,
-  Grid,
-  Box,
-  Button,
-  IconButton,
-  Stack,
-  TextField,
-} from "@mui/material"
+import React, { FC } from "react"
+import { IconButton } from "@mui/material"
 import LinkIcon from "@mui/icons-material/Link"
 
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { Link } from "react-router-dom"
 
-import { actionCreator } from "../action"
-
 export const TrialTable: FC<{
   studyDetail: StudyDetail | null
-  isBeta: boolean
   initialRowsPerPage?: number
-}> = ({ studyDetail, isBeta, initialRowsPerPage }) => {
+}> = ({ studyDetail, initialRowsPerPage }) => {
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
   const objectiveNames: string[] = studyDetail?.objective_names || []
-  const action = actionCreator()
 
   const columns: DataGridColumn<Trial>[] = [
     { field: "number", label: "Number", sortable: true, padding: "none" },
@@ -103,48 +91,6 @@ export const TrialTable: FC<{
       }))
     columns.push(...objectiveColumns)
   }
-  if (!isBeta) {
-    columns.push({
-      field: "datetime_start",
-      label: "Duration(ms)",
-      toCellValue: (i) => {
-        const startMs = trials[i].datetime_start?.getTime()
-        const completeMs = trials[i].datetime_complete?.getTime()
-        if (startMs !== undefined && completeMs !== undefined) {
-          return (completeMs - startMs).toString()
-        }
-        return null
-      },
-      sortable: true,
-      less: (firstEl, secondEl): number => {
-        const firstStartMs = firstEl.datetime_start?.getTime()
-        const firstCompleteMs = firstEl.datetime_complete?.getTime()
-        const firstDurationMs =
-          firstStartMs !== undefined && firstCompleteMs !== undefined
-            ? firstCompleteMs - firstStartMs
-            : undefined
-        const secondStartMs = secondEl.datetime_start?.getTime()
-        const secondCompleteMs = secondEl.datetime_complete?.getTime()
-        const secondDurationMs =
-          secondStartMs !== undefined && secondCompleteMs !== undefined
-            ? secondCompleteMs - secondStartMs
-            : undefined
-
-        if (firstDurationMs === secondDurationMs) {
-          return 0
-        } else if (
-          firstDurationMs !== undefined &&
-          secondDurationMs !== undefined
-        ) {
-          return firstDurationMs < secondDurationMs ? 1 : -1
-        } else if (firstDurationMs !== undefined) {
-          return -1
-        } else {
-          return 1
-        }
-      },
-    })
-  }
   if (
     studyDetail?.union_search_space.length ===
     studyDetail?.intersection_search_space.length
@@ -220,175 +166,24 @@ export const TrialTable: FC<{
       },
     })
   })
-  if (isBeta) {
-    columns.push({
-      field: "trial_id",
-      label: "Detail",
-      toCellValue: (i) => (
-        <IconButton
-          component={Link}
-          to={
-            URL_PREFIX +
-            `/studies/${trials[i].study_id}/trials?numbers=${trials[i].number}`
-          }
-          color="inherit"
-          title="Go to the trial's detail page"
-          size="small"
-        >
-          <LinkIcon />
-        </IconButton>
-      ),
-    })
-  }
-
-  const collapseIntermediateValueColumns: DataGridColumn<TrialIntermediateValue>[] =
-    [
-      { field: "step", label: "Step", sortable: true },
-      {
-        field: "value",
-        label: "Value",
-        sortable: true,
-        less: (firstEl, secondEl): number => {
-          const firstVal = firstEl.value
-          const secondVal = secondEl.value
-          if (firstVal === secondVal) {
-            return 0
-          }
-          if (firstVal === "nan") {
-            return -1
-          } else if (secondVal === "nan") {
-            return 1
-          }
-          if (firstVal === "-inf" || secondVal === "inf") {
-            return 1
-          } else if (secondVal === "-inf" || firstVal === "inf") {
-            return -1
-          }
-          return firstVal < secondVal ? 1 : -1
-        },
-      },
-    ]
-  const collapseAttrColumns: DataGridColumn<Attribute>[] = [
-    { field: "key", label: "Key", sortable: true },
-    { field: "value", label: "Value", sortable: true },
-  ]
-
-  const collapseBody = (index: number) => {
-    const objectiveFormRefs = studyDetail?.directions.map((d) =>
-      createRef<HTMLInputElement>()
-    )
-    const handleSubmit = (e: FormEvent<HTMLFormElement>): void => {
-      if (objectiveFormRefs === undefined) {
-        return
-      }
-      if (studyDetail === null) {
-        return
-      }
-
-      e.preventDefault()
-      const studyId = studyDetail.id
-      const trialId = trials[index].trial_id
-      const objectiveValues = objectiveFormRefs.map((ref) =>
-        ref.current ? Number(ref.current.value) : NaN
-      )
-      if (objectiveValues.includes(NaN)) {
-        return
-      }
-
-      action.makeTrialComplete(studyId, trialId, objectiveValues)
-    }
-
-    const handleFailTrial = (e: MouseEvent<HTMLButtonElement>): void => {
-      if (studyDetail === null) {
-        return
-      }
-      const studyId = studyDetail.id
-      const trialId = trials[index].trial_id
-      action.makeTrialFail(studyId, trialId)
-    }
-
-    return (
-      <Grid container direction="row">
-        <Grid item xs={6}>
-          <Box margin={1}>
-            <Typography variant="h6" gutterBottom component="div">
-              Intermediate values
-            </Typography>
-            <DataGrid<TrialIntermediateValue>
-              columns={collapseIntermediateValueColumns}
-              rows={trials[index].intermediate_values}
-              keyField={"step"}
-              dense={true}
-              rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
-            />
-          </Box>
-        </Grid>
-        <Grid item xs={6}>
-          <Box margin={1}>
-            <Typography variant="h6" gutterBottom component="div">
-              Trial system attributes
-            </Typography>
-            <DataGrid<Attribute>
-              columns={collapseAttrColumns}
-              rows={trials[index].system_attrs}
-              keyField={"key"}
-              dense={true}
-              rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
-            />
-          </Box>
-        </Grid>
-        {trials[index].state === "Running" ? (
-          <Grid item xs={12}>
-            <Box margin={1}>
-              <Typography variant="h6" gutterBottom component="div">
-                Trial tell
-              </Typography>
-              <form onSubmit={handleSubmit}>
-                <Box margin={1}>
-                  <Stack direction="row" spacing={1}>
-                    {objectiveFormRefs !== undefined &&
-                      objectiveFormRefs.map((ref, i) => (
-                        <TextField
-                          required
-                          id={`objective-${i}`}
-                          key={`objective-${i}`}
-                          label={
-                            objectiveNames.length ===
-                            studyDetail?.directions.length
-                              ? objectiveNames[i]
-                              : `Objective ${i}`
-                          }
-                          inputProps={{
-                            inputMode: "numeric",
-                            pattern: "[-+]?[0-9]*.?[0-9]+([eE][-+]?[0-9]+)?",
-                            title: "Please input a float number",
-                          }}
-                          inputRef={ref}
-                        />
-                      ))}
-                  </Stack>
-                </Box>
-                <Box margin={1}>
-                  <Stack direction="row" spacing={1}>
-                    <Button variant="contained" type="submit">
-                      Submit
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      onClick={handleFailTrial}
-                    >
-                      Fail Trial
-                    </Button>
-                  </Stack>
-                </Box>
-              </form>
-            </Box>
-          </Grid>
-        ) : null}
-      </Grid>
-    )
-  }
+  columns.push({
+    field: "trial_id",
+    label: "Detail",
+    toCellValue: (i) => (
+      <IconButton
+        component={Link}
+        to={
+          URL_PREFIX +
+          `/studies/${trials[i].study_id}/trials?numbers=${trials[i].number}`
+        }
+        color="inherit"
+        title="Go to the trial's detail page"
+        size="small"
+      >
+        <LinkIcon />
+      </IconButton>
+    ),
+  })
 
   return (
     <DataGrid<Trial>
@@ -396,7 +191,6 @@ export const TrialTable: FC<{
       rows={trials}
       keyField={"trial_id"}
       dense={true}
-      collapseBody={isBeta ? undefined : collapseBody}
       initialRowsPerPage={initialRowsPerPage}
     />
   )

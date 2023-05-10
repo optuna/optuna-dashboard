@@ -39,7 +39,7 @@ export const useURLVars = (): number => {
   return useMemo(() => parseInt(studyId, 10), [studyId])
 }
 
-export const StudyDetailBeta: FC<{
+export const StudyDetail: FC<{
   toggleColorMode: () => void
   page: PageId
 }> = ({ toggleColorMode, page }) => {
@@ -126,11 +126,7 @@ export const StudyDetailBeta: FC<{
     content = (
       <Card sx={{ margin: theme.spacing(2) }}>
         <CardContent>
-          <TrialTable
-            studyDetail={studyDetail}
-            isBeta={true}
-            initialRowsPerPage={50}
-          />
+          <TrialTable studyDetail={studyDetail} initialRowsPerPage={50} />
         </CardContent>
       </Card>
     )
