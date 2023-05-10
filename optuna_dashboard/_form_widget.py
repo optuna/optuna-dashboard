@@ -46,7 +46,12 @@ if TYPE_CHECKING:
     )
     TextInputWidgetJSON = TypedDict(
         "TextInputWidgetJSON",
-        {"type": Literal["text"], "description": Optional[str], "user_attr_key": Optional[str], "optional": bool},
+        {
+            "type": Literal["text"],
+            "description": Optional[str],
+            "user_attr_key": Optional[str],
+            "optional": bool,
+        },
     )
     UserAttrRefJSON = TypedDict("UserAttrRefJSON", {"type": Literal["user_attr"], "key": str})
     FormWidgetJSON = TypedDict(
@@ -351,9 +356,7 @@ def register_objective_form_widgets(
         not isinstance(w, ObjectiveUserAttrRef) and w.user_attr_key is not None for w in widgets
     ):
         warnings.warn("`user_attr_key` specified, but it will not be used.")
-    if any(
-        isinstance(w, TextInputWidget) and w.optional for w in widgets
-    ):
+    if any(isinstance(w, TextInputWidget) and w.optional for w in widgets):
         raise ValueError("TextInputWidget.optional must be False.")
     form_widgets: FormWidgetJSON = {
         "output_type": "objective",
