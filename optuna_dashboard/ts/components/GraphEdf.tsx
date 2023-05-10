@@ -27,7 +27,7 @@ interface EdfPlotInfo {
   trials: Trial[]
 }
 
-export const GraphEdfBeta: FC<{
+export const GraphEdf: FC<{
   study: StudyDetail | null
   objectiveId: number
 }> = ({ study, objectiveId }) => {
@@ -54,60 +54,6 @@ export const GraphEdfBeta: FC<{
       </Typography>
       <Box id={domId} sx={{ height: "450px" }} />
     </Box>
-  )
-}
-
-export const GraphEdf: FC<{
-  study: StudyDetail | null
-}> = ({ study = null }) => {
-  const theme = useTheme()
-  const [targets, selected, setTarget] = useObjectiveTargets(study)
-  const trials = useFilteredTrials(study, [selected], false)
-
-  const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
-    setTarget(event.target.value)
-  }
-
-  useEffect(() => {
-    if (study != null) {
-      plotEdf(trials, selected, plotDomId, theme.palette.mode)
-    }
-  }, [trials, selected, theme.palette.mode])
-  return (
-    <Grid container direction="row">
-      <Grid
-        item
-        xs={3}
-        container
-        direction="column"
-        sx={{ paddingRight: theme.spacing(2) }}
-      >
-        <Typography
-          variant="h6"
-          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
-        >
-          EDF
-        </Typography>
-        {study !== null && study.directions.length !== 1 ? (
-          <FormControl component="fieldset">
-            <FormLabel component="legend">Objective:</FormLabel>
-            <Select
-              value={selected.identifier()}
-              onChange={handleObjectiveChange}
-            >
-              {targets.map((target, i) => (
-                <MenuItem value={target.identifier()} key={i}>
-                  {target.toLabel(study?.objective_names)}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        ) : null}
-      </Grid>
-      <Grid item xs={9}>
-        <Box id={plotDomId} sx={{ height: "450px" }} />
-      </Grid>
-    </Grid>
   )
 }
 

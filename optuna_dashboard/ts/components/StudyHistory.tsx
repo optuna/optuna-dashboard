@@ -10,10 +10,10 @@ import {
 } from "@mui/material"
 import { GraphParetoFront } from "./GraphParetoFront"
 import { GraphHistory } from "./GraphHistory"
-import { GraphIntermediateValuesBeta } from "./GraphIntermediateValues"
+import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import Grid2 from "@mui/material/Unstable_Grid2"
 import { DataGrid, DataGridColumn } from "./DataGrid"
-import { GraphHyperparameterImportanceBeta } from "./GraphHyperparameterImportances"
+import { GraphHyperparameterImportance } from "./GraphHyperparameterImportances"
 import { BestTrialsCard } from "./BestTrialsCard"
 import {
   useStudyDetailValue,
@@ -106,7 +106,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
         studyDetail.directions.length == 1 &&
         studyDetail.has_intermediate_values ? (
           <Grid2 xs={6}>
-            <GraphIntermediateValuesBeta
+            <GraphIntermediateValues
               trials={trials}
               includePruned={includePruned}
               logScale={logScale}
@@ -114,7 +114,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
           </Grid2>
         ) : null}
         <Grid2 xs={6}>
-          <GraphHyperparameterImportanceBeta
+          <GraphHyperparameterImportance
             studyId={studyId}
             study={studyDetail}
             graphHeight="450px"
