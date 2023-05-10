@@ -46,7 +46,12 @@ if TYPE_CHECKING:
     )
     TextInputWidgetJSON = TypedDict(
         "TextInputWidgetJSON",
-        {"type": Literal["text"], "description": Optional[str], "user_attr_key": Optional[str]},
+        {
+            "type": Literal["text"],
+            "description": Optional[str],
+            "user_attr_key": Optional[str],
+            "optional": bool,
+        },
     )
     UserAttrRefJSON = TypedDict("UserAttrRefJSON", {"type": Literal["user_attr"], "key": str})
     FormWidgetJSON = TypedDict(
@@ -185,6 +190,7 @@ class TextInputWidget:
         description: A description of the text input field.
         user_attr_key: The key used by `register_user_attr_form_widgets`.
             Form output is saved as `trial.user_attrs[user_attr_key]`. Defaults to None.
+        optional: If True, an empty string is acceptable.
 
     Example:
         .. code-block:: python
@@ -197,6 +203,7 @@ class TextInputWidget:
 
     description: Optional[str] = None
     user_attr_key: Optional[str] = None
+    optional: bool = False
 
     def to_dict(self) -> TextInputWidgetJSON:
         """
@@ -209,6 +216,7 @@ class TextInputWidget:
             "type": "text",
             "description": self.description,
             "user_attr_key": self.user_attr_key,
+            "optional": self.optional,
         }
 
     @classmethod
@@ -217,6 +225,7 @@ class TextInputWidget:
         return cls(
             description=d.get("description"),
             user_attr_key=d.get("user_attr_key"),
+            optional=d.get("optional", False),
         )
 
 
@@ -347,6 +356,8 @@ def register_objective_form_widgets(
         not isinstance(w, ObjectiveUserAttrRef) and w.user_attr_key is not None for w in widgets
     ):
         warnings.warn("`user_attr_key` specified, but it will not be used.")
+    if any(isinstance(w, TextInputWidget) and w.optional for w in widgets):
+        raise ValueError("TextInputWidget.optional must be False.")
     form_widgets: FormWidgetJSON = {
         "output_type": "objective",
         "widgets": [w.to_dict() for w in widgets],

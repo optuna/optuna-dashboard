@@ -283,7 +283,7 @@ export const tellTrialAPI = (
 
 export const saveTrialUserAttrsAPI = (
   trialId: number,
-  user_attrs: { [key: string]: number }
+  user_attrs: { [key: string]: number | string }
 ): Promise<void> => {
   const req = { user_attrs: user_attrs }
 
