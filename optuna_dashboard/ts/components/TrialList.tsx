@@ -36,7 +36,7 @@ import DeleteIcon from "@mui/icons-material/Delete"
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 
 import { TrialNote } from "./Note"
-import { useHistory, useLocation } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useRecoilValue } from "recoil"
 import { artifactIsAvailable } from "../state"
@@ -634,7 +634,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
 }) => {
   const theme = useTheme()
   const query = useQuery()
-  const history = useHistory()
+  const navigate = useNavigate()
   const excludedStates = useExcludedStates(query)
   const trials = useTrials(studyDetail, excludedStates)
   const isBestTrial = useIsBestTrial(studyDetail)
@@ -702,7 +702,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       excludedStates.splice(index, 1)
                     }
                     const numbers = selected.map((t) => t.number)
-                    history.push(
+                    navigate(
                       getTrialListLink(studyDetail.id, excludedStates, numbers)
                     )
                   }}
@@ -737,11 +737,11 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       } else {
                         next = [...selectedNumbers, trial.number]
                       }
-                      history.push(
+                      navigate(
                         getTrialListLink(trial.study_id, excludedStates, next)
                       )
                     } else {
-                      history.push(
+                      navigate(
                         getTrialListLink(trial.study_id, excludedStates, [
                           trial.number,
                         ])

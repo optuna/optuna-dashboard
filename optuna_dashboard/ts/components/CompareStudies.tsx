@@ -28,7 +28,7 @@ import { studySummariesState, studyDetailsState } from "../state"
 import { AppDrawer } from "./AppDrawer"
 import { GraphEdfMultiStudies } from "./GraphEdf"
 import { GraphHistoryMultiStudies } from "./GraphHistory"
-import { useHistory, useLocation } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 
 const useQuery = (): URLSearchParams => {
   const { search } = useLocation()
@@ -79,7 +79,7 @@ export const CompareStudies: FC<{
   const { enqueueSnackbar } = useSnackbar()
   const theme = useTheme()
   const query = useQuery()
-  const history = useHistory()
+  const navigate = useNavigate()
 
   const action = actionCreator()
   const studies = useRecoilValue<StudySummary[]>(studySummariesState)
@@ -183,9 +183,9 @@ export const CompareStudies: FC<{
                               next = [...selectedIds, study.study_id]
                             }
                           }
-                          history.push(getStudyListLink(next))
+                          navigate(getStudyListLink(next))
                         } else {
-                          history.push(getStudyListLink([study.study_id]))
+                          navigate(getStudyListLink([study.study_id]))
                         }
                       }}
                       selected={
