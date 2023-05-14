@@ -11,6 +11,7 @@ import React, {
 import {
   Typography,
   Box,
+  Button,
   useTheme,
   IconButton,
   Menu,
@@ -34,6 +35,7 @@ import UploadFileIcon from "@mui/icons-material/UploadFile"
 import DownloadIcon from "@mui/icons-material/Download"
 import DeleteIcon from "@mui/icons-material/Delete"
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
+import StopCircleIcon from "@mui/icons-material/StopCircle"
 
 import { TrialNote } from "./Note"
 import { useHistory, useLocation } from "react-router-dom"
@@ -146,6 +148,7 @@ const TrialListDetail: FC<{
   formWidgets?: FormWidgets
 }> = ({ trial, isBestTrial, directions, objectiveNames, formWidgets }) => {
   const theme = useTheme()
+  const action = actionCreator()
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
@@ -248,7 +251,13 @@ const TrialListDetail: FC<{
       >
         Trial {trial.number} (trial_id={trial.trial_id})
       </Typography>
-      <Box sx={{ marginBottom: theme.spacing(1) }}>
+      <Box
+        sx={{
+          marginBottom: theme.spacing(1),
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
         <Chip
           color={getChipColor(trial.state)}
           label={trial.state}
@@ -257,6 +266,20 @@ const TrialListDetail: FC<{
         />
         {isBestTrial(trial.trial_id) ? (
           <Chip label={"Best Trial"} color="secondary" variant="outlined" />
+        ) : null}
+        <Box sx={{ flexGrow: 1 }} />
+        {trial.state === "Running" && formWidgets === undefined ? (
+          <Button
+            variant="outlined"
+            size="small"
+            color="error"
+            startIcon={<StopCircleIcon />}
+            onClick={() => {
+              action.makeTrialFail(trial.study_id, trial.trial_id)
+            }}
+          >
+            Fail Trial
+          </Button>
         ) : null}
       </Box>
       <Typography
