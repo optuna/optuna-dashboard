@@ -1,6 +1,6 @@
 import React, { FC, useMemo, useState, useEffect } from "react"
 import { RecoilRoot } from "recoil"
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom"
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import { SnackbarProvider } from "notistack"
 import blue from "@mui/material/colors/blue"
 import pink from "@mui/material/colors/pink"
@@ -50,10 +50,10 @@ export const App: FC = () => {
         >
           <SnackbarProvider maxSnack={3}>
             <Router>
-              <Switch>
+              <Routes>
                 <Route
                   path={URL_PREFIX + "/studies/:studyId/analytics"}
-                  children={
+                  element={
                     <StudyDetail
                       toggleColorMode={toggleColorMode}
                       page={"analytics"}
@@ -62,7 +62,7 @@ export const App: FC = () => {
                 />
                 <Route
                   path={URL_PREFIX + "/studies/:studyId/trials"}
-                  children={
+                  element={
                     <StudyDetail
                       toggleColorMode={toggleColorMode}
                       page={"trialList"}
@@ -71,7 +71,7 @@ export const App: FC = () => {
                 />
                 <Route
                   path={URL_PREFIX + "/studies/:studyId/trials"}
-                  children={
+                  element={
                     <StudyDetail
                       toggleColorMode={toggleColorMode}
                       page={"trialList"}
@@ -80,7 +80,7 @@ export const App: FC = () => {
                 />
                 <Route
                   path={URL_PREFIX + "/studies/:studyId/trialTable"}
-                  children={
+                  element={
                     <StudyDetail
                       toggleColorMode={toggleColorMode}
                       page={"trialTable"}
@@ -89,7 +89,7 @@ export const App: FC = () => {
                 />
                 <Route
                   path={URL_PREFIX + "/studies/:studyId/note"}
-                  children={
+                  element={
                     <StudyDetail
                       toggleColorMode={toggleColorMode}
                       page={"note"}
@@ -98,7 +98,7 @@ export const App: FC = () => {
                 />
                 <Route
                   path={URL_PREFIX + "/studies/:studyId"}
-                  children={
+                  element={
                     <StudyDetail
                       toggleColorMode={toggleColorMode}
                       page={"history"}
@@ -107,15 +107,13 @@ export const App: FC = () => {
                 />
                 <Route
                   path={URL_PREFIX + "/compare-studies"}
-                  children={
-                    <CompareStudies toggleColorMode={toggleColorMode} />
-                  }
+                  element={<CompareStudies toggleColorMode={toggleColorMode} />}
                 />
                 <Route
                   path={URL_PREFIX + "/"}
-                  children={<StudyList toggleColorMode={toggleColorMode} />}
+                  element={<StudyList toggleColorMode={toggleColorMode} />}
                 />
-              </Switch>
+              </Routes>
             </Router>
           </SnackbarProvider>
         </Box>
