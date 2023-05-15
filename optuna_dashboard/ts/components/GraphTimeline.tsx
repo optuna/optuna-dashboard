@@ -5,6 +5,20 @@ import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-timeline"
 
+const makeHovertext = (trial: Trial): string => {
+  return JSON.stringify(
+    {
+      number: trial.number,
+      values: trial.values,
+      params: trial.params
+        .map((p) => [p.name, p.param_external_value])
+        .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {}),
+    },
+    undefined,
+    "  "
+  ).replace(/\n/g, "<br>")
+}
+
 export const GraphTimeline: FC<{
   study: StudyDetail | null
 }> = ({ study }) => {
@@ -61,6 +75,13 @@ const plotTimeline = (trials: Trial[], mode: string) => {
       r: 50,
       b: 0,
     },
+    xaxis: {
+      title: "Datetime",
+      type: "date",
+    },
+    yaxis: {
+      title: "Trial",
+    },
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
@@ -70,18 +91,19 @@ const plotTimeline = (trials: Trial[], mode: string) => {
     if (bars.length === 0) {
       continue
     }
-    const trace: any = {
+    const trace: plotly.Data = {
       type: "bar",
       name: s,
       x: bars.map(
         (b) => b.datetime_complete!.getTime() - b.datetime_start!.getTime()
       ),
       y: bars.map((b) => b.number),
-      base: bars.map((b) => b.datetime_start!.getTime()),
+      base: bars.map((b) => b.datetime_start!.toISOString()),
+      text: bars.map((b) => makeHovertext(b)),
       hovertemplate: "%{text}<extra>" + s + "</extra>",
       orientation: "h",
       marker: { color: cm[s] },
-      textposition: "none",
+      textposition: "none", // Avoid drawing hovertext in a bar.
     }
     plotly.addTraces(plotDomId, trace)
   }
