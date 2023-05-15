@@ -268,7 +268,7 @@ const TrialListDetail: FC<{
           <Chip label={"Best Trial"} color="secondary" variant="outlined" />
         ) : null}
         <Box sx={{ flexGrow: 1 }} />
-        {trial.state === "Running" && formWidgets === undefined ? (
+        {trial.state === "Running" ? (
           <Button
             variant="outlined"
             size="small"
