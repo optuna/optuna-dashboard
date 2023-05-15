@@ -163,16 +163,6 @@ const UpdatableFormWidgets: FC<{
           >
             Submit
           </Button>
-          <Box sx={{ flexGrow: 1 }} />
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={() => {
-              action.makeTrialFail(trial.study_id, trial.trial_id)
-            }}
-          >
-            Fail Trial
-          </Button>
         </Box>
       </Card>
     </Box>
@@ -374,6 +364,10 @@ const ReadonlyFormWidgets: FC<{
       return 0
     }
     return value
+  }
+
+  if (trial.state !== "Complete") {
+    return null
   }
 
   return (
