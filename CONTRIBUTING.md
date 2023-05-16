@@ -54,23 +54,10 @@ Note that `OPTUNA_DASHBOARD_DEBUG=1` makes the server will automatically restart
 
 ## Running tests, lint checks and formatters
 
-### Run all tests and lint checks
-
-```
-$ tox -e ALL
-```
-
 ### Running Python unit tests
 
 ```
 $ python -m unittest
-```
-
-or
-
-```
-$ pip install tox
-$ tox -e py39
 ```
 
 ### Running visual regression tests using pyppeteer
@@ -79,7 +66,7 @@ Please run following commands, then check screenshots in `tmp/` directory.
 
 ```
 $ pip install -r requirements.txt
-$ python visual_regression_test.py --output-dir tmp
+$ python hack/visual_regression_test.py --output-dir tmp
 ```
 
 Note: When you run pyppeteer for the first time, it downloads the latest version of Chromium (~150MB) if it is not found on your system.
@@ -92,13 +79,6 @@ $ flake8
 $ black --check .
 $ isort . --check
 $ mypy optuna_dashboard python_tests
-```
-
-or
-
-```
-$ pip install tox
-$ tox -e flake8 -e black -e mypy
 ```
 
 ### Auto-formatting TypeScript files (by prettier)
