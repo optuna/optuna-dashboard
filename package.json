@@ -5,7 +5,7 @@
   "description": "Dashboard for Optuna",
   "main": "index.js",
   "scripts": {
-    "fmt": "prettier --write \"optuna_dashboard/ts/**/*.{ts,tsx}\" \"typescript_tests/*.{ts,tsx}\" \"standalone_app/*.{ts,tsx}\"",
+    "fmt": "prettier --write \"optuna_dashboard/ts/**/*.{ts,tsx}\" \"typescript_tests/**/*.{ts,tsx}\" \"standalone_app/src/**/*.{ts,tsx}\"",
     "lint": "npm run lint:eslint && npm run lint:fmt",
     "lint:eslint": "eslint . --ext .ts,.tsx",
     "lint:fmt": "prettier --list-different \"optuna_dashboard/ts/**/*.{ts,tsx}\" \"typescript_tests/*.{ts,tsx}\" \"standalone_app/*.{ts,tsx}\"",

@@ -1,0 +1,73 @@
+{
+  "name": "optuna-dashboard",
+  "displayName": "Optuna Dashboard",
+  "description": "Web Dashboard for Optuna",
+  "version": "0.0.1",
+  "license": "MIT",
+  "icon": "images/optuna-logo.png",
+  "engines": {
+    "vscode": "^1.78.0"
+  },
+  "homepage": "https://optuna.org/",
+  "bugs": {
+    "url": "https://github.com/optuna/optuna-dashboard/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/optuna/optuna-dashboard.git"
+  },
+  "categories": [
+    "Machine Learning",
+    "Visualization"
+  ],
+  "keywords": [
+    "optuna",
+    "optuna dashboard",
+    "sqlite",
+    "sqlite3"
+  ],
+  "activationEvents": [],
+  "browser": "./dist/web/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "optuna-dashboard.openOptunaDashboard",
+        "title": "Open in Optuna Dashboard"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "optuna-dashboard.openOptunaDashboard",
+          "when": "resourceExtname == .db || resourceExtname == .sqlite3"
+        }
+      ]
+	}
+  },
+  "scripts": {
+    "test": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=dist/web/test/suite/index.js",
+    "pretest": "npm run compile-web",
+    "vscode:prepublish": "npm run package-web",
+    "compile-web": "webpack",
+    "watch-web": "webpack --watch",
+    "package-web": "webpack --mode production --devtool hidden-source-map",
+    "lint": "eslint src --ext ts",
+    "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ."
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.78.0",
+    "@types/mocha": "^10.0.1",
+    "eslint": "^8.39.0",
+    "@typescript-eslint/eslint-plugin": "^5.59.1",
+    "@typescript-eslint/parser": "^5.59.1",
+    "mocha": "^10.2.0",
+    "typescript": "^5.0.4",
+    "@vscode/test-web": "^0.0.43",
+    "ts-loader": "^9.4.2",
+    "webpack": "^5.81.0",
+    "webpack-cli": "^5.0.2",
+    "@types/webpack-env": "^1.18.0",
+    "assert": "^2.0.0",
+    "process": "^0.11.10"
+  }
+}

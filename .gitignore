@@ -29,4 +29,8 @@ rustlib/target/
 rustlib/pkg/
 
 # Others
+.envrc
+.idea/
+.vscode/
+.DS_Store
 tmp/
