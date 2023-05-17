@@ -144,6 +144,7 @@ const UpdatableFormWidgets: FC<{
           marginBottom: theme.spacing(2),
           margin: theme.spacing(0, 1, 1, 0),
           p: theme.spacing(1),
+          maxWidth: "1000px",
         }}
       >
         {widgetStates.map((ws) => ws.render())}
@@ -379,6 +380,7 @@ const ReadonlyFormWidgets: FC<{
           marginBottom: theme.spacing(2),
           margin: theme.spacing(0, 1, 1, 0),
           p: theme.spacing(1),
+          maxWidth: "1000px",
         }}
       >
         {formWidgets.widgets.map((widget, i) => {
