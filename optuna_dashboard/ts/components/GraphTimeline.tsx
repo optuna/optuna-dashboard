@@ -2,29 +2,16 @@ import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
 import { Grid, Typography, useTheme } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import { makeHovertext } from "../graphUtil"
 
 const plotDomId = "graph-timeline"
-
-const makeHovertext = (trial: Trial): string => {
-  return JSON.stringify(
-    {
-      number: trial.number,
-      values: trial.values,
-      params: trial.params
-        .map((p) => [p.name, p.param_external_value])
-        .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {}),
-    },
-    undefined,
-    "  "
-  ).replace(/\n/g, "<br>")
-}
 
 export const GraphTimeline: FC<{
   study: StudyDetail | null
 }> = ({ study }) => {
   const theme = useTheme()
 
-  const trials = study?.trials!
+  const trials = study?.trials ?? []
 
   useEffect(() => {
     if (study !== null) {
@@ -56,7 +43,7 @@ export const GraphTimeline: FC<{
 }
 
 const plotTimeline = (trials: Trial[], mode: string) => {
-  const cm = {
+  const cm: Record<TrialState, string> = {
     Complete: "blue",
     Fail: "red",
     Pruned: "orange",
@@ -86,19 +73,20 @@ const plotTimeline = (trials: Trial[], mode: string) => {
   }
 
   plotly.react(plotDomId, [], layout)
-  for (const s of Object.keys(cm)) {
+  for (const s of Object.keys(cm) as TrialState[]) {
     const bars = trials.filter((t) => t.state === s)
     if (bars.length === 0) {
       continue
     }
-    const trace: plotly.Data = {
+    const starts = bars.map((b) => b.datetime_start ?? new Date())
+    const completes = bars.map((b, i) => b.datetime_complete ?? starts[i])
+    const trace: Partial<plotly.PlotData> = {
       type: "bar",
-      name: s,
-      x: bars.map(
-        (b) => b.datetime_complete!.getTime() - b.datetime_start!.getTime()
-      ),
+      x: starts.map((s, i) => completes[i].getTime() - s.getTime()),
       y: bars.map((b) => b.number),
-      base: bars.map((b) => b.datetime_start!.toISOString()),
+      // @ts-ignore: To suppress ts(2322)
+      base: starts.map((s) => s.toISOString()),
+      name: s,
       text: bars.map((b) => makeHovertext(b)),
       hovertemplate: "%{text}<extra>" + s + "</extra>",
       orientation: "h",
