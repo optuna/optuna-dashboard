@@ -5,6 +5,7 @@ import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { makeHovertext } from "../graphUtil"
 
 const plotDomId = "graph-timeline"
+const maxBars = 100
 
 export const GraphTimeline: FC<{
   study: StudyDetail | null
@@ -43,6 +44,7 @@ export const GraphTimeline: FC<{
 }
 
 const plotTimeline = (trials: Trial[], mode: string) => {
+  const lastTrials = trials.slice(-maxBars) // Only show last elements
   const cm: Record<TrialState, string> = {
     Complete: "blue",
     Fail: "red",
@@ -74,7 +76,7 @@ const plotTimeline = (trials: Trial[], mode: string) => {
 
   plotly.react(plotDomId, [], layout)
   for (const s of Object.keys(cm) as TrialState[]) {
-    const bars = trials.filter((t) => t.state === s)
+    const bars = lastTrials.filter((t) => t.state === s)
     if (bars.length === 0) {
       continue
     }
