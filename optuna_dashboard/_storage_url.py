@@ -17,6 +17,8 @@ if TYPE_CHECKING:
     from optuna.storages import JournalStorage
 
 
+# The code to declare `rfc1738_pattern` variable is quoted from the source code
+# of SQLAlchemy project (MIT License). See LICENSE file for detials.
 # https://github.com/zzzeek/sqlalchemy/blob/c6554ac52/lib/sqlalchemy/engine/url.py#L234-L292
 rfc1738_pattern = re.compile(
     r"""
