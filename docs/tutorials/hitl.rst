@@ -56,10 +56,9 @@ The system architecture for this tutorial’s example is as follows:
 
 In HITL optimization using Optuna Dashboard, there are primarily the following components:
 
-1. Evaluator (human) who evaluates the outputs
-2. Optuna Dashboard for displaying the outputs and making evaluations
-3. Database and File Storage to store the experiment’s data (Study)
-4. Script that samples hyperparameters from Optuna and generates outputs
+1. Optuna Dashboard for displaying the outputs and making evaluations
+2. Database and File Storage to store the experiment’s data (Study)
+3. Script that samples hyperparameters from Optuna and generates outputs
 
 The DB is the place where the information of the Study is stored. The Artifact Store is a place for storing artifacts (data, files, etc.) for the Optuna Dashboard. In this case, it is used as a storage location for the RGB images.
 
@@ -75,13 +74,11 @@ Our script repeatedly performs these steps:
 
 Additionally, the evaluator, Optuna Dashboard, and Optuna perform the following processes:
 
-a. Optuna Dashboard retrieves the RGB images uploaded to the Artifact Store
-b. Optuna Dashboard displays the retrieved RGB images to the evaluator
-c. The evaluator reviews the displayed RGB images
-d. The evaluator inputs their evaluation of how close the displayed image is to the "color of the sunset" into the Optuna Dashboard
-e. Optuna Dashboard saves the evaluation results in the database
+a. Optuna Dashboard retrieves the RGB images uploaded to the Artifact Store and displays the retrieved RGB images to the evaluator
+b. The evaluator reviews the displayed RGB images and inputs their evaluation of how close the displayed image is to the "color of the sunset" into the Optuna Dashboard
+c. Optuna Dashboard saves the evaluation results in the database
 
-In the example of this tutorial, processes 1-3 and a-e are executed in parallel.
+In the example of this tutorial, processes 1-3 and a-c are executed in parallel.
 
 Steps
 ~~~~~
