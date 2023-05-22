@@ -19,7 +19,7 @@ export const PlotImportance: FC<{ study: Study }> = ({ study }) => {
       await init()
 
       const x: ParamImportance[][] = study.directions.map((d, objectiveId) => {
-        let filteredTrials = study.trials.filter((t) =>
+        const filteredTrials = study.trials.filter((t) =>
           filterFunc(t, objectiveId)
         )
         if (filteredTrials.length === 0) {

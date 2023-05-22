@@ -43,7 +43,7 @@ export const loadStorage = (
       }
 
       // Get studies
-      let studies: Study[] = []
+      const studies: Study[] = []
       db.exec({
         sql:
           "SELECT s.study_id, s.study_name, sd.direction, sd.objective" +
@@ -86,11 +86,11 @@ export const loadStorage = (
             const state: TrialState =
               vals[3] === "COMPLETE"
                 ? "Complete"
-                : "PRUNED"
+                : vals[3] === "PRUNED"
                 ? "Pruned"
-                : "RUNNING"
+                : vals[3] === "RUNNING"
                 ? "Running"
-                : "WAITING"
+                : vals[3] === "WAITING"
                 ? "Waiting"
                 : "Fail"
             const trial: Trial = {

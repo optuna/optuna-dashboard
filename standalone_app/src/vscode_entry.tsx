@@ -10,7 +10,7 @@ export const AppWrapper: FC = () => {
   const setStudies = useSetRecoilState<Study[]>(studiesState)
 
   const onceSetStudies: SetterOrUpdater<Study[]> = (
-    setter: ((currVal: Study) => Study) | Study
+    setter: (currVal: Study[]) => Study[]
   ): void => {
     const studies = setter([])
     setStudies(studies)
@@ -19,16 +19,22 @@ export const AppWrapper: FC = () => {
   useEffect(() => {
     window.addEventListener("message", (event) => {
       const message = event.data
+      let fileContentBase64: string
+      let binaryString: string
+      let len: number
+      let bytes: Uint8Array
+      let arrayBuffer: ArrayBuffer
+
       switch (message.type) {
         case "optunaStorage":
-          const fileContentBase64 = message.content
-          const binaryString = atob(fileContentBase64)
-          const len = binaryString.length
-          const bytes = new Uint8Array(len)
+          fileContentBase64 = message.content
+          binaryString = atob(fileContentBase64)
+          len = binaryString.length
+          bytes = new Uint8Array(len)
           for (let i = 0; i < len; i++) {
             bytes[i] = binaryString.charCodeAt(i)
           }
-          const arrayBuffer = bytes.buffer
+          arrayBuffer = bytes.buffer
           loadStorage(arrayBuffer, onceSetStudies)
           break
       }

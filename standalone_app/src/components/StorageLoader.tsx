@@ -18,7 +18,7 @@ import {
 } from "@mui/material"
 import UploadFileIcon from "@mui/icons-material/UploadFile"
 
-export const StorageLoader: FC<{}> = () => {
+export const StorageLoader: FC = () => {
   const theme = useTheme()
   const [dragOver, setDragOver] = useState<boolean>(false)
 
