@@ -36,10 +36,6 @@ export function activate(context: vscode.ExtensionContext) {
         type: "optunaStorage",
         content: storageContentBase64,
       })
-
-      vscode.window.showInformationMessage(
-        `Starting Optuna Dashboard for ${fileUri}`
-      )
     }
   )
 

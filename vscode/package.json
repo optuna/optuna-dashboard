@@ -23,8 +23,7 @@
   "keywords": [
     "optuna",
     "optuna dashboard",
-    "sqlite",
-    "sqlite3"
+    "optuna-dashboard"
   ],
   "activationEvents": [],
   "browser": "./dist/web/extension.js",

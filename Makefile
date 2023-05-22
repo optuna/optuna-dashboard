@@ -28,7 +28,7 @@ serve-browser-app: standalone_app/public/bundle.js
 
 .PHONY: vscode-extension
 vscode-extension: vscode/assets/bundle.js
-	cd vscode && vsce package
+	cd vscode && npm install && npm run vscode:prepublish && vsce package
 
 .PHONY: sdist
 sdist: pyproject.toml $(DASHBOARD_TS_OUT)
