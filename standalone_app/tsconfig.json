@@ -1,0 +1,32 @@
+{
+  "compilerOptions": {
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "strictNullChecks": true,
+    "moduleResolution": "node",
+    "noUnusedLocals": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "paths": {
+      "plotly.js-dist-min": ["node_modules/@types/plotly.js"]
+    },
+    "noImplicitAny": true,
+    "lib": ["dom", "esnext"],
+    "module": "esnext",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "es5",
+    "jsx": "react",
+    "sourceMap": true,
+    "strict": true
+  },
+  "files": [
+    "./src/browser_app_entry.tsx",
+    "./src/vscode_entry.tsx"
+  ],
+  "include": [
+    "./src/types/**/*"
+  ],
+  "types": ["node"]
+}

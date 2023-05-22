@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+    <meta charset="utf-8" />
+    <title>hello-wasm example</title>
+</head>
+<body>
+<script type="module">
+    import init, {wasm_fanova_calculate} from "./pkg/optuna_wasm.js";
+
+    async function run_wasm() {
+        await init();
+
+        // targets = x1^2 + x2
+        let features = [
+            Array.from({length: 100}, () => Math.random() + 1),
+            Array.from({length: 100}, () => Math.random() + 1),
+        ];
+        let targets = features[0].map((x1, i) => x1 * x1 + features[1][i])
+
+        console.dir(features)
+        console.dir(targets)
+
+        console.log(wasm_fanova_calculate(features, targets));
+    }
+
+    run_wasm();
+</script>
+</body>
+</html>

@@ -1,3 +1,4 @@
+# Python
 *.pyc
 __pycache__/
 venv/
@@ -5,13 +6,31 @@ venv/
 *.egg-info
 dist/
 build/
+optuna_dashboard/public/
 
+# JS
 node_modules/
-public/
-tmp/
+standalone_app/public/
 
+# VSCode
+vscode/assets/
+*.vsix
+
+# Databases
 *.sqlite3
 *.db
 
+# Docs
 docs/_build/
 docs/_generated/
+
+# Rust
+rustlib/target/
+rustlib/pkg/
+
+# Others
+.envrc
+.idea/
+.vscode/
+.DS_Store
+tmp/

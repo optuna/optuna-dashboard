@@ -5,8 +5,10 @@
   "description": "Dashboard for Optuna",
   "main": "index.js",
   "scripts": {
-    "fmt": "prettier --write \"optuna_dashboard/ts/**/*.{ts,tsx}\" \"typescript_tests/*.{ts,tsx}\"",
-    "lint": "eslint . --ext .ts,.tsx && prettier --list-different \"optuna_dashboard/ts/**/*.{ts,tsx}\" \"typescript_tests/*.{ts,tsx}\"",
+    "fmt": "prettier --write \"{optuna_dashboard/ts,typescript_tests,standalone_app/src,vscode/src}/**/*.{ts,tsx}\"",
+    "lint": "npm run lint:eslint && npm run lint:fmt",
+    "lint:eslint": "eslint . --ext .ts,.tsx",
+    "lint:fmt": "prettier --list-different \"{optuna_dashboard/ts,typescript_tests,standalone_app/src,vscode/src}/**/*.{ts,tsx}\"",
     "watch": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack --watch",
     "build": "webpack",
     "build:dev": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack",
