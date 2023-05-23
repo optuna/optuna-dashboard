@@ -1,6 +1,6 @@
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
-import { Grid, Typography, useTheme } from "@mui/material"
+import { Card, CardContent, Grid, Typography, useTheme } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { makeHovertext } from "../graphUtil"
 
@@ -21,25 +21,19 @@ export const GraphTimeline: FC<{
   }, [trials, theme.palette.mode])
 
   return (
-    <Grid container direction="row">
-      <Grid
-        item
-        xs={3}
-        container
-        direction="column"
-        sx={{ paddingRight: theme.spacing(2) }}
-      >
+    <Card>
+      <CardContent>
         <Typography
           variant="h6"
           sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
         >
           Timeline
         </Typography>
-      </Grid>
-      <Grid item xs={9}>
-        <div id={plotDomId} />
-      </Grid>
-    </Grid>
+        <Grid item xs={9}>
+          <div id={plotDomId} />
+        </Grid>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -74,7 +68,7 @@ const plotTimeline = (trials: Trial[], mode: string) => {
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
-  plotly.react(plotDomId, [], layout)
+  const traces: Partial<plotly.PlotData>[] = []
   for (const s of Object.keys(cm) as TrialState[]) {
     const bars = lastTrials.filter((t) => t.state === s)
     if (bars.length === 0) {
@@ -95,6 +89,7 @@ const plotTimeline = (trials: Trial[], mode: string) => {
       marker: { color: cm[s] },
       textposition: "none", // Avoid drawing hovertext in a bar.
     }
-    plotly.addTraces(plotDomId, trace)
+    traces.push(trace)
   }
+  plotly.react(plotDomId, traces, layout)
 }
