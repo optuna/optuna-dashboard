@@ -203,7 +203,6 @@ In the ``suggest_and_generate_image`` function, a new Trial is obtained and new 
 
     def start_optimization(artifact_backend: FileSystemBackend) -> NoReturn:
         # 1. Create Study
-        storage = "sqlite:///db.sqlite3"
         study = optuna.create_study(
             study_name="Human-in-the-loop Optimization",
             storage="sqlite:///db.sqlite3",
