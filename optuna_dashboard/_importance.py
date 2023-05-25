@@ -21,8 +21,8 @@ try:
     from optuna_fast_fanova import FanovaImportanceEvaluator as FastFanovaImportanceEvaluator
 except ModuleNotFoundError:
     FastFanovaImportanceEvaluator = None  # type: ignore
-except Exception:
-    _logger.exception("Failed to import optuna-fast-fanova")
+except Exception as e:
+    _logger.warning(f"Skipping to use optuna-fast-fanova due to {e}")
     FastFanovaImportanceEvaluator = None  # type: ignore
 
 
