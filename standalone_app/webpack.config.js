@@ -34,7 +34,7 @@ var config = [
         output: {
             path: __dirname + '/public/',
             filename: 'bundle.js',
-            publicPath: '/'
+            publicPath: '/public/'
         },
         module: {
             rules: [{ oneOf: [typeScriptLoader] }]
