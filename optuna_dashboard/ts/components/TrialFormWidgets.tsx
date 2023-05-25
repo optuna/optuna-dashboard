@@ -277,6 +277,7 @@ export const useSliderWidget = (
 ): WidgetState => {
   const theme = useTheme()
   const [value, setValue] = useState<number>(widget.min)
+  const defaultStep = 0.01
   const render = () => (
     <FormControl key={key} sx={{ margin: theme.spacing(1, 2) }}>
       <FormLabel>
@@ -291,12 +292,8 @@ export const useSliderWidget = (
           defaultValue={widget.min}
           min={widget.min}
           max={widget.max}
-          step={widget.step}
-          marks={
-            widget.labels === null || widget.labels.length == 0
-              ? true
-              : widget.labels
-          }
+          step={widget.step || defaultStep}
+          marks={widget.labels === null ? undefined : widget.labels}
           valueLabelDisplay="auto"
         />
       </Box>
