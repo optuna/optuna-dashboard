@@ -97,7 +97,7 @@ To run `the script <https://github.com/optuna/optuna-dashboard/blob/main/example
 
 .. code-block:: console
 
-    $ pip install optuna-dashboard pillow
+    $ pip install "optuna>=3.2.0" "optuna-dashboard>=0.10.0" pillow
 
 
 You will use SQLite for the storage backend in this tutorial. Ensure that the following library is installed:
@@ -120,7 +120,7 @@ In the script, the storage is set to "sqlite:///db.sqlite3" to persist Optuna's 
     Listening on http://127.0.0.1:8080/
     Hit Ctrl-C to quit.
 
-When you run the script, you will see a message like the one above. Open `http://127.0.0.1:8080/dashboard/beta <http://127.0.0.1:8080/dashboard/beta>`_ in your browser.
+When you run the script, you will see a message like the one above. Open `http://127.0.0.1:8080/dashboard/ <http://127.0.0.1:8080/dashboard/>`_ in your browser.
 
 Interactive HITL optimization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -201,20 +201,17 @@ In the ``suggest_and_generate_image`` function, a new Trial is obtained and new 
 .. code-block:: python
     :linenos:
 
-    def start_optimization(
-        storage: optuna.storages.BaseStorage, artifact_backend: FileSystemBackend
-    ) -> NoReturn:
+    def start_optimization(artifact_backend: FileSystemBackend) -> NoReturn:
         # 1. Create Study
-        sampler = optuna.samplers.TPESampler(constant_liar=True)
         study = optuna.create_study(
             study_name="Human-in-the-loop Optimization",
-            storage=storage,
-            sampler=sampler,
+            storage="sqlite:///db.sqlite3",
+            sampler=optuna.samplers.TPESampler(constant_liar=True, n_startup_trials=5),
             load_if_exists=True,
         )
-    
+
         # 2. Set an objective name
-        set_objective_names(study, ["Looks like sunset color?"])
+        study.set_metric_names(["Looks like sunset color?"])
 
         # 3. Register ChoiceWidget
         register_objective_form_widgets(
@@ -233,6 +230,7 @@ In the ``suggest_and_generate_image`` function, a new Trial is obtained and new 
         while True:
             running_trials = study.get_trials(deepcopy=False, states=(TrialState.RUNNING,))
             if len(running_trials) >= n_batch:
+                time.sleep(1)  # Avoid busy-loop
                 continue
             suggest_and_generate_image(study, artifact_backend)
 
@@ -240,7 +238,7 @@ In the ``suggest_and_generate_image`` function, a new Trial is obtained and new 
 The function ``start_optimization`` defines our loop for HITL optimization to generate an image resembling a sunset color.
 
 * First, at #1, a Study of Optuna is created using TPESampler. Setting ``load_if_exists=True`` allows a Study to exist and be reused and the experiment to be resumed if it has already been created. The reason for setting ``constant_liar=True`` in TPESampler is to prevent similar hyperparameters from being sampled even if the trial is executed several times simultaneously (in this example, four times).
-* At #2, the name of the objective that the :class:`~optuna_dashboard.ChoiceWidget` targets is set using the set_objective_names function. In this case, the name "Looks like sunset color?" is set.
+* At #2, the name of the objective that the :class:`~optuna_dashboard.ChoiceWidget` targets is set using the `study.set_metric_names <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.study.Study.html#optuna.study.Study.set_metric_names>`_ function. In this case, the name "Looks like sunset color?" is set.
 * At #3, the :class:`~optuna_dashboard.ChoiceWidget` is registered using the :func:`~optuna_dashboard.register_objective_form_widgets` function. This widget is used to ask users for evaluation to find the optimal hyperparameters. In this case, there are three options: "Good 👍", "So-so👌", and "Bad 👎", each with an evaluation value of -1, 0, and 1, respectively. Note that Optuna minimizes objective values by default, so -1 is Good. Other widgets for evaluation are also available, so please refer to the API Reference for details.
 * At #4, the ``suggest_and_generate_image`` function is used to generate an RGB image. Here, the number of currently running (TrialState.RUNNING) trials is periodically checked to ensure that four trials are running simultaneously. The reason why trials are executed in batches like this is that it generally may take a long time to obtain results from trial execution. By performing batch parallel processing, time waiting for the next results can be reduced. In this case, because generating the images is instant, it’s not necessary, but demonstrates practices.
 
@@ -250,11 +248,7 @@ The function ``start_optimization`` defines our loop for HITL optimization to ge
     def main() -> NoReturn:
         tmp_path = os.path.join(os.path.dirname(__file__), "tmp")
 
-        # 1. Create RDBStorage
-        url = "sqlite:///db.sqlite3"
-        storage = optuna.storages.RDBStorage(url=url)
-
-        # 2. Create Artifact Storage
+        # 1. Create Artifact Store
         artifact_path = os.path.join(os.path.dirname(__file__), "artifact")
         artifact_backend = FileSystemBackend(base_path=artifact_path)
     
@@ -264,12 +258,12 @@ The function ``start_optimization`` defines our loop for HITL optimization to ge
         if not os.path.exists(tmp_path):
             os.mkdir(tmp_path)
     
-        # 3. Run optimize loop
-        start_optimization(storage, artifact_backend)
+        # 2. Run optimize loop
+        start_optimization(artifact_backend)
 
-In the ``main`` function, at first, the locations of the Optuna Storage and Artifact Store are set. 
+In the ``main`` function, at first, the locations of the Artifact Store is set.
 
-* At #1, Optuna's RDBStorage is created. This storage is used to store the trial results of Optuna in a database. RDBStorage supports various relational databases (RDBs), but in this code, SQLite3 is used. The URL "sqlite:///db.sqlite3" indicates the location of the SQLite3 database file. This database file is used to store the trial history of Optuna. The results of the HITL optimization will be saved in this file.
-* At #2, the :class:`~optuna_dashboard.FileSystemBackend` is created, which is one of the Artifact Storage options used in the Optuna Dashboard. Artifact Storage is used to store artifacts (data, files, etc.) generated during Optuna trials. For more information, please refer to the API Reference.
+* At #1, the :class:`~optuna_dashboard.FileSystemBackend` is created, which is one of the Artifact Storage options used in the Optuna Dashboard. Artifact Storage is used to store artifacts (data, files, etc.) generated during Optuna trials. For more information, please refer to the API Reference.
+* At #2, `start_optimization()` function, which is described above, is called.
 
 After that, two folders are created, artifact and tmp, and then ``start_optimization`` function is called to start the HITL optimization using Optuna.
