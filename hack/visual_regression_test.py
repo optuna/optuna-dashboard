@@ -168,6 +168,29 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
 
     study.optimize(objective_single_inf_report, n_trials=50)
 
+    # Issue 410
+    study = optuna.create_study(study_name="Issue 410", storage=storage, sampler=sampler)
+
+    def objective_issue_410(trial: optuna.Trial) -> float:
+        trial.suggest_categorical("resample_rate", ["50ms"])
+        trial.suggest_categorical("channels", ["all"])
+        trial.suggest_categorical("window_size", [256])
+        if trial.number > 15:
+            raise Exception("Unexpected error")
+        trial.suggest_categorical("cbow", [True])
+        trial.suggest_categorical("model", ["m1"])
+
+        trial.set_user_attr("epochs", 0)
+        trial.set_user_attr("deterministic", True)
+        if trial.number > 10:
+            raise Exception("unexpeccted error")
+        trial.set_user_attr("folder", "/path/to/folder")
+        trial.set_user_attr("resample_type", "foo")
+        trial.set_user_attr("run_id", "0001")
+        return 1.0
+
+    study.optimize(objective_issue_410, n_trials=20, catch=(Exception,))
+
     # No trials single-objective study
     optuna.create_study(study_name="single-no-trials", storage=storage, sampler=sampler)
 

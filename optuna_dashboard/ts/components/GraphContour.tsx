@@ -166,6 +166,31 @@ const plotContour = (
   const xIndices = xAxis.indices
   const yIndices = yAxis.indices
 
+  const layout: Partial<plotly.Layout> = {
+    xaxis: {
+      title: xParam.name,
+      type: xAxis.isCat ? "category" : undefined,
+    },
+    yaxis: {
+      title: yParam.name,
+      type: yAxis.isCat ? "category" : undefined,
+    },
+    margin: {
+      l: 50,
+      t: 0,
+      r: 50,
+      b: 50,
+    },
+    uirevision: "true",
+    template: mode === "dark" ? plotlyDarkTemplate : {},
+  }
+
+  // TODO(c-bata): Support parameters that only have the single value
+  if (xIndices.length <= 1 || yIndices.length <= 1) {
+    plotly.react(plotDomId, [], layout)
+    return
+  }
+
   const xValues: plotly.Datum[] = []
   const yValues: plotly.Datum[] = []
   const zValues: plotly.Datum[][] = new Array(yIndices.length)
@@ -214,25 +239,6 @@ const plotContour = (
       showlegend: false,
     },
   ]
-
-  const layout: Partial<plotly.Layout> = {
-    xaxis: {
-      title: xParam.name,
-      type: xAxis.isCat ? "category" : undefined,
-    },
-    yaxis: {
-      title: yParam.name,
-      type: yAxis.isCat ? "category" : undefined,
-    },
-    margin: {
-      l: 50,
-      t: 0,
-      r: 50,
-      b: 50,
-    },
-    uirevision: "true",
-    template: mode === "dark" ? plotlyDarkTemplate : {},
-  }
   plotly.react(plotDomId, plotData, layout)
 }
 
