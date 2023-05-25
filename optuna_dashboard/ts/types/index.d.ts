@@ -139,7 +139,7 @@ type ObjectiveSliderWidget = {
   user_attr_key?: string
   min: number
   max: number
-  step: number
+  step: number | null
   labels:
     | {
         value: number
