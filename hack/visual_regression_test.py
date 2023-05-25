@@ -172,14 +172,13 @@ def create_dummy_storage() -> optuna.storages.InMemoryStorage:
     study = optuna.create_study(study_name="Issue 410", storage=storage, sampler=sampler)
 
     def objective_issue_410(trial: optuna.Trial) -> float:
-        resample_rate = trial.suggest_categorical("resample_rate", ["50ms"])
-        channels = trial.suggest_categorical("channels", ["all"])
-        window_size = trial.suggest_categorical("window_size", [256])
+        trial.suggest_categorical("resample_rate", ["50ms"])
+        trial.suggest_categorical("channels", ["all"])
+        trial.suggest_categorical("window_size", [256])
         if trial.number > 15:
             raise Exception("Unexpected error")
-        cbow = trial.suggest_categorical("cbow", [True])
-        model_type = trial.suggest_categorical("model", ["m1"])
-        height = None
+        trial.suggest_categorical("cbow", [True])
+        trial.suggest_categorical("model", ["m1"])
 
         trial.set_user_attr("epochs", 0)
         trial.set_user_attr("deterministic", True)
