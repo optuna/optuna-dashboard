@@ -10,6 +10,7 @@ import {
 } from "@mui/material"
 import { GraphParetoFront } from "./GraphParetoFront"
 import { GraphHistory } from "./GraphHistory"
+import { GraphTimeline } from "./GraphTimeline"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import Grid2 from "@mui/material/Unstable_Grid2"
 import { DataGrid, DataGridColumn } from "./DataGrid"
@@ -119,6 +120,9 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
             study={studyDetail}
             graphHeight="450px"
           />
+        </Grid2>
+        <Grid2 xs={6}>
+          <GraphTimeline study={studyDetail} />
         </Grid2>
         <Grid2 xs={6} spacing={2}>
           <BestTrialsCard studyDetail={studyDetail} />

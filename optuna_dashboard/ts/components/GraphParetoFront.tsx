@@ -12,6 +12,7 @@ import {
   Box,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import { makeHovertext } from "../graphUtil"
 
 const plotDomId = "graph-pareto-front"
 
@@ -100,20 +101,6 @@ const filterFunc = (trial: Trial, directions: StudyDirection[]): boolean => {
     trial.values.length === directions.length &&
     trial.values.every((v) => v !== "inf" && v !== "-inf")
   )
-}
-
-const makeHovertext = (trial: Trial): string => {
-  return JSON.stringify(
-    {
-      number: trial.number,
-      values: trial.values,
-      params: trial.params
-        .map((p) => [p.name, p.param_external_value])
-        .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {}),
-    },
-    undefined,
-    "  "
-  ).replace(/\n/g, "<br>")
 }
 
 const makeScatterObject = (
