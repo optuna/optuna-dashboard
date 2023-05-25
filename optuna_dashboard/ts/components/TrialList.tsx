@@ -11,6 +11,7 @@ import React, {
 import {
   Typography,
   Box,
+  Button,
   useTheme,
   IconButton,
   Menu,
@@ -34,9 +35,10 @@ import UploadFileIcon from "@mui/icons-material/UploadFile"
 import DownloadIcon from "@mui/icons-material/Download"
 import DeleteIcon from "@mui/icons-material/Delete"
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
+import StopCircleIcon from "@mui/icons-material/StopCircle"
 
 import { TrialNote } from "./Note"
-import { useHistory, useLocation } from "react-router-dom"
+import { useNavigate, useLocation } from "react-router-dom"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useRecoilValue } from "recoil"
 import { artifactIsAvailable } from "../state"
@@ -146,6 +148,7 @@ const TrialListDetail: FC<{
   formWidgets?: FormWidgets
 }> = ({ trial, isBestTrial, directions, objectiveNames, formWidgets }) => {
   const theme = useTheme()
+  const action = actionCreator()
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
@@ -226,10 +229,12 @@ const TrialListDetail: FC<{
               ? "rgba(255, 255, 255, 0.05)"
               : "rgba(0, 0, 0, 0.05)",
           width: "100%",
+          maxHeight: "150px",
+          overflow: "auto",
           p: theme.spacing(0.5, 1),
           borderRadius: theme.shape.borderRadius * 0.2,
           display: "flex",
-          alignItems: "center",
+          whiteSpace: "nowrap",
         }}
       >
         {value}
@@ -248,7 +253,13 @@ const TrialListDetail: FC<{
       >
         Trial {trial.number} (trial_id={trial.trial_id})
       </Typography>
-      <Box sx={{ marginBottom: theme.spacing(1) }}>
+      <Box
+        sx={{
+          marginBottom: theme.spacing(1),
+          display: "flex",
+          flexDirection: "row",
+        }}
+      >
         <Chip
           color={getChipColor(trial.state)}
           label={trial.state}
@@ -257,6 +268,20 @@ const TrialListDetail: FC<{
         />
         {isBestTrial(trial.trial_id) ? (
           <Chip label={"Best Trial"} color="secondary" variant="outlined" />
+        ) : null}
+        <Box sx={{ flexGrow: 1 }} />
+        {trial.state === "Running" ? (
+          <Button
+            variant="outlined"
+            size="small"
+            color="error"
+            startIcon={<StopCircleIcon />}
+            onClick={() => {
+              action.makeTrialFail(trial.study_id, trial.trial_id)
+            }}
+          >
+            Fail Trial
+          </Button>
         ) : null}
       </Box>
       <Typography
@@ -634,7 +659,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
 }) => {
   const theme = useTheme()
   const query = useQuery()
-  const history = useHistory()
+  const navigate = useNavigate()
   const excludedStates = useExcludedStates(query)
   const trials = useTrials(studyDetail, excludedStates)
   const isBestTrial = useIsBestTrial(studyDetail)
@@ -702,7 +727,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       excludedStates.splice(index, 1)
                     }
                     const numbers = selected.map((t) => t.number)
-                    history.push(
+                    navigate(
                       getTrialListLink(studyDetail.id, excludedStates, numbers)
                     )
                   }}
@@ -737,11 +762,11 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       } else {
                         next = [...selectedNumbers, trial.number]
                       }
-                      history.push(
+                      navigate(
                         getTrialListLink(trial.study_id, excludedStates, next)
                       )
                     } else {
-                      history.push(
+                      navigate(
                         getTrialListLink(trial.study_id, excludedStates, [
                           trial.number,
                         ])

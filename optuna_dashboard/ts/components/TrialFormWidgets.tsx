@@ -144,6 +144,7 @@ const UpdatableFormWidgets: FC<{
           marginBottom: theme.spacing(2),
           margin: theme.spacing(0, 1, 1, 0),
           p: theme.spacing(1),
+          maxWidth: "1000px",
         }}
       >
         {widgetStates.map((ws) => ws.render())}
@@ -162,16 +163,6 @@ const UpdatableFormWidgets: FC<{
             onClick={handleSubmit}
           >
             Submit
-          </Button>
-          <Box sx={{ flexGrow: 1 }} />
-          <Button
-            variant="outlined"
-            color="error"
-            onClick={() => {
-              action.makeTrialFail(trial.study_id, trial.trial_id)
-            }}
-          >
-            Fail Trial
           </Button>
         </Box>
       </Card>
@@ -376,6 +367,10 @@ const ReadonlyFormWidgets: FC<{
     return value
   }
 
+  if (trial.state !== "Complete") {
+    return null
+  }
+
   return (
     <Box sx={{ p: theme.spacing(1, 0) }}>
       <Card
@@ -385,6 +380,7 @@ const ReadonlyFormWidgets: FC<{
           marginBottom: theme.spacing(2),
           margin: theme.spacing(0, 1, 1, 0),
           p: theme.spacing(1),
+          maxWidth: "1000px",
         }}
       >
         {formWidgets.widgets.map((widget, i) => {

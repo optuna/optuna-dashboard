@@ -17,6 +17,11 @@ Real-time dashboard for `Optuna <https://github.com/optuna/optuna>`_.
    errors
    tutorials/index
 
+LICENSE
+=======
+
+This software is licensed under the MIT license and uses the codes from SQLAlchemy (MIT) project,
+see `LICENSE <https://github.com/optuna/optuna-dashboard/blob/main/LICENSE>`_ for more information.
 
 Links
 =====

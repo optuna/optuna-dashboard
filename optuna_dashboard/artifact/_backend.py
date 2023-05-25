@@ -49,7 +49,7 @@ def get_artifact_path(
     artifact_id: str,
 ) -> str:
     """Get the URL path for a given artifact ID."""
-    study_id = trial._study_id
+    study_id = trial.study._study_id
     trial_id = trial._trial_id
     return f"/artifacts/{study_id}/{trial_id}/{artifact_id}"
 
@@ -148,7 +148,7 @@ def upload_artifact(
     filename = os.path.basename(file_path)
     storage = trial.storage
     trial_id = trial._trial_id
-    study_id = trial._study_id
+    study_id = trial.study._study_id
     artifact_id = str(uuid.uuid4())
     guess_mimetype, guess_encoding = mimetypes.guess_type(filename)
     artifact: ArtifactMeta = {
