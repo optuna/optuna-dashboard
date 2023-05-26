@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 import threading
 
 from bottle import Bottle

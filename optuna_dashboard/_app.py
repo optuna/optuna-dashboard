@@ -17,12 +17,8 @@ from bottle import static_file
 import optuna
 from optuna.exceptions import DuplicatedStudyError
 from optuna.storages import BaseStorage
-from optuna.storages import RDBStorage
 from optuna.study import StudyDirection
-from optuna.study import StudySummary
 from optuna.trial import TrialState
-from optuna.version import __version__ as optuna_ver
-from packaging import version
 
 from . import _note as note
 from ._bottle_util import BottleViewReturn
@@ -33,8 +29,11 @@ from ._pareto_front import get_pareto_front_trials
 from ._rdb_migration import register_rdb_migration_route
 from ._serializer import serialize_study_detail
 from ._serializer import serialize_study_summary
+from ._storage import create_new_study
+from ._storage import get_study_summaries
+from ._storage import get_study_summary
+from ._storage import get_trials
 from ._storage_url import get_storage
-from ._trials import get_trials
 from .artifact._backend import delete_all_artifacts
 from .artifact._backend import register_artifact_route
 
@@ -42,11 +41,6 @@ from .artifact._backend import register_artifact_route
 if typing.TYPE_CHECKING:
     from _typeshed.wsgi import WSGIApplication
     from optuna_dashboard.artifact.protocol import ArtifactBackend
-
-    try:
-        from optuna.study._frozen import FrozenStudy
-    except ImportError:
-        FrozenStudy = None  # type: ignore
 
 
 logger = logging.getLogger(__name__)
@@ -56,40 +50,6 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "public")
 IMG_DIR = os.path.join(BASE_DIR, "img")
 cached_path_exists = functools.lru_cache(maxsize=10)(os.path.exists)
-
-
-def get_study_summaries(storage: BaseStorage) -> list[StudySummary]:
-    if version.parse(optuna_ver) >= version.Version("3.0.0rc0.dev"):
-        frozen_studies = storage.get_all_studies()  # type: ignore
-        if isinstance(storage, RDBStorage):
-            frozen_studies = sorted(frozen_studies, key=lambda s: s._study_id)
-        return [_frozen_study_to_study_summary(s) for s in frozen_studies]
-    elif version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
-        return storage.get_all_study_summaries(include_best_trial=False)  # type: ignore
-    else:
-        return storage.get_all_study_summaries()  # type: ignore
-
-
-def get_study_summary(storage: BaseStorage, study_id: int) -> Optional[StudySummary]:
-    summaries = get_study_summaries(storage)
-    for summary in summaries:
-        if summary._study_id != study_id:
-            continue
-        return summary
-    return None
-
-
-def create_new_study(
-    storage: BaseStorage, study_name: str, directions: list[StudyDirection]
-) -> int:
-    if version.parse(optuna_ver) >= version.Version("3.1.0.dev") and version.parse(
-        optuna_ver
-    ) != version.Version("3.1.0b0"):
-        study_id = storage.create_new_study(directions, study_name=study_name)  # type: ignore
-    else:
-        study_id = storage.create_new_study(study_name)  # type: ignore
-        storage.set_study_directions(study_id, directions)  # type: ignore
-    return study_id
 
 
 def create_app(
@@ -386,22 +346,6 @@ def create_app(
     register_rdb_migration_route(app, storage)
     register_artifact_route(app, storage, artifact_backend)
     return app
-
-
-# TODO(c-bata): Remove type:ignore after released Optuna v3.0.0rc0.
-def _frozen_study_to_study_summary(frozen_study: "FrozenStudy") -> StudySummary:  # type: ignore
-    is_single = len(frozen_study.directions) == 1
-    return StudySummary(
-        study_name=frozen_study.study_name,
-        study_id=frozen_study._study_id,
-        direction=frozen_study.direction if is_single else None,
-        directions=frozen_study.directions if not is_single else None,
-        user_attrs=frozen_study.user_attrs,
-        system_attrs=frozen_study.system_attrs,
-        best_trial=None,
-        n_trials=-1,  # This field isn't used by Dashboard.
-        datetime_start=None,
-    )
 
 
 def run_server(
