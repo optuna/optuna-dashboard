@@ -11,7 +11,7 @@ interface EdfPlotInfo {
   trials: Trial[]
 }
 
-export const GraphEdfMultiStudies: FC<{
+export const GraphEdf: FC<{
   studies: StudyDetail[]
   objectiveId: number
 }> = ({ studies, objectiveId }) => {
@@ -31,7 +31,7 @@ export const GraphEdfMultiStudies: FC<{
   })
 
   useEffect(() => {
-    plotEdfMultiStudies(edfPlotInfos, target, domId, theme.palette.mode)
+    plotEdf(edfPlotInfos, target, domId, theme.palette.mode)
   }, [studies, target, theme.palette.mode])
 
   return (
@@ -47,7 +47,7 @@ export const GraphEdfMultiStudies: FC<{
   )
 }
 
-const plotEdfMultiStudies = (
+const plotEdf = (
   edfPlotInfos: EdfPlotInfo[],
   target: Target,
   domId: string,
