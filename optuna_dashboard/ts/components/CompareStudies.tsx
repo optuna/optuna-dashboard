@@ -12,6 +12,7 @@ import {
   useTheme,
   IconButton,
 } from "@mui/material"
+import Grid2 from "@mui/material/Unstable_Grid2"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import Chip from "@mui/material/Chip"
 import FormControlLabel from "@mui/material/FormControlLabel"
@@ -325,19 +326,24 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
           </CardContent>
         </Card>
       ) : null}
-      {showStudyDetails !== null &&
-      showStudyDetails.length > 0 &&
-      showStudyDetails.every((s) => s) ? (
-        <Card
-          sx={{
-            margin: theme.spacing(2),
-          }}
-        >
-          <CardContent>
-            <GraphEdfMultiStudies studies={showStudyDetails} />
-          </CardContent>
-        </Card>
-      ) : null}
+      <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
+        {showStudyDetails !== null &&
+        showStudyDetails.length > 0 &&
+        showStudyDetails.every((s) => s)
+          ? showStudyDetails[0].directions.map((d, i) => (
+              <Grid2 xs={6} key={i}>
+                <Card>
+                  <CardContent>
+                    <GraphEdfMultiStudies
+                      studies={showStudyDetails}
+                      objectiveId={i}
+                    />
+                  </CardContent>
+                </Card>
+              </Grid2>
+            ))
+          : null}
+      </Grid2>
     </Box>
   )
 }

@@ -25,7 +25,7 @@ import { AppDrawer, PageId } from "./AppDrawer"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { Contour } from "./GraphContour"
 import { GraphSlice } from "./GraphSlice"
-import { GraphEdf } from "./GraphEdf"
+import { GraphEdfMultiStudies } from "./GraphEdf"
 import { TrialList } from "./TrialList"
 import { StudyHistory } from "./StudyHistory"
 
@@ -113,7 +113,10 @@ export const StudyDetail: FC<{
                 <Grid2 xs={6} key={i}>
                   <Card>
                     <CardContent>
-                      <GraphEdf study={studyDetail} objectiveId={i} />
+                      <GraphEdfMultiStudies
+                        studies={[studyDetail]}
+                        objectiveId={i}
+                      />
                     </CardContent>
                   </Card>
                 </Grid2>
