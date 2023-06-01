@@ -1,8 +1,13 @@
 from __future__ import annotations
 
 import os
+import shutil
 from typing import BinaryIO
 from typing import TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from _typeshed import SupportsRead
 
 
 class FileSystemBackend:
@@ -31,10 +36,10 @@ class FileSystemBackend:
         filepath = os.path.join(self._base_path, artifact_id)
         return open(filepath, "rb")
 
-    def write(self, artifact_id: str, content_body: BinaryIO) -> None:
+    def write(self, artifact_id: str, content_body: SupportsRead[bytes]) -> None:
         filepath = os.path.join(self._base_path, artifact_id)
         with open(filepath, "wb") as f:
-            f.write(content_body.read())
+            shutil.copyfileobj(content_body, f)
 
     def remove(self, artifact_id: str) -> None:
         filepath = os.path.join(self._base_path, artifact_id)

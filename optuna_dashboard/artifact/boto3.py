@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import io
+import shutil
 from typing import TYPE_CHECKING
 
 import boto3
@@ -9,6 +11,7 @@ if TYPE_CHECKING:
     from typing import BinaryIO
     from typing import Optional
 
+    from _typeshed import SupportsRead
     from mypy_boto3_s3 import S3Client
 
 
@@ -41,8 +44,11 @@ class Boto3Backend:
         assert body is not None
         return body  # type: ignore
 
-    def write(self, artifact_id: str, content_body: BinaryIO) -> None:
-        self.client.upload_fileobj(content_body, self.bucket, artifact_id)
+    def write(self, artifact_id: str, content_body: SupportsRead[bytes]) -> None:
+        buf = io.BytesIO()
+        shutil.copyfileobj(content_body, buf)
+        buf.seek(0)
+        self.client.upload_fileobj(buf, self.bucket, artifact_id)
 
     def remove(self, artifact_id: str) -> None:
         self.client.delete_object(Bucket=self.bucket, Key=artifact_id)
