@@ -362,7 +362,12 @@ def register_objective_form_widgets(
         "output_type": "objective",
         "widgets": [w.to_dict() for w in widgets],
     }
-    study._storage.set_study_system_attr(study._study_id, FORM_WIDGETS_KEY, form_widgets)
+    study._storage.set_study_system_attr(
+        study._study_id,
+        FORM_WIDGETS_KEY,
+        # TODO(c-bata): Remove type: ignore comment
+        form_widgets,  # type: ignore
+    )
 
 
 def register_user_attr_form_widgets(
@@ -435,7 +440,12 @@ def register_user_attr_form_widgets(
         "output_type": "user_attr",
         "widgets": widget_dicts,
     }
-    study._storage.set_study_system_attr(study._study_id, FORM_WIDGETS_KEY, form_widgets)
+    study._storage.set_study_system_attr(
+        study._study_id,
+        FORM_WIDGETS_KEY,
+        # TODO(c-bata): Remove type: ignore comment
+        form_widgets,  # type: ignore
+    )
 
 
 def get_form_widgets_json(study_system_attr: dict[str, Any]) -> Optional[FormWidgetJSON]:
