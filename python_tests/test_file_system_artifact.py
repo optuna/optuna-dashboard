@@ -2,8 +2,8 @@ import io
 import tempfile
 from unittest import TestCase
 
-from optuna_dashboard.artifact.file_system import FileSystemBackend
 from optuna_dashboard.artifact.exceptions import ArtifactNotFound
+from optuna_dashboard.artifact.file_system import FileSystemBackend
 
 
 class FileSystemBackendTestCase(TestCase):
