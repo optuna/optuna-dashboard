@@ -9,6 +9,7 @@ import uuid
 
 from bottle import BaseRequest
 from bottle import Bottle
+from bottle import HTTPResponse
 from bottle import request
 from bottle import response
 import optuna
@@ -58,7 +59,7 @@ def register_artifact_route(
     app: Bottle, storage: BaseStorage, artifact_backend: Optional[ArtifactBackend]
 ) -> None:
     @app.get("/artifacts/<study_id:int>/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
-    def proxy_artifact(study_id: int, trial_id: int, artifact_id: str) -> bytes:
+    def proxy_artifact(study_id: int, trial_id: int, artifact_id: str) -> HTTPResponse | bytes:
         if artifact_backend is None:
             response.status = 400  # Bad Request
             return b"Cannot access to the artifacts."
@@ -66,13 +67,13 @@ def register_artifact_route(
         if artifact_dict is None:
             response.status = 404
             return b"Not Found"
-        response.set_header("Content-Type", artifact_dict["mimetype"])
-        if artifact_dict.get("encoding"):
-            response.set_header("Content-Encodings", artifact_dict.get("encoding"))
+        headers = {"Content-Type": artifact_dict["mimetype"]}
+        encoding = artifact_dict.get("encoding")
+        if encoding:
+            headers["Content-Encodings"] = encoding
 
-        with artifact_backend.open(artifact_id) as f:
-            body = f.read()
-        return body
+        fp = artifact_backend.open(artifact_id)
+        return HTTPResponse(fp, headers=headers)
 
     @app.post("/api/artifacts/<study_id:int>/<trial_id:int>")
     @json_api_view
