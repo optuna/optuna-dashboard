@@ -5,6 +5,8 @@ import shutil
 from typing import TYPE_CHECKING
 
 import boto3
+from botocore.exceptions import ClientError
+from optuna_dashboard.artifact.exceptions import ArtifactNotFound
 
 
 if TYPE_CHECKING:
@@ -41,7 +43,12 @@ class Boto3Backend:
         self.client = client or boto3.client("s3")
 
     def open(self, artifact_id: str) -> BinaryIO:
-        obj = self.client.get_object(Bucket=self.bucket, Key=artifact_id)
+        try:
+            obj = self.client.get_object(Bucket=self.bucket, Key=artifact_id)
+        except ClientError as e:
+            if _is_not_found_error(e):
+                raise ArtifactNotFound("not found") from e
+            raise
         body = obj.get("Body")
         assert body is not None
         return body  # type: ignore
@@ -58,7 +65,18 @@ class Boto3Backend:
         self.client.upload_fileobj(buf, self.bucket, artifact_id)
 
     def remove(self, artifact_id: str) -> None:
-        self.client.delete_object(Bucket=self.bucket, Key=artifact_id)
+        try:
+            self.client.delete_object(Bucket=self.bucket, Key=artifact_id)
+        except ClientError as e:
+            if _is_not_found_error(e):
+                raise ArtifactNotFound("not found") from e
+            raise
+
+
+def _is_not_found_error(e: ClientError) -> bool:
+    error_code = e.response.get("Error", {}).get("Code")
+    http_status_code = e.response.get("ResponseMetadata", {}).get("HTTPStatusCode")
+    return error_code == "NoSuchKey" or http_status_code == 404
 
 
 def _is_file_like_obj(obj: SupportsRead[bytes]) -> TypeGuard[IO[bytes]]:

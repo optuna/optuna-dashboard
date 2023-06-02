@@ -2,11 +2,14 @@ from __future__ import annotations
 
 import os
 import shutil
-from typing import BinaryIO
 from typing import TYPE_CHECKING
+
+from optuna_dashboard.artifact.exceptions import ArtifactNotFound
 
 
 if TYPE_CHECKING:
+    from typing import BinaryIO
+
     from _typeshed import SupportsRead
 
 
@@ -34,7 +37,11 @@ class FileSystemBackend:
 
     def open(self, artifact_id: str) -> BinaryIO:
         filepath = os.path.join(self._base_path, artifact_id)
-        return open(filepath, "rb")
+        try:
+            f = open(filepath, "rb")
+        except FileNotFoundError as e:
+            raise ArtifactNotFound("not found") from e
+        return f
 
     def write(self, artifact_id: str, content_body: SupportsRead[bytes]) -> None:
         filepath = os.path.join(self._base_path, artifact_id)
@@ -43,7 +50,10 @@ class FileSystemBackend:
 
     def remove(self, artifact_id: str) -> None:
         filepath = os.path.join(self._base_path, artifact_id)
-        os.remove(filepath)
+        try:
+            os.remove(filepath)
+        except FileNotFoundError as e:
+            raise ArtifactNotFound("not found") from e
 
 
 if TYPE_CHECKING:

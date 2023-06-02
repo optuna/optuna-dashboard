@@ -6,6 +6,7 @@ from unittest.mock import patch
 import boto3
 from moto import mock_s3
 from optuna_dashboard.artifact.boto3 import Boto3Backend
+from optuna_dashboard.artifact.exceptions import ArtifactNotFound
 
 
 @mock_s3
@@ -63,3 +64,8 @@ class Boto3BackendTestCase(TestCase):
         backend.remove(artifact_id)
         objects = self.s3_client.list_objects(Bucket=self.bucket_name).get("Contents", [])
         assert len([obj for obj in objects if obj["Key"] == artifact_id]) == 0
+
+    def test_file_not_found_exception(self) -> None:
+        backend = Boto3Backend(self.bucket_name)
+        with self.assertRaises(ArtifactNotFound):
+            backend.open("not-found-id")
