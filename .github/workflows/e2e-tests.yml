@@ -1,4 +1,4 @@
-name: integration-tests
+name: e2e-tests
 on:
   pull_request:
     branches:
