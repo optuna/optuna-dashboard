@@ -19,7 +19,7 @@
     "prettier": "^2.8.8",
     "ts-loader": "^9.4.2",
     "typescript": "^5.0.4",
-    "vite": "^4.3.2",
+    "vite": "^4.3.9",
     "webpack": "^5.82.1",
     "webpack-cli": "^5.1.1"
   },
