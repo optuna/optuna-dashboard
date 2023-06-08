@@ -12,8 +12,6 @@ except ImportError:
 if TYPE_CHECKING:
     from typing import BinaryIO
 
-    from _typeshed import SupportsRead
-
 
 class ArtifactBackend(Protocol):
     """A protocol defining the interface for an artifact backend.
@@ -39,7 +37,7 @@ class ArtifactBackend(Protocol):
         """
         ...
 
-    def write(self, artifact_id: str, content_body: SupportsRead[bytes]) -> None:
+    def write(self, artifact_id: str, content_body: BinaryIO) -> None:
         """Save the content to the backend.
 
         Args:

@@ -1,7 +1,5 @@
 import io
 from unittest import TestCase
-from unittest.mock import MagicMock
-from unittest.mock import patch
 
 import boto3
 from moto import mock_s3
@@ -35,21 +33,6 @@ class Boto3BackendTestCase(TestCase):
         obj = self.s3_client.get_object(Bucket=self.bucket_name, Key=artifact_id)
         assert obj["Body"].read() == dummy_content
 
-        with backend.open(artifact_id) as f:
-            actual = f.read()
-        self.assertEqual(actual, dummy_content)
-
-    @patch("optuna_dashboard.artifact.boto3._is_file_like_obj")
-    def test_upload_download_non_file_like(self, mock_is_file_like_obj: MagicMock) -> None:
-        mock_is_file_like_obj.side_effect = lambda o: False
-
-        artifact_id = "dummy-uuid"
-        dummy_content = b"Hello World"
-        backend = Boto3Backend(self.bucket_name)
-        backend.write(artifact_id, io.BytesIO(dummy_content))
-        assert len(self.s3_client.list_objects(Bucket=self.bucket_name)["Contents"]) == 1
-        obj = self.s3_client.get_object(Bucket=self.bucket_name, Key=artifact_id)
-        assert obj["Body"].read() == dummy_content
         with backend.open(artifact_id) as f:
             actual = f.read()
         self.assertEqual(actual, dummy_content)

@@ -10,8 +10,6 @@ from optuna_dashboard.artifact.exceptions import ArtifactNotFound
 if TYPE_CHECKING:
     from typing import BinaryIO
 
-    from _typeshed import SupportsRead
-
 
 class FileSystemBackend:
     """An artifact backend for file systems.
@@ -43,7 +41,7 @@ class FileSystemBackend:
             raise ArtifactNotFound("not found") from e
         return f
 
-    def write(self, artifact_id: str, content_body: SupportsRead[bytes]) -> None:
+    def write(self, artifact_id: str, content_body: BinaryIO) -> None:
         filepath = os.path.join(self._base_path, artifact_id)
         with open(filepath, "wb") as f:
             shutil.copyfileobj(content_body, f)
