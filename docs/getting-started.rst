@@ -149,7 +149,6 @@ However, as described `here <https://github.com/python/cpython/blob/v3.11.0/Lib/
 You can switch to other WSGI server implementations by using :func:`~optuna_dashboard.wsgi` function.
 
 .. code-block:: python
-
    :caption: wsgi.py
 
    from optuna.storages import RDBStorage
