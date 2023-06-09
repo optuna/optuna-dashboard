@@ -64,13 +64,14 @@ exclude = '''
   | build
   | dist
   | venv
+  | node_modules
 )/
 '''
 
 [tool.isort]
 profile = 'black'
-src_paths = ['optuna', 'tests', 'docs', 'benchmarks']
-skip_glob = ['docs/source/conf.py', '**/alembic/versions/*.py', 'tutorial/**/*.py']
+src_paths = ['optuna', 'python_tests', 'docs']
+skip_glob = ['docs/conf.py']
 line_length = 99
 lines_after_imports = 2
 force_single_line = 'True'
@@ -80,3 +81,9 @@ order_by_type = 'False'
 [tool.mypy]
 ignore_missing_imports = true
 disallow_untyped_defs = true
+
+[tool.pytest.ini_options]
+addopts = "--color=yes"
+markers = [
+  "slow: marks tests as slow",
+]

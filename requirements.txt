@@ -12,6 +12,7 @@ mypy-boto3-s3
 mypy
 
 # unit test
+pytest
 boto3
 moto[s3]
 
