@@ -76,7 +76,7 @@ Note that `OPTUNA_DASHBOARD_DEBUG=1` makes the server will automatically restart
 #### Running Python unit tests
 
 ```
-$ python -m unittest
+$ pytest python_tests/
 ```
 
 #### Running visual regression tests using pyppeteer
