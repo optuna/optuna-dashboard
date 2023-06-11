@@ -1,11 +1,17 @@
-import pytest
-from playwright.sync_api import sync_playwright
-
 import threading
+from typing import Generator
 from wsgiref.simple_server import make_server
 
 import optuna
 from optuna_dashboard import wsgi
+from playwright.sync_api import Browser
+from playwright.sync_api import sync_playwright
+import pytest
+
+
+@pytest.fixture(scope="session")
+def port() -> int:
+    return 8081
 
 
 @pytest.fixture(scope="session")
@@ -180,18 +186,16 @@ def dummy_storage() -> optuna.storages.InMemoryStorage:
     return storage
 
 
-host = "127.0.0.1"
-port = 8081
-
-
-@pytest.fixture(scope='session')
-def server(request, dummy_storage):
+@pytest.fixture(scope="session")
+def server(
+    request: pytest.FixtureRequest, dummy_storage: optuna.storages.InMemoryStorage, port: int
+) -> None:
     app = wsgi(dummy_storage)
-    httpd = make_server(host, port, app)
+    httpd = make_server("127.0.0.1", port, app)
     thread = threading.Thread(target=httpd.serve_forever)
     thread.start()
 
-    def stop_server():
+    def stop_server() -> None:
         httpd.shutdown()
         httpd.server_close()
         thread.join()
@@ -199,8 +203,8 @@ def server(request, dummy_storage):
     request.addfinalizer(stop_server)
 
 
-@pytest.fixture(scope='module')
-def browser():
+@pytest.fixture(scope="module")
+def browser() -> Generator[Browser, None, None]:
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch()
         yield browser
