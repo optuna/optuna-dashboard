@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import io
+import shutil
 from typing import TYPE_CHECKING
 
 import boto3
@@ -33,9 +35,15 @@ class Boto3Backend:
               return ...
     """
 
-    def __init__(self, bucket_name: str, client: Optional[S3Client] = None) -> None:
+    def __init__(
+        self, bucket_name: str, client: Optional[S3Client] = None, *, avoid_buf_copy: bool = False
+    ) -> None:
         self.bucket = bucket_name
         self.client = client or boto3.client("s3")
+        # This flag is added to avoid that upload_fileobj() method of Boto3 client
+        # may close the source file object.
+        # See https://github.com/boto/boto3/issues/929
+        self._avoid_buf_copy = avoid_buf_copy
 
     def open(self, artifact_id: str) -> BinaryIO:
         try:
@@ -49,7 +57,13 @@ class Boto3Backend:
         return body  # type: ignore
 
     def write(self, artifact_id: str, content_body: BinaryIO) -> None:
-        self.client.upload_fileobj(content_body, self.bucket, artifact_id)
+        fsrc: BinaryIO = content_body
+        if not self._avoid_buf_copy:
+            buf = io.BytesIO()
+            shutil.copyfileobj(content_body, buf)
+            buf.seek(0)
+            fsrc = buf
+        self.client.upload_fileobj(fsrc, self.bucket, artifact_id)
 
     def remove(self, artifact_id: str) -> None:
         try:
