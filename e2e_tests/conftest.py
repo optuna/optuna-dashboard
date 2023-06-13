@@ -16,7 +16,6 @@ def port() -> int:
 
 @pytest.fixture(scope="session")
 def dummy_storage() -> optuna.storages.InMemoryStorage:
-
     storage = optuna.storages.InMemoryStorage()
     sampler = optuna.samplers.RandomSampler(seed=0)
 
