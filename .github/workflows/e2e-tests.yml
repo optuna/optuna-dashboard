@@ -4,7 +4,7 @@ on:
     branches:
       - main
     paths:
-      - '.github/workflows/integration-tests.yml'
+      - '.github/workflows/e2e-tests.yml'
       - '**.py'
       - '**.ts'
       - '**.tsx'
