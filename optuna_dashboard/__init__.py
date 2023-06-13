@@ -15,4 +15,4 @@ from ._note import get_note  # noqa
 from ._note import save_note  # noqa
 
 
-__version__ = "0.10.1"
+__version__ = "0.10.2"
