@@ -1,6 +1,3 @@
-import os
-import pytest
-
 import optuna
 from playwright.sync_api import Browser
 
@@ -24,5 +21,10 @@ def test_study_list(
     for study_id, study_name in study_ids.items():
         page.goto(url)
         page.click(f"a[href='/dashboard/studies/{study_id}']")
-        title = page.query_selector('.MuiTypography-body1').text_content()
+
+        element = page.query_selector(".MuiTypography-body1")
+        assert element is not None
+
+        title = element.text_content()
+        assert title is not None
         assert study_name in title
