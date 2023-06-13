@@ -26,9 +26,10 @@ class Boto3BackendTestCase(TestCase):
     def test_upload_download(self) -> None:
         artifact_id = "dummy-uuid"
         dummy_content = b"Hello World"
+        buf = io.BytesIO(dummy_content)
 
         backend = Boto3Backend(self.bucket_name)
-        backend.write(artifact_id, io.BytesIO(dummy_content))
+        backend.write(artifact_id, buf)
         assert len(self.s3_client.list_objects(Bucket=self.bucket_name)["Contents"]) == 1
         obj = self.s3_client.get_object(Bucket=self.bucket_name, Key=artifact_id)
         assert obj["Body"].read() == dummy_content
@@ -36,6 +37,7 @@ class Boto3BackendTestCase(TestCase):
         with backend.open(artifact_id) as f:
             actual = f.read()
         self.assertEqual(actual, dummy_content)
+        self.assertFalse(buf.closed)
 
     def test_remove(self) -> None:
         artifact_id = "dummy-uuid"
