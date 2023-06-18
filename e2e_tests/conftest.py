@@ -1,11 +1,8 @@
 import threading
-from typing import Generator
 from wsgiref.simple_server import make_server
 
 import optuna
 from optuna_dashboard import wsgi
-from playwright.sync_api import Browser
-from playwright.sync_api import sync_playwright
 import pytest
 
 
@@ -200,11 +197,3 @@ def server(
         thread.join()
 
     request.addfinalizer(stop_server)
-
-
-@pytest.fixture(scope="module")
-def browser() -> Generator[Browser, None, None]:
-    with sync_playwright() as playwright:
-        browser = playwright.chromium.launch()
-        yield browser
-        browser.close()
