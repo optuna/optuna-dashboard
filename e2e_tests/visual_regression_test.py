@@ -8,17 +8,15 @@ def test_study_list(
     study_id: int,
     page: Page,
     dummy_storage: optuna.storages.InMemoryStorage,
-    port: int,
-    server: None,
+    server_url: str,
 ) -> None:
     page.set_viewport_size({"width": 1000, "height": 3000})
-    url = f"http://localhost:{port}/dashboard/"
 
     summaries = optuna.get_all_study_summaries(dummy_storage)
     study_ids = {s._study_id: s.study_name for s in summaries}
 
     study_name = study_ids[study_id]
-    page.goto(url)
+    page.goto(server_url)
     page.click(f"a[href='/dashboard/studies/{study_id}']")
 
     element = page.query_selector(".MuiTypography-body1")

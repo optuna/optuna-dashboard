@@ -7,11 +7,6 @@ import pytest
 
 
 @pytest.fixture(scope="session")
-def port() -> int:
-    return 8081
-
-
-@pytest.fixture(scope="session")
 def dummy_storage() -> optuna.storages.InMemoryStorage:
     storage = optuna.storages.InMemoryStorage()
     sampler = optuna.samplers.RandomSampler(seed=0)
@@ -183,11 +178,13 @@ def dummy_storage() -> optuna.storages.InMemoryStorage:
 
 
 @pytest.fixture(scope="session")
-def server(
-    request: pytest.FixtureRequest, dummy_storage: optuna.storages.InMemoryStorage, port: int
-) -> None:
+def server_url(
+    request: pytest.FixtureRequest, dummy_storage: optuna.storages.InMemoryStorage
+) -> str:
+    ip = "127.0.0.1"
+    port = 38080
     app = wsgi(dummy_storage)
-    httpd = make_server("127.0.0.1", port, app)
+    httpd = make_server(ip, port, app)
     thread = threading.Thread(target=httpd.serve_forever)
     thread.start()
 
@@ -197,3 +194,5 @@ def server(
         thread.join()
 
     request.addfinalizer(stop_server)
+
+    return f"http://{ip}:{port}/dashboard/"
