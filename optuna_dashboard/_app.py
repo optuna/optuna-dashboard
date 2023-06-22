@@ -186,8 +186,11 @@ def create_app(
         trials = get_trials(storage, study_id)
 
         # TODO(c-bata): Cache best_trials
-        if summary.directions == 1:
-            best_trials = [storage.get_best_trial(study_id)]
+        if len(summary.directions) == 1:
+            if len([t for t in trials if t.state == TrialState.COMPLETE]) == 0:
+                best_trials = []
+            else:
+                best_trials = [storage.get_best_trial(study_id)]
         else:
             best_trials = get_pareto_front_trials(trials=trials, directions=summary.directions)
         (
