@@ -43,12 +43,12 @@ def render_widgets(study: optuna.Study, trial: FrozenTrial) -> None:
                     widget["values"],
                     format_func=lambda choice: widget["choices"][
                         widget["values"].index(choice)
-                    ],  # NOQA
+                    ],  # noqa: B023
                     horizontal=True,
                 )
                 values.append(value)
             elif widget["type"] == "slider":
-                # NOTE: It is difficult to reflect labels
+                # NOTE: It is difficult to reflect "labels.
                 value = st.slider(
                     widget["description"],
                     min_value=widget["min"],
@@ -57,7 +57,7 @@ def render_widgets(study: optuna.Study, trial: FrozenTrial) -> None:
                 )
                 values.append(value)
             elif widget["type"] == "text":
-                # TODO (kaitos): Consider optional
+                # TODO (kaitos): It is better to consider "optional".
                 value = st.text_input(widget["description"])
                 values.append(value)
             elif widget["type"] == "user_attr":
