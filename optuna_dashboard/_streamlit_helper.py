@@ -9,7 +9,7 @@ from ._note import get_note_from_system_attrs
 
 
 def render_trial_note(study: optuna.Study, trial: FrozenTrial) -> None:
-    """Write a trial note to UI as a markdown format.
+    """Write a trial note to UI with streamlit as a markdown format.
 
     Args:
         study: The optuna study object.
@@ -19,17 +19,30 @@ def render_trial_note(study: optuna.Study, trial: FrozenTrial) -> None:
     st.markdown(note["body"], unsafe_allow_html=True)
 
 
-def render_widgets(study: optuna.Study, trial: FrozenTrial) -> None:
-    """Render user input widgets to UI.
+def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> None:
+    """Render user input widgets to UI with streamlit.
+
+    Submitted values to the forms are registered as each trial's user_attrs.
 
     Args:
         study: The optuna study object to get widget specification.
         trial: The optuna trial object to tell user feedbacks.
+
+    Raises:
+        ValueError: If No form widgets registered.
+        ValueError: If 'output_type' of form widgets is not 'user_attr'.
+        ValueError: If any widget["type"] is not in ["choice", "slider", "text"].
     """
 
     form_widgets_dict = get_form_widgets_json(study.system_attrs)
     if form_widgets_dict is None:
-        return
+        raise ValueError("No form widgets registered.")
+
+    if (
+        "output_type" not in form_widgets_dict.keys()
+        or form_widgets_dict["output_type"] != "user_attr"
+    ):
+        raise ValueError("'output_type' should be 'user_attr'.")
 
     st.write("## Objective Form Widgets")
 
@@ -60,23 +73,14 @@ def render_widgets(study: optuna.Study, trial: FrozenTrial) -> None:
                 # TODO (kaitos): It is better to consider "optional".
                 value = st.text_input(widget["description"])
                 values.append(value)
-            elif widget["type"] == "user_attr":
-                value = trial.user_attrs[widget["key"]]
-                values.append(value)
             else:
-                raise ValueError("Unsupported widget type.")
+                raise ValueError("Widget type should be 'choice', 'slider', or 'text'.")
         submitted = st.form_submit_button("Submit")
 
-    storage = study._storage
-    output_type = form_widgets_dict["output_type"]
     if submitted:
-        if output_type == "objective":
-            study.tell(trial.number, values)
-        elif output_type == "user_attr":
-            for widget, value in zip(widgets, values):
-                storage.set_trial_user_attr(
-                    trial._trial_id, key=widget["user_attr_key"], value=value
-                )
-        else:
-            st.warning("Detect unsupported output_type")
+        for widget, value in zip(widgets, values):
+            study._storage.set_trial_user_attr(
+                trial._trial_id, key=widget["user_attr_key"], value=value
+            )  # type: ignore
+
         st.success("Feedback submitted!")
