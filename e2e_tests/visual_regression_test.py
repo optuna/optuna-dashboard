@@ -1,25 +1,27 @@
-import re
-
-from playwright.sync_api import expect
+import optuna
 from playwright.sync_api import Page
+import pytest
 
 
-def test_homepage_has_Playwright_in_title_and_get_started_link_linking_to_the_intro_page(
+@pytest.mark.parametrize("study_id", range(10))
+def test_study_list(
+    study_id: int,
     page: Page,
+    dummy_storage: optuna.storages.InMemoryStorage,
+    server_url: str,
 ) -> None:
-    page.goto("https://playwright.dev/")
+    page.set_viewport_size({"width": 1000, "height": 3000})
 
-    # Expect a title "to contain" a substring.
-    expect(page).to_have_title(re.compile("Playwright"))
+    summaries = optuna.get_all_study_summaries(dummy_storage)
+    study_ids = {s._study_id: s.study_name for s in summaries}
 
-    # create a locator
-    get_started = page.get_by_role("link", name="Get started")
+    study_name = study_ids[study_id]
+    page.goto(server_url)
+    page.click(f"a[href='/dashboard/studies/{study_id}']")
 
-    # Expect an attribute "to be strictly equal" to the value.
-    expect(get_started).to_have_attribute("href", "/docs/intro")
+    element = page.query_selector(".MuiTypography-body1")
+    assert element is not None
 
-    # Click the get started link.
-    get_started.click()
-
-    # Expects the URL to contain intro.
-    expect(page).to_have_url(re.compile(".*intro"))
+    title = element.text_content()
+    assert title is not None
+    assert study_name in title
