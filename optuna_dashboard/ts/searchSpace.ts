@@ -3,9 +3,9 @@ import { useMemo } from "react"
 export const mergeUnionSearchSpace = (
   unionSearchSpace: SearchSpaceItem[]
 ): SearchSpaceItem[] => {
-  let knownElements = new Map<string, Distribution>()
+  const knownElements = new Map<string, Distribution>()
   unionSearchSpace.forEach((s) => {
-    let d = knownElements.get(s.name)
+    const d = knownElements.get(s.name)
     if (d === undefined) {
       knownElements.set(s.name, s.distribution)
       return
