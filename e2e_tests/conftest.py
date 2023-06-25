@@ -181,10 +181,10 @@ def dummy_storage() -> optuna.storages.InMemoryStorage:
 def server_url(
     request: pytest.FixtureRequest, dummy_storage: optuna.storages.InMemoryStorage
 ) -> str:
-    ip = "127.0.0.1"
+    addr = "127.0.0.1"
     port = 38080
     app = wsgi(dummy_storage)
-    httpd = make_server(ip, port, app)
+    httpd = make_server(addr, port, app)
     thread = threading.Thread(target=httpd.serve_forever)
     thread.start()
 
@@ -195,4 +195,4 @@ def server_url(
 
     request.addfinalizer(stop_server)
 
-    return f"http://{ip}:{port}/dashboard/"
+    return f"http://{addr}:{port}/dashboard/"
