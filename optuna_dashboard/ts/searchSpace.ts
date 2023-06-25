@@ -3,9 +3,9 @@ import { useMemo } from "react"
 export const mergeUnionSearchSpace = (
   unionSearchSpace: SearchSpaceItem[]
 ): SearchSpaceItem[] => {
-  const knownElements = new Map<string, Distribution>()
+  let knownElements = new Map<string, Distribution>()
   unionSearchSpace.forEach((s) => {
-    const d = knownElements.get(s.name)
+    let d = knownElements.get(s.name)
     if (d === undefined) {
       knownElements.set(s.name, s.distribution)
       return
@@ -17,9 +17,12 @@ export const mergeUnionSearchSpace = (
       // CategoricalDistribution.choices will never be changed
       return
     }
-    d.low = Math.min(d.low, s.distribution.low)
-    d.high = Math.max(d.low, s.distribution.high)
-    knownElements.set(s.name, d)
+    const updated: Distribution = {
+      ...d,
+      low: Math.min(d.low, s.distribution.low),
+      high: Math.max(d.high, s.distribution.high),
+    }
+    knownElements.set(s.name, updated)
   })
   return Array.from(knownElements.keys())
     .sort((a, b) => (a > b ? 1 : a < b ? -1 : 0))
