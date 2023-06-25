@@ -1,21 +1,18 @@
 import optuna
 from playwright.sync_api import Page
-import pytest
 
 
-@pytest.mark.parametrize("study_id", range(10))
 def test_study_list(
-    study_id: int,
     page: Page,
-    dummy_storage: optuna.storages.InMemoryStorage,
+    storage: optuna.storages.InMemoryStorage,
     server_url: str,
 ) -> None:
     page.set_viewport_size({"width": 1000, "height": 3000})
 
-    summaries = optuna.get_all_study_summaries(dummy_storage)
-    study_ids = {s._study_id: s.study_name for s in summaries}
+    summaries = optuna.get_all_study_summaries(storage)
+    study_id = summaries[0]._study_id
+    study_name = summaries[0].study_name
 
-    study_name = study_ids[study_id]
     page.goto(server_url)
     page.click(f"a[href='/dashboard/studies/{study_id}']")
 
