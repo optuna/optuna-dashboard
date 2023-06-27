@@ -1,3 +1,4 @@
+import socket
 import threading
 from wsgiref.simple_server import make_server
 
@@ -211,6 +212,14 @@ def make_dummy_storage(study_name: str) -> optuna.storages.InMemoryStorage:
     return storage
 
 
+def get_free_port() -> int:
+    tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    tcp.bind(("", 0))
+    _, port = tcp.getsockname()
+    tcp.close()
+    return port
+
+
 @pytest.fixture(scope="session", params=study_names)
 def storage(request: pytest.FixtureRequest) -> optuna.storages.InMemoryStorage:
     study_name = request.param
@@ -221,7 +230,7 @@ def storage(request: pytest.FixtureRequest) -> optuna.storages.InMemoryStorage:
 @pytest.fixture(scope="session")
 def server_url(request: pytest.FixtureRequest, storage: optuna.storages.InMemoryStorage) -> str:
     addr = "127.0.0.1"
-    port = 38080
+    port = get_free_port()
     app = wsgi(storage)
     httpd = make_server(addr, port, app)
     thread = threading.Thread(target=httpd.serve_forever)
@@ -234,4 +243,15 @@ def server_url(request: pytest.FixtureRequest, storage: optuna.storages.InMemory
 
     request.addfinalizer(stop_server)
 
-    return f"http://{addr}:{port}/dashboard/"
+    return f"http://{addr}:{port}/dashboard"
+
+
+@pytest.fixture(scope="session")
+def browser_context_args(browser_context_args: dict) -> dict:
+    return {
+        **browser_context_args,
+        "viewport": {
+            "width": 1000,
+            "height": 3000,
+        },
+    }
