@@ -45,10 +45,13 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
         raise ValueError("'output_type' should be 'user_attr'.")
 
     widgets = form_widgets_dict["widgets"]
-    values = []
+    values: list[float | str] = []
     with st.form("user_input", clear_on_submit=False):
         for widget in widgets:
-            description = "" if widget["description"] is None else widget["description"]
+            if widget["description"] is None:  # type: ignore
+                description = ""
+            else:
+                description = widget["description"]  # type: ignore
             if widget["type"] == "choice":
                 value = st.radio(
                     description,
@@ -79,12 +82,9 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
 
     if submitted:
         for widget, value in zip(widgets, values):
-            # "type: ignore" is required because "UserAttrRefJSON" has no key "user_attr_key"
-            # (Actually, widget type is limited to 'choice', 'slider', or 'text' in the above code.
-            #  Therefore, this is not a problem to run this code, but mypy raises error.)
-            if widget["user_attr_key"] is not None:
+            if widget["user_attr_key"] is not None:  # type: ignore
                 study._storage.set_trial_user_attr(
-                    trial._trial_id, key=widget["user_attr_key"], value=value
+                    trial._trial_id, key=widget["user_attr_key"], value=value  # type: ignore
                 )
 
         st.success("Submitted!")
