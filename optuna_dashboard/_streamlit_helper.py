@@ -47,10 +47,12 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
     widgets = form_widgets_dict["widgets"]
     values = []
     with st.form("user_input", clear_on_submit=False):
+
         for widget in widgets:
+            description = "" if widget["description"] is None else widget["description"]
             if widget["type"] == "choice":
                 value = st.radio(
-                    widget["description"],
+                    description,
                     widget["values"],
                     format_func=lambda choice, widget=widget: widget["choices"][
                         widget["values"].index(choice)
@@ -61,7 +63,7 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
             elif widget["type"] == "slider":
                 # NOTE: It is difficult to reflect "labels".
                 value = st.slider(
-                    widget["description"],
+                    description,
                     min_value=widget["min"],
                     max_value=widget["max"],
                     step=widget["step"],
@@ -70,7 +72,7 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
             elif widget["type"] == "text":
                 # TODO (kaitos): Resolve that current implementation ignores "optional"
                 # (always optional on streamlit)
-                value = st.text_input(widget["description"])
+                value = st.text_input(description)
                 values.append(value)
             else:
                 raise ValueError("Widget type should be 'choice', 'slider', or 'text'.")
@@ -81,8 +83,9 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
             # "type: ignore" is required because "UserAttrRefJSON" has no key "user_attr_key"
             # (Actually, widget type is limited to 'choice', 'slider', or 'text' in the above code.
             #  Therefore, this is not a problem to run this code, but mypy raises error.)
-            study._storage.set_trial_user_attr(
-                trial._trial_id, key=widget["user_attr_key"], value=value  # type: ignore
-            )
+            if widget["user_attr_key"] is not None:
+                study._storage.set_trial_user_attr(
+                    trial._trial_id, key=widget["user_attr_key"], value=value
+                )
 
         st.success("Submitted!")
