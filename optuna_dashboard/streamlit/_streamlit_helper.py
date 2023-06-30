@@ -1,13 +1,18 @@
 from __future__ import annotations
 
 import optuna
+from typing import TYPE_CHECKING
+
 from optuna.trial import FrozenTrial
-from optuna_dashboard._form_widget import ChoiceWidgetJSON
-from optuna_dashboard._form_widget import get_form_widgets_json
-from optuna_dashboard._form_widget import SliderWidgetJSON
-from optuna_dashboard._form_widget import TextInputWidgetJSON
-from optuna_dashboard._note import get_note_from_system_attrs
+from .._form_widget import get_form_widgets_json
+from .._note import get_note_from_system_attrs
 import streamlit as st
+
+
+if TYPE_CHECKING:
+    from .._form_widget import TextInputWidgetJSON
+    from .._form_widget import ChoiceWidgetJSON
+    from .._form_widget import SliderWidgetJSON
 
 
 def render_trial_note(study: optuna.Study, trial: FrozenTrial) -> None:
