@@ -41,7 +41,9 @@ def _render_widgets(
                 value = st.radio(
                     description,
                     widget["values"],
-                    format_func=lambda choice, widget=widget: _format_choice(choice, widget),
+                    format_func=lambda choice, widget=widget: _format_choice(
+                        choice, widget
+                    ),  # type: ignore
                     horizontal=True,
                 )
                 values.append(value)
@@ -139,5 +141,5 @@ def render_objective_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
     submitted, values = _render_widgets(widgets)  # type: ignore
 
     if submitted:
-        study.tell(trial.number, values)
+        study.tell(trial.number, values)  # type: ignore
         st.success("Submitted!")
