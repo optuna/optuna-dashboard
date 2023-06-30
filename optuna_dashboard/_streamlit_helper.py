@@ -28,7 +28,7 @@ def _format_choice(choice: float, widget: ChoiceWidgetJSON) -> str:
 
 def _render_widgets(
     widgets: list[ChoiceWidgetJSON | SliderWidgetJSON | TextInputWidgetJSON],
-) -> tuple[bool, list[str]]:
+) -> tuple[bool, list[str | float]]:
     values = []
     with st.form("user_input", clear_on_submit=False):
         for widget in widgets:
@@ -41,9 +41,9 @@ def _render_widgets(
                 value = st.radio(
                     description,
                     widget["values"],
-                    format_func=lambda choice, widget=widget: _format_choice(
+                    format_func=lambda choice, widget=widget: _format_choice(  # type: ignore
                         choice, widget
-                    ),  # type: ignore
+                    ),
                     horizontal=True,
                 )
                 values.append(value)
