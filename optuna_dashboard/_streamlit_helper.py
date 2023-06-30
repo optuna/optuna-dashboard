@@ -45,7 +45,7 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
         raise ValueError("'output_type' should be 'user_attr'.")
 
     widgets = form_widgets_dict["widgets"]
-    values: list[float | str | None] = []
+    values = []
     with st.form("user_input", clear_on_submit=False):
         for widget in widgets:
             if widget["description"] is None:  # type: ignore
