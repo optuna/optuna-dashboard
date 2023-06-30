@@ -13,8 +13,5 @@ from ._form_widget import TextInputWidget  # noqa
 from ._named_objectives import set_objective_names  # noqa
 from ._note import get_note  # noqa
 from ._note import save_note  # noqa
-from ._streamlit_helper import render_trial_note  # noqa
-from ._streamlit_helper import render_user_attr_form_widgets  # noqa
-
 
 __version__ = "0.10.3"
