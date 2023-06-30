@@ -56,7 +56,7 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
                 value = st.radio(
                     description,
                     widget["values"],
-                    format_func=lambda choice, widget=widget: widget["choices"][
+                    format_func=lambda choice, widget=widget: widget["choices"][  # type: ignore
                         widget["values"].index(choice)
                     ],
                     horizontal=True,
@@ -75,7 +75,7 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
                 # TODO (kaitos): Resolve that current implementation ignores "optional"
                 # (always optional on streamlit)
                 value = st.text_input(description)
-                values.append(value)
+                values.append(value)  # type: ignore
             else:
                 raise ValueError("Widget type should be 'choice', 'slider', or 'text'.")
         submitted = st.form_submit_button("Submit")
