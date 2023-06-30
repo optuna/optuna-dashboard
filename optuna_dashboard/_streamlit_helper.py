@@ -58,8 +58,7 @@ def _render_widgets(
                 values.append(value)
             elif widget["type"] == "text":
                 # NOTE: Current implementation ignores "optional".
-                value = st.text_input(description)
-                values.append(value)
+                values.append(st.text_input(description))
             else:
                 raise ValueError("Widget type should be 'choice', 'slider' or 'text'.")
         submitted = st.form_submit_button("Submit")
