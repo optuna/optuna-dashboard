@@ -2,7 +2,6 @@
 optuna>=2.4
 bottle
 scikit-learn
-streamlit
 typing-extensions;python_version<"3.8"
 
 # lint
