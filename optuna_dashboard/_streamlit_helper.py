@@ -47,7 +47,6 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
     widgets = form_widgets_dict["widgets"]
     values = []
     with st.form("user_input", clear_on_submit=False):
-
         for widget in widgets:
             description = "" if widget["description"] is None else widget["description"]
             if widget["type"] == "choice":
