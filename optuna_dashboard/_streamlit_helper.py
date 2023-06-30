@@ -44,8 +44,6 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
     ):
         raise ValueError("'output_type' should be 'user_attr'.")
 
-    st.write("## Objective Form Widgets")
-
     widgets = form_widgets_dict["widgets"]
     values = []
     with st.form("user_input", clear_on_submit=False):
@@ -54,14 +52,14 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
                 value = st.radio(
                     widget["description"],
                     widget["values"],
-                    format_func=lambda choice: widget["choices"][
+                    format_func=lambda choice, widget=widget: widget["choices"][
                         widget["values"].index(choice)
-                    ],  # noqa: B023
+                    ],
                     horizontal=True,
                 )
                 values.append(value)
             elif widget["type"] == "slider":
-                # NOTE: It is difficult to reflect "labels.
+                # NOTE: It is difficult to reflect "labels".
                 value = st.slider(
                     widget["description"],
                     min_value=widget["min"],
@@ -70,7 +68,8 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
                 )
                 values.append(value)
             elif widget["type"] == "text":
-                # TODO (kaitos): It is better to consider "optional".
+                # TODO (kaitos): Resolve that current implementation ignores "optional"
+                # (always optional on streamlit)
                 value = st.text_input(widget["description"])
                 values.append(value)
             else:
@@ -79,8 +78,11 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
 
     if submitted:
         for widget, value in zip(widgets, values):
+            # "type: ignore" is required because "UserAttrRefJSON" has no key "user_attr_key"
+            # (Actually, widget type is limited to 'choice', 'slider', or 'text' in the above code.
+            #  Therefore, this is not a problem to run this code, but mypy raises error.)
             study._storage.set_trial_user_attr(
-                trial._trial_id, key=widget["user_attr_key"], value=value
-            )  # type: ignore
+                trial._trial_id, key=widget["user_attr_key"], value=value  # type: ignore
+            )
 
-        st.success("Feedback submitted!")
+        st.success("Submitted!")
