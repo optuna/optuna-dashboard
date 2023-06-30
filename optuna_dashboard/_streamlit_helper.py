@@ -22,6 +22,10 @@ def render_trial_note(study: optuna.Study, trial: FrozenTrial) -> None:
     st.markdown(note["body"], unsafe_allow_html=True)
 
 
+def _format_choice(choice: float, widget: ChoiceWidgetJSON) -> str:
+    return widget["choices"][widget["values"].index(choice)]
+
+
 def _render_widgets(
     widgets: list[ChoiceWidgetJSON | SliderWidgetJSON | TextInputWidgetJSON],
 ) -> tuple[bool, list[str]]:
@@ -37,9 +41,7 @@ def _render_widgets(
                 value = st.radio(
                     description,
                     widget["values"],
-                    format_func=lambda choice, widget=widget: widget["choices"][
-                        widget["values"].index(choice)
-                    ],
+                    format_func=lambda choice, widget=widget: _format_choice(choice, widget),
                     horizontal=True,
                 )
                 values.append(value)
