@@ -1,25 +1,106 @@
-import re
-
-from playwright.sync_api import expect
+import optuna
 from playwright.sync_api import Page
 
 
-def test_homepage_has_Playwright_in_title_and_get_started_link_linking_to_the_intro_page(
+def test_study_list(
     page: Page,
+    storage: optuna.storages.InMemoryStorage,
+    server_url: str,
 ) -> None:
-    page.goto("https://playwright.dev/")
+    summaries = optuna.get_all_study_summaries(storage)
+    study_id = summaries[0]._study_id
+    study_name = summaries[0].study_name
 
-    # Expect a title "to contain" a substring.
-    expect(page).to_have_title(re.compile("Playwright"))
+    page.goto(server_url)
+    page.click(f"a[href='/dashboard/studies/{study_id}']")
 
-    # create a locator
-    get_started = page.get_by_role("link", name="Get started")
+    element = page.query_selector(".MuiTypography-body1")
+    assert element is not None
 
-    # Expect an attribute "to be strictly equal" to the value.
-    expect(get_started).to_have_attribute("href", "/docs/intro")
+    title = element.text_content()
+    assert title is not None
+    assert study_name in title
 
-    # Click the get started link.
-    get_started.click()
 
-    # Expects the URL to contain intro.
-    expect(page).to_have_url(re.compile(".*intro"))
+def test_study_analytics(
+    page: Page,
+    storage: optuna.storages.InMemoryStorage,
+    server_url: str,
+) -> None:
+    summaries = optuna.get_all_study_summaries(storage)
+    study_id = summaries[0]._study_id
+    study_name = summaries[0].study_name
+    url = f"{server_url}/studies/{study_id}"
+
+    page.goto(url)
+    page.click(f"a[href='/dashboard/studies/{study_id}/analytics']")
+
+    element = page.query_selector(".MuiTypography-body1")
+    assert element is not None
+
+    title = element.text_content()
+    assert title is not None
+    assert study_name in title
+
+
+def test_trial_list(
+    page: Page,
+    storage: optuna.storages.InMemoryStorage,
+    server_url: str,
+) -> None:
+    summaries = optuna.get_all_study_summaries(storage)
+    study_id = summaries[0]._study_id
+    study_name = summaries[0].study_name
+    url = f"{server_url}/studies/{study_id}"
+
+    page.goto(url)
+    page.click(f"a[href='/dashboard/studies/{study_id}/trials']")
+
+    element = page.query_selector(".MuiTypography-body1")
+    assert element is not None
+
+    title = element.text_content()
+    assert title is not None
+    assert study_name in title
+
+
+def test_trial_table(
+    page: Page,
+    storage: optuna.storages.InMemoryStorage,
+    server_url: str,
+) -> None:
+    summaries = optuna.get_all_study_summaries(storage)
+    study_id = summaries[0]._study_id
+    study_name = summaries[0].study_name
+    url = f"{server_url}/studies/{study_id}"
+
+    page.goto(url)
+    page.click(f"a[href='/dashboard/studies/{study_id}/trialTable']")
+
+    element = page.query_selector(".MuiTypography-body1")
+    assert element is not None
+
+    title = element.text_content()
+    assert title is not None
+    assert study_name in title
+
+
+def test_trial_note(
+    page: Page,
+    storage: optuna.storages.InMemoryStorage,
+    server_url: str,
+) -> None:
+    summaries = optuna.get_all_study_summaries(storage)
+    study_id = summaries[0]._study_id
+    study_name = summaries[0].study_name
+    url = f"{server_url}/studies/{study_id}"
+
+    page.goto(url)
+    page.click(f"a[href='/dashboard/studies/{study_id}/note']")
+
+    element = page.query_selector(".MuiTypography-body1")
+    assert element is not None
+
+    title = element.text_content()
+    assert title is not None
+    assert study_name in title
