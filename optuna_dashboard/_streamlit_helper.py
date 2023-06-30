@@ -74,7 +74,7 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
             elif widget["type"] == "text":
                 # TODO (kaitos): Resolve that current implementation ignores "optional"
                 # (always optional on streamlit)
-                values.append(st.text_input(description))
+                values.append(st.text_input(description))  # type: ignore
             else:
                 raise ValueError("Widget type should be 'choice', 'slider', or 'text'.")
         submitted = st.form_submit_button("Submit")
