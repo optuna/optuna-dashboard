@@ -79,16 +79,20 @@ Note that `OPTUNA_DASHBOARD_DEBUG=1` makes the server will automatically restart
 $ pytest python_tests/
 ```
 
-#### Running visual regression tests using pyppeteer
-
-Please run following commands, then check screenshots in `tmp/` directory.
+#### Running e2e tests using pytest playwright
 
 ```
 $ pip install -r requirements.txt
-$ python hack/visual_regression_test.py --output-dir tmp
+$ pytest e2e_tests
 ```
 
-Note: When you run pyppeteer for the first time, it downloads the latest version of Chromium (~150MB) if it is not found on your system.
+If you want to create a screenshot for each test, please run a following command, then check screenshots in `tmp/` directory.
+
+```
+$ pytest e2e_tests --screenshot on --output tmp
+```
+
+For more detail options, you can check [this page](https://playwright.dev/python/docs/test-runners).
 
 #### Linters (flake8, black and mypy)
 
