@@ -192,3 +192,44 @@ export const useObjectiveAndUserAttrTargets = (
   )
   return [targetList, selectedTarget, setTargetIdent]
 }
+
+export const useObjectiveAndUserAttrTargetsFromStudies = (
+  studies: StudyDetail[]
+): [Target[], Target, (ident: string) => void] => {
+  const defaultTarget = new Target("objective", 0)
+  const [selected, setTargetIdent] = useState<string>(
+    defaultTarget.identifier()
+  )
+  const maxDirections = useMemo<number>(() => {
+    return studies.reduce((acc, study) => {
+      return Math.max(acc, study.directions.length)
+    }, 0)
+  }, [studies])
+
+  const attrTargets = useMemo<Target[]>(() => {
+    const uniqueAttrs = Array.from(
+      new Set(studies.flatMap((study) => study.union_user_attrs))
+    )
+    return uniqueAttrs.map((attr) => new Target("user_attr", attr.key))
+  }, [studies])
+
+  const targetList = useMemo<Target[]>(() => {
+    if (studies !== null) {
+      return [
+        ...Array.from(
+          { length: maxDirections },
+          (_, i) => new Target("objective", i)
+        ),
+        ...attrTargets,
+      ]
+    } else {
+      return [defaultTarget]
+    }
+  }, [maxDirections, attrTargets])
+
+  const selectedTarget = useMemo<Target>(
+    () => targetList.find((t) => t.identifier() === selected) || defaultTarget,
+    [targetList, selected]
+  )
+  return [targetList, selectedTarget, setTargetIdent]
+}

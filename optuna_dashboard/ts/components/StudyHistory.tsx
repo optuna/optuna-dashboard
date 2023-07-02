@@ -9,7 +9,7 @@ import {
   useTheme,
 } from "@mui/material"
 import { GraphParetoFront } from "./GraphParetoFront"
-import { GraphHistory } from "./GraphHistory"
+import { GraphHistoryMultiStudies } from "./GraphHistory"
 import { GraphTimeline } from "./GraphTimeline"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import Grid2 from "@mui/material/Unstable_Grid2"
@@ -89,19 +89,21 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
           </CardContent>
         </Card>
       ) : null}
-      <Card
-        sx={{
-          margin: theme.spacing(2),
-        }}
-      >
-        <CardContent>
-          <GraphHistory
-            study={studyDetail}
-            includePruned={includePruned}
-            logScale={logScale}
-          />
-        </CardContent>
-      </Card>
+      {studyDetail !== null ? (
+        <Card
+          sx={{
+            margin: theme.spacing(2),
+          }}
+        >
+          <CardContent>
+            <GraphHistoryMultiStudies
+              studies={[studyDetail]}
+              includePruned={includePruned}
+              logScale={logScale}
+            />
+          </CardContent>
+        </Card>
+      ) : null}
       <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
         {studyDetail !== null &&
         studyDetail.directions.length == 1 &&

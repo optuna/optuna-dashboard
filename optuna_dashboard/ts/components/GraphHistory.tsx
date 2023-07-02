@@ -20,6 +20,7 @@ import {
   useFilteredTrialsFromStudies,
   Target,
   useObjectiveAndUserAttrTargets,
+  useObjectiveAndUserAttrTargetsFromStudies,
 } from "../trialFilter"
 
 const plotDomId = "graph-history"
@@ -177,10 +178,8 @@ export const GraphHistoryMultiStudies: FC<{
   >("number")
   const [markerSize, setMarkerSize] = useState<number>(5)
 
-  // TODO(umezawa): Prepare targets with all studies.
-  const [targets, selected, setTarget] = useObjectiveAndUserAttrTargets(
-    studies.length !== 0 ? studies[0] : null
-  )
+  const [targets, selected, setTarget] =
+    useObjectiveAndUserAttrTargetsFromStudies(studies)
 
   const trials = useFilteredTrialsFromStudies(
     studies,
