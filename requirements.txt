@@ -17,7 +17,6 @@ boto3
 moto[s3]
 
 # visual regression tests
-pyppeteer
 pytest-playwright
 
 # docs
