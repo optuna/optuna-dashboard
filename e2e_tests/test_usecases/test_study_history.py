@@ -2,7 +2,7 @@ import optuna
 from playwright.sync_api import Page
 
 
-def test_history_xaxis_datetime_start_click(
+def test_history_xaxis_click(
     page: Page,
     storage: optuna.storages.InMemoryStorage,
     server_url: str,
