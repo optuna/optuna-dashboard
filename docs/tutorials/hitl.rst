@@ -107,7 +107,7 @@ You will use SQLite for the storage backend in this tutorial. Ensure that the fo
 Execution of the HITL optimization script
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Use this command to launch Optuna Dashboard in a separate process.
+Run a python script below which you copied from `main.py <https://github.com/optuna/optuna-dashboard/blob/main/examples/hitl/main.py>`_
 
 .. code-block:: console
 
@@ -115,6 +115,8 @@ Use this command to launch Optuna Dashboard in a separate process.
 
 Launching Optuna Dashboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Run this command to launch Optuna Dashboard in a separate process.
 
 .. code-block:: console
 
