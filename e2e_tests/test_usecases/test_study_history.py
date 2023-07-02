@@ -13,7 +13,7 @@ def test_history_xaxis_click(
     url = f"{server_url}/studies/{study_id}"
 
     page.goto(url)
-    
+
     page.get_by_label("Datetime start").check()
     element = page.query_selector(".MuiTypography-body1")
     assert element is not None
