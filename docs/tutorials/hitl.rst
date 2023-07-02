@@ -88,7 +88,7 @@ Given the above system, we carry out HITL optimization as follows:
 1. Environment setup
 2. Execution of the HITL optimization script
 3. Launching Optuna Dashboard
-4. Interactively performing HITL optimization
+4. Interactive HITL optimization
 
 Environment setup
 ^^^^^^^^^^^^^^^^^
@@ -113,14 +113,21 @@ Use this command to launch Optuna Dashboard in a separate process.
 
     $ python main.py
 
-In the script, the storage is set to "sqlite:///db.sqlite3" to persist Optuna's trial history. To store the artifacts, --artifact-dir ./artifact is specified.
+Launching Optuna Dashboard
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: console
+
+    $ optuna-dashboard sqlite:///db.sqlite3 --artifact-dir ./artifact
+
+In the command, the storage is set to ``sqlite:///db.sqlite3`` to persist Optuna's trial history. To store the artifacts, ``--artifact-dir ./artifact`` is specified.
 
 .. code-block:: console
 
     Listening on http://127.0.0.1:8080/
     Hit Ctrl-C to quit.
 
-When you run the script, you will see a message like the one above. Open `http://127.0.0.1:8080/dashboard/ <http://127.0.0.1:8080/dashboard/>`_ in your browser.
+When you run the command, you will see a message like the one above. Open `http://127.0.0.1:8080/dashboard/ <http://127.0.0.1:8080/dashboard/>`_ in your browser.
 
 Interactive HITL optimization
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
