@@ -12,6 +12,7 @@ import {
   Typography,
   SelectChangeEvent,
   useTheme,
+  Slider,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import {
@@ -39,6 +40,7 @@ export const GraphHistory: FC<{
   const [xAxis, setXAxis] = useState<
     "number" | "datetime_start" | "datetime_complete"
   >("number")
+  const [markerSize, setMarkerSize] = useState<number>(5)
 
   const [targets, selected, setTarget] = useObjectiveAndUserAttrTargets(study)
   const trials = useFilteredTrials(study, [selected], includePruned)
@@ -52,7 +54,8 @@ export const GraphHistory: FC<{
         xAxis,
         logScale,
         theme.palette.mode,
-        study?.objective_names
+        study?.objective_names,
+        markerSize
       )
     }
   }, [
@@ -63,6 +66,7 @@ export const GraphHistory: FC<{
     xAxis,
     theme.palette.mode,
     study?.objective_names,
+    markerSize,
   ])
 
   const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
@@ -140,6 +144,20 @@ export const GraphHistory: FC<{
             />
           </RadioGroup>
         </FormControl>
+        <FormControl>
+          <FormLabel component="legend">Marker size:</FormLabel>
+          <Slider
+            defaultValue={5}
+            marks={true}
+            min={1}
+            max={20}
+            step={1}
+            onChange={(e) => {
+              // @ts-ignore
+              setMarkerSize(e.target.value as number)
+            }}
+          />
+        </FormControl>
       </Grid>
       <Grid item xs={9}>
         <div id={plotDomId} />
@@ -157,6 +175,7 @@ export const GraphHistoryMultiStudies: FC<{
   const [xAxis, setXAxis] = useState<
     "number" | "datetime_start" | "datetime_complete"
   >("number")
+  const [markerSize, setMarkerSize] = useState<number>(5)
 
   // TODO(umezawa): Prepare targets with all studies.
   const [targets, selected, setTarget] = useObjectiveAndUserAttrTargets(
@@ -184,7 +203,8 @@ export const GraphHistoryMultiStudies: FC<{
       selected,
       xAxis,
       logScale,
-      theme.palette.mode
+      theme.palette.mode,
+      markerSize
     )
   }, [studies, selected, logScale, xAxis, theme.palette.mode])
 
@@ -263,6 +283,20 @@ export const GraphHistoryMultiStudies: FC<{
             />
           </RadioGroup>
         </FormControl>
+        <FormControl>
+          <FormLabel component="legend">Marker size:</FormLabel>
+          <Slider
+            defaultValue={5}
+            marks={true}
+            min={1}
+            max={20}
+            step={1}
+            onChange={(e) => {
+              // @ts-ignore
+              setMarkerSize(e.target.value as number)
+            }}
+          />
+        </FormControl>
       </Grid>
       <Grid item xs={9}>
         <div id={plotDomId} />
@@ -278,7 +312,8 @@ const plotHistory = (
   xAxis: "number" | "datetime_start" | "datetime_complete",
   logScale: boolean,
   mode: string,
-  objectiveNames?: string[]
+  objectiveNames?: string[],
+  markerSize: number
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -321,6 +356,9 @@ const plotHistory = (
       x: trials.map(getAxisX),
       y: trials.map((t: Trial): number => target.getTargetValue(t) as number),
       name: target.toLabel(objectiveNames),
+      marker: {
+        size: markerSize,
+      },
       mode: "markers",
       type: "scatter",
     },
@@ -381,7 +419,8 @@ const plotHistoryMultiStudies = (
   target: Target,
   xAxis: "number" | "datetime_start" | "datetime_complete",
   logScale: boolean,
-  mode: string
+  mode: string,
+  markerSize: number
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -430,6 +469,9 @@ const plotHistoryMultiStudies = (
       x: x,
       y: y,
       name: `${target.toLabel(h.objective_names)} of ${h.study_name}`,
+      marker: {
+        size: markerSize,
+      },
       mode: "markers",
       type: "scatter",
     })
