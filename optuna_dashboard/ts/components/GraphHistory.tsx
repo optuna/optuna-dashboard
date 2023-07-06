@@ -150,7 +150,7 @@ export const GraphHistory: FC<{
             defaultValue={5}
             marks={true}
             min={1}
-            max={20}
+            max={10}
             step={1}
             onChange={(e) => {
               // @ts-ignore
@@ -289,7 +289,7 @@ export const GraphHistoryMultiStudies: FC<{
             defaultValue={5}
             marks={true}
             min={1}
-            max={20}
+            max={10}
             step={1}
             onChange={(e) => {
               // @ts-ignore
