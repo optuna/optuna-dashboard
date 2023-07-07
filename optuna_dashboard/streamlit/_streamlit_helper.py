@@ -66,7 +66,7 @@ def _render_widgets(
                 )
             elif widget["type"] == "text":
                 # NOTE: Current implementation ignores "optional".
-                value = st.text_input(_format_description(widget["description"]))
+                value = st.text_input(_format_description(widget["description"]))  # type: ignore
             elif widget["type"] == "user_attr":
                 value = trial.user_attrs[widget["key"]]
             else:
