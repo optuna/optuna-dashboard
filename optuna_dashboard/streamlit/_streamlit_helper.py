@@ -89,7 +89,6 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
     Raises:
         ValueError: If No form widgets registered.
         ValueError: If 'output_type' of form widgets is not 'user_attr'.
-
     """
 
     form_widgets_dict = get_form_widgets_json(study.system_attrs)
