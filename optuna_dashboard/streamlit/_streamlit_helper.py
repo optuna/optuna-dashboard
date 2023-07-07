@@ -153,15 +153,15 @@ def render_objective_form_widgets(
 
     if submitted:
         values_float = []
-        for value in values:
-            try:
+        try:
+            for value in values:
                 values_float.append(float(value))  # type: ignore
-            except ValueError as e:
-                raise ValueError("All submitted values should be float.") from e
 
-        study.tell(trial.number, values_float)
+            study.tell(trial.number, values_float)
 
-        if on_success_callback is None:
-            st.success("Submitted!")
-        else:
-            on_success_callback()
+            if on_success_callback is None:
+                st.success("Submitted!")
+            else:
+                on_success_callback()
+        except ValueError:
+            st.error("Please enter float values.")
