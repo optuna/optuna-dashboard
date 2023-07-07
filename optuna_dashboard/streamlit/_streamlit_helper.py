@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 import optuna
 from optuna.trial import FrozenTrial
+
 import streamlit as st
 
 from .._form_widget import get_form_widgets_json
