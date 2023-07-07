@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from typing import Callable
     from typing import Optional
     from typing import Sequence
+    from typing import Union
 
     from .._form_widget import ChoiceWidgetJSON
     from .._form_widget import SliderWidgetJSON
@@ -43,10 +44,12 @@ def _format_description(description: Optional[str]) -> str:
 
 
 def _render_widgets(
-    widgets: Sequence[ChoiceWidgetJSON | SliderWidgetJSON | TextInputWidgetJSON | UserAttrRefJSON],
+    widgets: Sequence[
+        Union[ChoiceWidgetJSON, SliderWidgetJSON, TextInputWidgetJSON, UserAttrRefJSON]
+    ],
     trial: FrozenTrial,
-) -> tuple[bool, list[Optional[str | float]]]:
-    values: list[Optional[str | float]] = []
+) -> tuple[bool, list[Optional[Union[str, float]]]]:
+    values: list[Optional[Union[str, float]]] = []
 
     with st.form("user_input", clear_on_submit=False):
         for widget in widgets:

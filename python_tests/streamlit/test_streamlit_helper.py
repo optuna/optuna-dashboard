@@ -1,5 +1,6 @@
 import itertools
 from typing import Sequence
+from typing import Union
 
 import optuna
 from optuna_dashboard import ChoiceWidget
@@ -59,7 +60,7 @@ for r in range(len(widget_list) + 1):
 
 @pytest.mark.parametrize("widgets", widgets_combinations_for_user_attr)
 def test_render_user_attr_form_widgets(
-    widgets: Sequence[ChoiceWidget | SliderWidget | TextInputWidget],
+    widgets: Sequence[Union[ChoiceWidget, SliderWidget, TextInputWidget]],
 ) -> None:
     study = optuna.create_study()
     register_user_attr_form_widgets(study, widgets)  # type: ignore
@@ -76,7 +77,7 @@ for r in range(1, len(widget_list) + 1):
 
 @pytest.mark.parametrize("widgets", widgets_combinations_for_objective)
 def test_render_objective_form_widgets(
-    widgets: Sequence[ChoiceWidget | SliderWidget | TextInputWidget],
+    widgets: Sequence[Union[ChoiceWidget, SliderWidget, TextInputWidget]],
 ) -> None:
     study = optuna.create_study(directions=["maximize"] * len(widgets))
     register_objective_form_widgets(study, widgets)  # type: ignore
