@@ -26,6 +26,7 @@ def render_trial_note(study: optuna.Study, trial: FrozenTrial) -> None:
         study: The optuna study object.
         trial: The optuna trial object to get note.
     """
+
     note = get_note_from_system_attrs(study.system_attrs, trial._trial_id)
     st.markdown(note["body"], unsafe_allow_html=True)
 
@@ -73,6 +74,7 @@ def _render_widgets(
                     "Widget type should be 'choice', 'slider', 'text', or 'user_attr'."
                 )
             values.append(value)
+
         submitted = st.form_submit_button("Submit")
     return submitted, values
 
@@ -94,7 +96,6 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
     form_widgets_dict = get_form_widgets_json(study.system_attrs)
     if form_widgets_dict is None:
         raise ValueError("No form widgets registered.")
-
     if form_widgets_dict["output_type"] != "user_attr":
         raise ValueError("'output_type' should be 'user_attr'.")
 
@@ -131,7 +132,6 @@ def render_objective_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
     form_widgets_dict = get_form_widgets_json(study.system_attrs)
     if form_widgets_dict is None:
         raise ValueError("No form widgets registered.")
-
     if form_widgets_dict["output_type"] != "objective":
         raise ValueError("'output_type' should be 'objective'.")
 
@@ -144,5 +144,6 @@ def render_objective_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
                 values_float.append(float(value))  # type: ignore
             except ValueError as e:
                 raise ValueError("All submitted values should be float.") from e
+
         study.tell(trial.number, values_float)
         st.success("Submitted!")
