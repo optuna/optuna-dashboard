@@ -12,6 +12,8 @@ from .._note import get_note_from_system_attrs
 
 
 if TYPE_CHECKING:
+    from typing import Callable
+    from typing import Optional
     from typing import Sequence
 
     from .._form_widget import ChoiceWidgetJSON
@@ -36,15 +38,15 @@ def _format_choice(choice: float, widget: ChoiceWidgetJSON) -> str:
     return widget["choices"][widget["values"].index(choice)]
 
 
-def _format_description(description: str | None) -> str:
+def _format_description(description: Optional[str]) -> str:
     return "" if description is None else description
 
 
 def _render_widgets(
     widgets: Sequence[ChoiceWidgetJSON | SliderWidgetJSON | TextInputWidgetJSON | UserAttrRefJSON],
     trial: FrozenTrial,
-) -> tuple[bool, list[str | float | None]]:
-    values: list[str | float | None] = []
+) -> tuple[bool, list[Optional[str | float]]]:
+    values: list[Optional[str | float]] = []
 
     with st.form("user_input", clear_on_submit=False):
         for widget in widgets:
@@ -80,7 +82,9 @@ def _render_widgets(
     return submitted, values
 
 
-def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> None:
+def render_user_attr_form_widgets(
+    study: optuna.Study, trial: FrozenTrial, on_success_callback: Optional[Callable[[], None]]
+) -> None:
     """Render user input widgets to UI with streamlit.
 
     Submitted values to the forms are registered as each trial's user_attrs.
@@ -88,6 +92,8 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
     Args:
         study: The optuna study object to get widget specification.
         trial: The optuna trial object to save user feedbacks.
+        on_success_callback: The callback function which will be executed
+                             when feedback submission is succeeded.
 
     Raises:
         ValueError: If No form widgets registered.
@@ -110,10 +116,15 @@ def render_user_attr_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
                     trial._trial_id, key=widget["user_attr_key"], value=value  # type: ignore
                 )
 
-        st.success("Submitted!")
+        if on_success_callback is None:
+            st.success("Submitted!")
+        else:
+            on_success_callback()
 
 
-def render_objective_form_widgets(study: optuna.Study, trial: FrozenTrial) -> None:
+def render_objective_form_widgets(
+    study: optuna.Study, trial: FrozenTrial, on_success_callback: Optional[Callable[[], None]]
+) -> None:
     """Render user input widgets to UI with streamlit.
 
     Submitted values to the forms are telled to optuna trial object.
@@ -123,6 +134,8 @@ def render_objective_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
     Args:
         study: The optuna study object to get widget specification.
         trial: The optuna trial object to tell user feedbacks.
+        on_success_callback: The callback function which will be executed
+                             when feedback submission is succeeded.
 
     Raises:
         ValueError: If No form widgets registered.
@@ -147,4 +160,8 @@ def render_objective_form_widgets(study: optuna.Study, trial: FrozenTrial) -> No
                 raise ValueError("All submitted values should be float.") from e
 
         study.tell(trial.number, values_float)
-        st.success("Submitted!")
+
+        if on_success_callback is None:
+            st.success("Submitted!")
+        else:
+            on_success_callback()
