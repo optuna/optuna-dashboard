@@ -32,7 +32,7 @@ def test_render_trial_note_without_note() -> None:
     render_trial_note(study, study.trials[0])
 
 
-widget_list_for_user_attr = [
+widget_list = [
     ChoiceWidget(
         choices=["Good", "Bad"],
         values=[1, -1],
@@ -53,10 +53,8 @@ widget_list_for_user_attr = [
 
 widgets_combinations_for_user_attr = []
 # Test widget combinations.
-for r in range(len(widget_list_for_user_attr) + 1):
-    widgets_combinations_for_user_attr += list(
-        itertools.combinations(widget_list_for_user_attr, r)
-    )
+for r in range(len(widget_list) + 1):
+    widgets_combinations_for_user_attr += list(itertools.combinations(widget_list, r))
 
 
 @pytest.mark.parametrize("widgets", widgets_combinations_for_user_attr)
@@ -70,29 +68,18 @@ def test_render_user_attr_form_widgets(
     render_user_attr_form_widgets(study, study.trials[0])
 
 
-widget_list_for_objective = [
-    ChoiceWidget(
-        choices=["Good", "Bad"],
-        values=[1, -1],
-        description="description",
-    ),
-    SliderWidget(
-        min=1,
-        max=5,
-        step=1,
-        labels=[(1, "Bad"), (5, "Good")],
-        description="description",
-    ),
-    TextInputWidget(description="description"),
-]
+widgets_combinations_for_objective = []
+# Test widget combinations.
+for r in range(1, len(widget_list) + 1):
+    widgets_combinations_for_objective += list(itertools.combinations(widget_list, r))
 
 
-@pytest.mark.parametrize("widget", widget_list_for_objective)
+@pytest.mark.parametrize("widgets", widgets_combinations_for_objective)
 def test_render_objective_form_widgets(
-    widget: ChoiceWidget | SliderWidget | TextInputWidget,
+    widgets: Sequence[ChoiceWidget | SliderWidget | TextInputWidget],
 ) -> None:
-    study = optuna.create_study()
-    register_objective_form_widgets(study, [widget])  # type: ignore
+    study = optuna.create_study(directions=["maximize"] * len(widgets))
+    register_objective_form_widgets(study, widgets)  # type: ignore
 
     study.ask()
     render_objective_form_widgets(study, study.trials[0])
