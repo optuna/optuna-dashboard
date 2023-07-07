@@ -83,7 +83,9 @@ def _render_widgets(
 
 
 def render_user_attr_form_widgets(
-    study: optuna.Study, trial: FrozenTrial, on_success_callback: Optional[Callable[[], None]]
+    study: optuna.Study,
+    trial: FrozenTrial,
+    on_success_callback: Optional[Callable[[], None]] = None,
 ) -> None:
     """Render user input widgets to UI with streamlit.
 
@@ -123,7 +125,9 @@ def render_user_attr_form_widgets(
 
 
 def render_objective_form_widgets(
-    study: optuna.Study, trial: FrozenTrial, on_success_callback: Optional[Callable[[], None]]
+    study: optuna.Study,
+    trial: FrozenTrial,
+    on_success_callback: Optional[Callable[[], None]] = None,
 ) -> None:
     """Render user input widgets to UI with streamlit.
 
