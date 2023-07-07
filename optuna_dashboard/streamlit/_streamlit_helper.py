@@ -52,7 +52,7 @@ def _render_widgets(
     values: list[Optional[Union[str, float]]] = []
 
     with st.form("user_input", clear_on_submit=False):
-        for widget in widgets:
+        for i, widget in enumerate(widgets):
             if widget["type"] == "choice":
                 value = st.radio(
                     _format_description(widget["description"]),
@@ -61,6 +61,7 @@ def _render_widgets(
                         choice, widget
                     ),
                     horizontal=True,
+                    key=f"radio_{i}",
                 )
             elif widget["type"] == "slider":
                 # NOTE: It is difficult to reflect "labels".
@@ -69,10 +70,13 @@ def _render_widgets(
                     min_value=widget["min"],
                     max_value=widget["max"],
                     step=widget["step"],
+                    key=f"slider_{i}",
                 )
             elif widget["type"] == "text":
                 # NOTE: Current implementation ignores "optional".
-                value = st.text_input(_format_description(widget["description"]))  # type: ignore
+                value = st.text_input(
+                    _format_description(widget["description"]), key=f"text_{i}"
+                )  # type: ignore
             elif widget["type"] == "user_attr":
                 value = trial.user_attrs[widget["key"]]
             else:
