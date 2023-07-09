@@ -38,7 +38,17 @@ export const GraphTimeline: FC<{
 }
 
 const plotTimeline = (trials: Trial[], mode: string) => {
-  const lastTrials = trials.slice(-maxBars) // Only show last elements
+  if (document.getElementById(plotDomId) === null) {
+    return
+  }
+
+  if (trials.length === 0) {
+    plotly.react(plotDomId, [], {
+      template: mode === "dark" ? plotlyDarkTemplate : {},
+    })
+    return
+  }
+
   const cm: Record<TrialState, string> = {
     Complete: "blue",
     Fail: "red",
@@ -47,10 +57,21 @@ const plotTimeline = (trials: Trial[], mode: string) => {
     Waiting: "gray",
   }
 
-  if (document.getElementById(plotDomId) === null) {
-    return
-  }
-
+  const lastTrials = trials.slice(-maxBars) // To only show last elements
+  const minDatetime = new Date(
+    Math.min(
+      ...lastTrials.map(
+        (t) => t.datetime_start?.getTime() ?? new Date().getTime()
+      )
+    )
+  )
+  const maxDatetime = new Date(
+    Math.max(
+      ...lastTrials.map(
+        (t) => t.datetime_start?.getTime() ?? minDatetime.getTime()
+      )
+    )
+  )
   const layout: Partial<plotly.Layout> = {
     margin: {
       l: 50,
@@ -61,16 +82,18 @@ const plotTimeline = (trials: Trial[], mode: string) => {
     xaxis: {
       title: "Datetime",
       type: "date",
+      range: [minDatetime.toISOString(), maxDatetime.toISOString()],
     },
     yaxis: {
       title: "Trial",
+      range: [lastTrials[0].number, lastTrials[0].number + lastTrials.length],
     },
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
   const traces: Partial<plotly.PlotData>[] = []
   for (const s of Object.keys(cm) as TrialState[]) {
-    const bars = lastTrials.filter((t) => t.state === s)
+    const bars = trials.filter((t) => t.state === s)
     if (bars.length === 0) {
       continue
     }
