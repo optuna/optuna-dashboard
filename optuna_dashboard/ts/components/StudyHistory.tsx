@@ -9,7 +9,7 @@ import {
   useTheme,
 } from "@mui/material"
 import { GraphParetoFront } from "./GraphParetoFront"
-import { GraphHistoryMultiStudies } from "./GraphHistory"
+import { GraphHistory } from "./GraphHistory"
 import { GraphTimeline } from "./GraphTimeline"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import Grid2 from "@mui/material/Unstable_Grid2"
@@ -96,7 +96,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
           }}
         >
           <CardContent>
-            <GraphHistoryMultiStudies
+            <GraphHistory
               studies={[studyDetail]}
               includePruned={includePruned}
               logScale={logScale}
