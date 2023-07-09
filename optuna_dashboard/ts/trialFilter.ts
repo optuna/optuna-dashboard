@@ -200,24 +200,38 @@ export const useObjectiveAndUserAttrTargetsFromStudies = (
   const [selected, setTargetIdent] = useState<string>(
     defaultTarget.identifier()
   )
-  const maxDirections = useMemo<number>(() => {
+  const minDirections = useMemo<number>(() => {
     return studies.reduce((acc, study) => {
-      return Math.max(acc, study.directions.length)
-    }, 0)
+      return Math.min(acc, study.directions.length)
+    }, Number.MAX_VALUE)
   }, [studies])
 
-  const attrTargets = useMemo<Target[]>(() => {
-    const uniqueAttrs = Array.from(
-      new Set(studies.flatMap((study) => study.union_user_attrs))
+  const intersect = (arrays: AttributeSpec[][]) => {
+    const deepEqual = (obj1: AttributeSpec, obj2: AttributeSpec) => {
+      return JSON.stringify(obj1) === JSON.stringify(obj2)
+    }
+    return arrays.reduce((a, b) =>
+      a.filter((c) => b.some((d) => deepEqual(c, d)))
     )
-    return uniqueAttrs.map((attr) => new Target("user_attr", attr.key))
+  }
+
+  const attrTargets = useMemo<Target[]>(() => {
+    if (studies.length === 0) {
+      return []
+    }
+    const intersection = intersect(
+      studies.map((study) => study.union_user_attrs)
+    )
+    return intersection
+      .filter((attr) => attr.sortable)
+      .map((attr) => new Target("user_attr", attr.key))
   }, [studies])
 
   const targetList = useMemo<Target[]>(() => {
     if (studies !== null) {
       return [
         ...Array.from(
-          { length: maxDirections },
+          { length: minDirections },
           (_, i) => new Target("objective", i)
         ),
         ...attrTargets,
@@ -225,7 +239,7 @@ export const useObjectiveAndUserAttrTargetsFromStudies = (
     } else {
       return [defaultTarget]
     }
-  }, [maxDirections, attrTargets])
+  }, [minDirections, attrTargets])
 
   const selectedTarget = useMemo<Target>(
     () => targetList.find((t) => t.identifier() === selected) || defaultTarget,
