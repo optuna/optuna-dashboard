@@ -62,7 +62,7 @@ export const GraphHistory: FC<{
   })
 
   useEffect(() => {
-    plotHistoryMultiStudies(
+    plotHistory(
       historyPlotInfos,
       selected,
       xAxis,
@@ -70,7 +70,7 @@ export const GraphHistory: FC<{
       theme.palette.mode,
       markerSize
     )
-  }, [studies, selected, logScale, xAxis, theme.palette.mode])
+  }, [studies, selected, logScale, xAxis, theme.palette.mode, markerSize])
 
   const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
     setTarget(event.target.value)
