@@ -326,11 +326,11 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
           </CardContent>
         </Card>
       ) : null}
-      <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
-        {showStudyDetails !== null &&
-        showStudyDetails.length > 0 &&
-        showStudyDetails.every((s) => s)
-          ? showStudyDetails[0].directions.map((d, i) => (
+      {showStudyDetails !== null &&
+      showStudyDetails.length > 0 &&
+      showStudyDetails.every((s) => s)
+        ? showStudyDetails[0].directions.map((d, i) => (
+            <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
               <Grid2 xs={6} key={i}>
                 <Card>
                   <CardContent>
@@ -338,9 +338,9 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
                   </CardContent>
                 </Card>
               </Grid2>
-            ))
-          : null}
-      </Grid2>
+            </Grid2>
+          ))
+        : null}
     </Box>
   )
 }
