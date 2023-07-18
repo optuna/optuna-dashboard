@@ -88,6 +88,7 @@ const plotTimeline = (trials: Trial[], mode: string) => {
       title: "Trial",
       range: [lastTrials[0].number, lastTrials[0].number + lastTrials.length],
     },
+    uirevision: "true",
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
