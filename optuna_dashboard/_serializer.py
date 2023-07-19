@@ -9,6 +9,7 @@ import numpy as np
 from optuna.distributions import BaseDistribution
 from optuna.distributions import CategoricalDistribution
 from optuna.study import StudySummary
+from optuna.samplers._base import _CONSTRAINTS_KEY
 from optuna.trial import FrozenTrial
 
 from . import _note as note
@@ -187,6 +188,7 @@ def serialize_frozen_trial(
         ),
         "note": note.get_note_from_system_attrs(study_system_attrs, trial._trial_id),
         "artifacts": list_trial_artifacts(study_system_attrs, trial._trial_id),
+        "constraints": trial_system_attrs.get(_CONSTRAINTS_KEY, []),
     }
 
     serialized_intermediate_values: list[IntermediateValue] = []
