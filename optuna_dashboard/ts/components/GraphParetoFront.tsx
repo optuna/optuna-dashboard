@@ -108,9 +108,10 @@ const makeScatterObject = (
   objectiveXId: number,
   objectiveYId: number,
   hovertemplate: string,
-  dominated: boolean
+  dominated: boolean,
+  feasible: boolean
 ): Partial<plotly.PlotData> => {
-  const marker = makeMarker(trials, dominated)
+  const marker = makeMarker(trials, dominated, feasible)
   return {
     x: trials.map((t) => t.values![objectiveXId] as number),
     y: trials.map((t) => t.values![objectiveYId] as number),
@@ -124,9 +125,10 @@ const makeScatterObject = (
 
 const makeMarker = (
   trials: Trial[],
-  dominated: boolean
+  dominated: boolean,
+  feasible: boolean
 ): Partial<plotly.PlotData> => {
-  if (dominated) {
+  if (feasible && dominated) {
     return {
       line: { width: 0.5, color: "Grey" },
       // @ts-ignore
@@ -137,7 +139,7 @@ const makeMarker = (
         title: "Trial",
       },
     }
-  } else {
+  } else if (feasible && !dominated) {
     return {
       line: { width: 0.5, color: "Grey" },
       // @ts-ignore
@@ -148,6 +150,11 @@ const makeMarker = (
         x: 1.1,
         xpad: 80,
       },
+    }
+  } else {
+    return {
+      // @ts-ignore
+      color: "#cccccc",
     }
   }
 }
@@ -183,8 +190,18 @@ const plotParetoFront = (
     return
   }
 
+  const feasibleTrials: Trial[] = []
+  const InfeasibleTrials: Trial[] = []
+  filteredTrials.forEach(t => {
+    if(t.constraints.every(c => c <= 0)){
+      feasibleTrials.push(t)
+    } else {
+      InfeasibleTrials.push(t)
+    }
+  })
+
   const normalizedValues: number[][] = []
-  filteredTrials.forEach((t) => {
+  feasibleTrials.forEach((t) => {
     if (t.values && t.values.length === study.directions.length) {
       const trialValues = t.values.map((v, i) => {
         return study.directions[i] === "minimize"
@@ -210,17 +227,29 @@ const plotParetoFront = (
 
   const plotData: Partial<plotly.PlotData>[] = [
     makeScatterObject(
-      filteredTrials.filter((t, i) => dominatedTrials[i]),
+      feasibleTrials.filter((t, i) => dominatedTrials[i]),
       objectiveXId,
       objectiveYId,
-      "%{text}<extra>Trial</extra>",
+      InfeasibleTrials.length === 0
+        ?"%{text}<extra>Trial</extra>"
+        :"%{text}<extra>Feasible Trial</extra>",
+      true,
       true
     ),
     makeScatterObject(
-      filteredTrials.filter((t, i) => !dominatedTrials[i]),
+      feasibleTrials.filter((t, i) => !dominatedTrials[i]),
       objectiveXId,
       objectiveYId,
       "%{text}<extra>Best Trial</extra>",
+      false,
+      true
+    ),
+    makeScatterObject(
+      InfeasibleTrials,
+      objectiveXId,
+      objectiveYId,
+      "%{text}<extra>Infeasible Trial</extra>",
+      false,
       false
     ),
   ]
