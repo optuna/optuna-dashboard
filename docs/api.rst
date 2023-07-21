@@ -30,6 +30,17 @@ Human-in-the-loop
    optuna_dashboard.TextInputWidget
    optuna_dashboard.ObjectiveUserAttrRef
 
+Streamlit
+-----------------
+
+.. autosummary::
+   :toctree: _generated/
+   :nosignatures:
+
+   optuna_dashboard.streamlit.render_trial_note
+   optuna_dashboard.streamlit.render_objective_form_widgets
+   optuna_dashboard.streamlit.render_user_attr_form_widgets
+
 Artifact
 --------
 
