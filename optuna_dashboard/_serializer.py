@@ -8,8 +8,8 @@ from typing import Union
 import numpy as np
 from optuna.distributions import BaseDistribution
 from optuna.distributions import CategoricalDistribution
-from optuna.study import StudySummary
 from optuna.samplers._base import _CONSTRAINTS_KEY
+from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
 
 from . import _note as note

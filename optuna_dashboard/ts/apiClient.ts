@@ -29,7 +29,7 @@ interface TrialResponse {
   user_attrs: Attribute[]
   system_attrs: Attribute[]
   note: Note
-  artifacts: Artifact[],
+  artifacts: Artifact[]
   constraints: number[]
 }
 
