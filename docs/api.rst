@@ -34,7 +34,7 @@ Streamlit
 -----------------
 
 .. autosummary::
-   :toctree: _generated/streamlit
+   :toctree: _generated/
    :nosignatures:
 
    optuna_dashboard.streamlit.render_trial_note
