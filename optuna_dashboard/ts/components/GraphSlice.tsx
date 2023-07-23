@@ -1,5 +1,5 @@
 import * as plotly from "plotly.js-dist-min"
-import React, { ChangeEvent, FC, useEffect, useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 import {
   Grid,
   FormControl,
@@ -76,7 +76,7 @@ export const GraphSlice: FC<{
     setParamTarget(e.target.value)
   }
 
-  const handleLogYScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleLogYScaleChange = () => {
     setLogYScale(!logYScale)
   }
 

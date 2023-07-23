@@ -31,7 +31,7 @@ interface DataGridColumn<T> {
   padding?: "normal" | "checkbox" | "none"
 }
 
-interface RowFilter<T> {
+interface RowFilter {
   columnIdx: number
   value: any
 }
@@ -51,7 +51,7 @@ function DataGrid<T>(props: {
   const [order, setOrder] = React.useState<Order>("asc")
   const [orderBy, setOrderBy] = React.useState<number>(0) // index of columns
   const [page, setPage] = React.useState(0)
-  const [filters, setFilters] = React.useState<RowFilter<T>[]>([])
+  const [filters, setFilters] = React.useState<RowFilter[]>([])
 
   const getRowIndex = (row: T): number => {
     return rows.findIndex((row2) => row[keyField] === row2[keyField])
@@ -116,12 +116,11 @@ function DataGrid<T>(props: {
   })
 
   // Sorting
-  const createSortHandler =
-    (columnId: number) => (event: React.MouseEvent<unknown>) => {
-      const isAsc = orderBy === columnId && order === "asc"
-      setOrder(isAsc ? "desc" : "asc")
-      setOrderBy(columnId)
-    }
+  const createSortHandler = (columnId: number) => () => {
+    const isAsc = orderBy === columnId && order === "asc"
+    setOrder(isAsc ? "desc" : "asc")
+    setOrderBy(columnId)
+  }
   const sortedRows = stableSort<T>(filteredRows, order, orderBy, columns)
   const currentPageRows =
     rowsPerPage > 0
@@ -192,7 +191,7 @@ function DataGrid<T>(props: {
                             : { visibility: "hidden" }
                         }
                         color="inherit"
-                        onClick={(e) => {
+                        onClick={() => {
                           clearFilter(columnIdx)
                         }}
                       >
@@ -205,7 +204,7 @@ function DataGrid<T>(props: {
             </TableRow>
           </TableHead>
           <TableBody>
-            {currentPageRows.map((row, index) => (
+            {currentPageRows.map((row) => (
               <DataGridRow<T>
                 columns={columns}
                 rowIndex={getRowIndex(row)}
@@ -285,7 +284,7 @@ function DataGridRow<T>(props: {
             <TableCell
               key={`${row[keyField]}:${column.field.toString()}:${columnIndex}`}
               padding={column.padding || "normal"}
-              onClick={(e) => {
+              onClick={() => {
                 const value =
                   column.toCellValue !== undefined
                     ? column.toCellValue(rowIndex)

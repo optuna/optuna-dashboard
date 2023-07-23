@@ -149,7 +149,7 @@ export const StudyList: FC<{
                 <Button
                   variant="outlined"
                   startIcon={<Refresh />}
-                  onClick={(e) => {
+                  onClick={() => {
                     action.updateStudySummaries("Success to reload")
                   }}
                   sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
@@ -159,7 +159,7 @@ export const StudyList: FC<{
                 <Button
                   variant="outlined"
                   startIcon={<AddBoxIcon />}
-                  onClick={(e) => {
+                  onClick={() => {
                     openCreateStudyDialog()
                   }}
                   sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}

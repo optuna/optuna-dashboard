@@ -172,7 +172,7 @@ export const createNewStudyAPI = (
 }
 
 export const deleteStudyAPI = (studyId: number): Promise<void> => {
-  return axiosInstance.delete(`/api/studies/${studyId}`).then((res) => {
+  return axiosInstance.delete(`/api/studies/${studyId}`).then(() => {
     return
   })
 }
@@ -214,7 +214,7 @@ export const saveStudyNoteAPI = (
 ): Promise<void> => {
   return axiosInstance
     .put<void>(`/api/studies/${studyId}/note`, note)
-    .then((res) => {
+    .then(() => {
       return
     })
 }
@@ -226,7 +226,7 @@ export const saveTrialNoteAPI = (
 ): Promise<void> => {
   return axiosInstance
     .put<void>(`/api/studies/${studyId}/${trialId}/note`, note)
-    .then((res) => {
+    .then(() => {
       return
     })
 }
@@ -259,7 +259,7 @@ export const deleteArtifactAPI = (
 ): Promise<void> => {
   return axiosInstance
     .delete<void>(`/api/artifacts/${studyId}/${trialId}/${artifactId}`)
-    .then((res) => {
+    .then(() => {
       return
     })
 }
@@ -276,7 +276,7 @@ export const tellTrialAPI = (
 
   return axiosInstance
     .post<void>(`/api/trials/${trialId}/tell`, req)
-    .then((res) => {
+    .then(() => {
       return
     })
 }
@@ -289,7 +289,7 @@ export const saveTrialUserAttrsAPI = (
 
   return axiosInstance
     .post<void>(`/api/trials/${trialId}/user-attrs`, req)
-    .then((res) => {
+    .then(() => {
       return
     })
 }

@@ -43,7 +43,7 @@ export const StorageLoader: FC = () => {
     }
     loadStorageFromFile(f)
   }
-  const handleClick: MouseEventHandler = (e) => {
+  const handleClick: MouseEventHandler = () => {
     if (!inputRef || !inputRef.current) {
       return
     }

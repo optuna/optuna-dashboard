@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, useEffect, useMemo, useState } from "react"
+import React, { FC, useEffect, useMemo, useState } from "react"
 import { useRecoilValue } from "recoil"
 import { useSnackbar } from "notistack"
 import { Link } from "react-router-dom"
@@ -136,7 +136,7 @@ export const CompareStudies: FC<{
                 <Box sx={{ flexGrow: 1 }} />
               </ListSubheader>
               <Divider />
-              {studies.map((study, i) => {
+              {studies.map((study) => {
                 return (
                   <ListItem key={study.study_id} disablePadding>
                     <ListItemButton
@@ -256,11 +256,11 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
   const [logScale, setLogScale] = useState<boolean>(false)
   const [includePruned, setIncludePruned] = useState<boolean>(true)
 
-  const handleLogScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleLogScaleChange = () => {
     setLogScale(!logScale)
   }
 
-  const handleIncludePrunedChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleIncludePrunedChange = () => {
     setIncludePruned(!includePruned)
   }
 
