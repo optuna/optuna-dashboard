@@ -43,7 +43,7 @@ export const GraphHistory: FC<{
   const [markerSize, setMarkerSize] = useState<number>(5)
 
   const [targets, selected, setTarget] = useObjectiveAndUserAttrTargets(study)
-  const trials = useFilteredTrials(study, [selected], includePruned)
+  const trials = useFilteredTrials(study, [selected], !includePruned)
 
   useEffect(() => {
     if (study !== null) {
