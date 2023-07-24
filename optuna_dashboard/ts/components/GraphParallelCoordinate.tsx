@@ -23,9 +23,9 @@ const plotDomId = "graph-parallel-coordinate"
 const useTargets = (
   study: StudyDetail | null
 ): [Target[], SearchSpaceItem[], () => ReactNode] => {
-  const [targets1, _target1, _setter1] = useObjectiveAndUserAttrTargets(study)
+  const [targets1] = useObjectiveAndUserAttrTargets(study)
   const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
-  const [targets2, _target2, _setter2] = useParamTargets(searchSpace)
+  const [targets2] = useParamTargets(searchSpace)
   const [checked, setChecked] = useState<boolean[]>([true])
 
   const allTargets = [...targets1, ...targets2]

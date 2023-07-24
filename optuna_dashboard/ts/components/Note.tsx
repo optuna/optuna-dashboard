@@ -414,7 +414,7 @@ const ArtifactUploader: FC<{
   const [selectedArtifactId, setSelectedArtifactId] = useState<string>("")
 
   const inputRef = useRef<HTMLInputElement>(null)
-  const handleClick: MouseEventHandler = (e) => {
+  const handleClick: MouseEventHandler = () => {
     if (!inputRef || !inputRef.current) {
       return
     }
@@ -527,10 +527,10 @@ const ArtifactUploader: FC<{
         <ImageList cols={1} sx={{ margin: 0 }}>
           {artifacts
             .filter((a) => a.mimetype.startsWith("image"))
-            .map((a, i) => (
+            .map((a) => (
               <ImageListItem
                 key={a.artifact_id}
-                onClick={(e) => {
+                onClick={() => {
                   if (selectedArtifactId === a.artifact_id) {
                     setSelectedArtifactId("")
                   } else {
@@ -555,7 +555,7 @@ const ArtifactUploader: FC<{
       <Button
         variant="outlined"
         disabled={selectedArtifactId === ""}
-        onClick={(e) => {
+        onClick={() => {
           if (selectedArtifactId === "") {
             return
           }

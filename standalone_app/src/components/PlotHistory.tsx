@@ -37,15 +37,15 @@ export const PlotHistory: FC<{
     setXAxis(e.target.value)
   }
 
-  const handleLogScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleLogScaleChange = () => {
     setLogScale(!logScale)
   }
 
-  const handleFilterCompleteChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFilterCompleteChange = () => {
     setFilterCompleteTrial(!filterCompleteTrial)
   }
 
-  const handleFilterPrunedChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFilterPrunedChange = () => {
     setFilterPrunedTrial(!filterPrunedTrial)
   }
 

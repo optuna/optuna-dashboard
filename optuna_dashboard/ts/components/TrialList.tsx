@@ -332,7 +332,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
   const height = "150px"
 
   const inputRef = useRef<HTMLInputElement>(null)
-  const handleClick: MouseEventHandler = (e) => {
+  const handleClick: MouseEventHandler = () => {
     if (!inputRef || !inputRef.current) {
       return
     }
@@ -716,7 +716,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
               {states.map((state, i) => (
                 <MenuItem
                   key={state}
-                  onClick={(e) => {
+                  onClick={() => {
                     if (studyDetail === null) {
                       return
                     }
@@ -746,7 +746,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
             </Menu>
           </ListSubheader>
           <Divider />
-          {trials.map((trial, i) => {
+          {trials.map((trial) => {
             return (
               <ListItem key={trial.trial_id} disablePadding>
                 <ListItemButton

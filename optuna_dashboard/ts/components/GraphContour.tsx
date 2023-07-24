@@ -105,7 +105,7 @@ export const Contour: FC<{
             <FormControl component="fieldset" fullWidth>
               <FormLabel component="legend">x:</FormLabel>
               <Select value={xParam?.name || ""} onChange={handleXParamChange}>
-                {space.map((d, i) => (
+                {space.map((d) => (
                   <MenuItem value={d.name} key={d.name}>
                     {d.name}
                   </MenuItem>
@@ -115,7 +115,7 @@ export const Contour: FC<{
             <FormControl component="fieldset" fullWidth>
               <FormLabel component="legend">y:</FormLabel>
               <Select value={yParam?.name || ""} onChange={handleYParamChange}>
-                {space.map((d, i) => (
+                {space.map((d) => (
                   <MenuItem value={d.name} key={d.name}>
                     {d.name}
                   </MenuItem>

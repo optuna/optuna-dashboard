@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FC, useState } from "react"
+import React, { FC, useState } from "react"
 import {
   Box,
   Card,
@@ -31,11 +31,11 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   const [logScale, setLogScale] = useState<boolean>(false)
   const [includePruned, setIncludePruned] = useState<boolean>(true)
 
-  const handleLogScaleChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleLogScaleChange = () => {
     setLogScale(!logScale)
   }
 
-  const handleIncludePrunedChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleIncludePrunedChange = () => {
     setIncludePruned(!includePruned)
   }
 
