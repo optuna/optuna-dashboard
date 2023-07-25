@@ -112,6 +112,7 @@ type Trial = {
   }[]
   user_attrs: Attribute[]
   system_attrs: Attribute[]
+  constraints: number[]
   note: Note
   artifacts: Artifact[]
 }

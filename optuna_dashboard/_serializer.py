@@ -83,6 +83,7 @@ if TYPE_CHECKING:
 
 
 MAX_ATTR_LENGTH = 1024
+CONSTRAINTS_KEY = "constraints"
 
 
 def serialize_attrs(attrs: dict[str, Any]) -> list[Attribute]:
@@ -187,6 +188,7 @@ def serialize_frozen_trial(
         ),
         "note": note.get_note_from_system_attrs(study_system_attrs, trial._trial_id),
         "artifacts": list_trial_artifacts(study_system_attrs, trial._trial_id),
+        "constraints": trial_system_attrs.get(CONSTRAINTS_KEY, []),
     }
 
     serialized_intermediate_values: list[IntermediateValue] = []
