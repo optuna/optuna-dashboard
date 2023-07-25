@@ -30,7 +30,7 @@ interface TrialResponse {
   system_attrs: Attribute[]
   note: Note
   artifacts: Artifact[]
-  constraints?: number[]
+  constraints: number[]
 }
 
 const convertTrialResponse = (res: TrialResponse): Trial => {
