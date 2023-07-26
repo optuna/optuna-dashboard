@@ -343,6 +343,16 @@ const plotHistory = (
     return
   }
 
+  const feasibleTrials: Trial[] = []
+  const infeasibleTrials: Trial[] = []
+  trials.forEach((t) => {
+    if (t.constraints.every((c) => c <= 0)) {
+      feasibleTrials.push(t)
+    } else {
+      infeasibleTrials.push(t)
+    }
+  })
+
   const getAxisX = (trial: Trial): number | Date => {
     return xAxis === "number"
       ? trial.number
@@ -353,8 +363,10 @@ const plotHistory = (
 
   const plotData: Partial<plotly.PlotData>[] = [
     {
-      x: trials.map(getAxisX),
-      y: trials.map((t: Trial): number => target.getTargetValue(t) as number),
+      x: feasibleTrials.map(getAxisX),
+      y: feasibleTrials.map(
+        (t: Trial): number => target.getTargetValue(t) as number
+      ),
       name: target.toLabel(objectiveNames),
       marker: {
         size: markerSize,
@@ -369,8 +381,8 @@ const plotHistory = (
     const xForLinePlot: (number | Date)[] = []
     const yForLinePlot: number[] = []
     let currentBest: number | null = null
-    for (let i = 0; i < trials.length; i++) {
-      const t = trials[i]
+    for (let i = 0; i < feasibleTrials.length; i++) {
+      const t = feasibleTrials[i]
       if (currentBest === null) {
         currentBest = t.values![objectiveId] as number
         xForLinePlot.push(getAxisX(t))
@@ -391,7 +403,7 @@ const plotHistory = (
         directions[objectiveId] === "minimize" &&
         t.values![objectiveId] < currentBest
       ) {
-        const p = trials[i - 1]
+        const p = feasibleTrials[i - 1]
         if (!xForLinePlot.includes(getAxisX(p))) {
           xForLinePlot.push(getAxisX(p))
           yForLinePlot.push(currentBest)
@@ -411,6 +423,20 @@ const plotHistory = (
       type: "scatter",
     })
   }
+  plotData.push({
+    x: infeasibleTrials.map(getAxisX),
+    y: infeasibleTrials.map(
+      (t: Trial): number => target.getTargetValue(t) as number
+    ),
+    name: "Infeasible Trial",
+    marker: {
+      size: markerSize,
+      color: "#cccccc",
+    },
+    mode: "markers",
+    type: "scatter",
+    showlegend: false,
+  })
   plotly.react(plotDomId, plotData, layout)
 }
 
@@ -460,14 +486,22 @@ const plotHistoryMultiStudies = (
   }
 
   const plotData: Partial<plotly.PlotData>[] = []
+  const InfeasiblePlotData: Partial<plotly.PlotData>[] = []
   historyPlotInfos.forEach((h) => {
-    const x = h.trials.map(getAxisX)
-    const y = h.trials.map(
-      (t: Trial): number => target.getTargetValue(t) as number
-    )
+    const feasibleTrials: Trial[] = []
+    const infeasibleTrials: Trial[] = []
+    h.trials.forEach((t) => {
+      if (t.constraints.every((c) => c <= 0)) {
+        feasibleTrials.push(t)
+      } else {
+        infeasibleTrials.push(t)
+      }
+    })
     plotData.push({
-      x: x,
-      y: y,
+      x: feasibleTrials.map(getAxisX),
+      y: feasibleTrials.map(
+        (t: Trial): number => target.getTargetValue(t) as number
+      ),
       name: `${target.toLabel(h.objective_names)} of ${h.study_name}`,
       marker: {
         size: markerSize,
@@ -481,8 +515,8 @@ const plotHistoryMultiStudies = (
       const xForLinePlot: (number | Date)[] = []
       const yForLinePlot: number[] = []
       let currentBest: number | null = null
-      for (let i = 0; i < h.trials.length; i++) {
-        const t = h.trials[i]
+      for (let i = 0; i < feasibleTrials.length; i++) {
+        const t = feasibleTrials[i]
         const value = target.getTargetValue(t) as number
         if (value === null) {
           continue
@@ -494,7 +528,7 @@ const plotHistoryMultiStudies = (
           h.directions[objectiveId] === "maximize" &&
           value > currentBest
         ) {
-          const p = h.trials[i - 1]
+          const p = feasibleTrials[i - 1]
           if (!xForLinePlot.includes(getAxisX(p))) {
             xForLinePlot.push(getAxisX(p))
             yForLinePlot.push(currentBest)
@@ -506,7 +540,7 @@ const plotHistoryMultiStudies = (
           h.directions[objectiveId] === "minimize" &&
           value < currentBest
         ) {
-          const p = h.trials[i - 1]
+          const p = feasibleTrials[i - 1]
           if (!xForLinePlot.includes(getAxisX(p))) {
             xForLinePlot.push(getAxisX(p))
             yForLinePlot.push(currentBest)
@@ -528,7 +562,22 @@ const plotHistoryMultiStudies = (
         type: "scatter",
       })
     }
+    InfeasiblePlotData.push({
+      x: infeasibleTrials.map(getAxisX),
+      y: infeasibleTrials.map(
+        (t: Trial): number => target.getTargetValue(t) as number
+      ),
+      name: `Infeasible Trial of ${h.study_name}`,
+      marker: {
+        size: markerSize,
+        color: "#cccccc",
+      },
+      mode: "markers",
+      type: "scatter",
+      showlegend: false,
+    })
   })
 
+  plotData.push(...InfeasiblePlotData)
   plotly.react(plotDomId, plotData, layout)
 }
