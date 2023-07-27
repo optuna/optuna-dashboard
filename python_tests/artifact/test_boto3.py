@@ -30,9 +30,9 @@ class Boto3BackendTestCase(TestCase):
 
         backend = Boto3Backend(self.bucket_name)
         backend.write(artifact_id, buf)
-        assert len(self.s3_client.list_objects(Bucket=self.bucket_name)["Contents"]) == 1
+        self.assertEqual(len(self.s3_client.list_objects(Bucket=self.bucket_name)["Contents"]), 1)
         obj = self.s3_client.get_object(Bucket=self.bucket_name, Key=artifact_id)
-        assert obj["Body"].read() == dummy_content
+        self.assertEqual(obj["Body"].read(), dummy_content)
 
         with backend.open(artifact_id) as f:
             actual = f.read()
@@ -44,11 +44,11 @@ class Boto3BackendTestCase(TestCase):
         backend = Boto3Backend(self.bucket_name)
         backend.write(artifact_id, io.BytesIO(b"Hello"))
         objects = self.s3_client.list_objects(Bucket=self.bucket_name)["Contents"]
-        assert len([obj for obj in objects if obj["Key"] == artifact_id]) == 1
+        self.assertEqual(len([obj for obj in objects if obj["Key"] == artifact_id]), 1)
 
         backend.remove(artifact_id)
         objects = self.s3_client.list_objects(Bucket=self.bucket_name).get("Contents", [])
-        assert len([obj for obj in objects if obj["Key"] == artifact_id]) == 0
+        self.assertEqual(len([obj for obj in objects if obj["Key"] == artifact_id]), 0)
 
     def test_file_not_found_exception(self) -> None:
         backend = Boto3Backend(self.bucket_name)

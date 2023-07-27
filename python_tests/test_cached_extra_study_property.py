@@ -278,4 +278,4 @@ class _CachedExtraStudyPropertyUserAttrs(TestCase):
         cached_extra_study_property = _CachedExtraStudyProperty()
         cached_extra_study_property.update(trials)
         actual = {k: v for k, v in cached_extra_study_property.union_user_attrs}
-        assert actual == expected
+        self.assertEqual(actual, expected)

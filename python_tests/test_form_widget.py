@@ -41,4 +41,4 @@ class FormWidgetsTestCase(TestCase):
             with self.subTest(f"{widget.__class__}-{i}"):
                 d = cast(Dict[str, Any], widget.to_dict())
                 restored = dict_to_form_widget(d)
-                assert widget == restored
+                self.assertEqual(widget, restored)
