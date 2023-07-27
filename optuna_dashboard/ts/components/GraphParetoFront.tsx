@@ -191,12 +191,12 @@ const plotParetoFront = (
   }
 
   const feasibleTrials: Trial[] = []
-  const InfeasibleTrials: Trial[] = []
+  const infeasibleTrials: Trial[] = []
   filteredTrials.forEach((t) => {
     if (t.constraints.every((c) => c <= 0)) {
       feasibleTrials.push(t)
     } else {
-      InfeasibleTrials.push(t)
+      infeasibleTrials.push(t)
     }
   })
 
@@ -230,7 +230,7 @@ const plotParetoFront = (
       feasibleTrials.filter((t, i) => dominatedTrials[i]),
       objectiveXId,
       objectiveYId,
-      InfeasibleTrials.length === 0
+      infeasibleTrials.length === 0
         ? "%{text}<extra>Trial</extra>"
         : "%{text}<extra>Feasible Trial</extra>",
       true,
@@ -245,7 +245,7 @@ const plotParetoFront = (
       true
     ),
     makeScatterObject(
-      InfeasibleTrials,
+      infeasibleTrials,
       objectiveXId,
       objectiveYId,
       "%{text}<extra>Infeasible Trial</extra>",

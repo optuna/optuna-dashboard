@@ -486,7 +486,7 @@ const plotHistoryMultiStudies = (
   }
 
   const plotData: Partial<plotly.PlotData>[] = []
-  const InfeasiblePlotData: Partial<plotly.PlotData>[] = []
+  const infeasiblePlotData: Partial<plotly.PlotData>[] = []
   historyPlotInfos.forEach((h) => {
     const feasibleTrials: Trial[] = []
     const infeasibleTrials: Trial[] = []
@@ -562,7 +562,7 @@ const plotHistoryMultiStudies = (
         type: "scatter",
       })
     }
-    InfeasiblePlotData.push({
+    infeasiblePlotData.push({
       x: infeasibleTrials.map(getAxisX),
       y: infeasibleTrials.map(
         (t: Trial): number => target.getTargetValue(t) as number
@@ -578,6 +578,6 @@ const plotHistoryMultiStudies = (
     })
   })
 
-  plotData.push(...InfeasiblePlotData)
+  plotData.push(...infeasiblePlotData)
   plotly.react(plotDomId, plotData, layout)
 }
