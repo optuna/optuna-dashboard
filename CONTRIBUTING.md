@@ -1,7 +1,7 @@
 # Developers Guide
 
 Thank you for your interest in contributing to the Optuna Dashboard project!
-This document will provide you with an overview of the repository structure and how to build optuna-dashboard.
+This document will provide you with an overview of the repository structure and instructions on how to build optuna-dashboard.
 
 ## Repository Structure
 
