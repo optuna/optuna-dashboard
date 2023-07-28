@@ -16,7 +16,7 @@ class MetricNamesTestCase(unittest.TestCase):
     def test_get_metric_names(self) -> None:
         study = optuna.create_study(directions=["minimize", "minimize"])
         # TODO(c-bata): Remove the following `type: ignore` after released Optuna v3.2.
-        study.set_metric_names(["val_loss", "flops"])  # type: ignore
+        study.set_metric_names(["val_loss", "flops"])
 
         study_system_attrs = study._storage.get_study_system_attrs(study._study_id)
         metric_names = get_objective_names(study_system_attrs)
