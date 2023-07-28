@@ -11,7 +11,7 @@ The repository is organized as follows:
 .
 ├── optuna_dashboard/   # The Python package.
 │   └── ts/             # TypeScript code for the Python package.
-├── standalone_app/     # Standalone application that can be run in browser or within the WevView of the VSCode extension.
+├── standalone_app/     # Standalone application that can be run in browser or within the WebView of the VSCode extension.
 │   ├── browser_app_entry.tsx   # Entry point for browser app, hosted on GitHub pages.
 │   └── vscode_entry.tsx        # Entry point for VSCode app, output placed under `vscode/assets`.
 ├── vscode/             # The VSCode extension.
