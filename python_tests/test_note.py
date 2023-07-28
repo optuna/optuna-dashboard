@@ -19,9 +19,9 @@ class NoteTestCase(TestCase):
         ]:
             with self.subTest(f"with_{dummy_body_str}_{attr_len}"):
                 attrs = note.split_body(dummy_body_str, None)
-                assert len(attrs) == attr_len
+                self.assertEqual(len(attrs), attr_len)
                 actual = note.concat_body(attrs, None)
-                assert dummy_body_str == actual
+                self.assertEqual(actual, dummy_body_str)
 
     def test_save_and_get_study_note(self) -> None:
         study = optuna.create_study()
@@ -32,11 +32,11 @@ class NoteTestCase(TestCase):
                 system_attrs = study._storage.get_study_system_attrs(study._study_id)
 
                 actual = get_note(study)
-                assert actual == body
+                self.assertEqual(actual, body)
 
                 note_dict = note.get_note_from_system_attrs(system_attrs, None)
-                assert note_dict["body"] == body
-                assert note_dict["version"] == expected_ver
+                self.assertEqual(note_dict["body"], body)
+                self.assertEqual(note_dict["version"], expected_ver)
 
     def test_save_and_get_trial_note(self) -> None:
         study = optuna.create_study()
@@ -48,8 +48,8 @@ class NoteTestCase(TestCase):
                 system_attrs = study._storage.get_study_system_attrs(study._study_id)
 
                 actual = get_note(trial)
-                assert actual == body
+                self.assertEqual(actual, body)
 
                 note_dict = note.get_note_from_system_attrs(system_attrs, trial._trial_id)
-                assert note_dict["body"] == body
-                assert note_dict["version"] == expected_ver
+                self.assertEqual(note_dict["body"], body)
+                self.assertEqual(note_dict["version"], expected_ver)

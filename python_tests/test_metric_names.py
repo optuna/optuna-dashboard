@@ -21,4 +21,4 @@ class MetricNamesTestCase(unittest.TestCase):
         study_system_attrs = study._storage.get_study_system_attrs(study._study_id)
         metric_names = get_objective_names(study_system_attrs)
 
-        assert metric_names == ["val_loss", "flops"]
+        self.assertEqual(metric_names, ["val_loss", "flops"])
