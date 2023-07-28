@@ -431,7 +431,7 @@ const plotHistory = (
     name: "Infeasible Trial",
     marker: {
       size: markerSize,
-      color: "#cccccc",
+      color: mode === "dark" ? "#666666" : "#cccccc",
     },
     mode: "markers",
     type: "scatter",
@@ -570,14 +570,13 @@ const plotHistoryMultiStudies = (
       name: `Infeasible Trial of ${h.study_name}`,
       marker: {
         size: markerSize,
-        color: "#cccccc",
+        color: mode === "dark" ? "#666666" : "#cccccc",
       },
       mode: "markers",
       type: "scatter",
       showlegend: false,
     })
   })
-
   plotData.push(...infeasiblePlotData)
   plotly.react(plotDomId, plotData, layout)
 }
