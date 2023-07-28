@@ -18,6 +18,7 @@ study_names = [
     "single-pruned-without-report",
     "single-inf-report",
     "issue-410",
+    "single-constraints",
     "single-no-trials",
     "multi-no-trials",
 ]
@@ -193,6 +194,26 @@ def make_dummy_storage(study_name: str) -> optuna.storages.InMemoryStorage:
             return 1.0
 
         study.optimize(objective_issue_410, n_trials=20, catch=(Exception,))
+
+    # Single-objective study with constraints
+    elif study_name == "single-constraints":
+
+        def objective_constraints(trial: optuna.Trial) -> float:
+            x = trial.suggest_float("x", -15, 30)
+            y = trial.suggest_float("y", -15, 30)
+            v0 = 4 * x**2 + 4 * y**2
+            trial.set_user_attr("constraint", [1000 - v0, x - 10, y - 10])
+            return v0
+
+        def constraints(trial: optuna.Trial) -> list[float]:
+            return trial.user_attrs["constraint"]
+
+        study = optuna.create_study(
+            study_name="A single objective constraint optimization study",
+            storage=storage,
+            sampler=optuna.samplers.TPESampler(constraints_func=constraints),
+        )
+        study.optimize(objective_constraints, n_trials=100)
 
     # No trials single-objective study
     elif study_name == "single-no-trials":
