@@ -201,6 +201,9 @@ export const useObjectiveAndUserAttrTargetsFromStudies = (
     defaultTarget.identifier()
   )
   const minDirections = useMemo<number>(() => {
+    if (studies.length === 0) {
+      return 0
+    }
     return studies.reduce((acc, study) => {
       return Math.min(acc, study.directions.length)
     }, Number.MAX_VALUE)

@@ -1,6 +1,7 @@
 import * as plotly from "plotly.js-dist-min"
 import React, { ChangeEvent, FC, useEffect, useState } from "react"
 import {
+  Box,
   Grid,
   FormControl,
   FormLabel,
@@ -163,7 +164,12 @@ export const GraphHistory: FC<{
         </FormControl>
       </Grid>
       <Grid item xs={9}>
-        <div id={plotDomId} />
+        <Box
+          id={plotDomId}
+          sx={{
+            height: "450px",
+          }}
+        />
       </Grid>
     </Grid>
   )

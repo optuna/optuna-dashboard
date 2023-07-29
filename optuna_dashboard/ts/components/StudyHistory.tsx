@@ -89,21 +89,19 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
           </CardContent>
         </Card>
       ) : null}
-      {studyDetail !== null ? (
-        <Card
-          sx={{
-            margin: theme.spacing(2),
-          }}
-        >
-          <CardContent>
-            <GraphHistory
-              studies={[studyDetail]}
-              includePruned={includePruned}
-              logScale={logScale}
-            />
-          </CardContent>
-        </Card>
-      ) : null}
+      <Card
+        sx={{
+          margin: theme.spacing(2),
+        }}
+      >
+        <CardContent>
+          <GraphHistory
+            studies={studyDetail !== null ? [studyDetail] : []}
+            includePruned={includePruned}
+            logScale={logScale}
+          />
+        </CardContent>
+      </Card>
       <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
         {studyDetail !== null &&
         studyDetail.directions.length == 1 &&
