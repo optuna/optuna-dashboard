@@ -20,7 +20,6 @@ jobs:
         architecture: x64
 
     - name: Install dependencies
-      # python_tests requires optuna>=3.0.0 since it imports FloatDistribution
       run: |
         python -m pip install --progress-bar off --upgrade pip setuptools
         pip install --progress-bar off "optuna>=3.0.0"
@@ -33,7 +32,7 @@ jobs:
         COVERAGE_PROCESS_START: .coveragerc  # https://coverage.readthedocs.io/en/6.4.1/subprocess.html
         COVERAGE_COVERAGE: yes  # https://github.com/nedbat/coveragepy/blob/65bf33fc03209ffb01bbbc0d900017614645ee7a/coverage/control.py#L255-L261
       run: |
-        coverage run --source=optuna -m pytest tests -m "not skip_coverage and not slow"
+        coverage run --source=optuna_dashboard -m pytest python_tests
         coverage combine
         coverage xml
 
