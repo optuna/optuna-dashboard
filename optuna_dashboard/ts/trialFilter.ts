@@ -210,11 +210,11 @@ export const useObjectiveAndUserAttrTargetsFromStudies = (
   }, [studies])
 
   const intersect = (arrays: AttributeSpec[][]) => {
-    const deepEqual = (obj1: AttributeSpec, obj2: AttributeSpec) => {
-      return JSON.stringify(obj1) === JSON.stringify(obj2)
+    const atrEqual = (obj1: AttributeSpec, obj2: AttributeSpec) => {
+      return obj1.key === obj2.key
     }
     return arrays.reduce((a, b) =>
-      a.filter((c) => b.some((d) => deepEqual(c, d)))
+      a.filter((c) => b.some((d) => atrEqual(c, d)))
     )
   }
 
