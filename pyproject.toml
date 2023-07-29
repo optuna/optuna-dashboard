@@ -39,6 +39,12 @@ test = [
     "pytest",
 ]
 
+optional = [
+    "streamlit",
+    "boto3",
+    "moto[s3]",
+]
+
 [project.scripts]
 optuna-dashboard = "optuna_dashboard._cli:main"
 
