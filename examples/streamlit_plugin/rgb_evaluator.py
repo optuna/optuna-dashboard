@@ -33,7 +33,7 @@ def start_streamlit() -> None:
     study = optuna.load_study(
         storage="sqlite:///streamlit-db.sqlite3", study_name="Human-in-the-loop Optimization"
     )
-    selected_trial = st.sidebar.selectbox("一覧", study.trials, format_func=lambda t: t.number)
+    selected_trial = st.sidebar.selectbox("Trial", study.trials, format_func=lambda t: t.number)
 
     if selected_trial is None:
         return
