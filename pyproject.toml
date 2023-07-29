@@ -33,6 +33,12 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.optional-dependencies]
+test = [
+    "coverage",
+    "pytest",
+]
+
 [project.scripts]
 optuna-dashboard = "optuna_dashboard._cli:main"
 
