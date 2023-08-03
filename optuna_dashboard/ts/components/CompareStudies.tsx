@@ -213,6 +213,14 @@ export const CompareStudies: FC<{
                         >
                           {`# ${study.study_id}`}
                         </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "row",
+                          width: "100%",
+                        }}
+                      >
                         <Chip
                           color="primary"
                           label={
@@ -220,7 +228,15 @@ export const CompareStudies: FC<{
                               ? `${study.directions.length} objective`
                               : `${study.directions.length} objectives`
                           }
-                          sx={{ margin: theme.spacing(0) }}
+                          size="small"
+                          variant="outlined"
+                        />
+                        <span style={{ margin: "4px" }} />
+                        <Chip
+                          color="secondary"
+                          label={study.directions
+                            .map((d) => (d === "maximize" ? "max" : "min"))
+                            .join(", ")}
                           size="small"
                           variant="outlined"
                         />
