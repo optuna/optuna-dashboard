@@ -18,7 +18,6 @@ from optuna.trial import FrozenTrial
 
 from .._bottle_util import json_api_view
 from .._bottle_util import parse_data_uri
-from .._storage import get_trial
 
 
 if TYPE_CHECKING:
@@ -106,7 +105,7 @@ def register_artifact_route(
         storage.set_study_system_attr(study_id, attr_key, json.dumps(artifact))
         response.status = 201
 
-        trial = get_trial(storage, study_id, trial_id)
+        trial = storage.get_trial(trial_id)
         if trial is None:
             response.status = 400
             return {"reason": "Invalid study_id or trial_id"}

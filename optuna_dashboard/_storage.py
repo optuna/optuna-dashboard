@@ -59,13 +59,6 @@ def get_trials(storage: BaseStorage, study_id: int) -> list[FrozenTrial]:
     return trials
 
 
-def get_trial(storage: BaseStorage, study_id: int, trial_id: int) -> FrozenTrial | None:
-    for trial in get_trials(storage, study_id):
-        if trial._trial_id == trial_id:
-            return trial
-    return None
-
-
 def get_study_summaries(storage: BaseStorage) -> list[StudySummary]:
     if version.parse(optuna_ver) >= version.Version("3.0.0rc0.dev"):
         frozen_studies = storage.get_all_studies()  # type: ignore
