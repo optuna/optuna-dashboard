@@ -11,7 +11,7 @@ import pytest
 
 @pytest.mark.skipif(
     version.parse(optuna_ver) < version.Version("3.3.0"),
-    "Artifact is not implemented yet in Optuna",
+    reason="Artifact is not implemented yet in Optuna",
 )
 def test_list_optuna_artifacts() -> None:
     from optuna.artifacts import FileSystemArtifactStore
@@ -33,8 +33,8 @@ def test_list_optuna_artifacts() -> None:
         study.tell(trial, 0.0)
 
         study_system_attrs = storage.get_study_system_attrs(study._study_id)
-        trial = storage.get_trial(trial._trial_id)
-        artifact_meta_list = list_trial_artifacts(study_system_attrs, trial)
+        frozen_trial = storage.get_trial(trial._trial_id)
+        artifact_meta_list = list_trial_artifacts(study_system_attrs, frozen_trial)
         assert len(artifact_meta_list) == 1
 
         artifact_id = artifact_meta_list[0]["artifact_id"]
