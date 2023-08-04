@@ -9,8 +9,8 @@ from packaging import version
 import pytest
 
 
-@pytest.mark.skipIf(
-    version.parse(optuna_ver) < version.Version("3.3.0.dev"),
+@pytest.mark.skipif(
+    version.parse(optuna_ver) < version.Version("3.3.0"),
     "Artifact is not implemented yet in Optuna",
 )
 def test_list_optuna_artifacts() -> None:
