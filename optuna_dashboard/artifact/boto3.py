@@ -20,9 +20,11 @@ if TYPE_CHECKING:
 class Boto3Backend:
     """An artifact backend for S3.
 
-    .. note::
+    .. warning::
 
-       This class is deprecated. Please use `optuna.artifacts.Boto3ArtifactStore <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.Boto3ArtifactStore.html>`_ instead.",
+       This class is deprecated. Please use `optuna.artifacts.Boto3ArtifactStore
+       <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.
+       Boto3ArtifactStore.html>`_ instead.",
 
     Example:
        .. code-block:: python
@@ -51,7 +53,8 @@ class Boto3Backend:
         self._avoid_buf_copy = avoid_buf_copy
         warnings.warn(
             "Boto3Backend is deprecated. Please use optuna.artifacts.Boto3ArtifactStore instead.\n"
-            "https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.Boto3ArtifactStore.html",
+            "See https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts."
+            "Boto3ArtifactStore.html",
             DeprecationWarning,
         )
 

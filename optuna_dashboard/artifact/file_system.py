@@ -18,7 +18,8 @@ class FileSystemBackend:
     .. note::
 
        This class is deprecated. Please use `optuna.artifacts.FileSystemArtifactStore
-       <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.FileSystemArtifactStore.html>`_ instead.",
+       <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.
+       FileSystemArtifactStore.html>`_ instead.",
 
     Example:
        .. code-block:: python
@@ -39,8 +40,9 @@ class FileSystemBackend:
     def __init__(self, base_path: str) -> None:
         self._base_path = base_path
         warnings.warn(
-            "FileSystemBackend is deprecated. Please use optuna.artifacts.FileSystemArtifactStore instead.\n"
-            "https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.FileSystemArtifactStore.html",
+            "FileSystemBackend is deprecated. Please use FileSystemArtifactStore instead.\n"
+            "See https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts."
+            "FileSystemArtifactStore.html",
             DeprecationWarning,
         )
 

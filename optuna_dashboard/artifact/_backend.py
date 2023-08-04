@@ -20,6 +20,7 @@ from .._bottle_util import json_api_view
 from .._bottle_util import parse_data_uri
 from .._storage import get_trial
 
+
 if TYPE_CHECKING:
     from typing import Any
     from typing import Optional
@@ -136,12 +137,13 @@ def upload_artifact(
     mimetype: Optional[str] = None,
     encoding: Optional[str] = None,
 ) -> str:
-    """[Deprecated] Upload an artifact (files), which is associated with the trial.
+    """Upload an artifact (files), which is associated with the trial.
 
-    .. note::
+    .. warning::
 
        This function is deprecated. Please use `optuna.artifacts.upload_artifact
-       <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.upload_artifact.html>`_ instead.
+       <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.
+       upload_artifact.html>`_ instead.
 
     Example:
        .. code-block:: python
@@ -160,7 +162,8 @@ def upload_artifact(
     """
     warnings.warn(
         "This function is deprecated. Please use optuna.artifacts.upload_artifact() instead.\n"
-        "https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.upload_artifact.html",
+        "See https://optuna.readthedocs.io/en/latest/reference/generated/"
+        "optuna.artifacts.upload_artifact.html",
         DeprecationWarning,
     )
 

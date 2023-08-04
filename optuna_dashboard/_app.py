@@ -377,7 +377,7 @@ def run_server(
             DeprecationWarning,
         )
         artifact_store = ArtifactBackendToStore(artifact_backend)
-    if not is_artifact_store(artifact_store):
+    if artifact_store is not None and not is_artifact_store(artifact_store):
         artifact_store = ArtifactBackendToStore(artifact_store)
 
     app = create_app(get_storage(storage), artifact_store=artifact_store)
@@ -401,7 +401,7 @@ def wsgi(
             DeprecationWarning,
         )
         artifact_store = ArtifactBackendToStore(artifact_backend)
-    if not is_artifact_store(artifact_store):
+    if artifact_store is not None and not is_artifact_store(artifact_store):
         artifact_store = ArtifactBackendToStore(artifact_store)
 
     return create_app(get_storage(storage), artifact_store=artifact_store)
