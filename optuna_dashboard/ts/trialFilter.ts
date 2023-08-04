@@ -192,3 +192,61 @@ export const useObjectiveAndUserAttrTargets = (
   )
   return [targetList, selectedTarget, setTargetIdent]
 }
+
+export const useObjectiveAndUserAttrTargetsFromStudies = (
+  studies: StudyDetail[]
+): [Target[], Target, (ident: string) => void] => {
+  const defaultTarget = new Target("objective", 0)
+  const [selected, setTargetIdent] = useState<string>(
+    defaultTarget.identifier()
+  )
+  const minDirections = useMemo<number>(() => {
+    if (studies.length === 0) {
+      return 0
+    }
+    return studies.reduce((acc, study) => {
+      return Math.min(acc, study.directions.length)
+    }, Number.MAX_VALUE)
+  }, [studies])
+
+  const intersect = (arrays: AttributeSpec[][]) => {
+    const atrEqual = (obj1: AttributeSpec, obj2: AttributeSpec) => {
+      return obj1.key === obj2.key
+    }
+    return arrays.reduce((a, b) =>
+      a.filter((c) => b.some((d) => atrEqual(c, d)))
+    )
+  }
+
+  const attrTargets = useMemo<Target[]>(() => {
+    if (studies.length === 0) {
+      return []
+    }
+    const intersection = intersect(
+      studies.map((study) => study.union_user_attrs)
+    )
+    return intersection
+      .filter((attr) => attr.sortable)
+      .map((attr) => new Target("user_attr", attr.key))
+  }, [studies])
+
+  const targetList = useMemo<Target[]>(() => {
+    if (studies !== null) {
+      return [
+        ...Array.from(
+          { length: minDirections },
+          (_, i) => new Target("objective", i)
+        ),
+        ...attrTargets,
+      ]
+    } else {
+      return [defaultTarget]
+    }
+  }, [minDirections, attrTargets])
+
+  const selectedTarget = useMemo<Target>(
+    () => targetList.find((t) => t.identifier() === selected) || defaultTarget,
+    [targetList, selected]
+  )
+  return [targetList, selectedTarget, setTargetIdent]
+}
