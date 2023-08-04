@@ -35,7 +35,7 @@ from ._storage import get_study_summaries
 from ._storage import get_study_summary
 from ._storage import get_trials
 from ._storage_url import get_storage
-from .artifact._backend import delete_all_artifacts
+from .artifact._backend import delete_all_study_artifacts
 from .artifact._backend import register_artifact_route
 from .artifact._backend_to_store import ArtifactBackendToStore
 from .artifact._backend_to_store import is_artifact_store
@@ -161,8 +161,7 @@ def create_app(
     @json_api_view
     def delete_study(study_id: int) -> dict[str, Any]:
         if artifact_store is not None:
-            system_attrs = storage.get_study_system_attrs(study_id)
-            delete_all_artifacts(artifact_store, system_attrs)
+            delete_all_study_artifacts(artifact_store, storage, study_id)
 
         try:
             storage.delete_study(study_id)

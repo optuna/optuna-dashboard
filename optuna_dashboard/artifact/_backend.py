@@ -66,7 +66,7 @@ def register_artifact_route(
         if artifact_store is None:
             response.status = 400  # Bad Request
             return b"Cannot access to the artifacts."
-        artifact_dict = _get_artifact_meta(storage, study_id, trial_id, artifact_id)
+        artifact_dict = get_artifact_meta(storage, study_id, trial_id, artifact_id)
         if artifact_dict is None:
             response.status = 404
             return b"Not Found"
@@ -81,6 +81,7 @@ def register_artifact_route(
     @app.post("/api/artifacts/<study_id:int>/<trial_id:int>")
     @json_api_view
     def upload_artifact_api(study_id: int, trial_id: int) -> dict[str, Any]:
+        # TODO(c-bata): Use optuna.artifacts.upload_artifact()
         if artifact_store is None:
             response.status = 400  # Bad Request
             return {"reason": "Cannot access to the artifacts."}
@@ -190,25 +191,36 @@ def _artifact_prefix(trial_id: int) -> str:
     return ARTIFACTS_ATTR_PREFIX + f"{trial_id}:"
 
 
-def _get_artifact_meta(
+def get_artifact_meta(
     storage: BaseStorage, study_id: int, trial_id: int, artifact_id: str
 ) -> Optional[ArtifactMeta]:
     study_system_attr = storage.get_study_system_attrs(study_id)
     attr_key = _artifact_prefix(trial_id=trial_id) + artifact_id
     artifact_meta = study_system_attr.get(attr_key)
-    if artifact_meta is None:
-        return None
-    return json.loads(artifact_meta)
+    if artifact_meta is not None:
+        return json.loads(artifact_meta)
+
+    # See https://github.com/optuna/optuna/blob/f827582a8/optuna/artifacts/_upload.py#L71
+    trial_system_attrs = storage.get_trial_system_attrs(trial_id)
+    value = trial_system_attrs.get("artifacts:" + artifact_id)
+    if value is not None:
+        return json.loads(value)
+    return None
 
 
-def delete_all_artifacts(backend: ArtifactBackend, study_system_attrs: dict[str, Any]) -> None:
-    artifact_meta_list: list[ArtifactMeta] = [
-        json.loads(value)
-        for key, value in study_system_attrs.items()
-        if key.startswith(ARTIFACTS_ATTR_PREFIX)
-    ]
-    for meta in artifact_meta_list:
+def delete_all_study_artifacts(
+    backend: ArtifactBackend, storage: BaseStorage, study_id: int
+) -> None:
+    for meta in list_study_artifacts(storage, study_id):
         backend.remove(meta["artifact_id"])
+
+
+def list_study_artifacts(storage: BaseStorage, study_id: int) -> list[ArtifactMeta]:
+    artifact_metas = []
+    study_system_attrs = storage.get_study_system_attrs(study_id)
+    for trial in storage.get_all_trials(study_id):
+        artifact_metas.extend(list_trial_artifacts(study_system_attrs, trial))
+    return artifact_metas
 
 
 def list_trial_artifacts(
