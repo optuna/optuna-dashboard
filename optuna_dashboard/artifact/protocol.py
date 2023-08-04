@@ -57,3 +57,17 @@ class ArtifactBackend(Protocol):
             artifact_id: The identifier of the artifact to remove.
         """
         ...
+
+
+class ArtifactStoreWrapper:
+    def __init__(self, artifact_backend: ArtifactBackend) -> None:
+        self._backend = artifact_backend
+
+    def open_reader(self, artifact_id: str) -> BinaryIO:
+        return self._backend.open(artifact_id)
+
+    def write(self, artifact_id: str, content_body: BinaryIO) -> None:
+        self._backend.write(artifact_id, content_body)
+
+    def remove(self, artifact_id: str) -> None:
+        self._backend.remove(artifact_id)

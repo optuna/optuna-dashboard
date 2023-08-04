@@ -3,6 +3,7 @@ from __future__ import annotations
 import io
 import shutil
 from typing import TYPE_CHECKING
+import warnings
 
 import boto3
 from botocore.exceptions import ClientError
@@ -18,6 +19,10 @@ if TYPE_CHECKING:
 
 class Boto3Backend:
     """An artifact backend for S3.
+
+    .. note::
+
+       This class is deprecated. Please use `optuna.artifacts.Boto3ArtifactStore <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.Boto3ArtifactStore.html>`_ instead.",
 
     Example:
        .. code-block:: python
@@ -44,6 +49,11 @@ class Boto3Backend:
         # may close the source file object.
         # See https://github.com/boto/boto3/issues/929
         self._avoid_buf_copy = avoid_buf_copy
+        warnings.warn(
+            "Boto3Backend is deprecated. Please use optuna.artifacts.Boto3ArtifactStore instead.\n"
+            "https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.Boto3ArtifactStore.html",
+            DeprecationWarning,
+        )
 
     def open(self, artifact_id: str) -> BinaryIO:
         try:

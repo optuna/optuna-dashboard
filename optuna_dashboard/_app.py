@@ -7,6 +7,7 @@ import typing
 from typing import Any
 from typing import Optional
 from typing import Union
+import warnings
 
 from bottle import Bottle
 from bottle import redirect
@@ -36,10 +37,13 @@ from ._storage import get_trials
 from ._storage_url import get_storage
 from .artifact._backend import delete_all_artifacts
 from .artifact._backend import register_artifact_route
+from .artifact._backend_to_store import ArtifactBackendToStore
+from .artifact._backend_to_store import is_artifact_store
 
 
 if typing.TYPE_CHECKING:
     from _typeshed.wsgi import WSGIApplication
+    from optuna.artifacts._protocol import ArtifactStore
     from optuna_dashboard.artifact.protocol import ArtifactBackend
 
 
@@ -54,7 +58,7 @@ cached_path_exists = functools.lru_cache(maxsize=10)(os.path.exists)
 
 def create_app(
     storage: BaseStorage,
-    artifact_backend: Optional[ArtifactBackend] = None,
+    artifact_store: Optional[ArtifactStore] = None,
     debug: bool = False,
 ) -> Bottle:
     app = Bottle()
@@ -76,7 +80,7 @@ def create_app(
     @json_api_view
     def api_meta() -> dict[str, Any]:
         return {
-            "artifact_is_available": artifact_backend is not None,
+            "artifact_is_available": artifact_store is not None,
         }
 
     @app.get("/api/studies")
@@ -156,9 +160,9 @@ def create_app(
     @app.delete("/api/studies/<study_id:int>")
     @json_api_view
     def delete_study(study_id: int) -> dict[str, Any]:
-        if artifact_backend is not None:
+        if artifact_store is not None:
             system_attrs = storage.get_study_system_attrs(study_id)
-            delete_all_artifacts(artifact_backend, system_attrs)
+            delete_all_artifacts(artifact_store, system_attrs)
 
         try:
             storage.delete_study(study_id)
@@ -347,7 +351,7 @@ def create_app(
         return static_file(filename, root=STATIC_DIR)
 
     register_rdb_migration_route(app, storage)
-    register_artifact_route(app, storage, artifact_backend)
+    register_artifact_route(app, storage, artifact_store)
     return app
 
 
@@ -355,25 +359,49 @@ def run_server(
     storage: Union[str, BaseStorage],
     host: str = "localhost",
     port: int = 8080,
-    artifact_backend: Optional[ArtifactBackend] = None,
+    artifact_store: Optional[ArtifactStore | ArtifactBackend] = None,
+    *,
+    # TODO(c-bata): Remove this keyword argument in the v0.14.0 release.
+    artifact_backend: Optional[ArtifactBackend | ArtifactStore] = None,
 ) -> None:
     """Start running optuna-dashboard and blocks until the server terminates.
 
     This function uses wsgiref module which is not intended for the production
     use. If you want to run optuna-dashboard more secure and/or more fast,
     please use WSGI server like Gunicorn or uWSGI via :func:`wsgi` function.
-
-
     """
-    app = create_app(get_storage(storage), artifact_backend=artifact_backend)
+    if artifact_backend is not None:
+        warnings.warn(
+            "The `artifact_backend` argument is deprecated. "
+            "Please use `artifact_store` instead.",
+            DeprecationWarning,
+        )
+        artifact_store = ArtifactBackendToStore(artifact_backend)
+    if not is_artifact_store(artifact_store):
+        artifact_store = ArtifactBackendToStore(artifact_store)
+
+    app = create_app(get_storage(storage), artifact_store=artifact_store)
     run(app, host=host, port=port)
 
 
 def wsgi(
     storage: Union[str, BaseStorage],
+    artifact_store: Optional[ArtifactBackend | ArtifactStore] = None,
+    *,
+    # TODO(c-bata): Remove this keyword argument in the v0.14.0 release.
     artifact_backend: Optional[ArtifactBackend] = None,
 ) -> WSGIApplication:
     """This function exposes WSGI interface for people who want to run on the
     production-class WSGI servers like Gunicorn or uWSGI.
     """
-    return create_app(get_storage(storage), artifact_backend=artifact_backend)
+    if artifact_backend is not None:
+        warnings.warn(
+            "The `artifact_backend` argument is deprecated. "
+            "Please use `artifact_store` instead.",
+            DeprecationWarning,
+        )
+        artifact_store = ArtifactBackendToStore(artifact_backend)
+    if not is_artifact_store(artifact_store):
+        artifact_store = ArtifactBackendToStore(artifact_store)
+
+    return create_app(get_storage(storage), artifact_store=artifact_store)

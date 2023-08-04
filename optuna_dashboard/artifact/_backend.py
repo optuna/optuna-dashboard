@@ -6,6 +6,7 @@ import mimetypes
 import os.path
 from typing import TYPE_CHECKING
 import uuid
+import warnings
 
 from bottle import BaseRequest
 from bottle import Bottle
@@ -24,6 +25,7 @@ if TYPE_CHECKING:
     from typing import Optional
     from typing import TypedDict
 
+    from optuna.artifacts._protocol import ArtifactStore
     from optuna.storages import BaseStorage
 
     from .protocol import ArtifactBackend
@@ -57,11 +59,11 @@ def get_artifact_path(
 
 
 def register_artifact_route(
-    app: Bottle, storage: BaseStorage, artifact_backend: Optional[ArtifactBackend]
+    app: Bottle, storage: BaseStorage, artifact_store: Optional[ArtifactStore]
 ) -> None:
     @app.get("/artifacts/<study_id:int>/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
     def proxy_artifact(study_id: int, trial_id: int, artifact_id: str) -> HTTPResponse | bytes:
-        if artifact_backend is None:
+        if artifact_store is None:
             response.status = 400  # Bad Request
             return b"Cannot access to the artifacts."
         artifact_dict = _get_artifact_meta(storage, study_id, trial_id, artifact_id)
@@ -73,13 +75,13 @@ def register_artifact_route(
         if encoding:
             headers["Content-Encodings"] = encoding
 
-        fp = artifact_backend.open(artifact_id)
+        fp = artifact_store.open_reader(artifact_id)
         return HTTPResponse(fp, headers=headers)
 
     @app.post("/api/artifacts/<study_id:int>/<trial_id:int>")
     @json_api_view
     def upload_artifact_api(study_id: int, trial_id: int) -> dict[str, Any]:
-        if artifact_backend is None:
+        if artifact_store is None:
             response.status = 400  # Bad Request
             return {"reason": "Cannot access to the artifacts."}
         file = request.json.get("file")
@@ -90,7 +92,7 @@ def register_artifact_route(
         _, data = parse_data_uri(file)
         filename = request.json.get("filename", "")
         artifact_id = str(uuid.uuid4())
-        artifact_backend.write(artifact_id, io.BytesIO(data))
+        artifact_store.write(artifact_id, io.BytesIO(data))
 
         mimetype, encoding = mimetypes.guess_type(filename)
         artifact = {
@@ -115,10 +117,10 @@ def register_artifact_route(
     @app.delete("/api/artifacts/<study_id:int>/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
     @json_api_view
     def delete_artifact(study_id: int, trial_id: int, artifact_id: str) -> dict[str, Any]:
-        if artifact_backend is None:
+        if artifact_store is None:
             response.status = 400  # Bad Request
             return {"reason": "Cannot access to the artifacts."}
-        artifact_backend.remove(artifact_id)
+        artifact_store.remove(artifact_id)
 
         attr_key = _artifact_prefix(trial_id) + artifact_id
         storage.set_study_system_attr(study_id, attr_key, json.dumps(None))
@@ -134,7 +136,12 @@ def upload_artifact(
     mimetype: Optional[str] = None,
     encoding: Optional[str] = None,
 ) -> str:
-    """Upload an artifact (files), which is associated with the trial.
+    """[Deprecated] Upload an artifact (files), which is associated with the trial.
+
+    .. note::
+
+       This function is deprecated. Please use `optuna.artifacts.upload_artifact
+       <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.upload_artifact.html>`_ instead.
 
     Example:
        .. code-block:: python
@@ -151,6 +158,12 @@ def upload_artifact(
               upload_artifact(artifact_backend, trial, file_path)
               return ...
     """
+    warnings.warn(
+        "This function is deprecated. Please use optuna.artifacts.upload_artifact() instead.\n"
+        "https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.upload_artifact.html",
+        DeprecationWarning,
+    )
+
     filename = os.path.basename(file_path)
     storage = trial.storage
     trial_id = trial._trial_id
