@@ -13,6 +13,7 @@ from bottle import HTTPResponse
 from bottle import request
 from bottle import response
 import optuna
+from optuna.trial import FrozenTrial
 
 from .._bottle_util import json_api_view
 from .._bottle_util import parse_data_uri
@@ -104,7 +105,7 @@ def register_artifact_route(
 
         return {
             "artifact_id": artifact_id,
-            "artifacts": list_trial_artifacts(storage.get_study_system_attrs(study_id), trial_id),
+            "artifacts": list_trial_artifacts(storage.get_study_system_attrs(study_id), trial),
         }
 
     @app.delete("/api/artifacts/<study_id:int>/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
@@ -191,10 +192,21 @@ def delete_all_artifacts(backend: ArtifactBackend, study_system_attrs: dict[str,
         backend.remove(meta["artifact_id"])
 
 
-def list_trial_artifacts(study_system_attrs: dict[str, Any], trial_id: int) -> list[ArtifactMeta]:
-    artifact_metas = [
+def list_trial_artifacts(
+    study_system_attrs: dict[str, Any], trial: FrozenTrial
+) -> list[ArtifactMeta]:
+    dashboard_artifact_metas = [
         json.loads(value)
         for key, value in study_system_attrs.items()
-        if key.startswith(_artifact_prefix(trial_id))
+        if key.startswith(_artifact_prefix(trial._trial_id))
     ]
+
+    # See https://github.com/optuna/optuna/blob/f827582a8/optuna/artifacts/_upload.py#L16
+    optuna_artifact_metas = [
+        json.loads(value)
+        for key, value in trial.system_attrs.items()
+        if key.startswith("artifacts:")
+    ]
+
+    artifact_metas = dashboard_artifact_metas + optuna_artifact_metas
     return [a for a in artifact_metas if a is not None]

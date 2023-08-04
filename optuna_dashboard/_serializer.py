@@ -187,7 +187,7 @@ def serialize_frozen_trial(
             {k: trial_system_attrs[k] for k in trial_system_attrs if not k.startswith("dashboard")}
         ),
         "note": note.get_note_from_system_attrs(study_system_attrs, trial._trial_id),
-        "artifacts": list_trial_artifacts(study_system_attrs, trial._trial_id),
+        "artifacts": list_trial_artifacts(study_system_attrs, trial),
         "constraints": trial_system_attrs.get(CONSTRAINTS_KEY, []),
     }
 
