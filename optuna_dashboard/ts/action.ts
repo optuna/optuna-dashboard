@@ -34,6 +34,7 @@ type LocalStorageReloadInterval = {
   reloadInterval?: number
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const actionCreator = () => {
   const { enqueueSnackbar } = useSnackbar()
   const [studySummaries, setStudySummaries] =
@@ -432,8 +433,13 @@ export const actionCreator = () => {
     const reader = new FileReader()
     setUploading(true)
     reader.readAsDataURL(file)
-    reader.onload = (upload: any) => {
-      uploadArtifactAPI(studyId, trialId, file.name, upload.target.result)
+    reader.onload = (upload: ProgressEvent<FileReader>) => {
+      uploadArtifactAPI(
+        studyId,
+        trialId,
+        file.name,
+        upload.target?.result as string
+      )
         .then((res) => {
           setUploading(false)
           const index = studyDetails[studyId].trials.findIndex(
