@@ -231,8 +231,23 @@ const plotHistory = (
     return xAxis === "number"
       ? trial.number
       : xAxis === "datetime_start"
-      ? trial.datetime_start!
-      : trial.datetime_complete!
+      ? trial.datetime_start ?? new Date()
+      : trial.datetime_complete ?? new Date()
+  }
+
+  const getValue = (trial: Trial, objectiveId: number): number | null => {
+    if (
+      objectiveId === null ||
+      trial.values === undefined ||
+      trial.values.length <= objectiveId
+    ) {
+      return null
+    }
+    const value = trial.values[objectiveId]
+    if (value === "inf" || value === "-inf") {
+      return null
+    }
+    return value
   }
 
   const xForLinePlot: (number | Date)[] = []
@@ -240,34 +255,35 @@ const plotHistory = (
   let currentBest: number | null = null
   for (let i = 0; i < filteredTrials.length; i++) {
     const t = filteredTrials[i]
+    const v = getValue(t, objectiveId) as number
     if (currentBest === null) {
-      currentBest = t.values![objectiveId] as number
+      currentBest = v
       xForLinePlot.push(getAxisX(t))
-      yForLinePlot.push(t.values![objectiveId] as number)
+      yForLinePlot.push(v)
     } else if (
       study.directions[objectiveId] === "maximize" &&
-      t.values![objectiveId] > currentBest
+      v > currentBest
     ) {
       const p = filteredTrials[i - 1]
       if (!xForLinePlot.includes(getAxisX(p))) {
         xForLinePlot.push(getAxisX(p))
         yForLinePlot.push(currentBest)
       }
-      currentBest = t.values![objectiveId] as number
+      currentBest = v
       xForLinePlot.push(getAxisX(t))
-      yForLinePlot.push(t.values![objectiveId] as number)
+      yForLinePlot.push(v)
     } else if (
       study.directions[objectiveId] === "minimize" &&
-      t.values![objectiveId] < currentBest
+      v < currentBest
     ) {
       const p = filteredTrials[i - 1]
       if (!xForLinePlot.includes(getAxisX(p))) {
         xForLinePlot.push(getAxisX(p))
         yForLinePlot.push(currentBest)
       }
-      currentBest = t.values![objectiveId] as number
+      currentBest = v
       xForLinePlot.push(getAxisX(t))
-      yForLinePlot.push(t.values![objectiveId] as number)
+      yForLinePlot.push(v)
     }
   }
   xForLinePlot.push(getAxisX(filteredTrials[filteredTrials.length - 1]))
@@ -277,7 +293,7 @@ const plotHistory = (
     {
       x: filteredTrials.map(getAxisX),
       y: filteredTrials.map(
-        (t: Trial): number => t.values![objectiveId] as number
+        (t: Trial): number => getValue(t, objectiveId) as number
       ),
       name: "Objective Value",
       mode: "markers",
