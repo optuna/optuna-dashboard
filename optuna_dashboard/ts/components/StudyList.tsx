@@ -63,7 +63,7 @@ export const StudyList: FC<{
   const queryParams = new URLSearchParams(location.search)
   const initialSortBy =
     queryParams.get("studies_order_by") === "desc" ? "desc" : "asc"
-  const [sortBy, setSortBy] = useState(initialSortBy)
+  const [sortBy, setSortBy] = useState<"asc" | "desc">(initialSortBy)
 
   let filteredStudies = studies.filter((s) => !studyFilter(s))
 
