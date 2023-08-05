@@ -37,12 +37,12 @@ dynamic = ["version"]
 test = [
     "coverage",
     "pytest",
+    "moto[s3]",
 ]
 
 optional = [
     "streamlit",
     "boto3",
-    "moto[s3]",
 ]
 
 [project.scripts]
