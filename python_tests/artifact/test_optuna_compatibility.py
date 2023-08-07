@@ -5,8 +5,8 @@ import tempfile
 
 import optuna
 from optuna.version import __version__ as optuna_ver
+from optuna_dashboard.artifact._backend import delete_all_artifacts
 from optuna_dashboard.artifact._backend import get_artifact_meta
-from optuna_dashboard.artifact._backend import list_study_artifacts
 from optuna_dashboard.artifact._backend import list_trial_artifacts
 from packaging import version
 import pytest
@@ -57,7 +57,7 @@ def test_list_optuna_trial_artifacts() -> None:
     version.parse(optuna_ver) < version.Version("3.3.0.dev"),
     reason="Artifact is not implemented yet in Optuna",
 )
-def test_list_optuna_study_artifacts() -> None:
+def test_delete_optuna_study_artifacts() -> None:
     from optuna.artifacts import FileSystemArtifactStore
     from optuna.artifacts import upload_artifact
 
@@ -77,5 +77,7 @@ def test_list_optuna_study_artifacts() -> None:
             return 0.0
 
         study.optimize(objective, n_trials=10)
-        artifact_meta_list = list_study_artifacts(storage, study_id=study._study_id)
-        assert len(artifact_meta_list) == 10
+        assert len(os.listdir(tmpdir)) == 11  # 10 artifacts + dummy.txt
+
+        delete_all_artifacts(artifact_store, storage, study._study_id)
+        assert len(os.listdir(tmpdir)) == 1  # dummy.txt only

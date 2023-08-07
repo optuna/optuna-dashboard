@@ -208,9 +208,7 @@ def get_artifact_meta(
     return None
 
 
-def delete_all_artifacts(
-    backend: ArtifactBackend, storage: BaseStorage, study_id: int
-) -> None:
+def delete_all_artifacts(backend: ArtifactStore, storage: BaseStorage, study_id: int) -> None:
     artifact_metas = []
     study_system_attrs = storage.get_study_system_attrs(study_id)
     for trial in storage.get_all_trials(study_id):
