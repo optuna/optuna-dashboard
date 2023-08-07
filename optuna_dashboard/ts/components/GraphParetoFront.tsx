@@ -114,8 +114,12 @@ const makeScatterObject = (
 ): Partial<plotly.PlotData> => {
   const marker = makeMarker(trials, dominated, feasible, mode)
   return {
-    x: trials.map((t) => t.values![objectiveXId] as number),
-    y: trials.map((t) => t.values![objectiveYId] as number),
+    x: trials.map((t) =>
+      t.values ? (t.values[objectiveXId] as number) : null
+    ),
+    y: trials.map((t) =>
+      t.values ? (t.values[objectiveYId] as number) : null
+    ),
     text: trials.map((t) => makeHovertext(t)),
     mode: "markers",
     hovertemplate: hovertemplate,

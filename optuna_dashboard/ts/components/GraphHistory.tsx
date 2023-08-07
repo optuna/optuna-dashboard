@@ -17,10 +17,8 @@ import {
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import {
-  useFilteredTrials,
   useFilteredTrialsFromStudies,
   Target,
-  useObjectiveAndUserAttrTargets,
   useObjectiveAndUserAttrTargetsFromStudies,
 } from "../trialFilter"
 
@@ -216,8 +214,8 @@ const plotHistory = (
     return xAxis === "number"
       ? trial.number
       : xAxis === "datetime_start"
-      ? trial.datetime_start!
-      : trial.datetime_complete!
+      ? trial.datetime_start ?? new Date()
+      : trial.datetime_complete ?? new Date()
   }
 
   const plotData: Partial<plotly.PlotData>[] = []

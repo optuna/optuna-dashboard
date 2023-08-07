@@ -19,6 +19,9 @@ import { Clear } from "@mui/icons-material"
 
 type Order = "asc" | "desc"
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Value = any
+
 const defaultRowsPerPageOption = [10, 50, 100, { label: "All", value: -1 }]
 
 interface DataGridColumn<T> {
@@ -33,7 +36,7 @@ interface DataGridColumn<T> {
 
 interface RowFilter {
   columnIdx: number
-  value: any
+  value: Value
 }
 
 function DataGrid<T>(props: {
@@ -45,7 +48,7 @@ function DataGrid<T>(props: {
   initialRowsPerPage?: number
   rowsPerPageOption?: Array<number | { value: number; label: string }>
   defaultFilter?: (row: T) => boolean
-}) {
+}): React.ReactElement {
   const { columns, rows, keyField, dense, collapseBody, defaultFilter } = props
   let { initialRowsPerPage, rowsPerPageOption } = props
   const [order, setOrder] = React.useState<Order>("asc")
@@ -81,7 +84,7 @@ function DataGrid<T>(props: {
   const fieldAlreadyFiltered = (columnIdx: number): boolean =>
     filters.some((f) => f.columnIdx === columnIdx)
 
-  const handleClickFilterCell = (columnIdx: number, value: any) => {
+  const handleClickFilterCell = (columnIdx: number, value: Value) => {
     if (fieldAlreadyFiltered(columnIdx)) {
       return
     }
@@ -242,7 +245,7 @@ function DataGridRow<T>(props: {
   row: T
   keyField: keyof T
   collapseBody?: (rowIndex: number) => React.ReactNode
-  handleClickFilterCell: (columnIdx: number, value: any) => void
+  handleClickFilterCell: (columnIdx: number, value: Value) => void
 }) {
   const {
     columns,
