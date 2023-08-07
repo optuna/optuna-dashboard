@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 class FileSystemBackend:
     """An artifact backend for file systems.
 
-    .. note::
+    .. warning::
 
        This class is deprecated. Please use `optuna.artifacts.FileSystemArtifactStore
        <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.
