@@ -24,7 +24,7 @@ class Boto3Backend:
 
        This class is deprecated. Please use `optuna.artifacts.Boto3ArtifactStore
        <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.
-       Boto3ArtifactStore.html>`_ instead.",
+       Boto3ArtifactStore.html>`_ instead.
 
     Example:
        .. code-block:: python

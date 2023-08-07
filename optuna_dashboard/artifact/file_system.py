@@ -19,7 +19,7 @@ class FileSystemBackend:
 
        This class is deprecated. Please use `optuna.artifacts.FileSystemArtifactStore
        <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.
-       FileSystemArtifactStore.html>`_ instead.",
+       FileSystemArtifactStore.html>`_ instead.
 
     Example:
        .. code-block:: python
