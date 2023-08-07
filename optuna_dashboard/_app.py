@@ -35,7 +35,7 @@ from ._storage import get_study_summaries
 from ._storage import get_study_summary
 from ._storage import get_trials
 from ._storage_url import get_storage
-from .artifact._backend import delete_all_study_artifacts
+from .artifact._backend import delete_all_artifacts
 from .artifact._backend import register_artifact_route
 from .artifact._backend_to_store import ArtifactBackendToStore
 from .artifact._backend_to_store import is_artifact_store
@@ -161,7 +161,7 @@ def create_app(
     @json_api_view
     def delete_study(study_id: int) -> dict[str, Any]:
         if artifact_store is not None:
-            delete_all_study_artifacts(artifact_store, storage, study_id)
+            delete_all_artifacts(artifact_store, storage, study_id)
 
         try:
             storage.delete_study(study_id)
@@ -360,8 +360,7 @@ def run_server(
     port: int = 8080,
     artifact_store: Optional[ArtifactStore | ArtifactBackend] = None,
     *,
-    # TODO(c-bata): Remove this keyword argument in the v0.14.0 release.
-    artifact_backend: Optional[ArtifactBackend | ArtifactStore] = None,
+    artifact_backend: Optional[ArtifactBackend] = None,
 ) -> None:
     """Start running optuna-dashboard and blocks until the server terminates.
 
@@ -370,6 +369,7 @@ def run_server(
     please use WSGI server like Gunicorn or uWSGI via :func:`wsgi` function.
     """
     if artifact_backend is not None:
+        # TODO(c-bata): Remove artifact_backend keyword argument in the future release.
         warnings.warn(
             "The `artifact_backend` argument is deprecated. "
             "Please use `artifact_store` instead.",
@@ -387,13 +387,13 @@ def wsgi(
     storage: Union[str, BaseStorage],
     artifact_store: Optional[ArtifactBackend | ArtifactStore] = None,
     *,
-    # TODO(c-bata): Remove this keyword argument in the v0.14.0 release.
     artifact_backend: Optional[ArtifactBackend] = None,
 ) -> WSGIApplication:
     """This function exposes WSGI interface for people who want to run on the
     production-class WSGI servers like Gunicorn or uWSGI.
     """
     if artifact_backend is not None:
+        # TODO(c-bata): Remove artifact_backend keyword argument in the future release.
         warnings.warn(
             "The `artifact_backend` argument is deprecated. "
             "Please use `artifact_store` instead.",
