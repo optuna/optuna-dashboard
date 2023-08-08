@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useEffect, useMemo, useState } from "react"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useRecoilValue } from "recoil"
 import { Link } from "react-router-dom"
@@ -59,10 +59,13 @@ export const StudyList: FC<{
     useRenameStudyDialog(studies)
 
   const navigate = useNavigate()
-  const location = useLocation()
-  const queryParams = new URLSearchParams(location.search)
+  const useQuery = (): URLSearchParams => {
+    const { search } = useLocation()
+    return useMemo(() => new URLSearchParams(search), [search])
+  }
+  const query = useQuery()
   const initialSortBy =
-    queryParams.get("studies_order_by") === "desc" ? "desc" : "asc"
+    query.get("studies_order_by") === "desc" ? "desc" : "asc"
   const [sortBy, setSortBy] = useState<"asc" | "desc">(initialSortBy)
 
   let filteredStudies = studies.filter((s) => !studyFilter(s))
@@ -76,19 +79,8 @@ export const StudyList: FC<{
   }, [])
 
   useEffect(() => {
-    const handlePopState = () => {
-      const params = new URLSearchParams(window.location.search)
-      setSortBy(params.get("studies_order_by") || "asc")
-    }
-    window.addEventListener("popstate", handlePopState)
-    return () => {
-      window.removeEventListener("popstate", handlePopState)
-    }
-  }, [])
-
-  useEffect(() => {
-    queryParams.set("studies_order_by", sortBy)
-    navigate(`${location.pathname}?${queryParams.toString()}`, {
+    query.set("studies_order_by", sortBy)
+    navigate(`${location.pathname}?${query.toString()}`, {
       replace: true,
     })
   }, [sortBy])
