@@ -37,8 +37,7 @@ from ._storage import get_trials
 from ._storage_url import get_storage
 from .artifact._backend import delete_all_artifacts
 from .artifact._backend import register_artifact_route
-from .artifact._backend_to_store import ArtifactBackendToStore
-from .artifact._backend_to_store import is_artifact_store
+from .artifact._backend_to_store import to_artifact_store
 
 
 if typing.TYPE_CHECKING:
@@ -368,18 +367,19 @@ def run_server(
     use. If you want to run optuna-dashboard more secure and/or more fast,
     please use WSGI server like Gunicorn or uWSGI via :func:`wsgi` function.
     """
-    if artifact_backend is not None:
-        # TODO(c-bata): Remove artifact_backend keyword argument in the future release.
+    # TODO(c-bata): Remove artifact_backend keyword argument in the future release.
+    store: ArtifactStore | None = None
+    if artifact_store is not None:
+        store = to_artifact_store(artifact_store)
+    elif artifact_backend is not None:
         warnings.warn(
             "The `artifact_backend` argument is deprecated. "
             "Please use `artifact_store` instead.",
             DeprecationWarning,
         )
-        artifact_store = ArtifactBackendToStore(artifact_backend)
-    if artifact_store is not None and not is_artifact_store(artifact_store):
-        artifact_store = ArtifactBackendToStore(artifact_store)
+        store = to_artifact_store(artifact_backend)
 
-    app = create_app(get_storage(storage), artifact_store=artifact_store)
+    app = create_app(get_storage(storage), artifact_store=store)
     run(app, host=host, port=port)
 
 
@@ -392,15 +392,16 @@ def wsgi(
     """This function exposes WSGI interface for people who want to run on the
     production-class WSGI servers like Gunicorn or uWSGI.
     """
-    if artifact_backend is not None:
-        # TODO(c-bata): Remove artifact_backend keyword argument in the future release.
+    # TODO(c-bata): Remove artifact_backend keyword argument in the future release.
+    store: ArtifactStore | None = None
+    if artifact_store is not None:
+        store = to_artifact_store(artifact_store)
+    elif artifact_backend is not None:
         warnings.warn(
             "The `artifact_backend` argument is deprecated. "
             "Please use `artifact_store` instead.",
             DeprecationWarning,
         )
-        artifact_store = ArtifactBackendToStore(artifact_backend)
-    if artifact_store is not None and not is_artifact_store(artifact_store):
-        artifact_store = ArtifactBackendToStore(artifact_store)
+        store = to_artifact_store(artifact_backend)
 
-    return create_app(get_storage(storage), artifact_store=artifact_store)
+    return create_app(get_storage(storage), artifact_store=store)

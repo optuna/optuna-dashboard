@@ -12,8 +12,15 @@ if TYPE_CHECKING:
     from .protocol import ArtifactBackend
 
 
-def is_artifact_store(store: ArtifactBackend | ArtifactStore) -> TypeGuard[ArtifactStore]:
-    return getattr(store, "open_reader") is not None
+def is_artifact_backend(store: ArtifactBackend | ArtifactStore) -> TypeGuard[ArtifactBackend]:
+    return getattr(store, "open_reader") is None
+
+
+def to_artifact_store(store: ArtifactBackend | ArtifactStore) -> ArtifactStore:
+    if is_artifact_backend(store):
+        return ArtifactBackendToStore(store)
+    # mypy cannot infer the type of `store` here.
+    return store  # type: ignore
 
 
 class ArtifactBackendToStore:
