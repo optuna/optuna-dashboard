@@ -13,7 +13,7 @@ import pytest
 
 
 @pytest.mark.skipif(
-    version.parse(optuna_ver) < version.Version("3.3.0.dev"),
+    version.parse(optuna_ver) < version.Version("3.3.0"),
     reason="Artifact is not implemented yet in Optuna",
 )
 def test_list_optuna_trial_artifacts() -> None:
@@ -54,7 +54,7 @@ def test_list_optuna_trial_artifacts() -> None:
 
 
 @pytest.mark.skipif(
-    version.parse(optuna_ver) < version.Version("3.3.0.dev"),
+    version.parse(optuna_ver) < version.Version("3.3.0"),
     reason="Artifact is not implemented yet in Optuna",
 )
 def test_delete_optuna_study_artifacts() -> None:
