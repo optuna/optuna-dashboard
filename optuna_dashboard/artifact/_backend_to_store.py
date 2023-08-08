@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
 
 def is_artifact_backend(store: ArtifactBackend | ArtifactStore) -> TypeGuard[ArtifactBackend]:
-    return getattr(store, "open_reader") is None
+    return getattr(store, "open_reader", None) is None
 
 
 def to_artifact_store(store: ArtifactBackend | ArtifactStore) -> ArtifactStore:
