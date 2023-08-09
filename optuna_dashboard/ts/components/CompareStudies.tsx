@@ -199,21 +199,9 @@ export const CompareStudies: FC<{
                         alignItems: "flex-start",
                       }}
                     >
-                      <ListItemText primary={study.study_name} />
-                      <Box
-                        sx={{
-                          display: "flex",
-                          flexDirection: "row",
-                          width: "100%",
-                        }}
-                      >
-                        <Typography
-                          color={theme.palette.grey.A400}
-                          sx={{ p: theme.spacing(0, 1) }}
-                        >
-                          {`# ${study.study_id}`}
-                        </Typography>
-                      </Box>
+                      <ListItemText
+                        primary={`${study.study_id}. ${study.study_name}`}
+                      />
                       <Box
                         sx={{
                           display: "flex",
@@ -231,7 +219,7 @@ export const CompareStudies: FC<{
                           size="small"
                           variant="outlined"
                         />
-                        <span style={{ margin: "4px" }} />
+                        <span style={{ margin: theme.spacing(0.5) }} />
                         <Chip
                           color="secondary"
                           label={study.directions
