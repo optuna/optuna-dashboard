@@ -41,8 +41,7 @@ class FileSystemBackend:
         self._base_path = base_path
         warnings.warn(
             "FileSystemBackend is deprecated. Please use FileSystemArtifactStore instead.\n"
-            "See https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts."
-            "FileSystemArtifactStore.html",
+            "See https://optuna-dashboard.readthedocs.io/en/latest/errors.html for details",
             DeprecationWarning,
         )
 

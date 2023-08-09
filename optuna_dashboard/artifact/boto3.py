@@ -52,9 +52,8 @@ class Boto3Backend:
         # See https://github.com/boto/boto3/issues/929
         self._avoid_buf_copy = avoid_buf_copy
         warnings.warn(
-            "Boto3Backend is deprecated. Please use optuna.artifacts.Boto3ArtifactStore instead.\n"
-            "See https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts."
-            "Boto3ArtifactStore.html",
+            "Boto3Backend is deprecated. Please use Boto3ArtifactStore instead.\n"
+            "See https://optuna-dashboard.readthedocs.io/en/latest/errors.html for details",
             DeprecationWarning,
         )
 
