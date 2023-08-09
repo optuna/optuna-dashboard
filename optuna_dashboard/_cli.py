@@ -12,16 +12,21 @@ from bottle import Bottle
 from bottle import run
 from optuna.storages import BaseStorage
 from optuna.storages import RDBStorage
+from optuna.version import __version__ as optuna_ver
+from packaging import version
 
 from . import __version__
 from ._app import create_app
 from ._sql_profiler import register_profiler_view
 from ._storage_url import get_storage
+from .artifact._backend_to_store import ArtifactBackendToStore
 from .artifact.file_system import FileSystemBackend
 
 
 if TYPE_CHECKING:
     from typing import Literal
+
+    from optuna.artifacts._protocol import ArtifactStore
 
 
 DEBUG = os.environ.get("OPTUNA_DASHBOARD_DEBUG") == "1"
@@ -113,10 +118,17 @@ def main() -> None:
     storage: BaseStorage
     storage = get_storage(args.storage, storage_class=args.storage_class)
 
-    artifact_backend = None
-    if args.artifact_dir is not None:
+    artifact_store: ArtifactStore | None
+    if args.artifact_dir is None:
+        artifact_store = None
+    elif version.parse(optuna_ver) >= version.Version("3.3.0"):
+        from optuna.artifacts import FileSystemArtifactStore
+
+        artifact_store = FileSystemArtifactStore(args.artifact_dir)
+    else:
         artifact_backend = FileSystemBackend(args.artifact_dir)
-    app = create_app(storage, artifact_backend=artifact_backend, debug=DEBUG)
+        artifact_store = ArtifactBackendToStore(artifact_backend)
+    app = create_app(storage, artifact_store=artifact_store, debug=DEBUG)
 
     if DEBUG and isinstance(storage, RDBStorage):
         app = register_profiler_view(app, storage)
