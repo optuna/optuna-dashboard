@@ -161,9 +161,8 @@ def upload_artifact(
               return ...
     """
     warnings.warn(
-        "This function is deprecated. Please use optuna.artifacts.upload_artifact() instead.\n"
-        "See https://optuna.readthedocs.io/en/latest/reference/generated/"
-        "optuna.artifacts.upload_artifact.html",
+        "upload_artifact() is deprecated. Please use optuna.artifacts.upload_artifact() instead.\n"
+        "See https://optuna-dashboard.readthedocs.io/en/latest/errors.html for details",
         DeprecationWarning,
     )
 
