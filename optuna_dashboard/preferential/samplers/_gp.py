@@ -26,7 +26,6 @@ from optuna._transform import _SearchSpaceTransform
 from optuna.distributions import BaseDistribution
 from optuna.search_space import IntersectionSearchSpace
 from optuna.trial import FrozenTrial
-from optuna_preferential._preferences import get_preferences
 import pyro
 import pyro.infer.autoguide
 import pyro.infer.mcmc
@@ -34,8 +33,10 @@ from scipy.special import erfcinv
 import torch
 from torch import Tensor
 
+from .._preferences import get_preferences
 
-class WeightedGaussianLikelihood(GaussianLikelihood):
+
+class _WeightedGaussianLikelihood(GaussianLikelihood):
     def __init__(
         self,
         weights: torch.Tensor | None = None,
@@ -156,7 +157,7 @@ def _one_side_trunc_norm_sampling(lower: float) -> float:
     return erfcinv(random.random() * erfc(lower / _SQRT2)) * _SQRT2
 
 
-class PreferentialGP(GPyTorchModel, ExactGP):
+class _PreferentialGP(GPyTorchModel, ExactGP):
     _num_outputs = 1
 
     def __init__(
@@ -164,9 +165,9 @@ class PreferentialGP(GPyTorchModel, ExactGP):
         kernel: gpytorch.kernels.Kernel,
         noise_prior: Prior | None = None,
         noise_constraint: Interval | None = None,
-    ):
+    ) -> None:
         GPyTorchModel.__init__(self)
-        likelihood = WeightedGaussianLikelihood(
+        likelihood = _WeightedGaussianLikelihood(
             noise_prior=noise_prior, noise_constraint=noise_constraint
         )
         ExactGP.__init__(self, train_inputs=None, train_targets=None, likelihood=likelihood)
@@ -175,7 +176,7 @@ class PreferentialGP(GPyTorchModel, ExactGP):
         self._last_params: dict[str, torch.Tensor] | None = None
         self._last_mcmc_step_size: float | None = None
 
-    def _pyro_model(self, train_x, train_y):
+    def _pyro_model(self, train_x: torch.Tensor, train_y: torch.Tensor) -> None:
         # with gpytorch.settings.fast_computations(False, False, False):
         sampled_model = self.pyro_sample_from_prior()
         ys = sampled_model.likelihood(sampled_model.forward(train_x))
@@ -259,8 +260,8 @@ class PreferentialGP(GPyTorchModel, ExactGP):
 
 
 def _set_params(
-    module: gpytorch.Module, params_dict: dict[str, torch.Tensor], memo=None, prefix=""
-):
+    module: gpytorch.Module, params_dict: dict[str, torch.Tensor], memo: set | None=None, prefix: str=""
+) -> None:
     if memo is None:
         memo = set()
     if hasattr(module, "_priors"):
@@ -294,7 +295,7 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
         )
         self.device = device or torch.device("cpu")
 
-        self._gp = None
+        self._gp: PreferentialGPSampler | None = None
 
     def reseed_rng(self) -> None:
         self._rng.seed()
@@ -322,7 +323,7 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
             search_space, transform_log=True, transform_step=True, transform_0_1=True
         )
         dims = len(trans.bounds)
-        self._gp = self._gp or PreferentialGP(
+        self._gp = self._gp or _PreferentialGP(
             kernel=self.kernel
             or gpytorch.kernels.MaternKernel(
                 nu=2.5,
