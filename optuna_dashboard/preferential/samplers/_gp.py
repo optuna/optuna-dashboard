@@ -199,7 +199,7 @@ class _PreferentialGP(GPyTorchModel, ExactGP):
             train_x = X[mask]
             weights = cnt[mask]
 
-            assert isinstance(self.likelihood, WeightedGaussianLikelihood)
+            assert isinstance(self.likelihood, _WeightedGaussianLikelihood)
             self.likelihood.weights = weights
 
             preferences_np = preferences.detach().numpy()
