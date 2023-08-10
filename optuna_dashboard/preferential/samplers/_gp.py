@@ -26,14 +26,13 @@ from optuna._transform import _SearchSpaceTransform
 from optuna.distributions import BaseDistribution
 from optuna.search_space import IntersectionSearchSpace
 from optuna.trial import FrozenTrial
+from optuna_preferential._preferences import get_preferences
 import pyro
 import pyro.infer.autoguide
 import pyro.infer.mcmc
 from scipy.special import erfcinv
 import torch
 from torch import Tensor
-
-from optuna_preferential._preferences import get_preferences
 
 
 class WeightedGaussianLikelihood(GaussianLikelihood):
