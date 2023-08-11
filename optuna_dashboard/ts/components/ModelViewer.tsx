@@ -7,7 +7,6 @@ import { PerspectiveCamera } from "three"
 
 interface ModelViewerProps {
   src: string
-  alt: string
   width: string
   height: string
   hasGizmo: boolean
@@ -56,12 +55,10 @@ export function ModelViewer(props: ModelViewerProps): JSX.Element {
     position: cameraPosition,
   }
 
-  const viewerWidth = `${parseInt(props.width) * 2}px`
-
   return (
     <Canvas
       camera={cameraSettings}
-      style={{ width: viewerWidth, height: props.height }}
+      style={{ width: props.width, height: props.height }}
     >
       <ambientLight />
       <OrbitControls />
@@ -70,7 +67,6 @@ export function ModelViewer(props: ModelViewerProps): JSX.Element {
       />
       {props.hasGizmo && <CustomGizmoHelper />}
       <axesHelper />
-      <pointLight position={[10, 10, 10]} />
       {geometry && (
         <mesh geometry={geometry}>
           <meshNormalMaterial />

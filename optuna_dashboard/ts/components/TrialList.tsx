@@ -20,6 +20,7 @@ import {
   CardContent,
   CardMedia,
   CardActionArea,
+  Modal,
 } from "@mui/material"
 import Chip from "@mui/material/Chip"
 import Divider from "@mui/material/Divider"
@@ -34,6 +35,7 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import UploadFileIcon from "@mui/icons-material/UploadFile"
 import DownloadIcon from "@mui/icons-material/Download"
 import DeleteIcon from "@mui/icons-material/Delete"
+import OpenWithIcon from "@mui/icons-material/OpenWith"
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 import StopCircleIcon from "@mui/icons-material/StopCircle"
 
@@ -328,6 +330,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
   const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
     useDeleteArtifactDialog()
   const [dragOver, setDragOver] = useState<boolean>(false)
+  const [open3dModelViewer, setOpen3dModelViewer] = useState<boolean>(false)
 
   const width = "200px"
   const height = "150px"
@@ -367,6 +370,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
     e.dataTransfer.dropEffect = "copy"
     setDragOver(false)
   }
+
   return (
     <>
       <Typography
@@ -446,7 +450,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                   marginBottom: theme.spacing(2),
                   display: "flex",
                   flexDirection: "column",
-                  width: `${parseInt(width) * 2}px`,
+                  width: width,
                   minHeight: "100%",
                   margin: theme.spacing(0, 1, 1, 0),
                 }}
@@ -461,10 +465,9 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                 >
                   <ModelViewer
                     src={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
-                    alt={a.filename}
                     width={width}
                     height={height}
-                    hasGizmo={true}
+                    hasGizmo={false}
                   />
                 </Box>
                 <CardContent
@@ -484,6 +487,41 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                   >
                     {a.filename}
                   </Typography>
+                  <IconButton
+                    aria-label="shoe artifact 3d model"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    onClick={() => {
+                      setOpen3dModelViewer(true)
+                    }}
+                  >
+                    <OpenWithIcon />
+                  </IconButton>
+                  <Modal
+                    open={open3dModelViewer}
+                    onClose={() => {
+                      setOpen3dModelViewer(false)
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        bgcolor: "background.paper",
+                        borderRadius: "15px",
+                      }}
+                    >
+                      <ModelViewer
+                        src={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                        width={`${innerWidth * 0.8}px`}
+                        height={`${innerHeight * 0.8}px`}
+                        hasGizmo={true}
+                      />
+                    </Box>
+                  </Modal>
                   <IconButton
                     aria-label="delete artifact"
                     size="small"
