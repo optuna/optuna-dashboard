@@ -330,7 +330,9 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
   const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
     useDeleteArtifactDialog()
   const [dragOver, setDragOver] = useState<boolean>(false)
-  const [open3dModelViewer, setOpen3dModelViewer] = useState<boolean>(false)
+  const [open3dModelViewer, setOpen3dModelViewer] = useState<{
+    [key: string]: boolean
+  }>({})
 
   const width = "200px"
   const height = "150px"
@@ -442,7 +444,10 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                 </CardContent>
               </Card>
             )
-          } else if (a.filename.endsWith(".stl")) {
+          } else if (
+            a.filename.endsWith(".stl") ||
+            a.filename.endsWith(".3dm")
+          ) {
             return (
               <Card
                 key={a.artifact_id}
@@ -468,6 +473,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                     width={width}
                     height={height}
                     hasGizmo={false}
+                    filetype={a.filename.split(".").pop()}
                   />
                 </Box>
                 <CardContent
@@ -488,20 +494,32 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                     {a.filename}
                   </Typography>
                   <IconButton
-                    aria-label="shoe artifact 3d model"
+                    aria-label="show artifact 3d model"
                     size="small"
                     color="inherit"
                     sx={{ margin: "auto 0" }}
                     onClick={() => {
-                      setOpen3dModelViewer(true)
+                      setOpen3dModelViewer(() => {
+                        const obj = { ...open3dModelViewer }
+                        obj[a.filename] = true
+                        return obj
+                      })
                     }}
                   >
                     <OpenWithIcon />
                   </IconButton>
                   <Modal
-                    open={open3dModelViewer}
+                    open={
+                      a.filename in open3dModelViewer
+                        ? open3dModelViewer[a.filename]
+                        : false
+                    }
                     onClose={() => {
-                      setOpen3dModelViewer(false)
+                      setOpen3dModelViewer(() => {
+                        const obj = { ...open3dModelViewer }
+                        obj[a.filename] = false
+                        return obj
+                      })
                     }}
                   >
                     <Box
@@ -519,6 +537,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                         width={`${innerWidth * 0.8}px`}
                         height={`${innerHeight * 0.8}px`}
                         hasGizmo={true}
+                        filetype={a.filename.split(".").pop()}
                       />
                     </Box>
                   </Modal>
