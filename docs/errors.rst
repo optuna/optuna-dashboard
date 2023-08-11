@@ -37,3 +37,46 @@ Please use `study.set_metric_names() <https://optuna.readthedocs.io/en/latest/re
    * - ``optuna_dashboard.set_objective_names(study, ["objective 1", "objective 2"])``
      - ``study.set_metric_names(["objective 1", "objective 2"])``
 
+
+``upload_artifact()`` is deprecated. Please use ``optuna.artifacts.upload_artifact()`` instead.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:func:`~optuna_dashboard.artifact.upload_artifact` function has been ported to Optuna.
+Please use `optuna.artifacts.upload_artifact <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.upload_artifact.html>`_ function instead.
+
+.. list-table::
+
+   * - Deprecated APIs
+     - Corresponding Active APIs
+   * - ``optuna_dashboard.artifact.upload_artifact(artifact_backend, trial, fiel_path)``
+     - ``optuna.artifacts.upload_artifact(trial, file_path, artifact_store)``
+
+Please note that the order of arguments is different between the deprecated and active APIs.
+
+
+``FileSystemBackend`` is deprecated. Please use ``FileSystemArtifactStore`` instead.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:class:`~optuna_dashboard.artifact.file_system.FileSystemBackend` class has been ported to Optuna.
+Please use `FileSystemArtifactStore <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.FileSystemArtifactStore.html>`_ class instead.
+
+.. list-table::
+
+   * - Deprecated APIs
+     - Corresponding Active APIs
+   * - ``optuna_dashboard.artifact.file_system.FileSystemBackend(base_path)``
+     - ``optuna.artifacts.FileSystemArtifactStore(base_path)``
+
+
+``Boto3Backend``` is deprecated. Please use ``Boto3ArtifactStore`` instead.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+:class:`~optuna_dashboard.artifact.boto3.Boto3Backend` class has been ported to Optuna.
+Please use `Boto3ArtifactStore <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.Boto3ArtifactStore.html>`_ class instead.
+
+.. list-table::
+
+   * - Deprecated APIs
+     - Corresponding Active APIs
+   * - ``optuna_dashboard.artifact.boto3.Boto3Backend(bucket_name, client=None)``
+     - ``optuna.artifacts.Boto3ArtifactStore(bucket_name, client=None)``

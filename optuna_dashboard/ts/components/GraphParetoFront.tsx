@@ -109,12 +109,17 @@ const makeScatterObject = (
   objectiveYId: number,
   hovertemplate: string,
   dominated: boolean,
-  feasible: boolean
+  feasible: boolean,
+  mode: string
 ): Partial<plotly.PlotData> => {
-  const marker = makeMarker(trials, dominated, feasible)
+  const marker = makeMarker(trials, dominated, feasible, mode)
   return {
-    x: trials.map((t) => t.values![objectiveXId] as number),
-    y: trials.map((t) => t.values![objectiveYId] as number),
+    x: trials.map((t) =>
+      t.values ? (t.values[objectiveXId] as number) : null
+    ),
+    y: trials.map((t) =>
+      t.values ? (t.values[objectiveYId] as number) : null
+    ),
     text: trials.map((t) => makeHovertext(t)),
     mode: "markers",
     hovertemplate: hovertemplate,
@@ -126,7 +131,8 @@ const makeScatterObject = (
 const makeMarker = (
   trials: Trial[],
   dominated: boolean,
-  feasible: boolean
+  feasible: boolean,
+  mode: string
 ): Partial<plotly.PlotData> => {
   if (feasible && dominated) {
     return {
@@ -154,7 +160,7 @@ const makeMarker = (
   } else {
     return {
       // @ts-ignore
-      color: "#cccccc",
+      color: mode === "dark" ? "#666666" : "#cccccc",
     }
   }
 }
@@ -234,7 +240,8 @@ const plotParetoFront = (
         ? "%{text}<extra>Trial</extra>"
         : "%{text}<extra>Feasible Trial</extra>",
       true,
-      true
+      true,
+      mode
     ),
     makeScatterObject(
       feasibleTrials.filter((t, i) => !dominatedTrials[i]),
@@ -242,7 +249,8 @@ const plotParetoFront = (
       objectiveYId,
       "%{text}<extra>Best Trial</extra>",
       false,
-      true
+      true,
+      mode
     ),
     makeScatterObject(
       infeasibleTrials,
@@ -250,7 +258,8 @@ const plotParetoFront = (
       objectiveYId,
       "%{text}<extra>Infeasible Trial</extra>",
       false,
-      false
+      false,
+      mode
     ),
   ]
 

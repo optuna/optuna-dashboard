@@ -27,7 +27,7 @@ import { actionCreator } from "../action"
 import { studySummariesState, studyDetailsState } from "../state"
 import { AppDrawer } from "./AppDrawer"
 import { GraphEdfMultiStudies } from "./GraphEdf"
-import { GraphHistoryMultiStudies } from "./GraphHistory"
+import { GraphHistory } from "./GraphHistory"
 import { useNavigate, useLocation } from "react-router-dom"
 
 const useQuery = (): URLSearchParams => {
@@ -199,7 +199,9 @@ export const CompareStudies: FC<{
                         alignItems: "flex-start",
                       }}
                     >
-                      <ListItemText primary={study.study_name} />
+                      <ListItemText
+                        primary={`${study.study_id}. ${study.study_name}`}
+                      />
                       <Box
                         sx={{
                           display: "flex",
@@ -207,12 +209,6 @@ export const CompareStudies: FC<{
                           width: "100%",
                         }}
                       >
-                        <Typography
-                          color={theme.palette.grey.A400}
-                          sx={{ p: theme.spacing(0, 1) }}
-                        >
-                          {`# ${study.study_id}`}
-                        </Typography>
                         <Chip
                           color="primary"
                           label={
@@ -220,7 +216,15 @@ export const CompareStudies: FC<{
                               ? `${study.directions.length} objective`
                               : `${study.directions.length} objectives`
                           }
-                          sx={{ margin: theme.spacing(0) }}
+                          size="small"
+                          variant="outlined"
+                        />
+                        <span style={{ margin: theme.spacing(0.5) }} />
+                        <Chip
+                          color="secondary"
+                          label={study.directions
+                            .map((d) => (d === "maximize" ? "max" : "min"))
+                            .join(", ")}
                           size="small"
                           variant="outlined"
                         />
@@ -313,7 +317,7 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
           }}
         >
           <CardContent>
-            <GraphHistoryMultiStudies
+            <GraphHistory
               studies={showStudyDetails}
               includePruned={includePruned}
               logScale={logScale}

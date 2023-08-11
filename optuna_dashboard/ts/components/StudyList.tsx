@@ -1,4 +1,5 @@
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useEffect, useMemo, useState } from "react"
+import { useNavigate, useLocation } from "react-router-dom"
 import { useRecoilValue } from "recoil"
 import { Link } from "react-router-dom"
 import {
@@ -56,16 +57,33 @@ export const StudyList: FC<{
     useDeleteStudyDialog()
   const [openRenameStudyDialog, renderRenameStudyDialog] =
     useRenameStudyDialog(studies)
-  const [sortBy, setSortBy] = useState<"id-asc" | "id-desc">("id-asc")
+
+  const navigate = useNavigate()
+  const useQuery = (): URLSearchParams => {
+    const { search } = useLocation()
+    return useMemo(() => new URLSearchParams(search), [search])
+  }
+  const query = useQuery()
+  const initialSortBy =
+    query.get("studies_order_by") === "desc" ? "desc" : "asc"
+  const [sortBy, setSortBy] = useState<"asc" | "desc">(initialSortBy)
 
   let filteredStudies = studies.filter((s) => !studyFilter(s))
-  if (sortBy === "id-desc") {
+
+  if (sortBy === "desc") {
     filteredStudies = filteredStudies.reverse()
   }
 
   useEffect(() => {
     action.updateStudySummaries()
   }, [])
+
+  useEffect(() => {
+    query.set("studies_order_by", sortBy)
+    navigate(`${location.pathname}?${query.toString()}`, {
+      replace: true,
+    })
+  }, [sortBy])
 
   const Select = styled(TextField)(({ theme }) => ({
     "& .MuiInputBase-input": {
@@ -98,11 +116,11 @@ export const StudyList: FC<{
         select
         value={sortBy}
         onChange={(e) => {
-          setSortBy(e.target.value as "id-asc" | "id-desc")
+          setSortBy(e.target.value as "asc" | "desc")
         }}
       >
-        <MenuItem value={"id-asc"}>Sort ascending</MenuItem>
-        <MenuItem value={"id-desc"}>Sort descending</MenuItem>
+        <MenuItem value={"asc"}>Sort ascending</MenuItem>
+        <MenuItem value={"desc"}>Sort descending</MenuItem>
       </Select>
     </Box>
   )

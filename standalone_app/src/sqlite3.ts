@@ -7,9 +7,11 @@ export const loadStorage = (
   setter: SetterOrUpdater<Study[]>
 ): void => {
   sqlite3InitModule({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     print: (...args: any): void => {
       console.log(args)
     },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     printErr: (...args: any): void => {
       console.log(args)
     },
@@ -32,6 +34,7 @@ export const loadStorage = (
       let supported = true
       db.exec({
         sql: "SELECT schema_version FROM version_info LIMIT 1",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         callback: (vals: any[]) => {
           if (vals[0] != 12) {
             supported = false
@@ -49,6 +52,7 @@ export const loadStorage = (
           "SELECT s.study_id, s.study_name, sd.direction, sd.objective" +
           " FROM studies AS s INNER JOIN study_directions AS sd" +
           " ON s.study_id = sd.study_id ORDER BY sd.study_direction_id",
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         callback: (vals: any[]) => {
           const study_id = vals[0]
           const study_name = vals[1]
@@ -82,6 +86,7 @@ export const loadStorage = (
             " FROM trials AS t LEFT JOIN trial_values AS tv ON tv.trial_id = t.trial_id" +
             ` WHERE t.study_id = ${s.study_id}` +
             " ORDER BY t.number",
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           callback: (vals: any[]) => {
             const state: TrialState =
               vals[3] === "COMPLETE"
@@ -115,6 +120,7 @@ export const loadStorage = (
             sql:
               "SELECT param_name, param_value" +
               ` FROM trial_params WHERE trial_id = ${trial.trial_id}`,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             callback: (vals: any[]) => {
               const param_name = vals[0]
               params.push({
@@ -151,6 +157,7 @@ export const loadStorage = (
               "SELECT value, value_type" +
               ` FROM trial_values WHERE trial_id = ${trial.trial_id}` +
               " ORDER BY objective",
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             callback: (vals: any[]) => {
               values.push(
                 vals[1] === "INF_NEG"

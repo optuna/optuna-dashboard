@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import shutil
 from typing import TYPE_CHECKING
+import warnings
 
 from optuna_dashboard.artifact.exceptions import ArtifactNotFound
 
@@ -13,6 +14,12 @@ if TYPE_CHECKING:
 
 class FileSystemBackend:
     """An artifact backend for file systems.
+
+    .. warning::
+
+       This class is deprecated. Please use `optuna.artifacts.FileSystemArtifactStore
+       <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.
+       FileSystemArtifactStore.html>`_ instead.
 
     Example:
        .. code-block:: python
@@ -32,6 +39,11 @@ class FileSystemBackend:
 
     def __init__(self, base_path: str) -> None:
         self._base_path = base_path
+        warnings.warn(
+            "FileSystemBackend is deprecated. Please use FileSystemArtifactStore instead.\n"
+            "See https://optuna-dashboard.readthedocs.io/en/latest/errors.html for details",
+            DeprecationWarning,
+        )
 
     def open(self, artifact_id: str) -> BinaryIO:
         filepath = os.path.join(self._base_path, artifact_id)
