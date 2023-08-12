@@ -336,6 +336,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
 
   const width = "200px"
   const height = "150px"
+  const modelViewerTargetExt = ["stl", "3dm"]
 
   const inputRef = useRef<HTMLInputElement>(null)
   const handleClick: MouseEventHandler = () => {
@@ -445,8 +446,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
               </Card>
             )
           } else if (
-            a.filename.endsWith(".stl") ||
-            a.filename.endsWith(".3dm")
+            modelViewerTargetExt.includes(a.filename.split(".").pop() || "")
           ) {
             return (
               <Card
