@@ -488,7 +488,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                       p: theme.spacing(0.5, 0),
                       flexGrow: 1,
                       wordWrap: "break-word",
-                      maxWidth: `calc(100% - ${theme.spacing(8)})`,
+                      maxWidth: `calc(100% - ${theme.spacing(12)})`,
                     }}
                   >
                     {a.filename}
