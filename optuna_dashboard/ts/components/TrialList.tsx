@@ -35,7 +35,7 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import UploadFileIcon from "@mui/icons-material/UploadFile"
 import DownloadIcon from "@mui/icons-material/Download"
 import DeleteIcon from "@mui/icons-material/Delete"
-import OpenWithIcon from "@mui/icons-material/OpenWith"
+import FullscreenIcon from "@mui/icons-material/Fullscreen"
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 import StopCircleIcon from "@mui/icons-material/StopCircle"
 
@@ -506,7 +506,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                       })
                     }}
                   >
-                    <OpenWithIcon />
+                    <FullscreenIcon />
                   </IconButton>
                   <Modal
                     open={
