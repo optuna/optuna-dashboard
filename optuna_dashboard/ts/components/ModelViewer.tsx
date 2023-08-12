@@ -43,7 +43,7 @@ export function ModelViewer(props: ModelViewerProps): JSX.Element {
     new THREE.PerspectiveCamera()
   )
 
-  function handleLoadedGeometries(geometries: THREE.BufferGeometry[]) {
+  const handleLoadedGeometries = (geometries: THREE.BufferGeometry[]) => {
     setGeometry(geometries)
     const boundingBox = calculateBoundingBox(geometries)
     if (boundingBox !== null) {
