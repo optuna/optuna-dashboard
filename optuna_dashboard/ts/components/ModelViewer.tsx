@@ -39,6 +39,9 @@ export function ModelViewer(props: ModelViewerProps): JSX.Element {
   const [modelSize, setModelSize] = useState<THREE.Vector3>(
     new THREE.Vector3(10, 10, 10)
   )
+  const [cameraSettings, setCameraSettings] = useState<PerspectiveCamera>(
+    new THREE.PerspectiveCamera()
+  )
 
   function handleLoadedGeometries(geometries: THREE.BufferGeometry[]) {
     setGeometry(geometries)
@@ -64,25 +67,26 @@ export function ModelViewer(props: ModelViewerProps): JSX.Element {
         const meshes = object.children as THREE.Mesh[]
         const rhinoGeometries = meshes.map((mesh) => mesh.geometry)
         if (rhinoGeometries.length > 0) {
-          rhinoGeometries.forEach((rGeometry) => {
-            rGeometry.rotateX(-Math.PI / 4)
+          rhinoGeometries.forEach((rhinoGeometry) => {
+            rhinoGeometry.rotateX(-Math.PI / 4)
           })
           handleLoadedGeometries(rhinoGeometries)
         }
       })
     }
+    const maxModelSize = Math.max(modelSize.x, modelSize.y, modelSize.z)
+    const cameraSet = new THREE.PerspectiveCamera(
+      modelSize
+        ? Math.min(
+            45,
+            Math.atan(modelSize.y / modelSize.z) * (180 / Math.PI) * 2
+          )
+        : 45,
+      window.innerWidth / window.innerHeight
+    )
+    cameraSet.position.set(maxModelSize * 2, maxModelSize * 2, maxModelSize * 2)
+    setCameraSettings(cameraSet)
   }, [])
-  const maxModelSize = Math.max(modelSize.x, modelSize.y, modelSize.z)
-  const cameraPosition = [maxModelSize * 2, maxModelSize * 2, maxModelSize * 2]
-  const cameraSettings: PerspectiveCamera = {
-    fov: modelSize
-      ? Math.min(45, Math.atan(modelSize.y / modelSize.z) * (180 / Math.PI) * 2)
-      : 45,
-    aspect: window.innerWidth / window.innerHeight,
-    near: 0.1,
-    position: new THREE.Vector3(...cameraPosition),
-    far: 1000,
-  }
 
   return (
     <Canvas
