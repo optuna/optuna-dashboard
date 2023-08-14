@@ -27,7 +27,8 @@ class PreferentialStudy:
     This object provides interfaces to create a new `Trial`_, set/get results
     of pairwise comparison called preferences.
 
-    .. _Trial: https://optuna.readthedocs.io/en/stable/reference/generated/optuna.trial.Trial.html#optuna.trial.Trial
+    .. _Trial: https://optuna.readthedocs.io/en/stable/reference/generated/\
+    optuna.trial.Trial.html#optuna.trial.Trial
 
     Note that the direct use of this constructor is not recommended.
     To create and load a study, please refer to the documentation of
@@ -45,7 +46,8 @@ class PreferentialStudy:
 
             See `Study.trials`_ for details.
 
-            .. _Study.trials: https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.trials
+            .. _Study.trials: https://optuna.readthedocs.io/en/stable/reference/generated/\
+            optuna.study.Study.html#optuna.study.Study.trials
 
         Returns:
             A list of FrozenTrial object
@@ -60,7 +62,8 @@ class PreferentialStudy:
 
             See `Study.best_trials`_ for details.
 
-            .. _Study.best_trials: https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.best_trials
+            .. _Study.best_trials: https://optuna.readthedocs.io/en/stable/reference/\
+            generated/optuna.study.Study.html#optuna.study.Study.best_trials
 
         Returns:
             A list of FrozenTrial object
@@ -93,7 +96,8 @@ class PreferentialStudy:
 
             See `Study.user_attrs`_ for details.
 
-            .. _Study.user_attrs: https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.user_attrs
+            .. _Study.user_attrs: https://optuna.readthedocs.io/en/stable/reference/\
+            generated/optuna.study.Study.html#optuna.study.Study.user_attrs
 
         Returns:
             A dictionary containing all user attributes
@@ -120,7 +124,8 @@ class PreferentialStudy:
 
             See `Study.get_trials`_ for details.
 
-            .. _Study.get_trials: https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.get_trials
+            .. _Study.get_trials: https://optuna.readthedocs.io/en/stable/reference/\
+            generated/optuna.study.Study.html#optuna.study.Study.get_trials
 
         Args:
             deepcopy:
@@ -143,7 +148,8 @@ class PreferentialStudy:
 
             See `Study.ask`_ for details.
 
-            .. _Study.ask: https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.ask
+            .. _Study.ask: https://optuna.readthedocs.io/en/stable/reference/\
+            generated/optuna.study.Study.html#optuna.study.Study.ask
 
         Args:
             fixed_distributions:
@@ -164,7 +170,8 @@ class PreferentialStudy:
 
             See `Study.add_trials()`_ for details.
 
-            .. _Study.add_trials(): https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.add_trials
+            .. _Study.add_trials(): https://optuna.readthedocs.io/en/stable/reference/\
+            generated/optuna.study.Study.html#optuna.study.Study.add_trials
         """
         self._study.add_trial(trial)
 
@@ -175,7 +182,8 @@ class PreferentialStudy:
 
             See `Study.add_trials()`_ for details.
 
-            .. _Study.add_trials(): https://optuna.readthedocs.io/en/stable/reference/generated/optuna.study.Study.html#optuna.study.Study.add_trials
+            .. _Study.add_trials(): https://optuna.readthedocs.io/en/stable/reference/\
+            generated/optuna.study.Study.html#optuna.study.Study.add_trials
         """
         self._study.add_trials(trials)
 
@@ -223,8 +231,8 @@ class PreferentialStudy:
 
         .. seealso::
 
-            See the `tutorial for user attributes <https://optuna.readthedocs.io/en/stable/
-            tutorial/20_recipes/003_attributes.html>`_on Optuna's documentation.
+            See the `tutorial for user attributes <https://optuna.readthedocs.io/en/stable/\
+            tutorial/20_recipes/003_attributes.html>`_ on Optuna's documentation.
         """
         self._study.set_user_attr(key, value)
 
@@ -277,7 +285,8 @@ def create_study(
             If :obj:`None` is specified, `RandomSampler`_ is used. Please note that
             most Optuna samplers does not work efficiently for preferential optimization.
 
-            .. _RandomSampler: https://optuna.readthedocs.io/en/stable/reference/samplers/generated/optuna.samplers.RandomSampler.html
+            .. _RandomSampler: https://optuna.readthedocs.io/en/stable/reference/\
+            samplers/generated/optuna.samplers.RandomSampler.html
 
         study_name:
             Study's name. If this argument is set to None, a unique name is generated
@@ -368,7 +377,8 @@ def load_study(
             If :obj:`None` is specified, `RandomSampler`_ is used. Please note that
             most Optuna samplers does not work efficiently for preferential optimization.
 
-            .. _RandomSampler: https://optuna.readthedocs.io/en/stable/reference/samplers/generated/optuna.samplers.RandomSampler.html
+            .. _RandomSampler: https://optuna.readthedocs.io/en/stable/reference/samplers/\
+            generated/optuna.samplers.RandomSampler.html
 
     Returns:
         A :class:`~optuna_dashboard.preferential.PreferentialStudy` object.
