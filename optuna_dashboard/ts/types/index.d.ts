@@ -111,7 +111,6 @@ type Trial = {
     param_external_value: string
   }[]
   user_attrs: Attribute[]
-  system_attrs: Attribute[]
   constraints: number[]
   note: Note
   artifacts: Artifact[]
@@ -122,7 +121,6 @@ type StudySummary = {
   study_name: string
   directions: StudyDirection[]
   user_attrs: Attribute[]
-  system_attrs: Attribute[]
   datetime_start?: Date
 }
 

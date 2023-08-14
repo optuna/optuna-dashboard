@@ -107,7 +107,6 @@ def serialize_study_summary(summary: StudySummary) -> dict[str, Any]:
         "study_name": summary.study_name,
         "directions": [d.name.lower() for d in summary.directions],
         "user_attrs": serialize_attrs(summary.user_attrs),
-        "system_attrs": serialize_attrs(getattr(summary, "system_attrs", {})),
     }
 
     if summary.datetime_start is not None:
@@ -183,9 +182,6 @@ def serialize_frozen_trial(
             for param_name in fixed_params
         ],
         "user_attrs": serialize_attrs(trial.user_attrs),
-        "system_attrs": serialize_attrs(
-            {k: trial_system_attrs[k] for k in trial_system_attrs if not k.startswith("dashboard")}
-        ),
         "note": note.get_note_from_system_attrs(study_system_attrs, trial._trial_id),
         "artifacts": list_trial_artifacts(study_system_attrs, trial),
         "constraints": trial_system_attrs.get(CONSTRAINTS_KEY, []),
