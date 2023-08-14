@@ -33,6 +33,13 @@ dependencies = [
 ]
 dynamic = ["version"]
 
+[project.optional-dependencies]
+docs = [
+    "streamlit",
+    "sphinx",
+    "sphinx_rtd_theme",
+]
+
 [project.scripts]
 optuna-dashboard = "optuna_dashboard._cli:main"
 
