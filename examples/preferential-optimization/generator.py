@@ -2,20 +2,16 @@ from __future__ import annotations
 
 import os
 import tempfile
+import textwrap
 import time
-from time import sleep
 from typing import NoReturn
 
-import optuna
+from optuna_dashboard import save_note
 from optuna_dashboard.artifact import upload_artifact
 from optuna_dashboard.artifact.file_system import FileSystemBackend
-from PIL import Image
-
 from optuna_dashboard.preferential import create_study
 from optuna_dashboard.preferential.samplers._gp import PreferentialGPSampler
-
-from optuna_dashboard import save_note
-import textwrap
+from PIL import Image
 
 
 STORAGE_URL = "sqlite:///st-example.db"
@@ -57,7 +53,6 @@ def main() -> NoReturn:
             trial.set_user_attr("rgb_artifact_id", artifact_id)
             trial.set_user_attr("image_caption", f"(R, G, B) = ({r}, {g}, {b})")
             print("RGB:", (r, g, b))
-
 
             # 4. Save Note
             note = textwrap.dedent(

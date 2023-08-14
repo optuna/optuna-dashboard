@@ -9,9 +9,9 @@ from typing import NoReturn
 import uuid
 
 from optuna_dashboard.artifact.file_system import FileSystemBackend
-import streamlit as st
-
 from optuna_dashboard.preferential import load_study
+
+import streamlit as st
 
 
 STORAGE_URL = "sqlite:///st-example.db"

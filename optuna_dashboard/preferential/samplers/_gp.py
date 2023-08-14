@@ -260,7 +260,10 @@ class _PreferentialGP(GPyTorchModel, ExactGP):
 
 
 def _set_params(
-    module: gpytorch.Module, params_dict: dict[str, torch.Tensor], memo: set | None=None, prefix: str=""
+    module: gpytorch.Module,
+    params_dict: dict[str, torch.Tensor],
+    memo: set | None = None,
+    prefix: str = "",
 ) -> None:
     if memo is None:
         memo = set()
