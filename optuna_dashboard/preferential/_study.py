@@ -35,6 +35,7 @@ class PreferentialStudy:
     :func:`~optuna_dashboard.preferential.create_study` and
     :func:`~optuna_dashboard.preferential.load_study` respectively.
     """
+
     def __init__(self, study: optuna.Study) -> None:
         self._study = study
 
