@@ -28,11 +28,6 @@ docs/_generated/
 rustlib/target/
 rustlib/pkg/
 
-# Test
-.coverage
-.coverage.*
-coverage.xml
-
 # Others
 .envrc
 .idea/

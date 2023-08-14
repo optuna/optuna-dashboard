@@ -34,15 +34,11 @@ dependencies = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
-test = [
-    "coverage",
-    "pytest",
-    "moto[s3]",
-]
-
-optional = [
-    "streamlit",
+docs = [
     "boto3",
+    "streamlit",
+    "sphinx",
+    "sphinx_rtd_theme",
 ]
 
 [project.scripts]
