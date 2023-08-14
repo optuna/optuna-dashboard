@@ -19,7 +19,3 @@ moto[s3]
 
 # visual regression tests
 pytest-playwright
-
-# docs
-sphinx
-sphinx_rtd_theme
