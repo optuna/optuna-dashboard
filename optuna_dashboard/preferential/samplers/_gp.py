@@ -33,7 +33,7 @@ from scipy.special import erfcinv
 import torch
 from torch import Tensor
 
-from .._preferences import get_preferences
+from .._system_attrs import get_preferences
 
 
 class _WeightedGaussianLikelihood(GaussianLikelihood):

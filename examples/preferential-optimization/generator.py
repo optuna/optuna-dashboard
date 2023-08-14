@@ -14,6 +14,9 @@ from PIL import Image
 from optuna_dashboard.preferential import create_study
 from optuna_dashboard.preferential.samplers._gp import PreferentialGPSampler
 
+from optuna_dashboard import save_note
+import textwrap
+
 
 STORAGE_URL = "sqlite:///st-example.db"
 artifact_path = os.path.join(os.path.dirname(__file__), "artifact")
@@ -54,6 +57,16 @@ def main() -> NoReturn:
             trial.set_user_attr("rgb_artifact_id", artifact_id)
             trial.set_user_attr("image_caption", f"(R, G, B) = ({r}, {g}, {b})")
             print("RGB:", (r, g, b))
+
+
+            # 4. Save Note
+            note = textwrap.dedent(
+                f"""\
+            ![generated-image]({artifact_path})
+            (R, G, B) = ({r}, {g}, {b})
+            """
+            )
+            save_note(trial, note)
 
             # 4. Mark comparison ready
             study.mark_comparison_ready(trial)
