@@ -298,7 +298,7 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
         )
         self.device = device or torch.device("cpu")
 
-        self._gp: PreferentialGPSampler | None = None
+        self._gp: _PreferentialGP | None = None
 
     def reseed_rng(self) -> None:
         self._rng.seed()
@@ -338,9 +338,9 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
             noise_constraint=gpytorch.constraints.Positive(),
         )
 
-        ids = {}
-        params = []
-        pref_ids = []
+        ids: dict[int, int] = {}
+        params: list[torch.Tensor] = []
+        pref_ids: list[tuple[int, int]] = []
 
         for better, worse in preferences:
             for t in (better, worse):
