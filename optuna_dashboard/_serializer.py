@@ -15,6 +15,7 @@ from . import _note as note
 from ._form_widget import get_form_widgets_json
 from ._named_objectives import get_objective_names
 from .artifact._backend import list_trial_artifacts
+from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 
 
 if TYPE_CHECKING:
@@ -143,6 +144,7 @@ def serialize_study_detail(
     serialized["union_user_attrs"] = [{"key": a[0], "sortable": a[1]} for a in union_user_attrs]
     serialized["has_intermediate_values"] = has_intermediate_values
     serialized["note"] = note.get_note_from_system_attrs(system_attrs, None)
+    serialized["is_preferential"] = system_attrs.get(_SYSTEM_ATTR_PREFERENTIAL_STUDY, False)
     objective_names = get_objective_names(system_attrs)
     if objective_names:
         serialized["objective_names"] = objective_names
