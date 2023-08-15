@@ -6,7 +6,7 @@ import { STLLoader } from "three/examples/jsm/loaders/STLLoader"
 import { Rhino3dmLoader } from "three/examples/jsm/loaders/3DMLoader"
 import { PerspectiveCamera } from "three"
 
-interface ModelViewerProps {
+interface ThreejsArtifactViewerProps {
   src: string
   width: string
   height: string
@@ -14,7 +14,7 @@ interface ModelViewerProps {
   filetype: string | undefined
 }
 
-function CustomGizmoHelper(): JSX.Element {
+const CustomGizmoHelper: React.FC = () => {
   return (
     <GizmoHelper alignment="bottom-right" margin={[80, 80]}>
       <GizmoViewport
@@ -34,7 +34,9 @@ const calculateBoundingBox = (geometries: THREE.BufferGeometry[]) => {
   return boundingBox
 }
 
-export function ModelViewer(props: ModelViewerProps): JSX.Element {
+export const ThreejsArtifactViewer: React.FC<ThreejsArtifactViewerProps> = (
+  props
+) => {
   const [geometry, setGeometry] = useState<THREE.BufferGeometry[]>([])
   const [modelSize, setModelSize] = useState<THREE.Vector3>(
     new THREE.Vector3(10, 10, 10)

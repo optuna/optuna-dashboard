@@ -47,7 +47,7 @@ import { artifactIsAvailable } from "../state"
 import { actionCreator } from "../action"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
 import { TrialFormWidgets } from "./TrialFormWidgets"
-import { ModelViewer } from "./ModelViewer"
+import { ThreejsArtifactViewer } from "./ThreejsArtifactViewer"
 
 const states: TrialState[] = [
   "Complete",
@@ -336,7 +336,6 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
 
   const width = "200px"
   const height = "150px"
-  const modelViewerTargetExt = ["stl", "3dm"]
 
   const inputRef = useRef<HTMLInputElement>(null)
   const handleClick: MouseEventHandler = () => {
@@ -446,7 +445,8 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
               </Card>
             )
           } else if (
-            modelViewerTargetExt.includes(a.filename.split(".").pop() || "")
+            a.filename.endsWith(".stl") ||
+            a.filename.endsWith(".3dm")
           ) {
             return (
               <Card
@@ -468,7 +468,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                     alignItems: "center",
                   }}
                 >
-                  <ModelViewer
+                  <ThreejsArtifactViewer
                     src={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
                     width={width}
                     height={height}
@@ -501,7 +501,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                     onClick={() => {
                       setOpen3dModelViewer(() => {
                         const obj = { ...open3dModelViewer }
-                        obj[a.filename] = true
+                        obj[a.artifact_id] = true
                         return obj
                       })
                     }}
@@ -510,14 +510,14 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                   </IconButton>
                   <Modal
                     open={
-                      a.filename in open3dModelViewer
-                        ? open3dModelViewer[a.filename]
+                      a.artifact_id in open3dModelViewer
+                        ? open3dModelViewer[a.artifact_id]
                         : false
                     }
                     onClose={() => {
                       setOpen3dModelViewer(() => {
                         const obj = { ...open3dModelViewer }
-                        obj[a.filename] = false
+                        obj[a.artifact_id] = false
                         return obj
                       })
                     }}
@@ -532,7 +532,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                         borderRadius: "15px",
                       }}
                     >
-                      <ModelViewer
+                      <ThreejsArtifactViewer
                         src={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
                         width={`${innerWidth * 0.8}px`}
                         height={`${innerHeight * 0.8}px`}
