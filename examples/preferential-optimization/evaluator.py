@@ -39,7 +39,7 @@ def main() -> NoReturn:
         storage=STORAGE_URL,
     )
 
-    # 1. 比較対象のTrialを取得
+    # 1. Get all currently best trials (i.e. trials that are not reported bad) for comparison.
     comparison_trials = study.best_trials
 
     st.text("Which is the worst?")
