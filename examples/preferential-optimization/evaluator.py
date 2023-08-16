@@ -70,8 +70,8 @@ def main() -> NoReturn:
         trial = finished_dict[trial_number]
         col = cols[col_i]
 
-        rgb_artifact_id = trial.user_attrs.get("rgb_artifact_id")
-        image_caption = trial.user_attrs.get("image_caption")
+        rgb_artifact_id = trial.user_attrs["rgb_artifact_id"]
+        image_caption = trial.user_attrs["image_caption"]
         with col:
             with artifact_backend.open(rgb_artifact_id) as fsrc:
                 tmp_img_path = os.path.join(tmpdir, rgb_artifact_id + ".png")
