@@ -47,7 +47,6 @@ def main() -> NoReturn:
             # 2. Generate image
             image_path = os.path.join(tmpdir, f"sample-{trial.number}.png")
             image = Image.new("RGB", (320, 240), color=(r, g, b))
-            # sleep(2.0)
             image.save(image_path)
 
             # 3. Upload Artifact
