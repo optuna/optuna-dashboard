@@ -79,7 +79,7 @@ class PreferentialStudy:
 
     def get_preferences(self, *, deepcopy: bool = True) -> list[tuple[FrozenTrial, FrozenTrial]]:
         trials = self._study.get_trials(deepcopy=deepcopy)
-        preferences = get_preferences(self._study, trials)
+        preferences = get_preferences(self._study._study_id, self._study._storage)
         return [(trials[better], trials[worse]) for (better, worse) in preferences]
 
     def set_user_attr(self, key: str, value: Any) -> None:

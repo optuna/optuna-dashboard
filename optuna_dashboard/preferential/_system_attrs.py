@@ -2,9 +2,7 @@ from __future__ import annotations
 
 import uuid
 
-import optuna
 from optuna.storages import BaseStorage
-from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
 
 from .._storage import get_study_summary
