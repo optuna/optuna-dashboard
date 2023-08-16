@@ -8,6 +8,7 @@ from optuna import get_all_study_summaries
 from optuna.study import StudyDirection
 from optuna_dashboard._app import create_app
 from optuna_dashboard._app import create_new_study
+from optuna_dashboard.preferential import create_study
 
 from .wsgi_client import send_request
 
@@ -98,6 +99,29 @@ class APITestCase(TestCase):
             content_type="application/json",
         )
         self.assertEqual(status, 400)
+
+    def test_get_best_trials_of_preferential_study(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = create_study(storage=storage)
+        for _ in range(3):
+            trial = study.ask()
+            study.mark_comparison_ready(trial)
+        study.report_preference(study.trials[0], study.trials[1])
+        
+        app = create_app(storage)
+        study_id = study._study._study_id
+        status, _, body = send_request(
+            app,
+            f"/api/studies/{study_id}",
+            "GET",
+            content_type="application/json",
+        )
+        self.assertEqual(status, 200)
+
+        best_trials = json.loads(body)["best_trials"]
+        assert len(best_trials) == 2
+        assert best_trials[0]["number"] == 0
+        assert best_trials[1]["number"] == 2
 
     def test_create_study(self) -> None:
         for name, directions, expected_status in [
