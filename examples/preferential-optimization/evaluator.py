@@ -85,6 +85,7 @@ def main() -> NoReturn:
             continue
 
     if len(comparison_trials) < n_comparison:
+        # Wait for unfinished trials (images under generation) to be generated.
         time.sleep(0.1)
         st.experimental_rerun()
 
