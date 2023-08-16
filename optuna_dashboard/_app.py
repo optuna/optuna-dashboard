@@ -275,12 +275,8 @@ def create_app(
             response.status = 400  # Bad request
             return {"reason": "You need to set best_trials and worst_trials"}
 
-        try:
-            preferences = [(best, worst) for best in best_trials for worst in worst_trials]
-            report_preferences(study_id, storage, preferences)
-        except Exception as e:
-            response.status = 500
-            return {"reason": f"Internal server error: {e}"}
+        preferences = [(best, worst) for best in best_trials for worst in worst_trials]
+        report_preferences(study_id, storage, preferences)
 
         response.status = 204
         return {}

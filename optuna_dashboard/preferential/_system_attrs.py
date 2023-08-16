@@ -14,7 +14,7 @@ _SYSTEM_ATTR_PREFIX_PREFERENCE = "preference:values"
 def report_preferences(
     study_id: int,
     storage: BaseStorage,
-    preferences: list[tuple[int, int]],  # element is number of trail
+    preferences: list[tuple[int, int]],
 ) -> None:
     key = _SYSTEM_ATTR_PREFIX_PREFERENCE + str(uuid.uuid4())
     storage.set_study_system_attr(
