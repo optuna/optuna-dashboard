@@ -1,4 +1,4 @@
-me: python coverage
+name: python coverage
 
 on:
   push:
