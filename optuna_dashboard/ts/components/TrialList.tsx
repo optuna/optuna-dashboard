@@ -20,6 +20,7 @@ import {
   CardContent,
   CardMedia,
   CardActionArea,
+  Modal,
 } from "@mui/material"
 import Chip from "@mui/material/Chip"
 import Divider from "@mui/material/Divider"
@@ -34,6 +35,7 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import UploadFileIcon from "@mui/icons-material/UploadFile"
 import DownloadIcon from "@mui/icons-material/Download"
 import DeleteIcon from "@mui/icons-material/Delete"
+import FullscreenIcon from "@mui/icons-material/Fullscreen"
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 import StopCircleIcon from "@mui/icons-material/StopCircle"
 
@@ -45,6 +47,7 @@ import { artifactIsAvailable } from "../state"
 import { actionCreator } from "../action"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
 import { TrialFormWidgets } from "./TrialFormWidgets"
+import { ThreejsArtifactViewer } from "./ThreejsArtifactViewer"
 
 const states: TrialState[] = [
   "Complete",
@@ -327,6 +330,9 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
   const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
     useDeleteArtifactDialog()
   const [dragOver, setDragOver] = useState<boolean>(false)
+  const [open3dModelViewer, setOpen3dModelViewer] = useState<{
+    [key: string]: boolean
+  }>({})
 
   const width = "200px"
   const height = "150px"
@@ -366,6 +372,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
     e.dataTransfer.dropEffect = "copy"
     setDragOver(false)
   }
+
   return (
     <>
       <Typography
@@ -430,6 +437,131 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                     color="inherit"
                     download={a.filename}
                     sx={{ margin: "auto 0" }}
+                    href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                  >
+                    <DownloadIcon />
+                  </IconButton>
+                </CardContent>
+              </Card>
+            )
+          } else if (
+            a.filename.endsWith(".stl") ||
+            a.filename.endsWith(".3dm")
+          ) {
+            return (
+              <Card
+                key={a.artifact_id}
+                sx={{
+                  marginBottom: theme.spacing(2),
+                  display: "flex",
+                  flexDirection: "column",
+                  width: width,
+                  minHeight: "100%",
+                  margin: theme.spacing(0, 1, 1, 0),
+                }}
+              >
+                <Box
+                  sx={{
+                    flexGrow: 1,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <ThreejsArtifactViewer
+                    src={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                    width={width}
+                    height={height}
+                    hasGizmo={false}
+                    filetype={a.filename.split(".").pop()}
+                  />
+                </Box>
+                <CardContent
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    padding: `${theme.spacing(1)} !important`,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      p: theme.spacing(0.5, 0),
+                      flexGrow: 1,
+                      wordWrap: "break-word",
+                      maxWidth: `calc(100% - ${theme.spacing(12)})`,
+                    }}
+                  >
+                    {a.filename}
+                  </Typography>
+                  <IconButton
+                    aria-label="show artifact 3d model"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    onClick={() => {
+                      setOpen3dModelViewer(() => {
+                        const obj = { ...open3dModelViewer }
+                        obj[a.artifact_id] = true
+                        return obj
+                      })
+                    }}
+                  >
+                    <FullscreenIcon />
+                  </IconButton>
+                  <Modal
+                    open={
+                      a.artifact_id in open3dModelViewer
+                        ? open3dModelViewer[a.artifact_id]
+                        : false
+                    }
+                    onClose={() => {
+                      setOpen3dModelViewer(() => {
+                        const obj = { ...open3dModelViewer }
+                        obj[a.artifact_id] = false
+                        return obj
+                      })
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        bgcolor: "background.paper",
+                        borderRadius: "15px",
+                      }}
+                    >
+                      <ThreejsArtifactViewer
+                        src={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                        width={`${innerWidth * 0.8}px`}
+                        height={`${innerHeight * 0.8}px`}
+                        hasGizmo={true}
+                        filetype={a.filename.split(".").pop()}
+                      />
+                    </Box>
+                  </Modal>
+                  <IconButton
+                    aria-label="delete artifact"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    onClick={() => {
+                      openDeleteArtifactDialog(
+                        trial.study_id,
+                        trial.trial_id,
+                        a
+                      )
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                  <IconButton
+                    aria-label="download artifact"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    download={a.filename}
                     href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
                   >
                     <DownloadIcon />
