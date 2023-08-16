@@ -32,6 +32,8 @@ def main() -> NoReturn:
 
     with tempfile.TemporaryDirectory() as tmpdir:
         while True:
+            # If n_comparison "best" trials (that are not reported bad) exists,
+            # the generator waits for human evaluation.
             if len(study.best_trials) >= n_comparison:
                 time.sleep(0.1)  # Avoid busy-loop
                 continue
