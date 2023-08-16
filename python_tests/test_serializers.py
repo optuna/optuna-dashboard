@@ -3,9 +3,8 @@ from __future__ import annotations
 import optuna
 from optuna_dashboard._serializer import serialize_attrs
 from optuna_dashboard._serializer import serialize_study_detail
-from optuna_dashboard.preferential import create_study
-
 from optuna_dashboard._storage import get_study_summaries
+from optuna_dashboard.preferential import create_study
 
 
 def test_serialize_bytes() -> None:
