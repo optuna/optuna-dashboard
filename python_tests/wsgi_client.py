@@ -7,9 +7,19 @@ from typing import Union
 
 from bottle import Bottle
 
+from optuna_dashboard._storage import trials_cache
+from optuna_dashboard._storage import trials_cache_lock
+from optuna_dashboard._storage import trials_last_fetched_at
+
 
 if typing.TYPE_CHECKING:
     from _typeshed.wsgi import WSGIEnvironment
+
+
+def clear_inmemory_cache() -> None:
+    with trials_cache_lock:
+        trials_cache.clear()
+        trials_last_fetched_at.clear()
 
 
 def create_wsgi_env(
@@ -66,6 +76,8 @@ def send_request(
     headers = headers or {}
     queries = queries or {}
     env = create_wsgi_env(path, method, content_type, bytes_body, queries, headers)
+
+    clear_inmemory_cache()
     response_body = b""
     iterable_body = app(env, start_response)
     for b in iterable_body:
