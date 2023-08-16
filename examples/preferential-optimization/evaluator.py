@@ -44,7 +44,7 @@ def main() -> NoReturn:
 
     st.text("Which is the worst?")
 
-    # 2. 各TrialのArtifact画像を並べて表示
+    # 2. Show the artifact images of all those trials.
     cols = st.columns(n_comparison)
     finished_dict = {t.number: t for t in comparison_trials}
 
