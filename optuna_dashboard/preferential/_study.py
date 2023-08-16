@@ -71,7 +71,11 @@ class PreferentialStudy:
         if not isinstance(worse_trials, list):
             worse_trials = [worse_trials]
 
-        report_preferences(self._study._study_id, self._study._storage, [(b.number, w.number) for b in better_trials for w in worse_trials])
+        report_preferences(
+            self._study._study_id,
+            self._study._storage,
+            [(b.number, w.number) for b in better_trials for w in worse_trials],
+        )
 
     def get_preferences(self, *, deepcopy: bool = True) -> list[tuple[FrozenTrial, FrozenTrial]]:
         trials = self._study.get_trials(deepcopy=deepcopy)
@@ -92,8 +96,8 @@ class PreferentialStudy:
         else:
             raise RuntimeError("Unexpected trial type")
         storage.set_trial_system_attr(trial_id, _SYSTEM_ATTR_COMPARISON_READY, True)
-        
-        
+
+
 def get_best_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list[FrozenTrial]:
     ready_trials = [
         t
@@ -107,7 +111,6 @@ def get_best_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list
     preferences = get_preferences(study_id, storage)
     worse_numbers = {worse for _, worse in preferences}
     return [copy.deepcopy(t) for t in ready_trials if t.number not in worse_numbers]
-    
 
 
 def create_study(
