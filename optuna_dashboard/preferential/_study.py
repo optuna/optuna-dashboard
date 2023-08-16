@@ -69,16 +69,7 @@ class PreferentialStudy:
         Returns:
             A list of FrozenTrial object
         """
-        ready_trials = [
-            t
-            for t in self._study.get_trials(
-                deepcopy=False, states=(TrialState.COMPLETE, TrialState.RUNNING)
-            )
-            if t.system_attrs.get(_SYSTEM_ATTR_COMPARISON_READY) is True
-        ]
-        preferences = get_preferences(self._study, deepcopy=False)
-        worse_numbers = {worse.number for _, worse in preferences}
-        return [copy.deepcopy(t) for t in ready_trials if t.number not in worse_numbers]
+        return get_best_trials(self._study._study_id, self._study._storage)
 
     @property
     def study_name(self) -> str:
@@ -206,7 +197,11 @@ class PreferentialStudy:
         if not isinstance(worse_trials, list):
             worse_trials = [worse_trials]
 
-        report_preferences(self._study, [(b, w) for b in better_trials for w in worse_trials])
+        report_preferences(
+            self._study._study_id,
+            self._study._storage,
+            [(b.number, w.number) for b in better_trials for w in worse_trials],
+        )
 
     def get_preferences(self, *, deepcopy: bool = True) -> list[tuple[FrozenTrial, FrozenTrial]]:
         """Return results of pairwise comparison.
@@ -221,7 +216,9 @@ class PreferentialStudy:
         Returns:
             A list of the pair of FrozenTrial objects. The left trial is better than the right one.
         """
-        return get_preferences(self._study, deepcopy=deepcopy)
+        trials = self._study.get_trials(deepcopy=deepcopy)
+        preferences = get_preferences(self._study._study_id, self._study._storage)
+        return [(trials[better], trials[worse]) for (better, worse) in preferences]
 
     def set_user_attr(self, key: str, value: Any) -> None:
         """Set a user attribute to the study.
@@ -254,6 +251,21 @@ class PreferentialStudy:
         else:
             raise RuntimeError("Unexpected trial type")
         storage.set_trial_system_attr(trial_id, _SYSTEM_ATTR_COMPARISON_READY, True)
+
+
+def get_best_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list[FrozenTrial]:
+    ready_trials = [
+        t
+        for t in storage.get_all_trials(
+            study_id,
+            deepcopy=False,
+            states=(TrialState.COMPLETE, TrialState.RUNNING),
+        )
+        if t.system_attrs.get(_SYSTEM_ATTR_COMPARISON_READY) is True
+    ]
+    preferences = get_preferences(study_id, storage)
+    worse_numbers = {worse for _, worse in preferences}
+    return [copy.deepcopy(t) for t in ready_trials if t.number not in worse_numbers]
 
 
 def create_study(

@@ -2,45 +2,45 @@ from __future__ import annotations
 
 import uuid
 
-import optuna
-from optuna.trial import FrozenTrial
+from optuna.storages import BaseStorage
 from optuna.trial import TrialState
+
+from .._storage import get_study_summary
 
 
 _SYSTEM_ATTR_PREFIX_PREFERENCE = "preference:values"
 
 
 def report_preferences(
-    study: optuna.Study,
-    preferences: list[tuple[FrozenTrial, FrozenTrial]],
+    study_id: int,
+    storage: BaseStorage,
+    preferences: list[tuple[int, int]],
 ) -> None:
     key = _SYSTEM_ATTR_PREFIX_PREFERENCE + str(uuid.uuid4())
-    study._storage.set_study_system_attr(
-        study_id=study._study_id,
+    storage.set_study_system_attr(
+        study_id=study_id,
         key=key,
-        value=[(better.number, worse.number) for better, worse in preferences],
+        value=preferences,
     )
-
-    values = [0 for _ in study.directions]
-    for better, worse in preferences:
-        for t in (better, worse):
-            study.tell(
-                t.number,
-                values=values,
-                state=TrialState.COMPLETE,
-                skip_if_finished=True,
-            )
+    trials = storage.get_all_trials(study_id, deepcopy=False)
+    directions = storage.get_study_directions(study_id)
+    values = [0 for _ in directions]
+    updated_trials = {num for tpl in preferences for num in tpl}
+    for number in updated_trials:
+        trial_id = trials[number]._trial_id
+        if trials[number].state != TrialState.COMPLETE:
+            storage.set_trial_state_values(trial_id, TrialState.COMPLETE, values)
 
 
 def get_preferences(
-    study: optuna.Study,
-    *,
-    deepcopy: bool = True,
-) -> list[tuple[FrozenTrial, FrozenTrial]]:
+    study_id: int,
+    storage: BaseStorage,
+) -> list[tuple[int, int]]:
     preferences: list[tuple[int, int]] = []
-    for k, v in study.system_attrs.items():
+    summary = get_study_summary(storage, study_id)
+    system_attrs = getattr(summary, "system_attrs", {})
+    for k, v in system_attrs.items():
         if not k.startswith(_SYSTEM_ATTR_PREFIX_PREFERENCE):
             continue
         preferences.extend(v)  # type: ignore
-    trials = study.get_trials(deepcopy=deepcopy)
-    return [(trials[better], trials[worse]) for (better, worse) in preferences]
+    return preferences
