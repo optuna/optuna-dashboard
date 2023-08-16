@@ -6,7 +6,6 @@ from typing import Optional
 from typing import Union
 
 from bottle import Bottle
-
 from optuna_dashboard._storage import trials_cache
 from optuna_dashboard._storage import trials_cache_lock
 from optuna_dashboard._storage import trials_last_fetched_at
