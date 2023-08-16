@@ -107,7 +107,7 @@ class APITestCase(TestCase):
             trial = study.ask()
             study.mark_comparison_ready(trial)
         study.report_preference(study.trials[0], study.trials[1])
-        
+
         app = create_app(storage)
         study_id = study._study._study_id
         status, _, body = send_request(
