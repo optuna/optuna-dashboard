@@ -3,10 +3,12 @@ from __future__ import annotations
 import uuid
 
 import optuna
+from optuna.storages import BaseStorage
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
-from optuna.storages import BaseStorage
+
 from .._storage import get_study_summary
+
 
 _SYSTEM_ATTR_PREFIX_PREFERENCE = "preference:values"
 
@@ -14,7 +16,7 @@ _SYSTEM_ATTR_PREFIX_PREFERENCE = "preference:values"
 def report_preferences(
     study_id: int,
     storage: BaseStorage,
-    preferences: list[tuple[int, int]], # element is number of trail
+    preferences: list[tuple[int, int]],  # element is number of trail
 ) -> None:
     key = _SYSTEM_ATTR_PREFIX_PREFERENCE + str(uuid.uuid4())
     storage.set_study_system_attr(
