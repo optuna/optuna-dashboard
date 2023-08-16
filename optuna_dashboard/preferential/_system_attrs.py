@@ -25,11 +25,11 @@ def report_preferences(
     trials = storage.get_all_trials(study_id, deepcopy=False)
     directions = storage.get_study_directions(study_id)
     values = [0 for _ in directions]
-    for better, worse in preferences:
-        for number in (better, worse):
-            trial_id = trials[number]._trial_id
-            if storage.check_trial_is_updatable(trial_id, trials[number].state):
-                storage.set_trial_state_values(trial_id, TrialState.COMPLETE, values)
+    updated_trials = {num for tpl in preferences for num in tpl}
+    for number in updated_trials:
+        trial_id = trials[number]._trial_id
+        if trials[number].state != TrialState.COMPLETE:
+            storage.set_trial_state_values(trial_id, TrialState.COMPLETE, values)
 
 
 def get_preferences(
