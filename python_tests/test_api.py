@@ -123,6 +123,34 @@ class APITestCase(TestCase):
         assert best_trials[0]["number"] == 0
         assert best_trials[1]["number"] == 2
 
+    def test_report_preference(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = create_study(storage=storage)
+        for _ in range(3):
+            trial = study.ask()
+            study.mark_comparison_ready(trial)
+
+        app = create_app(storage)
+        study_id = study._study._study_id
+        status, _, _ = send_request(
+            app,
+            f"/api/studies/{study_id}/preference",
+            "POST",
+            body=json.dumps({"best_trials": [0, 2], "worst_trials": [1]}),
+            content_type="application/json",
+        )
+        self.assertEqual(status, 204)
+
+        preferences = study.get_preferences()
+        preferences.sort(key=lambda x: (x[0].number, x[1].number))
+        assert len(preferences) == 2
+        better, worse = preferences[0]
+        assert better.number == 0
+        assert worse.number == 1
+        better, worse = preferences[1]
+        assert better.number == 2
+        assert worse.number == 1
+
     def test_create_study(self) -> None:
         for name, directions, expected_status in [
             ("single-objective success", ["minimize"], 201),
