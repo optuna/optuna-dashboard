@@ -34,6 +34,13 @@ dependencies = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
+docs = [
+    "boto3",
+    "streamlit",
+    "sphinx",
+    "sphinx_rtd_theme",
+]
+
 test = [
     "coverage",
     "pytest",
@@ -45,13 +52,6 @@ optional = [
     "boto3",
 ]
 
-[project.optional-dependencies]
-docs = [
-    "boto3",
-    "streamlit",
-    "sphinx",
-    "sphinx_rtd_theme",
-]
 
 [project.scripts]
 optuna-dashboard = "optuna_dashboard._cli:main"
