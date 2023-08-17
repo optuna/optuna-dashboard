@@ -40,7 +40,7 @@ if TYPE_CHECKING:
         },
     )
 
-
+OPTUNA_ARTIFACTS_ATTR_PREFIX = "artifacts:"
 ARTIFACTS_ATTR_PREFIX = "dashboard:artifacts:"
 DEFAULT_MIME_TYPE = "application/octet-stream"
 BaseRequest.MEMFILE_MAX = int(
@@ -66,7 +66,7 @@ def register_artifact_route(
         if artifact_store is None:
             response.status = 400  # Bad Request
             return b"Cannot access to the artifacts."
-        artifact_dict = get_artifact_meta(storage, trial_id, artifact_id)
+        artifact_dict = get_artifact_meta(storage, study_id, trial_id, artifact_id)
         if artifact_dict is None:
             response.status = 404
             return b"Not Found"
@@ -127,8 +127,11 @@ def register_artifact_route(
             return {"reason": "Cannot access to the artifacts."}
         artifact_store.remove(artifact_id)
 
-        attr_key = ARTIFACTS_ATTR_PREFIX + artifact_id
-        storage.set_trial_system_attr(trial_id, attr_key, json.dumps(None))
+        # The metadata of the artifact is stored in one of the following three locations:
+        storage.set_study_system_attr(study_id, _artifact_prefix(trial_id) + artifact_id, json.dumps(None))
+        storage.set_trial_system_attr(trial_id, ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None))
+        storage.set_trial_system_attr(trial_id, OPTUNA_ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None))
+
         response.status = 204
         return {}
 
@@ -189,28 +192,38 @@ def upload_artifact(
     return artifact_id
 
 
+def _artifact_prefix(trial_id: int) -> str:
+    return ARTIFACTS_ATTR_PREFIX + f"{trial_id}:"
+
+
 def get_artifact_meta(
-    storage: BaseStorage, trial_id: int, artifact_id: str
+    storage: BaseStorage, study_id: int, trial_id: int, artifact_id: str
 ) -> Optional[ArtifactMeta]:
-    trial_system_attr = storage.get_trial_system_attrs(trial_id)
-    attr_key = ARTIFACTS_ATTR_PREFIX + artifact_id
-    artifact_meta = trial_system_attr.get(attr_key)
+    # Search study_system_attrs due to backward compatibility.
+    study_system_attrs = storage.get_study_system_attrs(study_id)
+    attr_key = _artifact_prefix(trial_id=trial_id) + artifact_id
+    artifact_meta = study_system_attrs.get(attr_key)
     if artifact_meta is not None:
         return json.loads(artifact_meta)
 
+    # Search trial_system_attrs. Note that artifacts uploaded via optuna.artifacts.upload_artifact
+    # have a different trial_system_attrs key prefix.
     # See https://github.com/optuna/optuna/blob/f827582a8/optuna/artifacts/_upload.py#L71
     trial_system_attrs = storage.get_trial_system_attrs(trial_id)
-    value = trial_system_attrs.get("artifacts:" + artifact_id)
+    value = trial_system_attrs.get(
+        OPTUNA_ARTIFACTS_ATTR_PREFIX + artifact_id
+    ) or trial_system_attrs.get(ARTIFACTS_ATTR_PREFIX + artifact_id)
     if value is not None:
         return json.loads(value)
+    
     return None
 
 
 def delete_all_artifacts(backend: ArtifactStore, storage: BaseStorage, study_id: int) -> None:
     artifact_metas = []
+    study_system_attrs = storage.get_study_system_attrs(study_id)
     for trial in storage.get_all_trials(study_id):
-        trial_system_attrs = storage.get_trial_system_attrs(trial._trial_id)
-        trial_artifacts = list_trial_artifacts(trial_system_attrs, trial)
+        trial_artifacts = list_trial_artifacts(study_system_attrs, trial)
         artifact_metas.extend(trial_artifacts)
 
     for meta in artifact_metas:
@@ -218,20 +231,22 @@ def delete_all_artifacts(backend: ArtifactStore, storage: BaseStorage, study_id:
 
 
 def list_trial_artifacts(
-    trial_system_attrs: dict[str, Any], trial: FrozenTrial
+    study_system_attrs: dict[str, Any], trial: FrozenTrial
 ) -> list[ArtifactMeta]:
+    # Collect ArtifactMeta from study_system_attrs due to backward compatibility.
     dashboard_artifact_metas = [
         json.loads(value)
-        for key, value in trial_system_attrs.items()
-        if key.startswith(ARTIFACTS_ATTR_PREFIX)
+        for key, value in study_system_attrs.items()
+        if key.startswith(_artifact_prefix(trial._trial_id))
     ]
 
+    # Collect ArtifactMeta from trial_system_attrs. Note that artifacts uploaded via
+    # optuna.artifacts.upload_artifacts have a different trial_system_attrs key prefix.
     # See https://github.com/optuna/optuna/blob/f827582a8/optuna/artifacts/_upload.py#L16
     optuna_artifact_metas = [
         json.loads(value)
         for key, value in trial.system_attrs.items()
-        if key.startswith("artifacts:")
+        if key.startswith(OPTUNA_ARTIFACTS_ATTR_PREFIX) or key.startswith(ARTIFACTS_ATTR_PREFIX)
     ]
-
     artifact_metas = dashboard_artifact_metas + optuna_artifact_metas
     return [a for a in artifact_metas if a is not None]
