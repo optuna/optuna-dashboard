@@ -102,8 +102,8 @@ def register_artifact_route(
             "mimetype": mimetype or DEFAULT_MIME_TYPE,
             "encoding": encoding,
         }
-        attr_key = _artifact_prefix(trial_id=trial_id) + artifact_id
-        storage.set_study_system_attr(study_id, attr_key, json.dumps(artifact))
+        attr_key = ARTIFACTS_ATTR_PREFIX + artifact_id
+        storage.set_trial_system_attr(trial_id, attr_key, json.dumps(artifact))
         response.status = 201
 
         trial = storage.get_trial(trial_id)
@@ -112,7 +112,7 @@ def register_artifact_route(
             return {"reason": "Invalid study_id or trial_id"}
         return {
             "artifact_id": artifact_id,
-            "artifacts": list_trial_artifacts(storage.get_study_system_attrs(study_id), trial),
+            "artifacts": list_trial_artifacts(storage.get_trial_system_attrs(trial_id), trial),
         }
 
     @app.delete("/api/artifacts/<study_id:int>/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
@@ -123,8 +123,8 @@ def register_artifact_route(
             return {"reason": "Cannot access to the artifacts."}
         artifact_store.remove(artifact_id)
 
-        attr_key = _artifact_prefix(trial_id) + artifact_id
-        storage.set_study_system_attr(study_id, attr_key, json.dumps(None))
+        attr_key = ARTIFACTS_ATTR_PREFIX + artifact_id
+        storage.set_trial_system_attr(trial_id, attr_key, json.dumps(None))
         response.status = 204
         return {}
 
@@ -178,24 +178,20 @@ def upload_artifact(
         "encoding": encoding or guess_encoding,
         "filename": filename,
     }
-    attr_key = _artifact_prefix(trial_id=trial_id) + artifact_id
-    storage.set_study_system_attr(study_id, attr_key, json.dumps(artifact))
+    attr_key = ARTIFACTS_ATTR_PREFIX + artifact_id
+    storage.set_trial_system_attr(trial_id, attr_key, json.dumps(artifact))
 
     with open(file_path, "rb") as f:
         backend.write(artifact_id, f)
     return artifact_id
 
 
-def _artifact_prefix(trial_id: int) -> str:
-    return ARTIFACTS_ATTR_PREFIX + f"{trial_id}:"
-
-
 def get_artifact_meta(
     storage: BaseStorage, study_id: int, trial_id: int, artifact_id: str
 ) -> Optional[ArtifactMeta]:
-    study_system_attr = storage.get_study_system_attrs(study_id)
-    attr_key = _artifact_prefix(trial_id=trial_id) + artifact_id
-    artifact_meta = study_system_attr.get(attr_key)
+    trial_system_attr = storage.get_trial_system_attrs(trial_id)
+    attr_key = ARTIFACTS_ATTR_PREFIX + artifact_id
+    artifact_meta = trial_system_attr.get(attr_key)
     if artifact_meta is not None:
         return json.loads(artifact_meta)
 
@@ -209,9 +205,9 @@ def get_artifact_meta(
 
 def delete_all_artifacts(backend: ArtifactStore, storage: BaseStorage, study_id: int) -> None:
     artifact_metas = []
-    study_system_attrs = storage.get_study_system_attrs(study_id)
     for trial in storage.get_all_trials(study_id):
-        trial_artifacts = list_trial_artifacts(study_system_attrs, trial)
+        trial_system_attrs = storage.get_trial_system_attrs(trial._trial_id)
+        trial_artifacts = list_trial_artifacts(trial_system_attrs, trial)
         artifact_metas.extend(trial_artifacts)
 
     for meta in artifact_metas:
@@ -219,12 +215,12 @@ def delete_all_artifacts(backend: ArtifactStore, storage: BaseStorage, study_id:
 
 
 def list_trial_artifacts(
-    study_system_attrs: dict[str, Any], trial: FrozenTrial
+    trial_system_attrs: dict[str, Any], trial: FrozenTrial
 ) -> list[ArtifactMeta]:
     dashboard_artifact_metas = [
         json.loads(value)
-        for key, value in study_system_attrs.items()
-        if key.startswith(_artifact_prefix(trial._trial_id))
+        for key, value in trial_system_attrs.items()
+        if key.startswith(ARTIFACTS_ATTR_PREFIX)
     ]
 
     # See https://github.com/optuna/optuna/blob/f827582a8/optuna/artifacts/_upload.py#L16
