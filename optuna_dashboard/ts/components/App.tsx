@@ -70,15 +70,6 @@ export const App: FC = () => {
                   }
                 />
                 <Route
-                  path={URL_PREFIX + "/studies/:studyId/trials"}
-                  element={
-                    <StudyDetail
-                      toggleColorMode={toggleColorMode}
-                      page={"trialList"}
-                    />
-                  }
-                />
-                <Route
                   path={URL_PREFIX + "/studies/:studyId/trialTable"}
                   element={
                     <StudyDetail
@@ -97,17 +88,13 @@ export const App: FC = () => {
                   }
                 />
                 <Route
-                  path={URL_PREFIX + "/studies/:studyId/preference"}
+                  path={URL_PREFIX + "/studies/:studyId"}
                   element={
                     <StudyDetail
                       toggleColorMode={toggleColorMode}
-                      page={"preference"}
+                      page={"top"}
                     />
                   }
-                />
-                <Route
-                  path={URL_PREFIX + "/studies/:studyId"}
-                  element={<StudyDetail toggleColorMode={toggleColorMode} />}
                 />
                 <Route
                   path={URL_PREFIX + "/compare-studies"}

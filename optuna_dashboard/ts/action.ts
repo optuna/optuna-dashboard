@@ -589,19 +589,13 @@ export const actionCreator = () => {
     best_trials: number[],
     worst_trials: number[]
   ) => {
-    reportPreferenceAPI(study_id, best_trials, worst_trials)
-      .then(() => {
-        setTimeout(() => {
-          updateStudyDetail(study_id)
-        }, 1000)
+    reportPreferenceAPI(study_id, best_trials, worst_trials).catch((err) => {
+      const reason = err.response?.data.reason
+      enqueueSnackbar(`Failed to report preference. Reason: ${reason}`, {
+        variant: "error",
       })
-      .catch((err) => {
-        const reason = err.response?.data.reason
-        enqueueSnackbar(`Failed to report preference. Reason: ${reason}`, {
-          variant: "error",
-        })
-        console.log(err)
-      })
+      console.log(err)
+    })
   }
 
   return {

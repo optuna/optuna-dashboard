@@ -42,7 +42,7 @@ export const useURLVars = (): number => {
 
 export const StudyDetail: FC<{
   toggleColorMode: () => void
-  page?: PageId
+  page: PageId
 }> = ({ toggleColorMode, page }) => {
   const theme = useTheme()
   const action = actionCreator()
@@ -68,11 +68,16 @@ export const StudyDetail: FC<{
     let interval = reloadInterval * 1000
 
     // For Human-in-the-loop Optimization, the interval is set to 2 seconds
-    // when the number of trials is small and the page is "trialList".
-    if (page === "trialList" && nTrials < 100) {
-      interval = 2000
-    } else if (page === "trialList" && nTrials < 500) {
-      interval = 5000
+    // when the number of trials is small, and the page is "trialList" or top page of preferential.
+    if (
+      (!studyDetail?.is_preferential && page === "trialList") ||
+      (studyDetail?.is_preferential && page === "top")
+    ) {
+      if (nTrials < 100) {
+        interval = 2000
+      } else if (nTrials < 500) {
+        interval = 5000
+      }
     }
 
     const intervalId = setInterval(function () {
@@ -82,11 +87,12 @@ export const StudyDetail: FC<{
   }, [reloadInterval, studyDetail, page])
 
   let content = null
-  if (page === undefined) {
-    page = studyDetail?.is_preferential ? "preference" : "history"
-  }
-  if (page === "history") {
-    content = <StudyHistory studyId={studyId} />
+  if (page === "top") {
+    content = studyDetail?.is_preferential ? (
+      <PreferentialTrials studyDetail={studyDetail} />
+    ) : (
+      <StudyHistory studyId={studyId} />
+    )
   } else if (page === "analytics") {
     content = (
       <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
@@ -162,8 +168,6 @@ export const StudyDetail: FC<{
         />
       </Box>
     )
-  } else if (page === "preference") {
-    content = <PreferentialTrials studyDetail={studyDetail} />
   }
 
   const toolbar = (

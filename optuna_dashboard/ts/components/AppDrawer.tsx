@@ -39,7 +39,7 @@ import { actionCreator } from "../action"
 const drawerWidth = 240
 
 export type PageId =
-  | "history"
+  | "top"
   | "analytics"
   | "trialTable"
   | "trialList"
@@ -128,6 +128,7 @@ export const AppDrawer: FC<{
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studyDetail =
     studyId !== undefined ? useStudyDetailValue(studyId) : null
+  const is_preferential = studyDetail?.is_preferential ?? false
 
   const styleListItem = {
     display: "block",
@@ -189,39 +190,22 @@ export const AppDrawer: FC<{
         <Divider />
         {studyId !== undefined && page && (
           <List>
-            {studyDetail !== null && studyDetail.is_preferential && (
-              <ListItem key="Preference" disablePadding sx={styleListItem}>
-                <ListItemButton
-                  component={Link}
-                  to={`${URL_PREFIX}/studies/${studyId}/preference`}
-                  sx={styleListItemButton}
-                  selected={page === "preference"}
-                >
-                  <ListItemIcon sx={styleListItemIcon}>
-                    <ThumbUpAltIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="HumanInTheLoop"
-                    sx={styleListItemText}
-                  />
-                </ListItemButton>
-              </ListItem>
-            )}
-            {studyDetail !== null && !studyDetail.is_preferential && (
-              <ListItem key="History" disablePadding sx={styleListItem}>
-                <ListItemButton
-                  component={Link}
-                  to={`${URL_PREFIX}/studies/${studyId}`}
-                  sx={styleListItemButton}
-                  selected={page === "history"}
-                >
-                  <ListItemIcon sx={styleListItemIcon}>
-                    <AutoGraphIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="History" sx={styleListItemText} />
-                </ListItemButton>
-              </ListItem>
-            )}
+            <ListItem key="Top" disablePadding sx={styleListItem}>
+              <ListItemButton
+                component={Link}
+                to={`${URL_PREFIX}/studies/${studyId}`}
+                sx={styleListItemButton}
+                selected={page === "top"}
+              >
+                <ListItemIcon sx={styleListItemIcon}>
+                  {is_preferential ? <ThumbUpAltIcon /> : <AutoGraphIcon />}
+                </ListItemIcon>
+                <ListItemText
+                  primary={is_preferential ? "HumanInTheLoop" : "History"}
+                  sx={styleListItemText}
+                />
+              </ListItemButton>
+            </ListItem>
             {studyDetail !== null && !studyDetail.is_preferential && (
               <ListItem key="Analytics" disablePadding sx={styleListItem}>
                 <ListItemButton
