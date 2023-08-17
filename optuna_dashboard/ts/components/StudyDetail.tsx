@@ -42,7 +42,7 @@ export const useURLVars = (): number => {
 
 export const StudyDetail: FC<{
   toggleColorMode: () => void
-  page: PageId
+  page?: PageId
 }> = ({ toggleColorMode, page }) => {
   const theme = useTheme()
   const action = actionCreator()
@@ -82,6 +82,9 @@ export const StudyDetail: FC<{
   }, [reloadInterval, studyDetail, page])
 
   let content = null
+  if (page === undefined){
+    page = studyDetail?.is_preferential ? "preference" : "history"
+  }
   if (page === "history") {
     content = <StudyHistory studyId={studyId} />
   } else if (page === "analytics") {

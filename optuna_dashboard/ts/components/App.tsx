@@ -110,7 +110,6 @@ export const App: FC = () => {
                   element={
                     <StudyDetail
                       toggleColorMode={toggleColorMode}
-                      page={"history"}
                     />
                   }
                 />
