@@ -46,6 +46,7 @@ def test_list_optuna_trial_artifacts() -> None:
 
         artifact_meta = get_artifact_meta(
             storage=storage,
+            study_id=study._study_id,
             trial_id=trial._trial_id,
             artifact_id=artifact_id,
         )
