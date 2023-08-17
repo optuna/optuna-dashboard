@@ -32,6 +32,8 @@ def main() -> NoReturn:
 
     with tempfile.TemporaryDirectory() as tmpdir:
         while True:
+            # If n_comparison "best" trials (that are not reported bad) exists,
+            # the generator waits for human evaluation.
             if len(study.best_trials) >= n_comparison:
                 time.sleep(0.1)  # Avoid busy-loop
                 continue
@@ -45,7 +47,6 @@ def main() -> NoReturn:
             # 2. Generate image
             image_path = os.path.join(tmpdir, f"sample-{trial.number}.png")
             image = Image.new("RGB", (320, 240), color=(r, g, b))
-            # sleep(2.0)
             image.save(image_path)
 
             # 3. Upload Artifact

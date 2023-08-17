@@ -39,12 +39,12 @@ def main() -> NoReturn:
         storage=STORAGE_URL,
     )
 
-    # 1. 比較対象のTrialを取得
+    # 1. Get all currently best trials (i.e. trials that are not reported bad) for comparison.
     comparison_trials = study.best_trials
 
     st.text("Which is the worst?")
 
-    # 2. 各TrialのArtifact画像を並べて表示
+    # 2. Show the artifact images of all those trials.
     cols = st.columns(n_comparison)
     finished_dict = {t.number: t for t in comparison_trials}
 
@@ -70,8 +70,8 @@ def main() -> NoReturn:
         trial = finished_dict[trial_number]
         col = cols[col_i]
 
-        rgb_artifact_id = trial.user_attrs.get("rgb_artifact_id")
-        image_caption = trial.user_attrs.get("image_caption")
+        rgb_artifact_id = trial.user_attrs["rgb_artifact_id"]
+        image_caption = trial.user_attrs["image_caption"]
         with col:
             with artifact_backend.open(rgb_artifact_id) as fsrc:
                 tmp_img_path = os.path.join(tmpdir, rgb_artifact_id + ".png")
@@ -85,6 +85,7 @@ def main() -> NoReturn:
             continue
 
     if len(comparison_trials) < n_comparison:
+        # Wait for unfinished trials (images under generation) to be generated.
         time.sleep(0.1)
         st.experimental_rerun()
 
