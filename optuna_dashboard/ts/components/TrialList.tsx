@@ -1,3 +1,33 @@
+import CheckBoxIcon from "@mui/icons-material/CheckBox"
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
+import DeleteIcon from "@mui/icons-material/Delete"
+import DownloadIcon from "@mui/icons-material/Download"
+import FilterListIcon from "@mui/icons-material/FilterList"
+import FullscreenIcon from "@mui/icons-material/Fullscreen"
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
+import StopCircleIcon from "@mui/icons-material/StopCircle"
+import UploadFileIcon from "@mui/icons-material/UploadFile"
+import {
+  Box,
+  Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  CardMedia,
+  IconButton,
+  Menu,
+  MenuItem,
+  Modal,
+  Typography,
+  useTheme,
+} from "@mui/material"
+import Chip from "@mui/material/Chip"
+import Divider from "@mui/material/Divider"
+import List from "@mui/material/List"
+import ListItem from "@mui/material/ListItem"
+import ListItemButton from "@mui/material/ListItemButton"
+import ListItemText from "@mui/material/ListItemText"
+import ListSubheader from "@mui/material/ListSubheader"
 import React, {
   ChangeEventHandler,
   DragEventHandler,
@@ -8,46 +38,16 @@ import React, {
   useRef,
   useState,
 } from "react"
-import {
-  Typography,
-  Box,
-  Button,
-  useTheme,
-  IconButton,
-  Menu,
-  MenuItem,
-  Card,
-  CardContent,
-  CardMedia,
-  CardActionArea,
-  Modal,
-} from "@mui/material"
-import Chip from "@mui/material/Chip"
-import Divider from "@mui/material/Divider"
-import List from "@mui/material/List"
-import ListItem from "@mui/material/ListItem"
-import ListItemButton from "@mui/material/ListItemButton"
-import ListItemText from "@mui/material/ListItemText"
-import ListSubheader from "@mui/material/ListSubheader"
-import FilterListIcon from "@mui/icons-material/FilterList"
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
-import CheckBoxIcon from "@mui/icons-material/CheckBox"
-import UploadFileIcon from "@mui/icons-material/UploadFile"
-import DownloadIcon from "@mui/icons-material/Download"
-import DeleteIcon from "@mui/icons-material/Delete"
-import FullscreenIcon from "@mui/icons-material/Fullscreen"
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
-import StopCircleIcon from "@mui/icons-material/StopCircle"
 
-import { TrialNote } from "./Note"
-import { useNavigate, useLocation } from "react-router-dom"
 import ListItemIcon from "@mui/material/ListItemIcon"
+import { useLocation, useNavigate } from "react-router-dom"
 import { useRecoilValue } from "recoil"
-import { artifactIsAvailable } from "../state"
 import { actionCreator } from "../action"
+import { artifactIsAvailable } from "../state"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
-import { TrialFormWidgets } from "./TrialFormWidgets"
+import { TrialNote } from "./Note"
 import { ThreejsArtifactViewer } from "./ThreejsArtifactViewer"
+import { TrialFormWidgets } from "./TrialFormWidgets"
 
 const states: TrialState[] = [
   "Complete",
@@ -153,7 +153,6 @@ const TrialListDetail: FC<{
   const theme = useTheme()
   const action = actionCreator()
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
-  const isRunningTrial = trial.state === "Running" || trial.state === "Waiting"
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
 
@@ -320,7 +319,7 @@ const TrialListDetail: FC<{
           value !== null ? renderInfo(key, value) : null
         )}
       </Box>
-      {artifactEnabled && isRunningTrial && <TrialArtifact trial={trial} />}
+      {artifactEnabled && <TrialArtifact trial={trial} />}
     </Box>
   )
 }
@@ -711,55 +710,56 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
             )
           }
         })}
-        <Card
-          sx={{
-            marginBottom: theme.spacing(2),
-            width: width,
-            minHeight: height,
-            margin: theme.spacing(0, 1, 1, 0),
-            border: dragOver
-              ? `3px dashed ${
-                  theme.palette.mode === "dark" ? "white" : "black"
-                }`
-              : `1px solid ${theme.palette.divider}`,
-          }}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-        >
-          <CardActionArea
-            onClick={handleClick}
+        {(trial.state === "Running" || trial.state === "Waiting") ? (
+          <Card
             sx={{
-              height: "100%",
+              marginBottom: theme.spacing(2),
+              width: width,
+              minHeight: height,
+              margin: theme.spacing(0, 1, 1, 0),
+              border: dragOver
+                ? `3px dashed ${theme.palette.mode === "dark" ? "white" : "black"
+                }`
+                : `1px solid ${theme.palette.divider}`,
             }}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
           >
-            <CardContent
+            <CardActionArea
+              onClick={handleClick}
               sx={{
-                display: "flex",
                 height: "100%",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
               }}
             >
-              <UploadFileIcon
-                sx={{ fontSize: 80, marginBottom: theme.spacing(2) }}
-              />
-              <input
-                type="file"
-                ref={inputRef}
-                onChange={handleOnChange}
-                style={{ display: "none" }}
-              />
-              <Typography>Upload a New File</Typography>
-              <Typography
-                sx={{ textAlign: "center", color: theme.palette.grey.A400 }}
+              <CardContent
+                sx={{
+                  display: "flex",
+                  height: "100%",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
               >
-                Drag your file here or click to browse.
-              </Typography>
-            </CardContent>
-          </CardActionArea>
-        </Card>
+                <UploadFileIcon
+                  sx={{ fontSize: 80, marginBottom: theme.spacing(2) }}
+                />
+                <input
+                  type="file"
+                  ref={inputRef}
+                  onChange={handleOnChange}
+                  style={{ display: "none" }}
+                />
+                <Typography>Upload a New File</Typography>
+                <Typography
+                  sx={{ textAlign: "center", color: theme.palette.grey.A400 }}
+                >
+                  Drag your file here or click to browse.
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        ) : null}
       </Box>
       {renderDeleteArtifactDialog()}
     </>
@@ -952,15 +952,15 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
           {selected.length === 0
             ? null
             : selected.map((t) => (
-                <TrialListDetail
-                  key={t.trial_id}
-                  trial={t}
-                  isBestTrial={isBestTrial}
-                  directions={studyDetail?.directions || []}
-                  objectiveNames={studyDetail?.objective_names || []}
-                  formWidgets={studyDetail?.form_widgets}
-                />
-              ))}
+              <TrialListDetail
+                key={t.trial_id}
+                trial={t}
+                isBestTrial={isBestTrial}
+                directions={studyDetail?.directions || []}
+                objectiveNames={studyDetail?.objective_names || []}
+                formWidgets={studyDetail?.form_widgets}
+              />
+            ))}
         </Box>
       </Box>
     </Box>
