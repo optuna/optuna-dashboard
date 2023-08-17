@@ -82,7 +82,7 @@ export const StudyDetail: FC<{
   }, [reloadInterval, studyDetail, page])
 
   let content = null
-  if (page === undefined){
+  if (page === undefined) {
     page = studyDetail?.is_preferential ? "preference" : "history"
   }
   if (page === "history") {
