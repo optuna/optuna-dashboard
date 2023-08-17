@@ -153,6 +153,7 @@ const TrialListDetail: FC<{
   const theme = useTheme()
   const action = actionCreator()
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
+  const isRunningTrial = trial.state === "Running" || trial.state === "Waiting"
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
 
@@ -319,7 +320,7 @@ const TrialListDetail: FC<{
           value !== null ? renderInfo(key, value) : null
         )}
       </Box>
-      {artifactEnabled && <TrialArtifact trial={trial} />}
+      {artifactEnabled && isRunningTrial && <TrialArtifact trial={trial} />}
     </Box>
   )
 }
