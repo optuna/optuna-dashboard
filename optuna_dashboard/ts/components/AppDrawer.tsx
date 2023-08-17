@@ -14,7 +14,11 @@ import ListItem from "@mui/material/ListItem"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
-import { drawerOpenState, reloadIntervalState } from "../state"
+import {
+  drawerOpenState,
+  reloadIntervalState,
+  useStudyDetailValue,
+} from "../state"
 import { Link } from "react-router-dom"
 import AutoGraphIcon from "@mui/icons-material/AutoGraph"
 import ViewListIcon from "@mui/icons-material/ViewList"
@@ -28,6 +32,7 @@ import MenuIcon from "@mui/icons-material/Menu"
 import GitHubIcon from "@mui/icons-material/GitHub"
 import OpenInNewIcon from "@mui/icons-material/OpenInNew"
 import QueryStatsIcon from "@mui/icons-material/QueryStats"
+import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt"
 import { Switch } from "@mui/material"
 import { actionCreator } from "../action"
 
@@ -39,6 +44,7 @@ export type PageId =
   | "trialTable"
   | "trialList"
   | "note"
+  | "preference"
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
@@ -120,6 +126,8 @@ export const AppDrawer: FC<{
   const action = actionCreator()
   const [open, setOpen] = useRecoilState<boolean>(drawerOpenState)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
+  const studyDetail =
+    studyId !== undefined ? useStudyDetailValue(studyId) : null
 
   const styleListItem = {
     display: "block",
@@ -181,32 +189,54 @@ export const AppDrawer: FC<{
         <Divider />
         {studyId !== undefined && page && (
           <List>
-            <ListItem key="History" disablePadding sx={styleListItem}>
-              <ListItemButton
-                component={Link}
-                to={`${URL_PREFIX}/studies/${studyId}`}
-                sx={styleListItemButton}
-                selected={page === "history"}
-              >
-                <ListItemIcon sx={styleListItemIcon}>
-                  <AutoGraphIcon />
-                </ListItemIcon>
-                <ListItemText primary="History" sx={styleListItemText} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem key="Analytics" disablePadding sx={styleListItem}>
-              <ListItemButton
-                component={Link}
-                to={`${URL_PREFIX}/studies/${studyId}/analytics`}
-                sx={styleListItemButton}
-                selected={page === "analytics"}
-              >
-                <ListItemIcon sx={styleListItemIcon}>
-                  <QueryStatsIcon />
-                </ListItemIcon>
-                <ListItemText primary="Analytics" sx={styleListItemText} />
-              </ListItemButton>
-            </ListItem>
+            {studyDetail !== null && studyDetail.is_preferential && (
+              <ListItem key="Preference" disablePadding sx={styleListItem}>
+                <ListItemButton
+                  component={Link}
+                  to={`${URL_PREFIX}/studies/${studyId}/preference`}
+                  sx={styleListItemButton}
+                  selected={page === "preference"}
+                >
+                  <ListItemIcon sx={styleListItemIcon}>
+                    <ThumbUpAltIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="HumanInTheLoop"
+                    sx={styleListItemText}
+                  />
+                </ListItemButton>
+              </ListItem>
+            )}
+            {studyDetail !== null && !studyDetail.is_preferential && (
+              <ListItem key="History" disablePadding sx={styleListItem}>
+                <ListItemButton
+                  component={Link}
+                  to={`${URL_PREFIX}/studies/${studyId}`}
+                  sx={styleListItemButton}
+                  selected={page === "history"}
+                >
+                  <ListItemIcon sx={styleListItemIcon}>
+                    <AutoGraphIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="History" sx={styleListItemText} />
+                </ListItemButton>
+              </ListItem>
+            )}
+            {studyDetail !== null && !studyDetail.is_preferential && (
+              <ListItem key="Analytics" disablePadding sx={styleListItem}>
+                <ListItemButton
+                  component={Link}
+                  to={`${URL_PREFIX}/studies/${studyId}/analytics`}
+                  sx={styleListItemButton}
+                  selected={page === "analytics"}
+                >
+                  <ListItemIcon sx={styleListItemIcon}>
+                    <QueryStatsIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Analytics" sx={styleListItemText} />
+                </ListItemButton>
+              </ListItem>
+            )}
             <ListItem key="TableList" disablePadding sx={styleListItem}>
               <ListItemButton
                 component={Link}

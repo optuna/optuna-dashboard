@@ -66,6 +66,7 @@ interface StudyDetailResponse {
   union_user_attrs: AttributeSpec[]
   has_intermediate_values: boolean
   note: Note
+  is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
 }
@@ -101,6 +102,7 @@ export const getStudyDetailAPI = (
         note: res.data.note,
         objective_names: res.data.objective_names,
         form_widgets: res.data.form_widgets,
+        is_preferential: res.data.is_preferential,
       }
     })
 }
@@ -305,5 +307,20 @@ export const getParamImportances = (
     .get<ParamImportancesResponse>(`/api/studies/${studyId}/param_importances`)
     .then((res) => {
       return res.data.param_importances
+    })
+}
+
+export const reportPreferenceAPI = (
+  studyId: number,
+  best_trials: number[],
+  worst_trials: number[]
+): Promise<void> => {
+  return axiosInstance
+    .post<RenameStudyResponse>(`/api/studies/${studyId}/preference`, {
+      best_trials: best_trials,
+      worst_trials: worst_trials,
+    })
+    .then(() => {
+      return
     })
 }

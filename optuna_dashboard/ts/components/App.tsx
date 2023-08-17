@@ -97,6 +97,15 @@ export const App: FC = () => {
                   }
                 />
                 <Route
+                  path={URL_PREFIX + "/studies/:studyId/preference"}
+                  element={
+                    <StudyDetail
+                      toggleColorMode={toggleColorMode}
+                      page={"preference"}
+                    />
+                  }
+                />
+                <Route
                   path={URL_PREFIX + "/studies/:studyId"}
                   element={
                     <StudyDetail

@@ -28,6 +28,7 @@ import { GraphSlice } from "./GraphSlice"
 import { GraphEdf } from "./GraphEdf"
 import { TrialList } from "./TrialList"
 import { StudyHistory } from "./StudyHistory"
+import { PreferentialTrials } from "./PreferentialTrials"
 
 interface ParamTypes {
   studyId: string
@@ -158,6 +159,8 @@ export const StudyDetail: FC<{
         />
       </Box>
     )
+  } else if (page === "preference") {
+    content = <PreferentialTrials studyDetail={studyDetail} />
   }
 
   const toolbar = (

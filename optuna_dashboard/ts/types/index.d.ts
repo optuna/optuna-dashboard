@@ -193,6 +193,7 @@ type StudyDetail = {
   union_user_attrs: AttributeSpec[]
   has_intermediate_values: boolean
   note: Note
+  is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
 }

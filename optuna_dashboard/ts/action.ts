@@ -14,6 +14,7 @@ import {
   uploadArtifactAPI,
   getMetaInfoAPI,
   deleteArtifactAPI,
+  reportPreferenceAPI,
 } from "./apiClient"
 import {
   graphVisibilityState,
@@ -582,6 +583,27 @@ export const actionCreator = () => {
         console.log(err)
       })
   }
+
+  const updatePreference = (
+    study_id: number,
+    best_trials: number[],
+    worst_trials: number[]
+  ) => {
+    reportPreferenceAPI(study_id, best_trials, worst_trials)
+      .then(() => {
+        setTimeout(() => {
+          updateStudyDetail(study_id)
+        }, 1000)
+      })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(`Failed to report preference. Reason: ${reason}`, {
+          variant: "error",
+        })
+        console.log(err)
+      })
+  }
+
   return {
     updateAPIMeta,
     updateStudyDetail,
@@ -601,6 +623,7 @@ export const actionCreator = () => {
     makeTrialComplete,
     makeTrialFail,
     saveTrialUserAttrs,
+    updatePreference,
   }
 }
 
