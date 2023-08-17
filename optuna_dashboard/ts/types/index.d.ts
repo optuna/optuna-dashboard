@@ -121,6 +121,7 @@ type StudySummary = {
   study_name: string
   directions: StudyDirection[]
   user_attrs: Attribute[]
+  is_preferential: boolean
   datetime_start?: Date
 }
 

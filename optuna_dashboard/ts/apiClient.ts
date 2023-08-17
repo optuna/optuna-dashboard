@@ -111,6 +111,7 @@ interface StudySummariesResponse {
     study_name: string
     directions: StudyDirection[]
     user_attrs: Attribute[]
+    is_preferential: boolean
     datetime_start?: string
   }[]
 }
@@ -125,6 +126,7 @@ export const getStudySummariesAPI = (): Promise<StudySummary[]> => {
           study_name: study.study_name,
           directions: study.directions,
           user_attrs: study.user_attrs,
+          is_preferential: study.is_preferential,
           datetime_start: study.datetime_start
             ? new Date(study.datetime_start)
             : undefined,
@@ -139,6 +141,7 @@ interface CreateNewStudyResponse {
     study_name: string
     directions: StudyDirection[]
     user_attrs: Attribute[]
+    is_preferential: boolean
     datetime_start?: string
   }
 }
@@ -160,6 +163,7 @@ export const createNewStudyAPI = (
         directions: study_summary.directions,
         // best_trial: undefined,
         user_attrs: study_summary.user_attrs,
+        is_preferential: study_summary.is_preferential,
         datetime_start: study_summary.datetime_start
           ? new Date(study_summary.datetime_start)
           : undefined,
@@ -178,6 +182,7 @@ type RenameStudyResponse = {
   study_name: string
   directions: StudyDirection[]
   user_attrs: Attribute[]
+  is_prefential: boolean
   datetime_start?: string
 }
 
@@ -195,6 +200,7 @@ export const renameStudyAPI = (
         study_name: res.data.study_name,
         directions: res.data.directions,
         user_attrs: res.data.user_attrs,
+        is_preferential: res.data.is_prefential,
         datetime_start: res.data.datetime_start
           ? new Date(res.data.datetime_start)
           : undefined,
