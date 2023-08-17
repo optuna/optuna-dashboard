@@ -4,15 +4,18 @@ import { Typography, Box, Button, useTheme } from "@mui/material"
 import { TrialNote } from "./Note"
 import { actionCreator } from "../action"
 
-const trialWidth = 500
-
 const PreferentialTrial: FC<{
-  trial: Trial
+  trial?: Trial
   studyDetail: StudyDetail
   hideTrial: () => void
 }> = ({ trial, studyDetail, hideTrial }) => {
   const theme = useTheme()
   const action = actionCreator()
+  const trialWidth = 500
+
+  if (trial == undefined) {
+    return <Box width={trialWidth}></Box>
+  }
 
   return (
     <Box sx={{ width: trialWidth, padding: theme.spacing(2, 2, 0, 2) }}>
@@ -110,20 +113,16 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
 
   return (
     <Box sx={{ display: "flex", flexDirection: "row" }}>
-      {displayTrials.numbers.map((t, index) =>
-        t === -1 ? (
-          <Box key={index} width={trialWidth}></Box>
-        ) : (
-          <PreferentialTrial
-            key={index}
-            trial={studyDetail.best_trials.find((trial) => trial.number === t)!}
-            studyDetail={studyDetail}
-            hideTrial={() => {
-              hideTrial(t)
-            }}
-          />
-        )
-      )}
+      {displayTrials.numbers.map((t, index) => (
+        <PreferentialTrial
+          key={index}
+          trial={studyDetail.best_trials.find((trial) => trial.number === t)}
+          studyDetail={studyDetail}
+          hideTrial={() => {
+            hideTrial(t)
+          }}
+        />
+      ))}
     </Box>
   )
 }
