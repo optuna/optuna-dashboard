@@ -108,6 +108,7 @@ def serialize_study_summary(summary: StudySummary) -> dict[str, Any]:
         "study_name": summary.study_name,
         "directions": [d.name.lower() for d in summary.directions],
         "user_attrs": serialize_attrs(summary.user_attrs),
+        "is_preferential": summary.system_attrs.get(_SYSTEM_ATTR_PREFERENTIAL_STUDY, False),
     }
 
     if summary.datetime_start is not None:
