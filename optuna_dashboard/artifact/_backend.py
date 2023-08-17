@@ -81,6 +81,14 @@ def register_artifact_route(
     @app.post("/api/artifacts/<study_id:int>/<trial_id:int>")
     @json_api_view
     def upload_artifact_api(study_id: int, trial_id: int) -> dict[str, Any]:
+        trial = storage.get_trial(trial_id)
+        if trial is None:
+            response.status = 400
+            return {"reason": "Invalid study_id or trial_id"}
+        elif trial.state.is_finished():
+            response.status = 400
+            return {"reason": "The trial is already finished."}
+
         # TODO(c-bata): Use optuna.artifacts.upload_artifact()
         if artifact_store is None:
             response.status = 400  # Bad Request
@@ -106,10 +114,6 @@ def register_artifact_route(
         storage.set_trial_system_attr(trial_id, attr_key, json.dumps(artifact))
         response.status = 201
 
-        trial = storage.get_trial(trial_id)
-        if trial is None:
-            response.status = 400
-            return {"reason": "Invalid study_id or trial_id"}
         return {
             "artifact_id": artifact_id,
             "artifacts": list_trial_artifacts(storage.get_trial_system_attrs(trial_id), trial),
