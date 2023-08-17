@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 from math import erfc
-import random
 from typing import Any
 
 from botorch.acquisition.analytic import LogExpectedImprovement
@@ -69,6 +68,7 @@ def _sample_y(
     obs_noise_var: float,
     cycles: int,
     initial_sample: np.ndarray,
+    rng: np.random.RandomState
 ) -> np.ndarray:
     # TODO: Refactor and write tests for this function.
 
@@ -98,11 +98,12 @@ def _sample_y(
         cov_diff_inv,
         cycles=cycles,
         initial_sample=initial_sample[:, 0] - initial_sample[:, 1],
+        rng=rng,
     )[-1]
 
-    random_ys = (cov_X_X_chol @ np.random.randn(N))[preferences] + np.sqrt(
+    random_ys = (cov_X_X_chol @ rng.randn(N))[preferences] + np.sqrt(
         obs_noise_var
-    ) * np.random.randn(M, 2)
+    ) * rng.randn(M, 2)
     errors = diffs - (random_ys[:, 0] - random_ys[:, 1])
     cov_diff_inv_errors = cov_diff_inv @ errors
 
@@ -123,7 +124,8 @@ _SQRT2 = math.sqrt(2)
 def _orthants_MVN_Gibbs_sampling(
     cov_inv: np.ndarray,
     cycles: int,
-    initial_sample: np.ndarray | None = None,
+    initial_sample: np.ndarray,
+    rng: np.random.RandomState,
 ) -> np.ndarray:
     dim = cov_inv.shape[0]
     assert cov_inv.shape == (dim, dim)
@@ -144,7 +146,7 @@ def _orthants_MVN_Gibbs_sampling(
         for j in range(dim):
             conditional_mean = sample_chain[j] - scaled_cov_inv[j] @ sample_chain
             sample_chain[j] = (
-                _one_side_trunc_norm_sampling(lower=-conditional_mean / conditional_std[j])
+                _one_side_trunc_norm_sampling(lower=-conditional_mean / conditional_std[j], rng=rng)
                 * conditional_std[j]
                 + conditional_mean
             )
@@ -153,8 +155,8 @@ def _orthants_MVN_Gibbs_sampling(
     return out
 
 
-def _one_side_trunc_norm_sampling(lower: float) -> float:
-    return erfcinv(random.random() * erfc(lower / _SQRT2)) * _SQRT2
+def _one_side_trunc_norm_sampling(lower: float, rng: np.random.RandomState) -> float:
+    return erfcinv(rng.rand() * erfc(lower / _SQRT2)) * _SQRT2
 
 
 class _PreferentialGP(GPyTorchModel, ExactGP):
@@ -182,7 +184,7 @@ class _PreferentialGP(GPyTorchModel, ExactGP):
         ys = sampled_model.likelihood(sampled_model.forward(train_x))
         pyro.sample("y", ys, obs=train_y)
 
-    def fit_mcmc(self, X: torch.Tensor, preferences: torch.Tensor, cycles: int = 10) -> None:
+    def fit_mcmc(self, X: torch.Tensor, preferences: torch.Tensor, cycles: int, rng: np.random.RandomState) -> None:
         if len(preferences) == 0:
             # Skip actual MCMC computation
             self.set_train_data(
@@ -235,6 +237,7 @@ class _PreferentialGP(GPyTorchModel, ExactGP):
                     obs_noise_var=float(self.likelihood.noise_covar.noise),
                     cycles=10,
                     initial_sample=all_ys_np,
+                    rng=rng,
                 )
                 ys_sum_np = np.zeros((len(X),))
                 np.add.at(ys_sum_np, preferences_np.reshape(-1), all_ys_np.reshape(-1))
@@ -288,7 +291,7 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
         seed: int | None = None,
         device: torch.device | None = None,
     ) -> None:
-        self._rng = np.random.RandomState(seed=seed)
+        self._rng = np.random.RandomState(seed)
         self._search_space = IntersectionSearchSpace()
 
         self.kernel = kernel
@@ -300,9 +303,10 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
 
         self._gp: _PreferentialGP | None = None
 
+
     def reseed_rng(self) -> None:
-        self._rng.seed()
         self.independent_sampler.reseed_rng()
+        self._rng = np.random.RandomState()
 
     def infer_relative_search_space(
         self, study: Study, trial: FrozenTrial
@@ -315,71 +319,74 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
         trial: FrozenTrial,
         search_space: dict[str, BaseDistribution],
     ) -> dict[str, Any]:
-        if len(search_space) == 0:
-            return {}
+        with torch.random.fork_rng():
+            torch.manual_seed(self._rng.randint(2 ** 32))
+            pyro.set_rng_seed(self._rng.randint(2 ** 32))
+        
+            if len(search_space) == 0:
+                return {}
+            
+            preferences = get_preferences(study, deepcopy=False)
+            if len(preferences) == 0:
+                return {}
 
-        preferences = get_preferences(study, deepcopy=False)
-        if len(preferences) == 0:
-            return {}
+            trans = _SearchSpaceTransform(
+                search_space, transform_log=True, transform_step=True, transform_0_1=True
+            )
+            dims = len(trans.bounds)
+            self._gp = self._gp or _PreferentialGP(
+                kernel=self.kernel
+                or gpytorch.kernels.MaternKernel(
+                    nu=2.5,
+                    ard_num_dims=dims,
+                    lengthscale_prior=gpytorch.priors.GammaPrior(3.0, 6.0),
+                    lengthscale_constraint=gpytorch.constraints.Positive(),
+                ),
+                noise_prior=self.noise_prior or gpytorch.priors.GammaPrior(1.1, 2.0),
+                noise_constraint=gpytorch.constraints.Positive(),
+            )
 
-        trans = _SearchSpaceTransform(
-            search_space, transform_log=True, transform_step=True, transform_0_1=True
-        )
-        dims = len(trans.bounds)
-        self._gp = self._gp or _PreferentialGP(
-            kernel=self.kernel
-            or gpytorch.kernels.MaternKernel(
-                nu=2.5,
-                ard_num_dims=dims,
-                lengthscale_prior=gpytorch.priors.GammaPrior(3.0, 6.0),
-                lengthscale_constraint=gpytorch.constraints.Positive(),
-            ),
-            noise_prior=self.noise_prior or gpytorch.priors.GammaPrior(1.1, 2.0),
-            noise_constraint=gpytorch.constraints.Positive(),
-        )
+            ids: dict[int, int] = {}
+            params: list[torch.Tensor] = []
+            pref_ids: list[tuple[int, int]] = []
 
-        ids: dict[int, int] = {}
-        params: list[torch.Tensor] = []
-        pref_ids: list[tuple[int, int]] = []
+            for better, worse in preferences:
+                for t in (better, worse):
+                    if t.number not in ids:
+                        ids[t.number] = len(ids)
+                        params.append(trans.transform(t.params))
+                pref_ids.append((ids[better.number], ids[worse.number]))
+            dtype = torch.float64
 
-        for better, worse in preferences:
-            for t in (better, worse):
-                if t.number not in ids:
-                    ids[t.number] = len(ids)
-                    params.append(trans.transform(t.params))
-            pref_ids.append((ids[better.number], ids[worse.number]))
-        dtype = torch.float64
+            params_torch = torch.tensor(np.array(params), dtype=dtype, device=self.device)
+            pref_ids_torch = torch.tensor(
+                np.array(pref_ids),
+                dtype=torch.int32,
+                device=self.device,
+            )
+            self._gp.fit_mcmc(params_torch, pref_ids_torch, cycles=10, rng=self._rng)
+            self._gp.eval()
+            scores = self._gp(params_torch).mean
 
-        params_torch = torch.tensor(np.array(params), dtype=dtype, device=self.device)
-        pref_ids_torch = torch.tensor(
-            np.array(pref_ids),
-            dtype=torch.int32,
-            device=self.device,
-        )
+            best_f = torch.max(scores)
 
-        self._gp.fit_mcmc(params_torch, pref_ids_torch)
-        self._gp.eval()
-        scores = self._gp(params_torch).mean
+            acqf = LogExpectedImprovement(
+                model=self._gp,
+                best_f=best_f,
+            )
 
-        best_f = torch.max(scores)
-
-        acqf = LogExpectedImprovement(
-            model=self._gp,
-            best_f=best_f,
-        )
-
-        # TODO: Make it possible to apply it on categorical variables
-        candidates, _ = optimize_acqf(
-            acq_function=acqf,
-            bounds=torch.from_numpy(trans.bounds.T),
-            q=1,
-            num_restarts=10,
-            raw_samples=512,
-            options={"batch_limit": 5, "maxiter": 200},
-            sequential=True,
-        )
-        next_x = trans.untransform(candidates[0].detach().numpy())
-        return next_x
+            # TODO: Make it possible to apply it on categorical variables
+            candidates, _ = optimize_acqf(
+                acq_function=acqf,
+                bounds=torch.from_numpy(trans.bounds.T),
+                q=1,
+                num_restarts=10,
+                raw_samples=512,
+                options={"batch_limit": 5, "maxiter": 200},
+                sequential=True,
+            )
+            next_x = trans.untransform(candidates[0].detach().numpy())
+            return next_x
 
     def sample_independent(
         self,
