@@ -310,11 +310,7 @@ def create_app(
                 response.status = 400  # Bad request
                 return {"reason": "values attribute must be an array of numbers"}
 
-        try:
-            storage.set_trial_state_values(trial_id, state, values)
-        except Exception as e:
-            response.status = 500
-            return {"reason": f"Internal server error: {e}"}
+        storage.set_trial_state_values(trial_id, state, values)
 
         response.status = 204
         return {}
@@ -327,12 +323,8 @@ def create_app(
             response.status = 400  # Bad request
             return {"reason": "user_attrs must be specified."}
 
-        try:
-            for key, val in user_attrs.items():
-                storage.set_trial_user_attr(trial_id, key, val)
-        except Exception as e:
-            response.status = 500
-            return {"reason": f"Internal server error: {e}"}
+        for key, val in user_attrs.items():
+            storage.set_trial_user_attr(trial_id, key, val)
 
         response.status = 204
         return {}
