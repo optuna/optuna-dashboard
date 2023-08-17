@@ -66,7 +66,7 @@ def register_artifact_route(
         if artifact_store is None:
             response.status = 400  # Bad Request
             return b"Cannot access to the artifacts."
-        artifact_dict = get_artifact_meta(storage, study_id, trial_id, artifact_id)
+        artifact_dict = get_artifact_meta(storage, trial_id, artifact_id)
         if artifact_dict is None:
             response.status = 404
             return b"Not Found"
@@ -169,7 +169,6 @@ def upload_artifact(
     filename = os.path.basename(file_path)
     storage = trial.storage
     trial_id = trial._trial_id
-    study_id = trial.study._study_id
     artifact_id = str(uuid.uuid4())
     guess_mimetype, guess_encoding = mimetypes.guess_type(filename)
     artifact: ArtifactMeta = {
@@ -187,7 +186,7 @@ def upload_artifact(
 
 
 def get_artifact_meta(
-    storage: BaseStorage, study_id: int, trial_id: int, artifact_id: str
+    storage: BaseStorage, trial_id: int, artifact_id: str
 ) -> Optional[ArtifactMeta]:
     trial_system_attr = storage.get_trial_system_attrs(trial_id)
     attr_key = ARTIFACTS_ATTR_PREFIX + artifact_id
