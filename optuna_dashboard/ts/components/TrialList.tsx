@@ -1,33 +1,3 @@
-import CheckBoxIcon from "@mui/icons-material/CheckBox"
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
-import DeleteIcon from "@mui/icons-material/Delete"
-import DownloadIcon from "@mui/icons-material/Download"
-import FilterListIcon from "@mui/icons-material/FilterList"
-import FullscreenIcon from "@mui/icons-material/Fullscreen"
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
-import StopCircleIcon from "@mui/icons-material/StopCircle"
-import UploadFileIcon from "@mui/icons-material/UploadFile"
-import {
-  Box,
-  Button,
-  Card,
-  CardActionArea,
-  CardContent,
-  CardMedia,
-  IconButton,
-  Menu,
-  MenuItem,
-  Modal,
-  Typography,
-  useTheme,
-} from "@mui/material"
-import Chip from "@mui/material/Chip"
-import Divider from "@mui/material/Divider"
-import List from "@mui/material/List"
-import ListItem from "@mui/material/ListItem"
-import ListItemButton from "@mui/material/ListItemButton"
-import ListItemText from "@mui/material/ListItemText"
-import ListSubheader from "@mui/material/ListSubheader"
 import React, {
   ChangeEventHandler,
   DragEventHandler,
@@ -38,16 +8,46 @@ import React, {
   useRef,
   useState,
 } from "react"
+import {
+  Typography,
+  Box,
+  Button,
+  useTheme,
+  IconButton,
+  Menu,
+  MenuItem,
+  Card,
+  CardContent,
+  CardMedia,
+  CardActionArea,
+  Modal,
+} from "@mui/material"
+import Chip from "@mui/material/Chip"
+import Divider from "@mui/material/Divider"
+import List from "@mui/material/List"
+import ListItem from "@mui/material/ListItem"
+import ListItemButton from "@mui/material/ListItemButton"
+import ListItemText from "@mui/material/ListItemText"
+import ListSubheader from "@mui/material/ListSubheader"
+import FilterListIcon from "@mui/icons-material/FilterList"
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
+import CheckBoxIcon from "@mui/icons-material/CheckBox"
+import UploadFileIcon from "@mui/icons-material/UploadFile"
+import DownloadIcon from "@mui/icons-material/Download"
+import DeleteIcon from "@mui/icons-material/Delete"
+import FullscreenIcon from "@mui/icons-material/Fullscreen"
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
+import StopCircleIcon from "@mui/icons-material/StopCircle"
 
-import ListItemIcon from "@mui/material/ListItemIcon"
-import { useLocation, useNavigate } from "react-router-dom"
-import { useRecoilValue } from "recoil"
-import { actionCreator } from "../action"
-import { artifactIsAvailable } from "../state"
-import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
 import { TrialNote } from "./Note"
-import { ThreejsArtifactViewer } from "./ThreejsArtifactViewer"
+import { useNavigate, useLocation } from "react-router-dom"
+import ListItemIcon from "@mui/material/ListItemIcon"
+import { useRecoilValue } from "recoil"
+import { artifactIsAvailable } from "../state"
+import { actionCreator } from "../action"
+import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
 import { TrialFormWidgets } from "./TrialFormWidgets"
+import { ThreejsArtifactViewer } from "./ThreejsArtifactViewer"
 
 const states: TrialState[] = [
   "Complete",
