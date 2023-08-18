@@ -128,9 +128,15 @@ def register_artifact_route(
         artifact_store.remove(artifact_id)
 
         # The metadata of the artifact is stored in one of the following three locations:
-        storage.set_study_system_attr(study_id, _artifact_prefix(trial_id) + artifact_id, json.dumps(None))
-        storage.set_trial_system_attr(trial_id, ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None))
-        storage.set_trial_system_attr(trial_id, OPTUNA_ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None))
+        storage.set_study_system_attr(
+            study_id, _artifact_prefix(trial_id) + artifact_id, json.dumps(None)
+        )
+        storage.set_trial_system_attr(
+            trial_id, ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None)
+        )
+        storage.set_trial_system_attr(
+            trial_id, OPTUNA_ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None)
+        )
 
         response.status = 204
         return {}
@@ -215,7 +221,7 @@ def get_artifact_meta(
     ) or trial_system_attrs.get(ARTIFACTS_ATTR_PREFIX + artifact_id)
     if value is not None:
         return json.loads(value)
-    
+
     return None
 
 
