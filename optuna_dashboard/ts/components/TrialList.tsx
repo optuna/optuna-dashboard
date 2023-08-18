@@ -710,7 +710,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
             )
           }
         })}
-        {(trial.state === "Running" || trial.state === "Waiting") ? (
+        {trial.state === "Running" || trial.state === "Waiting" ? (
           <Card
             sx={{
               marginBottom: theme.spacing(2),
@@ -718,8 +718,9 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
               minHeight: height,
               margin: theme.spacing(0, 1, 1, 0),
               border: dragOver
-                ? `3px dashed ${theme.palette.mode === "dark" ? "white" : "black"
-                }`
+                ? `3px dashed ${
+                    theme.palette.mode === "dark" ? "white" : "black"
+                  }`
                 : `1px solid ${theme.palette.divider}`,
             }}
             onDragOver={handleDragOver}
@@ -952,15 +953,15 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
           {selected.length === 0
             ? null
             : selected.map((t) => (
-              <TrialListDetail
-                key={t.trial_id}
-                trial={t}
-                isBestTrial={isBestTrial}
-                directions={studyDetail?.directions || []}
-                objectiveNames={studyDetail?.objective_names || []}
-                formWidgets={studyDetail?.form_widgets}
-              />
-            ))}
+                <TrialListDetail
+                  key={t.trial_id}
+                  trial={t}
+                  isBestTrial={isBestTrial}
+                  directions={studyDetail?.directions || []}
+                  objectiveNames={studyDetail?.objective_names || []}
+                  formWidgets={studyDetail?.form_widgets}
+                />
+              ))}
         </Box>
       </Box>
     </Box>
