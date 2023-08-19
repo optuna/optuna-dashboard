@@ -40,8 +40,8 @@ if TYPE_CHECKING:
         },
     )
 
-OPTUNA_ARTIFACTS_ATTR_PREFIX = "artifacts:"
-ARTIFACTS_ATTR_PREFIX = "dashboard:artifacts:"
+ARTIFACTS_ATTR_PREFIX = "artifacts:"
+DASHBOARD_ARTIFACTS_ATTR_PREFIX = "dashboard:artifacts:"
 DEFAULT_MIME_TYPE = "application/octet-stream"
 BaseRequest.MEMFILE_MAX = int(
     os.environ.get("OPTUNA_DASHBOARD_MEMFILE_MAX", 1024 * 1024 * 128)
@@ -132,10 +132,10 @@ def register_artifact_route(
             study_id, _artifact_prefix(trial_id) + artifact_id, json.dumps(None)
         )
         storage.set_trial_system_attr(
-            trial_id, ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None)
+            trial_id, DASHBOARD_ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None)
         )
         storage.set_trial_system_attr(
-            trial_id, OPTUNA_ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None)
+            trial_id, ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None)
         )
 
         response.status = 204
@@ -199,7 +199,7 @@ def upload_artifact(
 
 
 def _artifact_prefix(trial_id: int) -> str:
-    return ARTIFACTS_ATTR_PREFIX + f"{trial_id}:"
+    return DASHBOARD_ARTIFACTS_ATTR_PREFIX + f"{trial_id}:"
 
 
 def get_artifact_meta(
@@ -217,7 +217,7 @@ def get_artifact_meta(
     # See https://github.com/optuna/optuna/blob/f827582a8/optuna/artifacts/_upload.py#L71
     trial_system_attrs = storage.get_trial_system_attrs(trial_id)
     value = trial_system_attrs.get(
-        OPTUNA_ARTIFACTS_ATTR_PREFIX + artifact_id
+        DASHBOARD_ARTIFACTS_ATTR_PREFIX + artifact_id
     ) or trial_system_attrs.get(ARTIFACTS_ATTR_PREFIX + artifact_id)
     if value is not None:
         return json.loads(value)
@@ -252,7 +252,7 @@ def list_trial_artifacts(
     optuna_artifact_metas = [
         json.loads(value)
         for key, value in trial.system_attrs.items()
-        if key.startswith(OPTUNA_ARTIFACTS_ATTR_PREFIX) or key.startswith(ARTIFACTS_ATTR_PREFIX)
+        if key.startswith(ARTIFACTS_ATTR_PREFIX) or key.startswith(DASHBOARD_ARTIFACTS_ATTR_PREFIX)
     ]
     artifact_metas = dashboard_artifact_metas + optuna_artifact_metas
     return [a for a in artifact_metas if a is not None]
