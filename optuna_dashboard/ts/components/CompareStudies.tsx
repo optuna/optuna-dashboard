@@ -28,7 +28,7 @@ import { actionCreator } from "../action"
 import { studySummariesState, studyDetailsState } from "../state"
 import { AppDrawer } from "./AppDrawer"
 import { GraphEdf } from "./GraphEdf"
-import { GraphHistoryMultiStudies } from "./GraphHistory"
+import { GraphHistory } from "./GraphHistory"
 import { useNavigate, useLocation } from "react-router-dom"
 
 const useQuery = (): URLSearchParams => {
@@ -326,11 +326,11 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
           </CardContent>
         </Card>
       ) : null}
-      {showStudyDetails !== null &&
-      showStudyDetails.length > 0 &&
-      showStudyDetails.every((s) => s)
-        ? showStudyDetails[0].directions.map((d, i) => (
-            <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
+      <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
+        {showStudyDetails !== null &&
+        showStudyDetails.length > 0 &&
+        showStudyDetails.every((s) => s)
+          ? showStudyDetails[0].directions.map((d, i) => (
               <Grid2 xs={6} key={i}>
                 <Card>
                   <CardContent>
@@ -338,9 +338,9 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
                   </CardContent>
                 </Card>
               </Grid2>
-            </Grid2>
-          ))
-        : null}
+            ))
+          : null}
+      </Grid2>
     </Box>
   )
 }
