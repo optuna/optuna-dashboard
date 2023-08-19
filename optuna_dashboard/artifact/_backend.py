@@ -127,7 +127,7 @@ def register_artifact_route(
             return {"reason": "Cannot access to the artifacts."}
         artifact_store.remove(artifact_id)
 
-        # The metadata of the artifact is stored in one of the following three locations:
+        # The artifact's metadata is stored in one of the following two locations:
         storage.set_study_system_attr(
             study_id, _artifact_prefix(trial_id) + artifact_id, json.dumps(None)
         )
