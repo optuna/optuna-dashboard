@@ -2,10 +2,10 @@ import optuna
 from playwright.sync_api import Page
 import pytest
 
-from ..mock_db import make_test_server
+from ..test_server import make_test_server
 
 
-def make_dummy_storage() -> optuna.storages.InMemoryStorage:
+def make_test_storage() -> optuna.storages.InMemoryStorage:
     storage = optuna.storages.InMemoryStorage()
     sampler = optuna.samplers.RandomSampler(seed=0)
 
@@ -23,7 +23,7 @@ def make_dummy_storage() -> optuna.storages.InMemoryStorage:
 
 @pytest.fixture
 def storage() -> optuna.storages.InMemoryStorage:
-    storage = make_dummy_storage()
+    storage = make_test_storage()
     return storage
 
 
