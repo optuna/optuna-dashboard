@@ -1,5 +1,35 @@
 import optuna
 from playwright.sync_api import Page
+import pytest
+
+from ..mock_db import make_test_server
+
+
+def make_dummy_storage() -> optuna.storages.InMemoryStorage:
+    storage = optuna.storages.InMemoryStorage()
+    sampler = optuna.samplers.RandomSampler(seed=0)
+
+    study = optuna.create_study(study_name="single", storage=storage, sampler=sampler)
+
+    def objective_single(trial: optuna.Trial) -> float:
+        x1 = trial.suggest_float("x1", 0, 10)
+        x2 = trial.suggest_float("x2", 0, 10)
+        return (x1 - 2) ** 2 + (x2 - 5) ** 2
+
+    study.optimize(objective_single, n_trials=50)
+
+    return storage
+
+
+@pytest.fixture
+def storage() -> optuna.storages.InMemoryStorage:
+    storage = make_dummy_storage()
+    return storage
+
+
+@pytest.fixture
+def server_url(request: pytest.FixtureRequest, storage: optuna.storages.InMemoryStorage) -> str:
+    return make_test_server(request, storage)
 
 
 def test_history_xaxis_click(
