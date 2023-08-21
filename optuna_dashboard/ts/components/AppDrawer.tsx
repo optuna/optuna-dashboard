@@ -14,7 +14,12 @@ import ListItem from "@mui/material/ListItem"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
-import { drawerOpenState, reloadIntervalState } from "../state"
+import {
+  drawerOpenState,
+  reloadIntervalState,
+  useStudyDetailValue,
+  useStudySummaryValue,
+} from "../state"
 import { Link } from "react-router-dom"
 import AutoGraphIcon from "@mui/icons-material/AutoGraph"
 import ViewListIcon from "@mui/icons-material/ViewList"
@@ -28,17 +33,13 @@ import MenuIcon from "@mui/icons-material/Menu"
 import GitHubIcon from "@mui/icons-material/GitHub"
 import OpenInNewIcon from "@mui/icons-material/OpenInNew"
 import QueryStatsIcon from "@mui/icons-material/QueryStats"
+import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt"
 import { Switch } from "@mui/material"
 import { actionCreator } from "../action"
 
 const drawerWidth = 240
 
-export type PageId =
-  | "history"
-  | "analytics"
-  | "trialTable"
-  | "trialList"
-  | "note"
+export type PageId = "top" | "analytics" | "trialTable" | "trialList" | "note"
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
@@ -120,6 +121,12 @@ export const AppDrawer: FC<{
   const action = actionCreator()
   const [open, setOpen] = useRecoilState<boolean>(drawerOpenState)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
+  const studyDetail =
+    studyId !== undefined ? useStudyDetailValue(studyId) : null
+  const studySummary =
+    studyId !== undefined ? useStudySummaryValue(studyId) : null
+  const isPreferential =
+    studyDetail?.is_preferential ?? studySummary?.is_preferential ?? false
 
   const styleListItem = {
     display: "block",
@@ -181,32 +188,37 @@ export const AppDrawer: FC<{
         <Divider />
         {studyId !== undefined && page && (
           <List>
-            <ListItem key="History" disablePadding sx={styleListItem}>
+            <ListItem key="Top" disablePadding sx={styleListItem}>
               <ListItemButton
                 component={Link}
                 to={`${URL_PREFIX}/studies/${studyId}`}
                 sx={styleListItemButton}
-                selected={page === "history"}
+                selected={page === "top"}
               >
                 <ListItemIcon sx={styleListItemIcon}>
-                  <AutoGraphIcon />
+                  {isPreferential ? <ThumbUpAltIcon /> : <AutoGraphIcon />}
                 </ListItemIcon>
-                <ListItemText primary="History" sx={styleListItemText} />
+                <ListItemText
+                  primary={isPreferential ? "HumanInTheLoop" : "History"}
+                  sx={styleListItemText}
+                />
               </ListItemButton>
             </ListItem>
-            <ListItem key="Analytics" disablePadding sx={styleListItem}>
-              <ListItemButton
-                component={Link}
-                to={`${URL_PREFIX}/studies/${studyId}/analytics`}
-                sx={styleListItemButton}
-                selected={page === "analytics"}
-              >
-                <ListItemIcon sx={styleListItemIcon}>
-                  <QueryStatsIcon />
-                </ListItemIcon>
-                <ListItemText primary="Analytics" sx={styleListItemText} />
-              </ListItemButton>
-            </ListItem>
+            {!isPreferential && (
+              <ListItem key="Analytics" disablePadding sx={styleListItem}>
+                <ListItemButton
+                  component={Link}
+                  to={`${URL_PREFIX}/studies/${studyId}/analytics`}
+                  sx={styleListItemButton}
+                  selected={page === "analytics"}
+                >
+                  <ListItemIcon sx={styleListItemIcon}>
+                    <QueryStatsIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Analytics" sx={styleListItemText} />
+                </ListItemButton>
+              </ListItem>
+            )}
             <ListItem key="TableList" disablePadding sx={styleListItem}>
               <ListItemButton
                 component={Link}

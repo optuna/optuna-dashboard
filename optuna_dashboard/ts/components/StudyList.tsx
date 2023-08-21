@@ -215,10 +215,12 @@ export const StudyList: FC<{
                       color="text.secondary"
                       component="div"
                     >
-                      {"Direction: " +
-                        study.directions
-                          .map((d) => d.toString().toUpperCase())
-                          .join(", ")}
+                      {study.is_preferential
+                        ? "Preferential Optimization"
+                        : "Direction: " +
+                          study.directions
+                            .map((d) => d.toString().toUpperCase())
+                            .join(", ")}
                     </Typography>
                   </CardContent>
                 </CardActionArea>

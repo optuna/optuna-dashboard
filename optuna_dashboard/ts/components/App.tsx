@@ -70,15 +70,6 @@ export const App: FC = () => {
                   }
                 />
                 <Route
-                  path={URL_PREFIX + "/studies/:studyId/trials"}
-                  element={
-                    <StudyDetail
-                      toggleColorMode={toggleColorMode}
-                      page={"trialList"}
-                    />
-                  }
-                />
-                <Route
                   path={URL_PREFIX + "/studies/:studyId/trialTable"}
                   element={
                     <StudyDetail
@@ -101,7 +92,7 @@ export const App: FC = () => {
                   element={
                     <StudyDetail
                       toggleColorMode={toggleColorMode}
-                      page={"history"}
+                      page={"top"}
                     />
                   }
                 />
