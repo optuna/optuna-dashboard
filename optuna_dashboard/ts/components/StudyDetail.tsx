@@ -19,6 +19,7 @@ import {
   reloadIntervalState,
   useStudyDetailValue,
   useStudyName,
+  useStudySummaryValue,
 } from "../state"
 import { TrialTable } from "./TrialTable"
 import { AppDrawer, PageId } from "./AppDrawer"
@@ -48,8 +49,11 @@ export const StudyDetail: FC<{
   const action = actionCreator()
   const studyId = useURLVars()
   const studyDetail = useStudyDetailValue(studyId)
+  const studySummary = useStudySummaryValue(studyId)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studyName = useStudyName(studyId)
+  const isPreferential =
+    studySummary?.is_preferential ?? studyDetail?.is_preferential ?? false
 
   const title =
     studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
@@ -70,8 +74,8 @@ export const StudyDetail: FC<{
     // For Human-in-the-loop Optimization, the interval is set to 2 seconds
     // when the number of trials is small, and the page is "trialList" or top page of preferential.
     if (
-      (!studyDetail?.is_preferential && page === "trialList") ||
-      (studyDetail?.is_preferential && page === "top")
+      (!isPreferential && page === "trialList") ||
+      (isPreferential && page === "top")
     ) {
       if (nTrials < 100) {
         interval = 2000
@@ -88,7 +92,7 @@ export const StudyDetail: FC<{
 
   let content = null
   if (page === "top") {
-    content = studyDetail?.is_preferential ? (
+    content = isPreferential ? (
       <PreferentialTrials studyDetail={studyDetail} />
     ) : (
       <StudyHistory studyId={studyId} />

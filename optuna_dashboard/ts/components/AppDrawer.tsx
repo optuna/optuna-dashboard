@@ -18,6 +18,7 @@ import {
   drawerOpenState,
   reloadIntervalState,
   useStudyDetailValue,
+  useStudySummaryValue,
 } from "../state"
 import { Link } from "react-router-dom"
 import AutoGraphIcon from "@mui/icons-material/AutoGraph"
@@ -38,13 +39,7 @@ import { actionCreator } from "../action"
 
 const drawerWidth = 240
 
-export type PageId =
-  | "top"
-  | "analytics"
-  | "trialTable"
-  | "trialList"
-  | "note"
-  | "preference"
+export type PageId = "top" | "analytics" | "trialTable" | "trialList" | "note"
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
@@ -128,7 +123,10 @@ export const AppDrawer: FC<{
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studyDetail =
     studyId !== undefined ? useStudyDetailValue(studyId) : null
-  const is_preferential = studyDetail?.is_preferential ?? false
+  const studySummary =
+    studyId !== undefined ? useStudySummaryValue(studyId) : null
+  const isPreferential =
+    studyDetail?.is_preferential ?? studySummary?.is_preferential ?? false
 
   const styleListItem = {
     display: "block",
@@ -198,15 +196,15 @@ export const AppDrawer: FC<{
                 selected={page === "top"}
               >
                 <ListItemIcon sx={styleListItemIcon}>
-                  {is_preferential ? <ThumbUpAltIcon /> : <AutoGraphIcon />}
+                  {isPreferential ? <ThumbUpAltIcon /> : <AutoGraphIcon />}
                 </ListItemIcon>
                 <ListItemText
-                  primary={is_preferential ? "HumanInTheLoop" : "History"}
+                  primary={isPreferential ? "HumanInTheLoop" : "History"}
                   sx={styleListItemText}
                 />
               </ListItemButton>
             </ListItem>
-            {studyDetail !== null && !studyDetail.is_preferential && (
+            {!isPreferential && (
               <ListItem key="Analytics" disablePadding sx={styleListItem}>
                 <ListItemButton
                   component={Link}
