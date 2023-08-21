@@ -206,7 +206,7 @@ const plotHistory = (
       title: xAxis === "number" ? "Trial" : "Time",
       type: xAxis === "number" ? "linear" : "date",
     },
-    showlegend: true,
+    showlegend: historyPlotInfos.length === 1 ? false : true,
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
