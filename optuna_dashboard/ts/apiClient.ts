@@ -316,7 +316,7 @@ export const reportPreferenceAPI = (
   worst_trials: number[]
 ): Promise<void> => {
   return axiosInstance
-    .post<RenameStudyResponse>(`/api/studies/${studyId}/preference`, {
+    .post<void>(`/api/studies/${studyId}/preference`, {
       best_trials: best_trials,
       worst_trials: worst_trials,
     })
