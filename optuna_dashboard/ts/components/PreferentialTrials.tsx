@@ -29,6 +29,7 @@ const PreferentialTrial: FC<{
         Trial {trial.number} (trial_id={trial.trial_id})
       </Typography>
       <Button
+        variant="outlined"
         onClick={() => {
           hideTrial()
           const best_trials = studyDetail.best_trials
@@ -39,15 +40,6 @@ const PreferentialTrial: FC<{
       >
         Worst
       </Button>
-      <Typography
-        variant="h5"
-        sx={{
-          fontWeight: theme.typography.fontWeightBold,
-          marginBottom: theme.spacing(1),
-        }}
-      >
-        Note
-      </Typography>
       <TrialNote
         studyId={trial.study_id}
         trialId={trial.trial_id}
@@ -112,7 +104,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "row" }}>
+    <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
       {displayTrials.numbers.map((t, index) => (
         <PreferentialTrial
           key={index}
