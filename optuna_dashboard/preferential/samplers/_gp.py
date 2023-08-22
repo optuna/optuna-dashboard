@@ -17,6 +17,7 @@ from gpytorch.models.exact_gp import ExactGP
 import gpytorch.module
 from linear_operator.operators import DiagLinearOperator
 from linear_operator.operators import LinearOperator
+from linear_operator.utils.errors import NotPSDError
 import numpy as np
 import optuna
 from optuna import distributions
@@ -31,7 +32,6 @@ import pyro.infer.mcmc
 from scipy.special import erfcinv
 import torch
 from torch import Tensor
-from linear_operator.utils.errors import NotPSDError
 
 from .._system_attrs import get_preferences
 
@@ -69,7 +69,7 @@ def _sample_y(
     obs_noise_var: float,
     cycles: int,
     initial_sample: np.ndarray,
-    rng: np.random.RandomState
+    rng: np.random.RandomState,
 ) -> np.ndarray:
     # TODO: Refactor and write tests for this function.
 
@@ -102,9 +102,9 @@ def _sample_y(
         rng=rng,
     )[-1]
 
-    random_ys = (cov_X_X_chol @ rng.randn(N))[preferences] + np.sqrt(
-        obs_noise_var
-    ) * rng.randn(M, 2)
+    random_ys = (cov_X_X_chol @ rng.randn(N))[preferences] + np.sqrt(obs_noise_var) * rng.randn(
+        M, 2
+    )
     errors = diffs - (random_ys[:, 0] - random_ys[:, 1])
     cov_diff_inv_errors = cov_diff_inv @ errors
 
@@ -147,7 +147,9 @@ def _orthants_MVN_Gibbs_sampling(
         for j in range(dim):
             conditional_mean = sample_chain[j] - scaled_cov_inv[j] @ sample_chain
             sample_chain[j] = (
-                _one_side_trunc_norm_sampling(lower=-conditional_mean / conditional_std[j], rng=rng)
+                _one_side_trunc_norm_sampling(
+                    lower=-conditional_mean / conditional_std[j], rng=rng
+                )
                 * conditional_std[j]
                 + conditional_mean
             )
@@ -182,12 +184,14 @@ class _PreferentialGP(GPyTorchModel, ExactGP):
     def _pyro_model(self, train_x: torch.Tensor, train_y: torch.Tensor) -> None:
         # with gpytorch.settings.fast_computations(False, False, False):
         sampled_model = self.pyro_sample_from_prior()
-        
+
         ys = sampled_model.likelihood(sampled_model.forward(train_x))
-        
+
         pyro.sample("y", ys, obs=train_y)
 
-    def fit_mcmc(self, X: torch.Tensor, preferences: torch.Tensor, cycles: int, rng: np.random.RandomState) -> None:
+    def fit_mcmc(
+        self, X: torch.Tensor, preferences: torch.Tensor, cycles: int, rng: np.random.RandomState
+    ) -> None:
         if len(preferences) == 0:
             # Skip actual MCMC computation
             self.set_train_data(
@@ -259,8 +263,6 @@ class _PreferentialGP(GPyTorchModel, ExactGP):
                     nuts.setup(warmup_steps=warmup_steps, train_x=train_x, train_y=train_y)
                     raw_params = nuts.initial_params
 
-                    
-
             params = {name: nuts.transforms[name].inv(value) for name, value in raw_params.items()}
             self.set_train_data(train_x, train_y, strict=False)
             _set_params(self, params)
@@ -318,7 +320,6 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
 
         self._gp: _PreferentialGP | None = None
 
-
     def reseed_rng(self) -> None:
         self.independent_sampler.reseed_rng()
         self._rng = np.random.RandomState()
@@ -335,12 +336,12 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
         search_space: dict[str, BaseDistribution],
     ) -> dict[str, Any]:
         with torch.random.fork_rng():
-            torch.manual_seed(self._rng.randint(2 ** 32))
-            pyro.set_rng_seed(self._rng.randint(2 ** 32))
-        
+            torch.manual_seed(self._rng.randint(2**32))
+            pyro.set_rng_seed(self._rng.randint(2**32))
+
             if len(search_space) == 0:
                 return {}
-            
+
             preferences = get_preferences(study._study_id, study._storage)
             trials = study.get_trials(deepcopy=False)
             if len(preferences) == 0:

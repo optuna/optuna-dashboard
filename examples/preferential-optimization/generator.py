@@ -7,7 +7,8 @@ import time
 from typing import NoReturn
 
 from optuna_dashboard import save_note
-from optuna_dashboard.artifact import upload_artifact, get_artifact_path
+from optuna_dashboard.artifact import get_artifact_path
+from optuna_dashboard.artifact import upload_artifact
 from optuna_dashboard.artifact.file_system import FileSystemBackend
 from optuna_dashboard.preferential import create_study
 from optuna_dashboard.preferential.samplers._gp import PreferentialGPSampler
@@ -58,7 +59,7 @@ def main() -> NoReturn:
             note = textwrap.dedent(
                 f"""\
             ![generated-image]({get_artifact_path(trial, artifact_id)})
-            
+
             (R, G, B) = ({r}, {g}, {b})
             """
             )
