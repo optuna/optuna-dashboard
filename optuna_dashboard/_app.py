@@ -38,6 +38,9 @@ from ._storage_url import get_storage
 from .artifact._backend import delete_all_artifacts
 from .artifact._backend import register_artifact_route
 from .artifact._backend_to_store import to_artifact_store
+from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
+from .preferential._study import get_best_trials as get_best_preferential_trials
+from .preferential._system_attrs import report_preferences
 
 
 if typing.TYPE_CHECKING:
@@ -187,8 +190,12 @@ def create_app(
             return {"reason": f"study_id={study_id} is not found"}
         trials = get_trials(storage, study_id)
 
+        system_attrs = getattr(summary, "system_attrs", {})
+        is_preferential = system_attrs.get(_SYSTEM_ATTR_PREFERENTIAL_STUDY, False)
         # TODO(c-bata): Cache best_trials
-        if len(summary.directions) == 1:
+        if is_preferential:
+            best_trials = get_best_preferential_trials(study_id, storage)
+        elif len(summary.directions) == 1:
             if len([t for t in trials if t.state == TrialState.COMPLETE]) == 0:
                 best_trials = []
             else:
@@ -255,6 +262,25 @@ def create_app(
         response.status = 204  # No content
         return {}
 
+    @app.post("/api/studies/<study_id:int>/preference")
+    @json_api_view
+    def post_preference(study_id: int) -> dict[str, Any]:
+        try:
+            best_trials = [int(d) for d in request.json.get("best_trials", [])]
+            worst_trials = [int(d) for d in request.json.get("worst_trials", [])]
+        except ValueError:
+            response.status = 400
+            return {"reason": "best_trials and worst_trials must be an array of integers."}
+        if len(best_trials) == 0 or len(worst_trials) == 0:
+            response.status = 400  # Bad request
+            return {"reason": "You need to set best_trials and worst_trials"}
+
+        preferences = [(best, worst) for best in best_trials for worst in worst_trials]
+        report_preferences(study_id, storage, preferences)
+
+        response.status = 204
+        return {}
+
     @app.post("/api/trials/<trial_id:int>/tell")
     @json_api_view
     def tell_trial(trial_id: int) -> dict[str, Any]:
@@ -284,11 +310,7 @@ def create_app(
                 response.status = 400  # Bad request
                 return {"reason": "values attribute must be an array of numbers"}
 
-        try:
-            storage.set_trial_state_values(trial_id, state, values)
-        except Exception as e:
-            response.status = 500
-            return {"reason": f"Internal server error: {e}"}
+        storage.set_trial_state_values(trial_id, state, values)
 
         response.status = 204
         return {}
@@ -301,12 +323,8 @@ def create_app(
             response.status = 400  # Bad request
             return {"reason": "user_attrs must be specified."}
 
-        try:
-            for key, val in user_attrs.items():
-                storage.set_trial_user_attr(trial_id, key, val)
-        except Exception as e:
-            response.status = 500
-            return {"reason": f"Internal server error: {e}"}
+        for key, val in user_attrs.items():
+            storage.set_trial_user_attr(trial_id, key, val)
 
         response.status = 204
         return {}

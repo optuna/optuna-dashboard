@@ -27,7 +27,6 @@ interface TrialResponse {
     param_external_value: string
   }[]
   user_attrs: Attribute[]
-  system_attrs: Attribute[]
   note: Note
   artifacts: Artifact[]
   constraints: number[]
@@ -50,7 +49,6 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
     params: res.params,
     fixed_params: res.fixed_params,
     user_attrs: res.user_attrs,
-    system_attrs: res.system_attrs,
     note: res.note,
     artifacts: res.artifacts,
     constraints: res.constraints,
@@ -68,6 +66,7 @@ interface StudyDetailResponse {
   union_user_attrs: AttributeSpec[]
   has_intermediate_values: boolean
   note: Note
+  is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
 }
@@ -103,6 +102,7 @@ export const getStudyDetailAPI = (
         note: res.data.note,
         objective_names: res.data.objective_names,
         form_widgets: res.data.form_widgets,
+        is_preferential: res.data.is_preferential,
       }
     })
 }
@@ -113,7 +113,7 @@ interface StudySummariesResponse {
     study_name: string
     directions: StudyDirection[]
     user_attrs: Attribute[]
-    system_attrs: Attribute[]
+    is_preferential: boolean
     datetime_start?: string
   }[]
 }
@@ -128,7 +128,7 @@ export const getStudySummariesAPI = (): Promise<StudySummary[]> => {
           study_name: study.study_name,
           directions: study.directions,
           user_attrs: study.user_attrs,
-          system_attrs: study.system_attrs,
+          is_preferential: study.is_preferential,
           datetime_start: study.datetime_start
             ? new Date(study.datetime_start)
             : undefined,
@@ -143,7 +143,7 @@ interface CreateNewStudyResponse {
     study_name: string
     directions: StudyDirection[]
     user_attrs: Attribute[]
-    system_attrs: Attribute[]
+    is_preferential: boolean
     datetime_start?: string
   }
 }
@@ -165,7 +165,7 @@ export const createNewStudyAPI = (
         directions: study_summary.directions,
         // best_trial: undefined,
         user_attrs: study_summary.user_attrs,
-        system_attrs: study_summary.system_attrs,
+        is_preferential: study_summary.is_preferential,
         datetime_start: study_summary.datetime_start
           ? new Date(study_summary.datetime_start)
           : undefined,
@@ -184,7 +184,7 @@ type RenameStudyResponse = {
   study_name: string
   directions: StudyDirection[]
   user_attrs: Attribute[]
-  system_attrs: Attribute[]
+  is_prefential: boolean
   datetime_start?: string
 }
 
@@ -202,7 +202,7 @@ export const renameStudyAPI = (
         study_name: res.data.study_name,
         directions: res.data.directions,
         user_attrs: res.data.user_attrs,
-        system_attrs: res.data.system_attrs,
+        is_preferential: res.data.is_prefential,
         datetime_start: res.data.datetime_start
           ? new Date(res.data.datetime_start)
           : undefined,
@@ -307,5 +307,20 @@ export const getParamImportances = (
     .get<ParamImportancesResponse>(`/api/studies/${studyId}/param_importances`)
     .then((res) => {
       return res.data.param_importances
+    })
+}
+
+export const reportPreferenceAPI = (
+  studyId: number,
+  best_trials: number[],
+  worst_trials: number[]
+): Promise<void> => {
+  return axiosInstance
+    .post<void>(`/api/studies/${studyId}/preference`, {
+      best_trials: best_trials,
+      worst_trials: worst_trials,
+    })
+    .then(() => {
+      return
     })
 }

@@ -15,6 +15,7 @@ from . import _note as note
 from ._form_widget import get_form_widgets_json
 from ._named_objectives import get_objective_names
 from .artifact._backend import list_trial_artifacts
+from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 
 
 if TYPE_CHECKING:
@@ -107,7 +108,9 @@ def serialize_study_summary(summary: StudySummary) -> dict[str, Any]:
         "study_name": summary.study_name,
         "directions": [d.name.lower() for d in summary.directions],
         "user_attrs": serialize_attrs(summary.user_attrs),
-        "system_attrs": serialize_attrs(getattr(summary, "system_attrs", {})),
+        "is_preferential": getattr(summary, "_system_attrs", {}).get(
+            _SYSTEM_ATTR_PREFERENTIAL_STUDY, False
+        ),
     }
 
     if summary.datetime_start is not None:
@@ -144,6 +147,7 @@ def serialize_study_detail(
     serialized["union_user_attrs"] = [{"key": a[0], "sortable": a[1]} for a in union_user_attrs]
     serialized["has_intermediate_values"] = has_intermediate_values
     serialized["note"] = note.get_note_from_system_attrs(system_attrs, None)
+    serialized["is_preferential"] = system_attrs.get(_SYSTEM_ATTR_PREFERENTIAL_STUDY, False)
     objective_names = get_objective_names(system_attrs)
     if objective_names:
         serialized["objective_names"] = objective_names
@@ -183,9 +187,6 @@ def serialize_frozen_trial(
             for param_name in fixed_params
         ],
         "user_attrs": serialize_attrs(trial.user_attrs),
-        "system_attrs": serialize_attrs(
-            {k: trial_system_attrs[k] for k in trial_system_attrs if not k.startswith("dashboard")}
-        ),
         "note": note.get_note_from_system_attrs(study_system_attrs, trial._trial_id),
         "artifacts": list_trial_artifacts(study_system_attrs, trial),
         "constraints": trial_system_attrs.get(CONSTRAINTS_KEY, []),

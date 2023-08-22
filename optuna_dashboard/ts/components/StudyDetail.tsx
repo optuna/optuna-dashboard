@@ -19,6 +19,7 @@ import {
   reloadIntervalState,
   useStudyDetailValue,
   useStudyName,
+  useStudySummaryValue,
 } from "../state"
 import { TrialTable } from "./TrialTable"
 import { AppDrawer, PageId } from "./AppDrawer"
@@ -28,6 +29,7 @@ import { GraphSlice } from "./GraphSlice"
 import { GraphEdf } from "./GraphEdf"
 import { TrialList } from "./TrialList"
 import { StudyHistory } from "./StudyHistory"
+import { PreferentialTrials } from "./PreferentialTrials"
 
 interface ParamTypes {
   studyId: string
@@ -47,8 +49,11 @@ export const StudyDetail: FC<{
   const action = actionCreator()
   const studyId = useURLVars()
   const studyDetail = useStudyDetailValue(studyId)
+  const studySummary = useStudySummaryValue(studyId)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studyName = useStudyName(studyId)
+  const isPreferential =
+    studySummary?.is_preferential ?? studyDetail?.is_preferential ?? false
 
   const title =
     studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
@@ -67,11 +72,16 @@ export const StudyDetail: FC<{
     let interval = reloadInterval * 1000
 
     // For Human-in-the-loop Optimization, the interval is set to 2 seconds
-    // when the number of trials is small and the page is "trialList".
-    if (page === "trialList" && nTrials < 100) {
-      interval = 2000
-    } else if (page === "trialList" && nTrials < 500) {
-      interval = 5000
+    // when the number of trials is small, and the page is "trialList" or top page of preferential.
+    if (
+      (!isPreferential && page === "trialList") ||
+      (isPreferential && page === "top")
+    ) {
+      if (nTrials < 100) {
+        interval = 2000
+      } else if (nTrials < 500) {
+        interval = 5000
+      }
     }
 
     const intervalId = setInterval(function () {
@@ -81,8 +91,12 @@ export const StudyDetail: FC<{
   }, [reloadInterval, studyDetail, page])
 
   let content = null
-  if (page === "history") {
-    content = <StudyHistory studyId={studyId} />
+  if (page === "top") {
+    content = isPreferential ? (
+      <PreferentialTrials studyDetail={studyDetail} />
+    ) : (
+      <StudyHistory studyId={studyId} />
+    )
   } else if (page === "analytics") {
     content = (
       <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>

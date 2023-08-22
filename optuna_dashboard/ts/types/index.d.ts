@@ -111,7 +111,6 @@ type Trial = {
     param_external_value: string
   }[]
   user_attrs: Attribute[]
-  system_attrs: Attribute[]
   constraints: number[]
   note: Note
   artifacts: Artifact[]
@@ -122,7 +121,7 @@ type StudySummary = {
   study_name: string
   directions: StudyDirection[]
   user_attrs: Attribute[]
-  system_attrs: Attribute[]
+  is_preferential: boolean
   datetime_start?: Date
 }
 
@@ -194,6 +193,7 @@ type StudyDetail = {
   union_user_attrs: AttributeSpec[]
   has_intermediate_values: boolean
   note: Note
+  is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
 }
