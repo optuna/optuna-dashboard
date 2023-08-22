@@ -7,14 +7,14 @@ import time
 from typing import NoReturn
 
 from optuna_dashboard import save_note
-from optuna_dashboard.artifact import upload_artifact
+from optuna_dashboard.artifact import upload_artifact, get_artifact_path
 from optuna_dashboard.artifact.file_system import FileSystemBackend
 from optuna_dashboard.preferential import create_study
 from optuna_dashboard.preferential.samplers._gp import PreferentialGPSampler
 from PIL import Image
 
 
-STORAGE_URL = "sqlite:///st-example.db"
+STORAGE_URL = "sqlite:///example.db"
 artifact_path = os.path.join(os.path.dirname(__file__), "artifact")
 artifact_backend = FileSystemBackend(base_path=artifact_path)
 os.makedirs(artifact_path, exist_ok=True)
@@ -51,14 +51,14 @@ def main() -> NoReturn:
 
             # 3. Upload Artifact
             artifact_id = upload_artifact(artifact_backend, trial, image_path)
-            trial.set_user_attr("rgb_artifact_id", artifact_id)
-            trial.set_user_attr("image_caption", f"(R, G, B) = ({r}, {g}, {b})")
+            trial.set_user_attr("artifact_id", artifact_id)
             print("RGB:", (r, g, b))
 
             # 4. Save Note
             note = textwrap.dedent(
                 f"""\
-            ![generated-image]({artifact_path})
+            ![generated-image]({get_artifact_path(trial, artifact_id)})
+            
             (R, G, B) = ({r}, {g}, {b})
             """
             )

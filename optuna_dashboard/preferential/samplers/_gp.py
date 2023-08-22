@@ -31,6 +31,7 @@ import pyro.infer.mcmc
 from scipy.special import erfcinv
 import torch
 from torch import Tensor
+from linear_operator.utils.errors import NotPSDError
 
 from .._system_attrs import get_preferences
 
@@ -181,7 +182,9 @@ class _PreferentialGP(GPyTorchModel, ExactGP):
     def _pyro_model(self, train_x: torch.Tensor, train_y: torch.Tensor) -> None:
         # with gpytorch.settings.fast_computations(False, False, False):
         sampled_model = self.pyro_sample_from_prior()
+        
         ys = sampled_model.likelihood(sampled_model.forward(train_x))
+        
         pyro.sample("y", ys, obs=train_y)
 
     def fit_mcmc(self, X: torch.Tensor, preferences: torch.Tensor, cycles: int, rng: np.random.RandomState) -> None:
@@ -244,7 +247,19 @@ class _PreferentialGP(GPyTorchModel, ExactGP):
                 ys_sum = torch.from_numpy(ys_sum_np)
                 train_y[:] = ys_sum[mask] / cnt[mask]
                 nuts.clear_cache()
-                raw_params = nuts.sample(raw_params)
+                try:
+                    raw_params = nuts.sample(raw_params)
+                except NotPSDError:
+                    nuts.cleanup()
+                    nuts = pyro.infer.mcmc.NUTS(
+                        model=self._pyro_model,
+                        init_strategy=pyro.infer.autoguide.init_to_sample,
+                        step_size=self._last_mcmc_step_size or 1.0,
+                    )
+                    nuts.setup(warmup_steps=warmup_steps, train_x=train_x, train_y=train_y)
+                    raw_params = nuts.initial_params
+
+                    
 
             params = {name: nuts.transforms[name].inv(value) for name, value in raw_params.items()}
             self.set_train_data(train_x, train_y, strict=False)
@@ -326,7 +341,8 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
             if len(search_space) == 0:
                 return {}
             
-            preferences = get_preferences(study, deepcopy=False)
+            preferences = get_preferences(study._study_id, study._storage)
+            trials = study.get_trials(deepcopy=False)
             if len(preferences) == 0:
                 return {}
 
@@ -352,10 +368,10 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
 
             for better, worse in preferences:
                 for t in (better, worse):
-                    if t.number not in ids:
-                        ids[t.number] = len(ids)
-                        params.append(trans.transform(t.params))
-                pref_ids.append((ids[better.number], ids[worse.number]))
+                    if t not in ids:
+                        ids[t] = len(ids)
+                        params.append(trans.transform(trials[t].params))
+                pref_ids.append((ids[better], ids[worse]))
             dtype = torch.float64
 
             params_torch = torch.tensor(np.array(params), dtype=dtype, device=self.device)
