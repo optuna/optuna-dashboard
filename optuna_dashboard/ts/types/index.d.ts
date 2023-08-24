@@ -185,6 +185,7 @@ type StudyDetail = {
   id: number
   name: string
   directions: StudyDirection[]
+  user_attrs: Attribute[]
   datetime_start: Date
   best_trials: Trial[]
   trials: Trial[]

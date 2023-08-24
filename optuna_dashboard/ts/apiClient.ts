@@ -59,6 +59,7 @@ interface StudyDetailResponse {
   name: string
   datetime_start: string
   directions: StudyDirection[]
+  user_attrs: Attribute[]
   trials: TrialResponse[]
   best_trials: TrialResponse[]
   intersection_search_space: SearchSpaceItem[]
@@ -93,6 +94,7 @@ export const getStudyDetailAPI = (
         name: res.data.name,
         datetime_start: new Date(res.data.datetime_start),
         directions: res.data.directions,
+        user_attrs: res.data.user_attrs,
         trials: trials,
         best_trials: best_trials,
         union_search_space: res.data.union_search_space,
