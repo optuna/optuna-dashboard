@@ -116,7 +116,7 @@ def register_artifact_route(
 
         return {
             "artifact_id": artifact_id,
-            "artifacts": list_trial_artifacts(storage.get_trial_system_attrs(trial_id), trial),
+            "artifacts": list_trial_artifacts(storage.get_study_system_attrs(study_id), trial),
         }
 
     @app.delete("/api/artifacts/<study_id:int>/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
