@@ -131,6 +131,7 @@ def serialize_study_detail(
     serialized: dict[str, Any] = {
         "name": summary.study_name,
         "directions": [d.name.lower() for d in summary.directions],
+        "user_attrs": serialize_attrs(summary.user_attrs),
     }
     system_attrs = getattr(summary, "system_attrs", {})
     if summary.datetime_start is not None:
