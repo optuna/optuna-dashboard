@@ -144,7 +144,9 @@ def create_app(
             response.status = 500
             return {"reason": "Failed to load the study"}
         try:
-            dst_study = optuna.create_study(storage=storage, study_name=dst_study_name, directions=summary.directions)
+            dst_study = optuna.create_study(
+                storage=storage, study_name=dst_study_name, directions=summary.directions
+            )
             dst_study.add_trials(src_study.get_trials(deepcopy=False))
         except DuplicatedStudyError:
             response.status = 400  # Bad request
