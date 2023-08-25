@@ -1,5 +1,6 @@
 from unittest.mock import MagicMock
 
+from optuna.storages import BaseStorage
 from optuna_dashboard.artifact import _backend
 import pytest
 
@@ -16,48 +17,29 @@ def test_artifact_prefix() -> None:
 
 
 @pytest.fixture()
-def init_storage_with_artifact_meta() -> MagicMock:
-    storage = MagicMock()
+def init_storage_with_artifact_meta() -> BaseStorage:
+    from optuna import create_study
+    from optuna.storages import InMemoryStorage
 
-    get_study_system_attrs = (
-        lambda study_id: {
-            "dashboard:artifacts:0:id0": '{"artifact_id": "id0", "filename": "foo.txt"}',
-            "dashboard:artifacts:0:id1": '{"artifact_id": "id1", "filename": "bar.txt"}',
-            "baz": "baz",
-        }
-        if study_id == 0
-        else {}
-    )
-    storage.get_study_system_attrs.side_effect = get_study_system_attrs
+    storage = InMemoryStorage()
+    study = create_study(storage=storage)
 
-    trial0_system_attrs = {
-        "artifacts:id2": '{"artifact_id": "id2", "filename": "baz.txt"}',
+    study_system_attrs = {
+        "dashboard:artifacts:0:id0": '{"artifact_id": "id0", "filename": "foo.txt"}',
+        "dashboard:artifacts:0:id1": '{"artifact_id": "id1", "filename": "bar.txt"}',
+        "baz": "baz",
     }
-    trial1_system_attrs = {
+    for key, value in study_system_attrs.items():
+        study.set_system_attr(key, value)
+
+    trial_system_attrs = {
+        "artifacts:id2": '{"artifact_id": "id2", "filename": "baz.txt"}',
         "artifacts:id3": '{"artifact_id": "id3", "filename": "qux.txt"}',
     }
-    get_trial_system_attrs = (
-        lambda trial_id: trial0_system_attrs
-        if trial_id == 0
-        else trial1_system_attrs
-        if trial_id == 1
-        else {}
-    )
-    storage.get_trial_system_attrs.side_effect = get_trial_system_attrs
-
-    get_all_trials = (
-        lambda study_id: [
-            MagicMock(
-                _trial_id=0, study=MagicMock(_study_id=study_id), system_attrs=trial0_system_attrs
-            ),
-            MagicMock(
-                _trial_id=1, study=MagicMock(_study_id=study_id), system_attrs=trial1_system_attrs
-            ),
-        ]
-        if study_id == 0
-        else []
-    )
-    storage.get_all_trials.side_effect = get_all_trials
+    for key, value in trial_system_attrs.items():
+        trial = study.ask()
+        trial.set_system_attr(key, value)
+        study.tell(trial, 0.0)
 
     return storage
 
