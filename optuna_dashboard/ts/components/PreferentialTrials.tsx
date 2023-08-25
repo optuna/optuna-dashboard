@@ -18,7 +18,6 @@ const PreferentialTrial: FC<{
   const action = actionCreator()
   const trialWidth = 500
   const trialHeight = 300
-  const [hover, setHover] = useState(false)
   const [detailShown, setDetailShown] = useState(false)
 
   if (trial == undefined) {
@@ -48,8 +47,6 @@ const PreferentialTrial: FC<{
             .filter((t) => t !== trial.number)
           action.updatePreference(trial.study_id, best_trials, [trial.number])
         }}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
         sx={{
           "::before": {
             content: '""',
@@ -84,17 +81,20 @@ const PreferentialTrial: FC<{
         </Box>
 
         <ClearIcon
-          style={{
-            opacity: hover ? 0.5 : 0,
-            transition: "opacity 0.3s ease-out",
-          }}
           sx={{
             position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
+            width: "100%",
+            height: "100%",
+            top: 0,
+            left: 0,
             color: "red",
             fontSize: trialWidth / 2,
+            opacity: 0,
+            transition: "opacity 0.3s ease-out",
+            zIndex: 1,
+            ":hover": {
+              opacity: 0.5,
+            },
           }}
         />
       </Button>
@@ -104,11 +104,12 @@ const PreferentialTrial: FC<{
       <Modal open={detailShown} onClose={() => setDetailShown(false)}>
         <Box
           sx={{
-            position: "relative",
+            position: "absolute",
             width: "70%",
             left: "15%",
             top: theme.spacing(8),
             backgroundColor: theme.palette.mode === "dark" ? "black" : "white",
+            borderRadius: theme.spacing(3),
           }}
         >
           <TrialListDetail
@@ -177,13 +178,9 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
       }
     })
   }
-  const shuffleFlag = shuffleTrial + 20 < displayTrials.last_number
-  if (shuffleFlag) {
-    setShuffleTrial(displayTrials.last_number)
-  }
 
   return (
-    <Box>
+    <Box padding={theme.spacing(2)}>
       <Typography
         variant="h4"
         sx={{
@@ -191,7 +188,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
           fontWeight: theme.typography.fontWeightBold,
         }}
       >
-        Which trial is worst?
+        Which trial is the worst?
       </Typography>
       <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
         {displayTrials.numbers.map((t, index) => (
