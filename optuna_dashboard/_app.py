@@ -139,13 +139,9 @@ def create_app(
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
 
-        summary = get_study_summary(storage, study_id)
-        if summary is None:
-            response.status = 500
-            return {"reason": "Failed to load the study"}
         try:
             dst_study = optuna.create_study(
-                storage=storage, study_name=dst_study_name, directions=summary.directions
+                storage=storage, study_name=dst_study_name, directions=src_study.directions
             )
             dst_study.add_trials(src_study.get_trials(deepcopy=False))
         except DuplicatedStudyError:
