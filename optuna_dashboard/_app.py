@@ -140,7 +140,9 @@ def create_app(
             return {"reason": f"study_id={study_id} is not found"}
 
         try:
-            dst_study = optuna.create_study(storage=storage, study_name=dst_study_name)
+            dst_study = optuna.create_study(
+                storage=storage, study_name=dst_study_name, directions=src_study.directions
+            )
             dst_study.add_trials(src_study.get_trials(deepcopy=False))
         except DuplicatedStudyError:
             response.status = 400  # Bad request
