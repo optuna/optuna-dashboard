@@ -143,7 +143,7 @@ const useIsBestTrial = (
   }, [studyDetail])
 }
 
-const TrialListDetail: FC<{
+export const TrialListDetail: FC<{
   trial: Trial
   isBestTrial: (trialId: number) => boolean
   directions: StudyDirection[]
@@ -301,6 +301,7 @@ const TrialListDetail: FC<{
         trialId={trial.trial_id}
         latestNote={trial.note}
         cardSx={{ marginBottom: theme.spacing(2) }}
+        editable={true}
       />
       <TrialFormWidgets
         trial={trial}
