@@ -1,4 +1,4 @@
-# optuna-dashboard README
+# Optuna Dashboard (Wasm ver.)
 
 ## Features
 
@@ -7,10 +7,6 @@ VSCode Extension that launches Optuna Dashboard (Wasm ver.).
 ## Extension Settings
 
 Nothing to configure.
-
-## Known Issues
-
-* ...
 
 ## Release Notes
 
