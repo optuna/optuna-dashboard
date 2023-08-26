@@ -80,30 +80,25 @@ const getStudies = (db: SQLite3DB): Study[] => {
 
       const trials = getTrials(db, studyId)
       const union_search_space: SearchSpaceItem[] = []
+      const union_user_attrs: AttributeSpec[] = []
       let intersection_search_space: Set<SearchSpaceItem> = new Set()
       trials.forEach((trial) => {
-        const params: TrialParam[] = []
-        const param_names = new Set<string>()
-        db.exec({
-          sql:
-            "SELECT param_name, param_value" +
-            ` FROM trial_params WHERE trial_id = ${trial.trial_id}`,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          callback: (vals: any[]) => {
-            const param_name = vals[0]
-            // TODO(c-bata): Support param_external_value
-            params.push({
-              name: param_name,
-              param_internal_value: vals[1],
-            })
+        const userAttrs = getTrialUserAttributes(db, trial.trial_id)
+        userAttrs.forEach((attr) => {
+          if (union_user_attrs.findIndex((s) => s.key === attr.key) == -1) {
+            union_user_attrs.push({ key: attr.key, sortable: false })
+          }
+        })
 
-            param_names.add(param_name)
-            if (
-              union_search_space.findIndex((s) => s.name === param_name) == -1
-            ) {
-              union_search_space.push({ name: param_name })
-            }
-          },
+        const params = getTrialParams(db, trial.trial_id)
+        const param_names = new Set<string>()
+        params.forEach((param) => {
+          param_names.add(param.name)
+          if (
+            union_search_space.findIndex((s) => s.name === param.name) == -1
+          ) {
+            union_search_space.push({ name: param.name })
+          }
         })
         if (intersection_search_space.size === 0) {
           param_names.forEach((s) => {
@@ -119,6 +114,7 @@ const getStudies = (db: SQLite3DB): Study[] => {
           )
         }
         trial.params = params
+        trial.user_attrs = userAttrs
       })
 
       if (objective === 0) {
@@ -128,6 +124,7 @@ const getStudies = (db: SQLite3DB): Study[] => {
           directions: [direction],
           union_search_space: union_search_space,
           intersection_search_space: Array.from(intersection_search_space),
+          union_user_attrs: union_user_attrs,
           trials: trials,
         })
         return
@@ -164,8 +161,9 @@ const getTrials = (db: SQLite3DB, studyId: number): Trial[] => {
         study_id: studyId,
         state: state,
         values: getTrialValues(db, trialId),
-        params: [], // Set this column later
         intermediate_values: getTrialIntermediateValues(db, trialId),
+        params: [], // Set this column later
+        user_attrs: [], // Set this column later
         datetime_start: vals[3],
         datetime_complete: vals[4],
       }
@@ -196,6 +194,96 @@ const getTrialValues = (db: SQLite3DB, trialId: number): TrialValueNumber[] => {
   return values
 }
 
+const getTrialParams = (db: SQLite3DB, trialId: number): TrialParam[] => {
+  const params: TrialParam[] = []
+  db.exec({
+    sql:
+      "SELECT param_name, param_value, distribution_json" +
+      ` FROM trial_params WHERE trial_id = ${trialId}`,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    callback: (vals: any[]) => {
+      const distribution = parseDistributionJSON(vals[2])
+      params.push({
+        name: vals[0],
+        param_internal_value: vals[1],
+        param_external_type: distribution.type,
+        param_external_value: paramInternalValueToExternalValue(
+          distribution,
+          vals[1]
+        ),
+        distribution: distribution,
+      })
+    },
+  })
+  return params
+}
+
+const paramInternalValueToExternalValue = (
+  distribution: Distribution,
+  internalValue: number
+): string => {
+  if (distribution.type === "FloatDistribution") {
+    return internalValue.toString()
+  } else if (distribution.type === "IntDistribution") {
+    return internalValue.toString()
+  } else {
+    return distribution.choices[internalValue].value
+  }
+}
+
+const parseDistributionJSON = (t: string): Distribution => {
+  const parsed = JSON.parse(t)
+  if (parsed.name === "FloatDistribution") {
+    return {
+      type: "FloatDistribution",
+      low: parsed.attributes.low as number,
+      high: parsed.attributes.high as number,
+      step: parsed.attributes.step as number,
+      log: parsed.attributes.log as boolean,
+    }
+  } else if (parsed.name === "IntDistribution") {
+    return {
+      type: "IntDistribution",
+      low: parsed.attributes.low as number,
+      high: parsed.attributes.high as number,
+      step: parsed.attributes.step as number,
+      log: parsed.attributes.log as boolean,
+    }
+  } else {
+    const choices = parsed.attributes.choices.map((value: any) => {
+      // TODO(c-bata): Support other types
+      return {
+        pytype: "str",
+        value: value.toString(),
+      }
+    })
+    return {
+      type: "CategoricalDistribution",
+      choices: choices,
+    }
+  }
+}
+
+const getTrialUserAttributes = (
+  db: SQLite3DB,
+  trialId: number
+): Attribute[] => {
+  const attrs: Attribute[] = []
+  db.exec({
+    sql:
+      "SELECT key, value_json" +
+      ` FROM trial_user_attributes WHERE trial_id = ${trialId}`,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    callback: (vals: any[]) => {
+      attrs.push({
+        key: vals[0],
+        value: vals[1],
+      })
+    },
+  })
+  return attrs
+}
+
 const getTrialIntermediateValues = (
   db: SQLite3DB,
   trialId: number
@@ -204,7 +292,7 @@ const getTrialIntermediateValues = (
   db.exec({
     sql:
       "SELECT step, intermediate_value, intermediate_value_type" +
-      ` FROM trial_values WHERE trial_id = ${trialId}` +
+      ` FROM trial_intermediate_values WHERE trial_id = ${trialId}` +
       " ORDER BY step",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callback: (vals: any[]) => {

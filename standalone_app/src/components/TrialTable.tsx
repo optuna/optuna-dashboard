@@ -20,36 +20,6 @@ export const TrialTable: FC<{
     },
   ]
 
-  study.union_search_space.forEach((s) => {
-    columns.push({
-      field: "params",
-      label: `Param ${s.name}`,
-      toCellValue: (i) =>
-        trials[i].params.find((p) => p.name === s.name)?.param_internal_value ||
-        null,
-      sortable: true,
-      filterable: false,
-      less: (firstEl, secondEl): number => {
-        const firstVal = firstEl.params.find(
-          (p) => p.name === s.name
-        )?.param_internal_value
-        const secondVal = secondEl.params.find(
-          (p) => p.name === s.name
-        )?.param_internal_value
-
-        if (firstVal === secondVal) {
-          return 0
-        } else if (firstVal && secondVal) {
-          return firstVal < secondVal ? 1 : -1
-        } else if (firstVal) {
-          return -1
-        } else {
-          return 1
-        }
-      },
-    })
-  })
-
   if (study === null || study.directions.length == 1) {
     columns.push({
       field: "values",
@@ -116,6 +86,66 @@ export const TrialTable: FC<{
     )
     columns.push(...objectiveColumns)
   }
+
+  study.union_search_space.forEach((s) => {
+    columns.push({
+      field: "params",
+      label: `Param ${s.name}`,
+      toCellValue: (i) =>
+        trials[i].params.find((p) => p.name === s.name)?.param_external_value ??
+        null,
+      sortable: true,
+      filterable: false,
+      less: (firstEl, secondEl): number => {
+        const firstVal = firstEl.params.find(
+          (p) => p.name === s.name
+        )?.param_internal_value
+        const secondVal = secondEl.params.find(
+          (p) => p.name === s.name
+        )?.param_internal_value
+
+        if (firstVal === secondVal) {
+          return 0
+        } else if (firstVal && secondVal) {
+          return firstVal < secondVal ? 1 : -1
+        } else if (firstVal) {
+          return -1
+        } else {
+          return 1
+        }
+      },
+    })
+  })
+
+  study.union_user_attrs.forEach((attr_spec) => {
+    columns.push({
+      field: "user_attrs",
+      label: `UserAttribute ${attr_spec.key}`,
+      toCellValue: (i) =>
+        trials[i].user_attrs.find((attr) => attr.key === attr_spec.key)
+          ?.value || null,
+      sortable: attr_spec.sortable,
+      filterable: false,
+      less: (firstEl, secondEl): number => {
+        const firstVal = firstEl.user_attrs.find(
+          (attr) => attr.key === attr_spec.key
+        )?.value
+        const secondVal = secondEl.user_attrs.find(
+          (attr) => attr.key === attr_spec.key
+        )?.value
+
+        if (firstVal === secondVal) {
+          return 0
+        } else if (firstVal && secondVal) {
+          return firstVal < secondVal ? 1 : -1
+        } else if (firstVal) {
+          return -1
+        } else {
+          return 1
+        }
+      },
+    })
+  })
 
   return (
     <DataGrid<Trial>
