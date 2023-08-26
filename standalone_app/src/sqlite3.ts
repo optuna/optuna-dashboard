@@ -250,6 +250,7 @@ const parseDistributionJSON = (t: string): Distribution => {
       log: parsed.attributes.log as boolean,
     }
   } else {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const choices = parsed.attributes.choices.map((value: any) => {
       // TODO(c-bata): Support other types
       return {
