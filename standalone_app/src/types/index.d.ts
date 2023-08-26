@@ -27,6 +27,11 @@ type CategoricalDistribution = {
   choices: { pytype: string; value: string }[]
 }
 
+type TrialIntermediateValue = {
+  step: number
+  value: TrialIntermediateValueNumber
+}
+
 type Distribution =
   | FloatDistribution
   | IntDistribution
@@ -41,10 +46,8 @@ type Study = {
   study_id: number
   study_name: string
   directions: StudyDirection[]
-  user_attrs: Attribute[]
   union_search_space: SearchSpaceItem[]
   intersection_search_space: SearchSpaceItem[]
-  system_attrs: Attribute[]
   datetime_start?: Date
   trials: Trial[]
 }
@@ -59,13 +62,14 @@ type Trial = {
   intermediate_values: TrialIntermediateValue[]
   datetime_start?: Date
   datetime_complete?: Date
-  user_attrs: Attribute[]
-  system_attrs: Attribute[]
 }
 
 type TrialParam = {
   name: string
   param_internal_value: number
+  // param_external_value: string
+  // param_external_type: string
+  // distribution: Distribution
 }
 
 type SearchSpaceItem = {
