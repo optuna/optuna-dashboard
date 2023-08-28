@@ -301,7 +301,6 @@ export const TrialListDetail: FC<{
         trialId={trial.trial_id}
         latestNote={trial.note}
         cardSx={{ marginBottom: theme.spacing(2) }}
-        editable={true}
       />
       <TrialFormWidgets
         trial={trial}

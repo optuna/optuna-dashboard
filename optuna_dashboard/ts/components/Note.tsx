@@ -101,15 +101,13 @@ export const TrialNote: FC<{
   trialId: number
   latestNote: Note
   cardSx?: SxProps<Theme>
-  editable: boolean
-}> = ({ studyId, trialId, latestNote, cardSx, editable }) => {
+}> = ({ studyId, trialId, latestNote, cardSx }) => {
   return (
     <NoteBase
       studyId={studyId}
       trialId={trialId}
       latestNote={latestNote}
       cardSx={cardSx}
-      editable={editable}
     />
   )
 }
@@ -165,7 +163,7 @@ const useConfirmCloseDialog = (
   return [openDialog, renderDialog]
 }
 
-const MarkdownRenderer: FC<{ body: string }> = ({ body }) => (
+export const MarkdownRenderer: FC<{ body: string }> = ({ body }) => (
   <ReactMarkdown
     children={body}
     remarkPlugins={[remarkGfm, remarkMath]}
@@ -584,8 +582,7 @@ const NoteBase: FC<{
   trialId?: number
   latestNote: Note
   cardSx?: SxProps<Theme>
-  editable: boolean
-}> = ({ studyId, trialId, latestNote, cardSx, editable }) => {
+}> = ({ studyId, trialId, latestNote, cardSx }) => {
   const theme = useTheme()
   const [editorMounted, setEditorMounted] = useState<boolean>(false)
 
@@ -600,23 +597,21 @@ const NoteBase: FC<{
         }}
       >
         <MarkdownRenderer body={latestNote.body || defaultBody} />
-        {editable && (
-          <IconButton
-            sx={{
-              position: "absolute",
-              top: 0,
-              right: 0,
-              margin: theme.spacing(1),
-            }}
-            onClick={() => {
-              setEditorMounted(true)
-            }}
-          >
-            <EditIcon />
-          </IconButton>
-        )}
+        <IconButton
+          sx={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            margin: theme.spacing(1),
+          }}
+          onClick={() => {
+            setEditorMounted(true)
+          }}
+        >
+          <EditIcon />
+        </IconButton>
       </CardContent>
-      {editable && editorMounted && (
+      {editorMounted && (
         <MarkdownEditorModal
           studyId={studyId}
           trialId={trialId}

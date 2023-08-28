@@ -12,9 +12,9 @@ import IconButton from "@mui/material/IconButton"
 import OpenInFullIcon from "@mui/icons-material/OpenInFull"
 import Modal from "@mui/material/Modal"
 
-import { TrialNote } from "./Note"
 import { actionCreator } from "../action"
 import { TrialListDetail } from "./TrialList"
+import { MarkdownRenderer } from "./Note"
 
 const PreferentialTrial: FC<{
   trial?: Trial
@@ -33,6 +33,7 @@ const PreferentialTrial: FC<{
         sx={{
           width: trialWidth,
           minHeight: trialHeight,
+          margin: theme.spacing(2),
         }}
       />
     )
@@ -52,7 +53,6 @@ const PreferentialTrial: FC<{
         <IconButton
           sx={{
             marginLeft: "auto",
-            zIndex: 2,
           }}
           onClick={() => setDetailShown(true)}
           aria-label="show detail"
@@ -72,6 +72,7 @@ const PreferentialTrial: FC<{
         sx={{
           padding: 0,
           position: "relative",
+          overflow: "hidden",
           "::before": {
             content: '""',
             position: "absolute",
@@ -91,17 +92,11 @@ const PreferentialTrial: FC<{
       >
         <Box
           sx={{
-            padding: theme.spacing(2, 2, 0, 2),
+            padding: theme.spacing(2),
             position: "relative",
           }}
         >
-          <TrialNote
-            studyId={trial.study_id}
-            trialId={trial.trial_id}
-            latestNote={trial.note}
-            cardSx={{ marginBottom: theme.spacing(2) }}
-            editable={false}
-          />
+          <MarkdownRenderer body={trial.note.body} />
         </Box>
 
         <ClearIcon
