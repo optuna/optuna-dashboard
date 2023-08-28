@@ -12,8 +12,8 @@ from optuna.samplers import BaseSampler
 from optuna.samplers import RandomSampler
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
+from optuna_dashboard.preferential._system_attrs import _SYSTEM_ATTR_PREFIX_SKIP_TRIAL
 from optuna_dashboard.preferential._system_attrs import get_preferences
-from optuna_dashboard.preferential._system_attrs import get_skiped_trials
 from optuna_dashboard.preferential._system_attrs import report_preferences
 
 
@@ -266,12 +266,16 @@ def get_best_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list
     ]
     preferences = get_preferences(study_id, storage)
     worse_numbers = {worse for _, worse in preferences}
-    skiped_numbers = get_skiped_trials(study_id, storage)
-    return [
-        copy.deepcopy(t)
-        for t in ready_trials
-        if t.number not in worse_numbers and t.number not in skiped_numbers
-    ]
+    study_system_attrs = storage.get_study_system_attrs(study_id)
+    best_trials = []
+    for t in ready_trials:
+        if t.number in worse_numbers:
+            continue
+        skipped_key = _SYSTEM_ATTR_PREFIX_SKIP_TRIAL + str(t._trial_id)
+        if skipped_key in study_system_attrs:
+            continue
+        best_trials.append(copy.deepcopy(t))
+    return best_trials
 
 
 def create_study(

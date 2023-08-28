@@ -52,24 +52,8 @@ def report_skip(
     trial_id: int,
     storage: BaseStorage,
 ) -> None:
-    trial_number = storage.get_trial(trial_id).number
     storage.set_study_system_attr(
         study_id=study_id,
-        key=_SYSTEM_ATTR_PREFIX_SKIP_TRIAL + str(trial_number),
+        key=_SYSTEM_ATTR_PREFIX_SKIP_TRIAL + str(trial_id),
         value=True,
     )
-
-
-def get_skiped_trials(
-    study_id: int,
-    storage: BaseStorage,
-) -> list[int]:
-    """Get trial numbers that have skip flag."""
-    skiped_trials: list[int] = []
-    summary = get_study_summary(storage, study_id)
-    system_attrs = getattr(summary, "system_attrs", {})
-    for k, v in system_attrs.items():
-        if not k.startswith(_SYSTEM_ATTR_PREFIX_SKIP_TRIAL):
-            continue
-        skiped_trials.append(int(k.split(":")[-1]))
-    return skiped_trials
