@@ -1,4 +1,4 @@
-# Optuna Dashboard for VSCode
+# Optuna Dashboard for VS Code
 
 The Optuna Dashboard extension lets you open Optuna's SQLite3 database in Optuna Dashboard, allowing users to see optimization histories in graphs and tables.
 
@@ -6,7 +6,7 @@ The Optuna Dashboard extension lets you open Optuna's SQLite3 database in Optuna
 
 ## Usage
 
-Please right-click on the SQLite3 file (`*.db` or `*.sqlite3`) in the VSCode file explorer and select the "Open in Optuna Dashboard" command from the dropdown menu.
+Please right-click on the SQLite3 file (`*.db` or `*.sqlite3`) in the file explorer and select the "Open in Optuna Dashboard" command from the dropdown menu.
 
 ## Extension Settings
 
