@@ -12,11 +12,9 @@ from optuna.samplers import BaseSampler
 from optuna.samplers import RandomSampler
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
-from optuna_dashboard.preferential._system_attrs import (
-    get_preferences,
-    report_preferences,
-    _SYSTEM_ATTR_SKIP_TRIAL,
-)
+from optuna_dashboard.preferential._system_attrs import _SYSTEM_ATTR_SKIP_TRIAL
+from optuna_dashboard.preferential._system_attrs import get_preferences
+from optuna_dashboard.preferential._system_attrs import report_preferences
 
 
 _logger = logging.get_logger(__name__)
