@@ -51,7 +51,7 @@ def report_skip(
     study_id: int,
     trial_id: int,
     storage: BaseStorage,
-):
+) -> None:
     trial_number = storage.get_trial(trial_id).number
     storage.set_study_system_attr(
         study_id=study_id,
