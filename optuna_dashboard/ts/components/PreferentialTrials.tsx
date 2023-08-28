@@ -135,16 +135,25 @@ const PreferentialTrial: FC<{
             width: "80%",
             maxHeight: "90%",
             margin: "auto",
+            overflow: "hidden",
             backgroundColor: theme.palette.mode === "dark" ? "black" : "white",
             borderRadius: theme.spacing(3),
           }}
         >
-          <TrialListDetail
-            trial={trial}
-            isBestTrial={() => true}
-            directions={[]}
-            objectiveNames={[]}
-          />
+          <Box
+            sx={{
+              width: "100%",
+              height: "100%",
+              overflow: "auto",
+            }}
+          >
+            <TrialListDetail
+              trial={trial}
+              isBestTrial={() => true}
+              directions={[]}
+              objectiveNames={[]}
+            />
+          </Box>
         </Box>
       </Modal>
     </Card>
