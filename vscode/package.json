@@ -2,6 +2,7 @@
   "name": "optuna-dashboard",
   "displayName": "Optuna Dashboard",
   "description": "Web Dashboard for Optuna",
+  "publisher": "Optuna",
   "version": "0.0.1",
   "license": "MIT",
   "icon": "images/optuna-logo.png",

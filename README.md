@@ -75,6 +75,13 @@ $ docker run -it --rm -p 8080:8080 ghcr.io/optuna/optuna-dashboard postgresql+ps
 
 </details>
 
+## VS Code Extension (Experimental)
+
+You can install the VS Code extension via [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Optuna.optuna-dashboard#overview).
+
+![vscode-extension](./docs/_static/vscode-extension.png)
+
+Please right-click the SQLite3 files (`*.db` or `*.sqlite3`) in the VS Code file explorer and select the "Open in Optuna Dashboard" command from the dropdown menu.
 
 ## Features
 

@@ -11,10 +11,10 @@ The repository is organized as follows:
 .
 ├── optuna_dashboard/   # The Python package.
 │   └── ts/             # TypeScript code for the Python package.
-├── standalone_app/     # Standalone application that can be run in browser or within the WebView of the VSCode extension.
+├── standalone_app/     # Standalone application that can be run in browser or within the WebView of the VS Code extension.
 │   ├── browser_app_entry.tsx   # Entry point for browser app, hosted on GitHub pages.
-│   └── vscode_entry.tsx        # Entry point for VSCode app, output placed under `vscode/assets`.
-├── vscode/             # The VSCode extension.
+│   └── vscode_entry.tsx        # Entry point for VS Code app, output placed under `vscode/assets`.
+├── vscode/             # The VS Code extension.
 └── rustlib/            # Rust library exporting Wasm functions.
     └── pkg/            # Output directory for rustlib, installed from package.json via `"./rustlib/pkg"`.
 ```
@@ -133,7 +133,7 @@ $ make serve-browser-app
 Open http://127.0.0.1:9000/
 
 
-## VSCode Extension
+## VS Code Extension
 
 ```
 $ npm i -g vsce
