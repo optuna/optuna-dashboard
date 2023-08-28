@@ -1,5 +1,12 @@
 import React, { FC, useState } from "react"
-import { Typography, Box, Button, useTheme } from "@mui/material"
+import {
+  Typography,
+  Box,
+  useTheme,
+  Card,
+  CardContent,
+  CardActions,
+} from "@mui/material"
 import ClearIcon from "@mui/icons-material/Clear"
 import IconButton from "@mui/material/IconButton"
 import OpenInFullIcon from "@mui/icons-material/OpenInFull"
@@ -32,14 +39,29 @@ const PreferentialTrial: FC<{
   }
 
   return (
-    <Box
+    <Card
       sx={{
         width: trialWidth,
         minHeight: trialHeight,
         position: "relative",
+        margin: theme.spacing(2),
+        padding: 0,
       }}
     >
-      <Button
+      <CardActions>
+        <IconButton
+          sx={{
+            marginLeft: "auto",
+            zIndex: 2,
+          }}
+          onClick={() => setDetailShown(true)}
+          aria-label="show detail"
+        >
+          <OpenInFullIcon />
+        </IconButton>
+      </CardActions>
+      <CardContent
+        aria-label="trial-button"
         onClick={() => {
           hideTrial()
           const best_trials = studyDetail.best_trials
@@ -48,6 +70,8 @@ const PreferentialTrial: FC<{
           action.updatePreference(trial.study_id, best_trials, [trial.number])
         }}
         sx={{
+          padding: 0,
+          position: "relative",
           "::before": {
             content: '""',
             position: "absolute",
@@ -97,10 +121,7 @@ const PreferentialTrial: FC<{
             },
           }}
         />
-      </Button>
-      <IconButton onClick={() => setDetailShown(true)}>
-        <OpenInFullIcon />
-      </IconButton>
+      </CardContent>
       <Modal open={detailShown} onClose={() => setDetailShown(false)}>
         <Box
           sx={{
@@ -120,7 +141,7 @@ const PreferentialTrial: FC<{
           />
         </Box>
       </Modal>
-    </Box>
+    </Card>
   )
 }
 
@@ -140,7 +161,6 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
     numbers: studyDetail.best_trials.map((t) => t.number),
     last_number: Math.max(...studyDetail.best_trials.map((t) => t.number), -1),
   })
-  const [shuffleTrial, setShuffleTrial] = useState(0)
   const new_trails = studyDetail.best_trials.filter(
     (t) =>
       displayTrials.last_number < t.number &&
