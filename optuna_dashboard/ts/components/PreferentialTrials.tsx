@@ -32,6 +32,15 @@ const PreferentialTrial: FC<{
         variant="outlined"
         onClick={() => {
           hideTrial()
+          action.skipPreferentialTrial(trial.study_id, trial.trial_id)
+        }}
+      >
+        Reload
+      </Button>
+      <Button
+        variant="outlined"
+        onClick={() => {
+          hideTrial()
           const best_trials = studyDetail.best_trials
             .map((t) => t.number)
             .filter((t) => t !== trial.number)

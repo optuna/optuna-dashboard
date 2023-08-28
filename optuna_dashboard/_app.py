@@ -40,7 +40,7 @@ from .artifact._backend import register_artifact_route
 from .artifact._backend_to_store import to_artifact_store
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 from .preferential._study import get_best_trials as get_best_preferential_trials
-from .preferential._system_attrs import report_preferences
+from .preferential._system_attrs import report_preferences, report_skip
 
 
 if typing.TYPE_CHECKING:
@@ -329,6 +329,23 @@ def create_app(
             storage.set_trial_user_attr(trial_id, key, val)
 
         response.status = 204
+        return {}
+
+    @app.post("/api/studies/<study_id:int>/<trial_id:int>/skip")
+    @json_api_view
+    def skip_trial(study_id: int, trial_id: int) -> dict[str, Any]:
+        summary = get_study_summary(storage, study_id)
+        if summary is None:
+            response.status = 404  # Not found
+            return {"reason": f"study_id={study_id} is not found"}
+        system_attrs = getattr(summary, "system_attrs", {})
+        is_preferential = system_attrs.get(_SYSTEM_ATTR_PREFERENTIAL_STUDY, False)
+        if not is_preferential:
+            response.status = 400  # Bad request
+            return {"reason": "The study is not preferential."}
+
+        report_skip(study_id, trial_id, storage)
+        response.status = 204  # No content
         return {}
 
     @app.put("/api/studies/<study_id:int>/<trial_id:int>/note")

@@ -9,6 +9,7 @@ from .._storage import get_study_summary
 
 
 _SYSTEM_ATTR_PREFIX_PREFERENCE = "preference:values"
+_SYSTEM_ATTR_SKIP_TRIAL = "preference:skip_trial"
 
 
 def report_preferences(
@@ -44,3 +45,19 @@ def get_preferences(
             continue
         preferences.extend(v)  # type: ignore
     return preferences
+
+
+def report_skip(
+    study_id: int,
+    trial_id: int,
+    storage: BaseStorage,
+):
+    system_attrs = storage.get_study_system_attrs(study_id)
+    trial_skiped: list[int] = system_attrs.get(_SYSTEM_ATTR_SKIP_TRIAL, [])
+    trial_number = storage.get_trial(trial_id).number
+    trial_skiped.append(trial_number)
+    storage.set_study_system_attr(
+        study_id=study_id,
+        key=_SYSTEM_ATTR_SKIP_TRIAL,
+        value=trial_skiped,
+    )

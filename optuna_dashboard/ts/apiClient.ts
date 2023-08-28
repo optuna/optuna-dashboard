@@ -326,3 +326,14 @@ export const reportPreferenceAPI = (
       return
     })
 }
+
+export const skipPreferentialTrialAPI = (
+  studyId: number,
+  trialId: number
+): Promise<void> => {
+  return axiosInstance
+    .post<void>(`/api/studies/${studyId}/${trialId}/skip`)
+    .then(() => {
+      return
+    })
+}
