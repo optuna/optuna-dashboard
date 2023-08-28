@@ -1,0 +1,33 @@
+on:
+  push:
+    branches:
+      - main
+  # TODO(c-bata): Remove this after confirming that the deployment works.
+  pull_request:
+    branches:
+      - main
+jobs:
+  pull:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: Build standalone_app
+        run: make MODE="prd" standalone_app/public/bundle.js
+      - name: Create publish directory
+        run: |
+          mkdir gh-publish
+          cp -r standalone_app/public gh-publish/public
+          cp standalone_app/index.html gh-publish/index.html
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./gh-publish

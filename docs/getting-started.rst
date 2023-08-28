@@ -172,6 +172,42 @@ or
    $ uwsgi --http :8080 --workeers 4 --wsgi-file wsgi.py
 
 
+Browser-only version (Experimental)
+-----------------------------------
+
+.. figure:: _static/browser-app.gif
+   :alt: GIF animation for the browser-only version
+   :align: center
+   :width: 800px
+
+   Browser-only version of Optuna Dashboard, powered by Wasm.
+
+We've developed the version that operates solely within your web browser.
+There's no need to install Python or any other dependencies.
+Simply open the following URL in your browser, drag and drop your SQLite3 file onto the page, and you're ready to view your Optuna studies!
+
+https://optuna.github.io/optuna-dashboard/
+
+.. warning::
+
+   Currently, only a subset of features is available. However, you can still check the optimization history, hyperparameter importances, and etc. in graphs and tables.
+
+VS Code Extension (Experimental)
+--------------------------------
+
+You can install the VS Code extension via `Visual Studio Marketplace <https://marketplace.visualstudio.com/items?itemName=Optuna.optuna-dashboard#overview>`_.
+
+.. figure:: _static/vscode-extension.png
+   :alt: Screenshot for the VS Code Extension
+   :align: center
+   :width: 800px
+
+   VS Code Extension
+
+To use, right-click the SQLite3 files (``*.db`` or ``*.sqlite3``) in the file explorer and select the "Open in Optuna Dashboard" from the dropdown menu.
+This extension leverages the browser-only version of Optuna Dashboard, so the same limitations apply.
+
+
 Google Colaboratory
 -------------------
 
@@ -201,14 +237,3 @@ you can use ``google.colab.output()`` function as follows:
    output.serve_kernel_port_as_window(port, path='/dashboard/')
 
 Then please open http://localhost:8081/dashboard to browse.
-
-VS Code (Experimental)
-----------------------
-
-You can install the VS Code extension via `Visual Studio Marketplace <https://marketplace.visualstudio.com/items?itemName=Optuna.optuna-dashboard#overview>`_.
-
-.. image:: _static/vscode-extension.png
-   :alt: Screenshot for the VS Code Extension
-   :align: center
-
-Please right-click the SQLite3 files (`*.db` or `*.sqlite3`) in the file explorer and select the "Open in Optuna Dashboard" command from the dropdown menu.
