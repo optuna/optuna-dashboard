@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   CardActions,
+  CardActionArea,
 } from "@mui/material"
 import ClearIcon from "@mui/icons-material/Clear"
 import IconButton from "@mui/material/IconButton"
@@ -15,6 +16,7 @@ import Modal from "@mui/material/Modal"
 import { actionCreator } from "../action"
 import { TrialListDetail } from "./TrialList"
 import { MarkdownRenderer } from "./Note"
+import { red } from "@mui/material/colors"
 
 const PreferentialTrial: FC<{
   trial?: Trial
@@ -44,12 +46,12 @@ const PreferentialTrial: FC<{
       sx={{
         width: trialWidth,
         minHeight: trialHeight,
-        position: "relative",
         margin: theme.spacing(2),
         padding: 0,
       }}
     >
       <CardActions>
+        <Typography variant="h5">Trial {trial.number}</Typography>
         <IconButton
           sx={{
             marginLeft: "auto",
@@ -60,70 +62,79 @@ const PreferentialTrial: FC<{
           <OpenInFullIcon />
         </IconButton>
       </CardActions>
-      <CardContent
-        aria-label="trial-button"
-        onClick={() => {
-          hideTrial()
-          const best_trials = studyDetail.best_trials
-            .map((t) => t.number)
-            .filter((t) => t !== trial.number)
-          action.updatePreference(trial.study_id, best_trials, [trial.number])
-        }}
-        sx={{
-          padding: 0,
-          position: "relative",
-          overflow: "hidden",
-          "::before": {
-            content: '""',
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: theme.palette.mode === "dark" ? "white" : "black",
-            opacity: 0,
-            zIndex: 1,
-            transition: "opacity 0.3s ease-out",
-          },
-          ":hover::before": {
-            opacity: 0.1,
-          },
-        }}
-      >
-        <Box
-          sx={{
-            padding: theme.spacing(2),
-            position: "relative",
+      <CardActionArea>
+        <CardContent
+          aria-label="trial-button"
+          onClick={() => {
+            hideTrial()
+            const best_trials = studyDetail.best_trials
+              .map((t) => t.number)
+              .filter((t) => t !== trial.number)
+            action.updatePreference(trial.study_id, best_trials, [trial.number])
           }}
-        >
-          <MarkdownRenderer body={trial.note.body} />
-        </Box>
-
-        <ClearIcon
           sx={{
-            position: "absolute",
-            width: "100%",
-            height: "100%",
-            top: 0,
-            left: 0,
-            color: "red",
-            fontSize: trialWidth / 2,
-            opacity: 0,
-            transition: "opacity 0.3s ease-out",
-            zIndex: 1,
-            ":hover": {
-              opacity: 0.5,
+            padding: 0,
+            position: "relative",
+            overflow: "hidden",
+            "::before": {
+              content: '""',
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              backgroundColor:
+                theme.palette.mode === "dark" ? "white" : "black",
+              opacity: 0,
+              zIndex: 1,
+              transition: "opacity 0.3s ease-out",
+            },
+            ":hover::before": {
+              opacity: 0.2,
             },
           }}
-        />
-      </CardContent>
+        >
+          <Box
+            sx={{
+              padding: theme.spacing(2),
+            }}
+          >
+            <MarkdownRenderer body={trial.note.body} />
+          </Box>
+
+          <ClearIcon
+            sx={{
+              position: "absolute",
+              width: "100%",
+              height: "100%",
+              top: 0,
+              left: 0,
+              color: red[600],
+              opacity: 0,
+              transition: "opacity 0.3s ease-out",
+              zIndex: 1,
+              ":hover": {
+                opacity: 0.3,
+                filter:
+                  theme.palette.mode === "dark"
+                    ? "brightness(1.1)"
+                    : "brightness(1.7)",
+              },
+            }}
+          />
+        </CardContent>
+      </CardActionArea>
       <Modal open={detailShown} onClose={() => setDetailShown(false)}>
         <Box
           sx={{
             position: "absolute",
-            width: "70%",
-            left: "15%",
-            top: theme.spacing(8),
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            width: "80%",
+            maxHeight: "90%",
+            margin: "auto",
             backgroundColor: theme.palette.mode === "dark" ? "black" : "white",
             borderRadius: theme.spacing(3),
           }}
