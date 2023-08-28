@@ -141,7 +141,7 @@ const PreferentialTrial: FC<{
         >
           <TrialListDetail
             trial={trial}
-            isBestTrial={() => false}
+            isBestTrial={() => true}
             directions={[]}
             objectiveNames={[]}
           />
