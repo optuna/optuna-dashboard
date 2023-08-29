@@ -55,6 +55,26 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
   }
 }
 
+interface PreferenceChoiceResponce {
+  uuid: string
+  candidate_trials: number[]
+  preferences: number[][]
+  feedback_mode: PreferenceFeedbackMode
+  timestamp: string
+}
+
+const convertPreferenceChoice = (
+  res: PreferenceChoiceResponce
+): PreferenceChoice => {
+  return {
+    uuid: res.uuid,
+    candidate_trials: res.candidate_trials,
+    preferences: res.preferences,
+    feedback_mode: res.feedback_mode,
+    timestamp: new Date(res.timestamp),
+  }
+}
+
 interface StudyDetailResponse {
   name: string
   datetime_start: string
@@ -70,6 +90,7 @@ interface StudyDetailResponse {
   is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
+  preference_history?: PreferenceChoiceResponce[]
 }
 
 export const getStudyDetailAPI = (
@@ -105,6 +126,9 @@ export const getStudyDetailAPI = (
         objective_names: res.data.objective_names,
         form_widgets: res.data.form_widgets,
         is_preferential: res.data.is_preferential,
+        preference_history: res.data.preference_history?.map(
+          convertPreferenceChoice
+        ),
       }
     })
 }
@@ -319,8 +343,18 @@ export const reportPreferenceAPI = (
 ): Promise<void> => {
   return axiosInstance
     .post<void>(`/api/studies/${studyId}/preference`, {
-      best_trials: best_trials,
-      worst_trials: worst_trials,
+      candidate_trials: best_trials.concat(worst_trials),
+      preferentials: best_trials.reduce<number[][]>(
+        (prev, best_trial_id) =>
+          prev.concat(
+            worst_trials.map((worst_trial_id) => [
+              best_trial_id,
+              worst_trial_id,
+            ])
+          ),
+        []
+      ),
+      mode: "choose_worst",
     })
     .then(() => {
       return

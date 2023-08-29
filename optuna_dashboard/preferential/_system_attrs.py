@@ -15,8 +15,9 @@ def report_preferences(
     study_id: int,
     storage: BaseStorage,
     preferences: list[tuple[int, int]],
-) -> None:
-    key = _SYSTEM_ATTR_PREFIX_PREFERENCE + str(uuid.uuid4())
+) -> str:
+    preference_uuid = str(uuid.uuid4())
+    key = _SYSTEM_ATTR_PREFIX_PREFERENCE + preference_uuid
     storage.set_study_system_attr(
         study_id=study_id,
         key=key,
@@ -30,6 +31,7 @@ def report_preferences(
         trial_id = trials[number]._trial_id
         if trials[number].state != TrialState.COMPLETE:
             storage.set_trial_state_values(trial_id, TrialState.COMPLETE, values)
+    return preference_uuid
 
 
 def get_preferences(

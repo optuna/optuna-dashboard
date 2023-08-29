@@ -8,6 +8,7 @@ from typing import Any
 from typing import Optional
 from typing import Union
 import warnings
+from datetime import datetime
 
 from bottle import Bottle
 from bottle import redirect
@@ -40,7 +41,8 @@ from .artifact._backend import register_artifact_route
 from .artifact._backend_to_store import to_artifact_store
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 from .preferential._study import get_best_trials as get_best_preferential_trials
-from .preferential._system_attrs import report_preferences
+from .preferential._history import FeedbackMode
+from .preferential._history import report_choice
 
 
 if typing.TYPE_CHECKING:
@@ -268,17 +270,17 @@ def create_app(
     @json_api_view
     def post_preference(study_id: int) -> dict[str, Any]:
         try:
-            best_trials = [int(d) for d in request.json.get("best_trials", [])]
-            worst_trials = [int(d) for d in request.json.get("worst_trials", [])]
+            candidate_trials = [int(d) for d in request.json.get("candidate_trials", [])]
+            preferences = [(int(d[0]), int(d[1])) for d in request.json.get("preferentials", [])]
+            mode = FeedbackMode[request.json.get("mode", "auto").upper()]
         except ValueError:
             response.status = 400
-            return {"reason": "best_trials and worst_trials must be an array of integers."}
-        if len(best_trials) == 0 or len(worst_trials) == 0:
+            return {"reason": "Invalid request."}
+        if len(preferences) == 0:
             response.status = 400  # Bad request
             return {"reason": "You need to set best_trials and worst_trials"}
 
-        preferences = [(best, worst) for best in best_trials for worst in worst_trials]
-        report_preferences(study_id, storage, preferences)
+        report_choice(study_id, storage, candidate_trials, preferences, mode, datetime.now())
 
         response.status = 204
         return {}

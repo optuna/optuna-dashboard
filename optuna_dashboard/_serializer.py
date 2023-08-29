@@ -16,7 +16,8 @@ from ._form_widget import get_form_widgets_json
 from ._named_objectives import get_objective_names
 from .artifact._backend import list_trial_artifacts
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
-
+from .preferential._history import Choice, _SYSTEM_ATTR_PREFIX_HISTORY
+from .preferential._system_attrs import _SYSTEM_ATTR_PREFIX_PREFERENCE
 
 if TYPE_CHECKING:
     from typing import Literal
@@ -155,6 +156,8 @@ def serialize_study_detail(
     form_widgets = get_form_widgets_json(system_attrs)
     if form_widgets:
         serialized["form_widgets"] = form_widgets
+    if serialized["is_preferential"]:
+        serialized["preference_history"] = serialize_preference_history(system_attrs)
     return serialized
 
 
@@ -326,3 +329,18 @@ def serialize_search_space(
             }
         )
     return serialized
+
+
+def serialize_preference_history(
+    system_attrs: dict[str, Any],
+) -> list[dict[str, Any]]:
+    history: list[Choice] = []
+    for k, v in system_attrs.items():
+        if not k.startswith(_SYSTEM_ATTR_PREFIX_HISTORY):
+            continue
+        choice: dict[str, Any] = json.loads(v)
+        choice["preferences"] = system_attrs.get(
+            _SYSTEM_ATTR_PREFIX_PREFERENCE + choice["preference_uuid"], []
+        )
+        history.append(choice)
+    return history

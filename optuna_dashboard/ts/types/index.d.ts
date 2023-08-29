@@ -12,6 +12,7 @@ type TrialIntermediateValueNumber = number | "inf" | "-inf" | "nan"
 type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting"
 type TrialStateFinished = "Complete" | "Fail" | "Pruned"
 type StudyDirection = "maximize" | "minimize" | "not_set"
+type PreferenceFeedbackMode = "choose_worst" | "auto"
 
 type FloatDistribution = {
   type: "FloatDistribution"
@@ -197,6 +198,7 @@ type StudyDetail = {
   is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
+  preference_history?: PreferenceChoice[]
 }
 
 type StudyDetails = {
@@ -205,4 +207,12 @@ type StudyDetails = {
 
 type StudyParamImportance = {
   [study_id: string]: ParamImportance[][]
+}
+
+type PreferenceChoice = {
+  uuid: string
+  candidate_trials: number[]
+  preferences: number[][]
+  feedback_mode: PreferenceFeedbackMode
+  timestamp: Date
 }
