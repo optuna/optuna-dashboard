@@ -335,11 +335,11 @@ def create_app(
     @app.post("/api/studies/<study_id:int>/<trial_id:int>/skip")
     @json_api_view
     def skip_trial(study_id: int, trial_id: int) -> dict[str, Any]:
-        summary = get_study_summary(storage, study_id)
-        if summary is None:
+        try:
+            system_attrs = storage.get_study_system_attrs(study_id)
+        except KeyError:
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
-        system_attrs = getattr(summary, "system_attrs", {})
         is_preferential = system_attrs.get(_SYSTEM_ATTR_PREFERENTIAL_STUDY, False)
         if not is_preferential:
             response.status = 400  # Bad request
