@@ -11,6 +11,7 @@ import {
   Card,
   CardContent,
 } from "@mui/material"
+import Grid2 from "@mui/material/Unstable_Grid2"
 import { Home } from "@mui/icons-material"
 import Brightness4Icon from "@mui/icons-material/Brightness4"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
@@ -19,6 +20,7 @@ import { studiesState } from "../state"
 import { TrialTable } from "./TrialTable"
 import { PlotHistory } from "./PlotHistory"
 import { PlotImportance } from "./PlotImportance"
+import { PlotIntermediateValues } from "./PlotIntermediateValues"
 
 const useStudyValue = (idx: number): Study | null => {
   const studies = useRecoilValue<Study[]>(studiesState)
@@ -83,7 +85,7 @@ export const StudyDetail: FC<{
           },
         }}
       >
-        <div>
+        <>
           <Typography
             variant="h4"
             sx={{
@@ -102,17 +104,34 @@ export const StudyDetail: FC<{
               <PlotHistory study={study} />
             </CardContent>
           </Card>
-          <Card sx={{ margin: theme.spacing(2) }}>
-            <CardContent>
-              {!!study && <PlotImportance study={study} />}
-            </CardContent>
-          </Card>
+          <Grid2 container spacing={0}>
+            <Grid2 xs={6}>
+              <Card sx={{ margin: theme.spacing(2) }}>
+                <CardContent>
+                  {!!study && <PlotImportance study={study} />}
+                </CardContent>
+              </Card>
+            </Grid2>
+            <Grid2 xs={6}>
+              <Card sx={{ margin: theme.spacing(2) }}>
+                <CardContent>
+                  {!!study && (
+                    <PlotIntermediateValues
+                      trials={study.trials}
+                      includePruned={false}
+                      logScale={false}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            </Grid2>
+          </Grid2>
           <Card sx={{ margin: theme.spacing(2) }}>
             <CardContent>
               {!!study && <TrialTable study={study} initialRowsPerPage={10} />}
             </CardContent>
           </Card>
-        </div>
+        </>
       </Container>
     </div>
   )

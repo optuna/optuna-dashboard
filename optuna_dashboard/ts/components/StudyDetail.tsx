@@ -127,7 +127,7 @@ export const StudyDetail: FC<{
                 <Grid2 xs={6} key={i}>
                   <Card>
                     <CardContent>
-                      <GraphEdf study={studyDetail} objectiveId={i} />
+                      <GraphEdf studies={[studyDetail]} objectiveId={i} />
                     </CardContent>
                   </Card>
                 </Grid2>
