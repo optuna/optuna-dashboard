@@ -13,6 +13,7 @@ from optuna.samplers import RandomSampler
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
 from optuna_dashboard.preferential._system_attrs import get_preferences
+from optuna_dashboard.preferential._system_attrs import is_skipped_trial
 from optuna_dashboard.preferential._system_attrs import report_preferences
 
 
@@ -254,18 +255,21 @@ class PreferentialStudy:
 
 
 def get_best_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list[FrozenTrial]:
-    ready_trials = [
-        t
-        for t in storage.get_all_trials(
-            study_id,
-            deepcopy=False,
-            states=(TrialState.COMPLETE, TrialState.RUNNING),
-        )
-        if t.system_attrs.get(_SYSTEM_ATTR_COMPARISON_READY) is True
-    ]
     preferences = get_preferences(study_id, storage)
     worse_numbers = {worse for _, worse in preferences}
-    return [copy.deepcopy(t) for t in ready_trials if t.number not in worse_numbers]
+    study_system_attrs = storage.get_study_system_attrs(study_id)
+    best_trials = []
+    for t in storage.get_all_trials(
+        study_id, deepcopy=False, states=(TrialState.COMPLETE, TrialState.RUNNING)
+    ):
+        if not t.system_attrs.get(_SYSTEM_ATTR_COMPARISON_READY, False):
+            continue
+        if t.number in worse_numbers:
+            continue
+        if is_skipped_trial(t._trial_id, study_system_attrs):
+            continue
+        best_trials.append(copy.deepcopy(t))
+    return best_trials
 
 
 def create_study(

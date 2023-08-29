@@ -1,14 +1,14 @@
 from __future__ import annotations
 
+from typing import Any
 import uuid
 
 from optuna.storages import BaseStorage
 from optuna.trial import TrialState
 
-from .._storage import get_study_summary
-
 
 _SYSTEM_ATTR_PREFIX_PREFERENCE = "preference:values"
+_SYSTEM_ATTR_PREFIX_SKIP_TRIAL = "preference:skip_trial:"
 
 
 def report_preferences(
@@ -37,10 +37,26 @@ def get_preferences(
     storage: BaseStorage,
 ) -> list[tuple[int, int]]:
     preferences: list[tuple[int, int]] = []
-    summary = get_study_summary(storage, study_id)
-    system_attrs = getattr(summary, "system_attrs", {})
+    system_attrs = storage.get_study_system_attrs(study_id)
     for k, v in system_attrs.items():
         if not k.startswith(_SYSTEM_ATTR_PREFIX_PREFERENCE):
             continue
         preferences.extend(v)  # type: ignore
     return preferences
+
+
+def report_skip(
+    study_id: int,
+    trial_id: int,
+    storage: BaseStorage,
+) -> None:
+    storage.set_study_system_attr(
+        study_id=study_id,
+        key=_SYSTEM_ATTR_PREFIX_SKIP_TRIAL + str(trial_id),
+        value=True,
+    )
+
+
+def is_skipped_trial(trial_id: int, study_system_attrs: dict[str, Any]) -> bool:
+    key = _SYSTEM_ATTR_PREFIX_SKIP_TRIAL + str(trial_id)
+    return key in study_system_attrs
