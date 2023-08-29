@@ -11,7 +11,7 @@ from optuna_dashboard.artifact import get_artifact_path
 from optuna_dashboard.artifact import upload_artifact
 from optuna_dashboard.artifact.file_system import FileSystemBackend
 from optuna_dashboard.preferential import create_study
-from optuna_dashboard.preferential.samplers._gp import PreferentialGPSampler
+from optuna_dashboard.preferential.samplers.gp import PreferentialGPSampler
 from PIL import Image
 
 
