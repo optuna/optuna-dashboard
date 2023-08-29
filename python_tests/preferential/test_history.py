@@ -42,10 +42,18 @@ def test_report_and_get_choices(storage_supplier: Callable[[], StorageSupplier])
         history = serialize_preference_history(storage.get_study_system_attrs(study_id))
         assert len(history) == 2
         assert history[0]["candidate_trials"] == [0, 1, 2]
-        assert history[0]["preferences"] == [[0, 1], [2, 1]]
+        assert len(history[0]["preferences"]) == 2
+        for i, (best, worst) in enumerate([(0, 1), (2, 1)]):
+            assert len(history[0]["preferences"][i]) == 2
+            assert history[0]["preferences"][i][0] == best
+            assert history[0]["preferences"][i][1] == worst
         assert history[0]["feedback_mode"] == FeedbackMode.CHOOSE_WORST.name
         assert history[0]["timestamp"] == "2020-01-01T10:00:00"
         assert history[1]["candidate_trials"] == [0, 2, 3, 4]
-        assert history[1]["preferences"] == [[2, 0], [3, 0], [4, 0]]
+        assert len(history[1]["preferences"]) == 3
+        for i, (best, worst) in enumerate([(2, 0), (3, 0), (4, 0)]):
+            assert len(history[1]["preferences"][i]) == 2
+            assert history[1]["preferences"][i][0] == best
+            assert history[1]["preferences"][i][1] == worst
         assert history[1]["feedback_mode"] == FeedbackMode.CHOOSE_WORST.name
         assert history[1]["timestamp"] == "2020-01-01T10:00:01"
