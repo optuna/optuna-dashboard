@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 import functools
 import logging
 import os
@@ -8,7 +9,6 @@ from typing import Any
 from typing import Optional
 from typing import Union
 import warnings
-from datetime import datetime
 
 from bottle import Bottle
 from bottle import redirect
@@ -39,10 +39,10 @@ from ._storage_url import get_storage
 from .artifact._backend import delete_all_artifacts
 from .artifact._backend import register_artifact_route
 from .artifact._backend_to_store import to_artifact_store
-from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
-from .preferential._study import get_best_trials as get_best_preferential_trials
 from .preferential._history import FeedbackMode
 from .preferential._history import report_choice
+from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
+from .preferential._study import get_best_trials as get_best_preferential_trials
 
 
 if typing.TYPE_CHECKING:

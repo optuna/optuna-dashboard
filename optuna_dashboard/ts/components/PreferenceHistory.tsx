@@ -27,7 +27,7 @@ const CandidateTrial: FC<{
   const trialHeight = 300
   const [detailShown, setDetailShown] = useState(false)
 
-  let cardComponentSx = {
+  const cardComponentSx = {
     padding: 0,
     position: "relative",
     overflow: "hidden",

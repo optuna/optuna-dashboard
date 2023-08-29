@@ -15,9 +15,10 @@ from . import _note as note
 from ._form_widget import get_form_widgets_json
 from ._named_objectives import get_objective_names
 from .artifact._backend import list_trial_artifacts
+from .preferential._history import _SYSTEM_ATTR_PREFIX_HISTORY
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
-from .preferential._history import Choice, _SYSTEM_ATTR_PREFIX_HISTORY
 from .preferential._system_attrs import _SYSTEM_ATTR_PREFIX_PREFERENCE
+
 
 if TYPE_CHECKING:
     from typing import Literal
@@ -334,7 +335,7 @@ def serialize_search_space(
 def serialize_preference_history(
     system_attrs: dict[str, Any],
 ) -> list[dict[str, Any]]:
-    history: list[Choice] = []
+    history: list[dict[str, Any]] = []
     for k, v in system_attrs.items():
         if not k.startswith(_SYSTEM_ATTR_PREFIX_HISTORY):
             continue
@@ -343,4 +344,5 @@ def serialize_preference_history(
             _SYSTEM_ATTR_PREFIX_PREFERENCE + choice["preference_uuid"], []
         )
         history.append(choice)
+    history.sort(key=lambda c: c["timestamp"])
     return history

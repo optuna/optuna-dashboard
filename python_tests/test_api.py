@@ -136,7 +136,13 @@ class APITestCase(TestCase):
             app,
             f"/api/studies/{study_id}/preference",
             "POST",
-            body=json.dumps({"best_trials": [0, 2], "worst_trials": [1]}),
+            body=json.dumps(
+                {
+                    "candidate_trials": [0, 1, 2],
+                    "preferentials": [[0, 1], [2, 1]],
+                    "mode": "choose_worst",
+                }
+            ),
             content_type="application/json",
         )
         self.assertEqual(status, 204)

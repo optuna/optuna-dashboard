@@ -1,15 +1,15 @@
-from enum import Enum
+from dataclasses import asdict
+from dataclasses import dataclass
 from datetime import datetime
-import uuid
+from enum import Enum
 import json
-from dataclasses import dataclass, asdict
-from typing import Any
 from json import JSONEncoder
+from typing import Any
+import uuid
 
 from optuna.storages import BaseStorage
 
 from ._system_attrs import report_preferences
-from .._storage import get_study_summary
 
 
 _SYSTEM_ATTR_PREFIX_HISTORY = "preference:history"
@@ -30,14 +30,14 @@ class Choice:
 
 
 class Encoder(JSONEncoder):
-    def default(self, o):
-        if isinstance(o, FeedbackMode):
-            return o.name
-        if isinstance(o, Choice):
-            return asdict(o)
-        if isinstance(o, datetime):
-            return o.isoformat()
-        return super().default(o)
+    def default(self, a: Any) -> Any:
+        if isinstance(a, FeedbackMode):
+            return a.name
+        if isinstance(a, Choice):
+            return asdict(a)
+        if isinstance(a, datetime):
+            return a.isoformat()
+        return super().default(a)
 
 
 def report_choice(
@@ -47,7 +47,7 @@ def report_choice(
     preferences: list[tuple[int, int]],
     feedback_mode: FeedbackMode,
     timestamp: datetime,
-):
+) -> None:
     choice = Choice(
         uuid=str(uuid.uuid4()),
         candidate_trials=candidate_trials,
