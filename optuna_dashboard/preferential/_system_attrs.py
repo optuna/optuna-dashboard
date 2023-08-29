@@ -6,6 +6,7 @@ import uuid
 from optuna.storages import BaseStorage
 from optuna.trial import TrialState
 
+
 _SYSTEM_ATTR_PREFIX_PREFERENCE = "preference:values"
 _SYSTEM_ATTR_PREFIX_SKIP_TRIAL = "preference:skip_trial:"
 
