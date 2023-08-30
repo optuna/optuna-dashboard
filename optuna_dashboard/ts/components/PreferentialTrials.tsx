@@ -11,12 +11,13 @@ import {
 import ClearIcon from "@mui/icons-material/Clear"
 import IconButton from "@mui/material/IconButton"
 import OpenInFullIcon from "@mui/icons-material/OpenInFull"
+import ReplayIcon from "@mui/icons-material/Replay"
 import Modal from "@mui/material/Modal"
+import { red } from "@mui/material/colors"
 
 import { actionCreator } from "../action"
 import { TrialListDetail } from "./TrialList"
 import { MarkdownRenderer } from "./Note"
-import { red } from "@mui/material/colors"
 
 const PreferentialTrial: FC<{
   trial?: Trial
@@ -52,6 +53,18 @@ const PreferentialTrial: FC<{
     >
       <CardActions>
         <Typography variant="h5">Trial {trial.number}</Typography>
+        <IconButton
+          sx={{
+            marginLeft: "auto",
+          }}
+          onClick={() => {
+            hideTrial()
+            action.skipPreferentialTrial(trial.study_id, trial.trial_id)
+          }}
+          aria-label="skip trial"
+        >
+          <ReplayIcon />
+        </IconButton>
         <IconButton
           sx={{
             marginLeft: "auto",

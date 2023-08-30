@@ -15,6 +15,7 @@ import {
   getMetaInfoAPI,
   deleteArtifactAPI,
   reportPreferenceAPI,
+  skipPreferentialTrialAPI,
 } from "./apiClient"
 import {
   graphVisibilityState,
@@ -598,6 +599,16 @@ export const actionCreator = () => {
     })
   }
 
+  const skipPreferentialTrial = (studyId: number, trialId: number) => {
+    skipPreferentialTrialAPI(studyId, trialId).catch((err) => {
+      const reason = err.response?.data.reason
+      enqueueSnackbar(`Failed to skip trial. Reason: ${reason}`, {
+        variant: "error",
+      })
+      console.log(err)
+    })
+  }
+
   return {
     updateAPIMeta,
     updateStudyDetail,
@@ -618,6 +629,7 @@ export const actionCreator = () => {
     makeTrialFail,
     saveTrialUserAttrs,
     updatePreference,
+    skipPreferentialTrial,
   }
 }
 

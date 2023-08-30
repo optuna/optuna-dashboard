@@ -43,6 +43,7 @@ from .preferential._history import FeedbackMode
 from .preferential._history import report_choice
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 from .preferential._study import get_best_trials as get_best_preferential_trials
+from .preferential._system_attrs import report_skip
 
 
 if typing.TYPE_CHECKING:
@@ -331,6 +332,23 @@ def create_app(
             storage.set_trial_user_attr(trial_id, key, val)
 
         response.status = 204
+        return {}
+
+    @app.post("/api/studies/<study_id:int>/<trial_id:int>/skip")
+    @json_api_view
+    def skip_trial(study_id: int, trial_id: int) -> dict[str, Any]:
+        try:
+            system_attrs = storage.get_study_system_attrs(study_id)
+        except KeyError:
+            response.status = 404  # Not found
+            return {"reason": f"study_id={study_id} is not found"}
+        is_preferential = system_attrs.get(_SYSTEM_ATTR_PREFERENTIAL_STUDY, False)
+        if not is_preferential:
+            response.status = 400  # Bad request
+            return {"reason": "The study is not preferential."}
+
+        report_skip(study_id, trial_id, storage)
+        response.status = 204  # No content
         return {}
 
     @app.put("/api/studies/<study_id:int>/<trial_id:int>/note")
