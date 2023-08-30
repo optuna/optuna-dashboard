@@ -77,7 +77,7 @@ $ docker run -it --rm -p 8080:8080 ghcr.io/optuna/optuna-dashboard postgresql+ps
 
 ## Browser-only version (Experimental)
 
-<img src="./docs/_static/browser-app.gif" style="width:600" alt="Browser-only version">
+<img src="./docs/_static/browser-app.gif" style="width:600px;" alt="Browser-only version">
 
 We’ve developed the version that operates solely within your web browser, which internally uses SQLite3 Wasm and Rust.
 There’s no need to install Python or any other dependencies.
@@ -91,7 +91,7 @@ https://optuna.github.io/optuna-dashboard/
 
 You can install the VS Code extension via [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Optuna.optuna-dashboard#overview).
 
-<img src="./docs/_static/vscode-extension.png" style="width:600" alt="VSCode Extension">
+<img src="./docs/_static/vscode-extension.png" style="width:600px;" alt="VSCode Extension">
 
 Please right-click the SQLite3 files (`*.db` or `*.sqlite3`) in the VS Code file explorer and select the "Open in Optuna Dashboard" command from the dropdown menu.
 This extension leverages the browser-only version of Optuna Dashboard, so the same limitations apply.
