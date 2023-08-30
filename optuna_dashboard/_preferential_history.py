@@ -3,7 +3,6 @@ from __future__ import annotations
 from datetime import datetime
 import json
 from typing import TYPE_CHECKING
-from typing import TypedDict
 import uuid
 
 from optuna.storages import BaseStorage
@@ -14,6 +13,8 @@ from .preferential._system_attrs import report_preferences
 _SYSTEM_ATTR_PREFIX_HISTORY = "preference:history"
 
 if TYPE_CHECKING:
+    from typing import TypedDict
+
     Choice = TypedDict(
         "Choice",
         {
