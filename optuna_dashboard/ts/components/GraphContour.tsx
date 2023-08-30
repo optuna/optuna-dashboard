@@ -212,24 +212,26 @@ const plotContour = (
   })
 
   const plotData: Partial<plotly.PlotData>[] = [
-    {
-      type: "contour",
-      x: xIndices,
-      y: yIndices,
-      z: zValues,
-      colorscale: "Blues",
-      connectgaps: true,
-      hoverinfo: "none",
-      line: {
-        smoothing: 1.3,
-      },
-      reversescale: study.directions[objectiveId] !== "minimize",
-      // https://github.com/plotly/react-plotly.js/issues/251
-      // @ts-ignore
-      contours: {
-        coloring: "heatmap",
-      },
-    },
+    study.is_preferential
+      ? {}
+      : {
+          type: "contour",
+          x: xIndices,
+          y: yIndices,
+          z: zValues,
+          colorscale: "Blues",
+          connectgaps: true,
+          hoverinfo: "none",
+          line: {
+            smoothing: 1.3,
+          },
+          reversescale: study.directions[objectiveId] !== "minimize",
+          // https://github.com/plotly/react-plotly.js/issues/251
+          // @ts-ignore
+          contours: {
+            coloring: "heatmap",
+          },
+        },
     {
       type: "scatter",
       x: xValues,

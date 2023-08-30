@@ -204,21 +204,19 @@ export const AppDrawer: FC<{
                 />
               </ListItemButton>
             </ListItem>
-            {!isPreferential && (
-              <ListItem key="Analytics" disablePadding sx={styleListItem}>
-                <ListItemButton
-                  component={Link}
-                  to={`${URL_PREFIX}/studies/${studyId}/analytics`}
-                  sx={styleListItemButton}
-                  selected={page === "analytics"}
-                >
-                  <ListItemIcon sx={styleListItemIcon}>
-                    <QueryStatsIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Analytics" sx={styleListItemText} />
-                </ListItemButton>
-              </ListItem>
-            )}
+            <ListItem key="Analytics" disablePadding sx={styleListItem}>
+              <ListItemButton
+                component={Link}
+                to={`${URL_PREFIX}/studies/${studyId}/analytics`}
+                sx={styleListItemButton}
+                selected={page === "analytics"}
+              >
+                <ListItemIcon sx={styleListItemIcon}>
+                  <QueryStatsIcon />
+                </ListItemIcon>
+                <ListItemText primary="Analytics" sx={styleListItemText} />
+              </ListItemButton>
+            </ListItem>
             <ListItem key="TableList" disablePadding sx={styleListItem}>
               <ListItemButton
                 component={Link}

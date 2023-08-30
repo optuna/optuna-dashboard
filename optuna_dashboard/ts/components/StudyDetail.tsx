@@ -30,6 +30,7 @@ import { GraphEdf } from "./GraphEdf"
 import { TrialList } from "./TrialList"
 import { StudyHistory } from "./StudyHistory"
 import { PreferentialTrials } from "./PreferentialTrials"
+import { PreferentialAnalytics } from "./PreferentialAnalytics"
 
 interface ParamTypes {
   studyId: string
@@ -98,7 +99,9 @@ export const StudyDetail: FC<{
       <StudyHistory studyId={studyId} />
     )
   } else if (page === "analytics") {
-    content = (
+    content = isPreferential ? (
+      <PreferentialAnalytics studyId={studyId} />
+    ) : (
       <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
         <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
           Hyperparameter Relationships
