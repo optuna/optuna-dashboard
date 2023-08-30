@@ -161,22 +161,11 @@ class _SampledGP(botorch.models.model.Model):
 
 class _PreferentialGP:
     def _kernel_func(
-        self, x1: torch.Tensor, x2: torch.Tensor, lengthscale: torch.Tensor, nu: float
+        self, x1: torch.Tensor, x2: torch.Tensor, lengthscale: torch.Tensor,
     ) -> torch.Tensor:
-        x1_ = x1.div(lengthscale)
-        x2_ = x2.div(lengthscale)
-        distance = torch.cdist(x1_, x2_)
-        exp_component = torch.exp(-math.sqrt(nu * 2) * distance)
-
-        if nu == 0.5:
-            constant_component = 1
-        elif nu == 1.5:
-            constant_component = (math.sqrt(3) * distance).add(1)
-        elif nu == 2.5:
-            constant_component = (math.sqrt(5) * distance).add(1).add(5.0 / 3.0 * distance**2)
-        else:
-            raise NotImplementedError(f"nu should be 0.5, 1.5 or 2.5")
-        return constant_component * exp_component
+        # Matern 3/2 kernel
+        d = math.sqrt(3) * torch.cdist(x1 / lengthscale, x2 / lengthscale)
+        return torch.exp(-d) * (d + 1)
 
     def _potential_func(
         self,
@@ -193,7 +182,7 @@ class _PreferentialGP:
         log_prior = torch.sum(
             self.lengthscale_prior.log_prob(lengthscale)
         ) + self.noise_prior.log_prob(noise)
-        cov_x_x = self._kernel_func(x, x, lengthscale, 2.5)
+        cov_x_x = self._kernel_func(x, x, lengthscale)
         cov_inv, cov_inv_logdet = _compute_cov_diff_diff_inv_and_logdet(
             preferences=preferences,
             cov_x_x=cov_x_x,
@@ -265,7 +254,7 @@ class _PreferentialGP:
             lengthscale = self.lengthscale_prior.sample() + self.minimum_lengthscale
             noise = self.noise_prior.sample() + self.minimum_noise
             return _SampledGP(
-                kernel_func=lambda x1, x2: self._kernel_func(x1, x2, lengthscale, 2.5),
+                kernel_func=lambda x1, x2: self._kernel_func(x1, x2, lengthscale),
                 x=x,
                 preferences=preferences,
                 obs_noise_var=noise,
@@ -292,7 +281,6 @@ class _PreferentialGP:
                             x,
                             torch.exp(self._last_params["log_lengthscale"])
                             + self.minimum_lengthscale,
-                            nu=2.5,
                         ),
                         obs_noise_var=torch.exp(self._last_params["log_noise"])
                         + self.minimum_noise,
@@ -310,7 +298,7 @@ class _PreferentialGP:
             )
             noise = torch.exp(self._last_params["log_noise"]) + self.minimum_noise
             return _SampledGP(
-                kernel_func=lambda x1, x2: self._kernel_func(x1, x2, lengthscale, 2.5),
+                kernel_func=lambda x1, x2: self._kernel_func(x1, x2, lengthscale),
                 x=x,
                 preferences=preferences,
                 obs_noise_var=noise,
