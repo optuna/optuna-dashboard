@@ -143,7 +143,7 @@ const useIsBestTrial = (
   }, [studyDetail])
 }
 
-const TrialListDetail: FC<{
+export const TrialListDetail: FC<{
   trial: Trial
   isBestTrial: (trialId: number) => boolean
   directions: StudyDirection[]
@@ -710,55 +710,57 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
             )
           }
         })}
-        <Card
-          sx={{
-            marginBottom: theme.spacing(2),
-            width: width,
-            minHeight: height,
-            margin: theme.spacing(0, 1, 1, 0),
-            border: dragOver
-              ? `3px dashed ${
-                  theme.palette.mode === "dark" ? "white" : "black"
-                }`
-              : `1px solid ${theme.palette.divider}`,
-          }}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-        >
-          <CardActionArea
-            onClick={handleClick}
+        {trial.state === "Running" || trial.state === "Waiting" ? (
+          <Card
             sx={{
-              height: "100%",
+              marginBottom: theme.spacing(2),
+              width: width,
+              minHeight: height,
+              margin: theme.spacing(0, 1, 1, 0),
+              border: dragOver
+                ? `3px dashed ${
+                    theme.palette.mode === "dark" ? "white" : "black"
+                  }`
+                : `1px solid ${theme.palette.divider}`,
             }}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
           >
-            <CardContent
+            <CardActionArea
+              onClick={handleClick}
               sx={{
-                display: "flex",
                 height: "100%",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
               }}
             >
-              <UploadFileIcon
-                sx={{ fontSize: 80, marginBottom: theme.spacing(2) }}
-              />
-              <input
-                type="file"
-                ref={inputRef}
-                onChange={handleOnChange}
-                style={{ display: "none" }}
-              />
-              <Typography>Upload a New File</Typography>
-              <Typography
-                sx={{ textAlign: "center", color: theme.palette.grey.A400 }}
+              <CardContent
+                sx={{
+                  display: "flex",
+                  height: "100%",
+                  flexDirection: "column",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
               >
-                Drag your file here or click to browse.
-              </Typography>
-            </CardContent>
-          </CardActionArea>
-        </Card>
+                <UploadFileIcon
+                  sx={{ fontSize: 80, marginBottom: theme.spacing(2) }}
+                />
+                <input
+                  type="file"
+                  ref={inputRef}
+                  onChange={handleOnChange}
+                  style={{ display: "none" }}
+                />
+                <Typography>Upload a New File</Typography>
+                <Typography
+                  sx={{ textAlign: "center", color: theme.palette.grey.A400 }}
+                >
+                  Drag your file here or click to browse.
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        ) : null}
       </Box>
       {renderDeleteArtifactDialog()}
     </>

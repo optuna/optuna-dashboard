@@ -8,7 +8,7 @@ export function activate(context: vscode.ExtensionContext) {
   let disposable = vscode.commands.registerCommand(
     "optuna-dashboard.openOptunaDashboard",
     async (fileUri: vscode.Uri) => {
-      // In VSCode, the path separator of fileUri is always '/'
+      // In VS Code, the path separator of fileUri is always '/'
       // even when using Windows.
       const title = fileUri.path.split("/").pop() || "Optuna Dashboard"
       const panel = vscode.window.createWebviewPanel(

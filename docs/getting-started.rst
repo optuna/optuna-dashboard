@@ -201,3 +201,14 @@ you can use ``google.colab.output()`` function as follows:
    output.serve_kernel_port_as_window(port, path='/dashboard/')
 
 Then please open http://localhost:8081/dashboard to browse.
+
+VS Code (Experimental)
+----------------------
+
+You can install the VS Code extension via `Visual Studio Marketplace <https://marketplace.visualstudio.com/items?itemName=Optuna.optuna-dashboard#overview>`_.
+
+.. image:: _static/vscode-extension.png
+   :alt: Screenshot for the VS Code Extension
+   :align: center
+
+Please right-click the SQLite3 files (`*.db` or `*.sqlite3`) in the file explorer and select the "Open in Optuna Dashboard" command from the dropdown menu.

@@ -41,6 +41,7 @@ from .artifact._backend_to_store import to_artifact_store
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 from .preferential._study import get_best_trials as get_best_preferential_trials
 from .preferential._system_attrs import report_preferences
+from .preferential._system_attrs import report_skip
 
 
 if typing.TYPE_CHECKING:
@@ -140,7 +141,9 @@ def create_app(
             return {"reason": f"study_id={study_id} is not found"}
 
         try:
-            dst_study = optuna.create_study(storage=storage, study_name=dst_study_name)
+            dst_study = optuna.create_study(
+                storage=storage, study_name=dst_study_name, directions=src_study.directions
+            )
             dst_study.add_trials(src_study.get_trials(deepcopy=False))
         except DuplicatedStudyError:
             response.status = 400  # Bad request
@@ -327,6 +330,23 @@ def create_app(
             storage.set_trial_user_attr(trial_id, key, val)
 
         response.status = 204
+        return {}
+
+    @app.post("/api/studies/<study_id:int>/<trial_id:int>/skip")
+    @json_api_view
+    def skip_trial(study_id: int, trial_id: int) -> dict[str, Any]:
+        try:
+            system_attrs = storage.get_study_system_attrs(study_id)
+        except KeyError:
+            response.status = 404  # Not found
+            return {"reason": f"study_id={study_id} is not found"}
+        is_preferential = system_attrs.get(_SYSTEM_ATTR_PREFERENTIAL_STUDY, False)
+        if not is_preferential:
+            response.status = 400  # Bad request
+            return {"reason": "The study is not preferential."}
+
+        report_skip(study_id, trial_id, storage)
+        response.status = 204  # No content
         return {}
 
     @app.put("/api/studies/<study_id:int>/<trial_id:int>/note")

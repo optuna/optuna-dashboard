@@ -39,7 +39,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
     setIncludePruned(!includePruned)
   }
 
-  const userAttrs = studySummary?.user_attrs || []
+  const userAttrs = studySummary?.user_attrs || studyDetail?.user_attrs || []
   const userAttrColumns: DataGridColumn<Attribute>[] = [
     { field: "key", label: "Key", sortable: true },
     { field: "value", label: "Value", sortable: true },

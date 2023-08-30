@@ -18,6 +18,9 @@ General APIs
 Human-in-the-loop
 -----------------
 
+Form Widgets
+~~~~~~~~~~~~
+
 .. autosummary::
    :toctree: _generated/
    :nosignatures:
@@ -29,6 +32,17 @@ Human-in-the-loop
    optuna_dashboard.SliderWidget
    optuna_dashboard.TextInputWidget
    optuna_dashboard.ObjectiveUserAttrRef
+
+Preferential Optimization
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. autosummary::
+   :toctree: _generated/
+   :nosignatures:
+
+   optuna_dashboard.preferential.create_study
+   optuna_dashboard.preferential.load_study
+   optuna_dashboard.preferential.PreferentialStudy
 
 Streamlit
 -----------------
