@@ -161,7 +161,10 @@ class _SampledGP(botorch.models.model.Model):
 
 class _PreferentialGP:
     def _kernel_func(
-        self, x1: torch.Tensor, x2: torch.Tensor, lengthscale: torch.Tensor,
+        self,
+        x1: torch.Tensor,
+        x2: torch.Tensor,
+        lengthscale: torch.Tensor,
     ) -> torch.Tensor:
         # Matern 3/2 kernel
         d = math.sqrt(3) * torch.cdist(x1 / lengthscale, x2 / lengthscale)
