@@ -163,7 +163,7 @@ const useConfirmCloseDialog = (
   return [openDialog, renderDialog]
 }
 
-const MarkdownRenderer: FC<{ body: string }> = ({ body }) => (
+export const MarkdownRenderer: FC<{ body: string }> = ({ body }) => (
   <ReactMarkdown
     children={body}
     remarkPlugins={[remarkGfm, remarkMath]}

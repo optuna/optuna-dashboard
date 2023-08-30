@@ -143,7 +143,7 @@ const useIsBestTrial = (
   }, [studyDetail])
 }
 
-const TrialListDetail: FC<{
+export const TrialListDetail: FC<{
   trial: Trial
   isBestTrial: (trialId: number) => boolean
   directions: StudyDirection[]
