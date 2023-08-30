@@ -31,12 +31,19 @@ jobs:
         with:
           node-version: '18'
       - name: Build standalone_app
+        env:
+          PUBLIC_PATH: /optuna-dashboard/public/
         run: make MODE="prd" standalone_app/public/bundle.js
       - name: Create publish directory
         run: |
           mkdir gh-publish
           cp -r standalone_app/public gh-publish/public
+          cp standalone_app/favicon.ico gh-publish/favicon.ico
+      - name: Create index.html
+        run: |
           cp standalone_app/index.html gh-publish/index.html
+          sed -i "s|/public/bundle.js|/optuna-dashboard/public/bundle.js|g" ./gh-publish/index.html
+          sed -i "s|/favicon.ico|/optuna-dashboard/favicon.ico|g" ./gh-publish/index.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
