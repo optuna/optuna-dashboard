@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 import json
+from typing import TYPE_CHECKING
 from typing import TypedDict
 import uuid
 
@@ -12,12 +13,16 @@ from .preferential._system_attrs import report_preferences
 
 _SYSTEM_ATTR_PREFIX_HISTORY = "preference:history"
 
-
-class Choice(TypedDict):
-    uuid: str
-    candidate_trials: list[int]
-    preference_uuid: str
-    timestamp: str
+if TYPE_CHECKING:
+    Choice = TypedDict(
+        "Choice",
+        {
+            "uuid": str,
+            "candidate_trials": list[int],
+            "preference_uuid": str,
+            "timestamp": str,
+        },
+    )
 
 
 def report_choice(
