@@ -17,7 +17,7 @@ class Choice(TypedDict):
     uuid: str
     candidate_trials: list[int]
     preference_uuid: str
-    timestamp: datetime
+    timestamp: str
 
 
 def report_choice(
@@ -31,7 +31,7 @@ def report_choice(
         "uuid": str(uuid.uuid4()),
         "candidate_trials": candidate_trials,
         "preference_uuid": report_preferences(study_id, storage, preferences),
-        "timestamp": timestamp,
+        "timestamp": timestamp.isoformat(),
     }
     key = _SYSTEM_ATTR_PREFIX_HISTORY + choice["uuid"]
     storage.set_study_system_attr(

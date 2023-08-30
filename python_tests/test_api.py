@@ -140,7 +140,6 @@ class APITestCase(TestCase):
                 {
                     "candidate_trials": [0, 1, 2],
                     "preferentials": [[0, 1], [2, 1]],
-                    "mode": "choose_worst",
                 }
             ),
             content_type="application/json",

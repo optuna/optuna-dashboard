@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 import json
 from typing import Any
 from typing import TYPE_CHECKING
@@ -14,8 +15,8 @@ from optuna.trial import FrozenTrial
 from . import _note as note
 from ._form_widget import get_form_widgets_json
 from ._named_objectives import get_objective_names
+from ._preferential_history import _SYSTEM_ATTR_PREFIX_HISTORY
 from .artifact._backend import list_trial_artifacts
-from .preferential._history import _SYSTEM_ATTR_PREFIX_HISTORY
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 from .preferential._system_attrs import _SYSTEM_ATTR_PREFIX_PREFERENCE
 
@@ -344,5 +345,5 @@ def serialize_preference_history(
             _SYSTEM_ATTR_PREFIX_PREFERENCE + choice["preference_uuid"], []
         )
         history.append(choice)
-    history.sort(key=lambda c: c["timestamp"])
+    history.sort(key=lambda c: datetime.fromisoformat(c["timestamp"]))
     return history

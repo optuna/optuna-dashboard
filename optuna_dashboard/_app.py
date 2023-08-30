@@ -28,6 +28,7 @@ from ._bottle_util import json_api_view
 from ._cached_extra_study_property import get_cached_extra_study_property
 from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
+from ._preferential_history import report_choice
 from ._rdb_migration import register_rdb_migration_route
 from ._serializer import serialize_study_detail
 from ._serializer import serialize_study_summary
@@ -39,8 +40,6 @@ from ._storage_url import get_storage
 from .artifact._backend import delete_all_artifacts
 from .artifact._backend import register_artifact_route
 from .artifact._backend_to_store import to_artifact_store
-from .preferential._history import FeedbackMode
-from .preferential._history import report_choice
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 from .preferential._study import get_best_trials as get_best_preferential_trials
 from .preferential._system_attrs import report_skip
@@ -273,7 +272,6 @@ def create_app(
         try:
             candidate_trials = [int(d) for d in request.json.get("candidate_trials", [])]
             preferences = [(int(d[0]), int(d[1])) for d in request.json.get("preferentials", [])]
-            mode = FeedbackMode[request.json.get("mode", "auto").upper()]
         except ValueError:
             response.status = 400
             return {"reason": "Invalid request."}
@@ -281,7 +279,7 @@ def create_app(
             response.status = 400  # Bad request
             return {"reason": "You need to set best_trials and worst_trials"}
 
-        report_choice(study_id, storage, candidate_trials, preferences, mode, datetime.now())
+        report_choice(study_id, storage, candidate_trials, preferences, datetime.now())
 
         response.status = 204
         return {}
