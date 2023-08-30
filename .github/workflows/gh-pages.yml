@@ -1,9 +1,6 @@
 on:
   push:
     branches: ["main"]
-  # TODO(c-bata): Remove this after confirming that the deployment works.
-  pull_request:
-    branches: ["main"]
   workflow_dispatch:
 
 permissions:
