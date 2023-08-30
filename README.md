@@ -75,27 +75,26 @@ $ docker run -it --rm -p 8080:8080 ghcr.io/optuna/optuna-dashboard postgresql+ps
 
 </details>
 
+## Browser-only version (Experimental)
+
+<img src="./docs/_static/browser-app.gif" style="width:600" alt="Browser-only version">
+
+We’ve developed the version that operates solely within your web browser, which internally uses SQLite3 Wasm and Rust.
+There’s no need to install Python or any other dependencies.
+Simply open the following URL in your browser, drag and drop your SQLite3 file onto the page, and you’re ready to view your Optuna studies!
+
+https://optuna.github.io/optuna-dashboard/
+
+*Please note that only a subset of features is available. However, you can still check the optimization history, hyperparameter importances, and etc. in graphs and tables.*
+
 ## VS Code Extension (Experimental)
 
 You can install the VS Code extension via [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Optuna.optuna-dashboard#overview).
 
-![vscode-extension](./docs/_static/vscode-extension.png)
+<img src="./docs/_static/vscode-extension.png" style="width:600" alt="VSCode Extension">
 
 Please right-click the SQLite3 files (`*.db` or `*.sqlite3`) in the VS Code file explorer and select the "Open in Optuna Dashboard" command from the dropdown menu.
-
-## Features
-
-### Manage Studies
-
-You can create and delete studies from Dashboard.
-
-![optuna-dashboard-create-delete-study](https://user-images.githubusercontent.com/5564044/205545958-305f2354-c7cd-4687-be2f-9e46e7401838.gif)
-
-### Visualize with Interactive Graphs & Rich Trials Data Grid
-
-You can check the optimization history, hyperparameter importances, etc. in graphs and tables.
-
-![optuna-dashboard-realtime-graph](https://user-images.githubusercontent.com/5564044/205545965-278cd7f4-da7d-4e2e-ac31-6d81b106cada.gif)
+This extension leverages the browser-only version of Optuna Dashboard, so the same limitations apply.
 
 ## Submitting patches
 
