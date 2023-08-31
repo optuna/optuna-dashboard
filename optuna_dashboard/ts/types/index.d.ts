@@ -12,7 +12,7 @@ type TrialIntermediateValueNumber = number | "inf" | "-inf" | "nan"
 type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting"
 type TrialStateFinished = "Complete" | "Fail" | "Pruned"
 type StudyDirection = "maximize" | "minimize" | "not_set"
-type PreferenceFeedbackMode = "choose_worst" | "auto"
+type PreferenceFeedbackMode = "ChooseWorst"
 
 type FloatDistribution = {
   type: "FloatDistribution"

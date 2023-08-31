@@ -28,7 +28,8 @@ from ._bottle_util import json_api_view
 from ._cached_extra_study_property import get_cached_extra_study_property
 from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
-from ._preferential_history import report_choice
+from ._preferential_history import ChooseWorstHistory
+from ._preferential_history import report_history
 from ._rdb_migration import register_rdb_migration_route
 from ._serializer import serialize_study_detail
 from ._serializer import serialize_study_summary
@@ -263,23 +264,39 @@ def create_app(
             }
 
         note.save_note_with_version(storage, study_id, None, req_note_ver, req_note_body)
-        response.status = 204  # No content
+        response.status = 204  # No contenthttps://github.com/microsoft/pyright/blob/main/docs/configuration.md#reportUndefinedVariable
         return {}
 
     @app.post("/api/studies/<study_id:int>/preference")
     @json_api_view
     def post_preference(study_id: int) -> dict[str, Any]:
         try:
-            candidate_trials = [int(d) for d in request.json.get("candidate_trials", [])]
-            preferences = [(int(d[0]), int(d[1])) for d in request.json.get("preferentials", [])]
+            mode = request.json.get("mode", "")
+            candidates = [int(d) for d in request.json.get("candidates", [])]
+            clicked = int(request.json.get("clicked", -1))
         except ValueError:
             response.status = 400
             return {"reason": "Invalid request."}
-        if len(preferences) == 0:
-            response.status = 400  # Bad request
-            return {"reason": "You need to set best_trials and worst_trials"}
 
-        report_choice(study_id, storage, candidate_trials, preferences, datetime.now())
+        if clicked == -1:
+            response.status = 400
+            return {"reason": "`clicked` should be specified."}
+
+        if mode == "ChooseWorst":
+            history = ChooseWorstHistory.create(
+                study_id,
+                storage,
+                {
+                    "mode": mode,
+                    "candidates": candidates,
+                    "clicked": clicked,
+                },
+            )
+        else:
+            response.status = 400
+            return {"reason": "`mode` should be 'ChooseWorst'."}
+
+        report_history(study_id, storage, history)
 
         response.status = 204
         return {}

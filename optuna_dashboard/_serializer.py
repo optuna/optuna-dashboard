@@ -15,10 +15,9 @@ from optuna.trial import FrozenTrial
 from . import _note as note
 from ._form_widget import get_form_widgets_json
 from ._named_objectives import get_objective_names
-from ._preferential_history import _SYSTEM_ATTR_PREFIX_HISTORY
+from ._preferential_history import serialize_preference_history
 from .artifact._backend import list_trial_artifacts
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
-from .preferential._system_attrs import _SYSTEM_ATTR_PREFIX_PREFERENCE
 
 
 if TYPE_CHECKING:
@@ -331,19 +330,3 @@ def serialize_search_space(
             }
         )
     return serialized
-
-
-def serialize_preference_history(
-    system_attrs: dict[str, Any],
-) -> list[dict[str, Any]]:
-    history: list[dict[str, Any]] = []
-    for k, v in system_attrs.items():
-        if not k.startswith(_SYSTEM_ATTR_PREFIX_HISTORY):
-            continue
-        choice: dict[str, Any] = json.loads(v)
-        choice["preferences"] = system_attrs.get(
-            _SYSTEM_ATTR_PREFIX_PREFERENCE + choice["preference_uuid"], []
-        )
-        history.append(choice)
-    history.sort(key=lambda c: datetime.fromisoformat(c["timestamp"]))
-    return history
