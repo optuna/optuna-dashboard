@@ -34,3 +34,5 @@ rustlib/pkg/
 .vscode/
 .DS_Store
 tmp/
+examples/preferential-optimization/artifact/
+
