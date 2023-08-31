@@ -14,7 +14,7 @@ from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
 from optuna_dashboard.preferential._system_attrs import get_preferences
 from optuna_dashboard.preferential._system_attrs import is_skipped_trial
-from optuna_dashboard.preferential._system_attrs import report_preferences
+from optuna_dashboard.preferential._system_attrs import report_preferences, get_n_generate, set_n_generate
 
 
 _logger = logging.get_logger(__name__)
@@ -253,6 +253,36 @@ class PreferentialStudy:
             raise RuntimeError("Unexpected trial type")
         storage.set_trial_system_attr(trial_id, _SYSTEM_ATTR_COMPARISON_READY, True)
 
+    @property
+    def n_generate(self) -> int:
+        """Return the number of trials that should be generated and shown to user.
+        
+        :func:`~optuna_dashboard.preferential.PreferentialStudy.should_generate` returns
+        :obj:`True` if the number of trials not reported bad and not skipped are less than
+        :attr:`~optuna_dashboard.preferential.PreferentialStudy.n_generate`.
+        """
+        system_attrs = self._study._storage.get_study_system_attrs(self._study._study_id)
+        return get_n_generate(system_attrs)
+    
+    def set_n_generate(self, n_generate: int) -> None:
+        """Set the number of trials that should be generated and shown to user.
+        
+        :func:`~optuna_dashboard.preferential.PreferentialStudy.should_generate` returns
+        :obj:`True` if the number of trials not reported bad and not skipped are less than
+        :attr:`~optuna_dashboard.preferential.PreferentialStudy.n_generate`.
+        """
+        return set_n_generate(self._study._study_id, self._study._storage, n_generate)
+    
+    def should_generate(self) -> bool:
+        """Return whether the generator should generate a new trial now.
+        
+        Returns :obj:`True` if the number of trials not reported bad and not skipped are less than
+        :attr:`~optuna_dashboard.preferential.PreferentialStudy.n_generate`. Users are recommended
+        to generate a new trial if this method returns :obj:`True`, and to wait for human evaluation
+        if this method returns :obj:`False`.
+        """
+        return len(self.best_trials) < self.n_generate
+
 
 def get_best_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list[FrozenTrial]:
     preferences = get_preferences(study_id, storage)
@@ -327,6 +357,9 @@ def create_study(
         )
         study._storage.set_study_system_attr(
             study._study_id, _SYSTEM_ATTR_PREFERENTIAL_STUDY, True
+        )
+        study._storage.set_study_system_attr(
+            study._study_id, _SYSTEM_ATTR_N_GENERATE, 4  # Default n_generate is 4
         )
         return PreferentialStudy(study)
 

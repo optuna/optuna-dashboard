@@ -35,7 +35,7 @@ def main() -> NoReturn:
         while True:
             # If n_comparison "best" trials (that are not reported bad) exists,
             # the generator waits for human evaluation.
-            if len(study.best_trials) >= n_comparison:
+            if study.should_generate():
                 time.sleep(0.1)  # Avoid busy-loop
                 continue
 
