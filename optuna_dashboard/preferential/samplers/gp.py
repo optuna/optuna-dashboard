@@ -222,7 +222,7 @@ class _PreferentialGP:
         last_params = [p.detach().clone() for p in optim.param_groups[0]["params"]]
         for _ in range(max_iter):
 
-            def closure():
+            def closure() -> Tensor:
                 optim.zero_grad()
                 noise = self.log_noise.exp()
                 cov0 = self.kernel.forward(X, X).to_dense()
