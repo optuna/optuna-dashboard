@@ -7,17 +7,59 @@ import {
   CardContent,
   CardActions,
   CardActionArea,
+  CardMedia,
+  MenuItem,
+  Select,
+  FormControl,
+  FormLabel,
+  TextField,
+  Modal,
 } from "@mui/material"
-import ClearIcon from "@mui/icons-material/Clear"
-import IconButton from "@mui/material/IconButton"
 import OpenInFullIcon from "@mui/icons-material/OpenInFull"
 import ReplayIcon from "@mui/icons-material/Replay"
-import Modal from "@mui/material/Modal"
-import { red } from "@mui/material/colors"
-
+import ClearIcon from "@mui/icons-material/Clear"
+import IconButton from "@mui/material/IconButton"
+import SettingsIcon from "@mui/icons-material/Settings"
+import red from "@mui/material/colors/red"
+import { useRecoilValue, useSetRecoilState } from "recoil"
 import { actionCreator } from "../action"
-import { TrialListDetail } from "./TrialList"
 import { MarkdownRenderer } from "./Note"
+import {
+  feedbackComponent,
+  FeedbackComponentType,
+  feedbackArtifactKey,
+} from "../state"
+import {
+  TrialArtifactActions,
+  TrialArtifactContent,
+  TrialListDetail,
+} from "./TrialList"
+
+const FeedbackContent: FC<{
+  trial: Trial
+  artifact?: Artifact
+}> = ({ trial, artifact }) => {
+  const componentId = useRecoilValue(feedbackComponent)
+
+  if (componentId === "note") {
+    return <MarkdownRenderer body={trial.note.body} />
+  }
+  if (componentId === "artifact") {
+    if (artifact === undefined) {
+      return null
+    }
+    return (
+      <TrialArtifactContent
+        trial={trial}
+        artifact={artifact}
+        width={"100%"}
+        height={"100%"}
+      />
+    )
+  }
+
+  return null
+}
 
 const PreferentialTrial: FC<{
   trial?: Trial
@@ -29,6 +71,9 @@ const PreferentialTrial: FC<{
   const trialWidth = 500
   const trialHeight = 300
   const [detailShown, setDetailShown] = useState(false)
+  const componentId = useRecoilValue(feedbackComponent)
+  const artifactKey = useRecoilValue(feedbackArtifactKey)
+  const artifact = trial?.artifacts.find((a) => a.filename === artifactKey)
 
   if (trial == undefined) {
     return (
@@ -52,7 +97,19 @@ const PreferentialTrial: FC<{
       }}
     >
       <CardActions>
-        <Typography variant="h5">Trial {trial.number}</Typography>
+        <Typography variant="h5">
+          Trial {trial.number}
+          {componentId === "artifact" && artifact !== undefined
+            ? ` (${artifact.filename})`
+            : ""}
+        </Typography>
+        {componentId === "artifact" && artifact !== undefined ? (
+          <TrialArtifactActions
+            trial={trial}
+            artifact={artifact}
+            sx={{ marginLeft: "auto" }}
+          />
+        ) : null}
         <IconButton
           sx={{
             marginLeft: "auto",
@@ -112,7 +169,7 @@ const PreferentialTrial: FC<{
               padding: theme.spacing(2),
             }}
           >
-            <MarkdownRenderer body={trial.note.body} />
+            <FeedbackContent trial={trial} artifact={artifact} />
           </Box>
 
           <ClearIcon
@@ -189,6 +246,11 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
     numbers: studyDetail.best_trials.map((t) => t.number),
     last_number: Math.max(...studyDetail.best_trials.map((t) => t.number), -1),
   })
+  const [settingShown, setSettingShown] = useState(false)
+  const outputComponent = useRecoilValue(feedbackComponent)
+  const setOutputComponent = useSetRecoilState(feedbackComponent)
+  const outputartifactKey = useRecoilValue(feedbackArtifactKey)
+  const setOutputartifactKey = useSetRecoilState(feedbackArtifactKey)
   const new_trails = studyDetail.best_trials.filter(
     (t) =>
       displayTrials.last_number < t.number &&
@@ -228,7 +290,23 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
   }
 
   return (
-    <Box padding={theme.spacing(2)}>
+    <Box
+      padding={theme.spacing(2)}
+      sx={{
+        position: "relative",
+      }}
+    >
+      <IconButton
+        sx={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          margin: theme.spacing(1),
+        }}
+        onClick={() => setSettingShown(true)}
+      >
+        <SettingsIcon />
+      </IconButton>
       <Typography
         variant="h4"
         sx={{
@@ -250,6 +328,48 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
           />
         ))}
       </Box>
+      <ModalPage displayFlag={settingShown} setDisplayFlag={setSettingShown}>
+        <Typography
+          variant="h4"
+          sx={{
+            padding: theme.spacing(2),
+            fontWeight: theme.typography.fontWeightBold,
+          }}
+        >
+          Settings
+          <Box
+            sx={{
+              padding: theme.spacing(2),
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Output Component:</FormLabel>
+              <Select
+                value={outputComponent}
+                onChange={(e) => {
+                  setOutputComponent(e.target.value as FeedbackComponentType)
+                }}
+              >
+                <MenuItem value="note">Note</MenuItem>
+                <MenuItem value="artifact">Artifact</MenuItem>
+              </Select>
+            </FormControl>
+            {outputComponent === "artifact" ? (
+              <FormControl>
+                <FormLabel component="legend">Output File:</FormLabel>
+                <TextField
+                  defaultValue={outputartifactKey}
+                  onBlur={(e) => {
+                    setOutputartifactKey(e.target.value)
+                  }}
+                />
+              </FormControl>
+            ) : null}
+          </Box>
+        </Typography>
+      </ModalPage>
     </Box>
   )
 }
