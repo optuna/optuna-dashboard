@@ -62,17 +62,19 @@ class PreferentialStudy:
     def best_trials(self) -> list[FrozenTrial]:
         """Return the trials that is not dominated by other trials.
 
-        .. seealso::
-
-            See `Study.best_trials`_ for details.
-
-            .. _Study.best_trials: https://optuna.readthedocs.io/en/stable/reference/\
-            generated/optuna.study.Study.html#optuna.study.Study.best_trials
-
         Returns:
             A list of FrozenTrial object
         """
         return get_best_trials(self._study._study_id, self._study._storage)
+
+    @property
+    def active_trials(self) -> list[FrozenTrial]:
+        """Return the trials that is not reported bad and not marked skipped.
+
+        Returns:
+            A list of FrozenTrial object
+        """
+        return get_active_trials(self._study._study_id, self._study._storage)
 
     @property
     def study_name(self) -> str:
@@ -283,21 +285,38 @@ class PreferentialStudy:
         to generate a new trial if this method returns :obj:`True`, and to wait for human
         evaluation if this method returns :obj:`False`.
         """
-        return len(self.best_trials) < self.n_generate
+        return len(self.active_trials) < self.n_generate
+
+
+def get_active_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list[FrozenTrial]:
+    preferences = get_preferences(study_id, storage)
+    worse_numbers = {worse for _, worse in preferences}
+    study_system_attrs = storage.get_study_system_attrs(study_id)
+    active_trials = []
+    for t in storage.get_all_trials(
+        study_id, deepcopy=False, states=(TrialState.COMPLETE, TrialState.RUNNING)
+    ):
+        if t.number in worse_numbers:
+            continue
+        if is_skipped_trial(t._trial_id, study_system_attrs):
+            continue
+        active_trials.append(copy.deepcopy(t))
+    return active_trials
 
 
 def get_best_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list[FrozenTrial]:
     preferences = get_preferences(study_id, storage)
     worse_numbers = {worse for _, worse in preferences}
-    study_system_attrs = storage.get_study_system_attrs(study_id)
-    best_trials = []
-    for t in storage.get_all_trials(
+    nondominated_numbers = {better for better, _ in preferences if better not in worse_numbers}
+    trials = storage.get_all_trials(
         study_id, deepcopy=False, states=(TrialState.COMPLETE, TrialState.RUNNING)
-    ):
-        if not t.system_attrs.get(_SYSTEM_ATTR_COMPARISON_READY, False):
-            continue
-        if t.number in worse_numbers:
-            continue
+    )
+
+    study_system_attrs = storage.get_study_system_attrs(study_id)
+
+    best_trials = []
+    for n in nondominated_numbers:
+        t = trials[n]
         if is_skipped_trial(t._trial_id, study_system_attrs):
             continue
         best_trials.append(copy.deepcopy(t))
