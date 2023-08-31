@@ -11,6 +11,7 @@ import {
   useTheme,
   Box,
 } from "@mui/material"
+import blue from "@mui/material/colors/blue"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 
@@ -183,6 +184,9 @@ const plotContour = (
     },
     uirevision: "true",
     template: mode === "dark" ? plotlyDarkTemplate : {},
+    legend: {
+      y: 0.8,
+    },
   }
 
   // TODO(c-bata): Support parameters that only have the single value
@@ -210,11 +214,31 @@ const plotContour = (
       zValues[yi][xi] = zValue
     }
   })
-
-  const plotData: Partial<plotly.PlotData>[] = [
-    study.is_preferential
-      ? {}
-      : {
+  const bestTrialIndices = study.best_trials.map((trial) => trial.number)
+  const plotData: Partial<plotly.PlotData>[] = study.is_preferential
+    ? [
+        {
+          type: "scatter",
+          x: xValues.filter((_, i) => bestTrialIndices.includes(i)),
+          y: yValues.filter((_, i) => bestTrialIndices.includes(i)),
+          marker: {
+            line: { width: 2.0, color: "Grey" },
+            color: blue[200],
+          },
+          name: "best trials",
+          mode: "markers",
+        },
+        {
+          type: "scatter",
+          x: xValues.filter((_, i) => !bestTrialIndices.includes(i)),
+          y: yValues.filter((_, i) => !bestTrialIndices.includes(i)),
+          marker: { line: { width: 2.0, color: "Grey" }, color: "black" },
+          name: "others",
+          mode: "markers",
+        },
+      ]
+    : [
+        {
           type: "contour",
           x: xIndices,
           y: yIndices,
@@ -232,15 +256,16 @@ const plotContour = (
             coloring: "heatmap",
           },
         },
-    {
-      type: "scatter",
-      x: xValues,
-      y: yValues,
-      marker: { line: { width: 2.0, color: "Grey" }, color: "black" },
-      mode: "markers",
-      showlegend: false,
-    },
-  ]
+        {
+          type: "scatter",
+          x: xValues,
+          y: yValues,
+          marker: { line: { width: 2.0, color: "Grey" }, color: "black" },
+          mode: "markers",
+          showlegend: false,
+        },
+      ]
+
   plotly.react(plotDomId, plotData, layout)
 }
 
