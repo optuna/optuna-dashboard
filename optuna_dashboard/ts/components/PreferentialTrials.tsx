@@ -7,7 +7,6 @@ import {
   CardContent,
   CardActions,
   CardActionArea,
-  CardMedia,
   MenuItem,
   Select,
   FormControl,
@@ -61,6 +60,43 @@ const FeedbackContent: FC<{
   return null
 }
 
+const ModalPage: FC<{
+  children: React.ReactNode
+  displayFlag: boolean
+  setDisplayFlag: (flag: boolean) => void
+}> = ({ children, displayFlag, setDisplayFlag }) => {
+  const theme = useTheme()
+  return (
+    <Modal open={displayFlag} onClose={() => setDisplayFlag(false)}>
+      <Box
+        sx={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          width: "80%",
+          maxHeight: "90%",
+          margin: "auto",
+          overflow: "hidden",
+          backgroundColor: theme.palette.mode === "dark" ? "black" : "white",
+          borderRadius: theme.spacing(3),
+        }}
+      >
+        <Box
+          sx={{
+            width: "100%",
+            height: "100%",
+            overflow: "auto",
+          }}
+        >
+          {children}
+        </Box>
+      </Box>
+    </Modal>
+  )
+}
+
 const PreferentialTrial: FC<{
   trial?: Trial
   studyDetail: StudyDetail
@@ -73,7 +109,8 @@ const PreferentialTrial: FC<{
   const [detailShown, setDetailShown] = useState(false)
   const componentId = useRecoilValue(feedbackComponent)
   const artifactKey = useRecoilValue(feedbackArtifactKey)
-  const artifact = trial?.artifacts.find((a) => a.filename === artifactKey)
+  const artifactId = trial?.user_attrs.find((a) => a.key === artifactKey)?.value
+  const artifact = trial?.artifacts.find((a) => a.artifact_id === artifactId)
 
   if (trial == undefined) {
     return (
@@ -97,12 +134,17 @@ const PreferentialTrial: FC<{
       }}
     >
       <CardActions>
-        <Typography variant="h5">
-          Trial {trial.number}
-          {componentId === "artifact" && artifact !== undefined
-            ? ` (${artifact.filename})`
-            : ""}
-        </Typography>
+        <Typography variant="h5">Trial {trial.number}</Typography>
+        {componentId === "artifact" && artifact !== undefined ? (
+          <Typography
+            variant="h6"
+            sx={{
+              margin: theme.spacing(0, 2),
+            }}
+          >
+            {`(${artifact.filename})`}
+          </Typography>
+        ) : null}
         {componentId === "artifact" && artifact !== undefined ? (
           <TrialArtifactActions
             trial={trial}
@@ -194,38 +236,14 @@ const PreferentialTrial: FC<{
           />
         </CardContent>
       </CardActionArea>
-      <Modal open={detailShown} onClose={() => setDetailShown(false)}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            width: "80%",
-            maxHeight: "90%",
-            margin: "auto",
-            overflow: "hidden",
-            backgroundColor: theme.palette.mode === "dark" ? "black" : "white",
-            borderRadius: theme.spacing(3),
-          }}
-        >
-          <Box
-            sx={{
-              width: "100%",
-              height: "100%",
-              overflow: "auto",
-            }}
-          >
-            <TrialListDetail
-              trial={trial}
-              isBestTrial={() => true}
-              directions={[]}
-              objectiveNames={[]}
-            />
-          </Box>
-        </Box>
-      </Modal>
+      <ModalPage displayFlag={detailShown} setDisplayFlag={setDetailShown}>
+        <TrialListDetail
+          trial={trial}
+          isBestTrial={() => true}
+          directions={[]}
+          objectiveNames={[]}
+        />
+      </ModalPage>
     </Card>
   )
 }
@@ -249,8 +267,8 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
   const [settingShown, setSettingShown] = useState(false)
   const outputComponent = useRecoilValue(feedbackComponent)
   const setOutputComponent = useSetRecoilState(feedbackComponent)
-  const outputartifactKey = useRecoilValue(feedbackArtifactKey)
-  const setOutputartifactKey = useSetRecoilState(feedbackArtifactKey)
+  const outputArtifactKey = useRecoilValue(feedbackArtifactKey)
+  const setOutputArtifactKey = useSetRecoilState(feedbackArtifactKey)
   const new_trails = studyDetail.best_trials.filter(
     (t) =>
       displayTrials.last_number < t.number &&
@@ -357,14 +375,34 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
               </Select>
             </FormControl>
             {outputComponent === "artifact" ? (
-              <FormControl>
-                <FormLabel component="legend">Output File:</FormLabel>
-                <TextField
-                  defaultValue={outputartifactKey}
-                  onBlur={(e) => {
-                    setOutputartifactKey(e.target.value)
+              <FormControl
+                component="fieldset"
+                disabled={studyDetail.union_user_attrs.length === 0}
+              >
+                <FormLabel component="legend">
+                  User Attribute Key Corresponding to Output Artifact Id:
+                </FormLabel>
+                <Select
+                  value={
+                    studyDetail.union_user_attrs.length !== 0
+                      ? outputArtifactKey
+                      : "error"
+                  }
+                  onChange={(e) => {
+                    setOutputArtifactKey(e.target.value)
                   }}
-                />
+                >
+                  {studyDetail.union_user_attrs.length === 0 ? (
+                    <MenuItem value="error">No user attributes</MenuItem>
+                  ) : null}
+                  {studyDetail.union_user_attrs.map((attr, index) => {
+                    return (
+                      <MenuItem key={index} value={attr.key}>
+                        {attr.key}
+                      </MenuItem>
+                    )
+                  })}
+                </Select>
               </FormControl>
             ) : null}
           </Box>

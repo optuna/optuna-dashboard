@@ -459,7 +459,7 @@ const TrialArtifact: FC<{
   width: string
   height: string
 }> = ({ trial, artifact, width, height }) => {
-  const [openDeleteArtifactDialog, _] = useDeleteArtifactDialog()
+  const [openDeleteArtifactDialog] = useDeleteArtifactDialog()
   const theme = useTheme()
   if (artifact.mimetype.startsWith("image")) {
     return (
@@ -710,11 +710,8 @@ const TrialArtifact: FC<{
 const TrialArtifacts: FC<{ trial: Trial }> = ({ trial }) => {
   const theme = useTheme()
   const action = actionCreator()
-  const [_, renderDeleteArtifactDialog] = useDeleteArtifactDialog()
+  const [, renderDeleteArtifactDialog] = useDeleteArtifactDialog()
   const [dragOver, setDragOver] = useState<boolean>(false)
-  const [open3dModelViewer, setOpen3dModelViewer] = useState<{
-    [key: string]: boolean
-  }>({})
 
   const width = "200px"
   const height = "150px"
