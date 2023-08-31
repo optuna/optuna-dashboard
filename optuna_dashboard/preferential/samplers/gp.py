@@ -1,4 +1,3 @@
-# %%
 from __future__ import annotations
 
 import math
@@ -15,17 +14,13 @@ from gpytorch.likelihoods.gaussian_likelihood import Prior
 import numpy as np
 import optuna
 import optuna._transform
-import pyro.infer.mcmc
 import torch
+from torch import Tensor
 
 from .._system_attrs import get_preferences
 
 
-def _orthants_MVN_Gibbs_sampling(
-    cov_inv: torch.Tensor,
-    cycles: int,
-    initial_sample: torch.Tensor,
-) -> torch.Tensor:
+def _orthants_MVN_Gibbs_sampling(cov_inv: Tensor, cycles: int, initial_sample: Tensor) -> Tensor:
     dim = cov_inv.shape[0]
     assert cov_inv.shape == (dim, dim)
 
@@ -49,9 +44,9 @@ def _orthants_MVN_Gibbs_sampling(
     return out
 
 
-def _one_side_trunc_norm_sampling(lower: torch.Tensor) -> torch.Tensor:
+def _one_side_trunc_norm_sampling(lower: Tensor) -> Tensor:
     if lower > 4.0:
-        r = torch.max(torch.tensor(1e-300), torch.rand(torch.Size(()), dtype=torch.float64))
+        r = torch.clamp_min(torch.rand(torch.Size(()), dtype=torch.float64), min=1e-300)
         return (lower * lower - 2 * r.log()).sqrt()
     else:
         SQRT2 = math.sqrt(2)
@@ -64,63 +59,53 @@ def _one_side_trunc_norm_sampling(lower: torch.Tensor) -> torch.Tensor:
 _orthants_MVN_Gibbs_sampling_jit = torch.jit.script(_orthants_MVN_Gibbs_sampling)
 
 
-def _compute_cov_diff_diff_inv_and_logdet(
-    preferences: torch.Tensor,
-    cov_x_x: torch.Tensor,
-    obs_noise_var: torch.Tensor,
-) -> tuple[torch.Tensor, torch.Tensor]:
+def _compute_cov_diff_diff_inv(preferences: Tensor, cov_x_x: Tensor, noise_var: Tensor) -> Tensor:
     N = cov_x_x.shape[0]
     M = preferences.shape[0]
 
     # (sI + A K A^T)^-1 = s^-1 I - s^-2 A(K^-1 + s^-1 A^T A)^-1 A^T
     # (K^-1 + s^-1 A^T A)^-1 = K (I + s^-1 A^T A K)^-1  (To avoid computing K^-1)
 
-    # det(sI + A K A^T) = s^N det(I + s^-1 A K A^T) = s^N det(I + s^-1 A^T A K)
-
     I_plus_sinv_AT_A_K = torch.eye(N, dtype=torch.float64)
     A_K = cov_x_x[preferences[:, 0], :] - cov_x_x[preferences[:, 1], :]
-    I_plus_sinv_AT_A_K.index_add_(0, preferences[:, 0], A_K * (1 / obs_noise_var))
-    I_plus_sinv_AT_A_K.index_add_(0, preferences[:, 1], A_K * (-1 / obs_noise_var))
-    lu, piv = torch.linalg.lu_factor(I_plus_sinv_AT_A_K)
-
-    logdet = -(lu.diagonal().abs() * obs_noise_var).log().sum()
-
-    schur_inv: torch.Tensor = torch.linalg.lu_solve(lu, piv, cov_x_x, left=False)
+    I_plus_sinv_AT_A_K.index_add_(0, preferences[:, 0], A_K * (1 / noise_var))
+    I_plus_sinv_AT_A_K.index_add_(0, preferences[:, 1], A_K * (-1 / noise_var))
+    schur_inv: Tensor = torch.linalg.solve(I_plus_sinv_AT_A_K, cov_x_x, left=False)
     cov_diff_diff_inv = schur_inv[:, preferences[:, 0]] - schur_inv[:, preferences[:, 1]]
     cov_diff_diff_inv = (
         cov_diff_diff_inv[preferences[:, 0], :] - cov_diff_diff_inv[preferences[:, 1], :]
     )
-    cov_diff_diff_inv *= -1 / obs_noise_var**2
+    cov_diff_diff_inv *= -1 / noise_var**2
     idx_M = torch.arange(M)
-    cov_diff_diff_inv[idx_M, idx_M] += 1.0 / obs_noise_var
+    cov_diff_diff_inv[idx_M, idx_M] += 1.0 / noise_var
 
-    return cov_diff_diff_inv, logdet
+    return cov_diff_diff_inv
 
 
 class _SampledGP(botorch.models.model.Model):
     def __init__(
         self,
-        kernel_func: Callable[[torch.Tensor, torch.Tensor], torch.Tensor],
-        x: torch.Tensor,
-        preferences: torch.Tensor,
-        obs_noise_var: torch.Tensor,
-        diff: torch.Tensor,
+        kernel_func: Callable[[Tensor, Tensor], Tensor],
+        x: Tensor,
+        preferences: Tensor,
+        noise_var: Tensor,
+        diff: Tensor,
     ) -> None:
         super().__init__()
         self.kernel_func = kernel_func
         self.x = x
         self.preferences = preferences
         self.diff = diff
-        self.obs_noise_var = obs_noise_var
-        self._cov_diff_diff_inv, _ = _compute_cov_diff_diff_inv_and_logdet(
+        self.noise_var = noise_var
+        self._cov_diff_diff_inv = _compute_cov_diff_diff_inv(
             preferences=preferences,
             cov_x_x=self.kernel_func(x, x),
-            obs_noise_var=float(obs_noise_var),
+            noise_var=noise_var,
         )
 
     def posterior(
         self,
-        X: torch.Tensor,
+        X: Tensor,
         output_indices: list[int] | None = None,
         observation_noise: bool = False,
         posterior_transform: Any | None = None,
@@ -141,7 +126,7 @@ class _SampledGP(botorch.models.model.Model):
         )
         if observation_noise:
             idx = torch.arange(cov.shape[-1])
-            cov[..., idx, idx] += self.obs_noise_var
+            cov[..., idx, idx] += self.noise_var
 
         return botorch.posteriors.gpytorch.GPyTorchPosterior(
             distribution=gpytorch.distributions.MultivariateNormal(
@@ -159,153 +144,135 @@ class _SampledGP(botorch.models.model.Model):
         return 1
 
 
+def _truncnorm_mean_var_logz(alpha: Tensor) -> tuple[Tensor, Tensor, Tensor]:
+    SQRT_HALF = math.sqrt(0.5)
+    SQRT_HALF_PI = math.sqrt(0.5 * math.pi)
+    logz = torch.special.log_ndtr(-alpha)
+    mean = 1 / (SQRT_HALF_PI * torch.special.erfcx(alpha * SQRT_HALF))
+    var = 1 - mean * (mean - alpha)
+    return (mean, var, logz)
+
+
+def _orthants_MVN_EP(
+    cov0: Tensor, preferences: Tensor, noise_var: Tensor, cycles: int
+) -> tuple[Tensor, Tensor, Tensor]:
+    N = cov0.shape[0]
+    M = preferences.shape[0]
+    mu = torch.zeros(N, dtype=cov0.dtype)
+    cov = cov0.clone()
+    virtual_obs_a = [torch.tensor(0.0, dtype=cov0.dtype) for _ in range(M)]
+    virtual_obs_b = [torch.tensor(0.0, dtype=cov0.dtype) for _ in range(M)]
+    log_zs = torch.zeros(M, dtype=cov0.dtype)
+
+    for _ in range(cycles):
+        for i in range(M):
+            pref_i = preferences[i, :]
+            mean1 = mu[pref_i[0]] - mu[pref_i[1]]
+            Sxy = cov[pref_i[0]] - cov[pref_i[1]]
+            var1 = Sxy[pref_i[0]] - Sxy[pref_i[1]]
+
+            r0 = (1 - var1 * virtual_obs_a[i]).reciprocal()
+            var0 = var1 * r0
+            mean0 = (mean1 + var1 * virtual_obs_b[i]) * r0
+
+            obs_var = var0 + noise_var
+            obs_sigma = torch.sqrt(obs_var)
+            alpha = -mean0 / torch.clamp_min(obs_sigma, min=1e-20)
+            mean_norm, var_norm, logz = _truncnorm_mean_var_logz(alpha)
+
+            kalman_factor = var0 / torch.clamp_min(obs_var, min=1e-20)
+            mean2 = mean0 + obs_sigma * mean_norm * kalman_factor
+            var2 = kalman_factor * (noise_var + var_norm * var0)
+
+            var1_var2_inv = torch.clamp_min(var1 * var2, min=1e-20).reciprocal()
+            db = (mean1 * var2 - mean2 * var1) * var1_var2_inv
+            da = (var1 - var2) * var1_var2_inv
+            virtual_obs_b[i] = virtual_obs_b[i] + db
+            virtual_obs_a[i] = virtual_obs_a[i] + da
+
+            dr = (1 + var1 * da).reciprocal()
+            mu = mu - Sxy * ((db + mean1 * da) * dr)
+            cov = cov - (Sxy[:, None] * (da * dr)) @ Sxy[None, :]
+            log_zs[i] = logz
+    return (mu, cov, torch.sum(log_zs))
+
+
+_orthants_MVN_EP_jit = torch.jit.script(_orthants_MVN_EP)
+
+
 class _PreferentialGP:
-    def _kernel_func(
-        self,
-        x1: torch.Tensor,
-        x2: torch.Tensor,
-        lengthscale: torch.Tensor,
-    ) -> torch.Tensor:
-        # Matern 3/2 kernel
-        d = math.sqrt(3) * torch.cdist(x1 / lengthscale, x2 / lengthscale)
-        return torch.exp(-d) * (d + 1)
-
-    def _potential_func(
-        self,
-        x: torch.Tensor,
-        preferences: torch.Tensor,
-        diff: torch.Tensor,
-        log_lengthscale: torch.Tensor,
-        log_noise: torch.Tensor,
-    ) -> torch.Tensor:
-        lengthscale = torch.exp(log_lengthscale)
-        noise = torch.exp(log_noise) + self.minimum_noise
-
-        log_transform_jacobian = torch.sum(log_lengthscale) + log_noise
-        log_prior = torch.sum(
-            self.lengthscale_prior.log_prob(lengthscale)
-        ) + self.noise_prior.log_prob(noise)
-        cov_x_x = self._kernel_func(x, x, lengthscale)
-        cov_inv, cov_inv_logdet = _compute_cov_diff_diff_inv_and_logdet(
-            preferences=preferences,
-            cov_x_x=cov_x_x,
-            obs_noise_var=noise,
-        )
-
-        log_likelihood = -0.5 * diff @ cov_inv @ diff + 0.5 * cov_inv_logdet
-
-        return -(log_prior + log_transform_jacobian + log_likelihood)
-
-    def __init__(
-        self,
-        lengthscale_prior: Prior,
-        noise_prior: Prior,
-        minimum_lengthscale: float,
-        minimum_noise: float,
-        dims: int,
-    ) -> None:
-        self.lengthscale_prior: Prior = lengthscale_prior.expand((dims,))
+    def __init__(self, kernel: gpytorch.kernels.Kernel, noise_prior: Prior, dims: int) -> None:
+        self.kernel = kernel
         self.noise_prior = noise_prior
-        self.minimum_lengthscale = minimum_lengthscale
-        self.minimum_noise = minimum_noise
         self.dims = dims
 
-        self._x = torch.empty((0, dims), dtype=torch.float64, requires_grad=False)
-        self._preferences = torch.empty((0, 2), dtype=torch.int32, requires_grad=False)
-        self._diff = torch.empty((0,), dtype=torch.float64, requires_grad=False)
-
-        initial_raw_params = {
-            "log_lengthscale": torch.log(self.lengthscale_prior.sample()),
-            "log_noise": torch.log(self.noise_prior.sample()),
-        }
-
-        self._potential_func_jit = torch.jit.trace(
-            self._potential_func,
-            (
-                self._x,
-                self._preferences,
-                self._diff,
-                initial_raw_params["log_lengthscale"],
-                initial_raw_params["log_noise"],
-            ),
-            check_trace=False,
+        self.diff = torch.empty((0,), dtype=torch.float64, requires_grad=False)
+        self.log_noise = torch.nn.Parameter(
+            torch.tensor(0.0, dtype=torch.float64), requires_grad=True
         )
 
-        # HMC-Gibbs workarounds
-        # https://github.com/pyro-ppl/pyro/issues/1926
-
-        self._nuts = pyro.infer.mcmc.NUTS(
-            potential_fn=lambda z: self._potential_func_jit(
-                x=self._x,
-                preferences=self._preferences,
-                diff=self._diff,
-                log_lengthscale=z["log_lengthscale"],
-                log_noise=z["log_noise"],
-            ),
-            adapt_step_size=True,
-            adapt_mass_matrix=False,
-            target_accept_prob=0.5,
-            step_size=0.1,
-        )
-
-        self._nuts.initial_params = initial_raw_params
-        self._nuts.setup(warmup_steps=1e15)  # Use default step size
-        self._last_params = initial_raw_params
-
-    def sample_gp(self, x: torch.Tensor, preferences: torch.Tensor, cycles: int) -> _SampledGP:
+    def fit_params_EP(self, X: Tensor, preferences: Tensor) -> None:
         if len(preferences) == 0:
-            lengthscale = self.lengthscale_prior.sample() + self.minimum_lengthscale
-            noise = self.noise_prior.sample() + self.minimum_noise
+            return
+        tolerance = 1e-3
+        max_iter = 100
+
+        optim = torch.optim.LBFGS([*self.kernel.parameters(), self.log_noise])
+
+        last_params = [p.detach().clone() for p in optim.param_groups[0]["params"]]
+        for _ in range(max_iter):
+
+            def closure():
+                optim.zero_grad()
+                noise = self.log_noise.exp()
+                cov0 = self.kernel.forward(X, X).to_dense()
+                _, _, logz = _orthants_MVN_EP_jit(cov0, preferences, noise, cycles=2)
+
+                loss = -logz - self.noise_prior.log_prob(noise)
+                for _, _, prior, param, _ in self.kernel.named_priors():
+                    loss = loss - prior.log_prob(param(self.kernel)).sum()
+
+                loss.backward()
+                return loss
+
+            optim.step(closure)
+
+            # Check for convergence
+            params = optim.param_groups[0]["params"]
+            for p_old, p_new in zip(last_params, params):
+                if torch.max(torch.abs(p_old - p_new)) > tolerance:
+                    break
+            else:
+                break
+            last_params = [p.detach().clone() for p in params]
+
+    def sample_gp(self, x: Tensor, preferences: Tensor) -> _SampledGP:
+        self.fit_params_EP(x, preferences)
+        print({name: p.exp() for name, p in self.kernel.named_parameters()})
+        print({"noise": self.log_noise.exp()})
+
+        with torch.no_grad():
+            cov_diff_diff_inv = _compute_cov_diff_diff_inv(
+                preferences=preferences,
+                cov_x_x=self.kernel(x, x).to_dense(),
+                noise_var=self.log_noise.exp(),
+            )
+
+            original_diff_size = len(self.diff)
+            self.diff.resize_(len(preferences))
+            self.diff[original_diff_size:] = 0.0
+
+            self.diff = _orthants_MVN_Gibbs_sampling_jit(
+                cov_inv=cov_diff_diff_inv,
+                initial_sample=self.diff,
+                cycles=20,
+            )[-1]
             return _SampledGP(
-                kernel_func=lambda x1, x2: self._kernel_func(x1, x2, lengthscale),
+                kernel_func=lambda x1, x2: self.kernel(x1, x2).to_dense(),
                 x=x,
                 preferences=preferences,
-                obs_noise_var=noise,
-                diff=torch.empty((0,), dtype=torch.float64),
-            )
-        else:
-            self._x = x
-            self._preferences = preferences
-
-            original_diff_size = len(self._diff)
-            self._diff.resize_(len(preferences))
-            self._diff[original_diff_size:] = 0.0
-
-            self._x.requires_grad_(False)
-            self._preferences.requires_grad_(False)
-            self._diff.requires_grad_(False)
-
-            for _ in range(cycles):
-                with torch.no_grad():
-                    cov_diff_diff_inv, _ = _compute_cov_diff_diff_inv_and_logdet(
-                        preferences=preferences,
-                        cov_x_x=self._kernel_func(
-                            x,
-                            x,
-                            torch.exp(self._last_params["log_lengthscale"])
-                            + self.minimum_lengthscale,
-                        ),
-                        obs_noise_var=torch.exp(self._last_params["log_noise"])
-                        + self.minimum_noise,
-                    )
-
-                    self._diff = _orthants_MVN_Gibbs_sampling_jit(
-                        cov_inv=cov_diff_diff_inv,
-                        initial_sample=self._diff,
-                        cycles=10,
-                    )[-1]
-                self._nuts.clear_cache()
-                self._last_params = self._nuts.sample(self._last_params)
-            lengthscale = (
-                torch.exp(self._last_params["log_lengthscale"]) + self.minimum_lengthscale
-            )
-            noise = torch.exp(self._last_params["log_noise"]) + self.minimum_noise
-            return _SampledGP(
-                kernel_func=lambda x1, x2: self._kernel_func(x1, x2, lengthscale),
-                x=x,
-                preferences=preferences,
-                obs_noise_var=noise,
-                diff=self._diff,
+                noise_var=self.log_noise.exp(),
+                diff=self.diff,
             )
 
 
@@ -313,12 +280,12 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
     def __init__(
         self,
         *,
-        lengthscale_prior: Prior | None = None,
+        kernel: gpytorch.kernels.Kernel | None = None,
         noise_prior: Prior | None = None,
         independent_sampler: optuna.samplers.BaseSampler | None = None,
         seed: int | None = None,
     ) -> None:
-        self.lengthscale_prior = lengthscale_prior or gpytorch.priors.GammaPrior(5.0, 10.0)
+        self.kernel = kernel
         self.noise_prior = noise_prior or gpytorch.priors.GammaPrior(5.0, 50.0)
 
         self._rng = np.random.RandomState(seed)
@@ -362,13 +329,20 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
         pref_ids = torch.tensor([[ids[b], ids[w]] for b, w in preferences], dtype=torch.int32)
         with torch.random.fork_rng():
             torch.manual_seed(self._rng.randint(2**32))
-            pyro.set_rng_seed(self._rng.randint(2**32))
 
             self._gp = self._gp or _PreferentialGP(
-                lengthscale_prior=self.lengthscale_prior,
-                minimum_lengthscale=0.1,
+                kernel=self.kernel
+                or gpytorch.kernels.MaternKernel(
+                    nu=1.5,
+                    ard_num_dims=len(trans.bounds),
+                    lengthscale_prior=gpytorch.priors.GammaPrior(5.0, 10.0),
+                    lengthscale_constraint=gpytorch.constraints.GreaterThan(
+                        0.0,
+                        transform=torch.exp,
+                        inv_transform=torch.log,
+                    ),
+                ),
                 noise_prior=self.noise_prior,
-                minimum_noise=1e-6,  # To avoid NaN
                 dims=len(trans.bounds),
             )
             if self._gp.dims != len(trans.bounds):
@@ -377,7 +351,7 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
                     "Dynamic search space is not supported in PreferentialGPSampler."
                 )
 
-            sampled_gp = self._gp.sample_gp(params, pref_ids, cycles=10)
+            sampled_gp = self._gp.sample_gp(params, pref_ids)
             acqf = botorch.acquisition.analytic.LogExpectedImprovement(
                 model=sampled_gp,
                 best_f=torch.max(sampled_gp.posterior(params[:, None, :]).mean),
