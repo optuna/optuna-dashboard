@@ -68,15 +68,6 @@ class PreferentialStudy:
         return get_best_trials(self._study._study_id, self._study._storage)
 
     @property
-    def active_trials(self) -> list[FrozenTrial]:
-        """Return the trials that is not reported bad and not marked skipped.
-
-        Returns:
-            A list of FrozenTrial object
-        """
-        return get_active_trials(self._study._study_id, self._study._storage)
-
-    @property
     def study_name(self) -> str:
         """Return the name of the study.
 
@@ -285,7 +276,7 @@ class PreferentialStudy:
         to generate a new trial if this method returns :obj:`True`, and to wait for human
         evaluation if this method returns :obj:`False`.
         """
-        return len(self.active_trials) < self.n_generate
+        return len(get_active_trials(self._study._study_id, self._study._storage)) < self.n_generate
 
 
 def get_active_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list[FrozenTrial]:
