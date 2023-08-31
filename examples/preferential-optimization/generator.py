@@ -20,8 +20,6 @@ artifact_path = os.path.join(os.path.dirname(__file__), "artifact")
 artifact_backend = FileSystemBackend(base_path=artifact_path)
 os.makedirs(artifact_path, exist_ok=True)
 
-n_comparison = 5
-
 
 def main() -> NoReturn:
     study = create_study(
@@ -35,7 +33,7 @@ def main() -> NoReturn:
         while True:
             # If n_comparison "best" trials (that are not reported bad) exists,
             # the generator waits for human evaluation.
-            if study.should_generate():
+            if not study.should_generate():
                 time.sleep(0.1)  # Avoid busy-loop
                 continue
 

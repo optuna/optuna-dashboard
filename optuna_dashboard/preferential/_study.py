@@ -280,8 +280,8 @@ class PreferentialStudy:
 
         Returns :obj:`True` if the number of trials not reported bad and not skipped are less than
         :attr:`~optuna_dashboard.preferential.PreferentialStudy.n_generate`. Users are recommended
-        to generate a new trial if this method returns :obj:`True`, and to wait for human evaluation
-        if this method returns :obj:`False`.
+        to generate a new trial if this method returns :obj:`True`, and to wait for human
+        evaluation if this method returns :obj:`False`.
         """
         return len(self.best_trials) < self.n_generate
 
@@ -360,9 +360,7 @@ def create_study(
         study._storage.set_study_system_attr(
             study._study_id, _SYSTEM_ATTR_PREFERENTIAL_STUDY, True
         )
-        study._storage.set_study_system_attr(
-            study._study_id, _SYSTEM_ATTR_N_GENERATE, 4  # Default n_generate is 4
-        )
+        set_n_generate(study._study_id, study._storage, 4)  # Default n_generate
         return PreferentialStudy(study)
 
     except optuna.exceptions.DuplicatedStudyError:
