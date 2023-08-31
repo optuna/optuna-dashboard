@@ -66,10 +66,10 @@ def is_skipped_trial(trial_id: int, study_system_attrs: dict[str, Any]) -> bool:
 def get_n_generate(study_system_attrs: dict[str, Any]) -> int:
     return study_system_attrs[_SYSTEM_ATTR_N_GENERATE]
 
+
 def set_n_generate(study_id: int, n_generate: int, storage: BaseStorage) -> None:
     storage.set_study_system_attr(
         study_id=study_id,
         key=_SYSTEM_ATTR_N_GENERATE,
         value=n_generate,
     )
-
