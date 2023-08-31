@@ -1,6 +1,13 @@
 Getting Started
 ===============
 
+.. figure:: _static/optuna-dashboard.gif
+   :alt: Optuna Dashboard
+   :align: center
+   :width: 800px
+
+   Optuna Dashboard
+
 Installation
 ------------
 

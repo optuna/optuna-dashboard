@@ -45,6 +45,8 @@ Listening on http://localhost:8080/
 Hit Ctrl-C to quit.
 ```
 
+<img src="./docs/_static/optuna-dashboard.gif" style="width:600px;" alt="VSCode Extension">
+
 Please check out [our documentation](https://optuna-dashboard.readthedocs.io/en/latest/getting-started.html) for more details.
 
 ## Using an official Docker image
