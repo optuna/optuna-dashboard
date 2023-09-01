@@ -255,26 +255,6 @@ class PreferentialStudy:
             raise RuntimeError("Unexpected trial type")
         storage.set_trial_system_attr(trial_id, _SYSTEM_ATTR_COMPARISON_READY, True)
 
-    @property
-    def n_generate(self) -> int:
-        """Return the number of trials that should be generated and shown to user.
-
-        :func:`~optuna_dashboard.preferential.PreferentialStudy.should_generate` returns
-        :obj:`True` if the number of trials not reported bad and not skipped are less than
-        :attr:`~optuna_dashboard.preferential.PreferentialStudy.n_generate`.
-        """
-        system_attrs = self._study._storage.get_study_system_attrs(self._study._study_id)
-        return get_n_generate(system_attrs)
-
-    def set_n_generate(self, n_generate: int) -> None:
-        """Set the number of trials that should be generated and shown to user.
-
-        :func:`~optuna_dashboard.preferential.PreferentialStudy.should_generate` returns
-        :obj:`True` if the number of trials not reported bad and not skipped are less than
-        :attr:`~optuna_dashboard.preferential.PreferentialStudy.n_generate`.
-        """
-        return set_n_generate(self._study._study_id, self._study._storage, n_generate)
-
     def should_generate(self) -> bool:
         """Return whether the generator should generate a new trial now.
 
@@ -283,7 +263,7 @@ class PreferentialStudy:
         to generate a new trial if this method returns :obj:`True`, and to wait for human
         evaluation if this method returns :obj:`False`.
         """
-        return len(self.best_trials) < self.n_generate
+        return len(self.best_trials) < get_n_generate(self._study._study_id, self._study._storage)
 
 
 def get_best_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list[FrozenTrial]:
@@ -306,6 +286,7 @@ def get_best_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list
 
 def create_study(
     *,
+    n_generate: int,
     storage: str | optuna.storages.BaseStorage | None = None,
     sampler: BaseSampler | None = None,
     study_name: str | None = None,
@@ -325,6 +306,12 @@ def create_study(
             trial = study.ask()
 
     Args:
+        n_generate:
+            The number of active trials to keep.
+            :func:`~optuna_dashboard.preferential.PreferentialStudy.should_generate` returns
+            :obj:`True` if the number of trials not reported bad and not skipped are less than
+            ``n_generate``.
+
         storage:
             Database URL. If this argument is set to None, in-memory storage is used, and the
             :class:`~optuna_dashboard.preferential.PreferentialStudy` will not be persistent.
@@ -360,7 +347,7 @@ def create_study(
         study._storage.set_study_system_attr(
             study._study_id, _SYSTEM_ATTR_PREFERENTIAL_STUDY, True
         )
-        set_n_generate(study._study_id, study._storage, 4)  # Default n_generate
+        set_n_generate(study._study_id, study._storage, n_generate)
         return PreferentialStudy(study)
 
     except optuna.exceptions.DuplicatedStudyError:
