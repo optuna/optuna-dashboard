@@ -61,7 +61,7 @@ def report_history(
     study_id: int,
     storage: BaseStorage,
     input_data: NewHistoryJSON,
-) -> None:
+) -> str:
     preferences = []
     if input_data["mode"] == "ChooseWorst":
         preferences = [
@@ -95,6 +95,7 @@ def report_history(
         key=key,
         value=history.to_dict(),
     )
+    return history_uuid
 
 
 def _load_preference_history(value: Any) -> History:
