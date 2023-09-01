@@ -9,12 +9,15 @@ import {
 } from "@mui/material"
 import ClearIcon from "@mui/icons-material/Clear"
 import IconButton from "@mui/material/IconButton"
+import UndoIcon from "@mui/icons-material/Undo"
+import RedoIcon from "@mui/icons-material/Redo"
 import OpenInFullIcon from "@mui/icons-material/OpenInFull"
 import Modal from "@mui/material/Modal"
 
 import { TrialListDetail } from "./TrialList"
 import { MarkdownRenderer } from "./Note"
 import { red } from "@mui/material/colors"
+import { actionCreator } from "../action"
 
 type TrialType = "worst" | "none"
 
@@ -133,24 +136,52 @@ const CandidateTrial: FC<{
   )
 }
 
-const ChoiceTrials: FC<{ choice: PreferenceChoice; trials: Trial[] }> = ({
-  choice,
-  trials,
-}) => {
+const ChoiceTrials: FC<{
+  choice: PreferenceChoice
+  trials: Trial[]
+  study_id: number
+}> = ({ choice, trials, study_id }) => {
   const theme = useTheme()
   const worst_trials = new Set([choice.clicked])
+  const actions = actionCreator()
+  const handleUndo = () => {
+    actions.switchPreferentialHistory(study_id, choice.uuid, false)
+  }
+  const handleRedo = () => {
+    actions.switchPreferentialHistory(study_id, choice.uuid, true)
+  }
 
   return (
     <Box>
-      <Typography
-        variant="h6"
+      <Box
         sx={{
-          marginBottom: theme.spacing(2),
-          fontWeight: theme.typography.fontWeightLight,
+          display: "flex",
+          flexDirection: "row",
         }}
       >
-        {choice.timestamp.toISOString()}
-      </Typography>
+        <Typography
+          variant="h6"
+          sx={{
+            marginTop: "auto",
+            marginBottom: "auto",
+            fontWeight: theme.typography.fontWeightLight,
+          }}
+        >
+          {choice.timestamp.toLocaleString()}
+        </Typography>
+        <IconButton
+          disabled={!choice.enabled}
+          onClick={handleUndo}
+          sx={{
+            marginLeft: theme.spacing(2),
+          }}
+        >
+          <UndoIcon />
+        </IconButton>
+        <IconButton disabled={choice.enabled} onClick={handleRedo}>
+          <RedoIcon />
+        </IconButton>
+      </Box>
       <Box
         sx={{
           display: "flex",
@@ -205,6 +236,7 @@ export const PreferenceHistory: FC<{ studyDetail: StudyDetail | null }> = ({
           key={choice.uuid}
           choice={choice}
           trials={studyDetail.trials}
+          study_id={studyDetail.id}
         />
       ))}
     </Box>

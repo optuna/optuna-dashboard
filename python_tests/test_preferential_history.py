@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Callable
 
 from optuna_dashboard._preferential_history import report_history
-from optuna_dashboard._serializer import serialize_preference_history
+from optuna_dashboard._serializer import serialize_preference_histories
 from optuna_dashboard.preferential import create_study
 from optuna_dashboard.preferential._system_attrs import _SYSTEM_ATTR_PREFIX_PREFERENCE
 
@@ -40,7 +40,7 @@ def test_report_and_get_choices(storage_supplier: Callable[[], StorageSupplier])
                 "clicked": 0,
             },
         )
-        history = serialize_preference_history(storage.get_study_system_attrs(study_id))
+        history = serialize_preference_histories(storage.get_study_system_attrs(study_id))
         sys_attrs = storage.get_study_system_attrs(study_id)
         assert len(history) == 2
         assert history[0]["candidates"] == [0, 1, 2]

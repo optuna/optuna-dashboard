@@ -61,6 +61,7 @@ interface PreferenceChoiceResponce {
   clicked: number
   mode: PreferenceFeedbackMode
   timestamp: string
+  enabled: boolean
 }
 
 const convertPreferenceChoice = (
@@ -72,6 +73,7 @@ const convertPreferenceChoice = (
     clicked: res.clicked,
     feedback_mode: res.mode,
     timestamp: new Date(res.timestamp),
+    enabled: res.enabled,
   }
 }
 
@@ -358,6 +360,20 @@ export const skipPreferentialTrialAPI = (
 ): Promise<void> => {
   return axiosInstance
     .post<void>(`/api/studies/${studyId}/${trialId}/skip`)
+    .then(() => {
+      return
+    })
+}
+
+export const switchPreferentialHistoryAPI = (
+  studyId: number,
+  historyUuid: string,
+  enable: boolean
+): Promise<void> => {
+  return axiosInstance
+    .put<void>(`/api/studies/${studyId}/preference/${historyUuid}`, {
+      enable: enable,
+    })
     .then(() => {
       return
     })

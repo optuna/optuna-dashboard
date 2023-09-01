@@ -28,6 +28,7 @@ from ._cached_extra_study_property import get_cached_extra_study_property
 from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
 from ._preferential_history import report_history
+from ._preferential_history import switching_history
 from ._rdb_migration import register_rdb_migration_route
 from ._serializer import serialize_study_detail
 from ._serializer import serialize_study_summary
@@ -292,6 +293,21 @@ def create_app(
                 "clicked": clicked,
             },
         )
+
+        response.status = 204
+        return {}
+
+    @app.put("/api/studies/<study_id:int>/preference/<history_uuid>")
+    @json_api_view
+    def switch_preference(study_id: int, history_uuid: str) -> dict[str, Any]:
+        try:
+            enable = request.json.get("enable", None)
+            if enable is None or not isinstance(enable, bool):
+                raise ValueError
+        except ValueError:
+            response.status = 400
+            return {"reason": "Invalid request."}
+        switching_history(study_id, storage, history_uuid, enable)
 
         response.status = 204
         return {}

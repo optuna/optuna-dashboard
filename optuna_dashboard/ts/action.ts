@@ -16,6 +16,7 @@ import {
   deleteArtifactAPI,
   reportPreferenceAPI,
   skipPreferentialTrialAPI,
+  switchPreferentialHistoryAPI,
 } from "./apiClient"
 import {
   graphVisibilityState,
@@ -609,6 +610,20 @@ export const actionCreator = () => {
     })
   }
 
+  const switchPreferentialHistory = (
+    studyId: number,
+    historyUuid: string,
+    enable: boolean
+  ) => {
+    switchPreferentialHistoryAPI(studyId, historyUuid, enable).catch((err) => {
+      const reason = err.response?.data.reason
+      enqueueSnackbar(`Failed to switch history. Reason: ${reason}`, {
+        variant: "error",
+      })
+      console.log(err)
+    })
+  }
+
   return {
     updateAPIMeta,
     updateStudyDetail,
@@ -630,6 +645,7 @@ export const actionCreator = () => {
     saveTrialUserAttrs,
     updatePreference,
     skipPreferentialTrial,
+    switchPreferentialHistory,
   }
 }
 

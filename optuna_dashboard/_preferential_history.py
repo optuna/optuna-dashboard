@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from dataclasses import field
 from datetime import datetime
-import json
 from typing import Any
 from typing import Literal
 from typing import TYPE_CHECKING
@@ -10,6 +10,8 @@ import uuid
 
 from optuna.storages import BaseStorage
 
+from .preferential._system_attrs import _SYSTEM_ATTR_PREFIX_PREFERENCE
+from .preferential._system_attrs import get_preference
 from .preferential._system_attrs import report_preferences
 
 
@@ -28,7 +30,7 @@ if TYPE_CHECKING:
     )
 
 
-@dataclass(frozen=True)
+@dataclass
 class ChooseWorstHistory:
     mode: Literal["ChooseWorst"]
     uuid: str
@@ -36,6 +38,8 @@ class ChooseWorstHistory:
     timestamp: datetime
     candidates: list[int]  # a list of trial number
     clicked: int  # The worst trial number in the candidates.
+    evacuated_preference: list[tuple[int, int]] = field(default_factory=list)
+    # When undo the preference, this is used. Otherwise, this must be empty.
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -45,6 +49,8 @@ class ChooseWorstHistory:
             "timestamp": self.timestamp.isoformat(),
             "candidates": self.candidates,
             "clicked": self.clicked,
+            "enabled": len(self.evacuated_preference) == 0,
+            "evacuated_preference": self.evacuated_preference,
         }
 
 
@@ -87,31 +93,65 @@ def report_history(
     storage.set_study_system_attr(
         study_id=study_id,
         key=key,
-        value=json.dumps(history.to_dict()),
+        value=history.to_dict(),
     )
 
 
-def serialize_preference_history(
+def _load_preference_history(value: Any) -> History:
+    choice: dict[str, Any] = value
+    if choice["mode"] == "ChooseWorst":
+        return ChooseWorstHistory(
+            mode="ChooseWorst",
+            uuid=choice["uuid"],
+            preference_uuid=choice["preference_uuid"],
+            timestamp=datetime.fromisoformat(choice["timestamp"]),
+            candidates=choice["candidates"],
+            clicked=choice["clicked"],
+            evacuated_preference=choice["evacuated_preference"],
+        )
+    else:
+        assert False, f"Unknown mode: {choice['mode']}"
+
+
+def load_preference_history(
+    uuid: str,
+    system_attrs: dict[str, Any],
+) -> History:
+    value = system_attrs.get(_SYSTEM_ATTR_PREFIX_HISTORY + uuid, [])
+    return _load_preference_history(value)
+
+
+def serialize_preference_histories(
     system_attrs: dict[str, Any],
 ) -> list[dict[str, Any]]:
     histories: list[History] = []
     for k, v in system_attrs.items():
         if not k.startswith(_SYSTEM_ATTR_PREFIX_HISTORY):
             continue
-        choice: dict[str, Any] = json.loads(v)
-        if choice["mode"] == "ChooseWorst":
-            histories.append(
-                ChooseWorstHistory(
-                    mode="ChooseWorst",
-                    uuid=choice["uuid"],
-                    preference_uuid=choice["preference_uuid"],
-                    timestamp=datetime.fromisoformat(choice["timestamp"]),
-                    candidates=choice["candidates"],
-                    clicked=choice["clicked"],
-                )
-            )
-        else:
-            assert False, f"Unknown mode: {choice['mode']}"
+        histories.append(_load_preference_history(v))
 
     histories.sort(key=lambda c: c.timestamp)
     return [history.to_dict() for history in histories]
+
+
+def switching_history(study_id: int, storage: BaseStorage, uuid: str, enable: bool) -> None:
+    system_attrs = storage.get_study_system_attrs(study_id)
+    history = load_preference_history(uuid, system_attrs)
+    preference = get_preference(study_id, storage, history.preference_uuid)
+    print(history, preference, enable)
+    if enable and (len(preference) > 0 or len(history.evacuated_preference) == 0):
+        return
+    if (not enable) and (len(preference) == 0 or len(history.evacuated_preference) > 0):
+        return
+    history.evacuated_preference, preference = preference, history.evacuated_preference
+    print(history.to_dict(), preference)
+    storage.set_study_system_attr(
+        study_id=study_id,
+        key=_SYSTEM_ATTR_PREFIX_HISTORY + history.uuid,
+        value=history.to_dict(),
+    )
+    storage.set_study_system_attr(
+        study_id=study_id,
+        key=_SYSTEM_ATTR_PREFIX_PREFERENCE + history.preference_uuid,
+        value=preference,
+    )

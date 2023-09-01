@@ -34,6 +34,11 @@ def report_preferences(
     return preference_uuid
 
 
+def get_preference(study_id: int, storage: BaseStorage, uuid: str) -> list[tuple[int, int]]:
+    system_attrs = storage.get_study_system_attrs(study_id)
+    return system_attrs.get(_SYSTEM_ATTR_PREFIX_PREFERENCE + uuid, [])  # type: ignore
+
+
 def get_preferences(
     study_id: int,
     storage: BaseStorage,

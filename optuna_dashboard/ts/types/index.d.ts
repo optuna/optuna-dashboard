@@ -215,4 +215,5 @@ type PreferenceChoice = {
   clicked: number
   feedback_mode: PreferenceFeedbackMode
   timestamp: Date
+  enabled: boolean
 }
