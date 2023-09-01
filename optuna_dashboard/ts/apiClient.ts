@@ -58,7 +58,7 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
 interface PreferenceChoiceResponce {
   uuid: string
   candidates: number[]
-  preferences: number[][]
+  clicked: number
   mode: PreferenceFeedbackMode
   timestamp: string
 }
@@ -68,8 +68,8 @@ const convertPreferenceChoice = (
 ): PreferenceChoice => {
   return {
     uuid: res.uuid,
-    candidate_trials: res.candidates,
-    preferences: res.preferences,
+    candidates: res.candidates,
+    clicked: res.clicked,
     feedback_mode: res.mode,
     timestamp: new Date(res.timestamp),
   }
@@ -338,13 +338,13 @@ export const getParamImportances = (
 
 export const reportPreferenceAPI = (
   studyId: number,
-  best_trials: number[],
-  worst_trials: number[]
+  candidates: number[],
+  clicked: number
 ): Promise<void> => {
   return axiosInstance
     .post<void>(`/api/studies/${studyId}/preference`, {
-      candidates: best_trials.concat(worst_trials),
-      clicked: worst_trials[0],
+      candidates: candidates,
+      clicked: clicked,
       mode: "ChooseWorst",
     })
     .then(() => {

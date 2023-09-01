@@ -3,7 +3,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Callable
 
-from optuna_dashboard._preferential_history import report_choice
+from optuna_dashboard._preferential_history import report_history
+from optuna_dashboard.preferential._system_attrs import _SYSTEM_ATTR_PREFIX_PREFERENCE
 from optuna_dashboard._serializer import serialize_preference_history
 from optuna_dashboard.preferential import create_study
 
@@ -21,34 +22,41 @@ def test_report_and_get_choices(storage_supplier: Callable[[], StorageSupplier])
             study.mark_comparison_ready(trial)
 
         study_id = study._study._study_id
-        report_choice(
-            study_id=study_id,
-            storage=storage,
-            candidate_trials=[0, 2, 3, 4],
-            preferences=[(2, 0), (3, 0), (4, 0)],
-            timestamp=datetime(2020, 1, 1, 10, 0, 1),
-        )
-        report_choice(
-            study_id=study_id,
-            storage=storage,
-            candidate_trials=[0, 1, 2],
-            preferences=[(0, 1), (2, 1)],
-            timestamp=datetime(2020, 1, 1, 10, 0, 0),
-        )
 
+        report_history(
+            study_id=study_id,
+            storage=storage,
+            input_data={
+                "mode": "ChooseWorst",
+                "candidates": [0, 1, 2],
+                "clicked": 1,
+            },
+        )
+        report_history(
+            study_id=study_id,
+            storage=storage,
+            input_data={
+                "mode": "ChooseWorst",
+                "candidates": [0, 2, 3, 4],
+                "clicked": 0,
+            },
+        )
         history = serialize_preference_history(storage.get_study_system_attrs(study_id))
+        sys_attrs = storage.get_study_system_attrs(study_id)
         assert len(history) == 2
-        assert history[0]["candidate_trials"] == [0, 1, 2]
-        assert len(history[0]["preferences"]) == 2
+        assert history[0]["candidates"] == [0, 1, 2]
+        assert history[0]["clicked"] == 1
+        preferences = sys_attrs[_SYSTEM_ATTR_PREFIX_PREFERENCE + history[0]["preference_uuid"]]
+        assert len(preferences) == 2
         for i, (best, worst) in enumerate([(0, 1), (2, 1)]):
-            assert len(history[0]["preferences"][i]) == 2
-            assert history[0]["preferences"][i][0] == best
-            assert history[0]["preferences"][i][1] == worst
-        assert history[0]["timestamp"] == "2020-01-01T10:00:00"
-        assert history[1]["candidate_trials"] == [0, 2, 3, 4]
-        assert len(history[1]["preferences"]) == 3
+            assert len(preferences[i]) == 2
+            assert preferences[i][0] == best
+            assert preferences[i][1] == worst
+        assert history[1]["candidates"] == [0, 2, 3, 4]
+        assert history[1]["clicked"] == 0
+        preferences = sys_attrs[_SYSTEM_ATTR_PREFIX_PREFERENCE + history[1]["preference_uuid"]]
+        assert len(preferences) == 3
         for i, (best, worst) in enumerate([(2, 0), (3, 0), (4, 0)]):
-            assert len(history[1]["preferences"][i]) == 2
-            assert history[1]["preferences"][i][0] == best
-            assert history[1]["preferences"][i][1] == worst
-        assert history[1]["timestamp"] == "2020-01-01T10:00:01"
+            assert len(preferences[i]) == 2
+            assert preferences[i][0] == best
+            assert preferences[i][1] == worst

@@ -138,8 +138,9 @@ class APITestCase(TestCase):
             "POST",
             body=json.dumps(
                 {
-                    "candidate_trials": [0, 1, 2],
-                    "preferentials": [[0, 1], [2, 1]],
+                    "mode": "ChooseWorst",
+                    "candidates": [0, 1, 2],
+                    "clicked": 1,
                 }
             ),
             content_type="application/json",

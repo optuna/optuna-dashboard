@@ -10,7 +10,6 @@ import uuid
 
 from optuna.storages import BaseStorage
 
-from .preferential._system_attrs import _SYSTEM_ATTR_PREFIX_PREFERENCE
 from .preferential._system_attrs import report_preferences
 
 
@@ -19,16 +18,14 @@ _SYSTEM_ATTR_PREFIX_HISTORY = "preference:history"
 if TYPE_CHECKING:
     from typing import TypedDict
 
-    NewChooseWorstHistoryJSON = TypedDict(
-        "NewChooseWorstHistoryJSON",
+    NewHistoryJSON = TypedDict(
+        "NewHistoryJSON",
         {
             "mode": Literal["ChooseWorst"],
             "candidates": list[int],
             "clicked": int,
         },
     )
-
-    NewHistoryJSON = NewChooseWorstHistoryJSON
 
 
 @dataclass(frozen=True)
@@ -50,45 +47,6 @@ class ChooseWorstHistory:
             "clicked": self.clicked,
         }
 
-    def to_response(self, system_attrs: dict[str, Any]) -> dict[str, Any]:
-        return {
-            "uuid": self.uuid,
-            "preferences": system_attrs.get(
-                _SYSTEM_ATTR_PREFIX_PREFERENCE + self.preference_uuid, []
-            ),
-            "timestamp": self.timestamp.isoformat(),
-            "candidates": self.candidates,
-            "clicked": self.clicked,
-        }
-
-    @classmethod
-    def from_dict(cls, d: dict[str, Any]) -> ChooseWorstHistory:
-        return ChooseWorstHistory(
-            mode="ChooseWorst",
-            uuid=d["uuid"],
-            preference_uuid=d["preference_uuid"],
-            timestamp=datetime.fromisoformat(d["timestamp"]),
-            candidates=d["candidates"],
-            clicked=d["clicked"],
-        )
-
-    @classmethod
-    def create(cls, study_id: int, storage: BaseStorage, d: NewHistoryJSON) -> ChooseWorstHistory:
-        preferences = [(best, d["clicked"]) for best in d["candidates"] if best != d["clicked"]]
-        preference_uuid = report_preferences(
-            study_id=study_id,
-            storage=storage,
-            preferences=preferences,
-        )
-        return ChooseWorstHistory(
-            mode="ChooseWorst",
-            uuid=str(uuid.uuid4()),
-            preference_uuid=preference_uuid,
-            timestamp=datetime.now(),
-            candidates=d["candidates"],
-            clicked=d["clicked"],
-        )
-
 
 History = ChooseWorstHistory
 
@@ -96,9 +54,36 @@ History = ChooseWorstHistory
 def report_history(
     study_id: int,
     storage: BaseStorage,
-    history: History,
+    input_data: NewHistoryJSON,
 ) -> None:
-    key = _SYSTEM_ATTR_PREFIX_HISTORY + history.uuid
+    preferences = []
+    if input_data["mode"] == "ChooseWorst":
+        preferences = [
+            (best, input_data["clicked"])
+            for best in input_data["candidates"]
+            if best != input_data["clicked"]
+        ]
+    else:
+        assert False, f"Unknown mode: {input_data['mode']}"
+
+    preference_uuid = report_preferences(
+        study_id=study_id,
+        storage=storage,
+        preferences=preferences,
+    )
+    history_uuid = str(uuid.uuid4())
+
+    if input_data["mode"] == "ChooseWorst":
+        history = ChooseWorstHistory(
+            mode="ChooseWorst",
+            uuid=history_uuid,
+            preference_uuid=preference_uuid,
+            timestamp=datetime.now(),
+            candidates=input_data["candidates"],
+            clicked=input_data["clicked"],
+        )
+
+    key = _SYSTEM_ATTR_PREFIX_HISTORY + history_uuid
     storage.set_study_system_attr(
         study_id=study_id,
         key=key,
@@ -115,9 +100,18 @@ def serialize_preference_history(
             continue
         choice: dict[str, Any] = json.loads(v)
         if choice["mode"] == "ChooseWorst":
-            histories.append(ChooseWorstHistory.from_dict(choice))
+            histories.append(
+                ChooseWorstHistory(
+                    mode="ChooseWorst",
+                    uuid=choice["uuid"],
+                    preference_uuid=choice["preference_uuid"],
+                    timestamp=datetime.fromisoformat(choice["timestamp"]),
+                    candidates=choice["candidates"],
+                    clicked=choice["clicked"],
+                )
+            )
         else:
-            assert False
+            assert False, f"Unknown mode: {choice['mode']}"
 
     histories.sort(key=lambda c: c.timestamp)
-    return [history.to_response(system_attrs) for history in histories]
+    return [history.to_dict() for history in histories]

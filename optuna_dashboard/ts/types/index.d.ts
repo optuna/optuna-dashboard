@@ -211,8 +211,8 @@ type StudyParamImportance = {
 
 type PreferenceChoice = {
   uuid: string
-  candidate_trials: number[]
-  preferences: number[][]
+  candidates: number[]
+  clicked: number
   feedback_mode: PreferenceFeedbackMode
   timestamp: Date
 }

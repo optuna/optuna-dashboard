@@ -138,13 +138,7 @@ const ChoiceTrials: FC<{ choice: PreferenceChoice; trials: Trial[] }> = ({
   trials,
 }) => {
   const theme = useTheme()
-  const worst_trials = new Set(choice.preferences.map((pair) => pair[1]))
-  console.log(
-    worst_trials,
-    choice.candidate_trials,
-    choice.preferences,
-    choice.preferences.map((pair) => pair[1])
-  )
+  const worst_trials = new Set([choice.clicked])
 
   return (
     <Box>
@@ -163,7 +157,7 @@ const ChoiceTrials: FC<{ choice: PreferenceChoice; trials: Trial[] }> = ({
           flexDirection: "row",
         }}
       >
-        {choice.candidate_trials.map((trial_num, index) => (
+        {choice.candidates.map((trial_num, index) => (
           <CandidateTrial
             key={index}
             trial={trials[trial_num]}
