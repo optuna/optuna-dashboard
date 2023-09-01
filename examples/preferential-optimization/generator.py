@@ -23,6 +23,7 @@ os.makedirs(artifact_path, exist_ok=True)
 
 def main() -> NoReturn:
     study = create_study(
+        n_generate=5,
         study_name="Preferential Optimization",
         storage=STORAGE_URL,
         sampler=PreferentialGPSampler(),
