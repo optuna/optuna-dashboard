@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from datetime import datetime
 import json
 from typing import Any
-from typing import Literal
 from typing import TYPE_CHECKING
 import uuid
 
@@ -17,6 +16,7 @@ _SYSTEM_ATTR_PREFIX_HISTORY = "preference:history"
 
 if TYPE_CHECKING:
     from typing import TypedDict
+    from typing import Literal
 
     NewHistoryJSON = TypedDict(
         "NewHistoryJSON",
