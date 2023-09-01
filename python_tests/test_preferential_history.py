@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Callable
 
 from optuna_dashboard._preferential_history import report_history
-from optuna_dashboard.preferential._system_attrs import _SYSTEM_ATTR_PREFIX_PREFERENCE
 from optuna_dashboard._serializer import serialize_preference_history
 from optuna_dashboard.preferential import create_study
+from optuna_dashboard.preferential._system_attrs import _SYSTEM_ATTR_PREFIX_PREFERENCE
 
 from .storage_supplier import parametrize_storages
 from .storage_supplier import StorageSupplier

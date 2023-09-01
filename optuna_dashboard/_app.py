@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime
 import functools
 import logging
 import os
@@ -263,7 +262,7 @@ def create_app(
             }
 
         note.save_note_with_version(storage, study_id, None, req_note_ver, req_note_body)
-        response.status = 204  # No contenthttps://github.com/microsoft/pyright/blob/main/docs/configuration.md#reportUndefinedVariable
+        response.status = 204  # No content
         return {}
 
     @app.post("/api/studies/<study_id:int>/preference")
