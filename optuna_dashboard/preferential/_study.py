@@ -276,7 +276,9 @@ class PreferentialStudy:
         to generate a new trial if this method returns :obj:`True`, and to wait for human
         evaluation if this method returns :obj:`False`.
         """
-        return len(get_active_trials(self._study._study_id, self._study._storage)) < self.n_generate
+        return (
+            len(get_active_trials(self._study._study_id, self._study._storage)) < self.n_generate
+        )
 
 
 def get_active_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list[FrozenTrial]:

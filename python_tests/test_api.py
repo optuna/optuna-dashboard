@@ -108,6 +108,8 @@ class APITestCase(TestCase):
             study.mark_comparison_ready(trial)
         study.report_preference(study.trials[0], study.trials[1])
 
+        assert len(study.best_trials) == 1
+
         app = create_app(storage)
         study_id = study._study._study_id
         status, _, body = send_request(
@@ -119,9 +121,8 @@ class APITestCase(TestCase):
         self.assertEqual(status, 200)
 
         best_trials = json.loads(body)["best_trials"]
-        assert len(best_trials) == 2
+        assert len(best_trials) == 1
         assert best_trials[0]["number"] == 0
-        assert best_trials[1]["number"] == 2
 
     def test_report_preference(self) -> None:
         storage = optuna.storages.InMemoryStorage()
