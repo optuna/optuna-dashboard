@@ -96,9 +96,11 @@ export const BestTrialsCard: FC<{
                       <Typography variant="h5">Trial {trial.number}</Typography>
                     }
                   />
-                  <Typography>
-                    Objective Values = [{trial.values?.join(", ")}]
-                  </Typography>
+                  {studyDetail?.is_preferential ? null : (
+                    <Typography>
+                      Objective Values = [{trial.values?.join(", ")}]
+                    </Typography>
+                  )}
                   <Typography>
                     Params = [
                     {trial.params

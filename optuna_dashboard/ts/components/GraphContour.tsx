@@ -11,6 +11,7 @@ import {
   useTheme,
   Box,
 } from "@mui/material"
+import blue from "@mui/material/colors/blue"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 
@@ -211,32 +212,62 @@ const plotContour = (
     }
   })
 
+  if (!study.is_preferential) {
+    const plotData: Partial<plotly.PlotData>[] = [
+      {
+        type: "contour",
+        x: xIndices,
+        y: yIndices,
+        z: zValues,
+        colorscale: "Blues",
+        connectgaps: true,
+        hoverinfo: "none",
+        line: {
+          smoothing: 1.3,
+        },
+        reversescale: study.directions[objectiveId] !== "minimize",
+        // https://github.com/plotly/react-plotly.js/issues/251
+        // @ts-ignore
+        contours: {
+          coloring: "heatmap",
+        },
+      },
+      {
+        type: "scatter",
+        x: xValues,
+        y: yValues,
+        marker: { line: { width: 2.0, color: "Grey" }, color: "black" },
+        mode: "markers",
+        showlegend: false,
+      },
+    ]
+    plotly.react(plotDomId, plotData, layout)
+    return
+  }
+
+  layout.legend = {
+    y: 0.8,
+  }
+  const bestTrialIndices = study.best_trials.map((trial) => trial.number)
   const plotData: Partial<plotly.PlotData>[] = [
     {
-      type: "contour",
-      x: xIndices,
-      y: yIndices,
-      z: zValues,
-      colorscale: "Blues",
-      connectgaps: true,
-      hoverinfo: "none",
-      line: {
-        smoothing: 1.3,
+      type: "scatter",
+      x: xValues.filter((_, i) => bestTrialIndices.includes(i)),
+      y: yValues.filter((_, i) => bestTrialIndices.includes(i)),
+      marker: {
+        line: { width: 2.0, color: "Grey" },
+        color: blue[200],
       },
-      reversescale: study.directions[objectiveId] !== "minimize",
-      // https://github.com/plotly/react-plotly.js/issues/251
-      // @ts-ignore
-      contours: {
-        coloring: "heatmap",
-      },
+      name: "best trials",
+      mode: "markers",
     },
     {
       type: "scatter",
-      x: xValues,
-      y: yValues,
+      x: xValues.filter((_, i) => !bestTrialIndices.includes(i)),
+      y: yValues.filter((_, i) => !bestTrialIndices.includes(i)),
       marker: { line: { width: 2.0, color: "Grey" }, color: "black" },
+      name: "others",
       mode: "markers",
-      showlegend: false,
     },
   ]
   plotly.react(plotDomId, plotData, layout)
