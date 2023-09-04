@@ -221,7 +221,7 @@ export const AppDrawer: FC<{
                   component={Link}
                   to={`${URL_PREFIX}/studies/${studyId}/preference-history`}
                   sx={styleListItemButton}
-                  selected={page === "analytics"}
+                  selected={page === "preferenceHistory"}
                 >
                   <ListItemIcon sx={styleListItemIcon}>
                     <HistoryIcon />

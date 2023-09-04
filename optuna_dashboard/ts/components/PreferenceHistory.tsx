@@ -11,10 +11,11 @@ import ClearIcon from "@mui/icons-material/Clear"
 import IconButton from "@mui/material/IconButton"
 import OpenInFullIcon from "@mui/icons-material/OpenInFull"
 import Modal from "@mui/material/Modal"
+import { red } from "@mui/material/colors"
 
 import { TrialListDetail } from "./TrialList"
 import { MarkdownRenderer } from "./Note"
-import { red } from "@mui/material/colors"
+import { formatDate } from "../dateUtil"
 
 type TrialType = "worst" | "none"
 
@@ -149,7 +150,7 @@ const ChoiceTrials: FC<{ choice: PreferenceChoice; trials: Trial[] }> = ({
           fontWeight: theme.typography.fontWeightLight,
         }}
       >
-        {choice.timestamp.toISOString()}
+        {formatDate(choice.timestamp)}
       </Typography>
       <Box
         sx={{
