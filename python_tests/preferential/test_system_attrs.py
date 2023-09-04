@@ -13,7 +13,7 @@ from ..storage_supplier import StorageSupplier
 @parametrize_storages
 def test_report_and_get_preferences(storage_supplier: Callable[[], StorageSupplier]) -> None:
     with storage_supplier() as storage:
-        study = optuna.create_study(n_generate=4, storage=storage)
+        study = optuna.create_study(storage=storage)
         study.ask()
         study.ask()
 
