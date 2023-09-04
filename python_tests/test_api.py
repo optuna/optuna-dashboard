@@ -8,8 +8,8 @@ from optuna import get_all_study_summaries
 from optuna.study import StudyDirection
 from optuna_dashboard._app import create_app
 from optuna_dashboard._app import create_new_study
-from optuna_dashboard.preferential import create_study
 from optuna_dashboard._preference_setting import register_output_component
+from optuna_dashboard.preferential import create_study
 
 from .wsgi_client import send_request
 

@@ -1,13 +1,11 @@
 from __future__ import annotations
+
 from unittest import TestCase
 
 import optuna
-
-from optuna_dashboard._preference_setting import (
-    register_output_component,
-    _SYSTEM_ATTR_FEEDBACK_ARTIFACT_KEY,
-    _SYSTEM_ATTR_FEEDBACK_COMPONENT_TYPE,
-)
+from optuna_dashboard._preference_setting import _SYSTEM_ATTR_FEEDBACK_ARTIFACT_KEY
+from optuna_dashboard._preference_setting import _SYSTEM_ATTR_FEEDBACK_COMPONENT_TYPE
+from optuna_dashboard._preference_setting import register_output_component
 from optuna_dashboard.preferential._study import PreferentialStudy
 
 
