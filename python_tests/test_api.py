@@ -104,7 +104,7 @@ class APITestCase(TestCase):
         storage = optuna.storages.InMemoryStorage()
         study = create_study(n_generate=4, storage=storage)
         for _ in range(3):
-            trial = study.ask()
+            study.ask()
         study.report_preference(study.trials[0], study.trials[1])
 
         assert len(study.best_trials) == 1
@@ -127,7 +127,7 @@ class APITestCase(TestCase):
         storage = optuna.storages.InMemoryStorage()
         study = create_study(n_generate=4, storage=storage)
         for _ in range(3):
-            trial = study.ask()
+            study.ask()
 
         app = create_app(storage)
         study_id = study._study._study_id
@@ -157,21 +157,22 @@ class APITestCase(TestCase):
         for _ in range(3):
             trial = study.ask()
             trials.append(trial)
+        study.report_preference(trials[0], trials[1])
+        study.report_preference(trials[2], trials[1])
 
         app = create_app(storage)
         study_id = study._study._study_id
         status, _, _ = send_request(
             app,
-            f"/api/studies/{study_id}/{trials[1]._trial_id}/skip",
+            f"/api/studies/{study_id}/{trials[0]._trial_id}/skip",
             "POST",
             content_type="application/json",
         )
         self.assertEqual(status, 204)
 
         best_trials = study.best_trials
-        assert len(best_trials) == 2
-        assert best_trials[0].number == 0
-        assert best_trials[1].number == 2
+        assert len(best_trials) == 1
+        assert best_trials[0].number == 2
 
     def test_create_study(self) -> None:
         for name, directions, expected_status in [

@@ -263,7 +263,7 @@ def test_get_trials_state_option(storage_supplier: Callable[[], StorageSupplier]
     with storage_supplier() as storage:
         study = create_study(n_generate=4, storage=storage)
         for _ in range(3):
-            trial = study.ask()
+            study.ask()
         better, worse = study.trials[:2]
         study.report_preference(better, worse)
 
