@@ -157,8 +157,8 @@ class APITestCase(TestCase):
         for _ in range(3):
             trial = study.ask()
             trials.append(trial)
-        study.report_preference(trials[0], trials[1])
-        study.report_preference(trials[2], trials[1])
+        study.report_preference(study.trials[0], study.trials[1])
+        study.report_preference(study.trials[2], study.trials[1])
 
         app = create_app(storage)
         study_id = study._study._study_id
