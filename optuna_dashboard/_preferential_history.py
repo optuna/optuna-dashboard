@@ -3,45 +3,32 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 import json
-import sys
 from typing import Any
 from typing import TYPE_CHECKING
 import uuid
 
 from optuna.storages import BaseStorage
-from typeguard import typechecked
 
 from .preferential._system_attrs import report_preferences
 
 
 _SYSTEM_ATTR_PREFIX_HISTORY = "preference:history"
 
-if TYPE_CHECKING or (3, 8, 0) <= sys.version_info:
-    from typing import Literal
-else:
-    from typing_extensions import Literal
-FeedbackMode = Literal["ChooseWorst"]
 if TYPE_CHECKING:
-    from typing import TypedDict
+    from typing import Literal
 
-    NewHistoryJSON = TypedDict(
-        "NewHistoryJSON",
-        {
-            "mode": FeedbackMode,
-            "candidates": list[int],
-            "clicked": int,
-        },
-    )
+    FeedbackMode = Literal["ChooseWorst"]
+    if TYPE_CHECKING:
+        from typing import TypedDict
 
-
-@typechecked
-def check_feedback_mode(mode: FeedbackMode) -> None:
-    pass
-
-
-def cast_feedback_mode(mode: str) -> FeedbackMode:
-    check_feedback_mode(mode)  # type: ignore
-    return mode  # type: ignore
+        NewHistoryJSON = TypedDict(
+            "NewHistoryJSON",
+            {
+                "mode": FeedbackMode,
+                "candidates": list[int],
+                "clicked": int,
+            },
+        )
 
 
 @dataclass(frozen=True)

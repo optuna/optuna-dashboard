@@ -27,7 +27,6 @@ from ._bottle_util import json_api_view
 from ._cached_extra_study_property import get_cached_extra_study_property
 from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
-from ._preferential_history import cast_feedback_mode
 from ._preferential_history import report_history
 from ._rdb_migration import register_rdb_migration_route
 from ._serializer import serialize_study_detail
@@ -270,7 +269,7 @@ def create_app(
     @json_api_view
     def post_preference(study_id: int) -> dict[str, Any]:
         try:
-            mode = cast_feedback_mode(request.json.get("mode", ""))
+            mode = request.json.get("mode", "")
             candidates = [int(d) for d in request.json.get("candidates", [])]
             clicked = int(request.json.get("clicked", -1))
         except Exception:
@@ -280,9 +279,9 @@ def create_app(
         if clicked == -1:
             response.status = 400
             return {"reason": "`clicked` should be specified."}
-        # if mode != "ChooseWorst":
-        #     response.status = 400
-        #     return {"reason": "`mode` should be 'ChooseWorst'."}
+        if mode != "ChooseWorst":
+            response.status = 400
+            return {"reason": "`mode` should be 'ChooseWorst'."}
 
         report_history(
             study_id,
