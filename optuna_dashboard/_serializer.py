@@ -14,6 +14,8 @@ from optuna.trial import FrozenTrial
 from . import _note as note
 from ._form_widget import get_form_widgets_json
 from ._named_objectives import get_objective_names
+from ._preference_setting import _SYSTEM_ATTR_FEEDBACK_ARTIFACT_KEY
+from ._preference_setting import _SYSTEM_ATTR_FEEDBACK_COMPONENT_TYPE
 from .artifact._backend import list_trial_artifacts
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 
@@ -155,6 +157,10 @@ def serialize_study_detail(
     form_widgets = get_form_widgets_json(system_attrs)
     if form_widgets:
         serialized["form_widgets"] = form_widgets
+    if _SYSTEM_ATTR_FEEDBACK_COMPONENT_TYPE in system_attrs:
+        serialized["feedback_component_type"] = system_attrs[_SYSTEM_ATTR_FEEDBACK_COMPONENT_TYPE]
+    if _SYSTEM_ATTR_FEEDBACK_ARTIFACT_KEY in system_attrs:
+        serialized["feedback_artifact_key"] = system_attrs[_SYSTEM_ATTR_FEEDBACK_ARTIFACT_KEY]
     return serialized
 
 

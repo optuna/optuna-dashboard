@@ -27,6 +27,7 @@ from ._bottle_util import json_api_view
 from ._cached_extra_study_property import get_cached_extra_study_property
 from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
+from ._preference_setting import _register_output_component
 from ._rdb_migration import register_rdb_migration_route
 from ._serializer import serialize_study_detail
 from ._serializer import serialize_study_summary
@@ -281,6 +282,28 @@ def create_app(
         preferences = [(best, worst) for best in best_trials for worst in worst_trials]
         report_preferences(study_id, storage, preferences)
 
+        response.status = 204
+        return {}
+
+    @app.post("/api/studies/<study_id:int>/component")
+    @json_api_view
+    def post_component(study_id: int) -> dict[str, Any]:
+        try:
+            component_type = request.json.get("component_type", "")
+            artifact_key = request.json.get("artifact_key", None)
+        except ValueError:
+            response.status = 400
+            return {"reason": "invalid request."}
+        if component_type not in ["Note", "Artifact"]:
+            response.status = 400
+            return {"reason": "component_type must be either 'Note' or 'Artifact'."}
+
+        _register_output_component(
+            study_id=study_id,
+            storage=storage,
+            component_type=component_type,
+            artifact_key=artifact_key,
+        )
         response.status = 204
         return {}
 

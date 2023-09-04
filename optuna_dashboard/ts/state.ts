@@ -56,17 +56,6 @@ export const artifactIsAvailable = atom<boolean>({
   default: false,
 })
 
-export type FeedbackComponentType = "note" | "artifact"
-export const feedbackComponent = atom<FeedbackComponentType>({
-  key: "feedbackComponent",
-  default: "note",
-})
-
-export const feedbackArtifactKey = atom<string>({
-  key: "feedbackArtifactKey",
-  default: "",
-})
-
 export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
   return studyDetails[studyId] || null

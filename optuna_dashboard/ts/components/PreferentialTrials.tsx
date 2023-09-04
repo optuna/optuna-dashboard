@@ -1,4 +1,4 @@
-import React, { FC, useState } from "react"
+import React, { FC, useEffect, useState } from "react"
 import {
   Typography,
   Box,
@@ -11,7 +11,6 @@ import {
   Select,
   FormControl,
   FormLabel,
-  TextField,
   Modal,
 } from "@mui/material"
 import OpenInFullIcon from "@mui/icons-material/OpenInFull"
@@ -20,14 +19,8 @@ import ClearIcon from "@mui/icons-material/Clear"
 import IconButton from "@mui/material/IconButton"
 import SettingsIcon from "@mui/icons-material/Settings"
 import red from "@mui/material/colors/red"
-import { useRecoilValue, useSetRecoilState } from "recoil"
 import { actionCreator } from "../action"
 import { MarkdownRenderer } from "./Note"
-import {
-  feedbackComponent,
-  FeedbackComponentType,
-  feedbackArtifactKey,
-} from "../state"
 import {
   TrialArtifactActions,
   TrialArtifactContent,
@@ -37,13 +30,12 @@ import {
 const FeedbackContent: FC<{
   trial: Trial
   artifact?: Artifact
-}> = ({ trial, artifact }) => {
-  const componentId = useRecoilValue(feedbackComponent)
-
-  if (componentId === "note") {
+  componentId: FeedbackComponentType
+}> = ({ trial, artifact, componentId }) => {
+  if (componentId === "Note") {
     return <MarkdownRenderer body={trial.note.body} />
   }
-  if (componentId === "artifact") {
+  if (componentId === "Artifact") {
     if (artifact === undefined) {
       return null
     }
@@ -63,11 +55,11 @@ const FeedbackContent: FC<{
 const ModalPage: FC<{
   children: React.ReactNode
   displayFlag: boolean
-  setDisplayFlag: (flag: boolean) => void
-}> = ({ children, displayFlag, setDisplayFlag }) => {
+  onClose: () => void
+}> = ({ children, displayFlag, onClose }) => {
   const theme = useTheme()
   return (
-    <Modal open={displayFlag} onClose={() => setDisplayFlag(false)}>
+    <Modal open={displayFlag} onClose={onClose}>
       <Box
         sx={{
           position: "absolute",
@@ -107,8 +99,8 @@ const PreferentialTrial: FC<{
   const trialWidth = 500
   const trialHeight = 300
   const [detailShown, setDetailShown] = useState(false)
-  const componentId = useRecoilValue(feedbackComponent)
-  const artifactKey = useRecoilValue(feedbackArtifactKey)
+  const componentId = studyDetail.feedback_component_type ?? "Note"
+  const artifactKey = studyDetail.feedback_artifact_key
   const artifactId = trial?.user_attrs.find((a) => a.key === artifactKey)?.value
   const artifact = trial?.artifacts.find((a) => a.artifact_id === artifactId)
 
@@ -135,7 +127,7 @@ const PreferentialTrial: FC<{
     >
       <CardActions>
         <Typography variant="h5">Trial {trial.number}</Typography>
-        {componentId === "artifact" && artifact !== undefined ? (
+        {componentId === "Artifact" && artifact !== undefined ? (
           <Typography
             variant="h6"
             sx={{
@@ -145,7 +137,7 @@ const PreferentialTrial: FC<{
             {`(${artifact.filename})`}
           </Typography>
         ) : null}
-        {componentId === "artifact" && artifact !== undefined ? (
+        {componentId === "Artifact" && artifact !== undefined ? (
           <TrialArtifactActions
             trial={trial}
             artifact={artifact}
@@ -211,7 +203,11 @@ const PreferentialTrial: FC<{
               padding: theme.spacing(2),
             }}
           >
-            <FeedbackContent trial={trial} artifact={artifact} />
+            <FeedbackContent
+              trial={trial}
+              artifact={artifact}
+              componentId={studyDetail.feedback_component_type ?? "Note"}
+            />
           </Box>
 
           <ClearIcon
@@ -236,7 +232,12 @@ const PreferentialTrial: FC<{
           />
         </CardContent>
       </CardActionArea>
-      <ModalPage displayFlag={detailShown} setDisplayFlag={setDetailShown}>
+      <ModalPage
+        displayFlag={detailShown}
+        onClose={() => {
+          setDetailShown(false)
+        }}
+      >
         <TrialListDetail
           trial={trial}
           isBestTrial={() => true}
@@ -245,6 +246,102 @@ const PreferentialTrial: FC<{
         />
       </ModalPage>
     </Card>
+  )
+}
+
+const SettingsPage: FC<{
+  studyDetail: StudyDetail
+  settingShown: boolean
+  setSettingShown: (flag: boolean) => void
+}> = ({ studyDetail, settingShown, setSettingShown }) => {
+  const theme = useTheme()
+  const actions = actionCreator()
+  const [outputComponent, setOutputComponent] = useState(
+    studyDetail?.feedback_component_type ?? "Note"
+  )
+  const [outputArtifactKey, setOutputArtifactKey] = useState(
+    studyDetail?.feedback_artifact_key ?? ""
+  )
+  useEffect(() => {
+    if (studyDetail.feedback_component_type !== undefined) {
+      setOutputComponent(studyDetail.feedback_component_type)
+    }
+    if (studyDetail.feedback_artifact_key !== undefined) {
+      setOutputArtifactKey(studyDetail.feedback_artifact_key)
+    }
+  }, [studyDetail.feedback_component_type, studyDetail.feedback_artifact_key])
+  const onClose = () => {
+    setSettingShown(false)
+    actions.updateFeedbackComponent(
+      studyDetail.id,
+      outputComponent,
+      outputArtifactKey
+    )
+  }
+
+  return (
+    <ModalPage displayFlag={settingShown} onClose={onClose}>
+      <Typography
+        variant="h4"
+        sx={{
+          padding: theme.spacing(2),
+          fontWeight: theme.typography.fontWeightBold,
+        }}
+      >
+        Settings
+      </Typography>
+      <Box
+        sx={{
+          padding: theme.spacing(2),
+          display: "flex",
+          flexDirection: "column",
+        }}
+      >
+        <FormControl component="fieldset">
+          <FormLabel component="legend">Output Component:</FormLabel>
+          <Select
+            value={outputComponent}
+            onChange={(e) => {
+              setOutputComponent(e.target.value as FeedbackComponentType)
+            }}
+          >
+            <MenuItem value="Note">Note</MenuItem>
+            <MenuItem value="Artifact">Artifact</MenuItem>
+          </Select>
+        </FormControl>
+        {outputComponent === "Artifact" ? (
+          <FormControl
+            component="fieldset"
+            disabled={studyDetail.union_user_attrs.length === 0}
+          >
+            <FormLabel component="legend">
+              User Attribute Key Corresponding to Output Artifact Id:
+            </FormLabel>
+            <Select
+              value={
+                studyDetail.union_user_attrs.length !== 0
+                  ? outputArtifactKey
+                  : "error"
+              }
+              onChange={(e) => {
+                setOutputArtifactKey(e.target.value)
+              }}
+            >
+              {studyDetail.union_user_attrs.length === 0 ? (
+                <MenuItem value="error">No user attributes</MenuItem>
+              ) : null}
+              {studyDetail.union_user_attrs.map((attr, index) => {
+                return (
+                  <MenuItem key={index} value={attr.key}>
+                    {attr.key}
+                  </MenuItem>
+                )
+              })}
+            </Select>
+          </FormControl>
+        ) : null}
+      </Box>
+    </ModalPage>
   )
 }
 
@@ -265,10 +362,6 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
     last_number: Math.max(...studyDetail.best_trials.map((t) => t.number), -1),
   })
   const [settingShown, setSettingShown] = useState(false)
-  const outputComponent = useRecoilValue(feedbackComponent)
-  const setOutputComponent = useSetRecoilState(feedbackComponent)
-  const outputArtifactKey = useRecoilValue(feedbackArtifactKey)
-  const setOutputArtifactKey = useSetRecoilState(feedbackArtifactKey)
   const new_trails = studyDetail.best_trials.filter(
     (t) =>
       displayTrials.last_number < t.number &&
@@ -346,68 +439,11 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
           />
         ))}
       </Box>
-      <ModalPage displayFlag={settingShown} setDisplayFlag={setSettingShown}>
-        <Typography
-          variant="h4"
-          sx={{
-            padding: theme.spacing(2),
-            fontWeight: theme.typography.fontWeightBold,
-          }}
-        >
-          Settings
-          <Box
-            sx={{
-              padding: theme.spacing(2),
-              display: "flex",
-              flexDirection: "column",
-            }}
-          >
-            <FormControl component="fieldset">
-              <FormLabel component="legend">Output Component:</FormLabel>
-              <Select
-                value={outputComponent}
-                onChange={(e) => {
-                  setOutputComponent(e.target.value as FeedbackComponentType)
-                }}
-              >
-                <MenuItem value="note">Note</MenuItem>
-                <MenuItem value="artifact">Artifact</MenuItem>
-              </Select>
-            </FormControl>
-            {outputComponent === "artifact" ? (
-              <FormControl
-                component="fieldset"
-                disabled={studyDetail.union_user_attrs.length === 0}
-              >
-                <FormLabel component="legend">
-                  User Attribute Key Corresponding to Output Artifact Id:
-                </FormLabel>
-                <Select
-                  value={
-                    studyDetail.union_user_attrs.length !== 0
-                      ? outputArtifactKey
-                      : "error"
-                  }
-                  onChange={(e) => {
-                    setOutputArtifactKey(e.target.value)
-                  }}
-                >
-                  {studyDetail.union_user_attrs.length === 0 ? (
-                    <MenuItem value="error">No user attributes</MenuItem>
-                  ) : null}
-                  {studyDetail.union_user_attrs.map((attr, index) => {
-                    return (
-                      <MenuItem key={index} value={attr.key}>
-                        {attr.key}
-                      </MenuItem>
-                    )
-                  })}
-                </Select>
-              </FormControl>
-            ) : null}
-          </Box>
-        </Typography>
-      </ModalPage>
+      <SettingsPage
+        settingShown={settingShown}
+        setSettingShown={setSettingShown}
+        studyDetail={studyDetail}
+      />
     </Box>
   )
 }

@@ -12,6 +12,7 @@ type TrialIntermediateValueNumber = number | "inf" | "-inf" | "nan"
 type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting"
 type TrialStateFinished = "Complete" | "Fail" | "Pruned"
 type StudyDirection = "maximize" | "minimize" | "not_set"
+type FeedbackComponentType = "Note" | "Artifact"
 
 type FloatDistribution = {
   type: "FloatDistribution"
@@ -197,6 +198,8 @@ type StudyDetail = {
   is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
+  feedback_component_type?: FeedbackComponentType
+  feedback_artifact_key?: string
 }
 
 type StudyDetails = {

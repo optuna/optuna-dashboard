@@ -70,6 +70,8 @@ interface StudyDetailResponse {
   is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
+  feedback_component_type?: string
+  feedback_artifact_key?: string
 }
 
 export const getStudyDetailAPI = (
@@ -105,6 +107,9 @@ export const getStudyDetailAPI = (
         objective_names: res.data.objective_names,
         form_widgets: res.data.form_widgets,
         is_preferential: res.data.is_preferential,
+        feedback_component_type: res.data
+          .feedback_component_type as FeedbackComponentType,
+        feedback_artifact_key: res.data.feedback_artifact_key,
       }
     })
 }
@@ -333,6 +338,21 @@ export const skipPreferentialTrialAPI = (
 ): Promise<void> => {
   return axiosInstance
     .post<void>(`/api/studies/${studyId}/${trialId}/skip`)
+    .then(() => {
+      return
+    })
+}
+
+export const reportFeedbackComponentAPI = (
+  studyId: number,
+  component_type: FeedbackComponentType,
+  artifact_key?: string
+): Promise<void> => {
+  return axiosInstance
+    .post<void>(`/api/studies/${studyId}/component`, {
+      component_type: component_type,
+      artifact_key: artifact_key,
+    })
     .then(() => {
       return
     })
