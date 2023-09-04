@@ -102,10 +102,9 @@ class APITestCase(TestCase):
 
     def test_get_best_trials_of_preferential_study(self) -> None:
         storage = optuna.storages.InMemoryStorage()
-        study = create_study(storage=storage)
+        study = create_study(n_generate=4, storage=storage)
         for _ in range(3):
             trial = study.ask()
-            study.mark_comparison_ready(trial)
         study.report_preference(study.trials[0], study.trials[1])
 
         assert len(study.best_trials) == 1
@@ -126,10 +125,9 @@ class APITestCase(TestCase):
 
     def test_report_preference(self) -> None:
         storage = optuna.storages.InMemoryStorage()
-        study = create_study(storage=storage)
+        study = create_study(n_generate=4, storage=storage)
         for _ in range(3):
             trial = study.ask()
-            study.mark_comparison_ready(trial)
 
         app = create_app(storage)
         study_id = study._study._study_id
@@ -154,11 +152,10 @@ class APITestCase(TestCase):
 
     def test_skip_trial(self) -> None:
         storage = optuna.storages.InMemoryStorage()
-        study = create_study(storage=storage)
+        study = create_study(n_generate=4, storage=storage)
         trials: list[optuna.Trial] = []
         for _ in range(3):
             trial = study.ask()
-            study.mark_comparison_ready(trial)
             trials.append(trial)
 
         app = create_app(storage)

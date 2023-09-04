@@ -25,7 +25,7 @@ from ..storage_supplier import StorageSupplier
 @parametrize_storages
 def test_study_set_and_get_user_attrs(storage_supplier: Callable[[], StorageSupplier]) -> None:
     with storage_supplier() as storage:
-        study = create_study(storage=storage)
+        study = create_study(n_generate=4, storage=storage)
 
         study.set_user_attr("dataset", "MNIST")
         assert study.user_attrs["dataset"] == "MNIST"
@@ -34,13 +34,12 @@ def test_study_set_and_get_user_attrs(storage_supplier: Callable[[], StorageSupp
 @parametrize_storages
 def test_report_and_get_preferences(storage_supplier: Callable[[], StorageSupplier]) -> None:
     with storage_supplier() as storage:
-        study = create_study(storage=storage)
+        study = create_study(n_generate=4, storage=storage)
         assert len(study.preferences) == 0
 
         for _ in range(2):
             trial = study.ask()
             trial.suggest_float("x", 0, 1)
-            study.mark_comparison_ready(trial)
         better, worse = study.trials
         study.report_preference(better, worse)
         assert len(study.preferences) == 1
@@ -51,7 +50,9 @@ def test_report_and_get_preferences(storage_supplier: Callable[[], StorageSuppli
 
 
 def test_study_pickle() -> None:
-    study_1 = create_study()
+    study_1 = create_study(
+        n_generate=4,
+    )
     for _ in range(10):
         study_1.ask()
     assert len(study_1.trials) == 10
@@ -69,13 +70,17 @@ def test_study_pickle() -> None:
 def test_create_study(storage_supplier: Callable[[], StorageSupplier]) -> None:
     with storage_supplier() as storage:
         # Test creating a new study.
-        study = create_study(storage=storage, load_if_exists=False)
+        study = create_study(n_generate=4, storage=storage, load_if_exists=False)
 
         # Test `load_if_exists=True` with existing study.
-        create_study(study_name=study.study_name, storage=storage, load_if_exists=True)
+        create_study(
+            n_generate=4, study_name=study.study_name, storage=storage, load_if_exists=True
+        )
 
         with pytest.raises(DuplicatedStudyError):
-            create_study(study_name=study.study_name, storage=storage, load_if_exists=False)
+            create_study(
+                n_generate=4, study_name=study.study_name, storage=storage, load_if_exists=False
+            )
 
 
 @parametrize_storages
@@ -92,7 +97,7 @@ def test_load_study(storage_supplier: Callable[[], StorageSupplier]) -> None:
             load_study(study_name=study_name, storage=storage)
 
         # Create a new study.
-        created_study = create_study(study_name=study_name, storage=storage)
+        created_study = create_study(n_generate=4, study_name=study_name, storage=storage)
 
         # Test loading an existing study.
         loaded_study = load_study(study_name=study_name, storage=storage)
@@ -108,7 +113,7 @@ def test_load_study_study_name_none(storage_supplier: Callable[[], StorageSuppli
 
         study_name = str(uuid.uuid4())
 
-        _ = create_study(study_name=study_name, storage=storage)
+        _ = create_study(n_generate=4, study_name=study_name, storage=storage)
 
         loaded_study = load_study(study_name=None, storage=storage)
 
@@ -116,7 +121,7 @@ def test_load_study_study_name_none(storage_supplier: Callable[[], StorageSuppli
 
         study_name = str(uuid.uuid4())
 
-        _ = create_study(study_name=study_name, storage=storage)
+        _ = create_study(n_generate=4, study_name=study_name, storage=storage)
 
         # Ambiguous study.
         with pytest.raises(ValueError):
@@ -131,7 +136,7 @@ def test_delete_study(storage_supplier: Callable[[], StorageSupplier]) -> None:
             delete_study(study_name="invalid-study-name", storage=storage)
 
         # Test deleting an existing study.
-        study = create_study(storage=storage, load_if_exists=False)
+        study = create_study(n_generate=4, storage=storage, load_if_exists=False)
         delete_study(study_name=study.study_name, storage=storage)
 
         # Test failed to delete the study which is already deleted.
@@ -141,12 +146,11 @@ def test_delete_study(storage_supplier: Callable[[], StorageSupplier]) -> None:
 
 def test_copy_study() -> None:
     with StorageSupplier("sqlite") as from_storage, StorageSupplier("sqlite") as to_storage:
-        from_study = create_study(storage=from_storage)
+        from_study = create_study(n_generate=4, storage=from_storage)
         from_study.set_user_attr("baz", "qux")
         for _ in range(3):
             trial = from_study.ask()
             trial.suggest_float("x", 0, 1)
-            from_study.mark_comparison_ready(trial)
         from_study.report_preference(from_study.trials[0], from_study.trials[1])
         from_study.report_preference(from_study.trials[1], from_study.trials[2])
 
@@ -165,8 +169,8 @@ def test_copy_study() -> None:
 
 def test_copy_study_to_study_name() -> None:
     with StorageSupplier("sqlite") as from_storage, StorageSupplier("sqlite") as to_storage:
-        from_study = create_study(study_name="foo", storage=from_storage)
-        _ = create_study(study_name="foo", storage=to_storage)
+        from_study = create_study(n_generate=4, study_name="foo", storage=from_storage)
+        _ = create_study(n_generate=4, study_name="foo", storage=to_storage)
 
         with pytest.raises(DuplicatedStudyError):
             copy_study(
@@ -188,7 +192,7 @@ def test_copy_study_to_study_name() -> None:
 @parametrize_storages
 def test_add_trial(storage_supplier: Callable[[], StorageSupplier]) -> None:
     with storage_supplier() as storage:
-        study = create_study(storage=storage)
+        study = create_study(n_generate=4, storage=storage)
         assert len(study.trials) == 0
 
         trial = create_trial(value=0)
@@ -198,7 +202,9 @@ def test_add_trial(storage_supplier: Callable[[], StorageSupplier]) -> None:
 
 
 def test_add_trial_invalid_values_length() -> None:
-    study = create_study()
+    study = create_study(
+        n_generate=4,
+    )
     trial = create_trial(values=[0, 0])
     with pytest.raises(ValueError):
         study.add_trial(trial)
@@ -207,7 +213,7 @@ def test_add_trial_invalid_values_length() -> None:
 @parametrize_storages
 def test_add_trials(storage_supplier: Callable[[], StorageSupplier]) -> None:
     with storage_supplier() as storage:
-        study = create_study(storage=storage)
+        study = create_study(n_generate=4, storage=storage)
         assert len(study.trials) == 0
 
         study.add_trials([])
@@ -220,7 +226,7 @@ def test_add_trials(storage_supplier: Callable[[], StorageSupplier]) -> None:
             assert trial.number == i
             assert trial.value == i
 
-        other_study = create_study(storage=storage)
+        other_study = create_study(n_generate=4, storage=storage)
         other_study.add_trials(study.trials)
         assert len(other_study.trials) == 3
         for i, trial in enumerate(other_study.trials):
@@ -231,11 +237,10 @@ def test_add_trials(storage_supplier: Callable[[], StorageSupplier]) -> None:
 @parametrize_storages
 def test_get_trials(storage_supplier: Callable[[], StorageSupplier]) -> None:
     with storage_supplier() as storage:
-        study = create_study(storage=storage)
+        study = create_study(n_generate=4, storage=storage)
         for _ in range(5):
             trial = study.ask()
             trial.suggest_int("x", 1, 5)
-            study.mark_comparison_ready(trial)
 
         with patch("copy.deepcopy", wraps=copy.deepcopy) as mock_object:
             trials0 = study.get_trials(deepcopy=False)
@@ -256,10 +261,9 @@ def test_get_trials(storage_supplier: Callable[[], StorageSupplier]) -> None:
 @parametrize_storages
 def test_get_trials_state_option(storage_supplier: Callable[[], StorageSupplier]) -> None:
     with storage_supplier() as storage:
-        study = create_study(storage=storage)
+        study = create_study(n_generate=4, storage=storage)
         for _ in range(3):
             trial = study.ask()
-            study.mark_comparison_ready(trial)
         better, worse = study.trials[:2]
         study.report_preference(better, worse)
 
@@ -286,7 +290,9 @@ def test_get_trials_state_option(storage_supplier: Callable[[], StorageSupplier]
 
 
 def test_ask() -> None:
-    study = create_study()
+    study = create_study(
+        n_generate=4,
+    )
 
     trial = study.ask()
     assert isinstance(trial, Trial)
@@ -298,7 +304,9 @@ def test_ask_fixed_search_space() -> None:
         "y": distributions.CategoricalDistribution(["bacon", "spam"]),
     }
 
-    study = create_study()
+    study = create_study(
+        n_generate=4,
+    )
     trial = study.ask(fixed_distributions=fixed_distributions)
 
     params = trial.params
@@ -312,7 +320,7 @@ def test_report_preferences_from_another_process() -> None:
 
     with StorageSupplier("sqlite") as storage:
         # Create a study and ask for a new trial.
-        study = create_study(storage=storage)
+        study = create_study(n_generate=4, storage=storage)
         study.ask()
         study.ask()
 

@@ -23,6 +23,7 @@ os.makedirs(artifact_path, exist_ok=True)
 
 def main() -> NoReturn:
     study = create_study(
+        n_generate=5,
         study_name="Preferential Optimization",
         storage=STORAGE_URL,
         sampler=PreferentialGPSampler(),
@@ -62,9 +63,6 @@ def main() -> NoReturn:
             """
             )
             save_note(trial, note)
-
-            # 5. Mark comparison ready
-            study.mark_comparison_ready(trial)
 
 
 if __name__ == "__main__":
