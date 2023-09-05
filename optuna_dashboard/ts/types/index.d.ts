@@ -210,7 +210,8 @@ type StudyParamImportance = {
 }
 
 type PreferenceHistory = {
-  uuid: string
+  id: string
+  preference_id: string
   candidates: number[]
   clicked: number
   feedback_mode: PreferenceFeedbackMode

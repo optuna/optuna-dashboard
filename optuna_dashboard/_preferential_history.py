@@ -34,8 +34,8 @@ if TYPE_CHECKING:
 @dataclass(frozen=True)
 class ChooseWorstHistory:
     mode: Literal["ChooseWorst"]
-    uuid: str
-    preference_uuid: str  # making it possible to remove the preference
+    id: str
+    preference_id: str  # making it possible to remove the preference
     timestamp: datetime
     candidates: list[int]  # a list of trial number
     clicked: int  # The worst trial number in the candidates.
@@ -43,8 +43,8 @@ class ChooseWorstHistory:
     def to_dict(self) -> dict[str, Any]:
         return {
             "mode": self.mode,
-            "uuid": self.uuid,
-            "preference_uuid": self.preference_uuid,
+            "id": self.id,
+            "preference_id": self.preference_id,
             "timestamp": self.timestamp.isoformat(),
             "candidates": self.candidates,
             "clicked": self.clicked,
@@ -69,24 +69,24 @@ def report_history(
     else:
         assert False, f"Unknown mode: {input_data['mode']}"
 
-    preference_uuid = report_preferences(
+    preference_id = report_preferences(
         study_id=study_id,
         storage=storage,
         preferences=preferences,
     )
-    history_uuid = str(uuid.uuid4())
+    history_id = str(uuid.uuid4())
 
     if input_data["mode"] == "ChooseWorst":
         history = ChooseWorstHistory(
             mode="ChooseWorst",
-            uuid=history_uuid,
-            preference_uuid=preference_uuid,
+            id=history_id,
+            preference_id=preference_id,
             timestamp=datetime.now(),
             candidates=input_data["candidates"],
             clicked=input_data["clicked"],
         )
 
-    key = _SYSTEM_ATTR_PREFIX_HISTORY + history_uuid
+    key = _SYSTEM_ATTR_PREFIX_HISTORY + history_id
     storage.set_study_system_attr(
         study_id=study_id,
         key=key,
@@ -106,8 +106,8 @@ def serialize_preference_history(
             histories.append(
                 ChooseWorstHistory(
                     mode="ChooseWorst",
-                    uuid=choice["uuid"],
-                    preference_uuid=choice["preference_uuid"],
+                    id=choice["id"],
+                    preference_id=choice["preference_id"],
                     timestamp=datetime.fromisoformat(choice["timestamp"]),
                     candidates=choice["candidates"],
                     clicked=choice["clicked"],

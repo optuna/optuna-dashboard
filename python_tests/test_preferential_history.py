@@ -45,7 +45,7 @@ def test_report_and_get_choices(storage_supplier: Callable[[], StorageSupplier])
         assert len(history) == 2
         assert history[0]["candidates"] == [0, 1, 2]
         assert history[0]["clicked"] == 1
-        preferences = sys_attrs[_SYSTEM_ATTR_PREFIX_PREFERENCE + history[0]["preference_uuid"]]
+        preferences = sys_attrs[_SYSTEM_ATTR_PREFIX_PREFERENCE + history[0]["preference_id"]]
         assert len(preferences) == 2
         for i, (best, worst) in enumerate([(0, 1), (2, 1)]):
             assert len(preferences[i]) == 2
@@ -53,7 +53,7 @@ def test_report_and_get_choices(storage_supplier: Callable[[], StorageSupplier])
             assert preferences[i][1] == worst
         assert history[1]["candidates"] == [0, 2, 3, 4]
         assert history[1]["clicked"] == 0
-        preferences = sys_attrs[_SYSTEM_ATTR_PREFIX_PREFERENCE + history[1]["preference_uuid"]]
+        preferences = sys_attrs[_SYSTEM_ATTR_PREFIX_PREFERENCE + history[1]["preference_id"]]
         assert len(preferences) == 3
         for i, (best, worst) in enumerate([(2, 0), (3, 0), (4, 0)]):
             assert len(preferences[i]) == 2

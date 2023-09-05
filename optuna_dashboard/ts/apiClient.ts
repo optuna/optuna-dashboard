@@ -56,7 +56,8 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
 }
 
 interface PreferenceHistoryResponce {
-  uuid: string
+  id: string
+  preference_id: string
   candidates: number[]
   clicked: number
   mode: PreferenceFeedbackMode
@@ -67,7 +68,8 @@ const convertPreferenceHistory = (
   res: PreferenceHistoryResponce
 ): PreferenceHistory => {
   return {
-    uuid: res.uuid,
+    id: res.id,
+    preference_id: res.preference_id,
     candidates: res.candidates,
     clicked: res.clicked,
     feedback_mode: res.mode,
