@@ -208,7 +208,7 @@ export const PreferenceHistory: FC<{ studyDetail: StudyDetail | null }> = ({
     >
       {preference_histories.reverse().map((choice) => (
         <ChoiceTrials
-          key={choice.uuid}
+          key={choice.id}
           choice={choice}
           trials={studyDetail.trials}
         />

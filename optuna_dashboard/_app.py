@@ -27,6 +27,7 @@ from ._bottle_util import json_api_view
 from ._cached_extra_study_property import get_cached_extra_study_property
 from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
+from ._preferential_history import NewHistory
 from ._preferential_history import report_history
 from ._rdb_migration import register_rdb_migration_route
 from ._serializer import serialize_study_detail
@@ -291,11 +292,11 @@ def create_app(
         report_history(
             study_id,
             storage,
-            {
-                "mode": mode,
-                "candidates": candidates,
-                "clicked": clicked,
-            },
+            NewHistory(
+                mode=mode,
+                candidates=candidates,
+                clicked=clicked,
+            ),
         )
 
         response.status = 204

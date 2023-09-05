@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Callable
 
+from optuna_dashboard._preferential_history import NewHistory
 from optuna_dashboard._preferential_history import report_history
 from optuna_dashboard._serializer import serialize_preference_history
 from optuna_dashboard.preferential import create_study
@@ -25,20 +26,20 @@ def test_report_and_get_choices(storage_supplier: Callable[[], StorageSupplier])
         report_history(
             study_id=study_id,
             storage=storage,
-            input_data={
-                "mode": "ChooseWorst",
-                "candidates": [0, 1, 2],
-                "clicked": 1,
-            },
+            input_data=NewHistory(
+                mode="ChooseWorst",
+                candidates=[0, 1, 2],
+                clicked=1,
+            ),
         )
         report_history(
             study_id=study_id,
             storage=storage,
-            input_data={
-                "mode": "ChooseWorst",
-                "candidates": [0, 2, 3, 4],
-                "clicked": 0,
-            },
+            input_data=NewHistory(
+                mode="ChooseWorst",
+                candidates=[0, 2, 3, 4],
+                clicked=0,
+            ),
         )
         history = serialize_preference_history(storage.get_study_system_attrs(study_id))
         sys_attrs = storage.get_study_system_attrs(study_id)
