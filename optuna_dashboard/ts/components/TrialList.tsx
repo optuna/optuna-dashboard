@@ -459,13 +459,17 @@ const TrialArtifact: FC<{
   artifact: Artifact
   width: string
   height: string
-  buttons_width: number
 }> = ({ trial, artifact, width, height }) => {
-  const [openDeleteArtifactDialog] = useDeleteArtifactDialog()
+  const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
+    useDeleteArtifactDialog()
   const theme = useTheme()
-  const is_3d_model =
+  const is3dModel =
     artifact.filename.endsWith(".stl") || artifact.filename.endsWith(".3dm")
-  const actions_width = is_3d_model ? theme.spacing(12) : theme.spacing(8)
+  const canDelete = trial.state === "Running" || trial.state === "Waiting"
+  let actionsCount = 1
+  if (canDelete) actionsCount += 1
+  if (is3dModel) actionsCount += 1
+  const actionsWidth = theme.spacing(actionsCount * 4)
 
   return (
     <Card
@@ -473,7 +477,7 @@ const TrialArtifact: FC<{
       sx={{
         marginBottom: theme.spacing(2),
         width: width,
-        minHeight: "100%",
+        minHeight: height,
         margin: theme.spacing(0, 1, 1, 0),
       }}
     >
@@ -495,29 +499,31 @@ const TrialArtifact: FC<{
             p: theme.spacing(0.5, 0),
             flexGrow: 1,
             wordWrap: "break-word",
-            maxWidth: `calc(100% - ${actions_width})`,
+            maxWidth: `calc(100% - ${actionsWidth})`,
           }}
         >
           {artifact.filename}
         </Typography>
-        {is_3d_model ? (
+        {is3dModel ? (
           <TrialArtifactActions
             trial={trial}
             artifact={artifact}
             sx={{ margin: "auto 0" }}
           />
         ) : null}
-        <IconButton
-          aria-label="delete artifact"
-          size="small"
-          color="inherit"
-          sx={{ margin: "auto 0" }}
-          onClick={() => {
-            openDeleteArtifactDialog(trial.study_id, trial.trial_id, artifact)
-          }}
-        >
-          <DeleteIcon />
-        </IconButton>
+        {canDelete ? (
+          <IconButton
+            aria-label="delete artifact"
+            size="small"
+            color="inherit"
+            sx={{ margin: "auto 0" }}
+            onClick={() => {
+              openDeleteArtifactDialog(trial.study_id, trial.trial_id, artifact)
+            }}
+          >
+            <DeleteIcon />
+          </IconButton>
+        ) : null}
         <IconButton
           aria-label="download artifact"
           size="small"
@@ -529,6 +535,7 @@ const TrialArtifact: FC<{
           <DownloadIcon />
         </IconButton>
       </CardContent>
+      {renderDeleteArtifactDialog()}
     </Card>
   )
 }
@@ -536,7 +543,6 @@ const TrialArtifact: FC<{
 const TrialArtifacts: FC<{ trial: Trial }> = ({ trial }) => {
   const theme = useTheme()
   const action = actionCreator()
-  const [, renderDeleteArtifactDialog] = useDeleteArtifactDialog()
   const [dragOver, setDragOver] = useState<boolean>(false)
 
   const width = "200px"
@@ -648,7 +654,6 @@ const TrialArtifacts: FC<{ trial: Trial }> = ({ trial }) => {
           </Card>
         ) : null}
       </Box>
-      {renderDeleteArtifactDialog()}
     </>
   )
 }

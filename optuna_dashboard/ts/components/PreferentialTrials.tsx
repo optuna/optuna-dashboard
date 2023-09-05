@@ -6,7 +6,7 @@ import {
   Card,
   CardContent,
   CardActions,
-  CardActionArea,
+  Button,
   MenuItem,
   Select,
   FormControl,
@@ -31,7 +31,9 @@ const FeedbackContent: FC<{
   trial: Trial
   artifact?: Artifact
   componentId: FeedbackComponentType
-}> = ({ trial, artifact, componentId }) => {
+  width: string
+  minHeight: string
+}> = ({ trial, artifact, componentId, width, minHeight }) => {
   if (componentId === "Note") {
     return <MarkdownRenderer body={trial.note.body} />
   }
@@ -43,8 +45,8 @@ const FeedbackContent: FC<{
       <TrialArtifactContent
         trial={trial}
         artifact={artifact}
-        width={"100%"}
-        height={"100%"}
+        width={width}
+        height={minHeight}
       />
     )
   }
@@ -96,9 +98,10 @@ const PreferentialTrial: FC<{
 }> = ({ trial, studyDetail, hideTrial }) => {
   const theme = useTheme()
   const action = actionCreator()
-  const trialWidth = 500
+  const trialWidth = 400
   const trialHeight = 300
   const [detailShown, setDetailShown] = useState(false)
+  const [buttonHover, setButtonHover] = useState(false)
   const componentId = studyDetail.feedback_component_type ?? "Note"
   const artifactKey = studyDetail.feedback_artifact_key
   const artifactId = trial?.user_attrs.find((a) => a.key === artifactKey)?.value
@@ -114,6 +117,13 @@ const PreferentialTrial: FC<{
         }}
       />
     )
+  }
+  const onFeedback = () => {
+    hideTrial()
+    const best_trials = studyDetail.best_trials
+      .map((t) => t.number)
+      .filter((t) => t !== trial.number)
+    action.updatePreference(trial.study_id, best_trials, [trial.number])
   }
 
   return (
@@ -166,72 +176,75 @@ const PreferentialTrial: FC<{
           <OpenInFullIcon />
         </IconButton>
       </CardActions>
-      <CardActionArea>
-        <CardContent
-          aria-label="trial-button"
-          onClick={() => {
-            hideTrial()
-            const best_trials = studyDetail.best_trials
-              .map((t) => t.number)
-              .filter((t) => t !== trial.number)
-            action.updatePreference(trial.study_id, best_trials, [trial.number])
-          }}
+      <CardContent
+        aria-label="trial-button"
+        onClick={(e) => {
+          if (e.shiftKey) onFeedback()
+        }}
+        sx={{
+          position: "relative",
+          padding: theme.spacing(2),
+          overflow: "hidden",
+          minHeight: theme.spacing(20),
+        }}
+      >
+        <FeedbackContent
+          trial={trial}
+          artifact={artifact}
+          width={`${trialWidth}px`}
+          minHeight={theme.spacing(25)}
+          componentId={studyDetail.feedback_component_type ?? "Note"}
+        />
+        <Box
           sx={{
-            padding: 0,
-            position: "relative",
-            overflow: "hidden",
-            "::before": {
-              content: '""',
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              backgroundColor:
-                theme.palette.mode === "dark" ? "white" : "black",
-              opacity: 0,
-              zIndex: 1,
-              transition: "opacity 0.3s ease-out",
-            },
-            ":hover::before": {
-              opacity: 0.2,
-            },
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: theme.palette.mode === "dark" ? "white" : "black",
+            opacity: buttonHover ? 0.2 : 0,
+            zIndex: 1,
+            transition: "opacity 0.3s ease-out",
+            pointerEvents: "none",
           }}
+        />
+        <ClearIcon
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            color: red[600],
+            opacity: buttonHover ? 0.3 : 0,
+            transition: "opacity 0.3s ease-out",
+            zIndex: 1,
+            filter: buttonHover
+              ? theme.palette.mode === "dark"
+                ? "brightness(1.1)"
+                : "brightness(1.7)"
+              : "none",
+            pointerEvents: "none",
+          }}
+        />
+      </CardContent>
+      <CardActions>
+        <Button
+          variant="outlined"
+          onClick={onFeedback}
+          onMouseEnter={() => {
+            setButtonHover(true)
+          }}
+          onMouseLeave={() => {
+            setButtonHover(false)
+          }}
+          color="error"
         >
-          <Box
-            sx={{
-              padding: theme.spacing(2),
-            }}
-          >
-            <FeedbackContent
-              trial={trial}
-              artifact={artifact}
-              componentId={studyDetail.feedback_component_type ?? "Note"}
-            />
-          </Box>
-
-          <ClearIcon
-            sx={{
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-              top: 0,
-              left: 0,
-              color: red[600],
-              opacity: 0,
-              transition: "opacity 0.3s ease-out",
-              zIndex: 1,
-              ":hover": {
-                opacity: 0.3,
-                filter:
-                  theme.palette.mode === "dark"
-                    ? "brightness(1.1)"
-                    : "brightness(1.7)",
-              },
-            }}
-          />
-        </CardContent>
-      </CardActionArea>
+          <ClearIcon />
+          Worst
+        </Button>
+      </CardActions>
       <ModalPage
         displayFlag={detailShown}
         onClose={() => {
@@ -430,7 +443,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
       <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
         {displayTrials.numbers.map((t, index) => (
           <PreferentialTrial
-            key={index}
+            key={t == -1 ? -index : t}
             trial={studyDetail.best_trials.find((trial) => trial.number === t)}
             studyDetail={studyDetail}
             hideTrial={() => {
