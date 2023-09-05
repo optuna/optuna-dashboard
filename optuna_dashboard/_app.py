@@ -272,9 +272,14 @@ def create_app(
             mode = request.json.get("mode", "")
             candidates = [int(d) for d in request.json.get("candidates", [])]
             clicked = int(request.json.get("clicked", -1))
-        except Exception:
+        except ValueError:
             response.status = 400
-            return {"reason": "Invalid request."}
+            return {
+                "reason": (
+                    "`candidates` should be an array of integers and "
+                    "`clicked` should be an integer."
+                )
+            }
 
         if clicked == -1:
             response.status = 400

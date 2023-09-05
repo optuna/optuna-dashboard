@@ -24,7 +24,7 @@ const CandidateTrial: FC<{
   type: TrialType
 }> = ({ trial, type }) => {
   const theme = useTheme()
-  const trialWidth = 500
+  const trialWidth = 300
   const trialHeight = 300
   const [detailShown, setDetailShown] = useState(false)
 
@@ -134,7 +134,7 @@ const CandidateTrial: FC<{
   )
 }
 
-const ChoiceTrials: FC<{ choice: PreferenceChoice; trials: Trial[] }> = ({
+const ChoiceTrials: FC<{ choice: PreferenceHistory; trials: Trial[] }> = ({
   choice,
   trials,
 }) => {
@@ -142,11 +142,14 @@ const ChoiceTrials: FC<{ choice: PreferenceChoice; trials: Trial[] }> = ({
   const worst_trials = new Set([choice.clicked])
 
   return (
-    <Box>
+    <Box
+      sx={{
+        marginBottom: theme.spacing(4),
+      }}
+    >
       <Typography
         variant="h6"
         sx={{
-          marginBottom: theme.spacing(2),
           fontWeight: theme.typography.fontWeightLight,
         }}
       >
@@ -156,6 +159,7 @@ const ChoiceTrials: FC<{ choice: PreferenceChoice; trials: Trial[] }> = ({
         sx={{
           display: "flex",
           flexDirection: "row",
+          flexWrap: "wrap",
         }}
       >
         {choice.candidates.map((trial_num, index) => (
@@ -181,8 +185,9 @@ export const PreferenceHistory: FC<{ studyDetail: StudyDetail | null }> = ({
     return null
   }
   const theme = useTheme()
+  const preference_histories = [...studyDetail.preference_history]
 
-  if (studyDetail.preference_history.length === 0) {
+  if (preference_histories.length === 0) {
     return (
       <Typography
         variant="h5"
@@ -201,7 +206,7 @@ export const PreferenceHistory: FC<{ studyDetail: StudyDetail | null }> = ({
       padding={theme.spacing(2)}
       sx={{ display: "flex", flexDirection: "column" }}
     >
-      {studyDetail.preference_history.map((choice) => (
+      {preference_histories.reverse().map((choice) => (
         <ChoiceTrials
           key={choice.uuid}
           choice={choice}

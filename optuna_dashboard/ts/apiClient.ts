@@ -55,7 +55,7 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
   }
 }
 
-interface PreferenceChoiceResponce {
+interface PreferenceHistoryResponce {
   uuid: string
   candidates: number[]
   clicked: number
@@ -63,9 +63,9 @@ interface PreferenceChoiceResponce {
   timestamp: string
 }
 
-const convertPreferenceChoice = (
-  res: PreferenceChoiceResponce
-): PreferenceChoice => {
+const convertPreferenceHistory = (
+  res: PreferenceHistoryResponce
+): PreferenceHistory => {
   return {
     uuid: res.uuid,
     candidates: res.candidates,
@@ -90,7 +90,7 @@ interface StudyDetailResponse {
   is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
-  preference_history?: PreferenceChoiceResponce[]
+  preference_history?: PreferenceHistoryResponce[]
 }
 
 export const getStudyDetailAPI = (
@@ -127,7 +127,7 @@ export const getStudyDetailAPI = (
         form_widgets: res.data.form_widgets,
         is_preferential: res.data.is_preferential,
         preference_history: res.data.preference_history?.map(
-          convertPreferenceChoice
+          convertPreferenceHistory
         ),
       }
     })

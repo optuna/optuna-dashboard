@@ -198,7 +198,7 @@ type StudyDetail = {
   is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
-  preference_history?: PreferenceChoice[]
+  preference_history?: PreferenceHistory[]
 }
 
 type StudyDetails = {
@@ -209,7 +209,7 @@ type StudyParamImportance = {
   [study_id: string]: ParamImportance[][]
 }
 
-type PreferenceChoice = {
+type PreferenceHistory = {
   uuid: string
   candidates: number[]
   clicked: number
