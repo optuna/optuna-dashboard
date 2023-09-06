@@ -182,6 +182,57 @@ class PreferentialStudy:
         """
         self._study.add_trials(trials)
 
+    def enqueue_trial(
+        self,
+        params: dict[str, Any],
+        user_attrs: dict[str, Any] | None = None,
+        skip_if_exists: bool = False,
+    ) -> None:
+        """Enqueue a trial with given parameter values.
+
+        You can fix the next sampling parameters which will be evaluated in your
+        objective function.
+
+        Example:
+
+            .. testcode::
+
+                import optuna
+
+
+                def objective(trial):
+                    x = trial.suggest_float("x", 0, 10)
+                    return x**2
+
+
+                study = optuna.create_study()
+                study.enqueue_trial({"x": 5})
+                study.enqueue_trial({"x": 0}, user_attrs={"memo": "optimal"})
+                study.optimize(objective, n_trials=2)
+
+                assert study.trials[0].params == {"x": 5}
+                assert study.trials[1].params == {"x": 0}
+                assert study.trials[1].user_attrs == {"memo": "optimal"}
+
+        Args:
+            params:
+                Parameter values to pass your objective function.
+            user_attrs:
+                A dictionary of user-specific attributes other than ``params``.
+            skip_if_exists:
+                When :obj:`True`, prevents duplicate trials from being enqueued again.
+
+                .. note::
+                    This method might produce duplicated trials if called simultaneously
+                    by multiple processes at the same time with same ``params`` dict.
+
+        .. seealso::
+
+            Please refer to :ref:`enqueue_trial_tutorial` for the tutorial of specifying
+            hyperparameters manually.
+        """
+        self._study.enqueue_trial(params, user_attrs, skip_if_exists)
+
     def report_preference(
         self,
         better_trials: FrozenTrial | list[FrozenTrial],
