@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from unittest.mock import patch
-
 import optuna
 from optuna_dashboard import _custom_plot_data as custom_plot_data
 from optuna_dashboard import save_plotly_graph_object
