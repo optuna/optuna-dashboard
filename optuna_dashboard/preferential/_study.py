@@ -193,26 +193,12 @@ class PreferentialStudy:
         You can fix the next sampling parameters which will be evaluated in your
         objective function.
 
-        Example:
+        .. seealso::
 
-            .. testcode::
+            See `Study.enqueue_trials`_ for details.
 
-                import optuna
-
-
-                def objective(trial):
-                    x = trial.suggest_float("x", 0, 10)
-                    return x**2
-
-
-                study = optuna.create_study()
-                study.enqueue_trial({"x": 5})
-                study.enqueue_trial({"x": 0}, user_attrs={"memo": "optimal"})
-                study.optimize(objective, n_trials=2)
-
-                assert study.trials[0].params == {"x": 5}
-                assert study.trials[1].params == {"x": 0}
-                assert study.trials[1].user_attrs == {"memo": "optimal"}
+            .. _Study.get_trials: https://optuna.readthedocs.io/en/stable/reference/\
+            generated/optuna.study.Study.html#optuna.study.Study.enqueue_trials
 
         Args:
             params:
