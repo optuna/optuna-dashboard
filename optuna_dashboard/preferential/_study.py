@@ -245,7 +245,7 @@ def get_best_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list
     worse_numbers = {worse for _, worse in preferences}
     nondominated_numbers = {better for better, _ in preferences if better not in worse_numbers}
     trials = storage.get_all_trials(
-        study_id, deepcopy=False, states=(TrialState.COMPLETE, TrialState.RUNNING)
+        study_id, deepcopy=False,
     )
 
     study_system_attrs = storage.get_study_system_attrs(study_id)
