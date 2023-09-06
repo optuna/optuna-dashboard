@@ -31,12 +31,15 @@ jobs:
         with:
           node-version: '18'
       - name: Build standalone_app
+        env:
+          PUBLIC_PATH: /optuna-dashboard/public/
         run: make MODE="prd" standalone_app/public/bundle.js
       - name: Create publish directory
         run: |
           mkdir gh-publish
           cp -r standalone_app/public gh-publish/public
-          cp standalone_app/index.html gh-publish/index.html
+          cp standalone_app/favicon.ico gh-publish/favicon.ico
+          cp standalone_app/github-pages.html gh-publish/index.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:

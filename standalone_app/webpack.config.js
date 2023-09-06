@@ -3,6 +3,10 @@ const path = require('path');
 
 const mode = process.env.NODE_ENV === 'production' ? 'production' : 'development';
 const isDev = mode === 'development';
+const PUBLIC_PATH = process.env.PUBLIC_PATH ?? '/public/';
+if (!PUBLIC_PATH.endsWith('/')) {
+    PUBLIC_PATH += '/';
+}
 
 const typeScriptLoader = process.env.TYPESCRIPT_LOADER === "esbuild-loader" ? {
     test: /\.tsx?$/,
@@ -34,7 +38,7 @@ var config = [
         output: {
             path: __dirname + '/public/',
             filename: 'bundle.js',
-            publicPath: '/public/'
+            publicPath: PUBLIC_PATH
         },
         module: {
             rules: [{ oneOf: [typeScriptLoader] }]
