@@ -9,6 +9,7 @@ from optuna.trial import TrialState
 
 _SYSTEM_ATTR_PREFIX_PREFERENCE = "preference:values"
 _SYSTEM_ATTR_PREFIX_SKIP_TRIAL = "preference:skip_trial:"
+_SYSTEM_ATTR_N_GENERATE = "preference:n_generate"
 
 
 def report_preferences(
@@ -62,3 +63,15 @@ def report_skip(
 def is_skipped_trial(trial_id: int, study_system_attrs: dict[str, Any]) -> bool:
     key = _SYSTEM_ATTR_PREFIX_SKIP_TRIAL + str(trial_id)
     return key in study_system_attrs
+
+
+def get_n_generate(study_system_attrs: dict[str, Any]) -> int:
+    return study_system_attrs[_SYSTEM_ATTR_N_GENERATE]
+
+
+def set_n_generate(study_id: int, storage: BaseStorage, n_generate: int) -> None:
+    storage.set_study_system_attr(
+        study_id=study_id,
+        key=_SYSTEM_ATTR_N_GENERATE,
+        value=n_generate,
+    )
