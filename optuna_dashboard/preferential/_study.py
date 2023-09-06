@@ -182,6 +182,38 @@ class PreferentialStudy:
         """
         self._study.add_trials(trials)
 
+    def enqueue_trial(
+        self,
+        params: dict[str, Any],
+        user_attrs: dict[str, Any] | None = None,
+        skip_if_exists: bool = False,
+    ) -> None:
+        """Enqueue a trial with given parameter values.
+
+        You can fix the next sampling parameters which will be evaluated in your
+        objective function.
+
+        .. seealso::
+
+            See `Study.enqueue_trials`_ for details.
+
+            .. _Study.get_trials: https://optuna.readthedocs.io/en/stable/reference/\
+            generated/optuna.study.Study.html#optuna.study.Study.enqueue_trials
+
+        Args:
+            params:
+                Parameter values to pass your objective function.
+            user_attrs:
+                A dictionary of user-specific attributes other than ``params``.
+            skip_if_exists:
+                When :obj:`True`, prevents duplicate trials from being enqueued again.
+
+                .. note::
+                    This method might produce duplicated trials if called simultaneously
+                    by multiple processes at the same time with same ``params`` dict.
+        """
+        self._study.enqueue_trial(params, user_attrs, skip_if_exists)
+
     def report_preference(
         self,
         better_trials: FrozenTrial | list[FrozenTrial],
