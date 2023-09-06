@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 import json
 from typing import Any
 from typing import TYPE_CHECKING
@@ -14,6 +15,7 @@ from optuna.trial import FrozenTrial
 from . import _note as note
 from ._form_widget import get_form_widgets_json
 from ._named_objectives import get_objective_names
+from ._preferential_history import _SYSTEM_ATTR_PREFIX_HISTORY
 from .artifact._backend import list_trial_artifacts
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 
@@ -21,6 +23,9 @@ from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 if TYPE_CHECKING:
     from typing import Literal
     from typing import TypedDict
+
+    from ._preferential_history import ChooseWorstHistory
+    from ._preferential_history import History
 
     Attribute = TypedDict(
         "Attribute",
@@ -155,7 +160,32 @@ def serialize_study_detail(
     form_widgets = get_form_widgets_json(system_attrs)
     if form_widgets:
         serialized["form_widgets"] = form_widgets
+    if serialized["is_preferential"]:
+        serialized["preference_history"] = serialize_preference_history(system_attrs)
     return serialized
+
+
+def serialize_preference_history(
+    system_attrs: dict[str, Any],
+) -> list[History]:
+    histories: list[History] = []
+    for k, v in system_attrs.items():
+        if not k.startswith(_SYSTEM_ATTR_PREFIX_HISTORY):
+            continue
+        choice: dict[str, Any] = json.loads(v)
+        if choice["mode"] == "ChooseWorst":
+            history: ChooseWorstHistory = {
+                "mode": "ChooseWorst",
+                "id": choice["id"],
+                "preference_id": choice["preference_id"],
+                "timestamp": choice["timestamp"],
+                "candidates": choice["candidates"],
+                "clicked": choice["clicked"],
+            }
+            histories.append(history)
+
+    histories.sort(key=lambda c: datetime.fromisoformat(c["timestamp"]))
+    return histories
 
 
 def serialize_frozen_trial(

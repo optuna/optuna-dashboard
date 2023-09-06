@@ -136,7 +136,13 @@ class APITestCase(TestCase):
             app,
             f"/api/studies/{study_id}/preference",
             "POST",
-            body=json.dumps({"best_trials": [0, 2], "worst_trials": [1]}),
+            body=json.dumps(
+                {
+                    "mode": "ChooseWorst",
+                    "candidates": [0, 1, 2],
+                    "clicked": 1,
+                }
+            ),
             content_type="application/json",
         )
         self.assertEqual(status, 204)
@@ -150,6 +156,30 @@ class APITestCase(TestCase):
         better, worse = preferences[1]
         assert better.number == 2
         assert worse.number == 1
+
+    def test_report_preference_when_typo_mode(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = create_study(storage=storage, n_generate=3)
+        for _ in range(3):
+            trial = study.ask()
+            study.mark_comparison_ready(trial)
+
+        app = create_app(storage)
+        study_id = study._study._study_id
+        status, _, _ = send_request(
+            app,
+            f"/api/studies/{study_id}/preference",
+            "POST",
+            body=json.dumps(
+                {
+                    "mode": "ChoseWorst",
+                    "candidates": [0, 1, 2],
+                    "clicked": 1,
+                }
+            ),
+            content_type="application/json",
+        )
+        self.assertEqual(status, 400)
 
     def test_skip_trial(self) -> None:
         storage = optuna.storages.InMemoryStorage()

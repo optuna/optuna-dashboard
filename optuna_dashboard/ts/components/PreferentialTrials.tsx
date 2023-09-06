@@ -21,9 +21,9 @@ import { MarkdownRenderer } from "./Note"
 
 const PreferentialTrial: FC<{
   trial?: Trial
-  studyDetail: StudyDetail
+  candidates: number[]
   hideTrial: () => void
-}> = ({ trial, studyDetail, hideTrial }) => {
+}> = ({ trial, candidates, hideTrial }) => {
   const theme = useTheme()
   const action = actionCreator()
   const trialWidth = 500
@@ -80,10 +80,7 @@ const PreferentialTrial: FC<{
           aria-label="trial-button"
           onClick={() => {
             hideTrial()
-            const best_trials = studyDetail.best_trials
-              .map((t) => t.number)
-              .filter((t) => t !== trial.number)
-            action.updatePreference(trial.study_id, best_trials, [trial.number])
+            action.updatePreference(trial.study_id, candidates, trial.number)
           }}
           sx={{
             padding: 0,
@@ -243,7 +240,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
           <PreferentialTrial
             key={index}
             trial={studyDetail.best_trials.find((trial) => trial.number === t)}
-            studyDetail={studyDetail}
+            candidates={displayTrials.numbers.filter((n) => n !== -1)}
             hideTrial={() => {
               hideTrial(t)
             }}
