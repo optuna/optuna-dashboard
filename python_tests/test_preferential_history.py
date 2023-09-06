@@ -15,7 +15,7 @@ from .storage_supplier import StorageSupplier
 @parametrize_storages
 def test_report_and_get_choices(storage_supplier: Callable[[], StorageSupplier]) -> None:
     with storage_supplier() as storage:
-        study = create_study(storage=storage)
+        study = create_study(storage=storage, n_generate=5)
         for _ in range(5):
             trial = study.ask()
             trial.suggest_float("x", 0, 1)

@@ -159,7 +159,7 @@ class APITestCase(TestCase):
 
     def test_report_preference_when_typo_mode(self) -> None:
         storage = optuna.storages.InMemoryStorage()
-        study = create_study(storage=storage)
+        study = create_study(storage=storage, n_generate=3)
         for _ in range(3):
             trial = study.ask()
             study.mark_comparison_ready(trial)
