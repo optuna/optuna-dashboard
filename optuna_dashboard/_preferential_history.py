@@ -3,7 +3,6 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime
 import json
-from typing import Any
 from typing import TYPE_CHECKING
 import uuid
 
@@ -31,9 +30,6 @@ if TYPE_CHECKING:
         },
     )
     History = ChooseWorstHistory
-else:
-    ChooseWorstHistory = Any
-    History = Any
 
 
 @dataclass

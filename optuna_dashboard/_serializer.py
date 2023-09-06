@@ -16,8 +16,6 @@ from . import _note as note
 from ._form_widget import get_form_widgets_json
 from ._named_objectives import get_objective_names
 from ._preferential_history import _SYSTEM_ATTR_PREFIX_HISTORY
-from ._preferential_history import ChooseWorstHistory
-from ._preferential_history import History
 from .artifact._backend import list_trial_artifacts
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 
@@ -25,6 +23,9 @@ from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 if TYPE_CHECKING:
     from typing import Literal
     from typing import TypedDict
+
+    from ._preferential_history import ChooseWorstHistory
+    from ._preferential_history import History
 
     Attribute = TypedDict(
         "Attribute",
