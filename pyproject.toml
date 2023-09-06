@@ -43,6 +43,7 @@ docs = [
 
 test = [
     "coverage",
+    "plotly",
     "pytest",
     "moto[s3]",
 ]

@@ -15,6 +15,7 @@ import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import Grid2 from "@mui/material/Unstable_Grid2"
 import { DataGrid, DataGridColumn } from "./DataGrid"
 import { GraphHyperparameterImportance } from "./GraphHyperparameterImportances"
+import { UserDefinedPlot } from "./UserDefinedPlot"
 import { BestTrialsCard } from "./BestTrialsCard"
 import {
   useStudyDetailValue,
@@ -102,6 +103,17 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
           />
         </CardContent>
       </Card>
+      {studyDetail !== null &&
+        studyDetail.plotly_graph_objects.map((go) => (
+          <Card
+            key={go.id}
+            sx={{
+              margin: theme.spacing(2),
+            }}
+          >
+            <UserDefinedPlot graphObject={go} />
+          </Card>
+        ))}
       <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
         {studyDetail !== null &&
         studyDetail.directions.length == 1 &&

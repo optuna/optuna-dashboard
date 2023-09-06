@@ -1,5 +1,6 @@
 from ._app import run_server  # noqa
 from ._app import wsgi  # noqa
+from ._custom_plot_data import save_plotly_graph_object  # noqa
 from ._form_widget import ChoiceWidget  # noqa
 from ._form_widget import dict_to_form_widget  # noqa
 from ._form_widget import ObjectiveChoiceWidget  # noqa
