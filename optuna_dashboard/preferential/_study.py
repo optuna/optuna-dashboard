@@ -225,11 +225,6 @@ class PreferentialStudy:
                 .. note::
                     This method might produce duplicated trials if called simultaneously
                     by multiple processes at the same time with same ``params`` dict.
-
-        .. seealso::
-
-            Please refer to :ref:`enqueue_trial_tutorial` for the tutorial of specifying
-            hyperparameters manually.
         """
         self._study.enqueue_trial(params, user_attrs, skip_if_exists)
 
