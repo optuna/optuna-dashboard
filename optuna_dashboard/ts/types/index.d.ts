@@ -198,6 +198,7 @@ type StudyDetail = {
   is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
+  preferences?: [number, number][]
   preference_history?: PreferenceHistory[]
 }
 
@@ -208,7 +209,6 @@ type StudyDetails = {
 type StudyParamImportance = {
   [study_id: string]: ParamImportance[][]
 }
-
 type PreferenceHistory = {
   id: string
   preference_id: string
@@ -217,3 +217,5 @@ type PreferenceHistory = {
   feedback_mode: PreferenceFeedbackMode
   timestamp: Date
 }
+
+declare module "*.css"

@@ -92,6 +92,7 @@ interface StudyDetailResponse {
   is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
+  preferences?: [number, number][]
   preference_history?: PreferenceHistoryResponce[]
 }
 
@@ -128,6 +129,7 @@ export const getStudyDetailAPI = (
         objective_names: res.data.objective_names,
         form_widgets: res.data.form_widgets,
         is_preferential: res.data.is_preferential,
+        preferences: res.data.preferences,
         preference_history: res.data.preference_history?.map(
           convertPreferenceHistory
         ),

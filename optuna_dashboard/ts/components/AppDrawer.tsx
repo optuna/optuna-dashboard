@@ -35,6 +35,7 @@ import OpenInNewIcon from "@mui/icons-material/OpenInNew"
 import QueryStatsIcon from "@mui/icons-material/QueryStats"
 import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt"
 import HistoryIcon from "@mui/icons-material/History"
+import LanIcon from "@mui/icons-material/Lan"
 import { Switch } from "@mui/material"
 import { actionCreator } from "../action"
 
@@ -47,6 +48,7 @@ export type PageId =
   | "trialList"
   | "note"
   | "preferenceHistory"
+  | "graph"
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
@@ -246,6 +248,21 @@ export const AppDrawer: FC<{
                 <ListItemText primary="Analytics" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
+            {studyDetail?.is_preferential && (
+              <ListItem key="Graph" disablePadding sx={styleListItem}>
+                <ListItemButton
+                  component={Link}
+                  to={`${URL_PREFIX}/studies/${studyId}/graph`}
+                  sx={styleListItemButton}
+                  selected={page === "graph"}
+                >
+                  <ListItemIcon sx={styleListItemIcon}>
+                    <LanIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Graph" sx={styleListItemText} />
+                </ListItemButton>
+              </ListItem>
+            )}
             <ListItem key="TableList" disablePadding sx={styleListItem}>
               <ListItemButton
                 component={Link}

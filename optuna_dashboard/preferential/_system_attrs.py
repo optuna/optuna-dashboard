@@ -35,17 +35,20 @@ def report_preferences(
     return preference_id
 
 
-def get_preferences(
-    study_id: int,
-    storage: BaseStorage,
-) -> list[tuple[int, int]]:
+def _get_preferences(system_attrs: dict[str, Any]) -> list[tuple[int, int]]:
     preferences: list[tuple[int, int]] = []
-    system_attrs = storage.get_study_system_attrs(study_id)
     for k, v in system_attrs.items():
         if not k.startswith(_SYSTEM_ATTR_PREFIX_PREFERENCE):
             continue
         preferences.extend(v)  # type: ignore
     return preferences
+
+
+def get_preferences(
+    study_id: int,
+    storage: BaseStorage,
+) -> list[tuple[int, int]]:
+    return _get_preferences(storage.get_study_system_attrs(study_id))
 
 
 def report_skip(

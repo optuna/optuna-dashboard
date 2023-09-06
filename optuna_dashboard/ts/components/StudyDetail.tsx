@@ -32,6 +32,7 @@ import { StudyHistory } from "./StudyHistory"
 import { PreferentialTrials } from "./PreferentialTrials"
 import { PreferenceHistory } from "./PreferenceHistory"
 import { PreferentialAnalytics } from "./PreferentialAnalytics"
+import { PreferentialGraph } from "./PreferentialGraph"
 
 interface ParamTypes {
   studyId: string
@@ -174,6 +175,17 @@ export const StudyDetail: FC<{
           latestNote={studyDetail.note}
           cardSx={{ flexGrow: 1 }}
         />
+      </Box>
+    )
+  } else if (page === "graph") {
+    content = (
+      <Box
+        sx={{
+          height: `calc(100vh - ${theme.spacing(8)})`,
+          padding: theme.spacing(2),
+        }}
+      >
+        <PreferentialGraph studyDetail={studyDetail} />
       </Box>
     )
   } else if (page == "preferenceHistory") {
