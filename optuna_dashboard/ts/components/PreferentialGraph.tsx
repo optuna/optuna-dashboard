@@ -1,44 +1,28 @@
 import React, { FC, useState, useCallback, useMemo, useEffect } from "react"
-import {
-  Box,
-  Card,
-  CardContent,
-  CardHeader,
-  Paper,
-  Typography,
-  useTheme,
-} from "@mui/material"
-import Grid2 from "@mui/material/Unstable_Grid2"
-import { DataGrid, DataGridColumn } from "./DataGrid"
-import { BestTrialsCard } from "./BestTrialsCard"
-import { useStudyDetailValue, useStudySummaryValue } from "../state"
-import { Contour } from "./GraphContour"
+import { Card, CardContent, CardHeader, useTheme } from "@mui/material"
 import { MarkdownRenderer } from "./Note"
 import ReactFlow, {
-  addEdge,
   Node,
   NodeProps,
   NodeTypes,
   Edge,
-  FitViewOptions,
   DefaultEdgeOptions,
   applyNodeChanges,
-  applyEdgeChanges,
   OnNodesChange,
-  OnEdgesChange,
-  OnConnect,
+  MiniMap,
   Position,
   Handle,
+  XYPosition,
 } from "reactflow"
 import "reactflow/dist/style.css"
 
 const nodeWidth = 400
 const nodeHeight = 300
+const nodeMargin = 50
 type NodeData = {
   trial?: Trial
 }
 const GraphNode: FC<NodeProps<NodeData>> = ({ data, isConnectable }) => {
-  const theme = useTheme()
   const trial = data.trial
   if (trial === undefined) {
     return null
@@ -77,7 +61,13 @@ const nodeTypes: NodeTypes = {
   note: GraphNode,
 }
 
-const createNode = (x: number, y: number, trial: Trial): Node => {
+const createNode = (
+  x: number,
+  y: number,
+  trial: Trial,
+  bestGroupPos: XYPosition,
+  isBest: boolean
+): Node => {
   return {
     id: `${trial.number}`,
     type: "note",
@@ -86,62 +76,154 @@ const createNode = (x: number, y: number, trial: Trial): Node => {
       trial: trial,
     },
     position: {
-      x: x * 500,
-      y: y * 400,
+      x: bestGroupPos.x + nodeMargin + x * (nodeWidth + nodeMargin),
+      y: bestGroupPos.y + nodeMargin + y * (nodeHeight + nodeMargin),
     },
     style: {
       width: nodeWidth,
       height: nodeHeight,
       padding: 0,
     },
+    parentNode: isBest ? "bestGroup" : undefined,
   }
 }
+const updateNode = (
+  addX: number,
+  addY: number,
+  node: Node,
+  trial: Trial,
+  isBest: boolean
+): Node => {
+  return {
+    ...node,
+    position: {
+      x: node.position.x + addX * (nodeWidth + nodeMargin),
+      y: node.position.y + addY * (nodeHeight + nodeMargin),
+    },
+    data: {
+      ...node.data,
+      trial: trial,
+    },
+    parentNode: isBest ? "bestGroup" : undefined,
+  }
+}
+
+const initNodes: Node[] = [
+  {
+    id: "bestGroup",
+    type: "default",
+    position: {
+      x: 0,
+      y: 0,
+    },
+    data: {
+      label: "Best Trials",
+    },
+    style: {
+      width: 2 * nodeMargin,
+      height: nodeHeight + 2 * nodeMargin,
+      padding: 0,
+      backgroundColor: "rgb(255,0,0,0.1)",
+    },
+  },
+]
 
 const defaultEdgeOptions: DefaultEdgeOptions = {
   animated: true,
 }
 
-export const PreferentialGraph: FC<{ studyDetail: StudyDetail | null }> = ({
-  studyDetail,
-}) => {
-  if (studyDetail === null || !studyDetail.is_preferential) {
-    return null
-  }
-  const [nodes, setNodes] = useState<Node[]>([])
-
+export const PreferentialGraph: FC<{
+  studyDetail: StudyDetail | null
+}> = ({ studyDetail }) => {
+  const theme = useTheme()
+  const [nodes, setNodes] = useState<Node[]>(initNodes)
+  const [edges, setEdges] = useState<Edge[]>([])
+  const [historyCount, setHistoryCount] = useState(0)
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
     [setNodes]
   )
+  const isDarkMode = theme.palette.mode === "dark"
+
   useEffect(() => {
+    if (studyDetail === null) return
+    const newHistoryCount =
+      (studyDetail.preference_history?.length ?? 0) - historyCount
+    if (newHistoryCount === 0) return
+
     setNodes((prev) => {
       const newNodes: Node[] = []
-      studyDetail.best_trials.forEach((trial, i) => {
-        newNodes.push(createNode(i, 0, trial))
+      const appendIds: string[] = studyDetail.best_trials.map((t) =>
+        t.number.toString()
+      ) // 新しく追加する Node の id, これと "bestGroup" 以外は newHistoryCount だけ下にスライドする
+      studyDetail.preference_history?.slice(historyCount).forEach((history) => {
+        appendIds.push(history.clicked.toString())
       })
-      if (studyDetail.preference_history !== undefined) {
-        const histories = [...studyDetail.preference_history]
-        histories?.reverse().forEach((history, i) => {
-          const y = history.candidates.findIndex((c) => c === history.clicked)
-          newNodes.push(
-            createNode(y, i + 1, studyDetail.trials[history.clicked])
-          )
+
+      const bestGroup = prev.find((node) => node.id === "bestGroup")
+      const bestGroupPos = bestGroup?.position ?? { x: 0, y: 0 }
+      console.log(bestGroupPos)
+      if (bestGroup !== undefined) {
+        newNodes.push({
+          ...bestGroup,
+          style: {
+            ...bestGroup.style,
+            width:
+              nodeMargin +
+              studyDetail.best_trials.length * (nodeWidth + nodeMargin),
+            background: "rgb(255,200,200,0.1)",
+          },
         })
       }
+
+      prev.forEach((node) => {
+        if (appendIds.includes(node.id)) return
+        if (node.id === "bestGroup") return
+        const trialNum = parseInt(node.id, 10)
+        if (node.id !== `${trialNum}`) {
+          console.error(`node.id is not trual number: ${node.id}`)
+          return
+        }
+        const trial = studyDetail.trials[trialNum]
+        newNodes.push(updateNode(0, newHistoryCount, node, trial, false))
+      })
+      const histories = studyDetail.preference_history?.slice(historyCount)
+      histories?.reverse().forEach((history, i) => {
+        const x = history.candidates.findIndex((c) => c === history.clicked)
+        newNodes.push(
+          createNode(
+            x,
+            i + 1,
+            studyDetail.trials[history.clicked],
+            bestGroupPos,
+            false
+          )
+        )
+      })
+      studyDetail.best_trials.forEach((trial, i) => {
+        newNodes.push(createNode(i, 0, trial, bestGroupPos, true))
+      })
       return newNodes
     })
+    setHistoryCount(studyDetail.preference_history?.length ?? 0)
   }, [studyDetail])
+  useEffect(() => {
+    if (studyDetail?.preferences === undefined) return
+    setEdges(
+      studyDetail?.preferences?.map((p) => {
+        return {
+          id: `e${p[0]}-${p[1]}`,
+          source: `${p[0]}`,
+          target: `${p[1]}`,
+          style: { stroke: isDarkMode ? "#fff" : "#000" },
+        } as Edge
+      }) ?? []
+    )
+  }, [studyDetail?.preferences, isDarkMode])
 
-  const edges: Edge[] =
-    studyDetail.preferences?.map((p) => {
-      return {
-        id: `e${p[0]}-${p[1]}`,
-        source: `${p[0]}`,
-        target: `${p[1]}`,
-        style: { stroke: "#fff" },
-      } as Edge
-    }) ?? []
-
+  if (studyDetail === null || !studyDetail.is_preferential) {
+    return null
+  }
   return (
     <ReactFlow
       nodes={nodes}
@@ -151,6 +233,8 @@ export const PreferentialGraph: FC<{ studyDetail: StudyDetail | null }> = ({
       nodeTypes={nodeTypes}
       zoomOnScroll={false}
       panOnScroll={true}
-    />
+    >
+      <MiniMap nodeStrokeWidth={1} zoomable pannable />
+    </ReactFlow>
   )
 }
