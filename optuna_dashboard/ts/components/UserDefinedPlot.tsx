@@ -8,8 +8,13 @@ export const UserDefinedPlot: FC<{
   const plotDomId = `user-defined-plot:${graphObject.id}`
 
   useEffect(() => {
-    const parsed = JSON.parse(graphObject.graph_object)
-    plotly.react(plotDomId, parsed.data, parsed.layout)
+    try {
+      const parsed = JSON.parse(graphObject.graph_object)
+      plotly.react(plotDomId, parsed.data, parsed.layout)
+    } catch (e) {
+      // Avoid to crash the whole page when given invalid grpah objects.
+      console.error(e)
+    }
   }, [graphObject])
 
   return <Box id={plotDomId} sx={{ height: "450px" }} />
