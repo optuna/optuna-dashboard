@@ -182,6 +182,11 @@ type FormWidgets =
       widgets: UserAttrFormWidget[]
     }
 
+type PlotlyGraphObject = {
+  id: string
+  graph_object: string
+}
+
 type StudyDetail = {
   id: number
   name: string
@@ -199,6 +204,7 @@ type StudyDetail = {
   objective_names?: string[]
   form_widgets?: FormWidgets
   preference_history?: PreferenceHistory[]
+  plotly_graph_objects: PlotlyGraphObject[]
 }
 
 type StudyDetails = {
