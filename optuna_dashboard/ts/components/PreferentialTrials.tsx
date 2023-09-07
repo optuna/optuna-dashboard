@@ -182,11 +182,15 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
     return null
   }
   const theme = useTheme()
+  
+  const running_trials = studyDetail.trials.filter((t) => t.state === "Running")
+  const active_trials = running_trials.concat(studyDetail.best_trials)
+
   const [displayTrials, setDisplayTrials] = useState<DisplayTrials>({
-    numbers: studyDetail.best_trials.map((t) => t.number),
-    last_number: Math.max(...studyDetail.best_trials.map((t) => t.number), -1),
+    numbers: active_trials.map((t) => t.number),
+    last_number: Math.max(...active_trials.map((t) => t.number), -1),
   })
-  const new_trails = studyDetail.best_trials.filter(
+  const new_trails = active_trials.filter(
     (t) =>
       displayTrials.last_number < t.number &&
       displayTrials.numbers.find((n) => n === t.number) === undefined
@@ -239,7 +243,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
         {displayTrials.numbers.map((t, index) => (
           <PreferentialTrial
             key={index}
-            trial={studyDetail.best_trials.find((trial) => trial.number === t)}
+            trial={active_trials.find((trial) => trial.number === t)}
             candidates={displayTrials.numbers.filter((n) => n !== -1)}
             hideTrial={() => {
               hideTrial(t)

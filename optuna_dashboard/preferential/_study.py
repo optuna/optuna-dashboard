@@ -14,6 +14,7 @@ from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
 from optuna_dashboard.preferential._system_attrs import get_n_generate
 from optuna_dashboard.preferential._system_attrs import get_preferences
+from optuna_dashboard.preferential._system_attrs import get_skipped_trial_ids
 from optuna_dashboard.preferential._system_attrs import is_skipped_trial
 from optuna_dashboard.preferential._system_attrs import report_preferences
 from optuna_dashboard.preferential._system_attrs import set_n_generate
@@ -243,8 +244,11 @@ class PreferentialStudy:
         Returns:
             A list of the pair of FrozenTrial objects. The left trial is better than the right one.
         """
+
+        preferences = get_preferences(
+            self._study._storage.get_study_system_attrs(self._study._study_id)
+        )  # Must come before study.get_trials()
         trials = self._study.get_trials(deepcopy=deepcopy)
-        preferences = get_preferences(self._study._study_id, self._study._storage)
         return [(trials[better], trials[worse]) for (better, worse) in preferences]
 
     def set_user_attr(self, key: str, value: Any) -> None:
@@ -269,11 +273,23 @@ class PreferentialStudy:
         to generate a new trial if this method returns :obj:`True`, and to wait for human
         evaluation if this method returns :obj:`False`.
         """
-        return len(self.best_trials) < get_n_generate(self._study.system_attrs)
+        study_system_attrs = self._study._storage.get_study_system_attrs(
+            self._study._study_id
+        )  # Must come before _study.get_trials()
+        trials = self._study.get_trials(deepcopy=False)
+
+        all_trial_ids = {t._trial_id for t in trials}
+        bad_trial_ids = {
+            trials[worse]._trial_id for (_, worse) in get_preferences(study_system_attrs)
+        }
+        skipped_trial_ids = set(get_skipped_trial_ids(study_system_attrs))
+
+        active_trial_ids = all_trial_ids - bad_trial_ids - skipped_trial_ids
+        return len(active_trial_ids) < get_n_generate(self._study.system_attrs)
 
 
 def get_best_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list[FrozenTrial]:
-    preferences = get_preferences(study_id, storage)
+    preferences = get_preferences(storage.get_study_system_attrs(study_id))
     worse_numbers = {worse for _, worse in preferences}
     nondominated_numbers = {better for better, _ in preferences if better not in worse_numbers}
     trials = storage.get_all_trials(study_id, deepcopy=False)
