@@ -19,7 +19,6 @@ def test_report_and_get_choices(storage_supplier: Callable[[], StorageSupplier])
         for _ in range(5):
             trial = study.ask()
             trial.suggest_float("x", 0, 1)
-            study.mark_comparison_ready(trial)
 
         study_id = study._study._study_id
 
