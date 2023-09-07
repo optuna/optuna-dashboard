@@ -69,7 +69,7 @@ def get_skipped_trial_ids(study_system_attrs: dict[str, Any]) -> list[int]:
         try:
             trial_id = int(k[len(_SYSTEM_ATTR_PREFIX_SKIP_TRIAL) :])
             skipped_trial_ids.append(trial_id)
-        except ValueError as e:
+        except ValueError:
             continue
     return skipped_trial_ids
 
