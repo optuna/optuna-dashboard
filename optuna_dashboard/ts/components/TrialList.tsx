@@ -384,6 +384,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
       </Typography>
       <Box sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}>
         {trial.artifacts.map((a) => {
+          const artifactUrlPath = `/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`
           if (a.mimetype.startsWith("image")) {
             return (
               <Card
@@ -397,7 +398,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                 <CardMedia
                   component="img"
                   height={height}
-                  image={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                  image={artifactUrlPath}
                   alt={a.filename}
                 />
                 <CardContent
@@ -438,7 +439,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                     color="inherit"
                     download={a.filename}
                     sx={{ margin: "auto 0" }}
-                    href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                    href={artifactUrlPath}
                   >
                     <DownloadIcon />
                   </IconButton>
@@ -470,7 +471,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                   }}
                 >
                   <ThreejsArtifactViewer
-                    src={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                    src={artifactUrlPath}
                     width={width}
                     height={height}
                     hasGizmo={false}
@@ -500,8 +501,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                     color="inherit"
                     sx={{ margin: "auto 0" }}
                     onClick={() => {
-                      const urlPath = `/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`
-                      openThreejsArtifactModal(urlPath, a)
+                      openThreejsArtifactModal(artifactUrlPath, a)
                     }}
                   >
                     <FullscreenIcon />
@@ -527,7 +527,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                     color="inherit"
                     sx={{ margin: "auto 0" }}
                     download={a.filename}
-                    href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                    href={artifactUrlPath}
                   >
                     <DownloadIcon />
                   </IconButton>
@@ -557,7 +557,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                 >
                   <audio controls>
                     <source
-                      src={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                      src={artifactUrlPath}
                       type={a.mimetype}
                     />
                   </audio>
@@ -599,7 +599,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                     color="inherit"
                     sx={{ margin: "auto 0" }}
                     download={a.filename}
-                    href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                    href={artifactUrlPath}
                   >
                     <DownloadIcon />
                   </IconButton>
@@ -666,7 +666,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                     color="inherit"
                     sx={{ margin: "auto 0" }}
                     download={a.filename}
-                    href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                    href={artifactUrlPath}
                   >
                     <DownloadIcon />
                   </IconButton>
