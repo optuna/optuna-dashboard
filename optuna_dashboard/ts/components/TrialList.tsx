@@ -20,7 +20,6 @@ import {
   CardContent,
   CardMedia,
   CardActionArea,
-  Modal,
 } from "@mui/material"
 import Chip from "@mui/material/Chip"
 import Divider from "@mui/material/Divider"
@@ -47,7 +46,10 @@ import { artifactIsAvailable } from "../state"
 import { actionCreator } from "../action"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
 import { TrialFormWidgets } from "./TrialFormWidgets"
-import { ThreejsArtifactViewer } from "./ThreejsArtifactViewer"
+import {
+  ThreejsArtifactViewer,
+  useThreejsArtifactModal,
+} from "./ThreejsArtifactViewer"
 
 const states: TrialState[] = [
   "Complete",
@@ -330,9 +332,8 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
   const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
     useDeleteArtifactDialog()
   const [dragOver, setDragOver] = useState<boolean>(false)
-  const [open3dModelViewer, setOpen3dModelViewer] = useState<{
-    [key: string]: boolean
-  }>({})
+  const [openThreejsArtifactModal, renderThreejsArtifactModal] =
+    useThreejsArtifactModal()
 
   const width = "200px"
   const height = "150px"
@@ -499,48 +500,12 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                     color="inherit"
                     sx={{ margin: "auto 0" }}
                     onClick={() => {
-                      setOpen3dModelViewer(() => {
-                        const obj = { ...open3dModelViewer }
-                        obj[a.artifact_id] = true
-                        return obj
-                      })
+                      const urlPath = `/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`
+                      openThreejsArtifactModal(urlPath, a)
                     }}
                   >
                     <FullscreenIcon />
                   </IconButton>
-                  <Modal
-                    open={
-                      a.artifact_id in open3dModelViewer
-                        ? open3dModelViewer[a.artifact_id]
-                        : false
-                    }
-                    onClose={() => {
-                      setOpen3dModelViewer(() => {
-                        const obj = { ...open3dModelViewer }
-                        obj[a.artifact_id] = false
-                        return obj
-                      })
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        top: "50%",
-                        left: "50%",
-                        transform: "translate(-50%, -50%)",
-                        bgcolor: "background.paper",
-                        borderRadius: "15px",
-                      }}
-                    >
-                      <ThreejsArtifactViewer
-                        src={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
-                        width={`${innerWidth * 0.8}px`}
-                        height={`${innerHeight * 0.8}px`}
-                        hasGizmo={true}
-                        filetype={a.filename.split(".").pop()}
-                      />
-                    </Box>
-                  </Modal>
                   <IconButton
                     aria-label="delete artifact"
                     size="small"
@@ -763,6 +728,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
         ) : null}
       </Box>
       {renderDeleteArtifactDialog()}
+      {renderThreejsArtifactModal()}
     </>
   )
 }
