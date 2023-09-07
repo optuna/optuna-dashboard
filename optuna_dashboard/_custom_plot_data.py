@@ -48,10 +48,14 @@ def save_plotly_graph_object(
             The plotly's graph object to save.
         graph_object_id:
             Unique identifier of the graph object. If specified, the graph object is overwritten.
+            This must be a valid HTML id attribute value.
 
     Returns:
         The graph object ID.
     """
+    if graph_object_id is not None and not is_valid_html_name(graph_object_id):
+        raise ValueError("graph_object_id must be a valid HTML id attribute value.")
+
     storage = study._storage
     study_id = study._study_id
 
@@ -113,3 +117,20 @@ def split_plot_data(plot_data_str: str, key_prefix: str) -> dict[str, str]:
 
 def concat_plot_data(plot_data_attrs: dict[str, str], key_prefix: str) -> str:
     return "".join(plot_data_attrs[f"{key_prefix}{i}"] for i in range(len(plot_data_attrs)))
+
+
+def is_valid_html_name(graph_object_id: str) -> bool:
+    if len(graph_object_id) == 0:
+        return False
+
+    # Must begin with a letter [A-Za-z]
+    if not ("a" <= graph_object_id[0] <= "z" or "A" <= graph_object_id[0] <= "Z"):
+        return False
+
+    # Can only contain letters [A-Za-z], numbers [0-9], hyphens ("-"), underscores ("_"), colons, and periods.
+    if not all(
+        "a" <= c <= "z" or "A" <= c <= "Z" or "0" <= c <= "9" or c in ("-", "_", ":", ".")
+        for c in graph_object_id[1:]
+    ):
+        return False
+    return True

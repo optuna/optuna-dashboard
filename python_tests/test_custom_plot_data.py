@@ -3,6 +3,7 @@ from __future__ import annotations
 import optuna
 from optuna_dashboard import _custom_plot_data as custom_plot_data
 from optuna_dashboard import save_plotly_graph_object
+import pytest
 
 
 def get_dummy_study() -> optuna.Study:
@@ -59,3 +60,27 @@ def test_update_plotly_graph_object() -> None:
     plot_data_dict = custom_plot_data.get_plotly_graph_objects(study_system_attrs)
     assert len(plot_data_dict) == 1
     assert plot_data_dict[graph_object_id] == plot_data.to_json()
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "a",
+        "a1-:_.",
+    ],
+)
+def test_is_valid_html_name(name):
+    assert custom_plot_data.is_valid_html_name(name)
+
+
+@pytest.mark.parametrize(
+    "name",
+    [
+        "0",
+        "a,",
+        "a b",
+        "aあいうえお",
+    ],
+)
+def test_is_invalid_html_name(name):
+    assert not custom_plot_data.is_valid_html_name(name)
