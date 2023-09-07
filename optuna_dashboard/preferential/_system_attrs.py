@@ -62,11 +62,16 @@ def is_skipped_trial(trial_id: int, study_system_attrs: dict[str, Any]) -> bool:
 
 
 def get_skipped_trial_ids(study_system_attrs: dict[str, Any]) -> list[int]:
-    return [
-        int(k[len(_SYSTEM_ATTR_PREFIX_SKIP_TRIAL):])
-        for k in study_system_attrs.keys()
-        if k.startswith(_SYSTEM_ATTR_PREFIX_SKIP_TRIAL)
-    ]
+    skipped_trial_ids: list[int] = []
+    for k in study_system_attrs:
+        if not k.startswith(_SYSTEM_ATTR_PREFIX_SKIP_TRIAL):
+            continue
+        try:
+            trial_id = int(k[len(_SYSTEM_ATTR_PREFIX_SKIP_TRIAL):])
+            skipped_trial_ids.append(trial_id)
+        except ValueError as e:
+            continue
+    return skipped_trial_ids
 
 
 def get_n_generate(study_system_attrs: dict[str, Any]) -> int:
