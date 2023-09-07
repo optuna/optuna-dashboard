@@ -459,9 +459,8 @@ const TrialArtifact: FC<{
   artifact: Artifact
   width: string
   height: string
-}> = ({ trial, artifact, width, height }) => {
-  const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
-    useDeleteArtifactDialog()
+  onDelete: () => void
+}> = ({ trial, artifact, width, height, onDelete }) => {
   const theme = useTheme()
   const is3dModel =
     artifact.filename.endsWith(".stl") || artifact.filename.endsWith(".3dm")
@@ -517,9 +516,7 @@ const TrialArtifact: FC<{
             size="small"
             color="inherit"
             sx={{ margin: "auto 0" }}
-            onClick={() => {
-              openDeleteArtifactDialog(trial.study_id, trial.trial_id, artifact)
-            }}
+            onClick={onDelete}
           >
             <DeleteIcon />
           </IconButton>
@@ -535,7 +532,6 @@ const TrialArtifact: FC<{
           <DownloadIcon />
         </IconButton>
       </CardContent>
-      {renderDeleteArtifactDialog()}
     </Card>
   )
 }
@@ -544,6 +540,8 @@ const TrialArtifacts: FC<{ trial: Trial }> = ({ trial }) => {
   const theme = useTheme()
   const action = actionCreator()
   const [dragOver, setDragOver] = useState<boolean>(false)
+  const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
+    useDeleteArtifactDialog()
 
   const width = "200px"
   const height = "150px"
@@ -600,6 +598,9 @@ const TrialArtifacts: FC<{ trial: Trial }> = ({ trial }) => {
             artifact={a}
             width={width}
             height={height}
+            onDelete={() => {
+              openDeleteArtifactDialog(trial.study_id, trial.trial_id, a)
+            }}
           />
         ))}
         {trial.state === "Running" || trial.state === "Waiting" ? (
@@ -654,6 +655,7 @@ const TrialArtifacts: FC<{ trial: Trial }> = ({ trial }) => {
           </Card>
         ) : null}
       </Box>
+      {renderDeleteArtifactDialog()}
     </>
   )
 }
