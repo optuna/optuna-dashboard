@@ -182,7 +182,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
     return null
   }
   const theme = useTheme()
-  
+
   const running_trials = studyDetail.trials.filter((t) => t.state === "Running")
   const active_trials = running_trials.concat(studyDetail.best_trials)
 
