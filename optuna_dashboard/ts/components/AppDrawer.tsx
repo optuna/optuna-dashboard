@@ -29,6 +29,8 @@ import Brightness4Icon from "@mui/icons-material/Brightness4"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
 import TableViewIcon from "@mui/icons-material/TableView"
 import RateReviewIcon from "@mui/icons-material/RateReview"
+import SettingsIcon from "@mui/icons-material/Settings"
+
 import MenuIcon from "@mui/icons-material/Menu"
 import GitHubIcon from "@mui/icons-material/GitHub"
 import OpenInNewIcon from "@mui/icons-material/OpenInNew"
@@ -46,6 +48,7 @@ export type PageId =
   | "trialTable"
   | "trialList"
   | "note"
+  | "settings"
   | "preferenceHistory"
 
 const openedMixin = (theme: Theme): CSSObject => ({
@@ -283,6 +286,19 @@ export const AppDrawer: FC<{
                   <RateReviewIcon />
                 </ListItemIcon>
                 <ListItemText primary="Note" sx={styleListItemText} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem key="Settings" disablePadding sx={styleListItem}>
+              <ListItemButton
+                component={Link}
+                to={`${URL_PREFIX}/studies/${studyId}/settings`}
+                sx={styleListItemButton}
+                selected={page === "settings"}
+              >
+                <ListItemIcon sx={styleListItemIcon}>
+                  <SettingsIcon />
+                </ListItemIcon>
+                <ListItemText primary="Settings" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
           </List>
