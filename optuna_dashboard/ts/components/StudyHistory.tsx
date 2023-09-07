@@ -103,17 +103,6 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
           />
         </CardContent>
       </Card>
-      {studyDetail !== null &&
-        studyDetail.plotly_graph_objects.map((go) => (
-          <Card
-            key={go.id}
-            sx={{
-              margin: theme.spacing(2),
-            }}
-          >
-            <UserDefinedPlot graphObject={go} />
-          </Card>
-        ))}
       <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
         {studyDetail !== null &&
         studyDetail.directions.length == 1 &&
@@ -136,6 +125,16 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
         <Grid2 xs={6}>
           <GraphTimeline study={studyDetail} />
         </Grid2>
+        {studyDetail !== null &&
+          studyDetail.plotly_graph_objects.map((go) => (
+            <Grid2 xs={6} key={go.id}>
+              <Card>
+                <CardContent>
+                  <UserDefinedPlot graphObject={go} />
+                </CardContent>
+              </Card>
+            </Grid2>
+          ))}
         <Grid2 xs={6} spacing={2}>
           <BestTrialsCard studyDetail={studyDetail} />
         </Grid2>
