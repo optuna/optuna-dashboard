@@ -249,7 +249,7 @@ export const AppDrawer: FC<{
               </ListItemButton>
             </ListItem>
             {studyDetail?.is_preferential && (
-              <ListItem key="Graph" disablePadding sx={styleListItem}>
+              <ListItem key="PreferenceGraph" disablePadding sx={styleListItem}>
                 <ListItemButton
                   component={Link}
                   to={`${URL_PREFIX}/studies/${studyId}/graph`}
@@ -259,7 +259,10 @@ export const AppDrawer: FC<{
                   <ListItemIcon sx={styleListItemIcon}>
                     <LanIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Graph" sx={styleListItemText} />
+                  <ListItemText
+                    primary="PreferenceGraph"
+                    sx={styleListItemText}
+                  />
                 </ListItemButton>
               </ListItem>
             )}

@@ -101,7 +101,10 @@ function reductionPreference(
   let n = 0
   for (const [source, target] of input_preferences) {
     if (
-      preferences.find((p) => p[0] === source && p[1] === target) !== undefined
+      preferences.find((p) => p[0] === source && p[1] === target) !==
+        undefined ||
+      input_preferences.find((p) => p[0] === target && p[1] === source) !==
+        undefined
     ) {
       continue
     }
@@ -139,7 +142,7 @@ function reductionPreference(
   }
   if (topologicalOrder.length !== n) {
     console.error("cycle detected")
-    return []
+    return preferences
   }
 
   const response: [number, number][] = []

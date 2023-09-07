@@ -25,6 +25,7 @@ from . import _note as note
 from ._bottle_util import BottleViewReturn
 from ._bottle_util import json_api_view
 from ._cached_extra_study_property import get_cached_extra_study_property
+from ._custom_plot_data import get_plotly_graph_objects
 from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
 from ._preferential_history import NewHistory
@@ -214,6 +215,8 @@ def create_app(
             union_user_attrs,
             has_intermediate_values,
         ) = get_cached_extra_study_property(study_id, trials)
+
+        plotly_graph_objects = get_plotly_graph_objects(system_attrs)
         return serialize_study_detail(
             summary,
             best_trials,
@@ -222,6 +225,7 @@ def create_app(
             union,
             union_user_attrs,
             has_intermediate_values,
+            plotly_graph_objects,
         )
 
     @app.get("/api/studies/<study_id:int>/param_importances")

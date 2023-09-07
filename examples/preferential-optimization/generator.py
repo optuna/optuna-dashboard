@@ -64,9 +64,6 @@ def main() -> NoReturn:
             )
             save_note(trial, note)
 
-            # 5. Mark comparison ready
-            study.mark_comparison_ready(trial)
-
 
 if __name__ == "__main__":
     main()
