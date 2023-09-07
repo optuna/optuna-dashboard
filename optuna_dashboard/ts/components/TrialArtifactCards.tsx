@@ -13,21 +13,17 @@ import {
   IconButton,
   Card,
   CardContent,
-  CardMedia,
   CardActionArea,
 } from "@mui/material"
 import UploadFileIcon from "@mui/icons-material/UploadFile"
 import DownloadIcon from "@mui/icons-material/Download"
 import DeleteIcon from "@mui/icons-material/Delete"
 import FullscreenIcon from "@mui/icons-material/Fullscreen"
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 
 import { actionCreator } from "../action"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
-import {
-  ThreejsArtifactViewer,
-  useThreejsArtifactModal,
-} from "./ThreejsArtifactViewer"
+import { useThreejsArtifactModal } from "./ThreejsArtifactViewer"
+import { ArtifactCardMedia } from "./ArtifactCardMedia"
 
 export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
   const theme = useTheme()
@@ -48,294 +44,81 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
         Artifacts
       </Typography>
       <Box sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}>
-        {trial.artifacts.map((a) => {
-          const artifactUrlPath = `/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`
-          if (a.mimetype.startsWith("image")) {
-            return (
-              <Card
-                key={a.artifact_id}
+        {trial.artifacts.map((artifact) => {
+          const urlPath = `/artifacts/${trial.study_id}/${trial.trial_id}/${artifact.artifact_id}`
+          return (
+            <Card
+              key={artifact.artifact_id}
+              sx={{
+                marginBottom: theme.spacing(2),
+                width: width,
+                margin: theme.spacing(0, 1, 1, 0),
+              }}
+            >
+              <ArtifactCardMedia
+                artifact={artifact}
+                urlPath={urlPath}
+                height={height}
+              />
+              <CardContent
                 sx={{
-                  marginBottom: theme.spacing(2),
-                  width: width,
-                  margin: theme.spacing(0, 1, 1, 0),
-                }}
-              >
-                <CardMedia
-                  component="img"
-                  height={height}
-                  image={artifactUrlPath}
-                  alt={a.filename}
-                />
-                <CardContent
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    padding: `${theme.spacing(1)} !important`,
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      p: theme.spacing(0.5, 0),
-                      flexGrow: 1,
-                      wordWrap: "break-word",
-                      maxWidth: `calc(100% - ${theme.spacing(8)})`,
-                    }}
-                  >
-                    {a.filename}
-                  </Typography>
-                  <IconButton
-                    aria-label="delete artifact"
-                    size="small"
-                    color="inherit"
-                    sx={{ margin: "auto 0" }}
-                    onClick={() => {
-                      openDeleteArtifactDialog(
-                        trial.study_id,
-                        trial.trial_id,
-                        a
-                      )
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                  <IconButton
-                    aria-label="download artifact"
-                    size="small"
-                    color="inherit"
-                    download={a.filename}
-                    sx={{ margin: "auto 0" }}
-                    href={artifactUrlPath}
-                  >
-                    <DownloadIcon />
-                  </IconButton>
-                </CardContent>
-              </Card>
-            )
-          } else if (
-            a.filename.endsWith(".stl") ||
-            a.filename.endsWith(".3dm")
-          ) {
-            return (
-              <Card
-                key={a.artifact_id}
-                sx={{
-                  marginBottom: theme.spacing(2),
                   display: "flex",
-                  flexDirection: "column",
-                  width: width,
-                  minHeight: "100%",
-                  margin: theme.spacing(0, 1, 1, 0),
+                  flexDirection: "row",
+                  padding: `${theme.spacing(1)} !important`,
                 }}
               >
-                <Box
+                <Typography
                   sx={{
+                    p: theme.spacing(0.5, 0),
                     flexGrow: 1,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
+                    wordWrap: "break-word",
+                    maxWidth: `calc(100% - ${theme.spacing(8)})`,
                   }}
                 >
-                  <ThreejsArtifactViewer
-                    src={artifactUrlPath}
-                    width={width}
-                    height={height}
-                    hasGizmo={false}
-                    filetype={a.filename.split(".").pop()}
-                  />
-                </Box>
-                <CardContent
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    padding: `${theme.spacing(1)} !important`,
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      p: theme.spacing(0.5, 0),
-                      flexGrow: 1,
-                      wordWrap: "break-word",
-                      maxWidth: `calc(100% - ${theme.spacing(12)})`,
-                    }}
-                  >
-                    {a.filename}
-                  </Typography>
+                  {artifact.filename}
+                </Typography>
+                {artifact.filename.endsWith(".stl") ||
+                artifact.filename.endsWith(".3dm") ? (
                   <IconButton
                     aria-label="show artifact 3d model"
                     size="small"
                     color="inherit"
                     sx={{ margin: "auto 0" }}
                     onClick={() => {
-                      openThreejsArtifactModal(artifactUrlPath, a)
+                      openThreejsArtifactModal(urlPath, artifact)
                     }}
                   >
                     <FullscreenIcon />
                   </IconButton>
-                  <IconButton
-                    aria-label="delete artifact"
-                    size="small"
-                    color="inherit"
-                    sx={{ margin: "auto 0" }}
-                    onClick={() => {
-                      openDeleteArtifactDialog(
-                        trial.study_id,
-                        trial.trial_id,
-                        a
-                      )
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                  <IconButton
-                    aria-label="download artifact"
-                    size="small"
-                    color="inherit"
-                    sx={{ margin: "auto 0" }}
-                    download={a.filename}
-                    href={artifactUrlPath}
-                  >
-                    <DownloadIcon />
-                  </IconButton>
-                </CardContent>
-              </Card>
-            )
-          } else if (a.mimetype.startsWith("audio")) {
-            return (
-              <Card
-                key={a.artifact_id}
-                sx={{
-                  marginBottom: theme.spacing(2),
-                  display: "flex",
-                  flexDirection: "column",
-                  width: width,
-                  minHeight: "100%",
-                  margin: theme.spacing(0, 1, 1, 0),
-                }}
-              >
-                <Box
-                  sx={{
-                    flexGrow: 1,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
+                ) : null}
+                <IconButton
+                  aria-label="delete artifact"
+                  size="small"
+                  color="inherit"
+                  sx={{ margin: "auto 0" }}
+                  onClick={() => {
+                    openDeleteArtifactDialog(
+                      trial.study_id,
+                      trial.trial_id,
+                      artifact
+                    )
                   }}
                 >
-                  <audio controls>
-                    <source src={artifactUrlPath} type={a.mimetype} />
-                  </audio>
-                </Box>
-                <CardContent
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    padding: `${theme.spacing(1)} !important`,
-                  }}
+                  <DeleteIcon />
+                </IconButton>
+                <IconButton
+                  aria-label="download artifact"
+                  size="small"
+                  color="inherit"
+                  download={artifact.filename}
+                  sx={{ margin: "auto 0" }}
+                  href={urlPath}
                 >
-                  <Typography
-                    sx={{
-                      p: theme.spacing(0.5, 0),
-                      flexGrow: 1,
-                      maxWidth: `calc(100% - ${theme.spacing(8)})`,
-                    }}
-                  >
-                    {a.filename}
-                  </Typography>
-                  <IconButton
-                    aria-label="delete artifact"
-                    size="small"
-                    color="inherit"
-                    sx={{ margin: "auto 0" }}
-                    onClick={() => {
-                      openDeleteArtifactDialog(
-                        trial.study_id,
-                        trial.trial_id,
-                        a
-                      )
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                  <IconButton
-                    aria-label="download artifact"
-                    size="small"
-                    color="inherit"
-                    sx={{ margin: "auto 0" }}
-                    download={a.filename}
-                    href={artifactUrlPath}
-                  >
-                    <DownloadIcon />
-                  </IconButton>
-                </CardContent>
-              </Card>
-            )
-          } else {
-            return (
-              <Card
-                key={a.artifact_id}
-                sx={{
-                  marginBottom: theme.spacing(2),
-                  display: "flex",
-                  flexDirection: "column",
-                  width: width,
-                  minHeight: "100%",
-                  margin: theme.spacing(0, 1, 1, 0),
-                }}
-              >
-                <Box
-                  sx={{
-                    flexGrow: 1,
-                    display: "flex",
-                    justifyContent: "center",
-                    alignItems: "center",
-                  }}
-                >
-                  <InsertDriveFileIcon sx={{ fontSize: 80 }} />
-                </Box>
-                <CardContent
-                  sx={{
-                    display: "flex",
-                    flexDirection: "row",
-                    padding: `${theme.spacing(1)} !important`,
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      p: theme.spacing(0.5, 0),
-                      flexGrow: 1,
-                      maxWidth: `calc(100% - ${theme.spacing(8)})`,
-                    }}
-                  >
-                    {a.filename}
-                  </Typography>
-                  <IconButton
-                    aria-label="delete artifact"
-                    size="small"
-                    color="inherit"
-                    sx={{ margin: "auto 0" }}
-                    onClick={() => {
-                      openDeleteArtifactDialog(
-                        trial.study_id,
-                        trial.trial_id,
-                        a
-                      )
-                    }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                  <IconButton
-                    aria-label="download artifact"
-                    size="small"
-                    color="inherit"
-                    sx={{ margin: "auto 0" }}
-                    download={a.filename}
-                    href={artifactUrlPath}
-                  >
-                    <DownloadIcon />
-                  </IconButton>
-                </CardContent>
-              </Card>
-            )
-          }
+                  <DownloadIcon />
+                </IconButton>
+              </CardContent>
+            </Card>
+          )
         })}
         <TrialArtifactUploader trial={trial} width={width} height={height} />
       </Box>
