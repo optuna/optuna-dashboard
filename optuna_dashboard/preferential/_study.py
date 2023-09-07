@@ -276,10 +276,16 @@ class PreferentialStudy:
         study_system_attrs = self._study._storage.get_study_system_attrs(
             self._study._study_id
         )  # Must come before _study.get_trials()
-        trials = self._study.get_trials(deepcopy=False, states=(TrialState.COMPLETE, TrialState.RUNNING))
+        trials = self._study.get_trials(
+            deepcopy=False, states=(TrialState.COMPLETE, TrialState.RUNNING)
+        )
         worse_trial_numbers = {worse for _, worse in get_preferences(study_system_attrs)}
         skipped_trial_ids = set(get_skipped_trial_ids(study_system_attrs))
-        active_trials = [t for t in trials if t.number not in worse_trial_number and t._trial_id not in skipped_trial_ids]
+        active_trials = [
+            t
+            for t in trials
+            if t.number not in worse_trial_numbers and t._trial_id not in skipped_trial_ids
+        ]
         return len(active_trials) < get_n_generate(self._study.system_attrs)
 
 
