@@ -87,7 +87,7 @@ export const StudyDetail: FC<{
       }
     }
 
-    const intervalId = setInterval(function() {
+    const intervalId = setInterval(function () {
       action.updateStudyDetail(studyId)
     }, interval)
     return () => clearInterval(intervalId)
@@ -129,14 +129,14 @@ export const StudyDetail: FC<{
         <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
           {studyDetail !== null
             ? studyDetail.directions.map((d, i) => (
-              <Grid2 xs={6} key={i}>
-                <Card>
-                  <CardContent>
-                    <GraphEdf studies={[studyDetail]} objectiveId={i} />
-                  </CardContent>
-                </Card>
-              </Grid2>
-            ))
+                <Grid2 xs={6} key={i}>
+                  <Card>
+                    <CardContent>
+                      <GraphEdf studies={[studyDetail]} objectiveId={i} />
+                    </CardContent>
+                  </Card>
+                </Grid2>
+              ))
             : null}
         </Grid2>
       </Box>
@@ -178,9 +178,7 @@ export const StudyDetail: FC<{
       </Box>
     )
   } else if (page === "settings") {
-    content = (
-      <Settings />
-    )
+    content = <Settings />
   } else if (page === "preferenceHistory") {
     content = <PreferenceHistory studyDetail={studyDetail} />
   }

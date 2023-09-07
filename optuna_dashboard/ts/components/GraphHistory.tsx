@@ -15,7 +15,12 @@ import {
   useTheme,
   Slider,
 } from "@mui/material"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import {
+  getColorTemplate,
+  plotlyDarkTemplate,
+  plotlyLightTemplate,
+  plotlySeabornTemplate,
+} from "./PlotlyDarkMode"
 import {
   useFilteredTrialsFromStudies,
   Target,
@@ -186,7 +191,7 @@ const plotHistory = (
   }
   if (historyPlotInfos.length === 0) {
     plotly.react(plotDomId, [], {
-      template: mode === "dark" ? plotlyDarkTemplate : {},
+      template: mode === "dark" ? plotlyDarkTemplate : plotlyLightTemplate,
     })
     return
   }
@@ -207,7 +212,7 @@ const plotHistory = (
       type: xAxis === "number" ? "linear" : "date",
     },
     showlegend: historyPlotInfos.length === 1 ? false : true,
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: getColorTemplate(mode),
   }
 
   const getAxisX = (trial: Trial): number | Date => {

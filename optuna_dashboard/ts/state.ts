@@ -56,6 +56,16 @@ export const artifactIsAvailable = atom<boolean>({
   default: false,
 })
 
+export const plotlyDarkColorScale = atom<string>({
+  key: "plotlyDarkColorScale",
+  default: "default",
+})
+
+export const plotlyLightColorScale = atom<string>({
+  key: "plotlyLightColorScale",
+  default: "default",
+})
+
 export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
   return studyDetails[studyId] || null
