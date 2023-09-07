@@ -27,6 +27,7 @@
     "@react-three/fiber": "^8.13.6",
     "@types/three": "^0.154.0",
     "axios": "^1.2.1",
+    "ngl": "^2.1.1",
     "notistack": "^3.0.1",
     "plotly.js-dist-min": "^2.22.0",
     "react": "^18.2.0",
@@ -39,7 +40,8 @@
     "rehype-raw": "^6.1.1",
     "remark-gfm": "^3.0.1",
     "remark-math": "^5.1.1",
-    "three": "^0.155.0"
+    "three": "^0.155.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",

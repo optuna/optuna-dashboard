@@ -48,6 +48,7 @@ import { actionCreator } from "../action"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
 import { TrialFormWidgets } from "./TrialFormWidgets"
 import { ThreejsArtifactViewer } from "./ThreejsArtifactViewer"
+import { AtomsArtifactViewer } from "./AtomsArtifactViewer"
 
 const states: TrialState[] = [
   "Complete",
@@ -609,6 +610,83 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                       p: theme.spacing(0.5, 0),
                       flexGrow: 1,
                       maxWidth: `calc(100% - ${theme.spacing(8)})`,
+                    }}
+                  >
+                    {a.filename}
+                  </Typography>
+                  <IconButton
+                    aria-label="delete artifact"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    onClick={() => {
+                      openDeleteArtifactDialog(
+                        trial.study_id,
+                        trial.trial_id,
+                        a
+                      )
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                  <IconButton
+                    aria-label="download artifact"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    download={a.filename}
+                    href={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                  >
+                    <DownloadIcon />
+                  </IconButton>
+                </CardContent>
+              </Card>
+            )
+          } else if (
+            a.mimetype === "chemical/x-pdb" ||
+            a.mimetype === "chemical/x-mol2" ||
+            a.mimetype === "chemical/x-mdl-sdfile"
+          ) {
+            return (
+              <Card
+                key={a.artifact_id}
+                sx={{
+                  marginBottom: theme.spacing(2),
+                  display: "flex",
+                  flexDirection: "column",
+                  width: width,
+                  minHeight: "100%",
+                  margin: theme.spacing(0, 1, 1, 0),
+                }}
+              >
+                <Box
+                  sx={{
+                    flexGrow: 1,
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                  }}
+                >
+                  <AtomsArtifactViewer
+                    src={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
+                    width={width}
+                    height={height}
+                    filetype={a.filename.split(".").pop()}
+                  />
+                </Box>
+                <CardContent
+                  sx={{
+                    display: "flex",
+                    flexDirection: "row",
+                    padding: `${theme.spacing(1)} !important`,
+                  }}
+                >
+                  <Typography
+                    sx={{
+                      p: theme.spacing(0.5, 0),
+                      flexGrow: 1,
+                      wordWrap: "break-word",
+                      maxWidth: `calc(100% - ${theme.spacing(12)})`,
                     }}
                   >
                     {a.filename}
