@@ -1,10 +1,11 @@
 import * as THREE from "three"
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState, ReactNode } from "react"
 import { Canvas } from "@react-three/fiber"
 import { GizmoHelper, GizmoViewport, OrbitControls } from "@react-three/drei"
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader"
 import { Rhino3dmLoader } from "three/examples/jsm/loaders/3DMLoader"
 import { PerspectiveCamera } from "three"
+import { Modal, Box } from "@mui/material"
 
 interface ThreejsArtifactViewerProps {
   src: string
@@ -108,4 +109,49 @@ export const ThreejsArtifactViewer: React.FC<ThreejsArtifactViewerProps> = (
         ))}
     </Canvas>
   )
+}
+
+export const useThreejsArtifactModal = (): [
+  (path: string, artifact: Artifact) => void,
+  () => ReactNode
+] => {
+  const [open, setOpen] = useState(false)
+  const [target, setTarget] = useState<[string, Artifact | null]>(["", null])
+
+  const openModal = (artifactUrlPath: string, artifact: Artifact) => {
+    setTarget([artifactUrlPath, artifact])
+    setOpen(true)
+  }
+
+  const renderDeleteStudyDialog = () => {
+    return (
+      <Modal
+        open={open}
+        onClose={() => {
+          setOpen(false)
+          setTarget(["", null])
+        }}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "background.paper",
+            borderRadius: "15px",
+          }}
+        >
+          <ThreejsArtifactViewer
+            src={target[0]}
+            width={`${innerWidth * 0.8}px`}
+            height={`${innerHeight * 0.8}px`}
+            hasGizmo={true}
+            filetype={target[1]?.filename.split(".").pop()}
+          />
+        </Box>
+      </Modal>
+    )
+  }
+  return [openModal, renderDeleteStudyDialog]
 }
