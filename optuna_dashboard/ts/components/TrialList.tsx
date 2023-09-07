@@ -397,61 +397,75 @@ export const TrialArtifactContent: FC<{
   }
 }
 
-export const TrialArtifactActions: FC<{
+const ModelAtrifactAction: FC<{
   trial: Trial
   artifact: Artifact
   sx: SxProps
 }> = ({ trial, artifact, sx }) => {
   const [open3dModelViewer, setOpen3dModelViewer] = useState<boolean>(false)
+  return (
+    <>
+      <IconButton
+        aria-label="show artifact 3d model"
+        size="small"
+        color="inherit"
+        sx={sx}
+        onClick={() => {
+          setOpen3dModelViewer(true)
+        }}
+      >
+        <FullscreenIcon />
+      </IconButton>
+      <Modal
+        open={open3dModelViewer}
+        onClose={() => {
+          setOpen3dModelViewer(false)
+        }}
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "background.paper",
+            borderRadius: "15px",
+          }}
+        >
+          <ThreejsArtifactViewer
+            src={`/artifacts/${trial.study_id}/${trial.trial_id}/${artifact.artifact_id}`}
+            width={`${innerWidth * 0.8}px`}
+            height={`${innerHeight * 0.8}px`}
+            hasGizmo={true}
+            filetype={artifact.filename.split(".").pop()}
+          />
+        </Box>
+      </Modal>
+    </>
+  )
+}
 
+export const trialArtifactActions = (
+  trial: Trial,
+  artifact: Artifact,
+  sx: SxProps
+): JSX.Element[] => {
   if (artifact.mimetype.startsWith("image")) {
-    return null
+    return []
   } else if (
     artifact.filename.endsWith(".stl") ||
     artifact.filename.endsWith(".3dm")
   ) {
-    return (
-      <>
-        <IconButton
-          aria-label="show artifact 3d model"
-          size="small"
-          color="inherit"
-          sx={sx}
-          onClick={() => {
-            setOpen3dModelViewer(true)
-          }}
-        >
-          <FullscreenIcon />
-        </IconButton>
-        <Modal
-          open={open3dModelViewer}
-          onClose={() => {
-            setOpen3dModelViewer(false)
-          }}
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              bgcolor: "background.paper",
-              borderRadius: "15px",
-            }}
-          >
-            <ThreejsArtifactViewer
-              src={`/artifacts/${trial.study_id}/${trial.trial_id}/${artifact.artifact_id}`}
-              width={`${innerWidth * 0.8}px`}
-              height={`${innerHeight * 0.8}px`}
-              hasGizmo={true}
-              filetype={artifact.filename.split(".").pop()}
-            />
-          </Box>
-        </Modal>
-      </>
-    )
+    return [
+      <ModelAtrifactAction
+        key="model"
+        trial={trial}
+        artifact={artifact}
+        sx={sx}
+      />,
+    ]
   }
-  return null
+  return []
 }
 
 const TrialArtifact: FC<{
@@ -462,13 +476,39 @@ const TrialArtifact: FC<{
   onDelete: () => void
 }> = ({ trial, artifact, width, height, onDelete }) => {
   const theme = useTheme()
-  const is3dModel =
-    artifact.filename.endsWith(".stl") || artifact.filename.endsWith(".3dm")
   const canDelete = trial.state === "Running" || trial.state === "Waiting"
-  let actionsCount = 1
-  if (canDelete) actionsCount += 1
-  if (is3dModel) actionsCount += 1
-  const actionsWidth = theme.spacing(actionsCount * 4)
+
+  const actions = trialArtifactActions(trial, artifact, {
+    margin: "auto 0",
+  })
+  if (canDelete) {
+    actions.push(
+      <IconButton
+        key="delete"
+        aria-label="delete artifact"
+        size="small"
+        color="inherit"
+        sx={{ margin: "auto 0" }}
+        onClick={onDelete}
+      >
+        <DeleteIcon />
+      </IconButton>
+    )
+  }
+  actions.push(
+    <IconButton
+      key="download"
+      aria-label="download artifact"
+      size="small"
+      color="inherit"
+      download={artifact.filename}
+      sx={{ margin: "auto 0" }}
+      href={`/artifacts/${trial.study_id}/${trial.trial_id}/${artifact.artifact_id}`}
+    >
+      <DownloadIcon />
+    </IconButton>
+  )
+  const actionsWidth = theme.spacing(actions.length * 4)
 
   return (
     <Card
@@ -503,34 +543,7 @@ const TrialArtifact: FC<{
         >
           {artifact.filename}
         </Typography>
-        {is3dModel ? (
-          <TrialArtifactActions
-            trial={trial}
-            artifact={artifact}
-            sx={{ margin: "auto 0" }}
-          />
-        ) : null}
-        {canDelete ? (
-          <IconButton
-            aria-label="delete artifact"
-            size="small"
-            color="inherit"
-            sx={{ margin: "auto 0" }}
-            onClick={onDelete}
-          >
-            <DeleteIcon />
-          </IconButton>
-        ) : null}
-        <IconButton
-          aria-label="download artifact"
-          size="small"
-          color="inherit"
-          download={artifact.filename}
-          sx={{ margin: "auto 0" }}
-          href={`/artifacts/${trial.study_id}/${trial.trial_id}/${artifact.artifact_id}`}
-        >
-          <DownloadIcon />
-        </IconButton>
+        {actions}
       </CardContent>
     </Card>
   )
