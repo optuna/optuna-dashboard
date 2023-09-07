@@ -31,51 +31,13 @@ import {
 
 export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
   const theme = useTheme()
-  const action = actionCreator()
   const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
     useDeleteArtifactDialog()
-  const [dragOver, setDragOver] = useState<boolean>(false)
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
     useThreejsArtifactModal()
 
   const width = "200px"
   const height = "150px"
-
-  const inputRef = useRef<HTMLInputElement>(null)
-  const handleClick: MouseEventHandler = () => {
-    if (!inputRef || !inputRef.current) {
-      return
-    }
-    inputRef.current.click()
-  }
-  const handleOnChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const files = e.target.files
-    if (files === null) {
-      return
-    }
-    action.uploadArtifact(trial.study_id, trial.trial_id, files[0])
-  }
-  const handleDrop: DragEventHandler = (e) => {
-    e.stopPropagation()
-    e.preventDefault()
-    const files = e.dataTransfer.files
-    setDragOver(false)
-    for (let i = 0; i < files.length; i++) {
-      action.uploadArtifact(trial.study_id, trial.trial_id, files[i])
-    }
-  }
-  const handleDragOver: DragEventHandler = (e) => {
-    e.stopPropagation()
-    e.preventDefault()
-    e.dataTransfer.dropEffect = "copy"
-    setDragOver(true)
-  }
-  const handleDragLeave: DragEventHandler = (e) => {
-    e.stopPropagation()
-    e.preventDefault()
-    e.dataTransfer.dropEffect = "copy"
-    setDragOver(false)
-  }
 
   return (
     <>
@@ -375,60 +337,108 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
             )
           }
         })}
-        {trial.state === "Running" || trial.state === "Waiting" ? (
-          <Card
-            sx={{
-              marginBottom: theme.spacing(2),
-              width: width,
-              minHeight: height,
-              margin: theme.spacing(0, 1, 1, 0),
-              border: dragOver
-                ? `3px dashed ${
-                    theme.palette.mode === "dark" ? "white" : "black"
-                  }`
-                : `1px solid ${theme.palette.divider}`,
-            }}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
-            <CardActionArea
-              onClick={handleClick}
-              sx={{
-                height: "100%",
-              }}
-            >
-              <CardContent
-                sx={{
-                  display: "flex",
-                  height: "100%",
-                  flexDirection: "column",
-                  justifyContent: "center",
-                  alignItems: "center",
-                }}
-              >
-                <UploadFileIcon
-                  sx={{ fontSize: 80, marginBottom: theme.spacing(2) }}
-                />
-                <input
-                  type="file"
-                  ref={inputRef}
-                  onChange={handleOnChange}
-                  style={{ display: "none" }}
-                />
-                <Typography>Upload a New File</Typography>
-                <Typography
-                  sx={{ textAlign: "center", color: theme.palette.grey.A400 }}
-                >
-                  Drag your file here or click to browse.
-                </Typography>
-              </CardContent>
-            </CardActionArea>
-          </Card>
-        ) : null}
+        <TrialArtifactUploader trial={trial} width={width} height={height} />
       </Box>
       {renderDeleteArtifactDialog()}
       {renderThreejsArtifactModal()}
     </>
+  )
+}
+
+const TrialArtifactUploader: FC<{
+  trial: Trial
+  width: string
+  height: string
+}> = ({ trial, width, height }) => {
+  const theme = useTheme()
+  const action = actionCreator()
+  const [dragOver, setDragOver] = useState<boolean>(false)
+
+  if (trial.state !== "Running" && trial.state !== "Waiting") {
+    return null
+  }
+  const inputRef = useRef<HTMLInputElement>(null)
+  const handleClick: MouseEventHandler = () => {
+    if (!inputRef || !inputRef.current) {
+      return
+    }
+    inputRef.current.click()
+  }
+  const handleOnChange: ChangeEventHandler<HTMLInputElement> = (e) => {
+    const files = e.target.files
+    if (files === null) {
+      return
+    }
+    action.uploadArtifact(trial.study_id, trial.trial_id, files[0])
+  }
+  const handleDrop: DragEventHandler = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    const files = e.dataTransfer.files
+    setDragOver(false)
+    for (let i = 0; i < files.length; i++) {
+      action.uploadArtifact(trial.study_id, trial.trial_id, files[i])
+    }
+  }
+  const handleDragOver: DragEventHandler = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "copy"
+    setDragOver(true)
+  }
+  const handleDragLeave: DragEventHandler = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "copy"
+    setDragOver(false)
+  }
+  return (
+    <Card
+      sx={{
+        marginBottom: theme.spacing(2),
+        width: width,
+        minHeight: height,
+        margin: theme.spacing(0, 1, 1, 0),
+        border: dragOver
+          ? `3px dashed ${theme.palette.mode === "dark" ? "white" : "black"}`
+          : `1px solid ${theme.palette.divider}`,
+      }}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      <CardActionArea
+        onClick={handleClick}
+        sx={{
+          height: "100%",
+        }}
+      >
+        <CardContent
+          sx={{
+            display: "flex",
+            height: "100%",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <UploadFileIcon
+            sx={{ fontSize: 80, marginBottom: theme.spacing(2) }}
+          />
+          <input
+            type="file"
+            ref={inputRef}
+            onChange={handleOnChange}
+            style={{ display: "none" }}
+          />
+          <Typography>Upload a New File</Typography>
+          <Typography
+            sx={{ textAlign: "center", color: theme.palette.grey.A400 }}
+          >
+            Drag your file here or click to browse.
+          </Typography>
+        </CardContent>
+      </CardActionArea>
+    </Card>
   )
 }
