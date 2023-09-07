@@ -42,6 +42,8 @@ const PreferentialTrial: FC<{
     )
   }
 
+  const isBestTrial = trial.state === "Complete"
+
   return (
     <Card
       sx={{
@@ -159,7 +161,7 @@ const PreferentialTrial: FC<{
           >
             <TrialListDetail
               trial={trial}
-              isBestTrial={() => true}
+              isBestTrial={() => isBestTrial}
               directions={[]}
               objectiveNames={[]}
             />
