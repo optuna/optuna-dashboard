@@ -65,22 +65,22 @@ def test_update_plotly_graph_object() -> None:
 @pytest.mark.parametrize(
     "name",
     [
+        "0",
         "a",
         "a1-:_.",
     ],
 )
-def test_is_valid_html_name(name):
-    assert custom_plot_data.is_valid_html_name(name)
+def test_is_valid_graph_object_id(name: str) -> None:
+    assert custom_plot_data.is_valid_graph_object_id(name)
 
 
 @pytest.mark.parametrize(
     "name",
     [
-        "0",
         "a,",
         "a b",
         "aあいうえお",
     ],
 )
-def test_is_invalid_html_name(name):
-    assert not custom_plot_data.is_valid_html_name(name)
+def test_is_invalid_graph_object_id(name: str) -> None:
+    assert not custom_plot_data.is_valid_graph_object_id(name)
