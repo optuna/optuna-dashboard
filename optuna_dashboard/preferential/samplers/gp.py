@@ -342,7 +342,7 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
             if len(search_space) == 0:
                 return {}
 
-            preferences = get_preferences(study._study_id, study._storage)
+            preferences = get_preferences(study.system_attrs)
             trials = study.get_trials(deepcopy=False)
             if len(preferences) == 0:
                 return {}

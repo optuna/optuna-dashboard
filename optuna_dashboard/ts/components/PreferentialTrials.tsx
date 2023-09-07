@@ -42,6 +42,8 @@ const PreferentialTrial: FC<{
     )
   }
 
+  const isBestTrial = trial.state === "Complete"
+
   return (
     <Card
       sx={{
@@ -159,7 +161,7 @@ const PreferentialTrial: FC<{
           >
             <TrialListDetail
               trial={trial}
-              isBestTrial={() => true}
+              isBestTrial={() => isBestTrial}
               directions={[]}
               objectiveNames={[]}
             />
@@ -182,11 +184,15 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
     return null
   }
   const theme = useTheme()
+
+  const runningTrials = studyDetail.trials.filter((t) => t.state === "Running")
+  const activeTrials = runningTrials.concat(studyDetail.best_trials)
+
   const [displayTrials, setDisplayTrials] = useState<DisplayTrials>({
-    numbers: studyDetail.best_trials.map((t) => t.number),
-    last_number: Math.max(...studyDetail.best_trials.map((t) => t.number), -1),
+    numbers: activeTrials.map((t) => t.number),
+    last_number: Math.max(...activeTrials.map((t) => t.number), -1),
   })
-  const new_trails = studyDetail.best_trials.filter(
+  const new_trails = activeTrials.filter(
     (t) =>
       displayTrials.last_number < t.number &&
       displayTrials.numbers.find((n) => n === t.number) === undefined
@@ -239,7 +245,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
         {displayTrials.numbers.map((t, index) => (
           <PreferentialTrial
             key={index}
-            trial={studyDetail.best_trials.find((trial) => trial.number === t)}
+            trial={activeTrials.find((trial) => trial.number === t)}
             candidates={displayTrials.numbers.filter((n) => n !== -1)}
             hideTrial={() => {
               hideTrial(t)
