@@ -276,16 +276,11 @@ class PreferentialStudy:
         study_system_attrs = self._study._storage.get_study_system_attrs(
             self._study._study_id
         )  # Must come before _study.get_trials()
-        trials = self._study.get_trials(deepcopy=False)
-
-        all_trial_ids = {t._trial_id for t in trials}
-        bad_trial_ids = {
-            trials[worse]._trial_id for (_, worse) in get_preferences(study_system_attrs)
-        }
+        trials = self._study.get_trials(deepcopy=False, states=(TrialState.COMPLETE, TrialState.RUNNING))
+        worse_trial_numbers = {worse for _, worse in get_preferences(study_system_attrs)}
         skipped_trial_ids = set(get_skipped_trial_ids(study_system_attrs))
-
-        active_trial_ids = all_trial_ids - bad_trial_ids - skipped_trial_ids
-        return len(active_trial_ids) < get_n_generate(self._study.system_attrs)
+        active_trials = [t for t in trials if t.number not in worse_trial_number and t._trial_id not in skipped_trial_ids]
+        return len(active_trials) < get_n_generate(self._study.system_attrs)
 
 
 def get_best_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list[FrozenTrial]:
