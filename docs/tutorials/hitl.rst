@@ -5,7 +5,7 @@ Tutorial: Human-in-the-loop Optimization
 
 In tasks involving image generation, natural language, or speech synthesis, evaluating results mechanically can be tough, and human evaluation becomes crucial. Until now, managing such tasks with Optuna has been challenging. However, the introduction of Optuna Dashboard enables humans and optimization algorithms to work interactively and execute the optimization process.
 
-In this tutorial, we will explain how to optimize hyperparameters to generate a simple image  using Optuna Dashboard. While the tutorial focuses on a simple task, the same approach can be applied to for instance optimize more complex images, natural language, and speech.
+In this tutorial, we will explain how to optimize hyperparameters to generate a simple image using Optuna Dashboard. While the tutorial focuses on a simple task, the same approach can be applied to for instance optimize more complex images, natural language, and speech.
 
 The tutorial is organized as follows:
 
@@ -93,7 +93,7 @@ Given the above system, we carry out HITL optimization as follows:
 Environment setup
 ^^^^^^^^^^^^^^^^^
 
-To run `the script <https://github.com/optuna/optuna-dashboard/blob/main/examples/hitl/main.py>`_ used in this tutorial, you need to install two libraries:
+To run `the script <https://github.com/optuna/optuna-dashboard/blob/main/examples/hitl/main.py>`_ used in this tutorial, you need to install following libraries:
 
 .. code-block:: console
 
