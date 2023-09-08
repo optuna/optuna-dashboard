@@ -10,6 +10,7 @@ import {
   SelectChangeEvent,
   useTheme,
   Box,
+  Switch,
 } from "@mui/material"
 import blue from "@mui/material/colors/blue"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
@@ -43,6 +44,8 @@ export const Contour: FC<{
   const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
   const [xParam, setXParam] = useState<SearchSpaceItem | null>(null)
   const [yParam, setYParam] = useState<SearchSpaceItem | null>(null)
+  const [logXScale, setLogXScale] = useState<boolean>(false)
+  const [logYScale, setLogYScale] = useState<boolean>(false)
   const objectiveNames: string[] = study?.objective_names || []
 
   if (xParam === null && searchSpace.length > 0) {
@@ -64,11 +67,34 @@ export const Contour: FC<{
     setYParam(param || null)
   }
 
+  const handleLogXScaleChange = () => {
+    setLogXScale(!logXScale)
+  }
+  const handleLogYScaleChange = () => {
+    setLogYScale(!logYScale)
+  }
+
   useEffect(() => {
     if (study != null) {
-      plotContour(study, objectiveId, xParam, yParam, theme.palette.mode)
+      plotContour(
+        study,
+        objectiveId,
+        xParam,
+        yParam,
+        logXScale,
+        logYScale,
+        theme.palette.mode
+      )
     }
-  }, [study, objectiveId, xParam, yParam, theme.palette.mode])
+  }, [
+    study,
+    objectiveId,
+    xParam,
+    yParam,
+    logXScale,
+    logYScale,
+    theme.palette.mode,
+  ])
 
   const space: SearchSpaceItem[] = study ? study.union_search_space : []
 
@@ -113,6 +139,14 @@ export const Contour: FC<{
                 ))}
               </Select>
             </FormControl>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Log x scale:</FormLabel>
+              <Switch
+                checked={logXScale}
+                onChange={handleLogXScaleChange}
+                value="enable"
+              />
+            </FormControl>
             <FormControl component="fieldset" fullWidth>
               <FormLabel component="legend">y:</FormLabel>
               <Select value={yParam?.name || ""} onChange={handleYParamChange}>
@@ -122,6 +156,14 @@ export const Contour: FC<{
                   </MenuItem>
                 ))}
               </Select>
+            </FormControl>
+            <FormControl component="fieldset">
+              <FormLabel component="legend">Log y scale:</FormLabel>
+              <Switch
+                checked={logYScale}
+                onChange={handleLogYScaleChange}
+                value="enable"
+              />
             </FormControl>
           </Grid>
         ) : null}
@@ -147,6 +189,8 @@ const plotContour = (
   objectiveId: number,
   xParam: SearchSpaceItem | null,
   yParam: SearchSpaceItem | null,
+  logXScale: boolean,
+  logYScale: boolean,
   mode: string
 ) => {
   if (document.getElementById(plotDomId) === null) {
@@ -170,11 +214,11 @@ const plotContour = (
   const layout: Partial<plotly.Layout> = {
     xaxis: {
       title: xParam.name,
-      type: xAxis.isCat ? "category" : undefined,
+      type: xAxis.isCat ? "category" : logXScale ? "log" : "linear",
     },
     yaxis: {
       title: yParam.name,
-      type: yAxis.isCat ? "category" : undefined,
+      type: yAxis.isCat ? "category" : logYScale ? "log" : "linear",
     },
     margin: {
       l: 50,
