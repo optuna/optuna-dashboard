@@ -187,7 +187,7 @@ def serialize_preference_history(
                 "timestamp": choice["timestamp"],
                 "candidates": choice["candidates"],
                 "clicked": choice["clicked"],
-                "enabled": is_preference_valid(choice["preference_id"]),
+                "enabled": is_preference_valid(system_attrs, choice["preference_id"]),
             }
             histories.append(history)
 

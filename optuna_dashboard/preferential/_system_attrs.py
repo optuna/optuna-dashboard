@@ -47,7 +47,7 @@ def get_preferences(study_system_attrs: dict[str, Any]) -> list[tuple[int, int]]
 def is_preference_valid(study_system_attrs: dict[str, Any], uuid: str) -> bool:
     key = _SYSTEM_ATTR_PREFIX_PREFERENCE + uuid
     preference = study_system_attrs.get(key, [])
-    return len(preference) == 0
+    return len(preference) > 0
 
 
 def report_skip(

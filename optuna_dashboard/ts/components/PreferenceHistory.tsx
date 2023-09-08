@@ -9,9 +9,9 @@ import {
 } from "@mui/material"
 import ClearIcon from "@mui/icons-material/Clear"
 import IconButton from "@mui/material/IconButton"
-import UndoIcon from "@mui/icons-material/Undo"
-import RedoIcon from "@mui/icons-material/Redo"
 import OpenInFullIcon from "@mui/icons-material/OpenInFull"
+import RestoreFromTrashIcon from "@mui/icons-material/RestoreFromTrash"
+import DeleteIcon from "@mui/icons-material/Delete"
 import Modal from "@mui/material/Modal"
 import { red } from "@mui/material/colors"
 
@@ -142,14 +142,13 @@ const ChoiceTrials: FC<{
   trials: Trial[]
   study_id: number
 }> = ({ choice, trials, study_id }) => {
+  const [enabled, setEnabled] = useState(choice.enabled)
   const theme = useTheme()
   const worst_trials = new Set([choice.clicked])
   const actions = actionCreator()
-  const handleUndo = () => {
-    actions.switchPreferentialHistory(study_id, choice.id, false)
-  }
-  const handleRedo = () => {
-    actions.switchPreferentialHistory(study_id, choice.id, true)
+  const handleSwitch = () => {
+    setEnabled(!enabled)
+    actions.switchPreferentialHistory(study_id, choice.id, !enabled)
   }
 
   return (
@@ -158,14 +157,32 @@ const ChoiceTrials: FC<{
         marginBottom: theme.spacing(4),
       }}
     >
-      <Typography
-        variant="h6"
+      <Box
         sx={{
-          fontWeight: theme.typography.fontWeightLight,
+          display: "flex",
+          flexDirection: "row",
+          flexWrap: "wrap",
         }}
       >
-        {formatDate(choice.timestamp)}
-      </Typography>
+        <Typography
+          variant="h6"
+          sx={{
+            fontWeight: theme.typography.fontWeightLight,
+            margin: "auto 0",
+          }}
+        >
+          {formatDate(choice.timestamp)}
+        </Typography>
+        <IconButton
+          disabled={choice.enabled !== enabled}
+          onClick={handleSwitch}
+          sx={{
+            margin: `auto ${theme.spacing(2)}`,
+          }}
+        >
+          {enabled ? <DeleteIcon /> : <RestoreFromTrashIcon />}
+        </IconButton>
+      </Box>
       <Box
         sx={{
           display: "flex",

@@ -8,7 +8,7 @@ from optuna import get_all_study_summaries
 from optuna.study import StudyDirection
 from optuna_dashboard._app import create_app
 from optuna_dashboard._app import create_new_study
-from optuna_dashboard._preferential_history import serialize_preference_histories
+from optuna_dashboard._serializer import serialize_preference_history
 from optuna_dashboard.preferential import create_study
 
 from .wsgi_client import send_request
@@ -206,10 +206,9 @@ class APITestCase(TestCase):
 
     def test_undo_redo_history(self) -> None:
         storage = optuna.storages.InMemoryStorage()
-        study = create_study(storage=storage)
+        study = create_study(storage=storage, n_generate=3)
         for _ in range(3):
-            trial = study.ask()
-            study.mark_comparison_ready(trial)
+            study.ask()
 
         app = create_app(storage)
         study_id = study._study._study_id
@@ -227,14 +226,14 @@ class APITestCase(TestCase):
             content_type="application/json",
         )
         self.assertEqual(status, 204)
-        histories = serialize_preference_histories(storage.get_study_system_attrs(study_id))
+        histories = serialize_preference_history(storage.get_study_system_attrs(study_id))
         assert len(histories) == 1
         assert histories[0]["enabled"]
 
-        history_uuid = histories[0]["uuid"]
+        history_id = histories[0]["id"]
         status, _, _ = send_request(
             app,
-            f"/api/studies/{study_id}/preference/{history_uuid}",
+            f"/api/studies/{study_id}/preference/{history_id}",
             "PUT",
             body=json.dumps(
                 {
@@ -244,14 +243,14 @@ class APITestCase(TestCase):
             content_type="application/json",
         )
         self.assertEqual(status, 204)
-        histories = serialize_preference_histories(storage.get_study_system_attrs(study_id))
+        histories = serialize_preference_history(storage.get_study_system_attrs(study_id))
         assert len(histories) == 1
         assert not histories[0]["enabled"]
         assert len(study.get_preferences()) == 0
 
         status, _, _ = send_request(
             app,
-            f"/api/studies/{study_id}/preference/{history_uuid}",
+            f"/api/studies/{study_id}/preference/{history_id}",
             "PUT",
             body=json.dumps(
                 {
@@ -261,7 +260,7 @@ class APITestCase(TestCase):
             content_type="application/json",
         )
         self.assertEqual(status, 204)
-        histories = serialize_preference_histories(storage.get_study_system_attrs(study_id))
+        histories = serialize_preference_history(storage.get_study_system_attrs(study_id))
         assert len(histories) == 1
         assert histories[0]["enabled"]
         preferences = study.get_preferences()
