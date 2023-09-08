@@ -25,9 +25,6 @@ if TYPE_CHECKING:
     from typing import Literal
     from typing import TypedDict
 
-    from ._preferential_history import ChooseWorstHistory
-    from ._preferential_history import History
-
     Attribute = TypedDict(
         "Attribute",
         {
