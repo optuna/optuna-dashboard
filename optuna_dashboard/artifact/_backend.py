@@ -166,7 +166,7 @@ def register_artifact_route(
 
 def upload_artifact(
     backend: ArtifactBackend,
-    study_or_trial: optuna.Trial | optuna.Study,
+    trial: optuna.Trial,
     file_path: str,
     *,
     mimetype: Optional[str] = None,
@@ -202,6 +202,8 @@ def upload_artifact(
     )
 
     filename = os.path.basename(file_path)
+    storage = trial.storage
+    trial_id = trial._trial_id
     artifact_id = str(uuid.uuid4())
     guess_mimetype, guess_encoding = mimetypes.guess_type(filename)
     artifact: ArtifactMeta = {
@@ -211,15 +213,7 @@ def upload_artifact(
         "filename": filename,
     }
     attr_key = ARTIFACTS_ATTR_PREFIX + artifact_id
-
-    if isinstance(study_or_trial, optuna.Study):
-        storage = study_or_trial._storage
-        study_id = study_or_trial._study_id
-        storage.set_study_system_attr(study_id, attr_key, json.dumps(artifact))
-    else:
-        storage = study_or_trial.storage
-        trial_id = study_or_trial._trial_id
-        storage.set_trial_system_attr(trial_id, attr_key, json.dumps(artifact))
+    storage.set_trial_system_attr(trial_id, attr_key, json.dumps(artifact))
 
     with open(file_path, "rb") as f:
         backend.write(artifact_id, f)
