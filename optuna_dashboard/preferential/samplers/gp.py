@@ -318,7 +318,7 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
         trials = study.get_trials(deepcopy=False)
         trials_with_preference = list({t for (b, w) in preferences for t in (b, w)})
         ids = {t: i for i, t in enumerate(trials_with_preference)}
-        
+
         trans = optuna._transform._SearchSpaceTransform(
             search_space, transform_log=True, transform_step=True, transform_0_1=True
         )
