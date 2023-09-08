@@ -248,8 +248,6 @@ class _PreferentialGP:
 
     def sample_gp(self, x: Tensor, preferences: Tensor) -> _SampledGP:
         self.fit_params_EP(x, preferences)
-        print({name: p.exp() for name, p in self.kernel.named_parameters()})
-        print({"noise": self.log_noise.exp()})
 
         with torch.no_grad():
             cov_diff_diff_inv = _compute_cov_diff_diff_inv(
