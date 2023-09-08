@@ -71,7 +71,7 @@ def test_undo_redo_history(storage_supplier: Callable[[], StorageSupplier]) -> N
 
         study_id = study._study._study_id
 
-        def get_preferences_history(history_id: str):
+        def get_preferences_history(history_id: str) -> tuple[list[tuple[int, int]], History]:
             system_attrs = storage.get_study_system_attrs(study_id)
             history: History = json.loads(
                 system_attrs.get(_SYSTEM_ATTR_PREFIX_HISTORY + history_id, "")
