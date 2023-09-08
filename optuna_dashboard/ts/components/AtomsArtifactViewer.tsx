@@ -1,8 +1,8 @@
 import React, { useEffect } from "react"
 import { Stage } from "ngl"
-import { v4 as uuidv4 } from "uuid"
 
 interface AtomsArtifactViewerProps {
+  artifact_id: string
   src: string
   width: string
   height: string
@@ -12,11 +12,9 @@ interface AtomsArtifactViewerProps {
 export const AtomsArtifactViewer: React.FC<AtomsArtifactViewerProps> = (
   props
 ) => {
-  const viewport_id = uuidv4()
+  const viewport_id = "viewport_" + props.artifact_id
   useEffect(() => {
     const stage = new Stage(viewport_id, { backgroundColor: "white" })
-
-    // read the content of props.src
     const reader = new FileReader()
     reader.onload = function (e) {
       const data = e.target?.result

@@ -668,6 +668,7 @@ const TrialArtifact: FC<{ trial: Trial }> = ({ trial }) => {
                   }}
                 >
                   <AtomsArtifactViewer
+                    artifact_id={a.artifact_id}
                     src={`/artifacts/${trial.study_id}/${trial.trial_id}/${a.artifact_id}`}
                     width={width}
                     height={height}
