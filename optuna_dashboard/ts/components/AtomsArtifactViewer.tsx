@@ -2,7 +2,7 @@ import React, { useEffect } from "react"
 import { Stage } from "ngl"
 
 interface AtomsArtifactViewerProps {
-  artifact_id: string
+  artifactId: string
   src: string
   width: string
   height: string
@@ -12,9 +12,9 @@ interface AtomsArtifactViewerProps {
 export const AtomsArtifactViewer: React.FC<AtomsArtifactViewerProps> = (
   props
 ) => {
-  const viewport_id = "viewport_" + props.artifact_id
+  const viewportId = "viewport_" + props.artifactId
   useEffect(() => {
-    const stage = new Stage(viewport_id, { backgroundColor: "white" })
+    const stage = new Stage(viewportId, { backgroundColor: "white" })
     const reader = new FileReader()
     reader.onload = function (e) {
       const data = e.target?.result
@@ -34,7 +34,7 @@ export const AtomsArtifactViewer: React.FC<AtomsArtifactViewerProps> = (
   }, [])
   return (
     <div
-      id={viewport_id}
+      id={viewportId}
       style={{ width: props.width, height: props.height }}
     ></div>
   )
