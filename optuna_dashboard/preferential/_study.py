@@ -12,14 +12,16 @@ from optuna.samplers import BaseSampler
 from optuna.samplers import RandomSampler
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
+from optuna_dashboard.preferential._system_attrs import get_n_generate
 from optuna_dashboard.preferential._system_attrs import get_preferences
+from optuna_dashboard.preferential._system_attrs import get_skipped_trial_ids
 from optuna_dashboard.preferential._system_attrs import is_skipped_trial
 from optuna_dashboard.preferential._system_attrs import report_preferences
+from optuna_dashboard.preferential._system_attrs import set_n_generate
 
 
 _logger = logging.get_logger(__name__)
 _SYSTEM_ATTR_PREFERENTIAL_STUDY = "preference:is_preferential"
-_SYSTEM_ATTR_COMPARISON_READY = "preference:comparison_ready"
 
 
 class PreferentialStudy:
@@ -59,13 +61,6 @@ class PreferentialStudy:
     @property
     def best_trials(self) -> list[FrozenTrial]:
         """Return the trials that is not dominated by other trials.
-
-        .. seealso::
-
-            See `Study.best_trials`_ for details.
-
-            .. _Study.best_trials: https://optuna.readthedocs.io/en/stable/reference/\
-            generated/optuna.study.Study.html#optuna.study.Study.best_trials
 
         Returns:
             A list of FrozenTrial object
@@ -180,6 +175,38 @@ class PreferentialStudy:
         """
         self._study.add_trials(trials)
 
+    def enqueue_trial(
+        self,
+        params: dict[str, Any],
+        user_attrs: dict[str, Any] | None = None,
+        skip_if_exists: bool = False,
+    ) -> None:
+        """Enqueue a trial with given parameter values.
+
+        You can fix the next sampling parameters which will be evaluated in your
+        objective function.
+
+        .. seealso::
+
+            See `Study.enqueue_trials`_ for details.
+
+            .. _Study.get_trials: https://optuna.readthedocs.io/en/stable/reference/\
+            generated/optuna.study.Study.html#optuna.study.Study.enqueue_trials
+
+        Args:
+            params:
+                Parameter values to pass your objective function.
+            user_attrs:
+                A dictionary of user-specific attributes other than ``params``.
+            skip_if_exists:
+                When :obj:`True`, prevents duplicate trials from being enqueued again.
+
+                .. note::
+                    This method might produce duplicated trials if called simultaneously
+                    by multiple processes at the same time with same ``params`` dict.
+        """
+        self._study.enqueue_trial(params, user_attrs, skip_if_exists)
+
     def report_preference(
         self,
         better_trials: FrozenTrial | list[FrozenTrial],
@@ -217,8 +244,11 @@ class PreferentialStudy:
         Returns:
             A list of the pair of FrozenTrial objects. The left trial is better than the right one.
         """
+
+        preferences = get_preferences(
+            self._study._storage.get_study_system_attrs(self._study._study_id)
+        )  # Must come before study.get_trials()
         trials = self._study.get_trials(deepcopy=deepcopy)
-        preferences = get_preferences(self._study._study_id, self._study._storage)
         return [(trials[better], trials[worse]) for (better, worse) in preferences]
 
     def set_user_attr(self, key: str, value: Any) -> None:
@@ -235,37 +265,41 @@ class PreferentialStudy:
         """
         self._study.set_user_attr(key, value)
 
-    def mark_comparison_ready(self, trial_or_number: optuna.Trial | int) -> None:
-        """Mark trials ready to compare.
+    def should_generate(self) -> bool:
+        """Return whether the generator should generate a new trial now.
 
-        Args:
-            trial_or_number:
-                A Trial object or trial_number.
+        Returns :obj:`True` if the number of trials not reported bad and not skipped are less than
+        :attr:`~optuna_dashboard.preferential.PreferentialStudy.n_generate`. Users are recommended
+        to generate a new trial if this method returns :obj:`True`, and to wait for human
+        evaluation if this method returns :obj:`False`.
         """
-        storage = self._study._storage
-        if isinstance(trial_or_number, optuna.Trial):
-            trial_id = trial_or_number._trial_id
-        elif isinstance(trial_or_number, int):
-            trial_id = storage.get_trial_id_from_study_id_trial_number(
-                self._study._study_id, trial_or_number
-            )
-        else:
-            raise RuntimeError("Unexpected trial type")
-        storage.set_trial_system_attr(trial_id, _SYSTEM_ATTR_COMPARISON_READY, True)
+        study_system_attrs = self._study._storage.get_study_system_attrs(
+            self._study._study_id
+        )  # Must come before _study.get_trials()
+        trials = self._study.get_trials(
+            deepcopy=False, states=(TrialState.COMPLETE, TrialState.RUNNING)
+        )
+        worse_trial_numbers = {worse for _, worse in get_preferences(study_system_attrs)}
+        skipped_trial_ids = set(get_skipped_trial_ids(study_system_attrs))
+        active_trials = [
+            t
+            for t in trials
+            if t.number not in worse_trial_numbers and t._trial_id not in skipped_trial_ids
+        ]
+        return len(active_trials) < get_n_generate(self._study.system_attrs)
 
 
 def get_best_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list[FrozenTrial]:
-    preferences = get_preferences(study_id, storage)
+    preferences = get_preferences(storage.get_study_system_attrs(study_id))
     worse_numbers = {worse for _, worse in preferences}
+    nondominated_numbers = {better for better, _ in preferences if better not in worse_numbers}
+    trials = storage.get_all_trials(study_id, deepcopy=False)
+
     study_system_attrs = storage.get_study_system_attrs(study_id)
+
     best_trials = []
-    for t in storage.get_all_trials(
-        study_id, deepcopy=False, states=(TrialState.COMPLETE, TrialState.RUNNING)
-    ):
-        if not t.system_attrs.get(_SYSTEM_ATTR_COMPARISON_READY, False):
-            continue
-        if t.number in worse_numbers:
-            continue
+    for n in nondominated_numbers:
+        t = trials[n]
         if is_skipped_trial(t._trial_id, study_system_attrs):
             continue
         best_trials.append(copy.deepcopy(t))
@@ -274,6 +308,7 @@ def get_best_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list
 
 def create_study(
     *,
+    n_generate: int,
     storage: str | optuna.storages.BaseStorage | None = None,
     sampler: BaseSampler | None = None,
     study_name: str | None = None,
@@ -293,6 +328,12 @@ def create_study(
             trial = study.ask()
 
     Args:
+        n_generate:
+            The number of active trials to keep.
+            :func:`~optuna_dashboard.preferential.PreferentialStudy.should_generate` returns
+            :obj:`True` if the number of trials not reported bad and not skipped are less than
+            ``n_generate``.
+
         storage:
             Database URL. If this argument is set to None, in-memory storage is used, and the
             :class:`~optuna_dashboard.preferential.PreferentialStudy` will not be persistent.
@@ -328,6 +369,7 @@ def create_study(
         study._storage.set_study_system_attr(
             study._study_id, _SYSTEM_ATTR_PREFERENTIAL_STUDY, True
         )
+        set_n_generate(study._study_id, study._storage, n_generate)
         return PreferentialStudy(study)
 
     except optuna.exceptions.DuplicatedStudyError:

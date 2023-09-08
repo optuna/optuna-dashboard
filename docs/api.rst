@@ -14,6 +14,7 @@ General APIs
    optuna_dashboard.wsgi
    optuna_dashboard.set_objective_names
    optuna_dashboard.save_note
+   optuna_dashboard.save_plotly_graph_object
 
 Human-in-the-loop
 -----------------

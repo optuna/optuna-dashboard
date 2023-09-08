@@ -24,12 +24,12 @@ def test_serialize_dict() -> None:
 
 def test_get_study_detail_is_preferential() -> None:
     storage = optuna.storages.InMemoryStorage()
-    study = create_study(storage=storage)
+    study = create_study(n_generate=4, storage=storage)
     study_summaries = get_study_summaries(storage)
     assert len(study_summaries) == 1
 
     study_summary = study_summaries[0]
-    study_detail = serialize_study_detail(study_summary, [], study.trials, [], [], [], False)
+    study_detail = serialize_study_detail(study_summary, [], study.trials, [], [], [], False, {})
     assert study_detail["is_preferential"]
 
 
@@ -40,13 +40,13 @@ def test_get_study_detail_is_not_preferential() -> None:
     assert len(study_summaries) == 1
 
     study_summary = study_summaries[0]
-    study_detail = serialize_study_detail(study_summary, [], study.trials, [], [], [], False)
+    study_detail = serialize_study_detail(study_summary, [], study.trials, [], [], [], False, {})
     assert not study_detail["is_preferential"]
 
 
 def test_get_study_summary_is_preferential() -> None:
     storage = optuna.storages.InMemoryStorage()
-    create_study(storage=storage)
+    create_study(n_generate=4, storage=storage)
     study_summaries = get_study_summaries(storage)
     assert len(study_summaries) == 1
 
