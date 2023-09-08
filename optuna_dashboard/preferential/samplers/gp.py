@@ -25,7 +25,7 @@ def _orthants_MVN_Gibbs_sampling(cov_inv: Tensor, cycles: int, initial_sample: T
     assert cov_inv.shape == (dim, dim)
 
     sample_chain = initial_sample
-    conditional_std = 1 / torch.sqrt(torch.diag(cov_inv))
+    conditional_std = torch.rsqrt(torch.diag(cov_inv))
     scaled_cov_inv = cov_inv / torch.diag(cov_inv)[:, None]
 
     out = torch.empty((cycles + 1, dim), dtype=torch.float64)
@@ -150,7 +150,7 @@ def _truncnorm_mean_var_logz(alpha: Tensor) -> tuple[Tensor, Tensor, Tensor]:
     logz = torch.special.log_ndtr(-alpha)
     mean = 1 / (SQRT_HALF_PI * torch.special.erfcx(alpha * SQRT_HALF))
     var = 1 - mean * (mean - alpha)
-    return (mean, var, logz)
+    return mean, var, logz
 
 
 def _orthants_MVN_EP(
@@ -194,7 +194,7 @@ def _orthants_MVN_EP(
             mu = mu - Sxy * ((db + mean1 * da) * dr)
             cov = cov - (Sxy[:, None] * (da * dr)) @ Sxy[None, :]
             log_zs[i] = logz
-    return (mu, cov, torch.sum(log_zs))
+    return mu, cov, torch.sum(log_zs)
 
 
 _orthants_MVN_EP_jit = torch.jit.script(_orthants_MVN_EP)
