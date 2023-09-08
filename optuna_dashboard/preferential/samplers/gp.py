@@ -25,7 +25,7 @@ def _orthants_MVN_Gibbs_sampling(cov_inv: Tensor, cycles: int, initial_sample: T
     assert cov_inv.shape == (dim, dim)
 
     sample_chain = initial_sample
-    conditional_std = 1 / torch.sqrt(torch.diag(cov_inv))
+    conditional_std = torch.rsqrt(torch.diag(cov_inv))
     scaled_cov_inv = cov_inv / torch.diag(cov_inv)[:, None]
 
     out = torch.empty((cycles + 1, dim), dtype=torch.float64)
