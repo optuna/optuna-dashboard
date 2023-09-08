@@ -194,7 +194,7 @@ def _orthants_MVN_EP(
             mu = mu - Sxy * ((db + mean1 * da) * dr)
             cov = cov - (Sxy[:, None] * (da * dr)) @ Sxy[None, :]
             log_zs[i] = logz
-    return (mu, cov, torch.sum(log_zs))
+    return mu, cov, torch.sum(log_zs)
 
 
 _orthants_MVN_EP_jit = torch.jit.script(_orthants_MVN_EP)
