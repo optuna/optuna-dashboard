@@ -13,10 +13,11 @@ import UndoIcon from "@mui/icons-material/Undo"
 import RedoIcon from "@mui/icons-material/Redo"
 import OpenInFullIcon from "@mui/icons-material/OpenInFull"
 import Modal from "@mui/material/Modal"
+import { red } from "@mui/material/colors"
 
 import { TrialListDetail } from "./TrialList"
 import { MarkdownRenderer } from "./Note"
-import { red } from "@mui/material/colors"
+import { formatDate } from "../dateUtil"
 import { actionCreator } from "../action"
 
 type TrialType = "worst" | "none"
@@ -26,7 +27,7 @@ const CandidateTrial: FC<{
   type: TrialType
 }> = ({ trial, type }) => {
   const theme = useTheme()
-  const trialWidth = 500
+  const trialWidth = 300
   const trialHeight = 300
   const [detailShown, setDetailShown] = useState(false)
 
@@ -137,7 +138,7 @@ const CandidateTrial: FC<{
 }
 
 const ChoiceTrials: FC<{
-  choice: PreferenceChoice
+  choice: PreferenceHistory
   trials: Trial[]
   study_id: number
 }> = ({ choice, trials, study_id }) => {
@@ -145,47 +146,31 @@ const ChoiceTrials: FC<{
   const worst_trials = new Set([choice.clicked])
   const actions = actionCreator()
   const handleUndo = () => {
-    actions.switchPreferentialHistory(study_id, choice.uuid, false)
+    actions.switchPreferentialHistory(study_id, choice.id, false)
   }
   const handleRedo = () => {
-    actions.switchPreferentialHistory(study_id, choice.uuid, true)
+    actions.switchPreferentialHistory(study_id, choice.id, true)
   }
 
   return (
-    <Box>
-      <Box
+    <Box
+      sx={{
+        marginBottom: theme.spacing(4),
+      }}
+    >
+      <Typography
+        variant="h6"
         sx={{
-          display: "flex",
-          flexDirection: "row",
+          fontWeight: theme.typography.fontWeightLight,
         }}
       >
-        <Typography
-          variant="h6"
-          sx={{
-            marginTop: "auto",
-            marginBottom: "auto",
-            fontWeight: theme.typography.fontWeightLight,
-          }}
-        >
-          {choice.timestamp.toLocaleString()}
-        </Typography>
-        <IconButton
-          disabled={!choice.enabled}
-          onClick={handleUndo}
-          sx={{
-            marginLeft: theme.spacing(2),
-          }}
-        >
-          <UndoIcon />
-        </IconButton>
-        <IconButton disabled={choice.enabled} onClick={handleRedo}>
-          <RedoIcon />
-        </IconButton>
-      </Box>
+        {formatDate(choice.timestamp)}
+      </Typography>
       <Box
         sx={{
           display: "flex",
           flexDirection: "row",
+          flexWrap: "wrap",
         }}
       >
         {choice.candidates.map((trial_num, index) => (
@@ -211,8 +196,9 @@ export const PreferenceHistory: FC<{ studyDetail: StudyDetail | null }> = ({
     return null
   }
   const theme = useTheme()
+  const preference_histories = [...studyDetail.preference_history]
 
-  if (studyDetail.preference_history.length === 0) {
+  if (preference_histories.length === 0) {
     return (
       <Typography
         variant="h5"
@@ -231,9 +217,9 @@ export const PreferenceHistory: FC<{ studyDetail: StudyDetail | null }> = ({
       padding={theme.spacing(2)}
       sx={{ display: "flex", flexDirection: "column" }}
     >
-      {studyDetail.preference_history.map((choice) => (
+      {preference_histories.reverse().map((choice) => (
         <ChoiceTrials
-          key={choice.uuid}
+          key={choice.id}
           choice={choice}
           trials={studyDetail.trials}
           study_id={studyDetail.id}

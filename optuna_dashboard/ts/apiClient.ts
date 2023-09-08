@@ -55,8 +55,9 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
   }
 }
 
-interface PreferenceChoiceResponce {
-  uuid: string
+interface PreferenceHistoryResponce {
+  id: string
+  preference_id: string
   candidates: number[]
   clicked: number
   mode: PreferenceFeedbackMode
@@ -64,11 +65,12 @@ interface PreferenceChoiceResponce {
   enabled: boolean
 }
 
-const convertPreferenceChoice = (
-  res: PreferenceChoiceResponce
-): PreferenceChoice => {
+const convertPreferenceHistory = (
+  res: PreferenceHistoryResponce
+): PreferenceHistory => {
   return {
-    uuid: res.uuid,
+    id: res.id,
+    preference_id: res.preference_id,
     candidates: res.candidates,
     clicked: res.clicked,
     feedback_mode: res.mode,
@@ -92,7 +94,8 @@ interface StudyDetailResponse {
   is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
-  preference_history?: PreferenceChoiceResponce[]
+  preference_history?: PreferenceHistoryResponce[]
+  plotly_graph_objects: PlotlyGraphObject[]
 }
 
 export const getStudyDetailAPI = (
@@ -129,8 +132,9 @@ export const getStudyDetailAPI = (
         form_widgets: res.data.form_widgets,
         is_preferential: res.data.is_preferential,
         preference_history: res.data.preference_history?.map(
-          convertPreferenceChoice
+          convertPreferenceHistory
         ),
+        plotly_graph_objects: res.data.plotly_graph_objects,
       }
     })
 }

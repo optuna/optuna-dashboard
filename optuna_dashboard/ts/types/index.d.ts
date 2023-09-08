@@ -182,6 +182,11 @@ type FormWidgets =
       widgets: UserAttrFormWidget[]
     }
 
+type PlotlyGraphObject = {
+  id: string
+  graph_object: string
+}
+
 type StudyDetail = {
   id: number
   name: string
@@ -198,7 +203,8 @@ type StudyDetail = {
   is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
-  preference_history?: PreferenceChoice[]
+  preference_history?: PreferenceHistory[]
+  plotly_graph_objects: PlotlyGraphObject[]
 }
 
 type StudyDetails = {
@@ -209,8 +215,9 @@ type StudyParamImportance = {
   [study_id: string]: ParamImportance[][]
 }
 
-type PreferenceChoice = {
-  uuid: string
+type PreferenceHistory = {
+  id: string
+  preference_id: string
   candidates: number[]
   clicked: number
   feedback_mode: PreferenceFeedbackMode
