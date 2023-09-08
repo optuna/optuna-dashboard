@@ -145,16 +145,17 @@ const ChoiceTrials: FC<{
   const [enabled, setEnabled] = useState(choice.enabled)
   const theme = useTheme()
   const worst_trials = new Set([choice.clicked])
-  const actions = actionCreator()
+  const action = actionCreator()
   const handleSwitch = () => {
     setEnabled(!enabled)
-    actions.switchPreferentialHistory(study_id, choice.id, !enabled)
+    action.switchPreferentialHistory(study_id, choice.id, !enabled)
   }
 
   return (
     <Box
       sx={{
         marginBottom: theme.spacing(4),
+        position: "relative",
       }}
     >
       <Box
@@ -180,7 +181,7 @@ const ChoiceTrials: FC<{
             margin: `auto ${theme.spacing(2)}`,
           }}
         >
-          {enabled ? <DeleteIcon /> : <RestoreFromTrashIcon />}
+          {choice.enabled ? <DeleteIcon /> : <RestoreFromTrashIcon />}
         </IconButton>
       </Box>
       <Box
@@ -188,6 +189,7 @@ const ChoiceTrials: FC<{
           display: "flex",
           flexDirection: "row",
           flexWrap: "wrap",
+          filter: choice.enabled ? undefined : "brightness(0.4)",
         }}
       >
         {choice.candidates.map((trial_num, index) => (

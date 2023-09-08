@@ -14,6 +14,7 @@ import OpenInFullIcon from "@mui/icons-material/OpenInFull"
 import ReplayIcon from "@mui/icons-material/Replay"
 import Modal from "@mui/material/Modal"
 import { red } from "@mui/material/colors"
+import UndoIcon from "@mui/icons-material/Undo"
 
 import { actionCreator } from "../action"
 import { TrialListDetail } from "./TrialList"
@@ -180,10 +181,13 @@ type DisplayTrials = {
 export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
   studyDetail,
 }) => {
+  const [undoHistoryId, setUndoHistoryId] = useState<string | null>(null)
+
   if (studyDetail === null || !studyDetail.is_preferential) {
     return null
   }
   const theme = useTheme()
+  const action = actionCreator()
 
   const runningTrials = studyDetail.trials.filter((t) => t.state === "Running")
   const activeTrials = runningTrials.concat(studyDetail.best_trials)
@@ -229,18 +233,45 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
       }
     })
   }
+  const latestHistoryId = studyDetail?.preference_history
+    ?.filter((h) => h.enabled)
+    .pop()?.id
+  if (undoHistoryId !== null && undoHistoryId !== latestHistoryId) {
+    setUndoHistoryId(null)
+  }
 
   return (
     <Box padding={theme.spacing(2)}>
-      <Typography
-        variant="h4"
-        sx={{
-          marginBottom: theme.spacing(2),
-          fontWeight: theme.typography.fontWeightBold,
-        }}
-      >
-        Which trial is the worst?
-      </Typography>
+      <Box display="flex">
+        <Typography
+          variant="h4"
+          sx={{
+            marginBottom: theme.spacing(2),
+            fontWeight: theme.typography.fontWeightBold,
+          }}
+        >
+          Which trial is the worst?
+        </Typography>
+        <IconButton
+          disabled={latestHistoryId === undefined || undoHistoryId !== null}
+          onClick={() => {
+            if (latestHistoryId === undefined) {
+              return
+            }
+            setUndoHistoryId(latestHistoryId)
+            action.switchPreferentialHistory(
+              studyDetail.id,
+              latestHistoryId,
+              false
+            )
+          }}
+          sx={{
+            margin: "auto 0 auto auto",
+          }}
+        >
+          <UndoIcon />
+        </IconButton>
+      </Box>
       <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
         {displayTrials.numbers.map((t, index) => (
           <PreferentialTrial
