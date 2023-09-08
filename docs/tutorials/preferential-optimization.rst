@@ -10,7 +10,7 @@ Compared to the `human-in-the-loop optimization utilizing objective form widgets
 which relies on absolute evaluations, preferential optimization significantly reduces fluctuations in the evaluators' criteria,
 ensuring more consistent results.
 
-In this tutorial, we will interactively optimize RGB values between 0 and 255 to generate a color that resembles the "sunset hue", which is the same problem setting as `this tutorial <tutorial-hitl-objective-form-widgets>`.
+In this tutorial, we will interactively optimize RGB values between 0 and 255 to generate a color that resembles the "sunset hue", which is the same problem setting as `this tutorial <tutorial-hitl-objective-form-widgets>`_.
 Hence, familiarizing yourself with the tutorial on objective form widgets beforehand might offer a smoother understanding.
 
 How to Run Preferential Optimization
