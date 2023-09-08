@@ -7,6 +7,12 @@ import { Rhino3dmLoader } from "three/examples/jsm/loaders/3DMLoader"
 import { PerspectiveCamera } from "three"
 import { Modal, Box } from "@mui/material"
 
+export const isThreejsArtifact = (artifact: Artifact): boolean => {
+  return (
+    artifact.filename.endsWith(".stl") || artifact.filename.endsWith(".3dm")
+  )
+}
+
 interface ThreejsArtifactViewerProps {
   src: string
   width: string

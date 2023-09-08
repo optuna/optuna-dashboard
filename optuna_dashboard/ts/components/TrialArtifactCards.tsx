@@ -22,7 +22,10 @@ import FullscreenIcon from "@mui/icons-material/Fullscreen"
 
 import { actionCreator } from "../action"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
-import { useThreejsArtifactModal } from "./ThreejsArtifactViewer"
+import {
+  useThreejsArtifactModal,
+  isThreejsArtifact,
+} from "./ThreejsArtifactViewer"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
 
 export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
@@ -72,13 +75,16 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
                     p: theme.spacing(0.5, 0),
                     flexGrow: 1,
                     wordWrap: "break-word",
-                    maxWidth: `calc(100% - ${theme.spacing(8)})`,
+                    maxWidth: `calc(100% - ${
+                      isThreejsArtifact(artifact)
+                        ? theme.spacing(12)
+                        : theme.spacing(8)
+                    })`,
                   }}
                 >
                   {artifact.filename}
                 </Typography>
-                {artifact.filename.endsWith(".stl") ||
-                artifact.filename.endsWith(".3dm") ? (
+                {isThreejsArtifact(artifact) ? (
                   <IconButton
                     aria-label="show artifact 3d model"
                     size="small"

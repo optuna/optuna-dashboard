@@ -1,5 +1,8 @@
 import React, { FC } from "react"
-import { ThreejsArtifactViewer } from "./ThreejsArtifactViewer"
+import {
+  ThreejsArtifactViewer,
+  isThreejsArtifact,
+} from "./ThreejsArtifactViewer"
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 import { CardMedia } from "@mui/material"
 
@@ -8,10 +11,7 @@ export const ArtifactCardMedia: FC<{
   urlPath: string
   height: string
 }> = ({ artifact, urlPath, height }) => {
-  if (
-    artifact.filename.endsWith(".stl") ||
-    artifact.filename.endsWith(".3dm")
-  ) {
+  if (isThreejsArtifact(artifact)) {
     return (
       <ThreejsArtifactViewer
         src={urlPath}
