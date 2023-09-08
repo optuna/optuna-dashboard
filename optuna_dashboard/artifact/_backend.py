@@ -49,24 +49,49 @@ BaseRequest.MEMFILE_MAX = int(
 
 
 def get_artifact_path(
-    trial: optuna.Trial,
+    study_or_trial: optuna.Trial | optuna.Study,
     artifact_id: str,
 ) -> str:
     """Get the URL path for a given artifact ID."""
-    study_id = trial.study._study_id
-    trial_id = trial._trial_id
+    if isinstance(study_or_trial, optuna.Study):
+        study_id = study_or_trial._study_id
+        return f"/artifacts/{study_id}/{artifact_id}"
+
+    study_id = study_or_trial.study._study_id
+    trial_id = study_or_trial._trial_id
     return f"/artifacts/{study_id}/{trial_id}/{artifact_id}"
 
 
 def register_artifact_route(
     app: Bottle, storage: BaseStorage, artifact_store: Optional[ArtifactStore]
 ) -> None:
-    @app.get("/artifacts/<study_id:int>/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
-    def proxy_artifact(study_id: int, trial_id: int, artifact_id: str) -> HTTPResponse | bytes:
+    @app.get("/artifacts/<study_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
+    def proxy_study_artifact(study_id: int, artifact_id: str) -> HTTPResponse | bytes:
         if artifact_store is None:
             response.status = 400  # Bad Request
             return b"Cannot access to the artifacts."
-        artifact_dict = get_artifact_meta(storage, study_id, trial_id, artifact_id)
+        artifact_dict = get_study_artifact_meta(storage, study_id, artifact_id)
+        if artifact_dict is None:
+            response.status = 404
+            return b"Not Found"
+        headers = {"Content-Type": artifact_dict["mimetype"]}
+        encoding = artifact_dict.get("encoding")
+        if encoding:
+            headers["Content-Encodings"] = encoding
+
+        fp = artifact_store.open_reader(artifact_id)
+        return HTTPResponse(fp, headers=headers)
+
+    @app.get("/artifacts/<study_id:int>/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
+    def proxy_trial_artifact(
+        study_id: int,
+        trial_id: int,
+        artifact_id: str,
+    ) -> HTTPResponse | bytes:
+        if artifact_store is None:
+            response.status = 400  # Bad Request
+            return b"Cannot access to the artifacts."
+        artifact_dict = get_trial_artifact_meta(storage, study_id, trial_id, artifact_id)
         if artifact_dict is None:
             response.status = 404
             return b"Not Found"
@@ -129,7 +154,7 @@ def register_artifact_route(
 
         # The artifact's metadata is stored in one of the following two locations:
         storage.set_study_system_attr(
-            study_id, _artifact_prefix(trial_id) + artifact_id, json.dumps(None)
+            study_id, _dashboard_trial_artifact_prefix(trial_id) + artifact_id, json.dumps(None)
         )
         storage.set_trial_system_attr(
             trial_id, ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None)
@@ -141,7 +166,7 @@ def register_artifact_route(
 
 def upload_artifact(
     backend: ArtifactBackend,
-    trial: optuna.Trial,
+    study_or_trial: optuna.Trial | optuna.Study,
     file_path: str,
     *,
     mimetype: Optional[str] = None,
@@ -177,8 +202,6 @@ def upload_artifact(
     )
 
     filename = os.path.basename(file_path)
-    storage = trial.storage
-    trial_id = trial._trial_id
     artifact_id = str(uuid.uuid4())
     guess_mimetype, guess_encoding = mimetypes.guess_type(filename)
     artifact: ArtifactMeta = {
@@ -188,23 +211,42 @@ def upload_artifact(
         "filename": filename,
     }
     attr_key = ARTIFACTS_ATTR_PREFIX + artifact_id
-    storage.set_trial_system_attr(trial_id, attr_key, json.dumps(artifact))
+
+    if isinstance(study_or_trial, optuna.Study):
+        storage = study_or_trial._storage
+        study_id = study_or_trial._study_id
+        storage.set_study_system_attr(study_id, attr_key, json.dumps(artifact))
+    else:
+        storage = study_or_trial.storage
+        trial_id = study_or_trial._trial_id
+        storage.set_trial_system_attr(trial_id, attr_key, json.dumps(artifact))
 
     with open(file_path, "rb") as f:
         backend.write(artifact_id, f)
     return artifact_id
 
 
-def _artifact_prefix(trial_id: int) -> str:
+def _dashboard_trial_artifact_prefix(trial_id: int) -> str:
     return DASHBOARD_ARTIFACTS_ATTR_PREFIX + f"{trial_id}:"
 
 
-def get_artifact_meta(
+def get_study_artifact_meta(
+    storage: BaseStorage, study_id: int, artifact_id: str
+) -> Optional[ArtifactMeta]:
+    study_system_attrs = storage.get_study_system_attrs(study_id)
+    attr_key = ARTIFACTS_ATTR_PREFIX + artifact_id
+    artifact_meta = study_system_attrs.get(attr_key)
+    if artifact_meta is not None:
+        return json.loads(artifact_meta)
+    return None
+
+
+def get_trial_artifact_meta(
     storage: BaseStorage, study_id: int, trial_id: int, artifact_id: str
 ) -> Optional[ArtifactMeta]:
     # Search study_system_attrs due to backward compatibility.
     study_system_attrs = storage.get_study_system_attrs(study_id)
-    attr_key = _artifact_prefix(trial_id=trial_id) + artifact_id
+    attr_key = _dashboard_trial_artifact_prefix(trial_id=trial_id) + artifact_id
     artifact_meta = study_system_attrs.get(attr_key)
     if artifact_meta is not None:
         return json.loads(artifact_meta)
@@ -223,12 +265,22 @@ def get_artifact_meta(
 def delete_all_artifacts(backend: ArtifactStore, storage: BaseStorage, study_id: int) -> None:
     artifact_metas = []
     study_system_attrs = storage.get_study_system_attrs(study_id)
+    artifact_metas.extend(list_study_artifacts(study_system_attrs))
     for trial in storage.get_all_trials(study_id):
         trial_artifacts = list_trial_artifacts(study_system_attrs, trial)
         artifact_metas.extend(trial_artifacts)
 
     for meta in artifact_metas:
         backend.remove(meta["artifact_id"])
+
+
+def list_study_artifacts(study_system_attrs: dict[str, Any]) -> list[ArtifactMeta]:
+    artifact_metas = [
+        json.loads(value)
+        for key, value in study_system_attrs.items()
+        if key.startswith(ARTIFACTS_ATTR_PREFIX)
+    ]
+    return [a for a in artifact_metas if a is not None]
 
 
 def list_trial_artifacts(
@@ -238,7 +290,7 @@ def list_trial_artifacts(
     dashboard_artifact_metas = [
         json.loads(value)
         for key, value in study_system_attrs.items()
-        if key.startswith(_artifact_prefix(trial._trial_id))
+        if key.startswith(_dashboard_trial_artifact_prefix(trial._trial_id))
     ]
 
     # Collect ArtifactMeta from trial_system_attrs. Note that artifacts uploaded via

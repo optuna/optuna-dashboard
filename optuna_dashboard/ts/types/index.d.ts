@@ -205,6 +205,7 @@ type StudyDetail = {
   form_widgets?: FormWidgets
   preference_history?: PreferenceHistory[]
   plotly_graph_objects: PlotlyGraphObject[]
+  artifacts: Artifact[]
 }
 
 type StudyDetails = {

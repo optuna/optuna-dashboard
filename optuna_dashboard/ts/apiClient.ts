@@ -94,6 +94,7 @@ interface StudyDetailResponse {
   form_widgets?: FormWidgets
   preference_history?: PreferenceHistoryResponce[]
   plotly_graph_objects: PlotlyGraphObject[]
+  artifacts: Artifact[]
 }
 
 export const getStudyDetailAPI = (
@@ -133,6 +134,7 @@ export const getStudyDetailAPI = (
           convertPreferenceHistory
         ),
         plotly_graph_objects: res.data.plotly_graph_objects,
+        artifacts: res.data.artifacts,
       }
     })
 }

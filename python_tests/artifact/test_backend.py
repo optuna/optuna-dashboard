@@ -8,11 +8,11 @@ import pytest
 def test_get_artifact_path() -> None:
     study = MagicMock(_study_id=0)
     trial = MagicMock(_trial_id=0, study=study)
-    assert _backend.get_artifact_path(trial=trial, artifact_id="id0") == "/artifacts/0/0/id0"
+    assert _backend.get_artifact_path(trial, "id0") == "/artifacts/0/0/id0"
 
 
 def test_artifact_prefix() -> None:
-    actual = _backend._artifact_prefix(trial_id=0)
+    actual = _backend._dashboard_trial_artifact_prefix(trial_id=0)
     assert actual == "dashboard:artifacts:0:"
 
 
@@ -47,13 +47,13 @@ def init_storage_with_artifact_meta() -> BaseStorage:
 def test_get_artifact_meta(init_storage_with_artifact_meta: MagicMock) -> None:
     storage = init_storage_with_artifact_meta
 
-    actual = _backend.get_artifact_meta(storage, study_id=0, trial_id=0, artifact_id="id0")
+    actual = _backend.get_trial_artifact_meta(storage, study_id=0, trial_id=0, artifact_id="id0")
     assert actual == {"artifact_id": "id0", "filename": "foo.txt"}
 
-    actual = _backend.get_artifact_meta(storage, study_id=0, trial_id=1, artifact_id="id3")
+    actual = _backend.get_trial_artifact_meta(storage, study_id=0, trial_id=1, artifact_id="id3")
     assert actual == {"artifact_id": "id3", "filename": "qux.txt"}
 
-    actual = _backend.get_artifact_meta(storage, study_id=0, trial_id=0, artifact_id="id4")
+    actual = _backend.get_trial_artifact_meta(storage, study_id=0, trial_id=0, artifact_id="id4")
     assert actual is None
 
 

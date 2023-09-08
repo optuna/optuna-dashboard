@@ -6,7 +6,7 @@ import tempfile
 import optuna
 from optuna.version import __version__ as optuna_ver
 from optuna_dashboard.artifact._backend import delete_all_artifacts
-from optuna_dashboard.artifact._backend import get_artifact_meta
+from optuna_dashboard.artifact._backend import get_trial_artifact_meta
 from optuna_dashboard.artifact._backend import list_trial_artifacts
 from packaging import version
 import pytest
@@ -44,7 +44,7 @@ def test_list_optuna_trial_artifacts() -> None:
         with artifact_store.open_reader(artifact_id) as reader:
             assert reader.read() == dummy_content
 
-        artifact_meta = get_artifact_meta(
+        artifact_meta = get_trial_artifact_meta(
             storage=storage,
             study_id=study._study_id,
             trial_id=trial._trial_id,
