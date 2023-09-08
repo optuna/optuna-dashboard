@@ -150,7 +150,7 @@ def _truncnorm_mean_var_logz(alpha: Tensor) -> tuple[Tensor, Tensor, Tensor]:
     logz = torch.special.log_ndtr(-alpha)
     mean = 1 / (SQRT_HALF_PI * torch.special.erfcx(alpha * SQRT_HALF))
     var = 1 - mean * (mean - alpha)
-    return (mean, var, logz)
+    return mean, var, logz
 
 
 def _orthants_MVN_EP(
