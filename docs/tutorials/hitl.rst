@@ -1,4 +1,4 @@
-.. _tutorial-hitl:
+.. _tutorial-hitl-objective-form-widgets:
 
 Tutorial: Human-in-the-loop Optimization using Objective Form Widgets
 =====================================================================
