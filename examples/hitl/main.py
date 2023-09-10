@@ -4,17 +4,19 @@ import time
 from typing import NoReturn
 
 import optuna
+from optuna.artifacts import FileSystemArtifactStore
+from optuna.artifacts import upload_artifact
 from optuna.trial import TrialState
 from optuna_dashboard import ChoiceWidget
 from optuna_dashboard import register_objective_form_widgets
 from optuna_dashboard import save_note
 from optuna_dashboard.artifact import get_artifact_path
-from optuna_dashboard.artifact import upload_artifact
-from optuna_dashboard.artifact.file_system import FileSystemBackend
 from PIL import Image
 
 
-def suggest_and_generate_image(study: optuna.Study, artifact_backend: FileSystemBackend) -> None:
+def suggest_and_generate_image(
+    study: optuna.Study, artifact_store: FileSystemArtifactStore
+) -> None:
     # 1. Ask new parameters
     trial = study.ask()
     r = trial.suggest_int("r", 0, 255)
@@ -27,7 +29,7 @@ def suggest_and_generate_image(study: optuna.Study, artifact_backend: FileSystem
     image.save(image_path)
 
     # 3. Upload Artifact
-    artifact_id = upload_artifact(artifact_backend, trial, image_path)
+    artifact_id = upload_artifact(trial, image_path, artifact_store)
     artifact_path = get_artifact_path(trial, artifact_id)
 
     # 4. Save Note
@@ -41,7 +43,7 @@ def suggest_and_generate_image(study: optuna.Study, artifact_backend: FileSystem
     save_note(trial, note)
 
 
-def start_optimization(artifact_backend: FileSystemBackend) -> NoReturn:
+def start_optimization(artifact_store: FileSystemArtifactStore) -> NoReturn:
     # 1. Create Study
     study = optuna.create_study(
         study_name="Human-in-the-loop Optimization",
@@ -72,7 +74,7 @@ def start_optimization(artifact_backend: FileSystemBackend) -> NoReturn:
         if len(running_trials) >= n_batch:
             time.sleep(1)  # Avoid busy-loop
             continue
-        suggest_and_generate_image(study, artifact_backend)
+        suggest_and_generate_image(study, artifact_store)
 
 
 def main() -> NoReturn:
@@ -80,7 +82,7 @@ def main() -> NoReturn:
 
     # 1. Create Artifact Store
     artifact_path = os.path.join(os.path.dirname(__file__), "artifact")
-    artifact_backend = FileSystemBackend(base_path=artifact_path)
+    artifact_store = FileSystemArtifactStore(artifact_path)
 
     if not os.path.exists(artifact_path):
         os.mkdir(artifact_path)
@@ -89,7 +91,7 @@ def main() -> NoReturn:
         os.mkdir(tmp_path)
 
     # 2. Run optimize loop
-    start_optimization(artifact_backend)
+    start_optimization(artifact_store)
 
 
 if __name__ == "__main__":
