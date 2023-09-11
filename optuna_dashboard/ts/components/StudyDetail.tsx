@@ -30,6 +30,7 @@ import { GraphEdf } from "./GraphEdf"
 import { TrialList } from "./TrialList"
 import { StudyHistory } from "./StudyHistory"
 import { PreferentialTrials } from "./PreferentialTrials"
+import { PreferenceHistory } from "./PreferenceHistory"
 import { PreferentialAnalytics } from "./PreferentialAnalytics"
 
 interface ParamTypes {
@@ -175,6 +176,8 @@ export const StudyDetail: FC<{
         />
       </Box>
     )
+  } else if (page == "preferenceHistory") {
+    content = <PreferenceHistory studyDetail={studyDetail} />
   }
 
   const toolbar = (

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 import json
 from typing import Any
 from typing import TYPE_CHECKING
@@ -16,6 +17,7 @@ from ._form_widget import get_form_widgets_json
 from ._named_objectives import get_objective_names
 from ._preference_setting import _SYSTEM_ATTR_FEEDBACK_ARTIFACT_KEY
 from ._preference_setting import _SYSTEM_ATTR_FEEDBACK_COMPONENT_TYPE
+from ._preferential_history import _SYSTEM_ATTR_PREFIX_HISTORY
 from .artifact._backend import list_trial_artifacts
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 
@@ -23,6 +25,9 @@ from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 if TYPE_CHECKING:
     from typing import Literal
     from typing import TypedDict
+
+    from ._preferential_history import ChooseWorstHistory
+    from ._preferential_history import History
 
     Attribute = TypedDict(
         "Attribute",
@@ -129,6 +134,7 @@ def serialize_study_detail(
     union: list[tuple[str, BaseDistribution]],
     union_user_attrs: list[tuple[str, bool]],
     has_intermediate_values: bool,
+    plotly_graph_objects: dict[str, str],
 ) -> dict[str, Any]:
     serialized: dict[str, Any] = {
         "name": summary.study_name,
@@ -161,7 +167,36 @@ def serialize_study_detail(
         serialized["feedback_component_type"] = system_attrs[_SYSTEM_ATTR_FEEDBACK_COMPONENT_TYPE]
     if _SYSTEM_ATTR_FEEDBACK_ARTIFACT_KEY in system_attrs:
         serialized["feedback_artifact_key"] = system_attrs[_SYSTEM_ATTR_FEEDBACK_ARTIFACT_KEY]
+    if serialized["is_preferential"]:
+        serialized["preference_history"] = serialize_preference_history(system_attrs)
+    serialized["plotly_graph_objects"] = [
+        {"id": id_, "graph_object": graph_object}
+        for id_, graph_object in plotly_graph_objects.items()
+    ]
     return serialized
+
+
+def serialize_preference_history(
+    system_attrs: dict[str, Any],
+) -> list[History]:
+    histories: list[History] = []
+    for k, v in system_attrs.items():
+        if not k.startswith(_SYSTEM_ATTR_PREFIX_HISTORY):
+            continue
+        choice: dict[str, Any] = json.loads(v)
+        if choice["mode"] == "ChooseWorst":
+            history: ChooseWorstHistory = {
+                "mode": "ChooseWorst",
+                "id": choice["id"],
+                "preference_id": choice["preference_id"],
+                "timestamp": choice["timestamp"],
+                "candidates": choice["candidates"],
+                "clicked": choice["clicked"],
+            }
+            histories.append(history)
+
+    histories.sort(key=lambda c: datetime.fromisoformat(c["timestamp"]))
+    return histories
 
 
 def serialize_frozen_trial(

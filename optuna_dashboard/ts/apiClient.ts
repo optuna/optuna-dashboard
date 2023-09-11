@@ -55,6 +55,28 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
   }
 }
 
+interface PreferenceHistoryResponce {
+  id: string
+  preference_id: string
+  candidates: number[]
+  clicked: number
+  mode: PreferenceFeedbackMode
+  timestamp: string
+}
+
+const convertPreferenceHistory = (
+  res: PreferenceHistoryResponce
+): PreferenceHistory => {
+  return {
+    id: res.id,
+    preference_id: res.preference_id,
+    candidates: res.candidates,
+    clicked: res.clicked,
+    feedback_mode: res.mode,
+    timestamp: new Date(res.timestamp),
+  }
+}
+
 interface StudyDetailResponse {
   name: string
   datetime_start: string
@@ -70,8 +92,8 @@ interface StudyDetailResponse {
   is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
-  feedback_component_type?: string
-  feedback_artifact_key?: string
+  preference_history?: PreferenceHistoryResponce[]
+  plotly_graph_objects: PlotlyGraphObject[]
 }
 
 export const getStudyDetailAPI = (
@@ -110,6 +132,10 @@ export const getStudyDetailAPI = (
         feedback_component_type: res.data
           .feedback_component_type as FeedbackComponentType,
         feedback_artifact_key: res.data.feedback_artifact_key,
+        preference_history: res.data.preference_history?.map(
+          convertPreferenceHistory
+        ),
+        plotly_graph_objects: res.data.plotly_graph_objects,
       }
     })
 }
@@ -319,13 +345,14 @@ export const getParamImportances = (
 
 export const reportPreferenceAPI = (
   studyId: number,
-  best_trials: number[],
-  worst_trials: number[]
+  candidates: number[],
+  clicked: number
 ): Promise<void> => {
   return axiosInstance
     .post<void>(`/api/studies/${studyId}/preference`, {
-      best_trials: best_trials,
-      worst_trials: worst_trials,
+      candidates: candidates,
+      clicked: clicked,
+      mode: "ChooseWorst",
     })
     .then(() => {
       return

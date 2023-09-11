@@ -34,12 +34,19 @@ import GitHubIcon from "@mui/icons-material/GitHub"
 import OpenInNewIcon from "@mui/icons-material/OpenInNew"
 import QueryStatsIcon from "@mui/icons-material/QueryStats"
 import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt"
+import HistoryIcon from "@mui/icons-material/History"
 import { Switch } from "@mui/material"
 import { actionCreator } from "../action"
 
 const drawerWidth = 240
 
-export type PageId = "top" | "analytics" | "trialTable" | "trialList" | "note"
+export type PageId =
+  | "top"
+  | "analytics"
+  | "trialTable"
+  | "trialList"
+  | "note"
+  | "preferenceHistory"
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
@@ -204,6 +211,28 @@ export const AppDrawer: FC<{
                 />
               </ListItemButton>
             </ListItem>
+            {isPreferential && (
+              <ListItem
+                key="PreferenceHistory"
+                disablePadding
+                sx={styleListItem}
+              >
+                <ListItemButton
+                  component={Link}
+                  to={`${URL_PREFIX}/studies/${studyId}/preference-history`}
+                  sx={styleListItemButton}
+                  selected={page === "preferenceHistory"}
+                >
+                  <ListItemIcon sx={styleListItemIcon}>
+                    <HistoryIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="PreferenceHistory"
+                    sx={styleListItemText}
+                  />
+                </ListItemButton>
+              </ListItem>
+            )}
             <ListItem key="Analytics" disablePadding sx={styleListItem}>
               <ListItemButton
                 component={Link}

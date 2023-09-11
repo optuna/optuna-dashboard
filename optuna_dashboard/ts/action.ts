@@ -588,10 +588,10 @@ export const actionCreator = () => {
 
   const updatePreference = (
     study_id: number,
-    best_trials: number[],
-    worst_trials: number[]
+    candidates: number[],
+    clicked: number
   ) => {
-    reportPreferenceAPI(study_id, best_trials, worst_trials).catch((err) => {
+    reportPreferenceAPI(study_id, candidates, clicked).catch((err) => {
       const reason = err.response?.data.reason
       enqueueSnackbar(`Failed to report preference. Reason: ${reason}`, {
         variant: "error",

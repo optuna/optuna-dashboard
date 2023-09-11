@@ -25,9 +25,12 @@ from . import _note as note
 from ._bottle_util import BottleViewReturn
 from ._bottle_util import json_api_view
 from ._cached_extra_study_property import get_cached_extra_study_property
+from ._custom_plot_data import get_plotly_graph_objects
 from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
 from ._preference_setting import _register_output_component
+from ._preferential_history import NewHistory
+from ._preferential_history import report_history
 from ._rdb_migration import register_rdb_migration_route
 from ._serializer import serialize_study_detail
 from ._serializer import serialize_study_summary
@@ -41,7 +44,6 @@ from .artifact._backend import register_artifact_route
 from .artifact._backend_to_store import to_artifact_store
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 from .preferential._study import get_best_trials as get_best_preferential_trials
-from .preferential._system_attrs import report_preferences
 from .preferential._system_attrs import report_skip
 
 
@@ -214,6 +216,8 @@ def create_app(
             union_user_attrs,
             has_intermediate_values,
         ) = get_cached_extra_study_property(study_id, trials)
+
+        plotly_graph_objects = get_plotly_graph_objects(system_attrs)
         return serialize_study_detail(
             summary,
             best_trials,
@@ -222,6 +226,7 @@ def create_app(
             union,
             union_user_attrs,
             has_intermediate_values,
+            plotly_graph_objects,
         )
 
     @app.get("/api/studies/<study_id:int>/param_importances")
@@ -270,17 +275,34 @@ def create_app(
     @json_api_view
     def post_preference(study_id: int) -> dict[str, Any]:
         try:
-            best_trials = [int(d) for d in request.json.get("best_trials", [])]
-            worst_trials = [int(d) for d in request.json.get("worst_trials", [])]
+            mode = request.json.get("mode", "")
+            candidates = [int(d) for d in request.json.get("candidates", [])]
+            clicked = int(request.json.get("clicked", -1))
         except ValueError:
             response.status = 400
-            return {"reason": "best_trials and worst_trials must be an array of integers."}
-        if len(best_trials) == 0 or len(worst_trials) == 0:
-            response.status = 400  # Bad request
-            return {"reason": "You need to set best_trials and worst_trials"}
+            return {
+                "reason": (
+                    "`candidates` should be an array of integers and "
+                    "`clicked` should be an integer."
+                )
+            }
 
-        preferences = [(best, worst) for best in best_trials for worst in worst_trials]
-        report_preferences(study_id, storage, preferences)
+        if clicked == -1:
+            response.status = 400
+            return {"reason": "`clicked` should be specified."}
+        if mode != "ChooseWorst":
+            response.status = 400
+            return {"reason": "`mode` should be 'ChooseWorst'."}
+
+        report_history(
+            study_id,
+            storage,
+            NewHistory(
+                mode=mode,
+                candidates=candidates,
+                clicked=clicked,
+            ),
+        )
 
         response.status = 204
         return {}
