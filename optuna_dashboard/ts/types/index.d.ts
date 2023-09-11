@@ -223,5 +223,3 @@ type PreferenceHistory = {
   feedback_mode: PreferenceFeedbackMode
   timestamp: Date
 }
-
-declare module "*.css"

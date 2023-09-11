@@ -175,7 +175,6 @@ export const PreferentialGraph: FC<{
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
     [setNodes]
   )
-  const isDarkMode = theme.palette.mode === "dark"
 
   useEffect(() => {
     if (studyDetail === null) return
@@ -201,7 +200,6 @@ export const PreferentialGraph: FC<{
         id: `e${source}-${target}`,
         sources: [`${source}`],
         targets: [`${target}`],
-        style: { stroke: isDarkMode ? "#fff" : "#000" },
       })),
     }
     elk
@@ -244,11 +242,11 @@ export const PreferentialGraph: FC<{
           id: `e${p[0]}-${p[1]}`,
           source: `${p[0]}`,
           target: `${p[1]}`,
-          style: { stroke: isDarkMode ? "#fff" : "#000" },
+          style: { stroke: theme.palette.text.primary },
         } as Edge
       }) ?? []
     )
-  }, [studyDetail, isDarkMode])
+  }, [studyDetail, theme.palette.text.primary])
 
   if (studyDetail === null || !studyDetail.is_preferential) {
     return null

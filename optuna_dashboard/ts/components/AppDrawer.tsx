@@ -208,7 +208,7 @@ export const AppDrawer: FC<{
                   {isPreferential ? <ThumbUpAltIcon /> : <AutoGraphIcon />}
                 </ListItemIcon>
                 <ListItemText
-                  primary={isPreferential ? "HumanInTheLoop" : "History"}
+                  primary={isPreferential ? "Feedback Preference" : "History"}
                   sx={styleListItemText}
                 />
               </ListItemButton>
@@ -229,7 +229,7 @@ export const AppDrawer: FC<{
                     <HistoryIcon />
                   </ListItemIcon>
                   <ListItemText
-                    primary="PreferenceHistory"
+                    primary="Preferences (History)"
                     sx={styleListItemText}
                   />
                 </ListItemButton>
@@ -260,7 +260,7 @@ export const AppDrawer: FC<{
                     <LanIcon />
                   </ListItemIcon>
                   <ListItemText
-                    primary="PreferenceGraph"
+                    primary="Preferences (Graph)"
                     sx={styleListItemText}
                   />
                 </ListItemButton>
