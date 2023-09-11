@@ -29,8 +29,9 @@ from ._custom_plot_data import get_plotly_graph_objects
 from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
 from ._preferential_history import NewHistory
+from ._preferential_history import remove_history
 from ._preferential_history import report_history
-from ._preferential_history import switching_history
+from ._preferential_history import restore_history
 from ._rdb_migration import register_rdb_migration_route
 from ._serializer import serialize_study_detail
 from ._serializer import serialize_study_summary
@@ -307,18 +308,17 @@ def create_app(
         response.status = 204
         return {}
 
-    @app.put("/api/studies/<study_id:int>/preference/<history_uuid>")
+    @app.delete("/api/studies/<study_id:int>/preference/<history_uuid>")
     @json_api_view
-    def switch_preference(study_id: int, history_uuid: str) -> dict[str, Any]:
-        try:
-            enable = request.json.get("enable", None)
-            if enable is None or not isinstance(enable, bool):
-                raise ValueError
-        except ValueError:
-            response.status = 400
-            return {"reason": "Invalid request."}
-        switching_history(study_id, storage, history_uuid, enable)
+    def remove_preference(study_id: int, history_uuid: str) -> dict[str, Any]:
+        remove_history(study_id, storage, history_uuid)
+        response.status = 204
+        return {}
 
+    @app.post("/api/studies/<study_id:int>/preference/<history_uuid>")
+    @json_api_view
+    def restore_preference(study_id: int, history_uuid: str) -> dict[str, Any]:
+        restore_history(study_id, storage, history_uuid)
         response.status = 204
         return {}
 

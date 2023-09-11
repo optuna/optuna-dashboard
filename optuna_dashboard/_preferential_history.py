@@ -82,19 +82,20 @@ def report_history(
     return history_id
 
 
-def switching_history(study_id: int, storage: BaseStorage, uuid: str, enable: bool) -> None:
+def remove_history(study_id: int, storage: BaseStorage, uuid: str) -> None:
     system_attrs = storage.get_study_system_attrs(study_id)
     history: History = json.loads(system_attrs.get(_SYSTEM_ATTR_PREFIX_HISTORY + uuid, ""))
-    if enable:
-        preferences = [
-            (best, history["clicked"])
-            for best in history["candidates"]
-            if best != history["clicked"]
-        ]
-        storage.set_study_system_attr(
-            study_id, _SYSTEM_ATTR_PREFIX_PREFERENCE + history["preference_id"], preferences
-        )
-    else:  # disable
-        storage.set_study_system_attr(
-            study_id, _SYSTEM_ATTR_PREFIX_PREFERENCE + history["preference_id"], []
-        )
+    storage.set_study_system_attr(
+        study_id, _SYSTEM_ATTR_PREFIX_PREFERENCE + history["preference_id"], []
+    )
+
+
+def restore_history(study_id: int, storage: BaseStorage, uuid: str) -> None:
+    system_attrs = storage.get_study_system_attrs(study_id)
+    history: History = json.loads(system_attrs.get(_SYSTEM_ATTR_PREFIX_HISTORY + uuid, ""))
+    preferences = [
+        (best, history["clicked"]) for best in history["candidates"] if best != history["clicked"]
+    ]
+    storage.set_study_system_attr(
+        study_id, _SYSTEM_ATTR_PREFIX_PREFERENCE + history["preference_id"], preferences
+    )

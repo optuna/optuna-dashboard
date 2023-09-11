@@ -234,12 +234,7 @@ class APITestCase(TestCase):
         status, _, _ = send_request(
             app,
             f"/api/studies/{study_id}/preference/{history_id}",
-            "PUT",
-            body=json.dumps(
-                {
-                    "enable": False,
-                }
-            ),
+            "DELETE",
             content_type="application/json",
         )
         self.assertEqual(status, 204)
@@ -251,12 +246,7 @@ class APITestCase(TestCase):
         status, _, _ = send_request(
             app,
             f"/api/studies/{study_id}/preference/{history_id}",
-            "PUT",
-            body=json.dumps(
-                {
-                    "enable": True,
-                }
-            ),
+            "POST",
             content_type="application/json",
         )
         self.assertEqual(status, 204)

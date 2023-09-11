@@ -6,8 +6,9 @@ from typing import TYPE_CHECKING
 
 from optuna_dashboard._preferential_history import _SYSTEM_ATTR_PREFIX_HISTORY
 from optuna_dashboard._preferential_history import NewHistory
+from optuna_dashboard._preferential_history import remove_history
 from optuna_dashboard._preferential_history import report_history
-from optuna_dashboard._preferential_history import switching_history
+from optuna_dashboard._preferential_history import restore_history
 from optuna_dashboard._serializer import serialize_preference_history
 from optuna_dashboard.preferential import create_study
 from optuna_dashboard.preferential._system_attrs import _SYSTEM_ATTR_PREFIX_PREFERENCE
@@ -86,18 +87,18 @@ def test_undo_redo_history(storage_supplier: Callable[[], StorageSupplier]) -> N
             storage=storage,
             input_data=NewHistory(mode="ChooseWorst", candidates=[0, 1, 2], clicked=1),
         )
-        switching_history(study_id, storage, history_id, False)
+        remove_history(study_id, storage, history_id)
         preference, history = get_preferences_history(history_id)
         assert history["mode"] == "ChooseWorst"
         assert history["candidates"] == [0, 1, 2]
         assert history["clicked"] == 1
         assert len(preference) == 0
 
-        switching_history(study_id, storage, history_id, False)
+        remove_history(study_id, storage, history_id)
         preference, history = get_preferences_history(history_id)
         assert len(preference) == 0
 
-        switching_history(study_id, storage, history_id, True)
+        restore_history(study_id, storage, history_id)
         preference, history = get_preferences_history(history_id)
         assert history["mode"] == "ChooseWorst"
         assert history["candidates"] == [0, 1, 2]
@@ -108,6 +109,6 @@ def test_undo_redo_history(storage_supplier: Callable[[], StorageSupplier]) -> N
             assert preference[i][0] == best
             assert preference[i][1] == worst
 
-        switching_history(study_id, storage, history_id, True)
+        restore_history(study_id, storage, history_id)
         preference, history = get_preferences_history(history_id)
         assert len(preference) == 2

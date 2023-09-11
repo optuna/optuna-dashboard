@@ -18,7 +18,7 @@ from ._named_objectives import get_objective_names
 from ._preferential_history import _SYSTEM_ATTR_PREFIX_HISTORY
 from .artifact._backend import list_trial_artifacts
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
-from .preferential._system_attrs import is_preference_valid
+from .preferential._system_attrs import is_preference_removed
 
 
 if TYPE_CHECKING:
@@ -184,7 +184,7 @@ def serialize_preference_history(
                 "timestamp": choice["timestamp"],
                 "candidates": choice["candidates"],
                 "clicked": choice["clicked"],
-                "enabled": is_preference_valid(system_attrs, choice["preference_id"]),
+                "is_removed": is_preference_removed(system_attrs, choice["preference_id"]),
             }
             histories.append(history)
 
