@@ -94,9 +94,9 @@ const defaultEdgeOptions: DefaultEdgeOptions = {
   animated: true,
 }
 
-function reductionPreference(
+const reductionPreference = (
   input_preferences: [number, number][]
-): [number, number][] {
+): [number, number][] => {
   const preferences: [number, number][] = []
   let n = 0
   for (const [source, target] of input_preferences) {

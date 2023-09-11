@@ -17,8 +17,7 @@ import ListItemText from "@mui/material/ListItemText"
 import {
   drawerOpenState,
   reloadIntervalState,
-  useStudyDetailValue,
-  useStudySummaryValue,
+  useStudyIsPreferencial,
 } from "../state"
 import { Link } from "react-router-dom"
 import AutoGraphIcon from "@mui/icons-material/AutoGraph"
@@ -130,12 +129,8 @@ export const AppDrawer: FC<{
   const action = actionCreator()
   const [open, setOpen] = useRecoilState<boolean>(drawerOpenState)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
-  const studyDetail =
-    studyId !== undefined ? useStudyDetailValue(studyId) : null
-  const studySummary =
-    studyId !== undefined ? useStudySummaryValue(studyId) : null
   const isPreferential =
-    studyDetail?.is_preferential ?? studySummary?.is_preferential ?? false
+    studyId !== undefined ? useStudyIsPreferencial(studyId) : null
 
   const styleListItem = {
     display: "block",
@@ -248,7 +243,7 @@ export const AppDrawer: FC<{
                 <ListItemText primary="Analytics" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
-            {studyDetail?.is_preferential && (
+            {isPreferential && (
               <ListItem key="PreferenceGraph" disablePadding sx={styleListItem}>
                 <ListItemButton
                   component={Link}

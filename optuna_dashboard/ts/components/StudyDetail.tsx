@@ -18,8 +18,8 @@ import { actionCreator } from "../action"
 import {
   reloadIntervalState,
   useStudyDetailValue,
+  useStudyIsPreferencial,
   useStudyName,
-  useStudySummaryValue,
 } from "../state"
 import { TrialTable } from "./TrialTable"
 import { AppDrawer, PageId } from "./AppDrawer"
@@ -52,11 +52,9 @@ export const StudyDetail: FC<{
   const action = actionCreator()
   const studyId = useURLVars()
   const studyDetail = useStudyDetailValue(studyId)
-  const studySummary = useStudySummaryValue(studyId)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studyName = useStudyName(studyId)
-  const isPreferential =
-    studySummary?.is_preferential ?? studyDetail?.is_preferential ?? false
+  const isPreferential = useStudyIsPreferencial(studyId)
 
   const title =
     studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
