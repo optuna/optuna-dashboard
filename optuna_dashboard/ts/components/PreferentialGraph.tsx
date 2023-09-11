@@ -1,4 +1,4 @@
-import React, { FC, useState, useCallback, useMemo, useEffect } from "react"
+import React, { FC, useState, useCallback, useEffect } from "react"
 import {
   Card,
   CardContent,
@@ -7,7 +7,6 @@ import {
   Box,
   Chip,
 } from "@mui/material"
-import { MarkdownRenderer } from "./Note"
 import ReactFlow, {
   Node,
   NodeProps,
@@ -24,6 +23,9 @@ import "reactflow/dist/style.css"
 import ELK from "elkjs/lib/elk.bundled.js"
 import { ElkNode } from "elkjs/lib/elk-api.js"
 
+import { useStudyDetailValue } from "../state"
+import { OutputContent, getArtifactUrlPath } from "./PreferentialTrials"
+
 const elk = new ELK()
 const nodeWidth = 400
 const nodeHeight = 300
@@ -39,10 +41,16 @@ const GraphNode: FC<NodeProps<NodeData>> = ({ data, isConnectable }) => {
   if (trial === undefined) {
     return null
   }
-  const noteBody = trial.note.body
-  const noteFC = useMemo(() => {
-    return <MarkdownRenderer body={noteBody} />
-  }, [noteBody])
+  const studyDetail = useStudyDetailValue(trial.study_id)
+  const componentId = studyDetail?.feedback_component_type
+  const artifactKey = studyDetail?.feedback_artifact_key
+  const artifactId = trial.user_attrs.find((a) => a.key === artifactKey)?.value
+  const artifact = trial.artifacts.find((a) => a.artifact_id === artifactId)
+  const urlPath =
+    artifactId !== undefined
+      ? getArtifactUrlPath(trial.study_id, trial.trial_id, artifactId)
+      : ""
+
   return (
     <Card
       sx={{
@@ -76,7 +84,14 @@ const GraphNode: FC<NodeProps<NodeData>> = ({ data, isConnectable }) => {
         style={{ background: "#555" }}
         isConnectable={isConnectable}
       />
-      <CardContent>{noteFC}</CardContent>
+      <CardContent>
+        <OutputContent
+          trial={trial}
+          artifact={artifact}
+          componentId={componentId}
+          urlPath={urlPath}
+        />
+      </CardContent>
       <Handle
         type="source"
         position={Position.Bottom}

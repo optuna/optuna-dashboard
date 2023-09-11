@@ -166,10 +166,10 @@ const SettingsPage: FC<{
 export const OutputContent: FC<{
   trial: Trial
   artifact?: Artifact
-  componentId: FeedbackComponentType
+  componentId?: FeedbackComponentType
   urlPath: string
 }> = ({ trial, artifact, componentId, urlPath }) => {
-  if (componentId === "Note") {
+  if (componentId === undefined || componentId === "Note") {
     return <MarkdownRenderer body={trial.note.body} />
   }
   if (componentId === "Artifact") {
@@ -188,7 +188,7 @@ export const getArtifactUrlPath = (
   studyId: number,
   trialId: number,
   artifactId: string
-) => {
+): string => {
   return `/artifacts/${studyId}/${trialId}/${artifactId}`
 }
 
