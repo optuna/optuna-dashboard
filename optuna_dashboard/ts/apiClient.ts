@@ -92,6 +92,7 @@ interface StudyDetailResponse {
   is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
+  preferences?: [number, number][]
   preference_history?: PreferenceHistoryResponce[]
   plotly_graph_objects: PlotlyGraphObject[]
   feedback_component_type?: FeedbackComponentType
@@ -135,6 +136,7 @@ export const getStudyDetailAPI = (
           ? (res.data.feedback_component_type as FeedbackComponentType)
           : "Note",
         feedback_artifact_key: res.data.feedback_artifact_key,
+        preferences: res.data.preferences,
         preference_history: res.data.preference_history?.map(
           convertPreferenceHistory
         ),

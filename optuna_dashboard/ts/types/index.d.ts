@@ -206,6 +206,7 @@ type StudyDetail = {
   form_widgets?: FormWidgets
   feedback_component_type: FeedbackComponentType
   feedback_artifact_key?: string
+  preferences?: [number, number][]
   preference_history?: PreferenceHistory[]
   plotly_graph_objects: PlotlyGraphObject[]
 }
@@ -217,7 +218,6 @@ type StudyDetails = {
 type StudyParamImportance = {
   [study_id: string]: ParamImportance[][]
 }
-
 type PreferenceHistory = {
   id: string
   preference_id: string
