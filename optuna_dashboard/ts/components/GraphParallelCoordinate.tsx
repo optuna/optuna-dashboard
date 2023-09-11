@@ -7,6 +7,9 @@ import {
   Grid,
   FormGroup,
   FormControlLabel,
+  FormControl,
+  FormLabel,
+  Switch,
   Checkbox,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
@@ -21,7 +24,9 @@ import { useMergedUnionSearchSpace } from "../searchSpace"
 const plotDomId = "graph-parallel-coordinate"
 
 const useTargets = (
-  study: StudyDetail | null
+  study: StudyDetail | null,
+  logScales: boolean[],
+  setLogScales: (logScales: boolean[]) => void
 ): [Target[], SearchSpaceItem[], () => ReactNode] => {
   const [targets1] = useObjectiveAndUserAttrTargets(study)
   const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
@@ -48,6 +53,13 @@ const useTargets = (
         })
       )
     }
+    if (allTargets.length !== logScales.length) {
+      setLogScales(
+        allTargets.map((t) => {
+          return false
+        })
+      )
+    }
   }, [allTargets])
 
   const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,22 +69,39 @@ const useTargets = (
       )
     )
   }
+  const handleLogScalesChange = (i) => {
+    let newLogScales = [...logScales]
+    newLogScales[i] = !newLogScales[i]
+    setLogScales(newLogScales)
+  }
 
   const renderCheckBoxes = (): ReactNode => (
     <FormGroup>
       {allTargets.map((t, i) => {
         return (
-          <FormControlLabel
-            key={i}
-            control={
-              <Checkbox
-                checked={checked.length > i ? checked[i] : true}
-                onChange={handleOnChange}
-                name={i.toString()}
+          <Box>
+            <FormControlLabel
+              key={i}
+              control={
+                <Checkbox
+                  checked={checked.length > i ? checked[i] : true}
+                  onChange={handleOnChange}
+                  name={i.toString()}
+                />
+              }
+              label={t.toLabel(study?.objective_names)}
+            />
+            <FormControl key={i} component="fieldset">
+              <FormLabel component="legend">Log scale:</FormLabel>
+              <Switch
+                checked={logScales[i]}
+                onChange={() => {
+                  handleLogScalesChange(i)
+                }}
+                value="enable"
               />
-            }
-            label={t.toLabel(study?.objective_names)}
-          />
+            </FormControl>
+          </Box>
         )
       })}
     </FormGroup>
@@ -88,14 +117,26 @@ export const GraphParallelCoordinate: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
-  const [targets, searchSpace, renderCheckBoxes] = useTargets(study)
+  const [logScales, setLogScales] = useState<boolean[]>([false])
+  const [targets, searchSpace, renderCheckBoxes] = useTargets(
+    study,
+    logScales,
+    setLogScales
+  )
 
   const trials = useFilteredTrials(study, targets, false)
   useEffect(() => {
     if (study !== null) {
-      plotCoordinate(study, trials, targets, searchSpace, theme.palette.mode)
+      plotCoordinate(
+        study,
+        trials,
+        targets,
+        logScales,
+        searchSpace,
+        theme.palette.mode
+      )
     }
-  }, [study, trials, targets, searchSpace, theme.palette.mode])
+  }, [study, trials, targets, logScales, searchSpace, theme.palette.mode])
 
   return (
     <Grid container direction="row">
@@ -129,6 +170,7 @@ const plotCoordinate = (
   study: StudyDetail,
   trials: Trial[],
   targets: Target[],
+  logScales: boolean[],
   searchSpace: SearchSpaceItem[],
   mode: string
 ) => {
@@ -169,15 +211,43 @@ const plotCoordinate = (
       .join("")
   }
 
-  const dimensions = targets.map((target) => {
+  const calculateLogScale = (values: number[]) => {
+    const logValues = values.map((v) => {
+      return Math.log10(v)
+    })
+    const minValue = Math.min(...logValues)
+    const maxValue = Math.max(...logValues)
+    const tickvals = Array.from(
+      { length: Math.ceil(maxValue) - Math.floor(minValue) + 1 },
+      (_, i) => i + Math.floor(minValue)
+    )
+    const ticktext = tickvals.map((x) => `${Math.pow(10, x).toPrecision(3)}`)
+    return { logValues, tickvals, ticktext }
+  }
+
+  const dimensions = targets.map((target, i) => {
     if (target.kind === "objective" || target.kind === "user_attr") {
-      const values: number[] = trials.map(
-        (t) => target.getTargetValue(t) as number
-      )
-      return {
-        label: target.toLabel(study.objective_names),
-        values: values,
-        range: [Math.min(...values), Math.max(...values)],
+      if (logScales[i]) {
+        // log scale
+        const values = trials.map((t) => {
+          return target.getTargetValue(t) as number
+        })
+        const { logValues, tickvals, ticktext } = calculateLogScale(values)
+        return {
+          label: target.toLabel(study.objective_names),
+          values: logValues,
+          tickvals: tickvals,
+          ticktext: ticktext,
+        }
+      } else {
+        const values: number[] = trials.map(
+          (t) => target.getTargetValue(t) as number
+        )
+        return {
+          label: target.toLabel(study.objective_names),
+          values: values,
+          range: [Math.min(...values), Math.max(...values)],
+        }
       }
     } else {
       const s = searchSpace.find(
@@ -187,13 +257,7 @@ const plotCoordinate = (
       const values: number[] = trials.map(
         (t) => target.getTargetValue(t) as number
       )
-      if (s.distribution.type !== "CategoricalDistribution") {
-        return {
-          label: breakLabelIfTooLong(s.name),
-          values: values,
-          range: [s.distribution.low, s.distribution.high],
-        }
-      } else {
+      if (s.distribution.type === "CategoricalDistribution") {
         // categorical
         const vocabArr: string[] = s.distribution.choices.map((c) => c.value)
         const tickvals: number[] = vocabArr.map((v, i) => i)
@@ -204,6 +268,25 @@ const plotCoordinate = (
           // @ts-ignore
           tickvals: tickvals,
           ticktext: vocabArr,
+        }
+      } else if (logScales[i]) {
+        // log scale
+        const values = trials.map((t) => {
+          return target.getTargetValue(t) as number
+        })
+        const { logValues, tickvals, ticktext } = calculateLogScale(values)
+        return {
+          label: breakLabelIfTooLong(s.name),
+          values: logValues,
+          tickvals: tickvals,
+          ticktext: ticktext,
+        }
+      } else {
+        // non categorical or log scale
+        return {
+          label: breakLabelIfTooLong(s.name),
+          values: values,
+          range: [s.distribution.low, s.distribution.high],
         }
       }
     }
