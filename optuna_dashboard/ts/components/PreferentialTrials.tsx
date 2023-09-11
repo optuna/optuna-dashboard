@@ -29,7 +29,6 @@ import {
 } from "./ThreejsArtifactViewer"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
 import { MarkdownRenderer } from "./Note"
-import { Details } from "@mui/icons-material"
 
 const ModalPage: FC<{
   children: React.ReactNode
