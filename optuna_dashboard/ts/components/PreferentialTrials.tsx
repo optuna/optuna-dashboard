@@ -163,7 +163,7 @@ const SettingsPage: FC<{
   )
 }
 
-const OutputContent: FC<{
+export const OutputContent: FC<{
   trial: Trial
   artifact?: Artifact
   componentId: FeedbackComponentType
@@ -182,6 +182,14 @@ const OutputContent: FC<{
   }
 
   return null
+}
+
+export const getArtifactUrlPath = (
+  studyId: number,
+  trialId: number,
+  artifactId: string
+) => {
+  return `/artifacts/${studyId}/${trialId}/${artifactId}`
 }
 
 const PreferentialTrial: FC<{
@@ -204,11 +212,14 @@ const PreferentialTrial: FC<{
   const [buttonHover, setButtonHover] = useState(false)
   const trialWidth = 400
   const trialHeight = 300
-  const componentId = studyDetail.feedback_component_type ?? "Note"
+  const componentId = studyDetail.feedback_component_type
   const artifactKey = studyDetail.feedback_artifact_key
   const artifactId = trial?.user_attrs.find((a) => a.key === artifactKey)?.value
   const artifact = trial?.artifacts.find((a) => a.artifact_id === artifactId)
-  const urlPath = `/artifacts/${studyDetail.id}/${trial?.trial_id}/${artifact?.artifact_id}`
+  const urlPath =
+    trial !== undefined && artifactId !== undefined
+      ? getArtifactUrlPath(studyDetail.id, trial?.trial_id, artifactId)
+      : ""
   const is3dModel =
     componentId === "Artifact" &&
     artifact !== undefined &&

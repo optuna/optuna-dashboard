@@ -14,8 +14,9 @@ import Modal from "@mui/material/Modal"
 import { red } from "@mui/material/colors"
 
 import { TrialListDetail } from "./TrialList"
-import { MarkdownRenderer } from "./Note"
+import { OutputContent, getArtifactUrlPath } from "./PreferentialTrials"
 import { formatDate } from "../dateUtil"
+import { useStudyDetailValue } from "../state"
 
 type TrialType = "worst" | "none"
 
@@ -26,7 +27,20 @@ const CandidateTrial: FC<{
   const theme = useTheme()
   const trialWidth = 300
   const trialHeight = 300
+  const studyDetail = useStudyDetailValue(trial.study_id)
   const [detailShown, setDetailShown] = useState(false)
+
+  if (studyDetail === null) {
+    return null
+  }
+  const componentId = studyDetail.feedback_component_type
+  const artifactKey = studyDetail.feedback_artifact_key
+  const artifactId = trial.user_attrs.find((a) => a.key === artifactKey)?.value
+  const artifact = trial.artifacts.find((a) => a.artifact_id === artifactId)
+  const urlPath =
+    artifactId !== undefined
+      ? getArtifactUrlPath(trial.study_id, trial.trial_id, artifactId)
+      : ""
 
   const cardComponentSx = {
     padding: 0,
@@ -76,7 +90,12 @@ const CandidateTrial: FC<{
             padding: theme.spacing(2),
           }}
         >
-          <MarkdownRenderer body={trial.note.body} />
+          <OutputContent
+            trial={trial}
+            artifact={artifact}
+            componentId={componentId}
+            urlPath={urlPath}
+          />
         </Box>
 
         {type === "worst" ? (

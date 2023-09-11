@@ -204,7 +204,7 @@ type StudyDetail = {
   is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
-  feedback_component_type?: FeedbackComponentType
+  feedback_component_type: FeedbackComponentType
   feedback_artifact_key?: string
   preference_history?: PreferenceHistory[]
   plotly_graph_objects: PlotlyGraphObject[]
