@@ -6,10 +6,10 @@ import textwrap
 import time
 from typing import NoReturn
 
+from optuna.artifacts import FileSystemArtifactStore
+from optuna.artifacts import upload_artifact
 from optuna_dashboard import save_note
 from optuna_dashboard.artifact import get_artifact_path
-from optuna_dashboard.artifact import upload_artifact
-from optuna_dashboard.artifact.file_system import FileSystemBackend
 from optuna_dashboard.preferential import create_study
 from optuna_dashboard.preferential.samplers.gp import PreferentialGPSampler
 from PIL import Image
@@ -17,7 +17,7 @@ from PIL import Image
 
 STORAGE_URL = "sqlite:///example.db"
 artifact_path = os.path.join(os.path.dirname(__file__), "artifact")
-artifact_backend = FileSystemBackend(base_path=artifact_path)
+artifact_store = FileSystemArtifactStore(base_path=artifact_path)
 os.makedirs(artifact_path, exist_ok=True)
 
 
@@ -32,7 +32,7 @@ def main() -> NoReturn:
 
     with tempfile.TemporaryDirectory() as tmpdir:
         while True:
-            # If n_comparison "best" trials (that are not reported bad) exists,
+            # If study.should_generate() returns False,
             # the generator waits for human evaluation.
             if not study.should_generate():
                 time.sleep(0.1)  # Avoid busy-loop
@@ -50,7 +50,7 @@ def main() -> NoReturn:
             image.save(image_path)
 
             # 3. Upload Artifact
-            artifact_id = upload_artifact(artifact_backend, trial, image_path)
+            artifact_id = upload_artifact(trial, image_path, artifact_store)
             trial.set_user_attr("artifact_id", artifact_id)
             print("RGB:", (r, g, b))
 
