@@ -212,11 +212,10 @@ class APITestCase(TestCase):
 
     def test_change_component_type_only(self) -> None:
         storage = optuna.storages.InMemoryStorage()
-        study = create_study(storage=storage)
+        study = create_study(storage=storage, n_generate=3)
         register_output_component(study, "Artifact", "audio")
         for _ in range(3):
-            trial = study.ask()
-            study.mark_comparison_ready(trial)
+            study.ask()
 
         app = create_app(storage)
         study_id = study._study._study_id
