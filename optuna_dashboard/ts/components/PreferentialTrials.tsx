@@ -163,14 +163,12 @@ const SettingsPage: FC<{
   )
 }
 
-const FeedbackContent: FC<{
+const OutputContent: FC<{
   trial: Trial
   artifact?: Artifact
   componentId: FeedbackComponentType
-  width: string
-  minHeight: string
   urlPath: string
-}> = ({ trial, artifact, componentId, width, minHeight, urlPath }) => {
+}> = ({ trial, artifact, componentId, urlPath }) => {
   if (componentId === "Note") {
     return <MarkdownRenderer body={trial.note.body} />
   }
@@ -186,6 +184,191 @@ const FeedbackContent: FC<{
   return null
 }
 
+const PreferentialTrial: FC<{
+  trial?: Trial
+  studyDetail: StudyDetail
+  candidates: number[]
+  hideTrial: () => void
+  openDetailTrial: () => void
+  openThreejsArtifactModal: (urlPath: string, artifact: Artifact) => void
+}> = ({
+  trial,
+  studyDetail,
+  candidates,
+  hideTrial,
+  openDetailTrial,
+  openThreejsArtifactModal,
+}) => {
+  const theme = useTheme()
+  const action = actionCreator()
+  const [buttonHover, setButtonHover] = useState(false)
+  const trialWidth = 400
+  const trialHeight = 300
+  const componentId = studyDetail.feedback_component_type ?? "Note"
+  const artifactKey = studyDetail.feedback_artifact_key
+  const artifactId = trial?.user_attrs.find((a) => a.key === artifactKey)?.value
+  const artifact = trial?.artifacts.find((a) => a.artifact_id === artifactId)
+  const urlPath = `/artifacts/${studyDetail.id}/${trial?.trial_id}/${artifact?.artifact_id}`
+  const is3dModel =
+    componentId === "Artifact" &&
+    artifact !== undefined &&
+    isThreejsArtifact(artifact)
+
+  if (trial === undefined) {
+    return (
+      <Box
+        sx={{
+          width: trialWidth,
+          minHeight: trialHeight,
+          margin: theme.spacing(2),
+        }}
+      />
+    )
+  }
+
+  const onFeedback = () => {
+    hideTrial()
+    action.updatePreference(trial.study_id, candidates, trial.number)
+  }
+
+  return (
+    <Card
+      key={trial.number}
+      sx={{
+        width: trialWidth,
+        minHeight: trialHeight,
+        margin: theme.spacing(2),
+        padding: 0,
+      }}
+    >
+      <CardActions>
+        <Box
+          sx={{
+            margin: theme.spacing(0, 2),
+            maxWidth: `calc(${trialWidth}px - ${
+              is3dModel ? theme.spacing(8) : theme.spacing(4)
+            })`,
+            overflow: "hidden",
+            display: "flex",
+          }}
+        >
+          <Typography variant="h5">Trial {trial.number}</Typography>
+          {componentId === "Artifact" && artifact !== undefined ? (
+            <Typography
+              variant="h6"
+              sx={{
+                margin: theme.spacing(0, 2),
+              }}
+            >
+              {`(${artifact.filename})`}
+            </Typography>
+          ) : null}
+        </Box>
+        {is3dModel ? (
+          <IconButton
+            aria-label="show artifact 3d model"
+            size="small"
+            color="inherit"
+            sx={{ marginLeft: "auto" }}
+            onClick={() => {
+              openThreejsArtifactModal(urlPath, artifact)
+            }}
+          >
+            <FullscreenIcon />
+          </IconButton>
+        ) : null}
+        <IconButton
+          sx={{
+            marginLeft: "auto",
+          }}
+          onClick={() => {
+            hideTrial()
+            action.skipPreferentialTrial(trial.study_id, trial.trial_id)
+          }}
+          aria-label="skip trial"
+        >
+          <ReplayIcon />
+        </IconButton>
+        <IconButton
+          sx={{
+            marginLeft: "auto",
+          }}
+          onClick={openDetailTrial}
+          aria-label="show detail"
+        >
+          <OpenInFullIcon />
+        </IconButton>
+      </CardActions>
+      <CardContent
+        aria-label="trial-button"
+        onClick={(e) => {
+          if (e.shiftKey) onFeedback()
+        }}
+        sx={{
+          position: "relative",
+          padding: theme.spacing(2),
+          overflow: "hidden",
+          minHeight: theme.spacing(20),
+        }}
+      >
+        <OutputContent
+          trial={trial}
+          artifact={artifact}
+          componentId={componentId}
+          urlPath={urlPath}
+        />
+        <Box
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            backgroundColor: theme.palette.mode === "dark" ? "white" : "black",
+            opacity: buttonHover ? 0.2 : 0,
+            zIndex: 1,
+            transition: "opacity 0.3s ease-out",
+            pointerEvents: "none",
+          }}
+        />
+        <ClearIcon
+          sx={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            color: red[600],
+            opacity: buttonHover ? 0.3 : 0,
+            transition: "opacity 0.3s ease-out",
+            zIndex: 1,
+            filter: buttonHover
+              ? theme.palette.mode === "dark"
+                ? "brightness(1.1)"
+                : "brightness(1.7)"
+              : "none",
+            pointerEvents: "none",
+          }}
+        />
+      </CardContent>
+      <Button
+        variant="outlined"
+        onClick={onFeedback}
+        onMouseEnter={() => {
+          setButtonHover(true)
+        }}
+        onMouseLeave={() => {
+          setButtonHover(false)
+        }}
+        color="error"
+      >
+        <ClearIcon />
+        Worst
+      </Button>
+    </Card>
+  )
+}
+
 type DisplayTrials = {
   numbers: number[]
   last_number: number
@@ -195,7 +378,6 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
   studyDetail,
 }) => {
   const theme = useTheme()
-  const action = actionCreator()
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
     useThreejsArtifactModal()
   const runningTrials =
@@ -208,10 +390,6 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
   })
   const [settingShown, setSettingShown] = useState(false)
   const [detailTrial, setDetailTrial] = useState<number | null>(null)
-  const [buttonHover, setButtonHover] = useState<number | null>(null)
-
-  const trialWidth = 400
-  const trialHeight = 300
 
   if (studyDetail === null || !studyDetail.is_preferential) {
     return null
@@ -285,179 +463,16 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
         {displayTrials.numbers.map((t, index) => {
           const trial = activeTrials.find((trial) => trial.number === t)
           const candidates = displayTrials.numbers.filter((n) => n !== -1)
-          const componentId = studyDetail.feedback_component_type ?? "Note"
-          const artifactKey = studyDetail.feedback_artifact_key
-          const artifactId = trial?.user_attrs.find(
-            (a) => a.key === artifactKey
-          )?.value
-          const artifact = trial?.artifacts.find(
-            (a) => a.artifact_id === artifactId
-          )
-          const urlPath = `/artifacts/${studyDetail.id}/${trial?.trial_id}/${artifact?.artifact_id}`
-
-          if (trial == undefined) {
-            return (
-              <Box
-                key={-index - 1}
-                sx={{
-                  width: trialWidth,
-                  minHeight: trialHeight,
-                  margin: theme.spacing(2),
-                }}
-              />
-            )
-          }
-
-          const is3dModel =
-            componentId === "Artifact" &&
-            artifact !== undefined &&
-            isThreejsArtifact(artifact)
-          const onFeedback = () => {
-            hideTrial(trial.number)
-            action.updatePreference(trial.study_id, candidates, trial.number)
-          }
-
           return (
-            <Card
-              key={trial.number}
-              sx={{
-                width: trialWidth,
-                minHeight: trialHeight,
-                margin: theme.spacing(2),
-                padding: 0,
-              }}
-            >
-              <CardActions>
-                <Box
-                  sx={{
-                    margin: theme.spacing(0, 2),
-                    maxWidth: `calc(${trialWidth}px - ${
-                      is3dModel ? theme.spacing(8) : theme.spacing(4)
-                    })`,
-                    overflow: "hidden",
-                    display: "flex",
-                  }}
-                >
-                  <Typography variant="h5">Trial {trial.number}</Typography>
-                  {componentId === "Artifact" && artifact !== undefined ? (
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        margin: theme.spacing(0, 2),
-                      }}
-                    >
-                      {`(${artifact.filename})`}
-                    </Typography>
-                  ) : null}
-                </Box>
-                {is3dModel ? (
-                  <IconButton
-                    aria-label="show artifact 3d model"
-                    size="small"
-                    color="inherit"
-                    sx={{ marginLeft: "auto" }}
-                    onClick={() => {
-                      openThreejsArtifactModal(urlPath, artifact)
-                    }}
-                  >
-                    <FullscreenIcon />
-                  </IconButton>
-                ) : null}
-                <IconButton
-                  sx={{
-                    marginLeft: "auto",
-                  }}
-                  onClick={() => {
-                    hideTrial(trial.number)
-                    action.skipPreferentialTrial(trial.study_id, trial.trial_id)
-                  }}
-                  aria-label="skip trial"
-                >
-                  <ReplayIcon />
-                </IconButton>
-                <IconButton
-                  sx={{
-                    marginLeft: "auto",
-                  }}
-                  onClick={() => setDetailTrial(trial.number)}
-                  aria-label="show detail"
-                >
-                  <OpenInFullIcon />
-                </IconButton>
-              </CardActions>
-              <CardContent
-                aria-label="trial-button"
-                onClick={(e) => {
-                  if (e.shiftKey) onFeedback()
-                }}
-                sx={{
-                  position: "relative",
-                  padding: theme.spacing(2),
-                  overflow: "hidden",
-                  minHeight: theme.spacing(20),
-                }}
-              >
-                <FeedbackContent
-                  trial={trial}
-                  artifact={artifact}
-                  componentId={componentId}
-                  width={`${trialWidth}px`}
-                  minHeight="100%"
-                  urlPath={urlPath}
-                />
-                <Box
-                  sx={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor:
-                      theme.palette.mode === "dark" ? "white" : "black",
-                    opacity: buttonHover === trial.number ? 0.2 : 0,
-                    zIndex: 1,
-                    transition: "opacity 0.3s ease-out",
-                    pointerEvents: "none",
-                  }}
-                />
-                <ClearIcon
-                  sx={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    color: red[600],
-                    opacity: buttonHover === trial.number ? 0.3 : 0,
-                    transition: "opacity 0.3s ease-out",
-                    zIndex: 1,
-                    filter:
-                      buttonHover === trial.number
-                        ? theme.palette.mode === "dark"
-                          ? "brightness(1.1)"
-                          : "brightness(1.7)"
-                        : "none",
-                    pointerEvents: "none",
-                  }}
-                />
-              </CardContent>
-              <Button
-                variant="outlined"
-                onClick={onFeedback}
-                onMouseEnter={() => {
-                  setButtonHover(trial.number)
-                }}
-                onMouseLeave={() => {
-                  setButtonHover((prev) =>
-                    prev === trial.number ? null : prev
-                  )
-                }}
-                color="error"
-              >
-                <ClearIcon />
-                Worst
-              </Button>
-            </Card>
+            <PreferentialTrial
+              key={t === -1 ? -index - 1 : t}
+              trial={trial}
+              studyDetail={studyDetail}
+              candidates={candidates}
+              hideTrial={() => hideTrial(t)}
+              openDetailTrial={() => setDetailTrial(t)}
+              openThreejsArtifactModal={openThreejsArtifactModal}
+            />
           )
         })}
       </Box>
