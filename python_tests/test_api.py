@@ -183,7 +183,7 @@ class APITestCase(TestCase):
     def test_change_component(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(storage=storage, n_generate=3)
-        register_preference_feedback_component_type(study, "Note")
+        register_preference_feedback_component_type(study, "note")
         for _ in range(3):
             study.ask()
 
@@ -193,7 +193,7 @@ class APITestCase(TestCase):
             app,
             f"/api/studies/{study_id}/preference_feedback_component_type",
             "PUT",
-            body=json.dumps({"type": "Artifact", "artifact_key": "image"}),
+            body=json.dumps({"type": "artifact", "artifact_key": "image"}),
             content_type="application/json",
         )
         self.assertEqual(status, 204)
@@ -207,7 +207,7 @@ class APITestCase(TestCase):
         self.assertEqual(status, 200)
 
         study_detail = json.loads(body)
-        assert study_detail["feedback_component_type"]["type"] == "Artifact"
+        assert study_detail["feedback_component_type"]["type"] == "artifact"
         assert study_detail["feedback_component_type"]["artifact_key"] == "image"
 
     def test_skip_trial(self) -> None:

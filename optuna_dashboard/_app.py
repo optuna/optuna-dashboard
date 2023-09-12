@@ -316,7 +316,7 @@ def create_app(
         except ValueError:
             response.status = 400
             return {"reason": "invalid request."}
-        if component_type not in ["Note", "Artifact"]:
+        if component_type not in ["note", "artifact"]:
             response.status = 400
             return {"reason": "component_type must be either 'Note' or 'Artifact'."}
 
