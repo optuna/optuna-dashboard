@@ -35,13 +35,9 @@ def report_preferences(
     return preference_id
 
 
-def get_preferences(
-    study_id: int,
-    storage: BaseStorage,
-) -> list[tuple[int, int]]:
+def get_preferences(study_system_attrs: dict[str, Any]) -> list[tuple[int, int]]:
     preferences: list[tuple[int, int]] = []
-    system_attrs = storage.get_study_system_attrs(study_id)
-    for k, v in system_attrs.items():
+    for k, v in study_system_attrs.items():
         if not k.startswith(_SYSTEM_ATTR_PREFIX_PREFERENCE):
             continue
         preferences.extend(v)  # type: ignore
@@ -63,6 +59,19 @@ def report_skip(
 def is_skipped_trial(trial_id: int, study_system_attrs: dict[str, Any]) -> bool:
     key = _SYSTEM_ATTR_PREFIX_SKIP_TRIAL + str(trial_id)
     return key in study_system_attrs
+
+
+def get_skipped_trial_ids(study_system_attrs: dict[str, Any]) -> list[int]:
+    skipped_trial_ids: list[int] = []
+    for k in study_system_attrs:
+        if not k.startswith(_SYSTEM_ATTR_PREFIX_SKIP_TRIAL):
+            continue
+        try:
+            trial_id = int(k[len(_SYSTEM_ATTR_PREFIX_SKIP_TRIAL) :])  # noqa: E203
+            skipped_trial_ids.append(trial_id)
+        except ValueError:
+            continue
+    return skipped_trial_ids
 
 
 def get_n_generate(study_system_attrs: dict[str, Any]) -> int:

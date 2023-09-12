@@ -203,6 +203,7 @@ type StudyDetail = {
   is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
+  preferences?: [number, number][]
   preference_history?: PreferenceHistory[]
   plotly_graph_objects: PlotlyGraphObject[]
 }
@@ -214,7 +215,6 @@ type StudyDetails = {
 type StudyParamImportance = {
   [study_id: string]: ParamImportance[][]
 }
-
 type PreferenceHistory = {
   id: string
   preference_id: string

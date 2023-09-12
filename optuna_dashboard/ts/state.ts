@@ -97,6 +97,12 @@ export const useStudyDirections = (
   return studyDetail?.directions || studySummary?.directions || null
 }
 
+export const useStudyIsPreferencial = (studyId: number): boolean | null => {
+  const studyDetail = useStudyDetailValue(studyId)
+  const studySummary = useStudySummaryValue(studyId)
+  return studyDetail?.is_preferential || studySummary?.is_preferential || null
+}
+
 export const useStudyName = (studyId: number): string | null => {
   const studyDetail = useStudyDetailValue(studyId)
   const studySummary = useStudySummaryValue(studyId)

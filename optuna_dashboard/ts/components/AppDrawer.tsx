@@ -17,8 +17,7 @@ import ListItemText from "@mui/material/ListItemText"
 import {
   drawerOpenState,
   reloadIntervalState,
-  useStudyDetailValue,
-  useStudySummaryValue,
+  useStudyIsPreferencial,
 } from "../state"
 import { Link } from "react-router-dom"
 import AutoGraphIcon from "@mui/icons-material/AutoGraph"
@@ -37,6 +36,7 @@ import OpenInNewIcon from "@mui/icons-material/OpenInNew"
 import QueryStatsIcon from "@mui/icons-material/QueryStats"
 import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt"
 import HistoryIcon from "@mui/icons-material/History"
+import LanIcon from "@mui/icons-material/Lan"
 import { Switch } from "@mui/material"
 import { actionCreator } from "../action"
 
@@ -50,6 +50,7 @@ export type PageId =
   | "note"
   | "settings"
   | "preferenceHistory"
+  | "graph"
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
@@ -131,12 +132,8 @@ export const AppDrawer: FC<{
   const action = actionCreator()
   const [open, setOpen] = useRecoilState<boolean>(drawerOpenState)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
-  const studyDetail =
-    studyId !== undefined ? useStudyDetailValue(studyId) : null
-  const studySummary =
-    studyId !== undefined ? useStudySummaryValue(studyId) : null
   const isPreferential =
-    studyDetail?.is_preferential ?? studySummary?.is_preferential ?? false
+    studyId !== undefined ? useStudyIsPreferencial(studyId) : null
 
   const styleListItem = {
     display: "block",
@@ -209,7 +206,7 @@ export const AppDrawer: FC<{
                   {isPreferential ? <ThumbUpAltIcon /> : <AutoGraphIcon />}
                 </ListItemIcon>
                 <ListItemText
-                  primary={isPreferential ? "HumanInTheLoop" : "History"}
+                  primary={isPreferential ? "Feedback Preference" : "History"}
                   sx={styleListItemText}
                 />
               </ListItemButton>
@@ -230,7 +227,7 @@ export const AppDrawer: FC<{
                     <HistoryIcon />
                   </ListItemIcon>
                   <ListItemText
-                    primary="PreferenceHistory"
+                    primary="Preferences (History)"
                     sx={styleListItemText}
                   />
                 </ListItemButton>
@@ -249,6 +246,24 @@ export const AppDrawer: FC<{
                 <ListItemText primary="Analytics" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
+            {isPreferential && (
+              <ListItem key="PreferenceGraph" disablePadding sx={styleListItem}>
+                <ListItemButton
+                  component={Link}
+                  to={`${URL_PREFIX}/studies/${studyId}/graph`}
+                  sx={styleListItemButton}
+                  selected={page === "graph"}
+                >
+                  <ListItemIcon sx={styleListItemIcon}>
+                    <LanIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Preferences (Graph)"
+                    sx={styleListItemText}
+                  />
+                </ListItemButton>
+              </ListItem>
+            )}
             <ListItem key="TableList" disablePadding sx={styleListItem}>
               <ListItemButton
                 component={Link}

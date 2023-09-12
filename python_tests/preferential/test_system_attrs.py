@@ -18,12 +18,13 @@ def test_report_and_get_preferences(storage_supplier: Callable[[], StorageSuppli
         study.ask()
 
         study_id = study._study_id
-        assert len(get_preferences(study_id, storage)) == 0
+
+        assert len(get_preferences(storage.get_study_system_attrs(study_id))) == 0
 
         better, worse = study.trials[0], study.trials[1]
         report_preferences(study_id, storage, [(better.number, worse.number)])
-        assert len(get_preferences(study_id, storage)) == 1
+        assert len(get_preferences(storage.get_study_system_attrs(study_id))) == 1
 
-        actual_better, actual_worse = get_preferences(study_id, storage)[0]
+        actual_better, actual_worse = get_preferences(storage.get_study_system_attrs(study_id))[0]
         assert actual_better == better.number
         assert actual_worse == worse.number

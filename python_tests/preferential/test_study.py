@@ -40,7 +40,6 @@ def test_report_and_get_preferences(storage_supplier: Callable[[], StorageSuppli
         for _ in range(2):
             trial = study.ask()
             trial.suggest_float("x", 0, 1)
-            study.mark_comparison_ready(trial)
         better, worse = study.trials
         study.report_preference(better, worse)
         assert len(study.preferences) == 1
@@ -152,7 +151,6 @@ def test_copy_study() -> None:
         for _ in range(3):
             trial = from_study.ask()
             trial.suggest_float("x", 0, 1)
-            from_study.mark_comparison_ready(trial)
         from_study.report_preference(from_study.trials[0], from_study.trials[1])
         from_study.report_preference(from_study.trials[1], from_study.trials[2])
 
@@ -243,7 +241,6 @@ def test_get_trials(storage_supplier: Callable[[], StorageSupplier]) -> None:
         for _ in range(5):
             trial = study.ask()
             trial.suggest_int("x", 1, 5)
-            study.mark_comparison_ready(trial)
 
         with patch("copy.deepcopy", wraps=copy.deepcopy) as mock_object:
             trials0 = study.get_trials(deepcopy=False)
@@ -266,8 +263,7 @@ def test_get_trials_state_option(storage_supplier: Callable[[], StorageSupplier]
     with storage_supplier() as storage:
         study = create_study(n_generate=4, storage=storage)
         for _ in range(3):
-            trial = study.ask()
-            study.mark_comparison_ready(trial)
+            study.ask()
         better, worse = study.trials[:2]
         study.report_preference(better, worse)
 
