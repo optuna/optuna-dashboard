@@ -30,6 +30,17 @@ if TYPE_CHECKING:
         },
     )
     History = ChooseWorstHistory
+    SerializedHistory = TypedDict(
+        "SerializedHistory",
+        {
+            "history": History,
+            "is_removed": bool,
+        },
+    )
+
+
+class HistoryIdError(Exception):
+    pass
 
 
 @dataclass
@@ -80,13 +91,20 @@ def report_history(
     return id
 
 
-def remove_history(study_id: int, storage: BaseStorage, id: str) -> None:
-    storage.set_study_system_attr(study_id, _SYSTEM_ATTR_PREFIX_PREFERENCE + id, [])
-
-
-def restore_history(study_id: int, storage: BaseStorage, id: str) -> None:
+def remove_history(study_id: int, storage: BaseStorage, history_id: str) -> None:
     system_attrs = storage.get_study_system_attrs(study_id)
-    history: History = json.loads(system_attrs.get(_SYSTEM_ATTR_PREFIX_HISTORY + id, ""))
+    history_key = _SYSTEM_ATTR_PREFIX_HISTORY + history_id
+    if history_key not in system_attrs:
+        raise HistoryIdError
+    storage.set_study_system_attr(study_id, _SYSTEM_ATTR_PREFIX_PREFERENCE + history_id, [])
+
+
+def restore_history(study_id: int, storage: BaseStorage, history_id: str) -> None:
+    system_attrs = storage.get_study_system_attrs(study_id)
+    history_key = _SYSTEM_ATTR_PREFIX_HISTORY + history_id
+    if history_key not in system_attrs:
+        raise HistoryIdError
+    history: History = json.loads(system_attrs.get(history_key, ""))
     storage.set_study_system_attr(
-        study_id, _SYSTEM_ATTR_PREFIX_PREFERENCE + history["id"], history["preferences"]
+        study_id, _SYSTEM_ATTR_PREFIX_PREFERENCE + history_id, history["preferences"]
     )
