@@ -30,7 +30,10 @@ from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
 from ._preference_setting import _register_preference_feedback_component_type
 from ._preferential_history import NewHistory
+from ._preferential_history import PreferenceHistoryNotFound
+from ._preferential_history import remove_history
 from ._preferential_history import report_history
+from ._preferential_history import restore_history
 from ._rdb_migration import register_rdb_migration_route
 from ._serializer import serialize_study_detail
 from ._serializer import serialize_study_summary
@@ -326,6 +329,28 @@ def create_app(
             component_type=component_type,
             artifact_key=artifact_key,
         )
+
+    @app.delete("/api/studies/<study_id:int>/preference/<history_id>")
+    @json_api_view
+    def remove_preference(study_id: int, history_id: str) -> dict[str, Any]:
+        try:
+            remove_history(study_id, storage, history_id)
+        except PreferenceHistoryNotFound:
+            response.status = 404
+            return {"reason": f"history_id={history_id} is not found"}
+
+        response.status = 204
+        return {}
+
+    @app.post("/api/studies/<study_id:int>/preference/<history_id>")
+    @json_api_view
+    def restore_preference(study_id: int, history_id: str) -> dict[str, Any]:
+        try:
+            restore_history(study_id, storage, history_id)
+        except PreferenceHistoryNotFound:
+            response.status = 404
+            return {"reason": f"history_id={history_id} is not found"}
+
         response.status = 204
         return {}
 
