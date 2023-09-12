@@ -204,6 +204,7 @@ const ChoiceTrials: FC<{
           flexDirection: "row",
           flexWrap: "wrap",
           filter: choice.isRemoved ? "brightness(0.4)" : undefined,
+          backgroundColor: theme.palette.background.paper,
         }}
       >
         {choice.candidates.map((trial_num, index) => (
