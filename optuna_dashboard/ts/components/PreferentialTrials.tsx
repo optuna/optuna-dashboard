@@ -241,7 +241,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
     studyDetail?.preference_history?.filter((h) => !h.isRemoved).pop()?.id ??
     null
   if (undoHistoryId !== null && undoHistoryId !== latestHistoryId) {
-    setUndoHistoryId(latestHistoryId)
+    setUndoHistoryId(null)
   }
 
   return (
