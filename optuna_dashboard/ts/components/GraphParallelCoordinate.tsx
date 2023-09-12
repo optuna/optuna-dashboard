@@ -54,11 +54,7 @@ const useTargets = (
       )
     }
     if (allTargets.length !== logScales.length) {
-      setLogScales(
-        allTargets.map((t) => {
-          return false
-        })
-      )
+      setLogScales(allTargets.map(() => false))
     }
   }, [allTargets])
 
@@ -69,8 +65,8 @@ const useTargets = (
       )
     )
   }
-  const handleLogScalesChange = (i) => {
-    let newLogScales = [...logScales]
+  const handleLogScalesChange = (i: number) => {
+    const newLogScales = [...logScales]
     newLogScales[i] = !newLogScales[i]
     setLogScales(newLogScales)
   }
@@ -79,9 +75,8 @@ const useTargets = (
     <FormGroup>
       {allTargets.map((t, i) => {
         return (
-          <Box>
+          <Box key={i}>
             <FormControlLabel
-              key={i}
               control={
                 <Checkbox
                   checked={checked.length > i ? checked[i] : true}
@@ -91,10 +86,15 @@ const useTargets = (
               }
               label={t.toLabel(study?.objective_names)}
             />
-            <FormControl key={i} component="fieldset">
+            <FormControl
+              component="fieldset"
+              style={{
+                display: "flex",
+              }}
+            >
               <FormLabel component="legend">Log scale:</FormLabel>
               <Switch
-                checked={logScales[i]}
+                checked={logScales[i] || false}
                 onChange={() => {
                   handleLogScalesChange(i)
                 }}
