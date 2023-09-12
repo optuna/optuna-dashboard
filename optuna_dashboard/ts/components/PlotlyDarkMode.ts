@@ -1,18 +1,14 @@
 import * as plotly from "plotly.js-dist-min"
-import { useRecoilValue } from "recoil"
-import { plotlyDarkColorScale, plotlyLightColorScale } from "../state"
 
 // Following template is extracted from the sdist of plotly Python library.
 // See https://github.com/plotly/plotly.py/blob/v5.6.0/packages/python/plotly/templategen/__init__.py and
 // https://github.com/plotly/plotly.py/blob/v5.6.0/packages/python/plotly/templategen/definitions.py
 
-export const getColorTemplate = (mode: string):  Partial<Plotly.Template> => {
+export const getColorTemplate = (mode: string, theme: string):  Partial<Plotly.Template> => {
   if (mode === "dark") {
-    // return DarkColorTemplates[useRecoilValue<string>(plotlyDarkColorScale)]
-    return plotlyDark
+    return DarkColorTemplates[theme]
   } else {
-    // return LightColorTemplates[useRecoilValue<string>(plotlyLightColorScale)]
-    return plotlyWhite
+    return LightColorTemplates[theme]
   }
 }
 

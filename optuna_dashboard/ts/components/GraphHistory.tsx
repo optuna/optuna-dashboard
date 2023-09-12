@@ -212,7 +212,7 @@ const plotHistory = (
       type: xAxis === "number" ? "linear" : "date",
     },
     showlegend: historyPlotInfos.length === 1 ? false : true,
-    template: getColorTemplate(mode),
+    template: mode === "dark" ? plotlyDarkTemplate : plotlyLightTemplate,
   }
 
   const getAxisX = (trial: Trial): number | Date => {
