@@ -28,6 +28,7 @@ from ._cached_extra_study_property import get_cached_extra_study_property
 from ._custom_plot_data import get_plotly_graph_objects
 from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
+from ._preference_setting import _register_output_component
 from ._preferential_history import NewHistory
 from ._preferential_history import report_history
 from ._rdb_migration import register_rdb_migration_route
@@ -303,6 +304,28 @@ def create_app(
             ),
         )
 
+        response.status = 204
+        return {}
+
+    @app.post("/api/studies/<study_id:int>/component")
+    @json_api_view
+    def post_component(study_id: int) -> dict[str, Any]:
+        try:
+            component_type = request.json.get("component_type", "")
+            artifact_key = request.json.get("artifact_key", None)
+        except ValueError:
+            response.status = 400
+            return {"reason": "invalid request."}
+        if component_type not in ["Note", "Artifact"]:
+            response.status = 400
+            return {"reason": "component_type must be either 'Note' or 'Artifact'."}
+
+        _register_output_component(
+            study_id=study_id,
+            storage=storage,
+            component_type=component_type,
+            artifact_key=artifact_key,
+        )
         response.status = 204
         return {}
 

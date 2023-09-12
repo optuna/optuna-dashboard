@@ -8,6 +8,7 @@ from optuna import get_all_study_summaries
 from optuna.study import StudyDirection
 from optuna_dashboard._app import create_app
 from optuna_dashboard._app import create_new_study
+from optuna_dashboard._preference_setting import register_output_component
 from optuna_dashboard.preferential import create_study
 
 from .wsgi_client import send_request
@@ -178,6 +179,66 @@ class APITestCase(TestCase):
             content_type="application/json",
         )
         self.assertEqual(status, 400)
+
+    def test_change_component(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = create_study(storage=storage, n_generate=3)
+        register_output_component(study, "Note")
+        for _ in range(3):
+            study.ask()
+
+        app = create_app(storage)
+        study_id = study._study._study_id
+        status, _, _ = send_request(
+            app,
+            f"/api/studies/{study_id}/component",
+            "POST",
+            body=json.dumps({"component_type": "Artifact", "artifact_key": "image"}),
+            content_type="application/json",
+        )
+        self.assertEqual(status, 204)
+
+        status, _, body = send_request(
+            app,
+            f"/api/studies/{study_id}",
+            "GET",
+            content_type="application/json",
+        )
+        self.assertEqual(status, 200)
+
+        study_detail = json.loads(body)
+        assert study_detail["feedback_component_type"] == "Artifact"
+        assert study_detail["feedback_artifact_key"] == "image"
+
+    def test_change_component_type_only(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = create_study(storage=storage, n_generate=3)
+        register_output_component(study, "Artifact", "audio")
+        for _ in range(3):
+            study.ask()
+
+        app = create_app(storage)
+        study_id = study._study._study_id
+        status, _, _ = send_request(
+            app,
+            f"/api/studies/{study_id}/component",
+            "POST",
+            body=json.dumps({"component_type": "Note"}),
+            content_type="application/json",
+        )
+        self.assertEqual(status, 204)
+
+        status, _, body = send_request(
+            app,
+            f"/api/studies/{study_id}",
+            "GET",
+            content_type="application/json",
+        )
+        self.assertEqual(status, 200)
+
+        study_detail = json.loads(body)
+        assert study_detail["feedback_component_type"] == "Note"
+        assert study_detail["feedback_artifact_key"] == "audio"
 
     def test_skip_trial(self) -> None:
         storage = optuna.storages.InMemoryStorage()
