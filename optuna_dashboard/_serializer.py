@@ -19,6 +19,7 @@ from ._preferential_history import _SYSTEM_ATTR_PREFIX_HISTORY
 from .artifact._backend import list_trial_artifacts
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 from .preferential._system_attrs import is_preference_removed
+from .preferential._system_attrs import get_preferences
 
 
 if TYPE_CHECKING:
@@ -161,6 +162,7 @@ def serialize_study_detail(
         serialized["form_widgets"] = form_widgets
     if serialized["is_preferential"]:
         serialized["preference_history"] = serialize_preference_history(system_attrs)
+        serialized["preferences"] = get_preferences(system_attrs)
     serialized["plotly_graph_objects"] = [
         {"id": id_, "graph_object": graph_object}
         for id_, graph_object in plotly_graph_objects.items()

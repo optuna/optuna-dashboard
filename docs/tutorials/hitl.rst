@@ -1,11 +1,13 @@
-Tutorial: Human-in-the-loop Optimization
-========================================
+.. _tutorial-hitl-objective-form-widgets:
+
+Tutorial: Human-in-the-loop Optimization using Objective Form Widgets
+=====================================================================
 
 .. image:: ./images/hitl1.png
 
 In tasks involving image generation, natural language, or speech synthesis, evaluating results mechanically can be tough, and human evaluation becomes crucial. Until now, managing such tasks with Optuna has been challenging. However, the introduction of Optuna Dashboard enables humans and optimization algorithms to work interactively and execute the optimization process.
 
-In this tutorial, we will explain how to optimize hyperparameters to generate a simple image  using Optuna Dashboard. While the tutorial focuses on a simple task, the same approach can be applied to for instance optimize more complex images, natural language, and speech.
+In this tutorial, we will explain how to optimize hyperparameters to generate a simple image using Optuna Dashboard. While the tutorial focuses on a simple task, the same approach can be applied to for instance optimize more complex images, natural language, and speech.
 
 The tutorial is organized as follows:
 
@@ -93,11 +95,11 @@ Given the above system, we carry out HITL optimization as follows:
 Environment setup
 ^^^^^^^^^^^^^^^^^
 
-To run `the script <https://github.com/optuna/optuna-dashboard/blob/main/examples/hitl/main.py>`_ used in this tutorial, you need to install two libraries:
+To run `the script <https://github.com/optuna/optuna-dashboard/blob/main/examples/hitl/main.py>`_ used in this tutorial, you need to install following libraries:
 
 .. code-block:: console
 
-    $ pip install "optuna>=3.2.0" "optuna-dashboard>=0.10.0" pillow
+    $ pip install "optuna>=3.3.0" "optuna-dashboard>=0.12.0" pillow
 
 
 You will use SQLite for the storage backend in this tutorial. Ensure that the following library is installed:
@@ -179,7 +181,9 @@ Let’s walk through the script we used for the optimization.
 .. code-block:: python
     :linenos:
 
-    def suggest_and_generate_image(study: optuna.Study, artifact_backend: FileSystemBackend) -> None:
+    def suggest_and_generate_image(
+        study: optuna.Study, artifact_store: FileSystemArtifactStore
+    ) -> None:
         # 1. Ask new parameters
         trial = study.ask()
         r = trial.suggest_int("r", 0, 255)
@@ -192,7 +196,7 @@ Let’s walk through the script we used for the optimization.
         image.save(image_path)
     
         # 3. Upload Artifact
-        artifact_id = upload_artifact(artifact_backend, trial, image_path)
+        artifact_id = upload_artifact(trial, image_path, artifact_store)
         artifact_path = get_artifact_path(trial, artifact_id)
     
         # 4. Save Note
@@ -205,12 +209,12 @@ Let’s walk through the script we used for the optimization.
         )
         save_note(trial, note)
 
-In the ``suggest_and_generate_image`` function, a new Trial is obtained and new hyperparameters are suggested for that Trial. Based on those hyperparameters, an RGB image is generated as an artifact. The generated image is then uploaded to the Artifact Storage of the Optuna Dashboard, and the image is also displayed in the Dashboard's Note. For more information on how to use the Note feature, please refer to the API Reference of :func:`~optuna_dashboard.save_note`.
+In the ``suggest_and_generate_image`` function, a new Trial is obtained and new hyperparameters are suggested for that Trial. Based on those hyperparameters, an RGB image is generated as an artifact. The generated image is then uploaded to the Artifact Store of the Optuna, and the image is also displayed in the Dashboard's Note. For more information on how to use the Note feature, please refer to the API Reference of :func:`~optuna_dashboard.save_note`.
 
 .. code-block:: python
     :linenos:
 
-    def start_optimization(artifact_backend: FileSystemBackend) -> NoReturn:
+    def start_optimization(artifact_store: FileSystemArtifactStore) -> NoReturn:
         # 1. Create Study
         study = optuna.create_study(
             study_name="Human-in-the-loop Optimization",
@@ -218,10 +222,10 @@ In the ``suggest_and_generate_image`` function, a new Trial is obtained and new 
             sampler=optuna.samplers.TPESampler(constant_liar=True, n_startup_trials=5),
             load_if_exists=True,
         )
-
+    
         # 2. Set an objective name
         study.set_metric_names(["Looks like sunset color?"])
-
+    
         # 3. Register ChoiceWidget
         register_objective_form_widgets(
             study,
@@ -234,15 +238,14 @@ In the ``suggest_and_generate_image`` function, a new Trial is obtained and new 
             ],
         )
     
-        # 4. Start Optimization
+        # 4. Start Human-in-the-loop Optimization
         n_batch = 4
         while True:
             running_trials = study.get_trials(deepcopy=False, states=(TrialState.RUNNING,))
             if len(running_trials) >= n_batch:
                 time.sleep(1)  # Avoid busy-loop
                 continue
-            suggest_and_generate_image(study, artifact_backend)
-
+            suggest_and_generate_image(study, artifact_store)
 
 The function ``start_optimization`` defines our loop for HITL optimization to generate an image resembling a sunset color.
 
@@ -256,10 +259,10 @@ The function ``start_optimization`` defines our loop for HITL optimization to ge
 
     def main() -> NoReturn:
         tmp_path = os.path.join(os.path.dirname(__file__), "tmp")
-
+    
         # 1. Create Artifact Store
         artifact_path = os.path.join(os.path.dirname(__file__), "artifact")
-        artifact_backend = FileSystemBackend(base_path=artifact_path)
+        artifact_store = FileSystemArtifactStore(artifact_path)
     
         if not os.path.exists(artifact_path):
             os.mkdir(artifact_path)
@@ -268,11 +271,11 @@ The function ``start_optimization`` defines our loop for HITL optimization to ge
             os.mkdir(tmp_path)
     
         # 2. Run optimize loop
-        start_optimization(artifact_backend)
+        start_optimization(artifact_store)
 
 In the ``main`` function, at first, the locations of the Artifact Store is set.
 
-* At #1, the :class:`~optuna_dashboard.FileSystemBackend` is created, which is one of the Artifact Storage options used in the Optuna Dashboard. Artifact Storage is used to store artifacts (data, files, etc.) generated during Optuna trials. For more information, please refer to the API Reference.
+* At #1, the `FileSystemArtifactStore <https://optuna.readthedocs.io/en/stable/reference/generated/optuna.artifacts.FileSystemArtifactStore.html>`_ is created, which is one of the Artifact Store options used in the Optuna. Artifact Store is used to store artifacts (data, files, etc.) generated during Optuna trials. For more information, please refer to the API Reference.
 * At #2, `start_optimization()` function, which is described above, is called.
 
 After that, two folders are created, artifact and tmp, and then ``start_optimization`` function is called to start the HITL optimization using Optuna.
