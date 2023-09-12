@@ -27,7 +27,7 @@ def _register_preference_feedback_component_type(
         value={
             "type": component_type,
             "artifact_key": artifact_key,
-        }
+        },
     )
 
 
