@@ -217,10 +217,9 @@ type StudyParamImportance = {
 
 type PreferenceHistory = {
   id: string
-  preference_id: string
   candidates: number[]
   clicked: number
   feedback_mode: PreferenceFeedbackMode
   timestamp: Date
-  enabled: boolean
+  isRemoved: boolean
 }

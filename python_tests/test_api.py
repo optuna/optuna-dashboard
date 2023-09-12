@@ -228,7 +228,7 @@ class APITestCase(TestCase):
         self.assertEqual(status, 204)
         histories = serialize_preference_history(storage.get_study_system_attrs(study_id))
         assert len(histories) == 1
-        assert histories[0]["enabled"]
+        assert not histories[0]["is_removed"]
 
         history_id = histories[0]["id"]
         status, _, _ = send_request(
@@ -240,7 +240,7 @@ class APITestCase(TestCase):
         self.assertEqual(status, 204)
         histories = serialize_preference_history(storage.get_study_system_attrs(study_id))
         assert len(histories) == 1
-        assert not histories[0]["enabled"]
+        assert histories[0]["is_removed"]
         assert len(study.get_preferences()) == 0
 
         status, _, _ = send_request(
@@ -252,7 +252,7 @@ class APITestCase(TestCase):
         self.assertEqual(status, 204)
         histories = serialize_preference_history(storage.get_study_system_attrs(study_id))
         assert len(histories) == 1
-        assert histories[0]["enabled"]
+        assert not histories[0]["is_removed"]
         preferences = study.get_preferences()
         preferences.sort(key=lambda x: (x[0].number, x[1].number))
         assert len(preferences) == 2

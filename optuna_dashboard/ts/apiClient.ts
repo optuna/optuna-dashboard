@@ -57,12 +57,11 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
 
 interface PreferenceHistoryResponce {
   id: string
-  preference_id: string
   candidates: number[]
   clicked: number
   mode: PreferenceFeedbackMode
   timestamp: string
-  enabled: boolean
+  is_removed: boolean
 }
 
 const convertPreferenceHistory = (
@@ -70,12 +69,11 @@ const convertPreferenceHistory = (
 ): PreferenceHistory => {
   return {
     id: res.id,
-    preference_id: res.preference_id,
     candidates: res.candidates,
     clicked: res.clicked,
     feedback_mode: res.mode,
     timestamp: new Date(res.timestamp),
-    enabled: res.enabled,
+    isRemoved: res.is_removed,
   }
 }
 
@@ -369,15 +367,22 @@ export const skipPreferentialTrialAPI = (
     })
 }
 
-export const switchPreferentialHistoryAPI = (
+export const removePreferentialHistoryAPI = (
   studyId: number,
-  historyUuid: string,
-  enable: boolean
+  historyUuid: string
 ): Promise<void> => {
   return axiosInstance
-    .put<void>(`/api/studies/${studyId}/preference/${historyUuid}`, {
-      enable: enable,
+    .delete<void>(`/api/studies/${studyId}/preference/${historyUuid}`)
+    .then(() => {
+      return
     })
+}
+export const restorePreferentialHistoryAPI = (
+  studyId: number,
+  historyUuid: string
+): Promise<void> => {
+  return axiosInstance
+    .post<void>(`/api/studies/${studyId}/preference/${historyUuid}`)
     .then(() => {
       return
     })

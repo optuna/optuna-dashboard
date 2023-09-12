@@ -174,8 +174,8 @@ const PreferentialTrial: FC<{
 }
 
 type DisplayTrials = {
-  numbers: number[]
-  last_number: number
+  display: number[]
+  clicked: number[]
 }
 
 export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
@@ -193,51 +193,55 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
   const activeTrials = runningTrials.concat(studyDetail.best_trials)
 
   const [displayTrials, setDisplayTrials] = useState<DisplayTrials>({
-    numbers: activeTrials.map((t) => t.number),
-    last_number: Math.max(...activeTrials.map((t) => t.number), -1),
+    display: [],
+    clicked: [],
   })
   const new_trails = activeTrials.filter(
     (t) =>
-      displayTrials.last_number < t.number &&
-      displayTrials.numbers.find((n) => n === t.number) === undefined
+      !displayTrials.display.includes(t.number) &&
+      !displayTrials.clicked.includes(t.number)
   )
   if (new_trails.length > 0) {
-    setDisplayTrials((display) => {
-      const numbers = [...display.numbers]
+    setDisplayTrials((prev) => {
+      const display = [...prev.display]
+      const clicked = [...prev.clicked]
       new_trails.map((t) => {
-        const index = numbers.findIndex((n) => n === -1)
+        const index = display.findIndex((n) => n === -1)
         if (index === -1) {
-          numbers.push(t.number)
+          display.push(t.number)
+          clicked.push(-1)
         } else {
-          numbers[index] = t.number
+          display[index] = t.number
         }
       })
       return {
-        numbers: numbers,
-        last_number: Math.max(...numbers, -1),
+        display: display,
+        clicked: clicked,
       }
     })
   }
 
   const hideTrial = (num: number) => {
-    setDisplayTrials((display) => {
-      const index = display.numbers.findIndex((n) => n === num)
+    setDisplayTrials((prev) => {
+      const index = prev.display.findIndex((n) => n === num)
       if (index === -1) {
-        return display
+        return prev
       }
-      const numbers = [...displayTrials.numbers]
-      numbers[index] = -1
+      const display = [...prev.display]
+      const clicked = [...prev.clicked]
+      display[index] = -1
+      clicked[index] = num
       return {
-        numbers: numbers,
-        last_number: display.last_number,
+        display: display,
+        clicked: clicked,
       }
     })
   }
-  const latestHistoryId = studyDetail?.preference_history
-    ?.filter((h) => h.enabled)
-    .pop()?.id
+  const latestHistoryId =
+    studyDetail?.preference_history?.filter((h) => !h.isRemoved).pop()?.id ??
+    null
   if (undoHistoryId !== null && undoHistoryId !== latestHistoryId) {
-    setUndoHistoryId(null)
+    setUndoHistoryId(latestHistoryId)
   }
 
   return (
@@ -253,17 +257,13 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
           Which trial is the worst?
         </Typography>
         <IconButton
-          disabled={latestHistoryId === undefined || undoHistoryId !== null}
+          disabled={latestHistoryId === null || undoHistoryId !== null}
           onClick={() => {
-            if (latestHistoryId === undefined) {
+            if (latestHistoryId === null) {
               return
             }
             setUndoHistoryId(latestHistoryId)
-            action.switchPreferentialHistory(
-              studyDetail.id,
-              latestHistoryId,
-              false
-            )
+            action.removePreferentialHistory(studyDetail.id, latestHistoryId)
           }}
           sx={{
             margin: "auto 0 auto auto",
@@ -273,11 +273,11 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
         </IconButton>
       </Box>
       <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
-        {displayTrials.numbers.map((t, index) => (
+        {displayTrials.display.map((t, index) => (
           <PreferentialTrial
             key={index}
             trial={activeTrials.find((trial) => trial.number === t)}
-            candidates={displayTrials.numbers.filter((n) => n !== -1)}
+            candidates={displayTrials.display.filter((n) => n !== -1)}
             hideTrial={() => {
               hideTrial(t)
             }}

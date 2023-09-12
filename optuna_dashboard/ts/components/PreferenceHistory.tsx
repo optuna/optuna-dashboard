@@ -142,14 +142,10 @@ const ChoiceTrials: FC<{
   trials: Trial[]
   study_id: number
 }> = ({ choice, trials, study_id }) => {
-  const [enabled, setEnabled] = useState(choice.enabled)
+  const [isRemoved, setRemoved] = useState(choice.isRemoved)
   const theme = useTheme()
   const worst_trials = new Set([choice.clicked])
   const action = actionCreator()
-  const handleSwitch = () => {
-    setEnabled(!enabled)
-    action.switchPreferentialHistory(study_id, choice.id, !enabled)
-  }
 
   return (
     <Box
@@ -174,22 +170,40 @@ const ChoiceTrials: FC<{
         >
           {formatDate(choice.timestamp)}
         </Typography>
-        <IconButton
-          disabled={choice.enabled !== enabled}
-          onClick={handleSwitch}
-          sx={{
-            margin: `auto ${theme.spacing(2)}`,
-          }}
-        >
-          {choice.enabled ? <DeleteIcon /> : <RestoreFromTrashIcon />}
-        </IconButton>
+        {choice.isRemoved ? (
+          <IconButton
+            disabled={!isRemoved}
+            onClick={() => {
+              setRemoved(false)
+              action.restorePreferentialHistory(study_id, choice.id)
+            }}
+            sx={{
+              margin: `auto ${theme.spacing(2)}`,
+            }}
+          >
+            <RestoreFromTrashIcon />
+          </IconButton>
+        ) : (
+          <IconButton
+            disabled={isRemoved}
+            onClick={() => {
+              setRemoved(true)
+              action.removePreferentialHistory(study_id, choice.id)
+            }}
+            sx={{
+              margin: `auto ${theme.spacing(2)}`,
+            }}
+          >
+            <DeleteIcon />
+          </IconButton>
+        )}
       </Box>
       <Box
         sx={{
           display: "flex",
           flexDirection: "row",
           flexWrap: "wrap",
-          filter: choice.enabled ? undefined : "brightness(0.4)",
+          filter: choice.isRemoved ? "brightness(0.4)" : undefined,
         }}
       >
         {choice.candidates.map((trial_num, index) => (

@@ -308,17 +308,17 @@ def create_app(
         response.status = 204
         return {}
 
-    @app.delete("/api/studies/<study_id:int>/preference/<history_uuid>")
+    @app.delete("/api/studies/<study_id:int>/preference/<history_id>")
     @json_api_view
-    def remove_preference(study_id: int, history_uuid: str) -> dict[str, Any]:
-        remove_history(study_id, storage, history_uuid)
+    def remove_preference(study_id: int, history_id: str) -> dict[str, Any]:
+        remove_history(study_id, storage, history_id)
         response.status = 204
         return {}
 
-    @app.post("/api/studies/<study_id:int>/preference/<history_uuid>")
+    @app.post("/api/studies/<study_id:int>/preference/<history_id>")
     @json_api_view
-    def restore_preference(study_id: int, history_uuid: str) -> dict[str, Any]:
-        restore_history(study_id, storage, history_uuid)
+    def restore_preference(study_id: int, history_id: str) -> dict[str, Any]:
+        restore_history(study_id, storage, history_id)
         response.status = 204
         return {}
 

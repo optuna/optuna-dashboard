@@ -44,8 +44,8 @@ def get_preferences(study_system_attrs: dict[str, Any]) -> list[tuple[int, int]]
     return preferences
 
 
-def is_preference_removed(study_system_attrs: dict[str, Any], uuid: str) -> bool:
-    key = _SYSTEM_ATTR_PREFIX_PREFERENCE + uuid
+def is_preference_removed(study_system_attrs: dict[str, Any], id: str) -> bool:
+    key = _SYSTEM_ATTR_PREFIX_PREFERENCE + id
     preference = study_system_attrs.get(key, [])
     return len(preference) == 0
 

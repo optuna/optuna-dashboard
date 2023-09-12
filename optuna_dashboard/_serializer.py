@@ -180,11 +180,10 @@ def serialize_preference_history(
             history = {
                 "mode": "ChooseWorst",
                 "id": choice["id"],
-                "preference_id": choice["preference_id"],
                 "timestamp": choice["timestamp"],
                 "candidates": choice["candidates"],
                 "clicked": choice["clicked"],
-                "is_removed": is_preference_removed(system_attrs, choice["preference_id"]),
+                "is_removed": is_preference_removed(system_attrs, choice["id"]),
             }
             histories.append(history)
 
