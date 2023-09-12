@@ -19,14 +19,12 @@ from ._preferential_history import _SYSTEM_ATTR_PREFIX_HISTORY
 from .artifact._backend import list_trial_artifacts
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 from .preferential._system_attrs import get_preferences
+from .preferential._system_attrs import is_preference_removed
 
 
 if TYPE_CHECKING:
     from typing import Literal
     from typing import TypedDict
-
-    from ._preferential_history import ChooseWorstHistory
-    from ._preferential_history import History
 
     Attribute = TypedDict(
         "Attribute",
@@ -174,20 +172,20 @@ def serialize_study_detail(
 
 def serialize_preference_history(
     system_attrs: dict[str, Any],
-) -> list[History]:
-    histories: list[History] = []
+) -> list[dict[str, Any]]:
+    histories: list[dict[str, Any]] = []
     for k, v in system_attrs.items():
         if not k.startswith(_SYSTEM_ATTR_PREFIX_HISTORY):
             continue
         choice: dict[str, Any] = json.loads(v)
         if choice["mode"] == "ChooseWorst":
-            history: ChooseWorstHistory = {
+            history = {
                 "mode": "ChooseWorst",
                 "id": choice["id"],
-                "preference_id": choice["preference_id"],
                 "timestamp": choice["timestamp"],
                 "candidates": choice["candidates"],
                 "clicked": choice["clicked"],
+                "is_removed": is_preference_removed(system_attrs, choice["id"]),
             }
             histories.append(history)
 
