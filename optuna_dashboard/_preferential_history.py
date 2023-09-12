@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from datetime import datetime
 import json
 from typing import TYPE_CHECKING
-import uuid
 
 from optuna.storages import BaseStorage
 

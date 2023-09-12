@@ -18,8 +18,8 @@ from ._named_objectives import get_objective_names
 from ._preferential_history import _SYSTEM_ATTR_PREFIX_HISTORY
 from .artifact._backend import list_trial_artifacts
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
-from .preferential._system_attrs import is_preference_removed
 from .preferential._system_attrs import get_preferences
+from .preferential._system_attrs import is_preference_removed
 
 
 if TYPE_CHECKING:
