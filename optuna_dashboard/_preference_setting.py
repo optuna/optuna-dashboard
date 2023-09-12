@@ -12,30 +12,26 @@ if TYPE_CHECKING:
 
     OUTPUT_COMPONENT_TYPE = Literal["Note", "Artifact"]
 
-_SYSTEM_ATTR_FEEDBACK_COMPONENT_TYPE = "preference:component_type"
-_SYSTEM_ATTR_FEEDBACK_ARTIFACT_KEY = "preference:component_artifact_key"
+_SYSTEM_ATTR_FEEDBACK_COMPONENT = "preference:component"
 
 
-def _register_output_component(
+def _register_preference_feedback_component_type(
     study_id: int,
     storage: BaseStorage,
     component_type: OUTPUT_COMPONENT_TYPE,
-    artifact_key: str | None = None,
+    artifact_key: str = "",
 ) -> None:
     storage.set_study_system_attr(
         study_id=study_id,
-        key=_SYSTEM_ATTR_FEEDBACK_COMPONENT_TYPE,
-        value=component_type,
+        key=_SYSTEM_ATTR_FEEDBACK_COMPONENT,
+        value={
+            "type": component_type,
+            "artifact_key": artifact_key,
+        }
     )
-    if artifact_key is not None:
-        storage.set_study_system_attr(
-            study_id=study_id,
-            key=_SYSTEM_ATTR_FEEDBACK_ARTIFACT_KEY,
-            value=artifact_key,
-        )
 
 
-def register_output_component(
+def register_preference_feedback_component_type(
     study: PreferentialStudy,
     component_type: OUTPUT_COMPONENT_TYPE,
     artifact_key: str = "",
@@ -52,7 +48,7 @@ def register_output_component(
             this argument is used as the attribute key of the artifact.
             Each trial displays the artifact whose id is the value of the attribute.
     """
-    _register_output_component(
+    _register_preference_feedback_component_type(
         study_id=study._study._study_id,
         storage=study._study._storage,
         component_type=component_type,
