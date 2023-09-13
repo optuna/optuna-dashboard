@@ -215,6 +215,7 @@ type StudyDetails = {
 type StudyParamImportance = {
   [study_id: string]: ParamImportance[][]
 }
+
 type PreferenceHistory = {
   id: string
   preference_id: string
@@ -222,4 +223,9 @@ type PreferenceHistory = {
   clicked: number
   feedback_mode: PreferenceFeedbackMode
   timestamp: Date
+}
+
+type PlotlyColorTheme = {
+  dark: string
+  light: string
 }

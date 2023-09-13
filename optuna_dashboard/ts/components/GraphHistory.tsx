@@ -17,15 +17,15 @@ import {
 } from "@mui/material"
 import {
   getColorTemplate,
-  plotlyDarkTemplate,
-  plotlyLightTemplate,
-  plotlySeabornTemplate,
 } from "./PlotlyDarkMode"
 import {
   useFilteredTrialsFromStudies,
   Target,
   useObjectiveAndUserAttrTargetsFromStudies,
 } from "../trialFilter"
+
+import { plotlyColorScale } from "../state"
+import { useRecoilValue } from "recoil"
 
 const plotDomId = "graph-history"
 
@@ -65,6 +65,8 @@ export const GraphHistory: FC<{
     return h
   })
 
+  const colorScale = useRecoilValue<PlotlyColorTheme>(plotlyColorScale)
+
   useEffect(() => {
     plotHistory(
       historyPlotInfos,
@@ -72,6 +74,7 @@ export const GraphHistory: FC<{
       xAxis,
       logScale,
       theme.palette.mode,
+      colorScale,
       markerSize
     )
   }, [studies, selected, logScale, xAxis, theme.palette.mode, markerSize])
@@ -184,6 +187,7 @@ const plotHistory = (
   xAxis: "number" | "datetime_start" | "datetime_complete",
   logScale: boolean,
   mode: string,
+  colorTheme: PlotlyColorTheme,
   markerSize: number
 ) => {
   if (document.getElementById(plotDomId) === null) {
@@ -191,7 +195,7 @@ const plotHistory = (
   }
   if (historyPlotInfos.length === 0) {
     plotly.react(plotDomId, [], {
-      template: mode === "dark" ? plotlyDarkTemplate : plotlyLightTemplate,
+      template: getColorTemplate(mode, colorTheme),
     })
     return
   }
@@ -212,7 +216,7 @@ const plotHistory = (
       type: xAxis === "number" ? "linear" : "date",
     },
     showlegend: historyPlotInfos.length === 1 ? false : true,
-    template: mode === "dark" ? plotlyDarkTemplate : plotlyLightTemplate,
+    template: getColorTemplate(mode, colorTheme),
   }
 
   const getAxisX = (trial: Trial): number | Date => {

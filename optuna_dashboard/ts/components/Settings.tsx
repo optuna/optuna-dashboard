@@ -8,19 +8,24 @@ import {
   SelectChangeEvent,
 } from "@mui/material"
 
-export const Settings: FC<{
-  // studyId: number
-  // trialId: number
-}> = () => {
-  const [darkModeColor, setDarkModeColor] = useState("Default(Blue)")
-  const [lightModeColor, setLightModeColor] = useState("Default(Blue)")
+import { useRecoilValue, useSetRecoilState } from "recoil"
+import { plotlyColorScale } from "../state"
+
+export const Settings: FC = () => {
+  const plotlyColorTheme = useRecoilValue(plotlyColorScale)
+  const setPlotlyColorTheme = useSetRecoilState(plotlyColorScale)
+
+  const [darkModeColor, setDarkModeColor] = useState(plotlyColorTheme.dark)
+  const [lightModeColor, setLightModeColor] = useState(plotlyColorTheme.light)
 
   const handleDarkModeColorChange = (event: SelectChangeEvent) => {
     setDarkModeColor(event.target.value)
+    setPlotlyColorTheme({ dark: event.target.value, light: lightModeColor })
   }
 
   const handleLightModeColorChange = (event: SelectChangeEvent) => {
     setLightModeColor(event.target.value)
+    setPlotlyColorTheme({ dark: darkModeColor, light: event.target.value })
   }
 
   return (
@@ -36,10 +41,14 @@ export const Settings: FC<{
       </Grid>
       <Grid item xs={10}>
         <Select value={darkModeColor} onChange={handleDarkModeColorChange}>
-          <MenuItem value={"Default(Blue)"}>Default(Blue)</MenuItem>
-          <MenuItem value={"Greys"}>Greys</MenuItem>
-          <MenuItem value={"YlGnBu"}>YlGnBu</MenuItem>
-          <MenuItem value={"Greens"}>Greens</MenuItem>
+          <MenuItem value={"default"}>Default</MenuItem>
+          <MenuItem value={"seaborn"}>Seaborn</MenuItem>
+          <MenuItem value={"simpleWhite"}>SimpleWhite</MenuItem>
+          <MenuItem value={"presentation"}>Presentation</MenuItem>
+          <MenuItem value={"ggplot2"}>GGPlot2</MenuItem>
+          <MenuItem value={"gridon"}>GridOn</MenuItem>
+          <MenuItem value={"xgridOff"}>XGridOff</MenuItem>
+          <MenuItem value={"ygridOff"}>YGridOff</MenuItem>
         </Select>
       </Grid>
 
@@ -48,10 +57,13 @@ export const Settings: FC<{
       </Grid>
       <Grid item xs={10}>
         <Select value={lightModeColor} onChange={handleLightModeColorChange}>
-          <MenuItem value={"Default(Blue)"}>Default(Blue)</MenuItem>
-          <MenuItem value={"Greys"}>Greys</MenuItem>
-          <MenuItem value={"YlGnBu"}>YlGnBu</MenuItem>
-          <MenuItem value={"Greens"}>Greens</MenuItem>
+          <MenuItem value={"default"}>Default</MenuItem>
+          <MenuItem value={"seaborn"}>Seaborn</MenuItem>
+          <MenuItem value={"presentation"}>Presentation</MenuItem>
+          <MenuItem value={"ggplot2"}>GGPlot2</MenuItem>
+          <MenuItem value={"gridon"}>GridOn</MenuItem>
+          <MenuItem value={"xgridOff"}>XGridOff</MenuItem>
+          <MenuItem value={"ygridOff"}>YGridOff</MenuItem>
         </Select>
       </Grid>
     </Grid>

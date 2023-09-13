@@ -56,14 +56,12 @@ export const artifactIsAvailable = atom<boolean>({
   default: false,
 })
 
-export const plotlyDarkColorScale = atom<string>({
+export const plotlyColorScale = atom<PlotlyColorTheme>({
   key: "plotlyDarkColorScale",
-  default: "default",
-})
-
-export const plotlyLightColorScale = atom<string>({
-  key: "plotlyLightColorScale",
-  default: "default",
+  default: {
+    dark: "default",
+    light: "default",
+  },
 })
 
 export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
