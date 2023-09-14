@@ -7,6 +7,7 @@ import {
   CardContent,
   CardActions,
   CardActionArea,
+  CircularProgress,
 } from "@mui/material"
 import ClearIcon from "@mui/icons-material/Clear"
 import IconButton from "@mui/material/IconButton"
@@ -111,7 +112,11 @@ const PreferentialTrial: FC<{
               padding: theme.spacing(2),
             }}
           >
-            <MarkdownRenderer body={trial.note.body} />
+            {trial.note.body !== "" ? (
+              <MarkdownRenderer body={trial.note.body} />
+            ) : (
+              <CircularProgress />
+            )}
           </Box>
 
           <ClearIcon
@@ -185,8 +190,16 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
   }
   const theme = useTheme()
 
-  const runningTrials = studyDetail.trials.filter((t) => t.state === "Running")
-  const activeTrials = runningTrials.concat(studyDetail.best_trials)
+  const hiddenTrials = new Set(
+    studyDetail.preference_history
+      ?.map((p) => p.clicked)
+      .concat(studyDetail.skipped_trials) ?? []
+  )
+  const activeTrials = studyDetail.trials.filter(
+    (t) =>
+      (t.state === "Running" || t.state === "Complete") &&
+      !hiddenTrials.has(t.number)
+  )
 
   const [displayTrials, setDisplayTrials] = useState<DisplayTrials>({
     display: [],
@@ -200,7 +213,6 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
   const deleteTrials = displayTrials.display.filter(
     (t) => t !== -1 && !activeTrials.map((t) => t.number).includes(t)
   )
-  console.log(deleteTrials)
   if (newTrials.length > 0 || deleteTrials.length > 0) {
     setDisplayTrials((prev) => {
       const display = [...prev.display].map((t) =>
