@@ -32,7 +32,7 @@ def _register_preference_feedback_component_type(
     )
 
 
-def register_preference_feedback_component_type(
+def register_preference_feedback_component(
     study: PreferentialStudy,
     component_type: OUTPUT_COMPONENT_TYPE,
     artifact_key: str | None = None,
