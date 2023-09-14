@@ -192,16 +192,22 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
     display: [],
     clicked: [],
   })
-  const new_trails = activeTrials.filter(
+  const newTrials = activeTrials.filter(
     (t) =>
       !displayTrials.display.includes(t.number) &&
       !displayTrials.clicked.includes(t.number)
   )
-  if (new_trails.length > 0) {
+  const deleteTrials = displayTrials.display.filter(
+    (t) => t !== -1 && !activeTrials.map((t) => t.number).includes(t)
+  )
+  console.log(deleteTrials)
+  if (newTrials.length > 0 || deleteTrials.length > 0) {
     setDisplayTrials((prev) => {
-      const display = [...prev.display]
+      const display = [...prev.display].map((t) =>
+        deleteTrials.includes(t) ? -1 : t
+      )
       const clicked = [...prev.clicked]
-      new_trails.map((t) => {
+      newTrials.map((t) => {
         const index = display.findIndex((n) => n === -1)
         if (index === -1) {
           display.push(t.number)
@@ -250,7 +256,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
       <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
         {displayTrials.display.map((t, index) => (
           <PreferentialTrial
-            key={index}
+            key={t == -1 ? -index - 1 : t}
             trial={activeTrials.find((trial) => trial.number === t)}
             candidates={displayTrials.display.filter((n) => n !== -1)}
             hideTrial={() => {
