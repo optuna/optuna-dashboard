@@ -165,10 +165,6 @@ def serialize_study_detail(
     form_widgets = get_form_widgets_json(system_attrs)
     if form_widgets:
         serialized["form_widgets"] = form_widgets
-    if _SYSTEM_ATTR_FEEDBACK_COMPONENT_TYPE in system_attrs:
-        serialized["feedback_component_type"] = system_attrs[_SYSTEM_ATTR_FEEDBACK_COMPONENT_TYPE]
-    if _SYSTEM_ATTR_FEEDBACK_ARTIFACT_KEY in system_attrs:
-        serialized["feedback_artifact_key"] = system_attrs[_SYSTEM_ATTR_FEEDBACK_ARTIFACT_KEY]
     if serialized["is_preferential"]:
         serialized["feedback_component_type"] = system_attrs.get(
             _SYSTEM_ATTR_FEEDBACK_COMPONENT, {}

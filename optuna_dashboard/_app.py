@@ -327,7 +327,7 @@ def create_app(
             return {"reason": "invalid request."}
         if component_type not in ["note", "artifact"]:
             response.status = 400
-            return {"reason": "component_type must be either 'Note' or 'Artifact'."}
+            return {"reason": "component_type must be either 'note' or 'artifact'."}
 
         _register_preference_feedback_component(
             study_id=study_id,

@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useEffect, useState, useMemo } from "react"
 import {
   Typography,
   Box,
@@ -76,7 +76,7 @@ const SettingsPage: FC<{
   const theme = useTheme()
   const actions = actionCreator()
   const [outputComponent, setOutputComponent] = useState(
-    studyDetail?.feedback_component_type ?? "Note"
+    studyDetail?.feedback_component_type ?? "note"
   )
   const [outputArtifactKey, setOutputArtifactKey] = useState(
     studyDetail?.feedback_artifact_key ?? ""
@@ -124,11 +124,11 @@ const SettingsPage: FC<{
               setOutputComponent(e.target.value as FeedbackComponentType)
             }}
           >
-            <MenuItem value="Note">Note</MenuItem>
-            <MenuItem value="Artifact">Artifact</MenuItem>
+            <MenuItem value="note">Note</MenuItem>
+            <MenuItem value="artifact">Artifact</MenuItem>
           </Select>
         </FormControl>
-        {outputComponent === "Artifact" ? (
+        {outputComponent === "artifact" ? (
           <FormControl
             component="fieldset"
             disabled={studyDetail.union_user_attrs.length === 0}
@@ -164,25 +164,45 @@ const SettingsPage: FC<{
   )
 }
 
+const isComparisonReady = (
+  trial: Trial,
+  componentId?: FeedbackComponentType,
+  artifactKey?: string
+): boolean => {
+  if (componentId === undefined || componentId === "note") {
+    return trial.note.body !== ""
+  }
+  if (componentId === "artifact") {
+    const artifactId = trial?.user_attrs.find(
+      (a) => a.key === artifactKey
+    )?.value
+    const artifact = trial?.artifacts.find((a) => a.artifact_id === artifactId)
+    return artifact !== undefined
+  }
+  return false
+}
+
 export const OutputContent: FC<{
   trial: Trial
   artifact?: Artifact
   componentId?: FeedbackComponentType
   urlPath: string
 }> = ({ trial, artifact, componentId, urlPath }) => {
-  if (
-    (componentId === undefined || componentId === "Note") &&
-    trial.note.body !== ""
-  ) {
+  const note = useMemo(() => {
     return <MarkdownRenderer body={trial.note.body} />
+  }, [trial.note.body])
+  if (componentId === undefined || componentId === "note") {
+    return note
   }
-  if (componentId === "Artifact" && artifact !== undefined) {
+  if (componentId === "artifact") {
+    if (artifact === undefined) {
+      return null
+    }
     return (
       <ArtifactCardMedia artifact={artifact} urlPath={urlPath} height="100%" />
     )
   }
-
-  return <CircularProgress />
+  return null
 }
 
 export const getArtifactUrlPath = (
@@ -222,7 +242,7 @@ const PreferentialTrial: FC<{
       ? getArtifactUrlPath(studyDetail.id, trial?.trial_id, artifactId)
       : ""
   const is3dModel =
-    componentId === "Artifact" &&
+    componentId === "artifact" &&
     artifact !== undefined &&
     isThreejsArtifact(artifact)
 
@@ -242,6 +262,7 @@ const PreferentialTrial: FC<{
     hideTrial()
     action.updatePreference(trial.study_id, candidates, trial.number)
   }
+  const isReady = isComparisonReady(trial, componentId, artifactKey)
 
   return (
     <Card
@@ -265,7 +286,7 @@ const PreferentialTrial: FC<{
           }}
         >
           <Typography variant="h5">Trial {trial.number}</Typography>
-          {componentId === "Artifact" && artifact !== undefined ? (
+          {componentId === "artifact" && artifact !== undefined ? (
             <Typography
               variant="h6"
               sx={{
@@ -323,45 +344,61 @@ const PreferentialTrial: FC<{
           minHeight: theme.spacing(20),
         }}
       >
-        <OutputContent
-          trial={trial}
-          artifact={artifact}
-          componentId={componentId}
-          urlPath={urlPath}
-        />
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: theme.palette.mode === "dark" ? "white" : "black",
-            opacity: buttonHover ? 0.2 : 0,
-            zIndex: 1,
-            transition: "opacity 0.3s ease-out",
-            pointerEvents: "none",
-          }}
-        />
-        <ClearIcon
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            color: red[600],
-            opacity: buttonHover ? 0.3 : 0,
-            transition: "opacity 0.3s ease-out",
-            zIndex: 1,
-            filter: buttonHover
-              ? theme.palette.mode === "dark"
-                ? "brightness(1.1)"
-                : "brightness(1.7)"
-              : "none",
-            pointerEvents: "none",
-          }}
-        />
+        {isReady ? (
+          <>
+            <OutputContent
+              trial={trial}
+              artifact={artifact}
+              componentId={componentId}
+              urlPath={urlPath}
+            />
+            <Box
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                backgroundColor:
+                  theme.palette.mode === "dark" ? "white" : "black",
+                opacity: buttonHover ? 0.2 : 0,
+                zIndex: 1,
+                transition: "opacity 0.3s ease-out",
+                pointerEvents: "none",
+              }}
+            />
+            <ClearIcon
+              sx={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                width: "100%",
+                height: "100%",
+                color: red[600],
+                opacity: buttonHover ? 0.3 : 0,
+                transition: "opacity 0.3s ease-out",
+                zIndex: 1,
+                filter: buttonHover
+                  ? theme.palette.mode === "dark"
+                    ? "brightness(1.1)"
+                    : "brightness(1.7)"
+                  : "none",
+                pointerEvents: "none",
+              }}
+            />
+          </>
+        ) : (
+          <CircularProgress
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              margin: "auto",
+            }}
+          />
+        )}
       </CardContent>
       <Button
         variant="outlined"
@@ -373,6 +410,7 @@ const PreferentialTrial: FC<{
           setButtonHover(false)
         }}
         color="error"
+        disabled={!isReady}
       >
         <ClearIcon />
         Worst
@@ -490,7 +528,15 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
       <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
         {displayTrials.display.map((t, index) => {
           const trial = activeTrials.find((trial) => trial.number === t)
-          const candidates = displayTrials.display.filter((n) => n !== -1)
+          const candidates = displayTrials.display.filter(
+            (n) =>
+              n !== -1 &&
+              isComparisonReady(
+                studyDetail.trials[n],
+                studyDetail.feedback_component_type,
+                studyDetail.feedback_artifact_key
+              )
+          )
           return (
             <PreferentialTrial
               key={t === -1 ? -index - 1 : t}

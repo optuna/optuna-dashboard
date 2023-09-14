@@ -13,7 +13,7 @@ type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting"
 type TrialStateFinished = "Complete" | "Fail" | "Pruned"
 type StudyDirection = "maximize" | "minimize" | "not_set"
 type PreferenceFeedbackMode = "ChooseWorst"
-type FeedbackComponentType = "Note" | "Artifact"
+type FeedbackComponentType = "note" | "artifact"
 
 type FloatDistribution = {
   type: "FloatDistribution"

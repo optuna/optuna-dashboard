@@ -83,6 +83,10 @@ const convertPreferenceHistory = (
   }
 }
 
+interface FeedbackComponentResponse {
+  type: string
+  artifact_key?: string
+}
 interface StudyDetailResponse {
   name: string
   datetime_start: string
@@ -101,8 +105,7 @@ interface StudyDetailResponse {
   preferences?: [number, number][]
   preference_history?: PreferenceHistoryResponce[]
   plotly_graph_objects: PlotlyGraphObject[]
-  feedback_component_type?: FeedbackComponentType
-  feedback_artifact_key?: string
+  feedback_component_type?: FeedbackComponentResponse
   skipped_trials?: number[]
 }
 
@@ -139,10 +142,10 @@ export const getStudyDetailAPI = (
         objective_names: res.data.objective_names,
         form_widgets: res.data.form_widgets,
         is_preferential: res.data.is_preferential,
-        feedback_component_type: res.data.feedback_component_type
-          ? (res.data.feedback_component_type as FeedbackComponentType)
-          : "Note",
-        feedback_artifact_key: res.data.feedback_artifact_key,
+        feedback_component_type: res.data.feedback_component_type?.type
+          ? (res.data.feedback_component_type.type as FeedbackComponentType)
+          : "note",
+        feedback_artifact_key: res.data.feedback_component_type?.artifact_key,
         preferences: res.data.preferences,
         preference_history: res.data.preference_history?.map(
           convertPreferenceHistory
@@ -389,8 +392,8 @@ export const reportFeedbackComponentAPI = (
   artifact_key?: string
 ): Promise<void> => {
   return axiosInstance
-    .post<void>(`/api/studies/${studyId}/component`, {
-      component_type: component_type,
+    .put<void>(`/api/studies/${studyId}/preference_feedback_component_type`, {
+      type: component_type,
       artifact_key: artifact_key,
     })
     .then(() => {
