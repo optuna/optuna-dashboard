@@ -44,7 +44,7 @@ Preferential Optimization
    optuna_dashboard.preferential.create_study
    optuna_dashboard.preferential.load_study
    optuna_dashboard.preferential.PreferentialStudy
-   optuna_dashboard._prefential_setting.register_preference_feedback_component
+   optuna_dashboard._preference_setting.register_preference_feedback_component
 
 Streamlit
 -----------------
