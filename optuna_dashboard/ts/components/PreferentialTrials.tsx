@@ -7,6 +7,7 @@ import {
   CardContent,
   CardActions,
   CardActionArea,
+  CircularProgress,
 } from "@mui/material"
 import ClearIcon from "@mui/icons-material/Clear"
 import IconButton from "@mui/material/IconButton"
@@ -111,7 +112,11 @@ const PreferentialTrial: FC<{
               padding: theme.spacing(2),
             }}
           >
-            <MarkdownRenderer body={trial.note.body} />
+            {trial.note.body !== "" ? (
+              <MarkdownRenderer body={trial.note.body} />
+            ) : (
+              <CircularProgress />
+            )}
           </Box>
 
           <ClearIcon
@@ -173,8 +178,8 @@ const PreferentialTrial: FC<{
 }
 
 type DisplayTrials = {
-  numbers: number[]
-  last_number: number
+  display: number[]
+  clicked: number[]
 }
 
 export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
@@ -185,68 +190,87 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
   }
   const theme = useTheme()
 
-  const runningTrials = studyDetail.trials.filter((t) => t.state === "Running")
-  const activeTrials = runningTrials.concat(studyDetail.best_trials)
+  const hiddenTrials = new Set(
+    studyDetail.preference_history
+      ?.map((p) => p.clicked)
+      .concat(studyDetail.skipped_trials) ?? []
+  )
+  const activeTrials = studyDetail.trials.filter(
+    (t) =>
+      (t.state === "Running" || t.state === "Complete") &&
+      !hiddenTrials.has(t.number)
+  )
 
   const [displayTrials, setDisplayTrials] = useState<DisplayTrials>({
-    numbers: activeTrials.map((t) => t.number),
-    last_number: Math.max(...activeTrials.map((t) => t.number), -1),
+    display: [],
+    clicked: [],
   })
-  const new_trails = activeTrials.filter(
+  const newTrials = activeTrials.filter(
     (t) =>
-      displayTrials.last_number < t.number &&
-      displayTrials.numbers.find((n) => n === t.number) === undefined
+      !displayTrials.display.includes(t.number) &&
+      !displayTrials.clicked.includes(t.number)
   )
-  if (new_trails.length > 0) {
-    setDisplayTrials((display) => {
-      const numbers = [...display.numbers]
-      new_trails.map((t) => {
-        const index = numbers.findIndex((n) => n === -1)
+  const deleteTrials = displayTrials.display.filter(
+    (t) => t !== -1 && !activeTrials.map((t) => t.number).includes(t)
+  )
+  if (newTrials.length > 0 || deleteTrials.length > 0) {
+    setDisplayTrials((prev) => {
+      const display = [...prev.display].map((t) =>
+        deleteTrials.includes(t) ? -1 : t
+      )
+      const clicked = [...prev.clicked]
+      newTrials.map((t) => {
+        const index = display.findIndex((n) => n === -1)
         if (index === -1) {
-          numbers.push(t.number)
+          display.push(t.number)
+          clicked.push(-1)
         } else {
-          numbers[index] = t.number
+          display[index] = t.number
         }
       })
       return {
-        numbers: numbers,
-        last_number: Math.max(...numbers, -1),
+        display: display,
+        clicked: clicked,
       }
     })
   }
 
   const hideTrial = (num: number) => {
-    setDisplayTrials((display) => {
-      const index = display.numbers.findIndex((n) => n === num)
+    setDisplayTrials((prev) => {
+      const index = prev.display.findIndex((n) => n === num)
       if (index === -1) {
-        return display
+        return prev
       }
-      const numbers = [...displayTrials.numbers]
-      numbers[index] = -1
+      const display = [...prev.display]
+      const clicked = [...prev.clicked]
+      display[index] = -1
+      clicked[index] = num
       return {
-        numbers: numbers,
-        last_number: display.last_number,
+        display: display,
+        clicked: clicked,
       }
     })
   }
 
   return (
     <Box padding={theme.spacing(2)}>
-      <Typography
-        variant="h4"
-        sx={{
-          marginBottom: theme.spacing(2),
-          fontWeight: theme.typography.fontWeightBold,
-        }}
-      >
-        Which trial is the worst?
-      </Typography>
+      <Box display="flex">
+        <Typography
+          variant="h4"
+          sx={{
+            marginBottom: theme.spacing(2),
+            fontWeight: theme.typography.fontWeightBold,
+          }}
+        >
+          Which trial is the worst?
+        </Typography>
+      </Box>
       <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
-        {displayTrials.numbers.map((t, index) => (
+        {displayTrials.display.map((t, index) => (
           <PreferentialTrial
-            key={index}
+            key={t == -1 ? -index - 1 : t}
             trial={activeTrials.find((trial) => trial.number === t)}
-            candidates={displayTrials.numbers.filter((n) => n !== -1)}
+            candidates={displayTrials.display.filter((n) => n !== -1)}
             hideTrial={() => {
               hideTrial(t)
             }}
