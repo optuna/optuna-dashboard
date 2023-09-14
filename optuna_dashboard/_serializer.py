@@ -15,6 +15,7 @@ from optuna.trial import FrozenTrial
 from . import _note as note
 from ._form_widget import get_form_widgets_json
 from ._named_objectives import get_objective_names
+from ._preference_setting import _SYSTEM_ATTR_FEEDBACK_COMPONENT
 from ._preferential_history import _SYSTEM_ATTR_PREFIX_HISTORY
 from .artifact._backend import list_trial_artifacts
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
@@ -165,6 +166,9 @@ def serialize_study_detail(
     if form_widgets:
         serialized["form_widgets"] = form_widgets
     if serialized["is_preferential"]:
+        serialized["feedback_component_type"] = system_attrs.get(
+            _SYSTEM_ATTR_FEEDBACK_COMPONENT, {}
+        )
         serialized["preference_history"] = serialize_preference_history(system_attrs)
         serialized["preferences"] = get_preferences(system_attrs)
         serialized["skipped_trials"] = skipped_trials
