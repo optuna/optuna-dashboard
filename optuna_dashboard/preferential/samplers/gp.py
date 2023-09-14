@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import itertools
 import math
 from typing import Any
 from typing import Callable
@@ -15,10 +16,9 @@ from gpytorch.likelihoods.gaussian_likelihood import Prior
 import numpy as np
 import optuna
 import optuna._transform
+from optuna.distributions import CategoricalDistribution
 import torch
 from torch import Tensor
-from optuna.distributions import CategoricalDistribution
-import itertools
 
 from .._system_attrs import get_preferences
 
