@@ -142,7 +142,7 @@ const ChoiceTrials: FC<{
   trials: Trial[]
   study_id: number
 }> = ({ choice, trials, study_id }) => {
-  const [isRemoved, setRemoved] = useState(choice.isRemoved)
+  const [isRemoved, setRemoved] = useState(choice.is_removed)
   const theme = useTheme()
   const worst_trials = new Set([choice.clicked])
   const action = actionCreator()
@@ -170,7 +170,7 @@ const ChoiceTrials: FC<{
         >
           {formatDate(choice.timestamp)}
         </Typography>
-        {choice.isRemoved ? (
+        {choice.is_removed ? (
           <IconButton
             disabled={!isRemoved}
             onClick={() => {
@@ -203,7 +203,7 @@ const ChoiceTrials: FC<{
           display: "flex",
           flexDirection: "row",
           flexWrap: "wrap",
-          filter: choice.isRemoved ? "brightness(0.4)" : undefined,
+          filter: choice.is_removed ? "brightness(0.4)" : undefined,
           backgroundColor: theme.palette.background.paper,
         }}
       >

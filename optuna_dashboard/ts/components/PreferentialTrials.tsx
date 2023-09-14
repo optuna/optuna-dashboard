@@ -196,7 +196,8 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
 
   const hiddenTrials = new Set(
     studyDetail.preference_history
-      ?.map((p) => p.clicked)
+      ?.filter((h) => !h.is_removed)
+      .map((p) => p.clicked)
       .concat(studyDetail.skipped_trials) ?? []
   )
   const activeTrials = studyDetail.trials.filter(
@@ -256,7 +257,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
     })
   }
   const latestHistoryId =
-    studyDetail?.preference_history?.filter((h) => !h.isRemoved).pop()?.id ??
+    studyDetail?.preference_history?.filter((h) => !h.is_removed).pop()?.id ??
     null
   if (undoHistoryId !== null && undoHistoryId !== latestHistoryId) {
     setUndoHistoryId(null)
