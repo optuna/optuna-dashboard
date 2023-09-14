@@ -30,6 +30,17 @@ if TYPE_CHECKING:
         },
     )
     History = ChooseWorstHistory
+    SerializedHistory = TypedDict(
+        "SerializedHistory",
+        {
+            "history": History,
+            "is_removed": bool,
+        },
+    )
+
+
+class PreferenceHistoryNotFound(Exception):
+    pass
 
 
 @dataclass
@@ -55,7 +66,7 @@ def report_history(
     else:
         assert False, f"Unknown data: {input_data}"
 
-    id = report_preferences(
+    preference_id = report_preferences(
         study_id=study_id,
         storage=storage,
         preferences=preferences,
@@ -64,29 +75,36 @@ def report_history(
     if input_data.mode == "ChooseWorst":
         history: ChooseWorstHistory = {
             "mode": "ChooseWorst",
-            "id": id,
+            "id": preference_id,
             "timestamp": datetime.now().isoformat(),
             "candidates": input_data.candidates,
             "clicked": input_data.clicked,
             "preferences": preferences,
         }
 
-    key = _SYSTEM_ATTR_PREFIX_HISTORY + id
+    key = _SYSTEM_ATTR_PREFIX_HISTORY + preference_id
     storage.set_study_system_attr(
         study_id=study_id,
         key=key,
         value=json.dumps(history),
     )
-    return id
+    return preference_id
 
 
-def remove_history(study_id: int, storage: BaseStorage, id: str) -> None:
-    storage.set_study_system_attr(study_id, _SYSTEM_ATTR_PREFIX_PREFERENCE + id, [])
-
-
-def restore_history(study_id: int, storage: BaseStorage, id: str) -> None:
+def remove_history(study_id: int, storage: BaseStorage, history_id: str) -> None:
     system_attrs = storage.get_study_system_attrs(study_id)
-    history: History = json.loads(system_attrs.get(_SYSTEM_ATTR_PREFIX_HISTORY + id, ""))
+    history_key = _SYSTEM_ATTR_PREFIX_HISTORY + history_id
+    if history_key not in system_attrs:
+        raise PreferenceHistoryNotFound
+    storage.set_study_system_attr(study_id, _SYSTEM_ATTR_PREFIX_PREFERENCE + history_id, [])
+
+
+def restore_history(study_id: int, storage: BaseStorage, history_id: str) -> None:
+    system_attrs = storage.get_study_system_attrs(study_id)
+    history_key = _SYSTEM_ATTR_PREFIX_HISTORY + history_id
+    if history_key not in system_attrs:
+        raise PreferenceHistoryNotFound
+    history: History = json.loads(system_attrs.get(history_key, ""))
     storage.set_study_system_attr(
-        study_id, _SYSTEM_ATTR_PREFIX_PREFERENCE + history["id"], history["preferences"]
+        study_id, _SYSTEM_ATTR_PREFIX_PREFERENCE + history_id, history["preferences"]
     )

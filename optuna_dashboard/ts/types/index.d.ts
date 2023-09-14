@@ -206,6 +206,7 @@ type StudyDetail = {
   preferences?: [number, number][]
   preference_history?: PreferenceHistory[]
   plotly_graph_objects: PlotlyGraphObject[]
+  skipped_trials: number[]
 }
 
 type StudyDetails = {
@@ -221,5 +222,6 @@ type PreferenceHistory = {
   clicked: number
   feedback_mode: PreferenceFeedbackMode
   timestamp: Date
-  isRemoved: boolean
+  preferences: [number, number][]
+  is_removed: boolean
 }

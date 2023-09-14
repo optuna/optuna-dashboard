@@ -29,6 +29,7 @@ from ._custom_plot_data import get_plotly_graph_objects
 from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
 from ._preferential_history import NewHistory
+from ._preferential_history import PreferenceHistoryNotFound
 from ._preferential_history import remove_history
 from ._preferential_history import report_history
 from ._preferential_history import restore_history
@@ -45,6 +46,7 @@ from .artifact._backend import register_artifact_route
 from .artifact._backend_to_store import to_artifact_store
 from .preferential._study import _SYSTEM_ATTR_PREFERENTIAL_STUDY
 from .preferential._study import get_best_trials as get_best_preferential_trials
+from .preferential._system_attrs import get_skipped_trial_ids
 from .preferential._system_attrs import report_skip
 
 
@@ -219,6 +221,10 @@ def create_app(
         ) = get_cached_extra_study_property(study_id, trials)
 
         plotly_graph_objects = get_plotly_graph_objects(system_attrs)
+        trials_id2number = {trial._trial_id: trial.number for trial in trials}
+        skipped_trials = [
+            trials_id2number[trial_id] for trial_id in get_skipped_trial_ids(system_attrs)
+        ]
         return serialize_study_detail(
             summary,
             best_trials,
@@ -228,6 +234,7 @@ def create_app(
             union_user_attrs,
             has_intermediate_values,
             plotly_graph_objects,
+            skipped_trials,
         )
 
     @app.get("/api/studies/<study_id:int>/param_importances")
@@ -311,14 +318,24 @@ def create_app(
     @app.delete("/api/studies/<study_id:int>/preference/<history_id>")
     @json_api_view
     def remove_preference(study_id: int, history_id: str) -> dict[str, Any]:
-        remove_history(study_id, storage, history_id)
+        try:
+            remove_history(study_id, storage, history_id)
+        except PreferenceHistoryNotFound:
+            response.status = 404
+            return {"reason": f"history_id={history_id} is not found"}
+
         response.status = 204
         return {}
 
     @app.post("/api/studies/<study_id:int>/preference/<history_id>")
     @json_api_view
     def restore_preference(study_id: int, history_id: str) -> dict[str, Any]:
-        restore_history(study_id, storage, history_id)
+        try:
+            restore_history(study_id, storage, history_id)
+        except PreferenceHistoryNotFound:
+            response.status = 404
+            return {"reason": f"history_id={history_id} is not found"}
+
         response.status = 204
         return {}
 

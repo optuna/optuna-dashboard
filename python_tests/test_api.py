@@ -8,6 +8,9 @@ from optuna import get_all_study_summaries
 from optuna.study import StudyDirection
 from optuna_dashboard._app import create_app
 from optuna_dashboard._app import create_new_study
+from optuna_dashboard._preferential_history import NewHistory
+from optuna_dashboard._preferential_history import remove_history
+from optuna_dashboard._preferential_history import report_history
 from optuna_dashboard._serializer import serialize_preference_history
 from optuna_dashboard.preferential import create_study
 
@@ -204,7 +207,7 @@ class APITestCase(TestCase):
         assert len(best_trials) == 1
         assert best_trials[0].number == 2
 
-    def test_undo_redo_history(self) -> None:
+    def test_remove_history(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(storage=storage, n_generate=3)
         for _ in range(3):
@@ -212,25 +215,19 @@ class APITestCase(TestCase):
 
         app = create_app(storage)
         study_id = study._study._study_id
-        status, _, _ = send_request(
-            app,
-            f"/api/studies/{study_id}/preference",
-            "POST",
-            body=json.dumps(
-                {
-                    "mode": "ChooseWorst",
-                    "candidates": [0, 1, 2],
-                    "clicked": 2,
-                }
+        history_id = report_history(
+            study_id,
+            storage,
+            NewHistory(
+                mode="ChooseWorst",
+                candidates=[0, 1, 2],
+                clicked=2,
             ),
-            content_type="application/json",
         )
-        self.assertEqual(status, 204)
         histories = serialize_preference_history(storage.get_study_system_attrs(study_id))
         assert len(histories) == 1
         assert not histories[0]["is_removed"]
 
-        history_id = histories[0]["id"]
         status, _, _ = send_request(
             app,
             f"/api/studies/{study_id}/preference/{history_id}",
@@ -238,6 +235,29 @@ class APITestCase(TestCase):
             content_type="application/json",
         )
         self.assertEqual(status, 204)
+        histories = serialize_preference_history(storage.get_study_system_attrs(study_id))
+        assert len(histories) == 1
+        assert histories[0]["is_removed"]
+        assert len(study.get_preferences()) == 0
+
+    def test_restore_history(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = create_study(storage=storage, n_generate=3)
+        for _ in range(3):
+            study.ask()
+
+        app = create_app(storage)
+        study_id = study._study._study_id
+        history_id = report_history(
+            study_id,
+            storage,
+            NewHistory(
+                mode="ChooseWorst",
+                candidates=[0, 1, 2],
+                clicked=2,
+            ),
+        )
+        remove_history(study_id, storage, history_id)
         histories = serialize_preference_history(storage.get_study_system_attrs(study_id))
         assert len(histories) == 1
         assert histories[0]["is_removed"]

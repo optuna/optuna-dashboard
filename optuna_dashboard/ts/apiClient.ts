@@ -56,11 +56,14 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
 }
 
 interface PreferenceHistoryResponce {
-  id: string
-  candidates: number[]
-  clicked: number
-  mode: PreferenceFeedbackMode
-  timestamp: string
+  history: {
+    id: string
+    candidates: number[]
+    clicked: number
+    mode: PreferenceFeedbackMode
+    timestamp: string
+    preferences: [number, number][]
+  }
   is_removed: boolean
 }
 
@@ -68,12 +71,13 @@ const convertPreferenceHistory = (
   res: PreferenceHistoryResponce
 ): PreferenceHistory => {
   return {
-    id: res.id,
-    candidates: res.candidates,
-    clicked: res.clicked,
-    feedback_mode: res.mode,
-    timestamp: new Date(res.timestamp),
-    isRemoved: res.is_removed,
+    id: res.history.id,
+    candidates: res.history.candidates,
+    clicked: res.history.clicked,
+    feedback_mode: res.history.mode,
+    timestamp: new Date(res.history.timestamp),
+    preferences: res.history.preferences,
+    is_removed: res.is_removed,
   }
 }
 
@@ -95,6 +99,7 @@ interface StudyDetailResponse {
   preferences?: [number, number][]
   preference_history?: PreferenceHistoryResponce[]
   plotly_graph_objects: PlotlyGraphObject[]
+  skipped_trials?: number[]
 }
 
 export const getStudyDetailAPI = (
@@ -135,6 +140,7 @@ export const getStudyDetailAPI = (
           convertPreferenceHistory
         ),
         plotly_graph_objects: res.data.plotly_graph_objects,
+        skipped_trials: res.data.skipped_trials ?? [],
       }
     })
 }
