@@ -312,7 +312,7 @@ def create_app(
 
     @app.put("/api/studies/<study_id:int>/preference_feedback_component_type")
     @json_api_view
-    def put_component(study_id: int) -> dict[str, Any]:
+    def put_preference_feedback_component_type(study_id: int) -> dict[str, Any]:
         try:
             component_type = request.json.get("type", "")
             artifact_key = request.json.get("artifact_key", None)
@@ -329,6 +329,8 @@ def create_app(
             component_type=component_type,
             artifact_key=artifact_key,
         )
+        response.status = 204
+        return {}
 
     @app.delete("/api/studies/<study_id:int>/preference/<history_id>")
     @json_api_view
