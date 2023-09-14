@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import itertools
 import math
 from typing import Any
 from typing import Callable
+from typing import cast
 
 import botorch.acquisition.analytic
 import botorch.models.model
@@ -14,6 +16,7 @@ from gpytorch.likelihoods.gaussian_likelihood import Prior
 import numpy as np
 import optuna
 import optuna._transform
+from optuna.distributions import CategoricalDistribution
 import torch
 from torch import Tensor
 
@@ -310,7 +313,7 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
         search_space: dict[str, optuna.distributions.BaseDistribution],
     ) -> dict[str, Any]:
         preferences = get_preferences(study.system_attrs)
-        if len(preferences) == 0:
+        if len(preferences) == 0 or len(search_space) == 0:
             return {}
 
         trials = study.get_trials(deepcopy=False)
@@ -355,16 +358,33 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
                 best_f=torch.max(sampled_gp.posterior(params[:, None, :]).mean),
             )
 
-            # TODO: Make it possible to apply it on categorical variables
-            candidates, _ = botorch.optim.optimize_acqf(
-                acq_function=acqf,
-                bounds=torch.from_numpy(trans.bounds.T),
-                q=1,
-                num_restarts=10,
-                raw_samples=512,
-                options={"batch_limit": 5, "maxiter": 200},
-                sequential=True,
-            )
+            # TODO: Make it possible to apply it on mixed search space
+            if all(isinstance(dist, CategoricalDistribution) for dist in search_space.values()):
+                all_param_combinations = itertools.product(
+                    *[
+                        [(name, choice) for choice in cast(CategoricalDistribution, dist).choices]
+                        for name, dist in search_space.items()
+                    ]
+                )
+                choices = torch.tensor(
+                    np.array([trans.transform(dict(params)) for params in all_param_combinations]),
+                    dtype=torch.float64,
+                )
+                candidates, _ = botorch.optim.optimize_acqf_discrete(
+                    acq_function=acqf,
+                    choices=choices,
+                    q=1,
+                )
+            else:
+                candidates, _ = botorch.optim.optimize_acqf(
+                    acq_function=acqf,
+                    bounds=torch.from_numpy(trans.bounds.T),
+                    q=1,
+                    num_restarts=10,
+                    raw_samples=512,
+                    options={"batch_limit": 5, "maxiter": 200},
+                    sequential=True,
+                )
             next_x = trans.untransform(candidates[0].detach().numpy())
             return next_x
 

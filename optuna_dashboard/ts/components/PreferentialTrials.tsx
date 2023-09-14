@@ -12,6 +12,7 @@ import {
   FormControl,
   FormLabel,
   Modal,
+  CircularProgress,
 } from "@mui/material"
 import IconButton from "@mui/material/IconButton"
 import OpenInFullIcon from "@mui/icons-material/OpenInFull"
@@ -169,19 +170,19 @@ export const OutputContent: FC<{
   componentId?: FeedbackComponentType
   urlPath: string
 }> = ({ trial, artifact, componentId, urlPath }) => {
-  if (componentId === undefined || componentId === "Note") {
+  if (
+    (componentId === undefined || componentId === "Note") &&
+    trial.note.body !== ""
+  ) {
     return <MarkdownRenderer body={trial.note.body} />
   }
-  if (componentId === "Artifact") {
-    if (artifact === undefined) {
-      return null
-    }
+  if (componentId === "Artifact" && artifact !== undefined) {
     return (
       <ArtifactCardMedia artifact={artifact} urlPath={urlPath} height="100%" />
     )
   }
 
-  return null
+  return <CircularProgress />
 }
 
 export const getArtifactUrlPath = (
@@ -381,8 +382,8 @@ const PreferentialTrial: FC<{
 }
 
 type DisplayTrials = {
-  numbers: number[]
-  last_number: number
+  display: number[]
+  clicked: number[]
 }
 
 export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
@@ -391,13 +392,9 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
   const theme = useTheme()
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
     useThreejsArtifactModal()
-  const runningTrials =
-    studyDetail?.trials.filter((t) => t.state === "Running") ?? []
-  const activeTrials = runningTrials.concat(studyDetail?.best_trials ?? [])
-
   const [displayTrials, setDisplayTrials] = useState<DisplayTrials>({
-    numbers: activeTrials.map((t) => t.number),
-    last_number: Math.max(...activeTrials.map((t) => t.number), -1),
+    display: [],
+    clicked: [],
   })
   const [settingShown, setSettingShown] = useState(false)
   const [detailTrial, setDetailTrial] = useState<number | null>(null)
@@ -405,40 +402,60 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
   if (studyDetail === null || !studyDetail.is_preferential) {
     return null
   }
-  const new_trails = activeTrials.filter(
-    (t) =>
-      displayTrials.last_number < t.number &&
-      displayTrials.numbers.find((n) => n === t.number) === undefined
+
+  const hiddenTrials = new Set(
+    studyDetail.preference_history
+      ?.map((p) => p.clicked)
+      .concat(studyDetail.skipped_trials) ?? []
   )
-  if (new_trails.length > 0) {
-    setDisplayTrials((display) => {
-      const numbers = [...display.numbers]
-      new_trails.map((t) => {
-        const index = numbers.findIndex((n) => n === -1)
+  const activeTrials = studyDetail.trials.filter(
+    (t) =>
+      (t.state === "Running" || t.state === "Complete") &&
+      !hiddenTrials.has(t.number)
+  )
+  const newTrials = activeTrials.filter(
+    (t) =>
+      !displayTrials.display.includes(t.number) &&
+      !displayTrials.clicked.includes(t.number)
+  )
+  const deleteTrials = displayTrials.display.filter(
+    (t) => t !== -1 && !activeTrials.map((t) => t.number).includes(t)
+  )
+  if (newTrials.length > 0 || deleteTrials.length > 0) {
+    setDisplayTrials((prev) => {
+      const display = [...prev.display].map((t) =>
+        deleteTrials.includes(t) ? -1 : t
+      )
+      const clicked = [...prev.clicked]
+      newTrials.map((t) => {
+        const index = display.findIndex((n) => n === -1)
         if (index === -1) {
-          numbers.push(t.number)
+          display.push(t.number)
+          clicked.push(-1)
         } else {
-          numbers[index] = t.number
+          display[index] = t.number
         }
       })
       return {
-        numbers: numbers,
-        last_number: Math.max(...numbers, -1),
+        display: display,
+        clicked: clicked,
       }
     })
   }
 
   const hideTrial = (num: number) => {
-    setDisplayTrials((display) => {
-      const index = display.numbers.findIndex((n) => n === num)
+    setDisplayTrials((prev) => {
+      const index = prev.display.findIndex((n) => n === num)
       if (index === -1) {
-        return display
+        return prev
       }
-      const numbers = [...displayTrials.numbers]
-      numbers[index] = -1
+      const display = [...prev.display]
+      const clicked = [...prev.clicked]
+      display[index] = -1
+      clicked[index] = num
       return {
-        numbers: numbers,
-        last_number: display.last_number,
+        display: display,
+        clicked: clicked,
       }
     })
   }
@@ -471,9 +488,9 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
         Which trial is the worst?
       </Typography>
       <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
-        {displayTrials.numbers.map((t, index) => {
+        {displayTrials.display.map((t, index) => {
           const trial = activeTrials.find((trial) => trial.number === t)
-          const candidates = displayTrials.numbers.filter((n) => n !== -1)
+          const candidates = displayTrials.display.filter((n) => n !== -1)
           return (
             <PreferentialTrial
               key={t === -1 ? -index - 1 : t}
