@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 _SYSTEM_ATTR_FEEDBACK_COMPONENT = "preference:component"
 
 
-def _register_preference_feedback_component_type(
+def _register_preference_feedback_component(
     study_id: int,
     storage: BaseStorage,
     component_type: OUTPUT_COMPONENT_TYPE,
@@ -59,7 +59,7 @@ def register_preference_feedback_component(
             artifact_key is not None
         ), "artifact_key must be specified when component_type is Artifact"
 
-    _register_preference_feedback_component_type(
+    _register_preference_feedback_component(
         study_id=study._study._study_id,
         storage=study._study._storage,
         component_type=component_type,

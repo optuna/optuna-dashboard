@@ -28,7 +28,7 @@ from ._cached_extra_study_property import get_cached_extra_study_property
 from ._custom_plot_data import get_plotly_graph_objects
 from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
-from ._preference_setting import _register_preference_feedback_component_type
+from ._preference_setting import _register_preference_feedback_component
 from ._preferential_history import NewHistory
 from ._preferential_history import PreferenceHistoryNotFound
 from ._preferential_history import remove_history
@@ -323,7 +323,7 @@ def create_app(
             response.status = 400
             return {"reason": "component_type must be either 'Note' or 'Artifact'."}
 
-        _register_preference_feedback_component_type(
+        _register_preference_feedback_component(
             study_id=study_id,
             storage=storage,
             component_type=component_type,

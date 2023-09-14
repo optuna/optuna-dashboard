@@ -8,7 +8,7 @@ from optuna import get_all_study_summaries
 from optuna.study import StudyDirection
 from optuna_dashboard._app import create_app
 from optuna_dashboard._app import create_new_study
-from optuna_dashboard._preference_setting import register_preference_feedback_component_type
+from optuna_dashboard._preference_setting import register_preference_feedback_component
 from optuna_dashboard._preferential_history import NewHistory
 from optuna_dashboard._preferential_history import remove_history
 from optuna_dashboard._preferential_history import report_history
@@ -187,7 +187,7 @@ class APITestCase(TestCase):
     def test_change_component(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(storage=storage, n_generate=3)
-        register_preference_feedback_component_type(study, "note")
+        register_preference_feedback_component(study, "note")
         for _ in range(3):
             study.ask()
 
