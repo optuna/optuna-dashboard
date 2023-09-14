@@ -37,17 +37,22 @@ def register_preference_feedback_component_type(
     component_type: OUTPUT_COMPONENT_TYPE,
     artifact_key: str | None = None,
 ) -> None:
-    """Register output component to the study.
+    """Register a preference feedback component to the study.
 
+    With this feature, you can change the component, displayed on the
+    human feedback pages. By default, the Markdown note (``component_type="note"``)
+    is displayed.  If you specify ``component_type="artifact"``, the viewer for the
+    specified artifact file will be displayed.
     Args:
         study:
-            The study to register the output component.
+            The study to register the preference feedback component.
         component_type:
-            The type of the output component.
-        artifact_key:
-            When the component_type is "Artifact",
-            this argument is used as the attribute key of the artifact.
-            Each trial displays the artifact whose id is the value of the attribute.
+            The component type, displayed on the human feedback pages
+            (default: ``"note"``).
+        user_attr_artifact_key:
+            This option is required when the ``component_type`` is ``"artifact"``.
+            The user attribute, which is specified this field, must contain the
+            ``artifact``id you want to display on the human feedback page.
     """
     if component_type == "artifact":
         assert (
