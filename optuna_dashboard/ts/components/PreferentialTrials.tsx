@@ -198,7 +198,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
     studyDetail.preference_history
       ?.filter((h) => !h.is_removed)
       .map((p) => p.clicked)
-      .concat(studyDetail.skipped_trials) ?? []
+      .concat(studyDetail.skipped_trial_numbers) ?? []
   )
   const activeTrials = studyDetail.trials.filter(
     (t) =>

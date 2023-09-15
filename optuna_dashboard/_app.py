@@ -221,10 +221,8 @@ def create_app(
         ) = get_cached_extra_study_property(study_id, trials)
 
         plotly_graph_objects = get_plotly_graph_objects(system_attrs)
-        trials_id2number = {trial._trial_id: trial.number for trial in trials}
-        skipped_trials = [
-            trials_id2number[trial_id] for trial_id in get_skipped_trial_ids(system_attrs)
-        ]
+        skipped_trial_ids = get_skipped_trial_ids(system_attrs)
+        skipped_trials = [t.number for t in trials if t._trial_id in skipped_trial_ids]
         return serialize_study_detail(
             summary,
             best_trials,

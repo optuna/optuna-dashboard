@@ -99,7 +99,7 @@ interface StudyDetailResponse {
   preferences?: [number, number][]
   preference_history?: PreferenceHistoryResponce[]
   plotly_graph_objects: PlotlyGraphObject[]
-  skipped_trials?: number[]
+  skipped_trial_numbers?: number[]
 }
 
 export const getStudyDetailAPI = (
@@ -140,7 +140,7 @@ export const getStudyDetailAPI = (
           convertPreferenceHistory
         ),
         plotly_graph_objects: res.data.plotly_graph_objects,
-        skipped_trials: res.data.skipped_trials ?? [],
+        skipped_trial_numbers: res.data.skipped_trial_numbers ?? [],
       }
     })
 }
