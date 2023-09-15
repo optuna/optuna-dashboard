@@ -135,7 +135,7 @@ def serialize_study_detail(
     union_user_attrs: list[tuple[str, bool]],
     has_intermediate_values: bool,
     plotly_graph_objects: dict[str, str],
-    skipped_trials: list[int],
+    skipped_trial_numbers: list[int],
 ) -> dict[str, Any]:
     serialized: dict[str, Any] = {
         "name": summary.study_name,
@@ -167,7 +167,7 @@ def serialize_study_detail(
     if serialized["is_preferential"]:
         serialized["preference_history"] = serialize_preference_history(system_attrs)
         serialized["preferences"] = get_preferences(system_attrs)
-        serialized["skipped_trial_numbers"] = skipped_trials
+        serialized["skipped_trial_numbers"] = skipped_trial_numbers
     serialized["plotly_graph_objects"] = [
         {"id": id_, "graph_object": graph_object}
         for id_, graph_object in plotly_graph_objects.items()

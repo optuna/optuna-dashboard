@@ -222,7 +222,7 @@ def create_app(
 
         plotly_graph_objects = get_plotly_graph_objects(system_attrs)
         skipped_trial_ids = get_skipped_trial_ids(system_attrs)
-        skipped_trials = [t.number for t in trials if t._trial_id in skipped_trial_ids]
+        skipped_trial_numbers = [t.number for t in trials if t._trial_id in skipped_trial_ids]
         return serialize_study_detail(
             summary,
             best_trials,
@@ -232,7 +232,7 @@ def create_app(
             union_user_attrs,
             has_intermediate_values,
             plotly_graph_objects,
-            skipped_trials,
+            skipped_trial_numbers,
         )
 
     @app.get("/api/studies/<study_id:int>/param_importances")
