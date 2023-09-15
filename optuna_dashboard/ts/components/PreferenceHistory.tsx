@@ -14,9 +14,10 @@ import Modal from "@mui/material/Modal"
 import { red } from "@mui/material/colors"
 
 import { TrialListDetail } from "./TrialList"
-import { OutputContent, getArtifactUrlPath } from "./PreferentialTrials"
+import { getArtifactUrlPath } from "./PreferentialTrials"
 import { formatDate } from "../dateUtil"
 import { useStudyDetailValue } from "../state"
+import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
 
 type TrialType = "worst" | "none"
 
@@ -93,7 +94,7 @@ const CandidateTrial: FC<{
             padding: theme.spacing(2),
           }}
         >
-          <OutputContent
+          <PreferentialOutputComponent
             trial={trial}
             artifact={artifact}
             componentType={componentType}

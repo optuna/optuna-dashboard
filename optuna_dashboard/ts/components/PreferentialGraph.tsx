@@ -24,7 +24,8 @@ import ELK from "elkjs/lib/elk.bundled.js"
 import { ElkNode } from "elkjs/lib/elk-api.js"
 
 import { useStudyDetailValue } from "../state"
-import { OutputContent, getArtifactUrlPath } from "./PreferentialTrials"
+import { getArtifactUrlPath } from "./PreferentialTrials"
+import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
 
 const elk = new ELK()
 const nodeWidth = 400
@@ -91,7 +92,7 @@ const GraphNode: FC<NodeProps<NodeData>> = ({ data, isConnectable }) => {
         isConnectable={isConnectable}
       />
       <CardContent>
-        <OutputContent
+        <PreferentialOutputComponent
           trial={trial}
           artifact={artifact}
           componentType={componentType}
