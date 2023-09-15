@@ -612,21 +612,18 @@ export const actionCreator = () => {
 
   const updateFeedbackComponent = (
     studyId: number,
-    compoennt_type: FeedbackComponentType,
-    artifact_key?: string
+    compoennt_type: FeedbackComponentType
   ) => {
-    reportFeedbackComponentAPI(studyId, compoennt_type, artifact_key).catch(
-      (err) => {
-        const reason = err.response?.data.reason
-        enqueueSnackbar(
-          `Failed to report feedback component. Reason: ${reason}`,
-          {
-            variant: "error",
-          }
-        )
-        console.log(err)
-      }
-    )
+    reportFeedbackComponentAPI(studyId, compoennt_type).catch((err) => {
+      const reason = err.response?.data.reason
+      enqueueSnackbar(
+        `Failed to report feedback component. Reason: ${reason}`,
+        {
+          variant: "error",
+        }
+      )
+      console.log(err)
+    })
   }
 
   return {

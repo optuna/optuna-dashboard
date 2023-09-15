@@ -13,7 +13,6 @@ type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting"
 type TrialStateFinished = "Complete" | "Fail" | "Pruned"
 type StudyDirection = "maximize" | "minimize" | "not_set"
 type PreferenceFeedbackMode = "ChooseWorst"
-type FeedbackComponentType = "note" | "artifact"
 
 type FloatDistribution = {
   type: "FloatDistribution"
@@ -188,6 +187,17 @@ type PlotlyGraphObject = {
   graph_object: string
 }
 
+type FeedbackComponentNote = {
+  output_type: "note"
+}
+
+type FeedbackComponentArtifact = {
+  output_type: "artifact"
+  artifact_key: string
+}
+
+type FeedbackComponentType = FeedbackComponentArtifact | FeedbackComponentNote
+
 type StudyDetail = {
   id: number
   name: string
@@ -205,7 +215,6 @@ type StudyDetail = {
   objective_names?: string[]
   form_widgets?: FormWidgets
   feedback_component_type: FeedbackComponentType
-  feedback_artifact_key?: string
   preferences?: [number, number][]
   preference_history?: PreferenceHistory[]
   plotly_graph_objects: PlotlyGraphObject[]

@@ -87,6 +87,26 @@ interface FeedbackComponentResponse {
   type: string
   artifact_key?: string
 }
+
+const convertFeedbackComponentType = (
+  res?: FeedbackComponentResponse
+): FeedbackComponentType => {
+  if (res === undefined) {
+    return {
+      output_type: "note",
+    } as FeedbackComponentNote
+  }
+  if (res.type === "artifact") {
+    return {
+      output_type: "artifact",
+      artifact_key: res.artifact_key,
+    } as FeedbackComponentArtifact
+  }
+  return {
+    output_type: "note",
+  } as FeedbackComponentNote
+}
+
 interface StudyDetailResponse {
   name: string
   datetime_start: string
@@ -142,10 +162,9 @@ export const getStudyDetailAPI = (
         objective_names: res.data.objective_names,
         form_widgets: res.data.form_widgets,
         is_preferential: res.data.is_preferential,
-        feedback_component_type: res.data.feedback_component_type?.type
-          ? (res.data.feedback_component_type.type as FeedbackComponentType)
-          : "note",
-        feedback_artifact_key: res.data.feedback_component_type?.artifact_key,
+        feedback_component_type: convertFeedbackComponentType(
+          res.data.feedback_component_type
+        ),
         preferences: res.data.preferences,
         preference_history: res.data.preference_history?.map(
           convertPreferenceHistory
@@ -388,14 +407,15 @@ export const skipPreferentialTrialAPI = (
 
 export const reportFeedbackComponentAPI = (
   studyId: number,
-  component_type: FeedbackComponentType,
-  artifact_key?: string
+  component_type: FeedbackComponentType
 ): Promise<void> => {
   return axiosInstance
-    .put<void>(`/api/studies/${studyId}/preference_feedback_component_type`, {
-      type: component_type,
-      artifact_key: artifact_key,
-    })
+    .put<void>(
+      `/api/studies/${studyId}/preference_feedback_component_type`,
+      component_type.output_type === "note"
+        ? { type: "note" }
+        : { type: "artifact", artifact_key: component_type.artifact_key }
+    )
     .then(() => {
       return
     })

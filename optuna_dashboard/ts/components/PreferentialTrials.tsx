@@ -76,26 +76,14 @@ const SettingsPage: FC<{
   const theme = useTheme()
   const actions = actionCreator()
   const [outputComponent, setOutputComponent] = useState(
-    studyDetail?.feedback_component_type ?? "note"
-  )
-  const [outputArtifactKey, setOutputArtifactKey] = useState(
-    studyDetail?.feedback_artifact_key ?? ""
+    studyDetail.feedback_component_type
   )
   useEffect(() => {
-    if (studyDetail.feedback_component_type !== undefined) {
-      setOutputComponent(studyDetail.feedback_component_type)
-    }
-    if (studyDetail.feedback_artifact_key !== undefined) {
-      setOutputArtifactKey(studyDetail.feedback_artifact_key)
-    }
-  }, [studyDetail.feedback_component_type, studyDetail.feedback_artifact_key])
+    setOutputComponent(studyDetail.feedback_component_type)
+  }, [studyDetail.feedback_component_type])
   const onClose = () => {
     setSettingShown(false)
-    actions.updateFeedbackComponent(
-      studyDetail.id,
-      outputComponent,
-      outputArtifactKey
-    )
+    actions.updateFeedbackComponent(studyDetail.id, outputComponent)
   }
 
   return (
@@ -128,7 +116,7 @@ const SettingsPage: FC<{
             <MenuItem value="artifact">Artifact</MenuItem>
           </Select>
         </FormControl>
-        {outputComponent === "artifact" ? (
+        {outputComponent.output_type === "artifact" ? (
           <FormControl
             component="fieldset"
             disabled={studyDetail.union_user_attrs.length === 0}
@@ -139,11 +127,14 @@ const SettingsPage: FC<{
             <Select
               value={
                 studyDetail.union_user_attrs.length !== 0
-                  ? outputArtifactKey
+                  ? outputComponent.artifact_key
                   : "error"
               }
               onChange={(e) => {
-                setOutputArtifactKey(e.target.value)
+                setOutputComponent({
+                  ...outputComponent,
+                  artifact_key: e.target.value as string,
+                })
               }}
             >
               {studyDetail.union_user_attrs.length === 0 ? (
@@ -166,15 +157,14 @@ const SettingsPage: FC<{
 
 const isComparisonReady = (
   trial: Trial,
-  componentId?: FeedbackComponentType,
-  artifactKey?: string
+  componentType: FeedbackComponentType
 ): boolean => {
-  if (componentId === undefined || componentId === "note") {
+  if (componentType === undefined || componentType.output_type === "note") {
     return trial.note.body !== ""
   }
-  if (componentId === "artifact") {
+  if (componentType.output_type === "artifact") {
     const artifactId = trial?.user_attrs.find(
-      (a) => a.key === artifactKey
+      (a) => a.key === componentType.artifact_key
     )?.value
     const artifact = trial?.artifacts.find((a) => a.artifact_id === artifactId)
     return artifact !== undefined
@@ -185,16 +175,16 @@ const isComparisonReady = (
 export const OutputContent: FC<{
   trial: Trial
   artifact?: Artifact
-  componentId?: FeedbackComponentType
+  componentType: FeedbackComponentType
   urlPath: string
-}> = ({ trial, artifact, componentId, urlPath }) => {
+}> = ({ trial, artifact, componentType, urlPath }) => {
   const note = useMemo(() => {
     return <MarkdownRenderer body={trial.note.body} />
   }, [trial.note.body])
-  if (componentId === undefined || componentId === "note") {
+  if (componentType === undefined || componentType.output_type === "note") {
     return note
   }
-  if (componentId === "artifact") {
+  if (componentType.output_type === "artifact") {
     if (artifact === undefined) {
       return null
     }
@@ -233,16 +223,19 @@ const PreferentialTrial: FC<{
   const [buttonHover, setButtonHover] = useState(false)
   const trialWidth = 400
   const trialHeight = 300
-  const componentId = studyDetail.feedback_component_type
-  const artifactKey = studyDetail.feedback_artifact_key
-  const artifactId = trial?.user_attrs.find((a) => a.key === artifactKey)?.value
+  const componentType = studyDetail.feedback_component_type
+  const artifactId =
+    componentType.output_type === "artifact"
+      ? trial?.user_attrs.find((a) => a.key === componentType.artifact_key)
+          ?.value
+      : undefined
   const artifact = trial?.artifacts.find((a) => a.artifact_id === artifactId)
   const urlPath =
     trial !== undefined && artifactId !== undefined
       ? getArtifactUrlPath(studyDetail.id, trial?.trial_id, artifactId)
       : ""
   const is3dModel =
-    componentId === "artifact" &&
+    componentType.output_type === "artifact" &&
     artifact !== undefined &&
     isThreejsArtifact(artifact)
 
@@ -262,7 +255,7 @@ const PreferentialTrial: FC<{
     hideTrial()
     action.updatePreference(trial.study_id, candidates, trial.number)
   }
-  const isReady = isComparisonReady(trial, componentId, artifactKey)
+  const isReady = isComparisonReady(trial, componentType)
 
   return (
     <Card
@@ -287,7 +280,8 @@ const PreferentialTrial: FC<{
           }}
         >
           <Typography variant="h5">Trial {trial.number}</Typography>
-          {componentId === "artifact" && artifact !== undefined ? (
+          {componentType.output_type === "artifact" &&
+          artifact !== undefined ? (
             <Typography
               variant="h6"
               sx={{
@@ -350,7 +344,7 @@ const PreferentialTrial: FC<{
             <OutputContent
               trial={trial}
               artifact={artifact}
-              componentId={componentId}
+              componentType={componentType}
               urlPath={urlPath}
             />
             <Box
@@ -537,8 +531,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
               n !== -1 &&
               isComparisonReady(
                 studyDetail.trials[n],
-                studyDetail.feedback_component_type,
-                studyDetail.feedback_artifact_key
+                studyDetail.feedback_component_type
               )
           )
           return (

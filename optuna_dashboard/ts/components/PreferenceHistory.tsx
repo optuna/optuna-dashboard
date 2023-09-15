@@ -33,9 +33,12 @@ const CandidateTrial: FC<{
   if (studyDetail === null) {
     return null
   }
-  const componentId = studyDetail.feedback_component_type
-  const artifactKey = studyDetail.feedback_artifact_key
-  const artifactId = trial.user_attrs.find((a) => a.key === artifactKey)?.value
+  const componentType = studyDetail.feedback_component_type
+  const artifactId =
+    componentType.output_type === "artifact"
+      ? trial.user_attrs.find((a) => a.key === componentType.artifact_key)
+          ?.value
+      : undefined
   const artifact = trial.artifacts.find((a) => a.artifact_id === artifactId)
   const urlPath =
     artifactId !== undefined
@@ -93,7 +96,7 @@ const CandidateTrial: FC<{
           <OutputContent
             trial={trial}
             artifact={artifact}
-            componentId={componentId}
+            componentType={componentType}
             urlPath={urlPath}
           />
         </Box>
