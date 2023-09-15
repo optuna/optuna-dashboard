@@ -13,6 +13,10 @@ import {
   FormLabel,
   Modal,
   CircularProgress,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material"
 import IconButton from "@mui/material/IconButton"
 import OpenInFullIcon from "@mui/icons-material/OpenInFull"
@@ -31,49 +35,11 @@ import {
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
 import { MarkdownRenderer } from "./Note"
 
-const ModalPage: FC<{
-  children: React.ReactNode
-  displayFlag: boolean
-  onClose: () => void
-}> = ({ children, displayFlag, onClose }) => {
-  const theme = useTheme()
-  return (
-    <Modal open={displayFlag} onClose={onClose}>
-      <Box
-        sx={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          width: "80%",
-          maxHeight: "90%",
-          margin: "auto",
-          overflow: "hidden",
-          backgroundColor: theme.palette.background.default,
-          borderRadius: theme.spacing(3),
-        }}
-      >
-        <Box
-          sx={{
-            width: "100%",
-            height: "100%",
-            overflow: "auto",
-          }}
-        >
-          {children}
-        </Box>
-      </Box>
-    </Modal>
-  )
-}
-
 const SettingsPage: FC<{
   studyDetail: StudyDetail
   settingShown: boolean
   setSettingShown: (flag: boolean) => void
 }> = ({ studyDetail, settingShown, setSettingShown }) => {
-  const theme = useTheme()
   const actions = actionCreator()
   const [outputComponentType, setOutputComponentType] = useState(
     studyDetail.feedback_component_type.output_type
@@ -97,6 +63,9 @@ const SettingsPage: FC<{
   ])
   const onClose = () => {
     setSettingShown(false)
+  }
+  const onApply = () => {
+    setSettingShown(false)
     const outputComponent: FeedbackComponentType =
       outputComponentType === "note"
         ? ({ output_type: "note" } as FeedbackComponentNote)
@@ -108,19 +77,15 @@ const SettingsPage: FC<{
   }
 
   return (
-    <ModalPage displayFlag={settingShown} onClose={onClose}>
-      <Typography
-        variant="h4"
+    <Dialog
+      open={settingShown}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth={true}
+    >
+      <DialogTitle>Settings</DialogTitle>
+      <DialogContent
         sx={{
-          padding: theme.spacing(2),
-          fontWeight: theme.typography.fontWeightBold,
-        }}
-      >
-        Settings
-      </Typography>
-      <Box
-        sx={{
-          padding: theme.spacing(2),
           display: "flex",
           flexDirection: "column",
         }}
@@ -148,7 +113,7 @@ const SettingsPage: FC<{
             <Select
               value={
                 studyDetail.union_user_attrs.length !== 0
-                  ? artifactKey
+                  ? artifactKey ?? ""
                   : "error"
               }
               onChange={(e) => {
@@ -168,8 +133,22 @@ const SettingsPage: FC<{
             </Select>
           </FormControl>
         ) : null}
-      </Box>
-    </ModalPage>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose} color="primary">
+          Cancel
+        </Button>
+        <Button
+          onClick={onApply}
+          color="primary"
+          disabled={
+            outputComponentType === "artifact" && artifactKey === undefined
+          }
+        >
+          Apply
+        </Button>
+      </DialogActions>
+    </Dialog>
   )
 }
 
@@ -571,22 +550,51 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
         studyDetail={studyDetail}
       />
       {detailTrial !== null && (
-        <ModalPage
-          displayFlag={true}
-          onClose={() => {
-            setDetailTrial(null)
-          }}
-        >
-          <TrialListDetail
-            trial={studyDetail.trials[detailTrial]}
-            isBestTrial={(trialId) =>
-              studyDetail.trials.find((t) => t.trial_id === trialId)?.state ===
-                "Complete" ?? false
-            }
-            directions={[]}
-            objectiveNames={[]}
-          />
-        </ModalPage>
+        <Modal open={true} onClose={() => setDetailTrial(null)}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              width: "80%",
+              maxHeight: "90%",
+              margin: "auto",
+              overflow: "hidden",
+              backgroundColor: theme.palette.background.default,
+              borderRadius: theme.spacing(3),
+            }}
+          >
+            <Box
+              sx={{
+                width: "100%",
+                height: "100%",
+                overflow: "auto",
+                position: "relative",
+              }}
+            >
+              <IconButton
+                sx={{
+                  position: "absolute",
+                  marginTop: theme.spacing(2),
+                  marginRight: theme.spacing(2),
+                }}
+              >
+                <ClearIcon />
+              </IconButton>
+              <TrialListDetail
+                trial={studyDetail.trials[detailTrial]}
+                isBestTrial={(trialId) =>
+                  studyDetail.trials.find((t) => t.trial_id === trialId)
+                    ?.state === "Complete" ?? false
+                }
+                directions={[]}
+                objectiveNames={[]}
+              />
+            </Box>
+          </Box>
+        </Modal>
       )}
       {renderThreejsArtifactModal()}
     </Box>

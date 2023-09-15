@@ -320,7 +320,7 @@ def create_app(
     @json_api_view
     def put_preference_feedback_component(study_id: int) -> dict[str, Any]:
         try:
-            component_type = request.json.get("type", "")
+            component_type = request.json.get("output_type", "")
             artifact_key = request.json.get("artifact_key", None)
         except ValueError:
             response.status = 400
