@@ -187,12 +187,16 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
   studyDetail,
 }) => {
   const [undoHistoryId, setUndoHistoryId] = useState<string | null>(null)
+  const [displayTrials, setDisplayTrials] = useState<DisplayTrials>({
+    display: [],
+    clicked: [],
+  })
+  const theme = useTheme()
+  const action = actionCreator()
 
   if (studyDetail === null || !studyDetail.is_preferential) {
     return null
   }
-  const theme = useTheme()
-  const action = actionCreator()
 
   const hiddenTrials = new Set(
     studyDetail.preference_history
@@ -205,11 +209,6 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
       (t.state === "Running" || t.state === "Complete") &&
       !hiddenTrials.has(t.number)
   )
-
-  const [displayTrials, setDisplayTrials] = useState<DisplayTrials>({
-    display: [],
-    clicked: [],
-  })
   const newTrials = activeTrials.filter(
     (t) =>
       !displayTrials.display.includes(t.number) &&
