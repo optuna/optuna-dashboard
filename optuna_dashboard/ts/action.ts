@@ -611,23 +611,39 @@ export const actionCreator = () => {
     })
   }
 
-  const removePreferentialHistory = (studyId: number, historyUuid: string) => {
-    removePreferentialHistoryAPI(studyId, historyUuid).catch((err) => {
-      const reason = err.response?.data.reason
-      enqueueSnackbar(`Failed to switch history. Reason: ${reason}`, {
-        variant: "error",
+  const removePreferentialHistory = (studyId: number, historyId: string) => {
+    removePreferentialHistoryAPI(studyId, historyId)
+      .then(() => {
+        const newStudy = Object.assign({}, studyDetails[studyId])
+        newStudy.preference_history = newStudy.preference_history?.map((h) =>
+          h.id === historyId ? { ...h, is_removed: true } : h
+        )
+        setStudyDetailState(studyId, newStudy)
       })
-      console.log(err)
-    })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(`Failed to switch history. Reason: ${reason}`, {
+          variant: "error",
+        })
+        console.log(err)
+      })
   }
-  const restorePreferentialHistory = (studyId: number, historyUuid: string) => {
-    restorePreferentialHistoryAPI(studyId, historyUuid).catch((err) => {
-      const reason = err.response?.data.reason
-      enqueueSnackbar(`Failed to switch history. Reason: ${reason}`, {
-        variant: "error",
+  const restorePreferentialHistory = (studyId: number, historyId: string) => {
+    restorePreferentialHistoryAPI(studyId, historyId)
+      .then(() => {
+        const newStudy = Object.assign({}, studyDetails[studyId])
+        newStudy.preference_history = newStudy.preference_history?.map((h) =>
+          h.id === historyId ? { ...h, is_removed: false } : h
+        )
+        setStudyDetailState(studyId, newStudy)
       })
-      console.log(err)
-    })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(`Failed to switch history. Reason: ${reason}`, {
+          variant: "error",
+        })
+        console.log(err)
+      })
   }
 
   return {
