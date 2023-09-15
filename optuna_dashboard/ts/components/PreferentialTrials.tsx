@@ -423,7 +423,7 @@ const PreferentialTrial: FC<{
           setButtonHover(false)
         }}
         color="error"
-        disabled={!isReady}
+        disabled={!isReady && candidates.length > 0}
         sx={{
           marginTop: "auto",
         }}
