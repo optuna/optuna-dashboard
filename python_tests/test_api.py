@@ -211,7 +211,7 @@ class APITestCase(TestCase):
         self.assertEqual(status, 200)
 
         study_detail = json.loads(body)
-        assert study_detail["feedback_component_type"]["type"] == "artifact"
+        assert study_detail["feedback_component_type"]["output_type"] == "artifact"
         assert study_detail["feedback_component_type"]["artifact_key"] == "image"
 
     def test_skip_trial(self) -> None:

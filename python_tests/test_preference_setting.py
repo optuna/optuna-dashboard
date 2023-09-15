@@ -14,7 +14,7 @@ class FeedbackSettingTestCase(TestCase):
         register_preference_feedback_component(study, "artifact", "image_key")
         system_attrs = study._study.system_attrs
         feedback_type = system_attrs.get(_SYSTEM_ATTR_FEEDBACK_COMPONENT, {})
-        assert "type" in feedback_type
-        assert feedback_type["type"] == "artifact"
+        assert "output_type" in feedback_type
+        assert feedback_type["output_type"] == "artifact"
         assert "artifact_key" in feedback_type
         assert feedback_type["artifact_key"] == "image_key"
