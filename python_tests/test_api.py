@@ -195,7 +195,7 @@ class APITestCase(TestCase):
         study_id = study._study._study_id
         status, _, _ = send_request(
             app,
-            f"/api/studies/{study_id}/preference_feedback_component_type",
+            f"/api/studies/{study_id}/preference_feedback_component",
             "PUT",
             body=json.dumps({"type": "artifact", "artifact_key": "image"}),
             content_type="application/json",

@@ -1,4 +1,3 @@
-import { Feedback } from "@mui/icons-material"
 import axios from "axios"
 
 const axiosInstance = axios.create({ baseURL: API_ENDPOINT })
@@ -388,10 +387,8 @@ export const reportFeedbackComponentAPI = (
 ): Promise<void> => {
   return axiosInstance
     .put<void>(
-      `/api/studies/${studyId}/preference_feedback_component_type`,
-      component_type.output_type === "note"
-        ? { type: "note" }
-        : { type: "artifact", artifact_key: component_type.artifact_key }
+      `/api/studies/${studyId}/preference_feedback_component`,
+      component_type
     )
     .then(() => {
       return
