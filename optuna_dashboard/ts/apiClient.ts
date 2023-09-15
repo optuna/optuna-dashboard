@@ -1,3 +1,4 @@
+import { Feedback } from "@mui/icons-material"
 import axios from "axios"
 
 const axiosInstance = axios.create({ baseURL: API_ENDPOINT })
@@ -83,30 +84,6 @@ const convertPreferenceHistory = (
   }
 }
 
-interface FeedbackComponentResponse {
-  type: string
-  artifact_key?: string
-}
-
-const convertFeedbackComponentType = (
-  res?: FeedbackComponentResponse
-): FeedbackComponentType => {
-  if (res === undefined) {
-    return {
-      output_type: "note",
-    } as FeedbackComponentNote
-  }
-  if (res.type === "artifact") {
-    return {
-      output_type: "artifact",
-      artifact_key: res.artifact_key,
-    } as FeedbackComponentArtifact
-  }
-  return {
-    output_type: "note",
-  } as FeedbackComponentNote
-}
-
 interface StudyDetailResponse {
   name: string
   datetime_start: string
@@ -125,7 +102,7 @@ interface StudyDetailResponse {
   preferences?: [number, number][]
   preference_history?: PreferenceHistoryResponce[]
   plotly_graph_objects: PlotlyGraphObject[]
-  feedback_component_type?: FeedbackComponentResponse
+  feedback_component_type?: FeedbackComponentType
   skipped_trials?: number[]
 }
 
@@ -162,9 +139,9 @@ export const getStudyDetailAPI = (
         objective_names: res.data.objective_names,
         form_widgets: res.data.form_widgets,
         is_preferential: res.data.is_preferential,
-        feedback_component_type: convertFeedbackComponentType(
-          res.data.feedback_component_type
-        ),
+        feedback_component_type: res.data.feedback_component_type ?? {
+          output_type: "note",
+        },
         preferences: res.data.preferences,
         preference_history: res.data.preference_history?.map(
           convertPreferenceHistory

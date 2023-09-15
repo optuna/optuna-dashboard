@@ -22,7 +22,7 @@ def _register_preference_feedback_component(
     component_type: OUTPUT_COMPONENT_TYPE,
     artifact_key: str | None = None,
 ) -> None:
-    value: dict[str, Any] = {"type": component_type}
+    value: dict[str, Any] = {"output_type": component_type}
     if artifact_key is not None:
         value["artifact_key"] = artifact_key
     storage.set_study_system_attr(

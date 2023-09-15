@@ -75,14 +75,35 @@ const SettingsPage: FC<{
 }> = ({ studyDetail, settingShown, setSettingShown }) => {
   const theme = useTheme()
   const actions = actionCreator()
-  const [outputComponent, setOutputComponent] = useState(
-    studyDetail.feedback_component_type
+  const [outputComponentType, setOutputComponentType] = useState(
+    studyDetail.feedback_component_type.output_type
+  )
+  const [artifactKey, setArtifactKey] = useState(
+    studyDetail.feedback_component_type.output_type === "artifact"
+      ? studyDetail.feedback_component_type.artifact_key
+      : undefined
   )
   useEffect(() => {
-    setOutputComponent(studyDetail.feedback_component_type)
-  }, [studyDetail.feedback_component_type])
+    setOutputComponentType(studyDetail.feedback_component_type.output_type)
+  }, [studyDetail.feedback_component_type.output_type])
+  useEffect(() => {
+    if (studyDetail.feedback_component_type.output_type === "artifact") {
+      setArtifactKey(studyDetail.feedback_component_type.artifact_key)
+    }
+  }, [
+    studyDetail.feedback_component_type.output_type === "artifact"
+      ? studyDetail.feedback_component_type.artifact_key
+      : undefined,
+  ])
   const onClose = () => {
     setSettingShown(false)
+    const outputComponent: FeedbackComponentType =
+      outputComponentType === "note"
+        ? ({ output_type: "note" } as FeedbackComponentNote)
+        : ({
+            output_type: "artifact",
+            artifact_key: artifactKey,
+          } as FeedbackComponentArtifact)
     actions.updateFeedbackComponent(studyDetail.id, outputComponent)
   }
 
@@ -107,16 +128,16 @@ const SettingsPage: FC<{
         <FormControl component="fieldset">
           <FormLabel component="legend">Output Component:</FormLabel>
           <Select
-            value={outputComponent}
+            value={outputComponentType}
             onChange={(e) => {
-              setOutputComponent(e.target.value as FeedbackComponentType)
+              setOutputComponentType(e.target.value as "note" | "artifact")
             }}
           >
             <MenuItem value="note">Note</MenuItem>
             <MenuItem value="artifact">Artifact</MenuItem>
           </Select>
         </FormControl>
-        {outputComponent.output_type === "artifact" ? (
+        {outputComponentType === "artifact" ? (
           <FormControl
             component="fieldset"
             disabled={studyDetail.union_user_attrs.length === 0}
@@ -127,14 +148,11 @@ const SettingsPage: FC<{
             <Select
               value={
                 studyDetail.union_user_attrs.length !== 0
-                  ? outputComponent.artifact_key
+                  ? artifactKey
                   : "error"
               }
               onChange={(e) => {
-                setOutputComponent({
-                  ...outputComponent,
-                  artifact_key: e.target.value as string,
-                })
+                setArtifactKey(e.target.value)
               }}
             >
               {studyDetail.union_user_attrs.length === 0 ? (
