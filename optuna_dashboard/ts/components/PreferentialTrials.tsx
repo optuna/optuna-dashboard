@@ -266,12 +266,13 @@ const PreferentialTrial: FC<{
 
   return (
     <Card
-      key={trial.number}
       sx={{
         width: trialWidth,
         minHeight: trialHeight,
         margin: theme.spacing(2),
         padding: 0,
+        display: "flex",
+        flexDirection: "column",
       }}
     >
       <CardActions>
@@ -411,6 +412,9 @@ const PreferentialTrial: FC<{
         }}
         color="error"
         disabled={!isReady}
+        sx={{
+          marginTop: "auto",
+        }}
       >
         <ClearIcon />
         Worst
