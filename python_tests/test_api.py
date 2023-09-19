@@ -197,7 +197,7 @@ class APITestCase(TestCase):
             app,
             f"/api/studies/{study_id}/preference_feedback_component",
             "PUT",
-            body=json.dumps({"type": "artifact", "artifact_key": "image"}),
+            body=json.dumps({"output_type": "artifact", "artifact_key": "image"}),
             content_type="application/json",
         )
         self.assertEqual(status, 204)
