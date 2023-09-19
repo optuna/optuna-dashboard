@@ -195,9 +195,9 @@ class APITestCase(TestCase):
         study_id = study._study._study_id
         status, _, _ = send_request(
             app,
-            f"/api/studies/{study_id}/preference_feedback_component_type",
+            f"/api/studies/{study_id}/preference_feedback_component",
             "PUT",
-            body=json.dumps({"type": "artifact", "artifact_key": "image"}),
+            body=json.dumps({"output_type": "artifact", "artifact_key": "image"}),
             content_type="application/json",
         )
         self.assertEqual(status, 204)
@@ -211,7 +211,7 @@ class APITestCase(TestCase):
         self.assertEqual(status, 200)
 
         study_detail = json.loads(body)
-        assert study_detail["feedback_component_type"]["type"] == "artifact"
+        assert study_detail["feedback_component_type"]["output_type"] == "artifact"
         assert study_detail["feedback_component_type"]["artifact_key"] == "image"
 
     def test_skip_trial(self) -> None:

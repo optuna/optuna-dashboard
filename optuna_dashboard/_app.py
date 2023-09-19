@@ -316,18 +316,18 @@ def create_app(
         response.status = 204
         return {}
 
-    @app.put("/api/studies/<study_id:int>/preference_feedback_component_type")
+    @app.put("/api/studies/<study_id:int>/preference_feedback_component")
     @json_api_view
-    def put_preference_feedback_component_type(study_id: int) -> dict[str, Any]:
+    def put_preference_feedback_component(study_id: int) -> dict[str, Any]:
         try:
-            component_type = request.json.get("type", "")
+            component_type = request.json.get("output_type", "")
             artifact_key = request.json.get("artifact_key", None)
         except ValueError:
             response.status = 400
             return {"reason": "invalid request."}
         if component_type not in ["note", "artifact"]:
             response.status = 400
-            return {"reason": "component_type must be either 'Note' or 'Artifact'."}
+            return {"reason": "component_type must be either 'note' or 'artifact'."}
 
         _register_preference_feedback_component(
             study_id=study_id,
