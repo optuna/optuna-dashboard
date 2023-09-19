@@ -165,13 +165,13 @@ def serialize_study_detail(
     form_widgets = get_form_widgets_json(system_attrs)
     if form_widgets:
         serialized["form_widgets"] = form_widgets
+    serialized["feedback_component_type"] = system_attrs.get(
+        _SYSTEM_ATTR_FEEDBACK_COMPONENT,
+        {
+            "output_type": "note",
+        },
+    )
     if serialized["is_preferential"]:
-        serialized["feedback_component_type"] = system_attrs.get(
-            _SYSTEM_ATTR_FEEDBACK_COMPONENT,
-            {
-                "output_type": "note",
-            },
-        )
         serialized["preference_history"] = serialize_preference_history(system_attrs)
         serialized["preferences"] = get_preferences(system_attrs)
         serialized["skipped_trials"] = skipped_trials

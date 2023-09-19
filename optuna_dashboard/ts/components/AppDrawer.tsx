@@ -287,7 +287,7 @@ export const AppDrawer: FC<{
                 <ListItemText primary="Trials (Table)" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
-            <ListItem key="note" disablePadding sx={styleListItem}>
+            <ListItem key="Note" disablePadding sx={styleListItem}>
               <ListItemButton
                 component={Link}
                 to={`${URL_PREFIX}/studies/${studyId}/note`}
@@ -297,7 +297,7 @@ export const AppDrawer: FC<{
                 <ListItemIcon sx={styleListItemIcon}>
                   <RateReviewIcon />
                 </ListItemIcon>
-                <ListItemText primary="note" sx={styleListItemText} />
+                <ListItemText primary="Note" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
           </List>
