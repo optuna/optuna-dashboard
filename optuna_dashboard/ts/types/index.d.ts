@@ -187,6 +187,17 @@ type PlotlyGraphObject = {
   graph_object: string
 }
 
+type FeedbackComponentNote = {
+  output_type: "note"
+}
+
+type FeedbackComponentArtifact = {
+  output_type: "artifact"
+  artifact_key: string
+}
+
+type FeedbackComponentType = FeedbackComponentArtifact | FeedbackComponentNote
+
 type StudyDetail = {
   id: number
   name: string
@@ -203,6 +214,7 @@ type StudyDetail = {
   is_preferential: boolean
   objective_names?: string[]
   form_widgets?: FormWidgets
+  feedback_component_type: FeedbackComponentType
   preferences?: [number, number][]
   preference_history?: PreferenceHistory[]
   plotly_graph_objects: PlotlyGraphObject[]

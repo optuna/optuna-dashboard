@@ -18,6 +18,7 @@ import {
   skipPreferentialTrialAPI,
   removePreferentialHistoryAPI,
   restorePreferentialHistoryAPI,
+  reportFeedbackComponentAPI,
 } from "./apiClient"
 import {
   graphVisibilityState,
@@ -610,6 +611,27 @@ export const actionCreator = () => {
       console.log(err)
     })
   }
+  const updateFeedbackComponent = (
+    studyId: number,
+    compoennt_type: FeedbackComponentType
+  ) => {
+    reportFeedbackComponentAPI(studyId, compoennt_type)
+      .then(() => {
+        const newStudy = Object.assign({}, studyDetails[studyId])
+        newStudy.feedback_component_type = compoennt_type
+        setStudyDetailState(studyId, newStudy)
+      })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(
+          `Failed to report feedback component. Reason: ${reason}`,
+          {
+            variant: "error",
+          }
+        )
+        console.log(err)
+      })
+  }
 
   const removePreferentialHistory = (studyId: number, historyId: string) => {
     removePreferentialHistoryAPI(studyId, historyId)
@@ -622,6 +644,7 @@ export const actionCreator = () => {
       })
       .catch((err) => {
         const reason = err.response?.data.reason
+
         enqueueSnackbar(`Failed to switch history. Reason: ${reason}`, {
           variant: "error",
         })
@@ -669,6 +692,7 @@ export const actionCreator = () => {
     skipPreferentialTrial,
     removePreferentialHistory,
     restorePreferentialHistory,
+    updateFeedbackComponent,
   }
 }
 

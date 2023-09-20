@@ -28,6 +28,7 @@ from ._cached_extra_study_property import get_cached_extra_study_property
 from ._custom_plot_data import get_plotly_graph_objects
 from ._importance import get_param_importance_from_trials_cache
 from ._pareto_front import get_pareto_front_trials
+from ._preference_setting import _register_preference_feedback_component
 from ._preferential_history import NewHistory
 from ._preferential_history import PreferenceHistoryNotFound
 from ._preferential_history import remove_history
@@ -310,6 +311,28 @@ def create_app(
             ),
         )
 
+        response.status = 204
+        return {}
+
+    @app.put("/api/studies/<study_id:int>/preference_feedback_component")
+    @json_api_view
+    def put_preference_feedback_component(study_id: int) -> dict[str, Any]:
+        try:
+            component_type = request.json.get("output_type", "")
+            artifact_key = request.json.get("artifact_key", None)
+        except ValueError:
+            response.status = 400
+            return {"reason": "invalid request."}
+        if component_type not in ["note", "artifact"]:
+            response.status = 400
+            return {"reason": "component_type must be either 'note' or 'artifact'."}
+
+        _register_preference_feedback_component(
+            study_id=study_id,
+            storage=storage,
+            component_type=component_type,
+            artifact_key=artifact_key,
+        )
         response.status = 204
         return {}
 
