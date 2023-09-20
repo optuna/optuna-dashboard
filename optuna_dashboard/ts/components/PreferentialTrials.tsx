@@ -401,7 +401,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
 }) => {
   const theme = useTheme()
   const action = actionCreator()
-  const [undoHistoryId, setUndoHistoryId] = useState<string | null>(null)
+  const [undoHistoryFlag, setUndoHistoryFlag] = useState(false)
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
     useThreejsArtifactModal()
   const [displayTrials, setDisplayTrials] = useState<DisplayTrials>({
@@ -472,12 +472,23 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
       }
     })
   }
+  const visibleTrial = (num: number) => {
+    setDisplayTrials((prev) => {
+      const index = prev.clicked.findIndex((n) => n === num)
+      if (index === -1) {
+        return prev
+      }
+      const clicked = [...prev.clicked]
+      clicked[index] = -1
+      return {
+        display: prev.display,
+        clicked: clicked,
+      }
+    })
+  }
   const latestHistoryId =
     studyDetail?.preference_history?.filter((h) => !h.is_removed).pop()?.id ??
     null
-  if (undoHistoryId !== null && undoHistoryId !== latestHistoryId) {
-    setUndoHistoryId(null)
-  }
 
   return (
     <Box padding={theme.spacing(2)}>
@@ -500,13 +511,18 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
         >
           <Button
             variant="outlined"
-            disabled={latestHistoryId === null || undoHistoryId !== null}
+            disabled={latestHistoryId === null || undoHistoryFlag}
             onClick={() => {
               if (latestHistoryId === null) {
                 return
               }
-              setUndoHistoryId(latestHistoryId)
+              setUndoHistoryFlag(true)
+              const clicked = studyDetail.preference_history
+                ?.filter((h) => h.id === latestHistoryId)
+                ?.pop()?.clicked
+              if (clicked !== undefined) visibleTrial(clicked)
               action.removePreferentialHistory(studyDetail.id, latestHistoryId)
+              setUndoHistoryFlag(false)
             }}
             sx={{
               marginY: "auto",
