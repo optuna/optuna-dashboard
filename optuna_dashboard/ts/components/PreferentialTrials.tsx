@@ -496,7 +496,6 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
         <Typography
           variant="h4"
           sx={{
-            marginBottom: theme.spacing(2),
             fontWeight: theme.typography.fontWeightBold,
           }}
         >
@@ -506,7 +505,6 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
           display="flex"
           sx={{
             marginLeft: "auto",
-            marginY: "auto",
           }}
         >
           <Button
@@ -525,24 +523,20 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
               setUndoHistoryFlag(false)
             }}
             sx={{
-              marginY: "auto",
               marginRight: theme.spacing(2),
-              alignSelf: "flex-end",
             }}
           >
-            <UndoIcon />
+            <UndoIcon sx={{ marginRight: theme.spacing(1) }} />
             Undo
           </Button>
           <Button
             variant="outlined"
             sx={{
-              marginY: "auto",
               marginRight: theme.spacing(2),
-              justifySelf: "end",
             }}
             onClick={() => setSettingShown(true)}
           >
-            <SettingsIcon />
+            <SettingsIcon sx={{ marginRight: theme.spacing(1) }} />
             Settings
           </Button>
         </Box>
