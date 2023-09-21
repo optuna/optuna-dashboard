@@ -510,6 +510,10 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
           <Button
             variant="outlined"
             disabled={latestHistoryId === null || undoHistoryFlag}
+            sx={{
+              marginRight: theme.spacing(2),
+            }}
+            startIcon={<UndoIcon />}
             onClick={() => {
               if (latestHistoryId === null) {
                 return
@@ -522,11 +526,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
               action.removePreferentialHistory(studyDetail.id, latestHistoryId)
               setUndoHistoryFlag(false)
             }}
-            sx={{
-              marginRight: theme.spacing(2),
-            }}
           >
-            <UndoIcon sx={{ marginRight: theme.spacing(1) }} />
             Undo
           </Button>
           <Button
@@ -534,9 +534,9 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
             sx={{
               marginRight: theme.spacing(2),
             }}
+            startIcon={<SettingsIcon />}
             onClick={() => setSettingShown(true)}
           >
-            <SettingsIcon sx={{ marginRight: theme.spacing(1) }} />
             Settings
           </Button>
         </Box>
