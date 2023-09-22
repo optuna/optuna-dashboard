@@ -91,7 +91,15 @@ const GraphNode: FC<NodeProps<NodeData>> = ({ data, isConnectable }) => {
         style={{ background: "#555" }}
         isConnectable={isConnectable}
       />
-      <CardContent>
+      <CardContent
+        sx={{
+          position: "relative",
+          margin: 0,
+          padding: theme.spacing(1),
+          width: nodeWidth,
+          height: nodeHeight - 72,
+        }}
+      >
         <PreferentialOutputComponent
           trial={trial}
           artifact={artifact}
