@@ -2,14 +2,12 @@ from __future__ import annotations
 
 import os
 import tempfile
-import textwrap
 import time
 from typing import NoReturn
 
 from optuna.artifacts import FileSystemArtifactStore
 from optuna.artifacts import upload_artifact
-from optuna_dashboard import save_note
-from optuna_dashboard.artifact import get_artifact_path
+from optuna_dashboard import register_preference_feedback_component
 from optuna_dashboard.preferential import create_study
 from optuna_dashboard.preferential.samplers.gp import PreferentialGPSampler
 from PIL import Image
@@ -23,12 +21,16 @@ os.makedirs(artifact_path, exist_ok=True)
 
 def main() -> NoReturn:
     study = create_study(
-        n_generate=5,
+        n_generate=4,
         study_name="Preferential Optimization",
         storage=STORAGE_URL,
         sampler=PreferentialGPSampler(),
         load_if_exists=True,
     )
+    # Change the component, displayed on the human feedback pages.
+    # By default (component_type="note"), the Trial's Markdown note is displayed.
+    user_attr_key = "rgb_image"
+    register_preference_feedback_component(study, "artifact", user_attr_key)
 
     with tempfile.TemporaryDirectory() as tmpdir:
         while True:
@@ -49,20 +51,9 @@ def main() -> NoReturn:
             image = Image.new("RGB", (320, 240), color=(r, g, b))
             image.save(image_path)
 
-            # 3. Upload Artifact
+            # 3. Upload Artifact and set artifact_id to trial.user_attrs["rgb_image"].
             artifact_id = upload_artifact(trial, image_path, artifact_store)
-            trial.set_user_attr("artifact_id", artifact_id)
-            print("RGB:", (r, g, b))
-
-            # 4. Save Note
-            note = textwrap.dedent(
-                f"""\
-            ![generated-image]({get_artifact_path(trial, artifact_id)})
-
-            (R, G, B) = ({r}, {g}, {b})
-            """
-            )
-            save_note(trial, note)
+            trial.set_user_attr(user_attr_key, artifact_id)
 
 
 if __name__ == "__main__":
