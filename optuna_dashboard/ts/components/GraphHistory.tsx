@@ -76,7 +76,6 @@ export const GraphHistory: FC<{
         const link =
           URL_PREFIX +
           `/studies/${studies[0].id}}/trials?numbers=${data.points[0].x}`
-        console.log(link)
         window.location.href = link
       })
       return () => {
