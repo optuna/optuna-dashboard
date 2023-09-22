@@ -16,6 +16,8 @@ import {
   deleteArtifactAPI,
   reportPreferenceAPI,
   skipPreferentialTrialAPI,
+  removePreferentialHistoryAPI,
+  restorePreferentialHistoryAPI,
   reportFeedbackComponentAPI,
 } from "./apiClient"
 import {
@@ -587,11 +589,11 @@ export const actionCreator = () => {
   }
 
   const updatePreference = (
-    study_id: number,
+    studyId: number,
     candidates: number[],
     clicked: number
   ) => {
-    reportPreferenceAPI(study_id, candidates, clicked).catch((err) => {
+    reportPreferenceAPI(studyId, candidates, clicked).catch((err) => {
       const reason = err.response?.data.reason
       enqueueSnackbar(`Failed to report preference. Reason: ${reason}`, {
         variant: "error",
@@ -609,7 +611,6 @@ export const actionCreator = () => {
       console.log(err)
     })
   }
-
   const updateFeedbackComponent = (
     studyId: number,
     compoennt_type: FeedbackComponentType
@@ -628,6 +629,52 @@ export const actionCreator = () => {
             variant: "error",
           }
         )
+        console.log(err)
+      })
+  }
+
+  const removePreferentialHistory = (studyId: number, historyId: string) => {
+    removePreferentialHistoryAPI(studyId, historyId)
+      .then(() => {
+        const newStudy = Object.assign({}, studyDetails[studyId])
+        newStudy.preference_history = newStudy.preference_history?.map((h) =>
+          h.id === historyId ? { ...h, is_removed: true } : h
+        )
+        const removed = newStudy.preference_history
+          ?.filter((h) => h.id === historyId)
+          .pop()?.preferences
+        newStudy.preferences = newStudy.preferences?.filter(
+          (p) => !removed?.some((r) => r[0] === p[0] && r[1] === p[1])
+        )
+        setStudyDetailState(studyId, newStudy)
+      })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+
+        enqueueSnackbar(`Failed to switch history. Reason: ${reason}`, {
+          variant: "error",
+        })
+        console.log(err)
+      })
+  }
+  const restorePreferentialHistory = (studyId: number, historyId: string) => {
+    restorePreferentialHistoryAPI(studyId, historyId)
+      .then(() => {
+        const newStudy = Object.assign({}, studyDetails[studyId])
+        newStudy.preference_history = newStudy.preference_history?.map((h) =>
+          h.id === historyId ? { ...h, is_removed: false } : h
+        )
+        const restored = newStudy.preference_history
+          ?.filter((h) => h.id === historyId)
+          .pop()?.preferences
+        newStudy.preferences = newStudy.preferences?.concat(restored ?? [])
+        setStudyDetailState(studyId, newStudy)
+      })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(`Failed to switch history. Reason: ${reason}`, {
+          variant: "error",
+        })
         console.log(err)
       })
   }
@@ -653,6 +700,8 @@ export const actionCreator = () => {
     saveTrialUserAttrs,
     updatePreference,
     skipPreferentialTrial,
+    removePreferentialHistory,
+    restorePreferentialHistory,
     updateFeedbackComponent,
   }
 }
