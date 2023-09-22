@@ -163,8 +163,8 @@ const CandidateTrial: FC<{
 const ChoiceTrials: FC<{
   choice: PreferenceHistory
   trials: Trial[]
-  study_id: number
-}> = ({ choice, trials, study_id }) => {
+  studyId: number
+}> = ({ choice, trials, studyId }) => {
   const [isRemoved, setRemoved] = useState(choice.is_removed)
   const theme = useTheme()
   const worst_trials = new Set([choice.clicked])
@@ -198,7 +198,7 @@ const ChoiceTrials: FC<{
             disabled={!isRemoved}
             onClick={() => {
               setRemoved(false)
-              action.restorePreferentialHistory(study_id, choice.id)
+              action.restorePreferentialHistory(studyId, choice.id)
             }}
             sx={{
               margin: `auto ${theme.spacing(2)}`,
@@ -211,7 +211,7 @@ const ChoiceTrials: FC<{
             disabled={isRemoved}
             onClick={() => {
               setRemoved(true)
-              action.removePreferentialHistory(study_id, choice.id)
+              action.removePreferentialHistory(studyId, choice.id)
             }}
             sx={{
               margin: `auto ${theme.spacing(2)}`,
@@ -279,7 +279,7 @@ export const PreferenceHistory: FC<{ studyDetail: StudyDetail | null }> = ({
           key={choice.id}
           choice={choice}
           trials={studyDetail.trials}
-          study_id={studyDetail.id}
+          studyId={studyDetail.id}
         />
       ))}
     </Box>

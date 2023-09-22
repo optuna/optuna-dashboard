@@ -589,17 +589,21 @@ export const actionCreator = () => {
   }
 
   const updatePreference = (
-    study_id: number,
+    studyId: number,
     candidates: number[],
     clicked: number
   ) => {
-    reportPreferenceAPI(study_id, candidates, clicked).catch((err) => {
-      const reason = err.response?.data.reason
-      enqueueSnackbar(`Failed to report preference. Reason: ${reason}`, {
-        variant: "error",
+    reportPreferenceAPI(studyId, candidates, clicked)
+      .then(() => {
+        updateStudyDetail(studyId)
       })
-      console.log(err)
-    })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(`Failed to report preference. Reason: ${reason}`, {
+          variant: "error",
+        })
+        console.log(err)
+      })
   }
 
   const skipPreferentialTrial = (studyId: number, trialId: number) => {
@@ -640,6 +644,12 @@ export const actionCreator = () => {
         newStudy.preference_history = newStudy.preference_history?.map((h) =>
           h.id === historyId ? { ...h, is_removed: true } : h
         )
+        const removed = newStudy.preference_history
+          ?.filter((h) => h.id === historyId)
+          .pop()?.preferences
+        newStudy.preferences = newStudy.preferences?.filter(
+          (p) => !removed?.some((r) => r[0] === p[0] && r[1] === p[1])
+        )
         setStudyDetailState(studyId, newStudy)
       })
       .catch((err) => {
@@ -658,6 +668,10 @@ export const actionCreator = () => {
         newStudy.preference_history = newStudy.preference_history?.map((h) =>
           h.id === historyId ? { ...h, is_removed: false } : h
         )
+        const restored = newStudy.preference_history
+          ?.filter((h) => h.id === historyId)
+          .pop()?.preferences
+        newStudy.preferences = newStudy.preferences?.concat(restored ?? [])
         setStudyDetailState(studyId, newStudy)
       })
       .catch((err) => {

@@ -55,7 +55,7 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
   }
 }
 
-interface PreferenceHistoryResponce {
+interface PreferenceHistoryResponse {
   history: {
     id: string
     candidates: number[]
@@ -68,7 +68,7 @@ interface PreferenceHistoryResponce {
 }
 
 const convertPreferenceHistory = (
-  res: PreferenceHistoryResponce
+  res: PreferenceHistoryResponse
 ): PreferenceHistory => {
   return {
     id: res.history.id,
@@ -97,7 +97,7 @@ interface StudyDetailResponse {
   objective_names?: string[]
   form_widgets?: FormWidgets
   preferences?: [number, number][]
-  preference_history?: PreferenceHistoryResponce[]
+  preference_history?: PreferenceHistoryResponse[]
   plotly_graph_objects: PlotlyGraphObject[]
   feedback_component_type: FeedbackComponentType
   skipped_trial_numbers?: number[]
