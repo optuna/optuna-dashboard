@@ -35,6 +35,21 @@ export const GraphParetoFront: FC<{
   useEffect(() => {
     if (study != null) {
       plotParetoFront(study, objectiveXId, objectiveYId, theme.palette.mode)
+      const element = document.getElementById(plotDomId)
+      if (element != null) {
+        // @ts-ignore
+        element.on("plotly_click", function (data) {
+          const plotTextInfo = JSON.parse(
+            data.points[0].text.replace(/<br>/g, "")
+          )
+          const link =URL_PREFIX + `/studies/${study.id}}/trials?numbers=${plotTextInfo.number}`
+          window.location.href = link
+        })
+        return () => {
+          // @ts-ignore
+          element.removeAllListeners("plotly_click")
+        }
+      }
     }
   }, [study, objectiveXId, objectiveYId, theme.palette.mode])
 
