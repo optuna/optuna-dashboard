@@ -593,17 +593,13 @@ export const actionCreator = () => {
     candidates: number[],
     clicked: number
   ) => {
-    reportPreferenceAPI(studyId, candidates, clicked)
-      .then(() => {
-        updateStudyDetail(studyId)
+    reportPreferenceAPI(studyId, candidates, clicked).catch((err) => {
+      const reason = err.response?.data.reason
+      enqueueSnackbar(`Failed to report preference. Reason: ${reason}`, {
+        variant: "error",
       })
-      .catch((err) => {
-        const reason = err.response?.data.reason
-        enqueueSnackbar(`Failed to report preference. Reason: ${reason}`, {
-          variant: "error",
-        })
-        console.log(err)
-      })
+      console.log(err)
+    })
   }
 
   const skipPreferentialTrial = (studyId: number, trialId: number) => {
