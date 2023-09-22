@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable
+import sys
 
 import optuna
 from optuna import create_trial
@@ -10,12 +11,26 @@ from optuna.distributions import IntDistribution
 from optuna.samplers import BaseSampler
 from optuna.trial import TrialState
 from optuna_dashboard.preferential import create_study
-from optuna_dashboard.preferential.samplers.gp import PreferentialGPSampler
 import pytest
 
 
+if sys.version_info >= (3, 8):
+    from optuna_dashboard.preferential.samplers.gp import PreferentialGPSampler
+else:
+    PreferentialGPSampler = None
+
+
 parametrize_sampler = pytest.mark.parametrize(
-    "sampler_class", [optuna.samplers.RandomSampler, PreferentialGPSampler]
+    "sampler_class",
+    [
+        optuna.samplers.RandomSampler,
+        pytest.param(
+            PreferentialGPSampler,
+            marks=pytest.mark.skipif(
+                sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support"
+            ),
+        ),
+    ],
 )
 
 
