@@ -51,6 +51,7 @@ test = [
 optional = [
     "streamlit",
     "boto3",
+    "botorch",
 ]
 
 
