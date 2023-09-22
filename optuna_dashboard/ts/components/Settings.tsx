@@ -9,14 +9,14 @@ import {
 } from "@mui/material"
 
 import { useRecoilValue, useSetRecoilState } from "recoil"
-import { plotlyColorScale } from "../state"
+import { plotlyColorTheme } from "../state"
 
 export const Settings: FC = () => {
-  const plotlyColorTheme = useRecoilValue(plotlyColorScale)
-  const setPlotlyColorTheme = useSetRecoilState(plotlyColorScale)
+  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
+  const setPlotlyColorTheme = useSetRecoilState(plotlyColorTheme)
 
-  const [darkModeColor, setDarkModeColor] = useState(plotlyColorTheme.dark)
-  const [lightModeColor, setLightModeColor] = useState(plotlyColorTheme.light)
+  const [darkModeColor, setDarkModeColor] = useState(colorTheme.dark)
+  const [lightModeColor, setLightModeColor] = useState(colorTheme.light)
 
   const handleDarkModeColorChange = (event: SelectChangeEvent) => {
     setDarkModeColor(event.target.value)

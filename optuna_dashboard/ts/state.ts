@@ -56,7 +56,7 @@ export const artifactIsAvailable = atom<boolean>({
   default: false,
 })
 
-export const plotlyColorScale = atom<PlotlyColorTheme>({
+export const plotlyColorTheme = atom<PlotlyColorTheme>({
   key: "plotlyDarkColorScale",
   default: {
     dark: "default",

@@ -16,15 +16,12 @@ import {
   Slider,
 } from "@mui/material"
 import {
-  getColorTemplate,
-} from "./PlotlyDarkMode"
-import {
   useFilteredTrialsFromStudies,
   Target,
   useObjectiveAndUserAttrTargetsFromStudies,
 } from "../trialFilter"
-
-import { plotlyColorScale } from "../state"
+import { getColorTemplate } from "./PlotlyDarkMode"
+import { plotlyColorTheme } from "../state"
 import { useRecoilValue } from "recoil"
 
 const plotDomId = "graph-history"
@@ -65,7 +62,7 @@ export const GraphHistory: FC<{
     return h
   })
 
-  const colorScale = useRecoilValue<PlotlyColorTheme>(plotlyColorScale)
+  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
 
   useEffect(() => {
     plotHistory(
@@ -74,7 +71,7 @@ export const GraphHistory: FC<{
       xAxis,
       logScale,
       theme.palette.mode,
-      colorScale,
+      colorTheme,
       markerSize
     )
   }, [studies, selected, logScale, xAxis, theme.palette.mode, markerSize])

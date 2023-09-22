@@ -1,7 +1,9 @@
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
 import { Box, Typography, useTheme, CardContent, Card } from "@mui/material"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import { getColorTemplate } from "./PlotlyDarkMode"
+import { plotlyColorTheme } from "../state"
+import { useRecoilValue } from "recoil"
 
 const plotDomId = "graph-intermediate-values"
 
@@ -11,11 +13,13 @@ export const GraphIntermediateValues: FC<{
   logScale: boolean
 }> = ({ trials, includePruned, logScale }) => {
   const theme = useTheme()
+  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
 
   useEffect(() => {
     plotIntermediateValue(
       trials,
       theme.palette.mode,
+      colorTheme,
       false,
       !includePruned,
       logScale
@@ -40,6 +44,7 @@ export const GraphIntermediateValues: FC<{
 const plotIntermediateValue = (
   trials: Trial[],
   mode: string,
+  colorTheme: PlotlyColorTheme,
   filterCompleteTrial: boolean,
   filterPrunedTrial: boolean,
   logScale: boolean
@@ -64,7 +69,7 @@ const plotIntermediateValue = (
       type: "linear",
     },
     uirevision: "true",
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: getColorTemplate(mode, colorTheme),
   }
   if (trials.length === 0) {
     plotly.react(plotDomId, [], layout)

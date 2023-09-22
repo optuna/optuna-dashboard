@@ -9,7 +9,9 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import { getColorTemplate } from "./PlotlyDarkMode"
+import { useRecoilValue } from "recoil"
+import { plotlyColorTheme } from "../state"
 import {
   Target,
   useFilteredTrials,
@@ -90,10 +92,19 @@ export const GraphParallelCoordinate: FC<{
   const theme = useTheme()
   const [targets, searchSpace, renderCheckBoxes] = useTargets(study)
 
+  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
+
   const trials = useFilteredTrials(study, targets, false)
   useEffect(() => {
     if (study !== null) {
-      plotCoordinate(study, trials, targets, searchSpace, theme.palette.mode)
+      plotCoordinate(
+        study,
+        trials,
+        targets,
+        searchSpace,
+        theme.palette.mode,
+        colorTheme
+      )
     }
   }, [study, trials, targets, searchSpace, theme.palette.mode])
 
@@ -130,7 +141,8 @@ const plotCoordinate = (
   trials: Trial[],
   targets: Target[],
   searchSpace: SearchSpaceItem[],
-  mode: string
+  mode: string,
+  colorTheme: PlotlyColorTheme
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -143,7 +155,7 @@ const plotCoordinate = (
       r: 50,
       b: 100,
     },
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: getColorTemplate(mode, colorTheme),
     uirevision: "true",
   }
   if (trials.length === 0 || targets.length === 0) {

@@ -2,10 +2,12 @@ import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
 import { Typography, useTheme, Box, Card, CardContent } from "@mui/material"
 
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { actionCreator } from "../action"
 import { useParamImportanceValue, useStudyDirections } from "../state"
 const plotDomId = "graph-hyperparameter-importances"
+import { getColorTemplate } from "./PlotlyDarkMode"
+import { plotlyColorTheme } from "../state"
+import { useRecoilValue } from "recoil"
 
 export const GraphHyperparameterImportance: FC<{
   studyId: number
@@ -22,6 +24,7 @@ export const GraphHyperparameterImportance: FC<{
     study?.objective_names ||
     study?.directions.map((d, i) => `Objective ${i}`) ||
     []
+  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
 
   useEffect(() => {
     action.updateParamImportance(studyId)
@@ -29,7 +32,12 @@ export const GraphHyperparameterImportance: FC<{
 
   useEffect(() => {
     if (importances !== null && nObjectives === importances.length) {
-      plotParamImportance(importances, objectiveNames, theme.palette.mode)
+      plotParamImportance(
+        importances,
+        objectiveNames,
+        theme.palette.mode,
+        colorTheme
+      )
     }
   }, [nObjectives, importances, theme.palette.mode])
 
@@ -51,7 +59,8 @@ export const GraphHyperparameterImportance: FC<{
 const plotParamImportance = (
   importances: ParamImportance[][],
   objectiveNames: string[],
-  mode: string
+  mode: string,
+  colorTheme: PlotlyColorTheme
 ) => {
   const layout: Partial<plotly.Layout> = {
     xaxis: {
@@ -71,7 +80,7 @@ const plotParamImportance = (
     bargap: 0.15,
     bargroupgap: 0.1,
     uirevision: "true",
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: getColorTemplate(mode, colorTheme),
   }
 
   if (document.getElementById(plotDomId) === null) {

@@ -12,8 +12,10 @@ import {
   Box,
 } from "@mui/material"
 import blue from "@mui/material/colors/blue"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { useMergedUnionSearchSpace } from "../searchSpace"
+import { getColorTemplate } from "./PlotlyDarkMode"
+import { useRecoilValue } from "recoil"
+import { plotlyColorTheme } from "../state"
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const unique = (array: any[]) => {
@@ -64,9 +66,18 @@ export const Contour: FC<{
     setYParam(param || null)
   }
 
+  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
+
   useEffect(() => {
     if (study != null) {
-      plotContour(study, objectiveId, xParam, yParam, theme.palette.mode)
+      plotContour(
+        study,
+        objectiveId,
+        xParam,
+        yParam,
+        theme.palette.mode,
+        colorTheme
+      )
     }
   }, [study, objectiveId, xParam, yParam, theme.palette.mode])
 
@@ -147,7 +158,8 @@ const plotContour = (
   objectiveId: number,
   xParam: SearchSpaceItem | null,
   yParam: SearchSpaceItem | null,
-  mode: string
+  mode: string,
+  colorTheme: PlotlyColorTheme
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -157,7 +169,7 @@ const plotContour = (
   const filteredTrials = trials.filter((t) => filterFunc(t, objectiveId))
   if (filteredTrials.length < 2 || xParam === null || yParam === null) {
     plotly.react(plotDomId, [], {
-      template: mode === "dark" ? plotlyDarkTemplate : {},
+      template: getColorTemplate(mode, colorTheme),
     })
     return
   }
@@ -183,7 +195,7 @@ const plotContour = (
       b: 50,
     },
     uirevision: "true",
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: getColorTemplate(mode, colorTheme),
   }
 
   // TODO(c-bata): Support parameters that only have the single value

@@ -1,8 +1,10 @@
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useMemo } from "react"
 import { Typography, useTheme, Box } from "@mui/material"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { Target, useFilteredTrialsFromStudies } from "../trialFilter"
+import { getColorTemplate } from "./PlotlyDarkMode"
+import { plotlyColorTheme } from "../state"
+import { useRecoilValue } from "recoil"
 
 const getPlotDomId = (objectiveId: number) => `graph-edf-${objectiveId}`
 
@@ -30,8 +32,10 @@ export const GraphEdf: FC<{
     return e
   })
 
+  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
+
   useEffect(() => {
-    plotEdf(edfPlotInfos, target, domId, theme.palette.mode)
+    plotEdf(edfPlotInfos, target, domId, theme.palette.mode, colorTheme)
   }, [studies, target, theme.palette.mode])
 
   return (
@@ -51,14 +55,15 @@ const plotEdf = (
   edfPlotInfos: EdfPlotInfo[],
   target: Target,
   domId: string,
-  mode: string
+  mode: string,
+  colorTheme: PlotlyColorTheme
 ) => {
   if (document.getElementById(domId) === null) {
     return
   }
   if (edfPlotInfos.length === 0) {
     plotly.react(domId, [], {
-      template: mode === "dark" ? plotlyDarkTemplate : {},
+      template: getColorTemplate(mode, colorTheme),
     })
     return
   }
@@ -77,7 +82,7 @@ const plotEdf = (
       r: 50,
       b: 50,
     },
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: getColorTemplate(mode, colorTheme),
   }
 
   const plotData: Partial<plotly.PlotData>[] = edfPlotInfos.map((h) => {

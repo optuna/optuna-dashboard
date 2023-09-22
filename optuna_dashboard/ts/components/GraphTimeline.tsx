@@ -1,8 +1,10 @@
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
 import { Card, CardContent, Grid, Typography, useTheme } from "@mui/material"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { makeHovertext } from "../graphUtil"
+import { getColorTemplate } from "./PlotlyDarkMode"
+import { plotlyColorTheme } from "../state"
+import { useRecoilValue } from "recoil"
 
 const plotDomId = "graph-timeline"
 const maxBars = 100
@@ -13,10 +15,11 @@ export const GraphTimeline: FC<{
   const theme = useTheme()
 
   const trials = study?.trials ?? []
+  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
 
   useEffect(() => {
     if (study !== null) {
-      plotTimeline(trials, theme.palette.mode)
+      plotTimeline(trials, theme.palette.mode, colorTheme)
     }
   }, [trials, theme.palette.mode])
 
@@ -37,14 +40,18 @@ export const GraphTimeline: FC<{
   )
 }
 
-const plotTimeline = (trials: Trial[], mode: string) => {
+const plotTimeline = (
+  trials: Trial[],
+  mode: string,
+  colorTheme: PlotlyColorTheme
+) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
 
   if (trials.length === 0) {
     plotly.react(plotDomId, [], {
-      template: mode === "dark" ? plotlyDarkTemplate : {},
+      template: getColorTemplate(mode, colorTheme),
     })
     return
   }
@@ -89,7 +96,7 @@ const plotTimeline = (trials: Trial[], mode: string) => {
       range: [lastTrials[0].number, lastTrials[0].number + lastTrials.length],
     },
     uirevision: "true",
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: getColorTemplate(mode, colorTheme),
   }
 
   const traces: Partial<plotly.PlotData>[] = []
