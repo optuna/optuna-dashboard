@@ -69,6 +69,21 @@ export const GraphHistory: FC<{
       theme.palette.mode,
       markerSize
     )
+    const element = document.getElementById(plotDomId)
+    if (element != null && studies.length === 1) {
+      // @ts-ignore
+      element.on("plotly_click", function (data) {
+        const link =
+          URL_PREFIX +
+          `/studies/${studies[0].id}}/trials?numbers=${data.points[0].x}`
+        console.log(link)
+        window.location.href = link
+      })
+      return () => {
+        // @ts-ignore
+        element.removeAllListeners("plotly_click")
+      }
+    }
   }, [studies, selected, logScale, xAxis, theme.palette.mode, markerSize])
 
   const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
