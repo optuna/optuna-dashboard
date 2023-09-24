@@ -162,19 +162,19 @@ const plotContour = (
     return
   }
 
-  const xAxis = getAxisInfo(study, trials, xParam)
-  const yAxis = getAxisInfo(study, trials, yParam)
+  const xAxis = getAxisInfo(trials, xParam)
+  const yAxis = getAxisInfo(trials, yParam)
   const xIndices = xAxis.indices
   const yIndices = yAxis.indices
 
   const layout: Partial<plotly.Layout> = {
     xaxis: {
       title: xParam.name,
-      type: xAxis.isCat ? "category" : undefined,
+      type: xAxis.isCat ? "category" : xAxis.isLog ? "log" : "linear",
     },
     yaxis: {
       title: yParam.name,
-      type: yAxis.isCat ? "category" : undefined,
+      type: yAxis.isCat ? "category" : yAxis.isLog ? "log" : "linear",
     },
     margin: {
       l: 50,
@@ -278,9 +278,19 @@ const getAxisInfoForNumericalParams = (
   paramName: string,
   distribution: FloatDistribution | IntDistribution
 ): AxisInfo => {
-  const padding = (distribution.high - distribution.low) * PADDING_RATIO
-  const min = distribution.low - padding
-  const max = distribution.high + padding
+  let min = 0
+  let max = 0
+  if (distribution.log) {
+    const padding =
+      (Math.log10(distribution.high) - Math.log10(distribution.low)) *
+      PADDING_RATIO
+    min = Math.pow(10, Math.log10(distribution.low) - padding)
+    max = Math.pow(10, Math.log10(distribution.high) + padding)
+  } else {
+    const padding = (distribution.high - distribution.low) * PADDING_RATIO
+    min = distribution.low - padding
+    max = distribution.high + padding
+  }
 
   const values = trials.map(
     (trial) =>
@@ -341,11 +351,7 @@ const getAxisInfoForCategoricalParams = (
   }
 }
 
-const getAxisInfo = (
-  study: StudyDetail,
-  trials: Trial[],
-  param: SearchSpaceItem
-): AxisInfo => {
+const getAxisInfo = (trials: Trial[], param: SearchSpaceItem): AxisInfo => {
   if (param.distribution.type === "CategoricalDistribution") {
     return getAxisInfoForCategoricalParams(
       trials,
