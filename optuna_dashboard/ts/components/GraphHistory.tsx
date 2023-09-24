@@ -75,7 +75,7 @@ export const GraphHistory: FC<{
       element.on("plotly_click", function (data) {
         const link =
           URL_PREFIX +
-          `/studies/${studies[0].id}}/trials?numbers=${data.points[0].x}`
+          `/studies/${studies[0].id}/trials?numbers=${data.points[0].x}`
         window.location.href = link
       })
       return () => {

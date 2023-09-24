@@ -44,7 +44,7 @@ export const GraphParetoFront: FC<{
           )
           const link =
             URL_PREFIX +
-            `/studies/${study.id}}/trials?numbers=${plotTextInfo.number}`
+            `/studies/${study.id}/trials?numbers=${plotTextInfo.number}`
           window.location.href = link
         })
         return () => {
