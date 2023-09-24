@@ -73,12 +73,14 @@ export const GraphHistory: FC<{
     if (element != null && studies.length >= 1) {
       // @ts-ignore
       element.on("plotly_click", function (data) {
-        const link =
-          URL_PREFIX +
-          `/studies/${
-            studies[Math.floor(data.points[0].curveNumber / 2)].id
-          }/trials?numbers=${data.points[0].x}`
-        window.location.href = link
+        if (data.points[0].data.mode !== "lines") {
+          const link =
+            URL_PREFIX +
+            `/studies/${
+              studies[Math.floor(data.points[0].curveNumber / 2)].id
+            }/trials?numbers=${data.points[0].x}`
+          window.location.href = link
+        }
       })
       return () => {
         // @ts-ignore
