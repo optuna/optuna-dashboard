@@ -70,12 +70,14 @@ export const GraphHistory: FC<{
       markerSize
     )
     const element = document.getElementById(plotDomId)
-    if (element != null && studies.length === 1) {
+    if (element != null && studies.length >= 1) {
       // @ts-ignore
       element.on("plotly_click", function (data) {
         const link =
           URL_PREFIX +
-          `/studies/${studies[0].id}/trials?numbers=${data.points[0].x}`
+          `/studies/${
+            studies[Math.floor(data.points[0].curveNumber / 2)].id
+          }/trials?numbers=${data.points[0].x}`
         window.location.href = link
       })
       return () => {
