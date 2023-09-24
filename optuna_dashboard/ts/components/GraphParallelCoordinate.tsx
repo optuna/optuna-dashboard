@@ -169,6 +169,20 @@ const plotCoordinate = (
       .join("")
   }
 
+  const calculateLogScale = (values: number[]) => {
+    const logValues = values.map((v) => {
+      return Math.log10(v)
+    })
+    const minValue = Math.min(...logValues)
+    const maxValue = Math.max(...logValues)
+    const tickvals = Array.from(
+      { length: Math.ceil(maxValue) - Math.floor(minValue) + 1 },
+      (_, i) => i + Math.floor(minValue)
+    )
+    const ticktext = tickvals.map((x) => `${Math.pow(10, x).toPrecision(3)}`)
+    return { logValues, tickvals, ticktext }
+  }
+
   const dimensions = targets.map((target) => {
     if (target.kind === "objective" || target.kind === "user_attr") {
       const values: number[] = trials.map(
@@ -187,13 +201,7 @@ const plotCoordinate = (
       const values: number[] = trials.map(
         (t) => target.getTargetValue(t) as number
       )
-      if (s.distribution.type !== "CategoricalDistribution") {
-        return {
-          label: breakLabelIfTooLong(s.name),
-          values: values,
-          range: [s.distribution.low, s.distribution.high],
-        }
-      } else {
+      if (s.distribution.type === "CategoricalDistribution") {
         // categorical
         const vocabArr: string[] = s.distribution.choices.map((c) => c.value)
         const tickvals: number[] = vocabArr.map((v, i) => i)
@@ -204,6 +212,25 @@ const plotCoordinate = (
           // @ts-ignore
           tickvals: tickvals,
           ticktext: vocabArr,
+        }
+      } else if (s.distribution.log) {
+        // numerical and log
+        const values = trials.map((t) => {
+          return target.getTargetValue(t) as number
+        })
+        const { logValues, tickvals, ticktext } = calculateLogScale(values)
+        return {
+          label: breakLabelIfTooLong(s.name),
+          values: logValues,
+          tickvals: tickvals,
+          ticktext: ticktext,
+        }
+      } else {
+        // numerical and non-log
+        return {
+          label: breakLabelIfTooLong(s.name),
+          values: values,
+          range: [s.distribution.low, s.distribution.high],
         }
       }
     }
