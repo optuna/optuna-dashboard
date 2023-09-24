@@ -175,12 +175,13 @@ const plotCoordinate = (
     })
     const minValue = Math.min(...logValues)
     const maxValue = Math.max(...logValues)
+    const range = [minValue, maxValue]
     const tickvals = Array.from(
       { length: Math.ceil(maxValue) - Math.floor(minValue) + 1 },
       (_, i) => i + Math.floor(minValue)
     )
     const ticktext = tickvals.map((x) => `${Math.pow(10, x).toPrecision(3)}`)
-    return { logValues, tickvals, ticktext }
+    return { logValues, range, tickvals, ticktext }
   }
 
   const dimensions = targets.map((target) => {
@@ -215,15 +216,14 @@ const plotCoordinate = (
         }
       } else if (s.distribution.log) {
         // numerical and log
-        const values = trials.map((t) => {
-          return target.getTargetValue(t) as number
-        })
-        const { logValues, tickvals, ticktext } = calculateLogScale(values)
+        const { logValues, range, tickvals, ticktext } =
+          calculateLogScale(values)
         return {
           label: breakLabelIfTooLong(s.name),
           values: logValues,
-          tickvals: tickvals,
-          ticktext: ticktext,
+          range,
+          tickvals,
+          ticktext,
         }
       } else {
         // numerical and non-log
