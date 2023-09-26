@@ -75,10 +75,8 @@ export const ThreejsArtifactViewer: React.FC<ThreejsArtifactViewerProps> = (
       loader.load(props.src, (object: THREE.Object3D) => {
         const meshes = object.children as THREE.Mesh[]
         const rhinoGeometries = meshes.map((mesh) => mesh.geometry)
+        THREE.Object3D.DEFAULT_UP.set(0, 0, 1)
         if (rhinoGeometries.length > 0) {
-          rhinoGeometries.forEach((rhinoGeometry) => {
-            rhinoGeometry.rotateX(-Math.PI / 4)
-          })
           handleLoadedGeometries(rhinoGeometries)
         }
       })
