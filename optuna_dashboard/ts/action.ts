@@ -16,6 +16,7 @@ import {
   deleteArtifactAPI,
   reportPreferenceAPI,
   skipPreferentialTrialAPI,
+  reportFeedbackComponentAPI,
 } from "./apiClient"
 import {
   graphVisibilityState,
@@ -609,6 +610,28 @@ export const actionCreator = () => {
     })
   }
 
+  const updateFeedbackComponent = (
+    studyId: number,
+    compoennt_type: FeedbackComponentType
+  ) => {
+    reportFeedbackComponentAPI(studyId, compoennt_type)
+      .then(() => {
+        const newStudy = Object.assign({}, studyDetails[studyId])
+        newStudy.feedback_component_type = compoennt_type
+        setStudyDetailState(studyId, newStudy)
+      })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(
+          `Failed to report feedback component. Reason: ${reason}`,
+          {
+            variant: "error",
+          }
+        )
+        console.log(err)
+      })
+  }
+
   return {
     updateAPIMeta,
     updateStudyDetail,
@@ -630,6 +653,7 @@ export const actionCreator = () => {
     saveTrialUserAttrs,
     updatePreference,
     skipPreferentialTrial,
+    updateFeedbackComponent,
   }
 }
 

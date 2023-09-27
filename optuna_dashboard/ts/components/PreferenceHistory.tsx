@@ -14,8 +14,10 @@ import Modal from "@mui/material/Modal"
 import { red } from "@mui/material/colors"
 
 import { TrialListDetail } from "./TrialList"
-import { MarkdownRenderer } from "./Note"
+import { getArtifactUrlPath } from "./PreferentialTrials"
 import { formatDate } from "../dateUtil"
+import { useStudyDetailValue } from "../state"
+import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
 
 type TrialType = "worst" | "none"
 
@@ -26,7 +28,23 @@ const CandidateTrial: FC<{
   const theme = useTheme()
   const trialWidth = 300
   const trialHeight = 300
+  const studyDetail = useStudyDetailValue(trial.study_id)
   const [detailShown, setDetailShown] = useState(false)
+
+  if (studyDetail === null) {
+    return null
+  }
+  const componentType = studyDetail.feedback_component_type
+  const artifactId =
+    componentType.output_type === "artifact"
+      ? trial.user_attrs.find((a) => a.key === componentType.artifact_key)
+          ?.value
+      : undefined
+  const artifact = trial.artifacts.find((a) => a.artifact_id === artifactId)
+  const urlPath =
+    artifactId !== undefined
+      ? getArtifactUrlPath(trial.study_id, trial.trial_id, artifactId)
+      : ""
 
   const cardComponentSx = {
     padding: 0,
@@ -76,7 +94,12 @@ const CandidateTrial: FC<{
             padding: theme.spacing(2),
           }}
         >
-          <MarkdownRenderer body={trial.note.body} />
+          <PreferentialOutputComponent
+            trial={trial}
+            artifact={artifact}
+            componentType={componentType}
+            urlPath={urlPath}
+          />
         </Box>
 
         {type === "worst" ? (
