@@ -218,6 +218,7 @@ type StudyDetail = {
   preferences?: [number, number][]
   preference_history?: PreferenceHistory[]
   plotly_graph_objects: PlotlyGraphObject[]
+  artifacts: Artifact[]
   skipped_trial_numbers: number[]
 }
 

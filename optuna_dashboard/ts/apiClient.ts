@@ -99,6 +99,7 @@ interface StudyDetailResponse {
   preferences?: [number, number][]
   preference_history?: PreferenceHistoryResponse[]
   plotly_graph_objects: PlotlyGraphObject[]
+  artifacts: Artifact[]
   feedback_component_type: FeedbackComponentType
   skipped_trial_numbers?: number[]
 }
@@ -142,6 +143,7 @@ export const getStudyDetailAPI = (
           convertPreferenceHistory
         ),
         plotly_graph_objects: res.data.plotly_graph_objects,
+        artifacts: res.data.artifacts,
         skipped_trial_numbers: res.data.skipped_trial_numbers ?? [],
       }
     })
