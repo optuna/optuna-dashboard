@@ -21,10 +21,11 @@ import {
 import IconButton from "@mui/material/IconButton"
 import OpenInFullIcon from "@mui/icons-material/OpenInFull"
 import ReplayIcon from "@mui/icons-material/Replay"
+import { red } from "@mui/material/colors"
+import UndoIcon from "@mui/icons-material/Undo"
 import ClearIcon from "@mui/icons-material/Clear"
 import SettingsIcon from "@mui/icons-material/Settings"
 import FullscreenIcon from "@mui/icons-material/Fullscreen"
-import red from "@mui/material/colors/red"
 
 import { actionCreator } from "../action"
 import { TrialListDetail } from "./TrialList"
@@ -399,6 +400,8 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
   studyDetail,
 }) => {
   const theme = useTheme()
+  const action = actionCreator()
+  const [undoHistoryFlag, setUndoHistoryFlag] = useState(false)
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
     useThreejsArtifactModal()
   const [displayTrials, setDisplayTrials] = useState<DisplayTrials>({
@@ -414,8 +417,9 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
 
   const hiddenTrials = new Set(
     studyDetail.preference_history
-      ?.map((p) => p.clicked)
-      .concat(studyDetail.skipped_trials) ?? []
+      ?.filter((h) => !h.is_removed)
+      .map((p) => p.clicked)
+      .concat(studyDetail.skipped_trial_numbers) ?? []
   )
   const activeTrials = studyDetail.trials.filter(
     (t) =>
@@ -468,34 +472,75 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
       }
     })
   }
+  const visibleTrial = (num: number) => {
+    setDisplayTrials((prev) => {
+      const index = prev.clicked.findIndex((n) => n === num)
+      if (index === -1) {
+        return prev
+      }
+      const clicked = [...prev.clicked]
+      clicked[index] = -1
+      return {
+        display: prev.display,
+        clicked: clicked,
+      }
+    })
+  }
+  const latestHistoryId =
+    studyDetail?.preference_history?.filter((h) => !h.is_removed).pop()?.id ??
+    null
 
   return (
-    <Box
-      padding={theme.spacing(2)}
-      sx={{
-        position: "relative",
-      }}
-    >
-      <IconButton
-        sx={{
-          position: "absolute",
-          top: 0,
-          right: 0,
-          margin: theme.spacing(1),
-        }}
-        onClick={() => setSettingShown(true)}
-      >
-        <SettingsIcon />
-      </IconButton>
-      <Typography
-        variant="h4"
-        sx={{
-          marginBottom: theme.spacing(2),
-          fontWeight: theme.typography.fontWeightBold,
-        }}
-      >
-        Which trial is the worst?
-      </Typography>
+    <Box padding={theme.spacing(2)}>
+      <Box display="flex">
+        <Typography
+          variant="h4"
+          sx={{
+            fontWeight: theme.typography.fontWeightBold,
+          }}
+        >
+          Which trial is the worst?
+        </Typography>
+        <Box
+          display="flex"
+          sx={{
+            marginLeft: "auto",
+          }}
+        >
+          <Button
+            variant="outlined"
+            disabled={latestHistoryId === null || undoHistoryFlag}
+            sx={{
+              marginRight: theme.spacing(2),
+            }}
+            startIcon={<UndoIcon />}
+            onClick={() => {
+              if (latestHistoryId === null) {
+                return
+              }
+              setUndoHistoryFlag(true)
+              const clicked = studyDetail.preference_history
+                ?.filter((h) => h.id === latestHistoryId)
+                ?.pop()?.clicked
+              if (clicked !== undefined) visibleTrial(clicked)
+              action.removePreferentialHistory(studyDetail.id, latestHistoryId)
+              setUndoHistoryFlag(false)
+            }}
+          >
+            Undo
+          </Button>
+          <Button
+            variant="outlined"
+            sx={{
+              marginRight: theme.spacing(2),
+            }}
+            startIcon={<SettingsIcon />}
+            onClick={() => setSettingShown(true)}
+          >
+            Settings
+          </Button>
+        </Box>
+      </Box>
       <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
         {displayTrials.display.map((t, index) => {
           const trial = activeTrials.find((trial) => trial.number === t)
@@ -553,9 +598,10 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
               <IconButton
                 sx={{
                   position: "absolute",
-                  marginTop: theme.spacing(2),
-                  marginRight: theme.spacing(2),
+                  top: theme.spacing(2),
+                  right: theme.spacing(2),
                 }}
+                onClick={() => setDetailTrial(null)}
               >
                 <ClearIcon />
               </IconButton>

@@ -34,6 +34,9 @@ export const ArtifactCardMedia: FC<{
         height={height}
         image={urlPath}
         alt={artifact.filename}
+        style={{
+          objectFit: "contain",
+        }}
       />
     )
   }

@@ -43,6 +43,7 @@ def register_preference_feedback_component(
     human feedback pages. By default, the Markdown note (``component_type="note"``)
     is displayed.  If you specify ``component_type="artifact"``, the viewer for the
     specified artifact file will be displayed.
+
     Args:
         study:
             The study to register the preference feedback component.

@@ -4,67 +4,66 @@ Tutorial: Preferential Optimization
 What is Preferential Optimization?
 ----------------------------------
 
-Preferential optimization is the way to optimize hyperparameters based on human preferences,
-specifically by determining which trial is better when given a pair to compare.
-Compared to the `human-in-the-loop optimization utilizing objective form widgets <tutorial-hitl-objective-form-widgets>`_,
-which relies on absolute evaluations, preferential optimization significantly reduces fluctuations in the evaluators' criteria,
-ensuring more consistent results.
+Preferential optimization is a method for optimizing hyperparameters, focusing of human preferences, by determining which trial is superior when comparing a pair.
+It differs from `human-in-the-loop optimization utilizing objective form widgets <tutorial-hitl-objective-form-widgets>`_,
+which relies on absolute evaluations, as it significantly reduces fluctuations in evaluators' criteria, thus ensuring more consistent results.
 
-In this tutorial, we will interactively optimize RGB values between 0 and 255 to generate a color that resembles the "sunset hue", which is the same problem setting as `this tutorial <tutorial-hitl-objective-form-widgets>`_.
-Hence, familiarizing yourself with the tutorial on objective form widgets beforehand might offer a smoother understanding.
+In this tutorial, we'll interactively optimize RGB values to generate a color resembling a "sunset hue",
+aligining with the problem setting in `this tutorial <tutorial-hitl-objective-form-widgets>`_.
+Familiarity with the tutorial ob objective form widgets may enhance your understanding.
 
 How to Run Preferential Optimization
 ------------------------------------
 
-In preferential optimization, we run two programs simultaneously: `generator.py`_ which executes parameter sampling or image generation,
-and the Optuna Dashboard which provides a user interface for human evaluation.
+In preferential optimization, two programs run concurrently: `generator.py`_ performing parameter sampling and image generation,
+and the Optuna Dashboard, offering a user interface for human evaluation.
 
 .. figure:: ./images/preferential-optimization/system-architecture.png
    :alt: System Architecture
    :align: center
    :width: 800px
 
-To start, ensure you have the necessary packages installed. You can do this by running the following command in your terminal:
+First, ensure the necessary packages are installed by executing the following command in your terminal:
 
 .. code-block:: console
 
     $ pip install "optuna>=3.3.0" "optuna-dashboard>=0.13.0b1" pillow botorch
 
-Run a Python script below which you copied from `generator.py`_.
+Next, execute the Python script, copied from `generator.py`_.
 
 .. code-block:: console
 
    $ python generator.py
 
-Then run a following command to launch Optuna Dashboard in a separate process.
+Then, launch Optuna Dashboard in a separate process using the following command.
 
 .. code-block:: console
 
     $ optuna-dashboard sqlite:///example.db --artifact-dir ./artifact
 
-In the command, the storage is set to ``sqlite:///example.db`` to persist Optuna's trial history.
-To store the artifacts (output images), ``--artifact-dir ./artifact`` is specified.
+Here, the storage is configured to ``sqlite:///example.db`` to retain Optuna's trial history,
+and ``--artifact-dir ./artifact`` is specified to store the artifacts (output images).
 
 .. code-block:: console
 
     Listening on http://127.0.0.1:8080/
     Hit Ctrl-C to quit.
 
-When you run the command, you will see a message like the one above.
-Please open `http://127.0.0.1:8080/dashboard/ <http://127.0.0.1:8080/dashboard/>`_ in your browser, then you can see the Optuna Dashboard as follows:
+Upon executing the command, a message like the above will appear.
+Open `http://127.0.0.1:8080/dashboard/ <http://127.0.0.1:8080/dashboard/>`_ in your browser to view the Optuna Dashboard:
 
 .. figure:: ./images/preferential-optimization/anim.gif
    :alt: GIF animation for preferential optimization
    :align: center
    :width: 800px
 
-   Selecting the least sunset-like color from four trials to report human preferences.
+   Select the least sunset-like color from four trials to record human preferences.
 
 
 Script Explanation
 ------------------
 
-Here, we specify the SQLite database URL and setup the artifact store, a filesystem to store images generated during the trial.
+First, we specify the SQLite database URL and initialize the artifact store to house the images produced during the trial.
 
 .. code-block:: python
    :linenos:
@@ -74,29 +73,35 @@ Here, we specify the SQLite database URL and setup the artifact store, a filesys
    artifact_store = FileSystemArtifactStore(base_path=artifact_path)
    os.makedirs(artifact_path, exist_ok=True)
 
-Within the ``main()`` function, we initialize the study with necessary parameters, including specifying the preferential sampler.
-ote that the ``Study`` and ``Sampler`` instantiated here are different from the conventional Optuna's ``Study``` and the ``Sampler``.
-Preferential optimization relies solely on the comparison results between trials, and there are no absolute evaluation values for each trial.
-Therefore, it is necessary to create dedicated ``Study`` and ``Sampler`` objects.
+Within the ``main()`` function, creating dedicated ``Study`` and ``Sampler`` objects since preferential optimization relies on the comparison results between trials, lacking absolute evaluation values for each one.
+
+Then, the component to be displayed on the human feedback pages is registered via :func:`~optuna_dashboard.register_preference_feedback_component`.
+The generated images are uploaded to the artifact store, and their ``artifact_id`` is stored in the trial user attribute (e.g., ``trial.user_attrs["rgb_image"]``),
+enabling the Optuna Dashboard to display images on the evaluation feedback page.
 
 .. code-block:: python
    :linenos:
 
+   from optuna_dashboard import register_preference_feedback_component
    from optuna_dashboard.preferential import create_study
    from optuna_dashboard.preferential.samplers.gp import PreferentialGPSampler
 
    study = create_study(
-       n_generate=5,
+       n_generate=4,
        study_name="Preferential Optimization",
        storage=STORAGE_URL,
        sampler=PreferentialGPSampler(),
        load_if_exists=True,
    )
+   # Change the component, displayed on the human feedback pages.
+   # By default (component_type="note"), the Trial's Markdown note is displayed.
+   user_attr_key = "rgb_image"
+   register_preference_feedback_component(study, "artifact", user_attr_key)
 
-Then, we create a loop that continuously checks if new trials should be generated, awaiting human evaluation if not.
+Following this, we create a loop that continuously checks if new trials should be generated, awaiting human evaluation if not.
 Within the while loop, new trials are generated if the condition :meth:`~optuna_dashboard.preferential.PreferentialStudy.should_generate` returns ``True``. 
-For each trial, RGB values are sampled, and an image is generated with these values.
-The image is saved temporarily, uploaded to artifact store, and then saved a Markdown note using :func:`~optuna_dashboard.save_note`.
+For each trial, RGB values are sampled, an image is generated with these values, saved temporarily.
+Then the image is uploaded to the artifact store, and finally, the ``artifact_id`` is stored to the key, which is specified via :func:`~optuna_dashboard.register_preference_feedback_component`.
 
 .. code-block:: python
    :linenos:
@@ -118,18 +123,8 @@ The image is saved temporarily, uploaded to artifact store, and then saved a Mar
        image = Image.new("RGB", (320, 240), color=(r, g, b))
        image.save(image_path)
 
-       # Upload to Artifact store
+       # Upload Artifact and set artifact_id to trial.user_attrs["rgb_image"].
        artifact_id = upload_artifact(trial, image_path, artifact_store)
-       trial.set_user_attr("artifact_id", artifact_id)
-       print("RGB:", (r, g, b))
-
-       # Save a Markdown note
-       note = textwrap.dedent(
-           f"""\
-       ![generated-image]({get_artifact_path(trial, artifact_id)})
-
-       (R, G, B) = ({r}, {g}, {b})
-       """
-       )
+       trial.set_user_attr(user_attr_key, artifact_id)
 
 .. _generator.py: https://github.com/optuna/optuna-dashboard/blob/main/examples/preferential-optimization/generator.py

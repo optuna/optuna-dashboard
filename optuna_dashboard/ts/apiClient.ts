@@ -55,10 +55,9 @@ const convertTrialResponse = (res: TrialResponse): Trial => {
   }
 }
 
-interface PreferenceHistoryResponce {
+interface PreferenceHistoryResponse {
   history: {
     id: string
-    preference_id: string
     candidates: number[]
     clicked: number
     mode: PreferenceFeedbackMode
@@ -69,11 +68,10 @@ interface PreferenceHistoryResponce {
 }
 
 const convertPreferenceHistory = (
-  res: PreferenceHistoryResponce
+  res: PreferenceHistoryResponse
 ): PreferenceHistory => {
   return {
     id: res.history.id,
-    preference_id: res.history.preference_id,
     candidates: res.history.candidates,
     clicked: res.history.clicked,
     feedback_mode: res.history.mode,
@@ -99,10 +97,11 @@ interface StudyDetailResponse {
   objective_names?: string[]
   form_widgets?: FormWidgets
   preferences?: [number, number][]
-  preference_history?: PreferenceHistoryResponce[]
+  preference_history?: PreferenceHistoryResponse[]
   plotly_graph_objects: PlotlyGraphObject[]
+  artifacts: Artifact[]
   feedback_component_type: FeedbackComponentType
-  skipped_trials?: number[]
+  skipped_trial_numbers?: number[]
 }
 
 export const getStudyDetailAPI = (
@@ -144,7 +143,8 @@ export const getStudyDetailAPI = (
           convertPreferenceHistory
         ),
         plotly_graph_objects: res.data.plotly_graph_objects,
-        skipped_trials: res.data.skipped_trials ?? [],
+        artifacts: res.data.artifacts,
+        skipped_trial_numbers: res.data.skipped_trial_numbers ?? [],
       }
     })
 }
@@ -374,6 +374,27 @@ export const skipPreferentialTrialAPI = (
 ): Promise<void> => {
   return axiosInstance
     .post<void>(`/api/studies/${studyId}/${trialId}/skip`)
+    .then(() => {
+      return
+    })
+}
+
+export const removePreferentialHistoryAPI = (
+  studyId: number,
+  historyUuid: string
+): Promise<void> => {
+  return axiosInstance
+    .delete<void>(`/api/studies/${studyId}/preference/${historyUuid}`)
+    .then(() => {
+      return
+    })
+}
+export const restorePreferentialHistoryAPI = (
+  studyId: number,
+  historyUuid: string
+): Promise<void> => {
+  return axiosInstance
+    .post<void>(`/api/studies/${studyId}/preference/${historyUuid}`)
     .then(() => {
       return
     })

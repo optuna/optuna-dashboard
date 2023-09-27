@@ -91,7 +91,15 @@ const GraphNode: FC<NodeProps<NodeData>> = ({ data, isConnectable }) => {
         style={{ background: "#555" }}
         isConnectable={isConnectable}
       />
-      <CardContent>
+      <CardContent
+        sx={{
+          position: "relative",
+          margin: 0,
+          padding: theme.spacing(1),
+          width: nodeWidth,
+          height: nodeHeight - 72,
+        }}
+      >
         <PreferentialOutputComponent
           trial={trial}
           artifact={artifact}
@@ -203,6 +211,7 @@ export const PreferentialGraph: FC<{
     if (!studyDetail.is_preferential || studyDetail.preferences === undefined)
       return
     const preferences = reductionPreference(studyDetail.preferences)
+    const trialNodes = Array.from(new Set(preferences.flat()))
     const graph: ElkNode = {
       id: "root",
       layoutOptions: {
@@ -211,8 +220,8 @@ export const PreferentialGraph: FC<{
         "elk.layered.spacing.nodeNodeBetweenLayers": nodeMargin.toString(),
         "elk.spacing.nodeNode": nodeMargin.toString(),
       },
-      children: studyDetail.trials.map((trial) => ({
-        id: `${trial.number}`,
+      children: trialNodes.map((trial) => ({
+        id: `${trial}`,
         targetPosition: "top",
         sourcePosition: "bottom",
         width: nodeWidth,
@@ -229,7 +238,7 @@ export const PreferentialGraph: FC<{
       .then((layoutedGraph) => {
         setNodes(
           layoutedGraph.children?.map((node, index) => {
-            const trial = studyDetail.trials[index]
+            const trial = studyDetail.trials[trialNodes[index]]
             return {
               id: `${trial.number}`,
               type: "note",
