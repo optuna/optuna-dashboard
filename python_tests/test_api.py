@@ -8,6 +8,11 @@ from optuna import get_all_study_summaries
 from optuna.study import StudyDirection
 from optuna_dashboard._app import create_app
 from optuna_dashboard._app import create_new_study
+from optuna_dashboard._preference_setting import register_preference_feedback_component
+from optuna_dashboard._preferential_history import NewHistory
+from optuna_dashboard._preferential_history import remove_history
+from optuna_dashboard._preferential_history import report_history
+from optuna_dashboard._serializer import serialize_preference_history
 from optuna_dashboard.preferential import create_study
 
 from .wsgi_client import send_request
@@ -179,6 +184,36 @@ class APITestCase(TestCase):
         )
         self.assertEqual(status, 400)
 
+    def test_change_component(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = create_study(storage=storage, n_generate=3)
+        register_preference_feedback_component(study, "note")
+        for _ in range(3):
+            study.ask()
+
+        app = create_app(storage)
+        study_id = study._study._study_id
+        status, _, _ = send_request(
+            app,
+            f"/api/studies/{study_id}/preference_feedback_component",
+            "PUT",
+            body=json.dumps({"output_type": "artifact", "artifact_key": "image"}),
+            content_type="application/json",
+        )
+        self.assertEqual(status, 204)
+
+        status, _, body = send_request(
+            app,
+            f"/api/studies/{study_id}",
+            "GET",
+            content_type="application/json",
+        )
+        self.assertEqual(status, 200)
+
+        study_detail = json.loads(body)
+        assert study_detail["feedback_component_type"]["output_type"] == "artifact"
+        assert study_detail["feedback_component_type"]["artifact_key"] == "image"
+
     def test_skip_trial(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(n_generate=4, storage=storage)
@@ -202,6 +237,82 @@ class APITestCase(TestCase):
         best_trials = study.best_trials
         assert len(best_trials) == 1
         assert best_trials[0].number == 2
+
+    def test_remove_history(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = create_study(storage=storage, n_generate=3)
+        for _ in range(3):
+            study.ask()
+
+        app = create_app(storage)
+        study_id = study._study._study_id
+        history_id = report_history(
+            study_id,
+            storage,
+            NewHistory(
+                mode="ChooseWorst",
+                candidates=[0, 1, 2],
+                clicked=2,
+            ),
+        )
+        histories = serialize_preference_history(storage.get_study_system_attrs(study_id))
+        assert len(histories) == 1
+        assert not histories[0]["is_removed"]
+
+        status, _, _ = send_request(
+            app,
+            f"/api/studies/{study_id}/preference/{history_id}",
+            "DELETE",
+            content_type="application/json",
+        )
+        self.assertEqual(status, 204)
+        histories = serialize_preference_history(storage.get_study_system_attrs(study_id))
+        assert len(histories) == 1
+        assert histories[0]["is_removed"]
+        assert len(study.get_preferences()) == 0
+
+    def test_restore_history(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = create_study(storage=storage, n_generate=3)
+        for _ in range(3):
+            study.ask()
+
+        app = create_app(storage)
+        study_id = study._study._study_id
+        history_id = report_history(
+            study_id,
+            storage,
+            NewHistory(
+                mode="ChooseWorst",
+                candidates=[0, 1, 2],
+                clicked=2,
+            ),
+        )
+        remove_history(study_id, storage, history_id)
+        histories = serialize_preference_history(storage.get_study_system_attrs(study_id))
+        assert len(histories) == 1
+        assert histories[0]["is_removed"]
+        assert len(study.get_preferences()) == 0
+
+        status, _, _ = send_request(
+            app,
+            f"/api/studies/{study_id}/preference/{history_id}",
+            "POST",
+            content_type="application/json",
+        )
+        self.assertEqual(status, 204)
+        histories = serialize_preference_history(storage.get_study_system_attrs(study_id))
+        assert len(histories) == 1
+        assert not histories[0]["is_removed"]
+        preferences = study.get_preferences()
+        preferences.sort(key=lambda x: (x[0].number, x[1].number))
+        assert len(preferences) == 2
+        better, worse = preferences[0]
+        assert better.number == 0
+        assert worse.number == 2
+        better, worse = preferences[1]
+        assert better.number == 1
+        assert worse.number == 2
 
     def test_create_study(self) -> None:
         for name, directions, expected_status in [

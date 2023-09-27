@@ -7,6 +7,12 @@ import { Rhino3dmLoader } from "three/examples/jsm/loaders/3DMLoader"
 import { PerspectiveCamera } from "three"
 import { Modal, Box } from "@mui/material"
 
+export const isThreejsArtifact = (artifact: Artifact): boolean => {
+  return (
+    artifact.filename.endsWith(".stl") || artifact.filename.endsWith(".3dm")
+  )
+}
+
 interface ThreejsArtifactViewerProps {
   src: string
   width: string
@@ -69,10 +75,8 @@ export const ThreejsArtifactViewer: React.FC<ThreejsArtifactViewerProps> = (
       loader.load(props.src, (object: THREE.Object3D) => {
         const meshes = object.children as THREE.Mesh[]
         const rhinoGeometries = meshes.map((mesh) => mesh.geometry)
+        THREE.Object3D.DEFAULT_UP.set(0, 0, 1)
         if (rhinoGeometries.length > 0) {
-          rhinoGeometries.forEach((rhinoGeometry) => {
-            rhinoGeometry.rotateX(-Math.PI / 4)
-          })
           handleLoadedGeometries(rhinoGeometries)
         }
       })
