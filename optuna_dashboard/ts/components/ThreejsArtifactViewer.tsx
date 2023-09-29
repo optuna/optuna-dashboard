@@ -149,16 +149,16 @@ export const useThreejsArtifactModal = (): [
           }}
         >
           <IconButton
-                sx={{
-                  position: "absolute",
-                  top: theme.spacing(2),
-                  right: theme.spacing(2),
-                }}
-                onClick={() => {
-                  setOpen(false)
-                  setTarget(["", null])
-                }}
-              >
+            sx={{
+              position: "absolute",
+              top: theme.spacing(2),
+              right: theme.spacing(2),
+            }}
+            onClick={() => {
+              setOpen(false)
+              setTarget(["", null])
+            }}
+          >
             <ClearIcon />
           </IconButton>
           <ThreejsArtifactViewer

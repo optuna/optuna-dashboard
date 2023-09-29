@@ -148,13 +148,13 @@ const CandidateTrial: FC<{
             }}
           >
             <IconButton
-                sx={{
-                  position: "absolute",
-                  top: theme.spacing(2),
-                  right: theme.spacing(2),
-                }}
-                onClick={() => setDetailShown(false)}
-              >
+              sx={{
+                position: "absolute",
+                top: theme.spacing(2),
+                right: theme.spacing(2),
+              }}
+              onClick={() => setDetailShown(false)}
+            >
               <ClearIcon />
             </IconButton>
             <TrialListDetail
