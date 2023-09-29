@@ -16,7 +16,13 @@ import Modal from "@mui/material/Modal"
 import { red } from "@mui/material/colors"
 
 import { TrialListDetail } from "./TrialList"
-import { getArtifactUrlPath } from "./PreferentialTrials"
+import {
+  getArtifactUrlPath,
+  isComparisonReady,
+  isNew,
+  isBest,
+  isSkipped,
+} from "./PreferentialTrials"
 import { formatDate } from "../dateUtil"
 import { actionCreator } from "../action"
 import { useStudyDetailValue } from "../state"
@@ -149,9 +155,20 @@ const CandidateTrial: FC<{
           >
             <TrialListDetail
               trial={trial}
-              isBestTrial={() => false}
               directions={[]}
               objectiveNames={[]}
+              isPreferential={true}
+              isBestTrial={isBest(
+                trial,
+                studyDetail.preferences!,
+                studyDetail.skipped_trial_numbers!
+              )}
+              isSkipped={isSkipped(trial, studyDetail.skipped_trial_numbers!)}
+              isComparisonReady={isComparisonReady(
+                trial,
+                studyDetail.feedback_component_type!
+              )}
+              isNew={isNew(trial, studyDetail.preferences!)}
             />
           </Box>
         </Box>

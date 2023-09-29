@@ -28,6 +28,12 @@ import { artifactIsAvailable } from "../state"
 import { actionCreator } from "../action"
 import { TrialFormWidgets } from "./TrialFormWidgets"
 import { TrialArtifactCards } from "./TrialArtifactCards"
+import {
+  isComparisonReady,
+  isNew,
+  isBest,
+  isSkipped,
+} from "./PreferentialTrials"
 
 const states: TrialState[] = [
   "Complete",
@@ -125,11 +131,25 @@ const useIsBestTrial = (
 
 export const TrialListDetail: FC<{
   trial: Trial
-  isBestTrial: (trialId: number) => boolean
+  isBestTrial: boolean
   directions: StudyDirection[]
   objectiveNames: string[]
+  isPreferential: boolean
+  isSkipped?: boolean
+  isComparisonReady?: boolean
+  isNew?: boolean
   formWidgets?: FormWidgets
-}> = ({ trial, isBestTrial, directions, objectiveNames, formWidgets }) => {
+}> = ({
+  trial,
+  isBestTrial,
+  directions,
+  objectiveNames,
+  formWidgets,
+  isPreferential,
+  isSkipped,
+  isComparisonReady,
+  isNew,
+}) => {
   const theme = useTheme()
   const action = actionCreator()
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
@@ -243,13 +263,55 @@ export const TrialListDetail: FC<{
           flexDirection: "row",
         }}
       >
-        <Chip
-          color={getChipColor(trial.state)}
-          label={trial.state}
-          sx={{ marginRight: theme.spacing(1) }}
-          variant="outlined"
-        />
-        {isBestTrial(trial.trial_id) ? (
+        {!(
+          isPreferential &&
+          (trial.state == "Complete" || trial.state == "Running")
+        ) ? (
+          <Chip
+            color={getChipColor(trial.state)}
+            label={trial.state}
+            sx={{ marginRight: theme.spacing(1) }}
+            variant="outlined"
+          />
+        ) : null}
+
+        {isPreferential &&
+        (trial.state == "Complete" || trial.state == "Running") &&
+        isSkipped === false &&
+        isComparisonReady === false ? (
+          <Chip
+            color={"default"}
+            label={"Generating"}
+            sx={{ marginRight: theme.spacing(1) }}
+            variant="outlined"
+          />
+        ) : null}
+
+        {isPreferential &&
+        (trial.state == "Complete" || trial.state == "Running") &&
+        isSkipped === false &&
+        isComparisonReady === true &&
+        isNew === true ? (
+          <Chip
+            color={"default"}
+            label={"New"}
+            sx={{ marginRight: theme.spacing(1) }}
+            variant="outlined"
+          />
+        ) : null}
+
+        {isPreferential &&
+        (trial.state == "Complete" || trial.state == "Running") &&
+        isSkipped === true ? (
+          <Chip
+            color={"warning"}
+            label={"Skipped"}
+            sx={{ marginRight: theme.spacing(1) }}
+            variant="outlined"
+          />
+        ) : null}
+
+        {isBestTrial ? (
           <Chip label={"Best Trial"} color="secondary" variant="outlined" />
         ) : null}
         <Box sx={{ flexGrow: 1 }} />
@@ -333,7 +395,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const navigate = useNavigate()
   const excludedStates = useExcludedStates(query)
   const trials = useTrials(studyDetail, excludedStates)
-  const isBestTrial = useIsBestTrial(studyDetail)
+  const isPreferential = studyDetail?.is_preferential || false
   const queried = useQueriedTrials(trials, query)
   const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
     React.useState<null | HTMLElement>(null)
@@ -418,6 +480,21 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
           </ListSubheader>
           <Divider />
           {trials.map((trial) => {
+            const skipped = isSkipped(
+              trial,
+              studyDetail!.skipped_trial_numbers!
+            )
+            const comparisonReady = isComparisonReady(
+              trial,
+              studyDetail!.feedback_component_type!
+            )
+            const isnew = isNew(trial, studyDetail!.preferences!)
+            const best = isBest(
+              trial,
+              studyDetail!.preferences!,
+              studyDetail!.skipped_trial_numbers!
+            )
+
             return (
               <ListItem key={trial.trial_id} disablePadding>
                 <ListItemButton
@@ -455,14 +532,59 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                 >
                   <ListItemText primary={`Trial ${trial.number}`} />
                   <Box>
-                    <Chip
-                      color={getChipColor(trial.state)}
-                      label={trial.state}
-                      sx={{ margin: theme.spacing(0) }}
-                      size="small"
-                      variant="outlined"
-                    />
-                    {isBestTrial(trial.trial_id) ? (
+                    {!(
+                      isPreferential &&
+                      (trial.state == "Complete" || trial.state == "Running")
+                    ) ? (
+                      <Chip
+                        color={getChipColor(trial.state)}
+                        label={trial.state}
+                        sx={{ margin: theme.spacing(0) }}
+                        size="small"
+                        variant="outlined"
+                      />
+                    ) : null}
+
+                    {isPreferential &&
+                    (trial.state == "Complete" || trial.state == "Running") &&
+                    !skipped &&
+                    !comparisonReady ? (
+                      <Chip
+                        color={"default"}
+                        label={"Generating"}
+                        sx={{ margin: theme.spacing(0) }}
+                        size="small"
+                        variant="outlined"
+                      />
+                    ) : null}
+
+                    {isPreferential &&
+                    (trial.state == "Complete" || trial.state == "Running") &&
+                    !skipped &&
+                    comparisonReady &&
+                    isnew ? (
+                      <Chip
+                        color={"default"}
+                        label={"New"}
+                        sx={{ margin: theme.spacing(0) }}
+                        size="small"
+                        variant="outlined"
+                      />
+                    ) : null}
+
+                    {isPreferential &&
+                    (trial.state == "Complete" || trial.state == "Running") &&
+                    skipped ? (
+                      <Chip
+                        color={"warning"}
+                        label={"Skipped"}
+                        sx={{ margin: theme.spacing(0) }}
+                        size="small"
+                        variant="outlined"
+                      />
+                    ) : null}
+
+                    {best ? (
                       <Chip
                         label={"Best Trial"}
                         color="secondary"
@@ -493,10 +615,21 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                 <TrialListDetail
                   key={t.trial_id}
                   trial={t}
-                  isBestTrial={isBestTrial}
                   directions={studyDetail?.directions || []}
                   objectiveNames={studyDetail?.objective_names || []}
                   formWidgets={studyDetail?.form_widgets}
+                  isPreferential={isPreferential}
+                  isBestTrial={isBest(
+                    t,
+                    studyDetail!.preferences!,
+                    studyDetail!.skipped_trial_numbers!
+                  )}
+                  isSkipped={isSkipped(t, studyDetail!.skipped_trial_numbers!)}
+                  isComparisonReady={isComparisonReady(
+                    t,
+                    studyDetail!.feedback_component_type!
+                  )}
+                  isNew={isNew(t, studyDetail!.preferences!)}
                 />
               ))}
         </Box>

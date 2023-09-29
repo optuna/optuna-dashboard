@@ -152,7 +152,7 @@ const SettingsPage: FC<{
   )
 }
 
-const isComparisonReady = (
+export const isComparisonReady = (
   trial: Trial,
   componentType: FeedbackComponentType
 ): boolean => {
@@ -167,6 +167,31 @@ const isComparisonReady = (
     return artifact !== undefined
   }
   return false
+}
+
+export const isSkipped = (trial: Trial, skippedTrials: number[]): boolean => {
+  return skippedTrials.includes(trial.number)
+}
+
+export const isNew = (
+  trial: Trial,
+  preferences: [number, number][]
+): boolean => {
+  return preferences.every(
+    (p) => p[0] !== trial.number && p[1] !== trial.number
+  )
+}
+
+export const isBest = (
+  trial: Trial,
+  preferences: [number, number][],
+  skippedTrials: number[]
+): boolean => {
+  return (
+    preferences.some((p) => p[0] === trial.number) &&
+    preferences.every((p) => p[1] !== trial.number) &&
+    !isSkipped(trial, skippedTrials)
+  )
 }
 
 export const getArtifactUrlPath = (
@@ -607,12 +632,26 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
               </IconButton>
               <TrialListDetail
                 trial={studyDetail.trials[detailTrial]}
-                isBestTrial={(trialId) =>
-                  studyDetail.trials.find((t) => t.trial_id === trialId)
-                    ?.state === "Complete" ?? false
-                }
                 directions={[]}
                 objectiveNames={[]}
+                isPreferential={true}
+                isBestTrial={isBest(
+                  studyDetail.trials[detailTrial],
+                  studyDetail.preferences!,
+                  studyDetail.skipped_trial_numbers!
+                )}
+                isSkipped={isSkipped(
+                  studyDetail.trials[detailTrial],
+                  studyDetail.skipped_trial_numbers!
+                )}
+                isComparisonReady={isComparisonReady(
+                  studyDetail.trials[detailTrial],
+                  studyDetail.feedback_component_type!
+                )}
+                isNew={isNew(
+                  studyDetail.trials[detailTrial],
+                  studyDetail.preferences!
+                )}
               />
             </Box>
           </Box>
