@@ -13,6 +13,7 @@ import {
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { makeHovertext } from "../graphUtil"
+import { useNavigate } from "react-router-dom"
 
 const plotDomId = "graph-pareto-front"
 
@@ -20,6 +21,7 @@ export const GraphParetoFront: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
+  const navigate = useNavigate()
   const [objectiveXId, setObjectiveXId] = useState<number>(0)
   const [objectiveYId, setObjectiveYId] = useState<number>(1)
   const objectiveNames: string[] = study?.objective_names || []
@@ -42,10 +44,10 @@ export const GraphParetoFront: FC<{
           const plotTextInfo = JSON.parse(
             data.points[0].text.replace(/<br>/g, "")
           )
-          const link =
+          navigate(
             URL_PREFIX +
-            `/studies/${study.id}/trials?numbers=${plotTextInfo.number}`
-          window.location.href = link
+              `/studies/${study.id}/trials?numbers=${plotTextInfo.number}`
+          )
         })
         return () => {
           // @ts-ignore

@@ -21,6 +21,7 @@ import {
   Target,
   useObjectiveAndUserAttrTargetsFromStudies,
 } from "../trialFilter"
+import { useNavigate } from "react-router-dom"
 
 const plotDomId = "graph-history"
 
@@ -37,6 +38,7 @@ export const GraphHistory: FC<{
   includePruned: boolean
 }> = ({ studies, logScale, includePruned }) => {
   const theme = useTheme()
+  const navigate = useNavigate()
   const [xAxis, setXAxis] = useState<
     "number" | "datetime_start" | "datetime_complete"
   >("number")
@@ -74,12 +76,12 @@ export const GraphHistory: FC<{
       // @ts-ignore
       element.on("plotly_click", function (data) {
         if (data.points[0].data.mode !== "lines") {
-          const link =
+          navigate(
             URL_PREFIX +
-            `/studies/${
-              studies[Math.floor(data.points[0].curveNumber / 2)].id
-            }/trials?numbers=${data.points[0].x}`
-          window.location.href = link
+              `/studies/${
+                studies[Math.floor(data.points[0].curveNumber / 2)].id
+              }/trials?numbers=${data.points[0].x}`
+          )
         }
       })
       return () => {
