@@ -373,27 +373,36 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
                 name: get_all_possible_params(dist) for name, dist in search_space.items()
             }
 
-            has_categorical = any(
-                isinstance(dist, CategoricalDistribution) for dist in search_space.values()
-            )
             is_all_discrete = all(
                 len(possible_params) > 0 for possible_params in all_possible_params.values()
             )
-            can_evaluate_all = (
-                is_all_discrete
-                and np.prod(
-                    [len(possible_params) for possible_params in all_possible_params.values()]
-                )
-                <= 1e6
+            search_space_size = np.prod(
+                [len(possible_params) for possible_params in all_possible_params.values()]
             )
-            print(has_categorical, is_all_discrete, can_evaluate_all)
+            # TODO(contramundum53): Fix this arbitrarily chosen limit.
+            size_limit = 1e6
+            can_evaluate_all = is_all_discrete and search_space_size <= size_limit
 
-            if has_categorical and not can_evaluate_all:
-                warnings.warn(
-                    "The objective function has categorical parameters, "
-                    "but the total search space is too large to be enumerated. "
-                    "This may result in significantly bad performance."
-                )
+            if (
+                any(isinstance(dist, CategoricalDistribution) for dist in search_space.values())
+                and not can_evaluate_all
+            ):
+                if is_all_discrete:
+                    warnings.warn(
+                        "The objective function has categorical parameters, "
+                        "but the total search space is too large to be enumerated. "
+                        f"(Search space size: {search_space_size} > limit: {size_limit})"
+                        "This may result in significantly bad performance."
+                    )
+                else:
+                    warnings.warn(
+                        "The objective function has categorical parameters, "
+                        "but the search space cannot be enumerated because "
+                        "it also contains continuous parameters. "
+                        "This may result in significantly bad performance. "
+                        "You can work around this problem by specifying 'step' "
+                        "in each continuous parameter."
+                    )
 
             if is_all_discrete and can_evaluate_all:
                 all_param_combinations = itertools.product(
@@ -432,7 +441,8 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
         param_distribution: optuna.distributions.BaseDistribution,
     ) -> Any:
         warnings.warn(
-            f"Dynamic search space detected. Falling back to {self.independent_sampler}."
+            "Dynamic search space detected. "
+            f"Falling back to {self.independent_sampler.__class__.__name__}."
         )
 
         return self.independent_sampler.sample_independent(
