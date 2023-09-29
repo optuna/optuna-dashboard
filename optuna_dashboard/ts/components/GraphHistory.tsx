@@ -76,11 +76,26 @@ export const GraphHistory: FC<{
       // @ts-ignore
       element.on("plotly_click", function (data) {
         if (data.points[0].data.mode !== "lines") {
+          let studyId = 1
+          if (data.points[0].data.name.includes("Infeasible Trial of")) {
+            const studyInfo: { id: number; name: string }[] = []
+            studies.forEach((study) => {
+              studyInfo.push({ id: study.id, name: study.name })
+            })
+            const dataPointStudyName = data.points[0].data.name.replace(
+              "Infeasible Trial of ",
+              ""
+            )
+            const targetId = studyInfo.find((s) => s.name === dataPointStudyName)?.id
+            if (targetId !== undefined) {
+              studyId = targetId
+            }
+          } else {
+            studyId = studies[Math.floor(data.points[0].curveNumber / 2)].id
+          }
           navigate(
             URL_PREFIX +
-              `/studies/${
-                studies[Math.floor(data.points[0].curveNumber / 2)].id
-              }/trials?numbers=${data.points[0].x}`
+              `/studies/${studyId}/trials?numbers=${data.points[0].x}`
           )
         }
       })
