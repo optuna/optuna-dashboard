@@ -363,7 +363,7 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
             # TODO: Make it possible to apply it on mixed search space
             def get_all_possible_params(dist: optuna.distributions.BaseDistribution) -> list[Any]:
                 if isinstance(dist, CategoricalDistribution):
-                    return dist.choices
+                    return list(dist.choices)
                 elif isinstance(dist, (IntDistribution, FloatDistribution)):
                     return list(np.arange(dist.low, dist.high, dist.step))
                 else:
