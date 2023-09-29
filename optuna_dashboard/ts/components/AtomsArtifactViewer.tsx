@@ -33,9 +33,6 @@ export const AtomsArtifactViewer: React.FC<AtomsArtifactViewerProps> = (
     reader.readAsText(blob)
   }, [])
   return (
-    <div
-      id={viewportId}
-      style={{ width: props.width, height: props.height }}
-    ></div>
+    <Box id={viewportId} sx={{ width: props.width, height: props.height }} />
   )
 }
