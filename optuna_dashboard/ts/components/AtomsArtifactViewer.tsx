@@ -1,5 +1,6 @@
 import React, { useEffect } from "react"
 import { Stage } from "ngl"
+import { Box } from "@mui/material"
 
 interface AtomsArtifactViewerProps {
   artifactId: string
