@@ -86,7 +86,9 @@ export const GraphHistory: FC<{
               "Infeasible Trial of ",
               ""
             )
-            const targetId = studyInfo.find((s) => s.name === dataPointStudyName)?.id
+            const targetId = studyInfo.find(
+              (s) => s.name === dataPointStudyName
+            )?.id
             if (targetId !== undefined) {
               studyId = targetId
             }
