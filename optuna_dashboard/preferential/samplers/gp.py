@@ -162,7 +162,7 @@ def _observation(var0: Tensor, mean0: Tensor, noise_var: Tensor) -> tuple[Tensor
     alpha = -mean0 / torch.clamp_min(obs_sigma, min=1e-20)
     mean_norm, var_norm, logz = _truncnorm_mean_var_logz(alpha)
 
-    denom_factor = 1 / (noise_var + var_norm * var0)
+    denom_factor = 1 / torch.clamp_min(noise_var + var_norm * var0, min=1e-20)
     da = (1 - var_norm) * denom_factor
     db = (mean0 * (1 - var_norm) + obs_sigma * mean_norm) * denom_factor
     return (da, db, logz)
