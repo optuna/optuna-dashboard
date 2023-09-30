@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import csv
 import functools
+import io   
 import logging
 import os
 import typing
@@ -447,6 +449,41 @@ def create_app(
         note.save_note_with_version(storage, study_id, trial_id, req_note_ver, req_note_body)
         response.status = 204  # No content
         return {}
+    
+    @app.get("/csv/<study_id:int>")
+    def download_csv(study_id: int) -> BottleViewReturn:
+        # TODO: Create a CSV file
+        summary = get_study_summary(storage, study_id)
+        if summary is None:
+            response.status = 404  # Not found
+            return {"reason": f"study_id={study_id} is not found"}
+        trials = get_trials(storage, study_id)
+
+        param_names = list(trials[0].params.keys())
+        union_user_attrs = list(trials[0].user_attrs)
+        column_names = ["Number", "State", "Value"] + param_names + union_user_attrs
+
+        buf = io.StringIO("")
+        writer = csv.writer(buf)
+        writer.writerow(column_names)
+        for frozen_trial in trials:
+            row = [
+                frozen_trial.number,
+                frozen_trial.state,
+                frozen_trial.values[0]
+                ]
+            row += [frozen_trial.params[param] for param in param_names]
+            row += [frozen_trial.user_attrs[attr] for attr in union_user_attrs]
+            writer.writerow(row)
+            
+        # TODO: Set response headers
+        response.headers["Content-Type"] = "text/csv; chatset=cp932"
+        response.headers["Content-Disposition"] = f"attachment; filename=trials_{study_id}.csv"
+
+        # TODO: Response body
+        buf.seek(0)          
+        return buf.read()
+    
 
     @app.get("/favicon.ico")
     def favicon() -> BottleViewReturn:
