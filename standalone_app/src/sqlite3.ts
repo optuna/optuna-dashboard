@@ -332,7 +332,9 @@ const getTrialIntermediateValues = (
               ? "-inf"
               : vals[2] === "INF_POS"
               ? "+inf"
-              : vals[1], // TODO: NANの対応
+              : vals[2] === "NAN"
+              ? "nan"
+              : vals[1]
         })
       },
     })
