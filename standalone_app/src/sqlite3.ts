@@ -73,9 +73,15 @@ const isGreaterSchemaVersion = (
   rightVersion: string
 ): boolean => {
   // return leftVersion > rightVersion
+  const leftSuffix = leftVersion.split(".").reverse()[0]
+  const rightSuffix = rightVersion.split(".").reverse()[0]
   leftVersion = leftVersion.replace(/\D/g, "")
   rightVersion = rightVersion.replace(/\D/g, "")
-  return Number(leftVersion) > Number(rightVersion)
+
+  const left = Number(leftVersion)
+  const right = Number(rightVersion)
+  if (left == right) return leftSuffix > rightSuffix
+  return left > right
 }
 
 const getStudies = (db: SQLite3DB, schemaVersion: string): Study[] => {
@@ -202,7 +208,7 @@ const getTrialValues = (
   schemaVersion: string
 ): TrialValueNumber[] => {
   const values: TrialValueNumber[] = []
-  if (isGreaterSchemaVersion(schemaVersion, "v2.6.0.a")) {
+  if (isGreaterSchemaVersion(schemaVersion, "v3.0.0.c")) {
     db.exec({
       sql:
         "SELECT value, value_type" +
@@ -342,7 +348,7 @@ const getTrialIntermediateValues = (
   schemaVersion: string
 ): TrialIntermediateValue[] => {
   const values: TrialIntermediateValue[] = []
-  if (isGreaterSchemaVersion(schemaVersion, "v2.6.0.a")) {
+  if (isGreaterSchemaVersion(schemaVersion, "v3.0.0.c")) {
     db.exec({
       sql:
         "SELECT step, intermediate_value, intermediate_value_type" +
