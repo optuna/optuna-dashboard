@@ -61,7 +61,7 @@ export const StudyDetail: FC<{
 
   useEffect(() => {
     action.loadReloadInterval()
-    action.updateStudyDetail(studyId)
+    action.updateStudyDetail(studyId, true)
     action.updateAPIMeta()
   }, [])
 

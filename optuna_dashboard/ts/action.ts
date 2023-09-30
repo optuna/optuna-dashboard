@@ -50,7 +50,8 @@ export const actionCreator = () => {
   const [graphVisibility, setGraphVisibility] =
     useRecoilState<GraphVisibility>(graphVisibilityState)
   const setReloadInterval = useSetRecoilState<number>(reloadIntervalState)
-  const [isReloading, setReloading] = useRecoilState<boolean>(reloadingState)
+  const [isReloading, setReloading] =
+    useRecoilState<Record<number, boolean>>(reloadingState)
   const [paramImportance, setParamImportance] =
     useRecoilState<StudyParamImportance>(paramImportanceState)
   const setUploading = useSetRecoilState<boolean>(isFileUploading)
@@ -223,9 +224,11 @@ export const actionCreator = () => {
       })
   }
 
-  const updateStudyDetail = (studyId: number) => {
-    if (isReloading) return
-    setReloading(true)
+  const updateStudyDetail = (studyId: number, reloading: boolean = false) => {
+    if (reloading) {
+      if (isReloading[studyId]) return
+      setReloading({ ...isReloading, [studyId]: true })
+    }
     let nLocalFixedTrials = 0
     if (studyId in studyDetails) {
       const currentTrials = studyDetails[studyId].trials
@@ -243,7 +246,7 @@ export const actionCreator = () => {
             : []
         study.trials = currentFixedTrials.concat(study.trials)
         setStudyDetailState(studyId, study)
-        setReloading(false)
+        if (reloading) setReloading({ ...isReloading, [studyId]: false })
       })
       .catch((err) => {
         const reason = err.response?.data.reason
@@ -253,7 +256,7 @@ export const actionCreator = () => {
           })
         }
         console.log(err)
-        setReloading(false)
+        if (reloading) setReloading({ ...isReloading, [studyId]: false })
       })
   }
 
