@@ -279,18 +279,7 @@ const paramInternalValueToExternalValue = (
 
 const parseDistributionJSON = (t: string): Distribution => {
   const parsed = JSON.parse(t)
-  const floatDistributionList = [
-    "FloatDistribution",
-    "UniformDistribution",
-    "LogUniformDistribution",
-    "DiscreteUniformDistribution",
-  ]
-  const intDistributionList = [
-    "IntDistribution",
-    "IntUniformDistribution",
-    "IntLogUniformDistribution",
-  ]
-  if (floatDistributionList.includes(parsed.name)) {
+  if (parsed.name === "FloatDistribution") {
     return {
       type: "FloatDistribution",
       low: parsed.attributes.low as number,
@@ -298,13 +287,53 @@ const parseDistributionJSON = (t: string): Distribution => {
       step: parsed.attributes.step as number,
       log: parsed.attributes.log as boolean,
     }
-  } else if (intDistributionList.includes(parsed.name)) {
+  } else if (parsed.name === "UniformDistribution") {
+    return {
+      type: "FloatDistribution",
+      low: parsed.attributes.low as number,
+      high: parsed.attributes.high as number,
+      step: null,
+      log: false,
+    }
+  } else if (parsed.name === "LogUniformDistribution") {
+    return {
+      type: "FloatDistribution",
+      low: parsed.attributes.low as number,
+      high: parsed.attributes.high as number,
+      step: null,
+      log: true,
+    }
+  } else if (parsed.name === "DiscreteUniformDistribution") {
+    return {
+      type: "FloatDistribution",
+      low: parsed.attributes.low as number,
+      high: parsed.attributes.high as number,
+      step: parsed.attributes.q,
+      log: false,
+    }
+  } else if (parsed.name === "IntDistribution") {
     return {
       type: "IntDistribution",
       low: parsed.attributes.low as number,
       high: parsed.attributes.high as number,
       step: parsed.attributes.step as number,
       log: parsed.attributes.log as boolean,
+    }
+  } else if (parsed.name === "IntUniformDistribution") {
+    return {
+      type: "IntDistribution",
+      low: parsed.attributes.low as number,
+      high: parsed.attributes.high as number,
+      step: parsed.attributes.step as number,
+      log: false,
+    }
+  } else if (parsed.name === "IntLogUniformDistribution") {
+    return {
+      type: "IntDistribution",
+      low: parsed.attributes.low as number,
+      high: parsed.attributes.high as number,
+      step: parsed.attributes.step as number,
+      log: true,
     }
   } else {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
