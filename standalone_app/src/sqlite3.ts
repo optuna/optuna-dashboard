@@ -51,13 +51,12 @@ export const loadStorage = (
 
 const isSupportedSchema = (db: SQLite3DB): boolean => {
   let supported = true
+  let supportedVersions = ["v3.2.0.a"]
   db.exec({
-    sql: "SELECT schema_version FROM version_info LIMIT 1",
+    sql: "SELECT version_num FROM alembic_version LIMIT 1",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callback: (vals: any[]) => {
-      if (vals[0] != 12) {
-        supported = false
-      }
+      supported = supportedVersions.includes(vals[0])
     },
   })
   return supported
