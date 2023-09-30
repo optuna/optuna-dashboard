@@ -42,7 +42,7 @@ export const loadStorage = (
       if (!isSupportedSchema(schemaVersion)) {
         return
       }
-      const studies = getStudies(db)
+      const studies = getStudies(db, schemaVersion)
       setter((prev) => [...prev, ...studies])
     } finally {
       db.close()
@@ -63,7 +63,7 @@ const getSchemaVersion = (db: SQLite3DB): string => {
 }
 
 const isSupportedSchema = (schemaVersion: string): boolean => {
-  let lowestVersion = "v3.0.0.d"  // OK: "v3.2.0.a", "v3.0.0.d"
+  let lowestVersion = "v2.6.0.a"  // OK: "v3.2.0.a", "v3.0.0.d", "v2.6.0.a"
   if (schemaVersion == lowestVersion) return true
   return isGreaterSchemaVersion(schemaVersion,lowestVersion)
 }
@@ -89,7 +89,7 @@ const getStudies = (db: SQLite3DB, schemaVersion: string): Study[] => {
         vals[2] === "MINIMIZE" ? "minimize" : "maximize"
       const objective = vals[3]
 
-      const trials = getTrials(db, studyId)
+      const trials = getTrials(db, studyId, schemaVersion)
       const union_search_space: SearchSpaceItem[] = []
       const union_user_attrs: AttributeSpec[] = []
       let intersection_search_space: Set<SearchSpaceItem> = new Set()
@@ -147,7 +147,7 @@ const getStudies = (db: SQLite3DB, schemaVersion: string): Study[] => {
   return studies
 }
 
-const getTrials = (db: SQLite3DB, studyId: number): Trial[] => {
+const getTrials = (db: SQLite3DB, studyId: number, schemaVersion: string): Trial[] => {
   const trials: Trial[] = []
   db.exec({
     sql:
@@ -171,8 +171,8 @@ const getTrials = (db: SQLite3DB, studyId: number): Trial[] => {
         number: vals[1],
         study_id: studyId,
         state: state,
-        values: getTrialValues(db, trialId),
-        intermediate_values: getTrialIntermediateValues(db, trialId),
+        values: getTrialValues(db, trialId, schemaVersion),
+        intermediate_values: getTrialIntermediateValues(db, trialId, schemaVersion),
         params: [], // Set this column later
         user_attrs: [], // Set this column later
         datetime_start: vals[3],
@@ -184,24 +184,37 @@ const getTrials = (db: SQLite3DB, studyId: number): Trial[] => {
   return trials
 }
 
-const getTrialValues = (db: SQLite3DB, trialId: number): TrialValueNumber[] => {
+const getTrialValues = (db: SQLite3DB, trialId: number, schemaVersion: string): TrialValueNumber[] => {
   const values: TrialValueNumber[] = []
-  db.exec({
-    sql:
-      "SELECT value, value_type" +
-      ` FROM trial_values WHERE trial_id = ${trialId}` +
-      " ORDER BY objective",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    callback: (vals: any[]) => {
-      values.push(
-        vals[1] === "INF_NEG"
-          ? "-inf"
-          : vals[1] === "INF_POS"
-          ? "+inf"
-          : vals[0]
-      )
-    },
-  })
+  if (isGreaterSchemaVersion(schemaVersion,"v2.6.0.a")) {
+    db.exec({
+      sql:
+        "SELECT value, value_type" +
+        ` FROM trial_values WHERE trial_id = ${trialId}` +
+        " ORDER BY objective",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      callback: (vals: any[]) => {
+        values.push(
+          vals[1] === "INF_NEG"
+            ? "-inf"
+            : vals[1] === "INF_POS"
+            ? "+inf"
+            : vals[0]
+        )
+      },
+    })
+  } else {
+    db.exec({
+      sql:
+        "SELECT value" +
+        ` FROM trial_values WHERE trial_id = ${trialId}` +
+        " ORDER BY objective",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      callback: (vals: any[]) => {
+        values.push(vals[0])
+      },
+    })
+  }
   return values
 }
 
@@ -244,7 +257,9 @@ const paramInternalValueToExternalValue = (
 
 const parseDistributionJSON = (t: string): Distribution => {
   const parsed = JSON.parse(t)
-  if (parsed.name === "FloatDistribution") {
+  const floatDistributionList = ["FloatDistribution", "UniformDistribution", "LogUniformDistribution", "DiscreteUniformDistribution"]
+  const intDistributionList = ["IntDistribution", "IntUniformDistribution", "IntLogUniformDistribution"]
+  if (floatDistributionList.includes(parsed.name)) {
     return {
       type: "FloatDistribution",
       low: parsed.attributes.low as number,
@@ -252,7 +267,7 @@ const parseDistributionJSON = (t: string): Distribution => {
       step: parsed.attributes.step as number,
       log: parsed.attributes.log as boolean,
     }
-  } else if (parsed.name === "IntDistribution") {
+  } else if (intDistributionList.includes(parsed.name)) {
     return {
       type: "IntDistribution",
       low: parsed.attributes.low as number,
@@ -298,26 +313,43 @@ const getTrialUserAttributes = (
 
 const getTrialIntermediateValues = (
   db: SQLite3DB,
-  trialId: number
+  trialId: number,
+  schemaVersion: string
 ): TrialIntermediateValue[] => {
   const values: TrialIntermediateValue[] = []
-  db.exec({
-    sql:
-      "SELECT step, intermediate_value, intermediate_value_type" +
-      ` FROM trial_intermediate_values WHERE trial_id = ${trialId}` +
-      " ORDER BY step",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    callback: (vals: any[]) => {
-      values.push({
-        step: vals[0],
-        value:
-          vals[2] === "INF_NEG"
-            ? "-inf"
-            : vals[2] === "INF_POS"
-            ? "+inf"
-            : vals[1],
-      })
-    },
-  })
+  if (isGreaterSchemaVersion(schemaVersion,"v2.6.0.a")) {
+    db.exec({
+      sql:
+        "SELECT step, intermediate_value, intermediate_value_type" +
+        ` FROM trial_intermediate_values WHERE trial_id = ${trialId}` +
+        " ORDER BY step",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      callback: (vals: any[]) => {
+        values.push({
+          step: vals[0],
+          value:
+            vals[2] === "INF_NEG"
+              ? "-inf"
+              : vals[2] === "INF_POS"
+              ? "+inf"
+              : vals[1], // TODO: NANの対応
+        })
+      },
+    })
+  } else {
+    db.exec({
+      sql:
+        "SELECT step, intermediate_value" +
+        ` FROM trial_intermediate_values WHERE trial_id = ${trialId}` +
+        " ORDER BY step",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      callback: (vals: any[]) => {
+        values.push({
+          step: vals[0],
+          value: vals[1],
+        })
+      },
+    })
+  }
   return values
 }
