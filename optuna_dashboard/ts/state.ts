@@ -41,6 +41,11 @@ export const reloadIntervalState = atom<number>({
   default: 10,
 })
 
+export const reloadingState = atom<boolean>({
+  key: "reloading",
+  default: false,
+})
+
 export const drawerOpenState = atom<boolean>({
   key: "drawerOpen",
   default: false,
