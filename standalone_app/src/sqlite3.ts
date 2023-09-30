@@ -38,7 +38,8 @@ export const loadStorage = (
     )
     db.checkRc(rc)
     try {
-      if (!isSupportedSchema(db)) {
+      const schemaVersion = getSchemaVersion(db)
+      if (!isSupportedSchema(schemaVersion)) {
         return
       }
       const studies = getStudies(db)
@@ -49,20 +50,31 @@ export const loadStorage = (
   })
 }
 
-const isSupportedSchema = (db: SQLite3DB): boolean => {
-  let supported = true
-  let supportedVersions = ["v3.2.0.a"]
+const getSchemaVersion = (db: SQLite3DB): string => {
+  let schemaVersion = ""
   db.exec({
     sql: "SELECT version_num FROM alembic_version LIMIT 1",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callback: (vals: any[]) => {
-      supported = supportedVersions.includes(vals[0])
+      schemaVersion = vals[0]
     },
   })
-  return supported
+  return schemaVersion
 }
 
-const getStudies = (db: SQLite3DB): Study[] => {
+const isSupportedSchema = (schemaVersion: string): boolean => {
+  let lowestVersion = "v3.0.0.d"  // OK: "v3.2.0.a", "v3.0.0.d"
+  if (schemaVersion == lowestVersion) return true
+  return isGreaterSchemaVersion(schemaVersion,lowestVersion)
+}
+
+const isGreaterSchemaVersion = (leftVersion: string, rightVersion: string): boolean => { // return leftVersion > rightVersion
+  leftVersion = leftVersion.replace(/\D/g,'')
+  rightVersion = rightVersion.replace(/\D/g,'')
+  return Number(leftVersion) > Number(rightVersion)
+}
+
+const getStudies = (db: SQLite3DB, schemaVersion: string): Study[] => {
   const studies: Study[] = []
   db.exec({
     sql:
