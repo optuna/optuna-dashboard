@@ -63,7 +63,7 @@ const getSchemaVersion = (db: SQLite3DB): string => {
 }
 
 const isSupportedSchema = (schemaVersion: string): boolean => {
-  let lowestVersion = "v2.6.0.a" // supported: "v3.2.0.a", "v3.0.0.{a,b,c,d}", "v2.6.0.a"
+  const lowestVersion = "v2.6.0.a" // supported: "v3.2.0.a", "v3.0.0.{a,b,c,d}", "v2.6.0.a"
   if (schemaVersion == lowestVersion) return true
   return isGreaterSchemaVersion(schemaVersion, lowestVersion)
 }
