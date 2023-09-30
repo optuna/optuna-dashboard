@@ -63,14 +63,18 @@ const getSchemaVersion = (db: SQLite3DB): string => {
 }
 
 const isSupportedSchema = (schemaVersion: string): boolean => {
-  let lowestVersion = "v2.6.0.a"  // OK: "v3.2.0.a", "v3.0.0.d", "v2.6.0.a"
+  let lowestVersion = "v2.6.0.a" // supported: "v3.2.0.a", "v3.0.0.{a,b,c,d}", "v2.6.0.a"
   if (schemaVersion == lowestVersion) return true
-  return isGreaterSchemaVersion(schemaVersion,lowestVersion)
+  return isGreaterSchemaVersion(schemaVersion, lowestVersion)
 }
 
-const isGreaterSchemaVersion = (leftVersion: string, rightVersion: string): boolean => { // return leftVersion > rightVersion
-  leftVersion = leftVersion.replace(/\D/g,'')
-  rightVersion = rightVersion.replace(/\D/g,'')
+const isGreaterSchemaVersion = (
+  leftVersion: string,
+  rightVersion: string
+): boolean => {
+  // return leftVersion > rightVersion
+  leftVersion = leftVersion.replace(/\D/g, "")
+  rightVersion = rightVersion.replace(/\D/g, "")
   return Number(leftVersion) > Number(rightVersion)
 }
 
@@ -147,7 +151,11 @@ const getStudies = (db: SQLite3DB, schemaVersion: string): Study[] => {
   return studies
 }
 
-const getTrials = (db: SQLite3DB, studyId: number, schemaVersion: string): Trial[] => {
+const getTrials = (
+  db: SQLite3DB,
+  studyId: number,
+  schemaVersion: string
+): Trial[] => {
   const trials: Trial[] = []
   db.exec({
     sql:
@@ -172,7 +180,11 @@ const getTrials = (db: SQLite3DB, studyId: number, schemaVersion: string): Trial
         study_id: studyId,
         state: state,
         values: getTrialValues(db, trialId, schemaVersion),
-        intermediate_values: getTrialIntermediateValues(db, trialId, schemaVersion),
+        intermediate_values: getTrialIntermediateValues(
+          db,
+          trialId,
+          schemaVersion
+        ),
         params: [], // Set this column later
         user_attrs: [], // Set this column later
         datetime_start: vals[3],
@@ -184,9 +196,13 @@ const getTrials = (db: SQLite3DB, studyId: number, schemaVersion: string): Trial
   return trials
 }
 
-const getTrialValues = (db: SQLite3DB, trialId: number, schemaVersion: string): TrialValueNumber[] => {
+const getTrialValues = (
+  db: SQLite3DB,
+  trialId: number,
+  schemaVersion: string
+): TrialValueNumber[] => {
   const values: TrialValueNumber[] = []
-  if (isGreaterSchemaVersion(schemaVersion,"v2.6.0.a")) {
+  if (isGreaterSchemaVersion(schemaVersion, "v2.6.0.a")) {
     db.exec({
       sql:
         "SELECT value, value_type" +
@@ -257,8 +273,17 @@ const paramInternalValueToExternalValue = (
 
 const parseDistributionJSON = (t: string): Distribution => {
   const parsed = JSON.parse(t)
-  const floatDistributionList = ["FloatDistribution", "UniformDistribution", "LogUniformDistribution", "DiscreteUniformDistribution"]
-  const intDistributionList = ["IntDistribution", "IntUniformDistribution", "IntLogUniformDistribution"]
+  const floatDistributionList = [
+    "FloatDistribution",
+    "UniformDistribution",
+    "LogUniformDistribution",
+    "DiscreteUniformDistribution",
+  ]
+  const intDistributionList = [
+    "IntDistribution",
+    "IntUniformDistribution",
+    "IntLogUniformDistribution",
+  ]
   if (floatDistributionList.includes(parsed.name)) {
     return {
       type: "FloatDistribution",
@@ -317,7 +342,7 @@ const getTrialIntermediateValues = (
   schemaVersion: string
 ): TrialIntermediateValue[] => {
   const values: TrialIntermediateValue[] = []
-  if (isGreaterSchemaVersion(schemaVersion,"v2.6.0.a")) {
+  if (isGreaterSchemaVersion(schemaVersion, "v2.6.0.a")) {
     db.exec({
       sql:
         "SELECT step, intermediate_value, intermediate_value_type" +
@@ -334,7 +359,7 @@ const getTrialIntermediateValues = (
               ? "+inf"
               : vals[2] === "NAN"
               ? "nan"
-              : vals[1]
+              : vals[1],
         })
       },
     })
