@@ -160,15 +160,15 @@ const CandidateTrial: FC<{
               isPreferential={true}
               isBestTrial={isBest(
                 trial,
-                studyDetail.preferences!,
-                studyDetail.skipped_trial_numbers!
+                studyDetail?.preferences,
+                studyDetail?.skipped_trial_numbers
               )}
-              isSkipped={isSkipped(trial, studyDetail.skipped_trial_numbers!)}
+              isSkipped={isSkipped(trial, studyDetail?.skipped_trial_numbers)}
               isComparisonReady={isComparisonReady(
                 trial,
-                studyDetail.feedback_component_type!
+                studyDetail?.feedback_component_type
               )}
-              isNew={isNew(trial, studyDetail.preferences!)}
+              isNew={isNew(trial, studyDetail?.preferences)}
             />
           </Box>
         </Box>

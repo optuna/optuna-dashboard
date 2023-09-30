@@ -154,7 +154,7 @@ const SettingsPage: FC<{
 
 export const isComparisonReady = (
   trial: Trial,
-  componentType: FeedbackComponentType
+  componentType: FeedbackComponentType | undefined
 ): boolean => {
   if (componentType === undefined || componentType.output_type === "note") {
     return trial.note.body !== ""
@@ -169,24 +169,31 @@ export const isComparisonReady = (
   return false
 }
 
-export const isSkipped = (trial: Trial, skippedTrials: number[]): boolean => {
-  return skippedTrials.includes(trial.number)
+export const isSkipped = (
+  trial: Trial,
+  skippedTrials: number[] | undefined
+): boolean => {
+  return skippedTrials?.includes(trial.number) ?? false
 }
 
 export const isNew = (
   trial: Trial,
-  preferences: [number, number][]
+  preferences: [number, number][] | undefined
 ): boolean => {
-  return preferences.every(
-    (p) => p[0] !== trial.number && p[1] !== trial.number
+  return (
+    preferences?.every((p) => p[0] !== trial.number && p[1] !== trial.number) ??
+    false
   )
 }
 
 export const isBest = (
   trial: Trial,
-  preferences: [number, number][],
-  skippedTrials: number[]
+  preferences: [number, number][] | undefined,
+  skippedTrials: number[] | undefined
 ): boolean => {
+  if (preferences === undefined || skippedTrials === undefined) {
+    return false
+  }
   return (
     preferences.some((p) => p[0] === trial.number) &&
     preferences.every((p) => p[1] !== trial.number) &&
@@ -637,20 +644,20 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
                 isPreferential={true}
                 isBestTrial={isBest(
                   studyDetail.trials[detailTrial],
-                  studyDetail.preferences!,
-                  studyDetail.skipped_trial_numbers!
+                  studyDetail?.preferences,
+                  studyDetail?.skipped_trial_numbers
                 )}
                 isSkipped={isSkipped(
                   studyDetail.trials[detailTrial],
-                  studyDetail.skipped_trial_numbers!
+                  studyDetail?.skipped_trial_numbers
                 )}
                 isComparisonReady={isComparisonReady(
                   studyDetail.trials[detailTrial],
-                  studyDetail.feedback_component_type!
+                  studyDetail?.feedback_component_type
                 )}
                 isNew={isNew(
                   studyDetail.trials[detailTrial],
-                  studyDetail.preferences!
+                  studyDetail?.preferences
                 )}
               />
             </Box>

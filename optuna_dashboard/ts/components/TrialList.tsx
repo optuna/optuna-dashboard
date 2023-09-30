@@ -135,10 +135,10 @@ export const TrialListDetail: FC<{
   directions: StudyDirection[]
   objectiveNames: string[]
   isPreferential: boolean
-  isSkipped?: boolean
-  isComparisonReady?: boolean
-  isNew?: boolean
-  formWidgets?: FormWidgets
+  isSkipped: boolean | undefined
+  isComparisonReady: boolean | undefined
+  isNew: boolean | undefined
+  formWidgets: FormWidgets | undefined
 }> = ({
   trial,
   isBestTrial,
@@ -396,6 +396,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const excludedStates = useExcludedStates(query)
   const trials = useTrials(studyDetail, excludedStates)
   const isPreferential = studyDetail?.is_preferential || false
+  const isBestTrial = useIsBestTrial(studyDetail)
   const queried = useQueriedTrials(trials, query)
   const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
     React.useState<null | HTMLElement>(null)
@@ -480,20 +481,19 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
           </ListSubheader>
           <Divider />
           {trials.map((trial) => {
-            const skipped = isSkipped(
-              trial,
-              studyDetail!.skipped_trial_numbers!
-            )
+            const skipped = isSkipped(trial, studyDetail?.skipped_trial_numbers)
             const comparisonReady = isComparisonReady(
               trial,
-              studyDetail!.feedback_component_type!
+              studyDetail?.feedback_component_type
             )
-            const isnew = isNew(trial, studyDetail!.preferences!)
-            const best = isBest(
-              trial,
-              studyDetail!.preferences!,
-              studyDetail!.skipped_trial_numbers!
-            )
+            const isnew = isNew(trial, studyDetail?.preferences)
+            const best = isPreferential
+              ? isBest(
+                  trial,
+                  studyDetail?.preferences,
+                  studyDetail?.skipped_trial_numbers
+                )
+              : isBestTrial(trial.trial_id)
 
             return (
               <ListItem key={trial.trial_id} disablePadding>
@@ -539,7 +539,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       <Chip
                         color={getChipColor(trial.state)}
                         label={trial.state}
-                        sx={{ margin: theme.spacing(0) }}
+                        sx={{ marginRight: theme.spacing(1) }}
                         size="small"
                         variant="outlined"
                       />
@@ -552,7 +552,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       <Chip
                         color={"default"}
                         label={"Generating"}
-                        sx={{ margin: theme.spacing(0) }}
+                        sx={{ marginRight: theme.spacing(1) }}
                         size="small"
                         variant="outlined"
                       />
@@ -566,7 +566,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       <Chip
                         color={"default"}
                         label={"New"}
-                        sx={{ margin: theme.spacing(0) }}
+                        sx={{ marginRight: theme.spacing(1) }}
                         size="small"
                         variant="outlined"
                       />
@@ -578,7 +578,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       <Chip
                         color={"warning"}
                         label={"Skipped"}
-                        sx={{ margin: theme.spacing(0) }}
+                        sx={{ marginRight: theme.spacing(1) }}
                         size="small"
                         variant="outlined"
                       />
@@ -588,7 +588,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       <Chip
                         label={"Best Trial"}
                         color="secondary"
-                        sx={{ marginLeft: theme.spacing(1) }}
+                        sx={{ marginRight: theme.spacing(1) }}
                         size="small"
                         variant="outlined"
                       />
@@ -619,17 +619,21 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                   objectiveNames={studyDetail?.objective_names || []}
                   formWidgets={studyDetail?.form_widgets}
                   isPreferential={isPreferential}
-                  isBestTrial={isBest(
-                    t,
-                    studyDetail!.preferences!,
-                    studyDetail!.skipped_trial_numbers!
-                  )}
-                  isSkipped={isSkipped(t, studyDetail!.skipped_trial_numbers!)}
+                  isBestTrial={
+                    isPreferential
+                      ? isBest(
+                          t,
+                          studyDetail?.preferences,
+                          studyDetail?.skipped_trial_numbers
+                        )
+                      : isBestTrial(t.trial_id)
+                  }
+                  isSkipped={isSkipped(t, studyDetail?.skipped_trial_numbers)}
                   isComparisonReady={isComparisonReady(
                     t,
-                    studyDetail!.feedback_component_type!
+                    studyDetail?.feedback_component_type
                   )}
-                  isNew={isNew(t, studyDetail!.preferences!)}
+                  isNew={isNew(t, studyDetail?.preferences)}
                 />
               ))}
         </Box>
