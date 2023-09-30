@@ -17,7 +17,7 @@ import ListItemText from "@mui/material/ListItemText"
 import {
   drawerOpenState,
   reloadIntervalState,
-  useStudyIsPreferencial,
+  useStudyIsPreferential,
 } from "../state"
 import { Link } from "react-router-dom"
 import AutoGraphIcon from "@mui/icons-material/AutoGraph"
@@ -130,7 +130,7 @@ export const AppDrawer: FC<{
   const [open, setOpen] = useRecoilState<boolean>(drawerOpenState)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const isPreferential =
-    studyId !== undefined ? useStudyIsPreferencial(studyId) : null
+    studyId !== undefined ? useStudyIsPreferential(studyId) : null
 
   const styleListItem = {
     display: "block",
