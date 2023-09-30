@@ -175,7 +175,7 @@ const plotCoordinate = (
     })
     const minValue = Math.min(...logValues)
     const maxValue = Math.max(...logValues)
-    const range = [minValue, maxValue]
+    const range = [Math.floor(minValue), Math.ceil(maxValue)]
     const tickvals = Array.from(
       { length: Math.ceil(maxValue) - Math.floor(minValue) + 1 },
       (_, i) => i + Math.floor(minValue)
@@ -226,7 +226,7 @@ const plotCoordinate = (
           ticktext,
         }
       } else {
-        // numerical and non-log
+        // numerical and linear
         return {
           label: breakLabelIfTooLong(s.name),
           values: values,
