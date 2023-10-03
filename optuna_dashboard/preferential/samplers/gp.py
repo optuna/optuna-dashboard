@@ -4,7 +4,7 @@ import itertools
 import math
 from typing import Any
 from typing import Callable
-from typing import cast
+import warnings
 
 import botorch.acquisition.analytic
 import botorch.models.model
@@ -17,6 +17,8 @@ import numpy as np
 import optuna
 import optuna._transform
 from optuna.distributions import CategoricalDistribution
+from optuna.distributions import FloatDistribution
+from optuna.distributions import IntDistribution
 import torch
 from torch import Tensor
 
@@ -359,11 +361,54 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
             )
 
             # TODO: Make it possible to apply it on mixed search space
-            if all(isinstance(dist, CategoricalDistribution) for dist in search_space.values()):
+            def get_all_possible_params(dist: optuna.distributions.BaseDistribution) -> list[Any]:
+                if isinstance(dist, CategoricalDistribution):
+                    return list(dist.choices)
+                elif isinstance(dist, (IntDistribution, FloatDistribution)):
+                    return list(np.arange(dist.low, dist.high, dist.step))
+                else:
+                    return []
+
+            all_possible_params = {
+                name: get_all_possible_params(dist) for name, dist in search_space.items()
+            }
+
+            is_all_discrete = all(
+                len(possible_params) > 0 for possible_params in all_possible_params.values()
+            )
+            search_space_size = np.prod(
+                [len(possible_params) for possible_params in all_possible_params.values()]
+            )
+            # TODO(contramundum53): Fix this arbitrarily chosen limit.
+            size_limit = 1e6
+            can_evaluate_all = is_all_discrete and search_space_size <= size_limit
+
+            if (
+                any(isinstance(dist, CategoricalDistribution) for dist in search_space.values())
+                and not can_evaluate_all
+            ):
+                if is_all_discrete:
+                    warnings.warn(
+                        "The objective function has categorical parameters, "
+                        "but the total search space is too large to be enumerated. "
+                        f"(Search space size: {search_space_size} > limit: {size_limit})"
+                        "This may result in significantly bad performance."
+                    )
+                else:
+                    warnings.warn(
+                        "The objective function has categorical parameters, "
+                        "but the search space cannot be enumerated because "
+                        "it also contains continuous parameters. "
+                        "This may result in significantly bad performance. "
+                        "You can work around this problem by specifying 'step' "
+                        "in each continuous parameter."
+                    )
+
+            if is_all_discrete and can_evaluate_all:
                 all_param_combinations = itertools.product(
                     *[
-                        [(name, choice) for choice in cast(CategoricalDistribution, dist).choices]
-                        for name, dist in search_space.items()
+                        [(name, choice) for choice in possible_params]
+                        for name, possible_params in all_possible_params.items()
                     ]
                 )
                 choices = torch.tensor(
@@ -395,6 +440,11 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
         param_name: str,
         param_distribution: optuna.distributions.BaseDistribution,
     ) -> Any:
+        warnings.warn(
+            "Dynamic search space detected. "
+            f"Falling back to {self.independent_sampler.__class__.__name__}."
+        )
+
         return self.independent_sampler.sample_independent(
             study, trial, param_name, param_distribution
         )
