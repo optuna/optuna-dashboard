@@ -39,7 +39,7 @@ class PreferentialStudy:
     :func:`~optuna_dashboard.preferential.load_study` respectively.
 
     .. note::
-        Preferential optimization is an experimental feature (introduced in v0.13.0). 
+        Preferential optimization is an experimental feature (introduced in v0.13.0).
         The interface may change in newer versions without prior notice.
     """
 
@@ -365,7 +365,7 @@ def create_study(
         A :class:`~optuna_dashboard.preferential.PreferentialStudy` object.
 
     .. note::
-        Preferential optimization is an experimental feature (introduced in v0.13.0). 
+        Preferential optimization is an experimental feature (introduced in v0.13.0).
         The interface may change in newer versions without prior notice.
     """
     try:
@@ -449,9 +449,9 @@ def load_study(
 
     Returns:
         A :class:`~optuna_dashboard.preferential.PreferentialStudy` object.
-    
+
     .. note::
-        Preferential optimization is an experimental feature (introduced in v0.13.0). 
+        Preferential optimization is an experimental feature (introduced in v0.13.0).
         The interface may change in newer versions without prior notice.
     """
     study = optuna.load_study(
