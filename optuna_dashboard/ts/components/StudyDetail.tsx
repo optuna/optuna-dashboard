@@ -12,6 +12,7 @@ import {
 import Grid2 from "@mui/material/Unstable_Grid2"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import HomeIcon from "@mui/icons-material/Home"
+import DownloadIcon from "@mui/icons-material/Download"
 
 import { StudyNote } from "./Note"
 import { actionCreator } from "../action"
@@ -143,6 +144,16 @@ export const StudyDetail: FC<{
     content = (
       <Card sx={{ margin: theme.spacing(2) }}>
         <CardContent>
+          <IconButton
+            aria-label="download csv"
+            size="small"
+            color="inherit"
+            download={`trials_${studyDetail?.id}.csv`}
+            sx={{ margin: "auto 0" }}
+            href={`/csv/${studyDetail?.id}`}
+          >
+            <DownloadIcon />
+          </IconButton>
           <TrialTable studyDetail={studyDetail} initialRowsPerPage={50} />
         </CardContent>
       </Card>
