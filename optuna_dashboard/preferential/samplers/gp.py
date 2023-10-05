@@ -280,6 +280,25 @@ class _PreferentialGP:
 
 
 class PreferentialGPSampler(optuna.samplers.BaseSampler):
+    """Sampler for preferential optimization using Gaussian process.
+
+    The sampling algorithm is based on `Takeno et al., 2023 <https://arxiv.org/abs/2302.01513>`_.
+    This sampler uses BoTorch to optimize acquisition function.
+
+    Args:
+        kernel:
+            Kernel that computes the covariance on the Gaussian process.
+        noise_prior:
+            Prior of the observation noise.
+        independent_sampler:
+            A :class:`~optuna.samplers.BaseSampler` instance that is used for independent
+            sampling. The parameters not contained in the relative search space are sampled
+            by this sampler. If :obj:`None` is specified,
+            :class:`~optuna.samplers.RandomSampler` is used as the default.
+        seed:
+            Seed for random number generator.
+    """
+
     def __init__(
         self,
         *,
