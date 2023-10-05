@@ -481,7 +481,7 @@ def create_app(
         response.headers["Content-Disposition"] = f"attachment; filename=trials_{study_id}.csv"
 
         # TODO: Response body
-        buf.seek(0)          
+        buf.seek(0)
         return buf.read()
     
 
