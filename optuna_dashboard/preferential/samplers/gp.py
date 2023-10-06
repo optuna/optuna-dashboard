@@ -158,6 +158,18 @@ def _truncnorm_mean_var_logz(alpha: Tensor) -> tuple[Tensor, Tensor, Tensor]:
     return mean, var, logz
 
 
+def _observation(var0: Tensor, mean0: Tensor, noise_var: Tensor) -> tuple[Tensor, Tensor, Tensor]:
+    obs_var = var0 + noise_var
+    obs_sigma = torch.sqrt(obs_var)
+    alpha = -mean0 / torch.clamp_min(obs_sigma, min=1e-20)
+    mean_norm, var_norm, logz = _truncnorm_mean_var_logz(alpha)
+
+    denom_factor = 1 / torch.clamp_min(noise_var + var_norm * var0, min=1e-20)
+    da = (1 - var_norm) * denom_factor
+    db = (mean0 * (1 - var_norm) + obs_sigma * mean_norm) * denom_factor
+    return (da, db, logz)
+
+
 def _orthants_MVN_EP(
     cov0: Tensor, preferences: Tensor, noise_var: Tensor, cycles: int
 ) -> tuple[Tensor, Tensor, Tensor]:
@@ -178,25 +190,17 @@ def _orthants_MVN_EP(
 
             r0 = (1 - var1 * virtual_obs_a[i]).reciprocal()
             var0 = var1 * r0
-            mean0 = (mean1 + var1 * virtual_obs_b[i]) * r0
+            mean0 = (mean1 - var1 * virtual_obs_b[i]) * r0
 
-            obs_var = var0 + noise_var
-            obs_sigma = torch.sqrt(obs_var)
-            alpha = -mean0 / torch.clamp_min(obs_sigma, min=1e-20)
-            mean_norm, var_norm, logz = _truncnorm_mean_var_logz(alpha)
+            virtual_obs_a2, virtual_obs_b2, logz = _observation(var0, mean0, noise_var)
 
-            kalman_factor = var0 / torch.clamp_min(obs_var, min=1e-20)
-            mean2 = mean0 + obs_sigma * mean_norm * kalman_factor
-            var2 = kalman_factor * (noise_var + var_norm * var0)
-
-            var1_var2_inv = torch.clamp_min(var1 * var2, min=1e-20).reciprocal()
-            db = (mean1 * var2 - mean2 * var1) * var1_var2_inv
-            da = (var1 - var2) * var1_var2_inv
-            virtual_obs_b[i] = virtual_obs_b[i] + db
-            virtual_obs_a[i] = virtual_obs_a[i] + da
+            da = virtual_obs_a2 - virtual_obs_a[i]
+            db = virtual_obs_b2 - virtual_obs_b[i]
+            virtual_obs_a[i] = virtual_obs_a2
+            virtual_obs_b[i] = virtual_obs_b2
 
             dr = (1 + var1 * da).reciprocal()
-            mu = mu - Sxy * ((db + mean1 * da) * dr)
+            mu = mu + Sxy * ((db - mean1 * da) * dr)
             cov = cov - (Sxy[:, None] * (da * dr)) @ Sxy[None, :]
             log_zs[i] = logz
     return mu, cov, torch.sum(log_zs)
