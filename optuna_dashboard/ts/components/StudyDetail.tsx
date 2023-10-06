@@ -18,7 +18,7 @@ import { actionCreator } from "../action"
 import {
   reloadIntervalState,
   useStudyDetailValue,
-  useStudyIsPreferencial,
+  useStudyIsPreferential,
   useStudyName,
 } from "../state"
 import { TrialTable } from "./TrialTable"
@@ -54,7 +54,7 @@ export const StudyDetail: FC<{
   const studyDetail = useStudyDetailValue(studyId)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studyName = useStudyName(studyId)
-  const isPreferential = useStudyIsPreferencial(studyId)
+  const isPreferential = useStudyIsPreferential(studyId)
 
   const title =
     studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`

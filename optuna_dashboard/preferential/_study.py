@@ -37,6 +37,10 @@ class PreferentialStudy:
     To create and load a study, please refer to the documentation of
     :func:`~optuna_dashboard.preferential.create_study` and
     :func:`~optuna_dashboard.preferential.load_study` respectively.
+
+    .. note::
+        Preferential optimization is an experimental feature (introduced in v0.13.0).
+        The interface may change in newer versions without prior notice.
     """
 
     def __init__(self, study: optuna.Study) -> None:
@@ -359,6 +363,10 @@ def create_study(
 
     Returns:
         A :class:`~optuna_dashboard.preferential.PreferentialStudy` object.
+
+    .. note::
+        Preferential optimization is an experimental feature (introduced in v0.13.0).
+        The interface may change in newer versions without prior notice.
     """
     try:
         study = optuna.create_study(
@@ -441,6 +449,10 @@ def load_study(
 
     Returns:
         A :class:`~optuna_dashboard.preferential.PreferentialStudy` object.
+
+    .. note::
+        Preferential optimization is an experimental feature (introduced in v0.13.0).
+        The interface may change in newer versions without prior notice.
     """
     study = optuna.load_study(
         study_name=study_name, storage=storage, sampler=sampler or RandomSampler()

@@ -10,7 +10,7 @@ type FloatDistribution = {
   type: "FloatDistribution"
   low: number
   high: number
-  step: number
+  step: number | null
   log: boolean
 }
 
@@ -18,7 +18,7 @@ type IntDistribution = {
   type: "IntDistribution"
   low: number
   high: number
-  step: number
+  step: number | null
   log: boolean
 }
 

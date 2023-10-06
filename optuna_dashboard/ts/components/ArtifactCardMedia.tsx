@@ -21,6 +21,18 @@ export const ArtifactCardMedia: FC<{
         filetype={artifact.filename.split(".").pop()}
       />
     )
+  } else if (artifact.mimetype.startsWith("video")) {
+    return (
+      <video
+        controls
+        style={{
+          width: "100%",
+          height: "auto",
+        }}
+      >
+        <source src={urlPath} type={artifact.mimetype} />
+      </video>
+    )
   } else if (artifact.mimetype.startsWith("audio")) {
     return (
       <audio controls>
