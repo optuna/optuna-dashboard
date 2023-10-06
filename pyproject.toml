@@ -51,7 +51,7 @@ test = [
 optional = [
     "streamlit",
     "boto3",
-    "botorch",
+    "botorch>=0.8.1",
 ]
 
 preferential = [
