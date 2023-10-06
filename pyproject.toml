@@ -36,6 +36,7 @@ dynamic = ["version"]
 [project.optional-dependencies]
 docs = [
     "boto3",
+    "botorch",
     "streamlit",
     "sphinx",
     "sphinx_rtd_theme",
