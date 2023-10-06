@@ -287,7 +287,8 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
 
     Args:
         kernel:
-            Kernel that computes the covariance on the Gaussian process. Defaults to Matern 3/2 Kernel + ARD.
+            Kernel that computes the covariance on the Gaussian process. Defaults to
+            Matern 3/2 Kernel + ARD.
         noise_prior:
             Prior of the observation noise. Defaults to gamma prior.
         independent_sampler:
