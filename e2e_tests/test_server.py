@@ -1,7 +1,7 @@
-import socket
-import threading
 import http.server
+import socket
 import socketserver
+import threading
 from wsgiref.simple_server import make_server
 
 import optuna
@@ -43,7 +43,9 @@ def make_standalone_server(request: pytest.FixtureRequest) -> str:
     directory = "/Users/k-umezawa/dev/optuna-dashboard/standalone_app/"
 
     Handler = http.server.SimpleHTTPRequestHandler
-    httpd = socketserver.TCPServer(("", port), lambda *args, **kwargs: Handler(*args, directory=directory, **kwargs))
+    httpd = socketserver.TCPServer(
+        ("", port), lambda *args, **kwargs: Handler(*args, directory=directory, **kwargs)
+    )
 
     def serve_httpd():
         httpd.serve_forever()
