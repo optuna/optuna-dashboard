@@ -47,4 +47,4 @@ jobs:
         run: playwright install
 
       - name: Run e2e tests
-        run: pytest e2e_tests
+        run: pytest e2e_tests/test_dashboard
