@@ -1,0 +1,43 @@
+name: e2e-standalone-tests
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/e2e-standalone-tests.yml'
+      - '**.py'
+      - '**.ts'
+      - '**.tsx'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig.json'
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        optuna-version: ['optuna==2.10.0', 'git+https://github.com/optuna/optuna.git']
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust toolchains
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'
+
+      - name: Build standalone_app
+        env:
+          PUBLIC_PATH: /optuna-dashboard/public/
+        run: make MODE="prd" standalone_app/public/bundle.js
+
+      - name: Install the required browsers
+        run: playwright install
+
+      - name: Run e2e tests
+        run: pytest e2e_tests/test_standalone

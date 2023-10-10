@@ -1,10 +1,10 @@
-name: e2e-tests
+name: e2e-dashboard-tests
 on:
   pull_request:
     branches:
       - main
     paths:
-      - '.github/workflows/e2e-tests.yml'
+      - '.github/workflows/e2e-dashboard-tests.yml'
       - '**.py'
       - '**.ts'
       - '**.tsx'
