@@ -5,7 +5,9 @@ import { GizmoHelper, GizmoViewport, OrbitControls } from "@react-three/drei"
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader"
 import { Rhino3dmLoader } from "three/examples/jsm/loaders/3DMLoader"
 import { PerspectiveCamera } from "three"
-import { Modal, Box } from "@mui/material"
+import { Modal, Box, useTheme } from "@mui/material"
+import ClearIcon from "@mui/icons-material/Clear"
+import IconButton from "@mui/material/IconButton"
 
 export const isThreejsArtifact = (artifact: Artifact): boolean => {
   return (
@@ -121,6 +123,7 @@ export const useThreejsArtifactModal = (): [
 ] => {
   const [open, setOpen] = useState(false)
   const [target, setTarget] = useState<[string, Artifact | null]>(["", null])
+  const theme = useTheme()
 
   const openModal = (artifactUrlPath: string, artifact: Artifact) => {
     setTarget([artifactUrlPath, artifact])
@@ -146,6 +149,19 @@ export const useThreejsArtifactModal = (): [
             borderRadius: "15px",
           }}
         >
+          <IconButton
+            sx={{
+              position: "absolute",
+              top: theme.spacing(2),
+              right: theme.spacing(2),
+            }}
+            onClick={() => {
+              setOpen(false)
+              setTarget(["", null])
+            }}
+          >
+            <ClearIcon />
+          </IconButton>
           <ThreejsArtifactViewer
             src={target[0]}
             width={`${innerWidth * 0.8}px`}
