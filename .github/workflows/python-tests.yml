@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/python-tests.yml'
       - '**.py'
+      - 'pyproject.toml'
 jobs:
   lint:
     runs-on: ubuntu-latest

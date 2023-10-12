@@ -52,7 +52,7 @@ test = [
 optional = [
     "streamlit",
     "boto3",
-    "botorch>=0.8.1",
+    "botorch>=0.8.1; python_version>='3.8'",
 ]
 
 preferential = [
