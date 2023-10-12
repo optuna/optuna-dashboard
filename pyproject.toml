@@ -36,6 +36,7 @@ dynamic = ["version"]
 [project.optional-dependencies]
 docs = [
     "boto3",
+    "botorch",
     "streamlit",
     "sphinx",
     "sphinx_rtd_theme",
@@ -51,9 +52,12 @@ test = [
 optional = [
     "streamlit",
     "boto3",
-    "botorch",
+    "botorch>=0.8.1",
 ]
 
+preferential = [
+    "botorch>=0.8.1",
+]
 
 [project.scripts]
 optuna-dashboard = "optuna_dashboard._cli:main"
