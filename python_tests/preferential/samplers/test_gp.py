@@ -3,11 +3,11 @@ from unittest.mock import patch
 
 import numpy as np
 import pytest
-import torch
 
 
 if sys.version_info >= (3, 8):
     from optuna_dashboard.preferential.samplers.gp import _one_side_trunc_norm_sampling
+    import torch
 else:
     pytest.skip("BoTorch dropped Python3.7 support", allow_module_level=True)
 
