@@ -65,7 +65,7 @@ export const StudyList: FC<{
   }
   const query = useQuery()
   const initialSortBy =
-    query.get("studies_order_by") === "desc" ? "desc" : "asc"
+    query.get("studies_order_by") === "asc" ? "asc" : "desc"
   const [sortBy, setSortBy] = useState<"asc" | "desc">(initialSortBy)
 
   let filteredStudies = studies.filter((s) => !studyFilter(s))
