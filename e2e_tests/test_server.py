@@ -40,7 +40,7 @@ def make_test_server(
 def make_standalone_server(request: pytest.FixtureRequest) -> str:
     addr = "127.0.0.1"
     port = get_free_port()
-    directory = "/Users/k-umezawa/dev/optuna-dashboard/standalone_app/"
+    directory = "./standalone_app/"
 
     Handler = http.server.SimpleHTTPRequestHandler
     httpd = socketserver.TCPServer(
