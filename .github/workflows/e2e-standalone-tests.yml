@@ -44,6 +44,9 @@ jobs:
       - name: Build standalone_app
         run: make MODE="prd" standalone_app/public/bundle.js
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: Install the required browsers
         run: playwright install
 
