@@ -178,6 +178,19 @@ or
    $ pip install uwsgi
    $ uwsgi --http :8080 --workeers 4 --wsgi-file wsgi.py
 
+Jupyter Lab Extension (Experimental)
+--------------------------------
+
+You can install the Jupyter Lab extension via `PyPI <https://pypi.org/project/jupyterlab-optuna/>`_.
+
+.. figure:: _static/jupyterlab-extension.png
+   :alt: Screenshot for the Jupyter Lab Extension
+   :align: center
+   :width: 800px
+
+   Jupyter Lab Extension
+
+To use, click the tile to launch the extension, and enter your Optuna’s storage URL (e.g. ``sqlite:///db.sqlite3``) in the dialog.
 
 Browser-only version (Experimental)
 -----------------------------------
