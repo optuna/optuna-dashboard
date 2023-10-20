@@ -27,7 +27,7 @@ First, ensure the necessary packages are installed by executing the following co
 
 .. code-block:: console
 
-    $ pip install "optuna>=3.3.0" "optuna-dashboard>=0.13.0b1" pillow botorch
+    $ pip install "optuna>=3.3.0" "optuna-dashboard[preferential]>=0.13.0b1" pillow
 
 Next, execute the Python script, copied from `generator.py`_.
 

@@ -77,6 +77,18 @@ $ docker run -it --rm -p 8080:8080 ghcr.io/optuna/optuna-dashboard postgresql+ps
 
 </details>
 
+## Jupyter Lab Extension (Experimental)
+
+You can install the Jupyter Lab extension via [PyPI](https://pypi.org/project/jupyterlab-optuna/).
+
+```
+$ pip install jupyterlab jupyterlab-optuna
+```
+
+<img src="./docs/_static/jupyterlab-extension.png" style="width:600px;" alt="Jupyter Lab Extension">
+
+To use, click the tile to launch the extension, and enter your Optuna’s storage URL (e.g. `sqlite:///db.sqlite3`) in the dialog.
+
 ## Browser-only version (Experimental)
 
 <img src="./docs/_static/browser-app.gif" style="width:600px;" alt="Browser-only version">
@@ -93,7 +105,7 @@ https://optuna.github.io/optuna-dashboard/
 
 You can install the VS Code extension via [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=Optuna.optuna-dashboard#overview).
 
-<img src="./docs/_static/vscode-extension.png" style="width:600px;" alt="VSCode Extension">
+<img src="./docs/_static/vscode-extension.png" style="width:600px;" alt="VS Code Extension">
 
 Please right-click the SQLite3 files (`*.db` or `*.sqlite3`) in the VS Code file explorer and select the "Open in Optuna Dashboard" command from the dropdown menu.
 This extension leverages the browser-only version of Optuna Dashboard, so the same limitations apply.

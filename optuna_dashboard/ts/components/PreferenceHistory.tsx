@@ -147,6 +147,16 @@ const CandidateTrial: FC<{
               overflow: "auto",
             }}
           >
+            <IconButton
+              sx={{
+                position: "absolute",
+                top: theme.spacing(2),
+                right: theme.spacing(2),
+              }}
+              onClick={() => setDetailShown(false)}
+            >
+              <ClearIcon />
+            </IconButton>
             <TrialListDetail
               trial={trial}
               isBestTrial={() => false}

@@ -39,6 +39,7 @@ export const PlotImportance: FC<{ study: Study }> = ({ study }) => {
         const values = filteredTrials.map(
           (t) => t.values?.[objectiveId] as number
         )
+        // TODO: handle errors thrown by wasm_fanova_calculate
         const importance = wasm_fanova_calculate(features, values)
         return study.intersection_search_space.map((s, i) => ({
           name: s.name,
