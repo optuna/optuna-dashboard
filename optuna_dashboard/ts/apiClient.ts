@@ -280,17 +280,14 @@ type UploadArtifactAPIResponse = {
   artifacts: Artifact[]
 }
 
-export const uploadArtifactAPI = (
+export const uploadTrialArtifactAPI = (
   studyId: number,
-  trialId: number | null,
+  trialId: number,
   fileName: string,
   dataUrl: string
 ): Promise<UploadArtifactAPIResponse> => {
-  const APIurl = `/api/artifacts/${studyId}${
-    trialId != null ? `/${trialId}` : ""
-  }`
   return axiosInstance
-    .post<UploadArtifactAPIResponse>(APIurl, {
+    .post<UploadArtifactAPIResponse>(`/api/artifacts/${studyId}/${trialId}`, {
       file: dataUrl,
       filename: fileName,
     })
@@ -299,13 +296,39 @@ export const uploadArtifactAPI = (
     })
 }
 
-export const deleteArtifactAPI = (
+export const uploadStudyArtifactAPI = (
+  studyId: number,
+  fileName: string,
+  dataUrl: string
+): Promise<UploadArtifactAPIResponse> => {
+  return axiosInstance
+    .post<UploadArtifactAPIResponse>(`/api/artifacts/${studyId}`, {
+      file: dataUrl,
+      filename: fileName,
+    })
+    .then((res) => {
+      return res.data
+    })
+}
+
+export const deleteTrialArtifactAPI = (
   studyId: number,
   trialId: number,
   artifactId: string
 ): Promise<void> => {
   return axiosInstance
     .delete<void>(`/api/artifacts/${studyId}/${trialId}/${artifactId}`)
+    .then(() => {
+      return
+    })
+}
+
+export const deleteStudyArtifactAPI = (
+  studyId: number,
+  artifactId: string
+): Promise<void> => {
+  return axiosInstance
+    .delete<void>(`/api/artifacts/${studyId}/${artifactId}`)
     .then(() => {
       return
     })

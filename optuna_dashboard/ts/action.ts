@@ -11,9 +11,11 @@ import {
   tellTrialAPI,
   saveTrialUserAttrsAPI,
   renameStudyAPI,
-  uploadArtifactAPI,
+  uploadTrialArtifactAPI,
+  uploadStudyArtifactAPI,
   getMetaInfoAPI,
-  deleteArtifactAPI,
+  deleteTrialArtifactAPI,
+  deleteStudyArtifactAPI,
   reportPreferenceAPI,
   skipPreferentialTrialAPI,
   removePreferentialHistoryAPI,
@@ -106,7 +108,7 @@ export const actionCreator = () => {
     setStudyDetailState(studyId, newStudy)
   }
 
-  const deleteTrialArtifact = (
+  const deleteTrialArtifactState = (
     studyId: number,
     trialId: number,
     artifact_id: string
@@ -126,6 +128,18 @@ export const actionCreator = () => {
       ...artifacts.slice(artifactIndex + 1, artifacts.length),
     ]
     setTrialArtifacts(studyId, index, newArtifacts)
+  }
+
+  const deleteStudyArtifactState = (studyId: number, artifact_id: string) => {
+    const artifacts = studyDetails[studyId].artifacts
+    const artifactIndex = artifacts.findIndex(
+      (a) => a.artifact_id === artifact_id
+    )
+    const newArtifacts = [
+      ...artifacts.slice(0, artifactIndex),
+      ...artifacts.slice(artifactIndex + 1, artifacts.length),
+    ]
+    setStudyArtifacts(studyId, newArtifacts)
   }
 
   const setTrialStateValues = (
@@ -445,7 +459,7 @@ export const actionCreator = () => {
     setUploading(true)
     reader.readAsDataURL(file)
     reader.onload = (upload: ProgressEvent<FileReader>) => {
-      uploadArtifactAPI(
+      uploadTrialArtifactAPI(
         studyId,
         trialId,
         file.name,
@@ -473,17 +487,13 @@ export const actionCreator = () => {
     }
   }
 
-  const uploadStudyArtifact = (
-    studyId: number,
-    file: File
-  ): void => {
+  const uploadStudyArtifact = (studyId: number, file: File): void => {
     const reader = new FileReader()
     setUploading(true)
     reader.readAsDataURL(file)
     reader.onload = (upload: ProgressEvent<FileReader>) => {
-      uploadArtifactAPI(
+      uploadStudyArtifactAPI(
         studyId,
-        null,
         file.name,
         upload.target?.result as string
       )
@@ -503,14 +513,30 @@ export const actionCreator = () => {
     }
   }
 
-  const deleteArtifact = (
+  const deleteTrialArtifact = (
     studyId: number,
     trialId: number,
     artifactId: string
   ): void => {
-    deleteArtifactAPI(studyId, trialId, artifactId)
+    deleteTrialArtifactAPI(studyId, trialId, artifactId)
       .then(() => {
-        deleteTrialArtifact(studyId, trialId, artifactId)
+        deleteTrialArtifactState(studyId, trialId, artifactId)
+        enqueueSnackbar(`Success to delete an artifact.`, {
+          variant: "success",
+        })
+      })
+      .catch((err) => {
+        const reason = err.response?.data.reason
+        enqueueSnackbar(`Failed to delete ${reason}.`, {
+          variant: "error",
+        })
+      })
+  }
+
+  const deleteStudyArtifact = (studyId: number, artifactId: string): void => {
+    deleteStudyArtifactAPI(studyId, artifactId)
+      .then(() => {
+        deleteStudyArtifactState(studyId, artifactId)
         enqueueSnackbar(`Success to delete an artifact.`, {
           variant: "success",
         })
@@ -731,7 +757,8 @@ export const actionCreator = () => {
     saveTrialNote,
     uploadTrialArtifact,
     uploadStudyArtifact,
-    deleteArtifact,
+    deleteTrialArtifact,
+    deleteStudyArtifact,
     makeTrialComplete,
     makeTrialFail,
     saveTrialUserAttrs,

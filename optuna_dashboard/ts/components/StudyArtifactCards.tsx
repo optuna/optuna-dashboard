@@ -21,7 +21,7 @@ import DeleteIcon from "@mui/icons-material/Delete"
 import FullscreenIcon from "@mui/icons-material/Fullscreen"
 
 import { actionCreator } from "../action"
-import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
+import { useDeleteStudyArtifactDialog } from "./DeleteArtifactDialog"
 import {
   useThreejsArtifactModal,
   isThreejsArtifact,
@@ -31,7 +31,7 @@ import { ArtifactCardMedia } from "./ArtifactCardMedia"
 export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
   const theme = useTheme()
   const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
-    useDeleteArtifactDialog()
+    useDeleteStudyArtifactDialog()
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
     useThreejsArtifactModal()
 
@@ -104,11 +104,7 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
                   color="inherit"
                   sx={{ margin: "auto 0" }}
                   onClick={() => {
-                    openDeleteArtifactDialog(
-                      trial.study_id,
-                      trial.trial_id,
-                      artifact
-                    )
+                    openDeleteArtifactDialog(study.id, artifact)
                   }}
                 >
                   <DeleteIcon />
@@ -129,6 +125,7 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
         })}
         <StudyArtifactUploader study={study} width={width} height={height} />
       </Box>
+      {renderDeleteArtifactDialog()}
       {renderThreejsArtifactModal()}
     </>
   )

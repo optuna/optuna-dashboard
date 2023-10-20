@@ -179,7 +179,7 @@ def register_artifact_route(
 
     @app.delete("/api/artifacts/<study_id:int>/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
     @json_api_view
-    def delete_artifact(study_id: int, trial_id: int, artifact_id: str) -> dict[str, Any]:
+    def delete_trial_artifact(study_id: int, trial_id: int, artifact_id: str) -> dict[str, Any]:
         if artifact_store is None:
             response.status = 400  # Bad Request
             return {"reason": "Cannot access to the artifacts."}
@@ -187,10 +187,29 @@ def register_artifact_route(
 
         # The artifact's metadata is stored in one of the following two locations:
         storage.set_study_system_attr(
-            study_id, _dashboard_trial_artifact_prefix(trial_id) + artifact_id, json.dumps(None)
+            study_id, _dashboard_artifact_prefix(trial_id) + artifact_id, json.dumps(None)
         )
         storage.set_trial_system_attr(
             trial_id, ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None)
+        )
+
+        response.status = 204
+        return {}
+
+    @app.delete("/api/artifacts/<study_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
+    @json_api_view
+    def delete_study_artifact(study_id: int, artifact_id: str) -> dict[str, Any]:
+        if artifact_store is None:
+            response.status = 400  # Bad Request
+            return {"reason": "Cannot access to the artifacts."}
+        artifact_store.remove(artifact_id)
+
+        # The artifact's metadata is stored in one of the following two locations:
+        storage.set_study_system_attr(
+            study_id, _dashboard_artifact_prefix(study_id) + artifact_id, json.dumps(None)
+        )
+        storage.set_study_system_attr(
+            study_id, ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None)
         )
 
         response.status = 204
@@ -253,7 +272,7 @@ def upload_artifact(
     return artifact_id
 
 
-def _dashboard_trial_artifact_prefix(trial_id: int) -> str:
+def _dashboard_artifact_prefix(trial_id: int) -> str:
     return DASHBOARD_ARTIFACTS_ATTR_PREFIX + f"{trial_id}:"
 
 
@@ -273,7 +292,7 @@ def get_trial_artifact_meta(
 ) -> Optional[ArtifactMeta]:
     # Search study_system_attrs due to backward compatibility.
     study_system_attrs = storage.get_study_system_attrs(study_id)
-    attr_key = _dashboard_trial_artifact_prefix(trial_id=trial_id) + artifact_id
+    attr_key = _dashboard_artifact_prefix(trial_id=trial_id) + artifact_id
     artifact_meta = study_system_attrs.get(attr_key)
     if artifact_meta is not None:
         return json.loads(artifact_meta)
@@ -317,7 +336,7 @@ def list_trial_artifacts(
     dashboard_artifact_metas = [
         json.loads(value)
         for key, value in study_system_attrs.items()
-        if key.startswith(_dashboard_trial_artifact_prefix(trial._trial_id))
+        if key.startswith(_dashboard_artifact_prefix(trial._trial_id))
     ]
 
     # Collect ArtifactMeta from trial_system_attrs. Note that artifacts uploaded via

@@ -21,7 +21,7 @@ import DeleteIcon from "@mui/icons-material/Delete"
 import FullscreenIcon from "@mui/icons-material/Fullscreen"
 
 import { actionCreator } from "../action"
-import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
+import { useDeleteTrialArtifactDialog } from "./DeleteArtifactDialog"
 import {
   useThreejsArtifactModal,
   isThreejsArtifact,
@@ -31,7 +31,7 @@ import { ArtifactCardMedia } from "./ArtifactCardMedia"
 export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
   const theme = useTheme()
   const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
-    useDeleteArtifactDialog()
+    useDeleteTrialArtifactDialog()
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
     useThreejsArtifactModal()
 
