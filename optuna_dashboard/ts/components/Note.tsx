@@ -425,7 +425,7 @@ const ArtifactUploader: FC<{
     if (files === null) {
       return
     }
-    action.uploadArtifact(studyId, trialId, files[0])
+    action.uploadTrialArtifact(studyId, trialId, files[0])
   }
 
   const handleDrop: DragEventHandler = (e) => {
@@ -433,7 +433,7 @@ const ArtifactUploader: FC<{
     e.preventDefault()
     const file = e.dataTransfer.files[0]
     setDragOver(false)
-    action.uploadArtifact(studyId, trialId, file)
+    action.uploadTrialArtifact(studyId, trialId, file)
   }
 
   const handleDragOver: DragEventHandler = (e) => {

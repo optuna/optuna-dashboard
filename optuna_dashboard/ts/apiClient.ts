@@ -282,12 +282,15 @@ type UploadArtifactAPIResponse = {
 
 export const uploadArtifactAPI = (
   studyId: number,
-  trialId: number,
+  trialId: number | null,
   fileName: string,
   dataUrl: string
 ): Promise<UploadArtifactAPIResponse> => {
+  const APIurl = `/api/artifacts/${studyId}${
+    trialId != null ? `/${trialId}` : ""
+  }`
   return axiosInstance
-    .post<UploadArtifactAPIResponse>(`/api/artifacts/${studyId}/${trialId}`, {
+    .post<UploadArtifactAPIResponse>(APIurl, {
       file: dataUrl,
       filename: fileName,
     })

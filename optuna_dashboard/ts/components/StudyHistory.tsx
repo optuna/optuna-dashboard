@@ -17,12 +17,15 @@ import { DataGrid, DataGridColumn } from "./DataGrid"
 import { GraphHyperparameterImportance } from "./GraphHyperparameterImportances"
 import { UserDefinedPlot } from "./UserDefinedPlot"
 import { BestTrialsCard } from "./BestTrialsCard"
+import { StudyArtifactCards } from "./StudyArtifactCards"
+import { useRecoilValue } from "recoil"
 import {
   useStudyDetailValue,
   useStudyDirections,
   useStudySummaryValue,
 } from "../state"
 import FormControlLabel from "@mui/material/FormControlLabel"
+import { artifactIsAvailable } from "../state"
 
 export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   const theme = useTheme()
@@ -31,6 +34,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   const studyDetail = useStudyDetailValue(studyId)
   const [logScale, setLogScale] = useState<boolean>(false)
   const [includePruned, setIncludePruned] = useState<boolean>(true)
+  const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
 
   const handleLogScaleChange = () => {
     setLogScale(!logScale)
@@ -164,6 +168,16 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
                 rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
               />
             </CardContent>
+          </Card>
+        </Grid2>
+      </Grid2>
+
+      <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
+        <Grid2 xs={6}>
+          <Card>
+            {artifactEnabled && studyDetail !== null && (
+              <StudyArtifactCards study={studyDetail} />
+            )}
           </Card>
         </Grid2>
       </Grid2>

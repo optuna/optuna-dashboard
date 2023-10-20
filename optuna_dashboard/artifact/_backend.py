@@ -105,7 +105,7 @@ def register_artifact_route(
 
     @app.post("/api/artifacts/<study_id:int>/<trial_id:int>")
     @json_api_view
-    def upload_artifact_api(study_id: int, trial_id: int) -> dict[str, Any]:
+    def upload_trial_artifact_api(study_id: int, trial_id: int) -> dict[str, Any]:
         trial = storage.get_trial(trial_id)
         if trial is None:
             response.status = 400
@@ -142,6 +142,39 @@ def register_artifact_route(
         return {
             "artifact_id": artifact_id,
             "artifacts": list_trial_artifacts(storage.get_study_system_attrs(study_id), trial),
+        }
+
+    @app.post("/api/artifacts/<study_id:int>")
+    @json_api_view
+    def upload_study_artifact_api(study_id: int) -> dict[str, Any]:
+        if artifact_store is None:
+            response.status = 400  # Bad Request
+            return {"reason": "Cannot access to the artifacts."}
+        file = request.json.get("file")
+        if file is None:
+            response.status = 400
+            return {"reason": "Please specify the 'file' key."}
+
+        _, data = parse_data_uri(file)
+        filename = request.json.get("filename", "")
+        artifact_id = str(uuid.uuid4())
+        artifact_store.write(artifact_id, io.BytesIO(data))
+
+        mimetype, encoding = mimetypes.guess_type(filename)
+        artifact = {
+            "artifact_id": artifact_id,
+            "filename": filename,
+            "mimetype": mimetype or DEFAULT_MIME_TYPE,
+            "encoding": encoding,
+        }
+        attr_key = ARTIFACTS_ATTR_PREFIX + artifact_id
+        storage.set_study_system_attr(study_id, attr_key, json.dumps(artifact))
+
+        response.status = 201
+
+        return {
+            "artifact_id": artifact_id,
+            "artifacts": list_study_artifacts(storage.get_study_system_attrs(study_id)),
         }
 
     @app.delete("/api/artifacts/<study_id:int>/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")

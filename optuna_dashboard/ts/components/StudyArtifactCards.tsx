@@ -1,42 +1,38 @@
 import React, {
-  ChangeEventHandler,
-  DragEventHandler,
   FC,
-  MouseEventHandler,
-  useRef,
   useState,
+  DragEventHandler,
+  useRef,
+  MouseEventHandler,
+  ChangeEventHandler,
 } from "react"
 import {
   Typography,
   Box,
-  useTheme,
-  IconButton,
   Card,
+  useTheme,
   CardContent,
   CardActionArea,
+  IconButton,
 } from "@mui/material"
+import { ArtifactCardMedia } from "./ArtifactCardMedia"
+import FullscreenIcon from "@mui/icons-material/Fullscreen"
 import UploadFileIcon from "@mui/icons-material/UploadFile"
 import DownloadIcon from "@mui/icons-material/Download"
-import DeleteIcon from "@mui/icons-material/Delete"
-import FullscreenIcon from "@mui/icons-material/Fullscreen"
-
 import { actionCreator } from "../action"
-import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
-import {
-  useThreejsArtifactModal,
-  isThreejsArtifact,
-} from "./ThreejsArtifactViewer"
-import { ArtifactCardMedia } from "./ArtifactCardMedia"
 
-export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
+import {
+  isThreejsArtifact,
+  useThreejsArtifactModal,
+} from "./ThreejsArtifactViewer"
+
+export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
   const theme = useTheme()
-  const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
-    useDeleteArtifactDialog()
+  const height = "150px"
+  const width = "200px"
+
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
     useThreejsArtifactModal()
-
-  const width = "200px"
-  const height = "150px"
 
   return (
     <>
@@ -44,11 +40,12 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
         variant="h5"
         sx={{ fontWeight: theme.typography.fontWeightBold }}
       >
-        Artifacts
+        Study Artifacts Test
       </Typography>
+
       <Box sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}>
-        {trial.artifacts.map((artifact) => {
-          const urlPath = `/artifacts/${trial.study_id}/${trial.trial_id}/${artifact.artifact_id}`
+        {study.artifacts.map((artifact) => {
+          const urlPath = `/artifacts/${study.id}/${artifact.artifact_id}`
           return (
             <Card
               key={artifact.artifact_id}
@@ -97,6 +94,7 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
                     <FullscreenIcon />
                   </IconButton>
                 ) : null}
+                {/*   TODO(gen740): add delete functionality
                 <IconButton
                   aria-label="delete artifact"
                   size="small"
@@ -111,7 +109,7 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
                   }}
                 >
                   <DeleteIcon />
-                </IconButton>
+                </IconButton>*/}
                 <IconButton
                   aria-label="download artifact"
                   size="small"
@@ -126,26 +124,22 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
             </Card>
           )
         })}
-        <TrialArtifactUploader trial={trial} width={width} height={height} />
+        <StudyArtifactUploader study={study} width={width} height={height} />
       </Box>
-      {renderDeleteArtifactDialog()}
       {renderThreejsArtifactModal()}
     </>
   )
 }
 
-const TrialArtifactUploader: FC<{
-  trial: Trial
+const StudyArtifactUploader: FC<{
+  study: StudyDetail
   width: string
   height: string
-}> = ({ trial, width, height }) => {
+}> = ({ study, width, height }) => {
   const theme = useTheme()
-  const action = actionCreator()
   const [dragOver, setDragOver] = useState<boolean>(false)
+  const action = actionCreator()
 
-  if (trial.state !== "Running" && trial.state !== "Waiting") {
-    return null
-  }
   const inputRef = useRef<HTMLInputElement>(null)
   const handleClick: MouseEventHandler = () => {
     if (!inputRef || !inputRef.current) {
@@ -153,34 +147,39 @@ const TrialArtifactUploader: FC<{
     }
     inputRef.current.click()
   }
+
   const handleOnChange: ChangeEventHandler<HTMLInputElement> = (e) => {
     const files = e.target.files
     if (files === null) {
       return
     }
-    action.uploadTrialArtifact(trial.study_id, trial.trial_id, files[0])
+    action.uploadStudyArtifact(study.id, files[0])
   }
-  const handleDrop: DragEventHandler = (e) => {
-    e.stopPropagation()
-    e.preventDefault()
-    const files = e.dataTransfer.files
-    setDragOver(false)
-    for (let i = 0; i < files.length; i++) {
-      action.uploadTrialArtifact(trial.study_id, trial.trial_id, files[i])
-    }
-  }
+
   const handleDragOver: DragEventHandler = (e) => {
     e.stopPropagation()
     e.preventDefault()
     e.dataTransfer.dropEffect = "copy"
     setDragOver(true)
   }
+
   const handleDragLeave: DragEventHandler = (e) => {
     e.stopPropagation()
     e.preventDefault()
     e.dataTransfer.dropEffect = "copy"
     setDragOver(false)
   }
+
+  const handleDrop: DragEventHandler = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    const files = e.dataTransfer.files
+    setDragOver(false)
+    for (let i = 0; i < files.length; i++) {
+      action.uploadStudyArtifact(study.id, files[i])
+    }
+  }
+
   return (
     <Card
       sx={{

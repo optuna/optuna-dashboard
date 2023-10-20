@@ -100,6 +100,12 @@ export const actionCreator = () => {
     setTrial(studyId, trialIndex, newTrial)
   }
 
+  const setStudyArtifacts = (studyId: number, artifacts: Artifact[]) => {
+    const newStudy: StudyDetail = Object.assign({}, studyDetails[studyId])
+    newStudy.artifacts = artifacts
+    setStudyDetailState(studyId, newStudy)
+  }
+
   const deleteTrialArtifact = (
     studyId: number,
     trialId: number,
@@ -430,7 +436,7 @@ export const actionCreator = () => {
       })
   }
 
-  const uploadArtifact = (
+  const uploadTrialArtifact = (
     studyId: number,
     trialId: number,
     file: File
@@ -454,6 +460,36 @@ export const actionCreator = () => {
             return
           }
           setTrialArtifacts(studyId, index, res.artifacts)
+        })
+        .catch((err) => {
+          setUploading(false)
+          const reason = err.response?.data.reason
+          enqueueSnackbar(`Failed to upload ${reason}`, { variant: "error" })
+        })
+    }
+    reader.onerror = (error) => {
+      enqueueSnackbar(`Failed to read the file ${error}`, { variant: "error" })
+      console.log(error)
+    }
+  }
+
+  const uploadStudyArtifact = (
+    studyId: number,
+    file: File
+  ): void => {
+    const reader = new FileReader()
+    setUploading(true)
+    reader.readAsDataURL(file)
+    reader.onload = (upload: ProgressEvent<FileReader>) => {
+      uploadArtifactAPI(
+        studyId,
+        null,
+        file.name,
+        upload.target?.result as string
+      )
+        .then((res) => {
+          setUploading(false)
+          setStudyArtifacts(studyId, res.artifacts)
         })
         .catch((err) => {
           setUploading(false)
@@ -693,7 +729,8 @@ export const actionCreator = () => {
     saveReloadInterval,
     saveStudyNote,
     saveTrialNote,
-    uploadArtifact,
+    uploadTrialArtifact,
+    uploadStudyArtifact,
     deleteArtifact,
     makeTrialComplete,
     makeTrialFail,
