@@ -275,7 +275,8 @@ const getOrderWithSameOrderAveraging = (values: number[]): number[] => {
   values.forEach((value) => {
     const first_index = sorted_values.indexOf(value)
     const last_index = sorted_values.lastIndexOf(value)
-    const sum_of_the_value = (first_index + last_index) * (last_index - first_index + 1) / 2
+    const sum_of_the_value =
+      ((first_index + last_index) * (last_index - first_index + 1)) / 2
     const rank = sum_of_the_value / (last_index - first_index + 1)
     ranks.push(rank)
   })
