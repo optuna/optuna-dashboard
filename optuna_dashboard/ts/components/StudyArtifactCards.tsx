@@ -1,38 +1,42 @@
 import React, {
-  FC,
-  useState,
-  DragEventHandler,
-  useRef,
-  MouseEventHandler,
   ChangeEventHandler,
+  DragEventHandler,
+  FC,
+  MouseEventHandler,
+  useRef,
+  useState,
 } from "react"
 import {
   Typography,
   Box,
-  Card,
   useTheme,
+  IconButton,
+  Card,
   CardContent,
   CardActionArea,
-  IconButton,
 } from "@mui/material"
-import { ArtifactCardMedia } from "./ArtifactCardMedia"
-import FullscreenIcon from "@mui/icons-material/Fullscreen"
 import UploadFileIcon from "@mui/icons-material/UploadFile"
 import DownloadIcon from "@mui/icons-material/Download"
-import { actionCreator } from "../action"
+import DeleteIcon from "@mui/icons-material/Delete"
+import FullscreenIcon from "@mui/icons-material/Fullscreen"
 
+import { actionCreator } from "../action"
+import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
 import {
-  isThreejsArtifact,
   useThreejsArtifactModal,
+  isThreejsArtifact,
 } from "./ThreejsArtifactViewer"
+import { ArtifactCardMedia } from "./ArtifactCardMedia"
 
 export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
   const theme = useTheme()
-  const height = "150px"
-  const width = "200px"
-
+  const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
+    useDeleteArtifactDialog()
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
     useThreejsArtifactModal()
+
+  const width = "200px"
+  const height = "150px"
 
   return (
     <>
@@ -94,7 +98,6 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
                     <FullscreenIcon />
                   </IconButton>
                 ) : null}
-                {/*   TODO(gen740): add delete functionality
                 <IconButton
                   aria-label="delete artifact"
                   size="small"
@@ -109,7 +112,7 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
                   }}
                 >
                   <DeleteIcon />
-                </IconButton>*/}
+                </IconButton>
                 <IconButton
                   aria-label="download artifact"
                   size="small"
