@@ -25,7 +25,7 @@ export const TrialTable: FC<{
       field: "values",
       label: "Value",
       sortable: true,
-      less: (firstEl, secondEl): number => {
+      less: (firstEl, secondEl, ascending): number => {
         const firstVal = firstEl.values?.[0]
         const secondVal = secondEl.values?.[0]
 
@@ -33,9 +33,9 @@ export const TrialTable: FC<{
           return 0
         }
         if (firstVal === undefined) {
-          return -1
+          return ascending ? -1 : 1
         } else if (secondVal === undefined) {
-          return 1
+          return ascending ? 1 : -1
         }
         if (firstVal === "-inf" || secondVal === "inf") {
           return 1
@@ -57,7 +57,7 @@ export const TrialTable: FC<{
         field: "values",
         label: `Objective ${objectiveId}`,
         sortable: true,
-        less: (firstEl, secondEl): number => {
+        less: (firstEl, secondEl, ascending): number => {
           const firstVal = firstEl.values?.[objectiveId]
           const secondVal = secondEl.values?.[objectiveId]
 
@@ -65,9 +65,9 @@ export const TrialTable: FC<{
             return 0
           }
           if (firstVal === undefined) {
-            return -1
+            return ascending ? -1 : 1 
           } else if (secondVal === undefined) {
-            return 1
+            return ascending ? 1 : -1
           }
           if (firstVal === "-inf" || secondVal === "inf") {
             return 1
@@ -96,7 +96,7 @@ export const TrialTable: FC<{
         null,
       sortable: true,
       filterable: false,
-      less: (firstEl, secondEl): number => {
+      less: (firstEl, secondEl, _): number => {
         const firstVal = firstEl.params.find(
           (p) => p.name === s.name
         )?.param_internal_value
@@ -126,7 +126,7 @@ export const TrialTable: FC<{
           ?.value || null,
       sortable: attr_spec.sortable,
       filterable: false,
-      less: (firstEl, secondEl): number => {
+      less: (firstEl, secondEl, _): number => {
         const firstVal = firstEl.user_attrs.find(
           (attr) => attr.key === attr_spec.key
         )?.value

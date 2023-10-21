@@ -28,7 +28,7 @@ interface DataGridColumn<T> {
   field: keyof T
   label: string
   sortable?: boolean
-  less?: (a: T, b: T) => number
+  less?: (a: T, b: T, ascending: boolean) => number
   filterable?: boolean
   toCellValue?: (rowIndex: number) => string | React.ReactNode
   padding?: "normal" | "checkbox" | "none"
@@ -358,7 +358,8 @@ function stableSort<T>(
   const stabilizedThis = array.map((el, index) => [el, index] as [T, number])
   stabilizedThis.sort((a, b) => {
     if (less) {
-      const result = order == "asc" ? -less(a[0], b[0]) : less(a[0], b[0])
+      const ascending = order == "asc"
+      const result = ascending ? -less(a[0], b[0], ascending) : less(a[0], b[0], ascending)
       if (result !== 0) return result
     } else {
       const result = comparator(a[0], b[0])
