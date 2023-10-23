@@ -103,6 +103,7 @@ export const ThreejsArtifactViewer: React.FC<ThreejsArtifactViewerProps> = (
 
   return (
     <Canvas
+      frameloop="demand"
       camera={cameraSettings}
       style={{ width: props.width, height: props.height }}
     >
