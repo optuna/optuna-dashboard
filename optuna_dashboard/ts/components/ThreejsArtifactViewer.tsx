@@ -4,6 +4,7 @@ import { Canvas } from "@react-three/fiber"
 import { GizmoHelper, GizmoViewport, OrbitControls } from "@react-three/drei"
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader"
 import { Rhino3dmLoader } from "three/examples/jsm/loaders/3DMLoader"
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader"
 import { PerspectiveCamera } from "three"
 import { Modal, Box, useTheme } from "@mui/material"
 import ClearIcon from "@mui/icons-material/Clear"
@@ -11,7 +12,9 @@ import IconButton from "@mui/material/IconButton"
 
 export const isThreejsArtifact = (artifact: Artifact): boolean => {
   return (
-    artifact.filename.endsWith(".stl") || artifact.filename.endsWith(".3dm")
+    artifact.filename.endsWith(".stl") ||
+    artifact.filename.endsWith(".3dm") ||
+    artifact.filename.endsWith(".obj")
   )
 }
 
@@ -68,23 +71,11 @@ export const ThreejsArtifactViewer: React.FC<ThreejsArtifactViewerProps> = (
 
   useEffect(() => {
     if ("stl" === props.filetype) {
-      const stlLoader = new STLLoader()
-      stlLoader.load(props.src, (stlGeometries: THREE.BufferGeometry) => {
-        if (stlGeometries) {
-          handleLoadedGeometries([stlGeometries])
-        }
-      })
+      loadSTL(props, handleLoadedGeometries)
     } else if ("3dm" === props.filetype) {
-      const loader = new Rhino3dmLoader()
-      loader.setLibraryPath("https://cdn.jsdelivr.net/npm/rhino3dm@7.15.0/")
-      loader.load(props.src, (object: THREE.Object3D) => {
-        const meshes = object.children as THREE.Mesh[]
-        const rhinoGeometries = meshes.map((mesh) => mesh.geometry)
-        THREE.Object3D.DEFAULT_UP.set(0, 0, 1)
-        if (rhinoGeometries.length > 0) {
-          handleLoadedGeometries(rhinoGeometries)
-        }
-      })
+      loadRhino3dm(props, handleLoadedGeometries)
+    } else if ("obj" === props.filetype) {
+      loadOBJ(props, handleLoadedGeometries)
     }
   }, [])
 
@@ -187,4 +178,46 @@ export const useThreejsArtifactModal = (): [
     )
   }
   return [openModal, renderDeleteStudyDialog]
+}
+
+function loadSTL(
+  props: ThreejsArtifactViewerProps,
+  handleLoadedGeometries: (geometries: THREE.BufferGeometry[]) => THREE.Box3
+) {
+  const stlLoader = new STLLoader()
+  stlLoader.load(props.src, (stlGeometries: THREE.BufferGeometry) => {
+    if (stlGeometries) {
+      handleLoadedGeometries([stlGeometries])
+    }
+  })
+}
+
+function loadRhino3dm(
+  props: ThreejsArtifactViewerProps,
+  handleLoadedGeometries: (geometries: THREE.BufferGeometry[]) => THREE.Box3
+) {
+  const loader = new Rhino3dmLoader()
+  loader.setLibraryPath("https://cdn.jsdelivr.net/npm/rhino3dm@7.15.0/")
+  loader.load(props.src, (object: THREE.Object3D) => {
+    const meshes = object.children as THREE.Mesh[]
+    const rhinoGeometries = meshes.map((mesh) => mesh.geometry)
+    THREE.Object3D.DEFAULT_UP.set(0, 0, 1)
+    if (rhinoGeometries.length > 0) {
+      handleLoadedGeometries(rhinoGeometries)
+    }
+  })
+}
+
+function loadOBJ(
+  props: ThreejsArtifactViewerProps,
+  handleLoadedGeometries: (geometries: THREE.BufferGeometry[]) => THREE.Box3
+) {
+  const objLoader = new OBJLoader()
+  objLoader.load(props.src, (object: THREE.Object3D) => {
+    const meshes = object.children as THREE.Mesh[]
+    const objGeometries = meshes.map((mesh) => mesh.geometry)
+    if (objGeometries.length > 0) {
+      handleLoadedGeometries(objGeometries)
+    }
+  })
 }
