@@ -197,9 +197,9 @@ function loadRhino3dm(
   props: ThreejsArtifactViewerProps,
   handleLoadedGeometries: (geometries: THREE.BufferGeometry[]) => THREE.Box3
 ) {
-  const loader = new Rhino3dmLoader()
-  loader.setLibraryPath("https://cdn.jsdelivr.net/npm/rhino3dm@7.15.0/")
-  loader.load(props.src, (object: THREE.Object3D) => {
+  const rhino3dmLoader = new Rhino3dmLoader()
+  rhino3dmLoader.setLibraryPath("https://cdn.jsdelivr.net/npm/rhino3dm@7.15.0/")
+  rhino3dmLoader.load(props.src, (object: THREE.Object3D) => {
     const meshes = object.children as THREE.Mesh[]
     const rhinoGeometries = meshes.map((mesh) => mesh.geometry)
     THREE.Object3D.DEFAULT_UP.set(0, 0, 1)
