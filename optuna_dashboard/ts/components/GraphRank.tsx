@@ -21,8 +21,8 @@ const plotDomId = "graph-rank"
 interface AxisInfo {
   name: string
   range: [number, number]
-  is_log: boolean
-  is_cat: boolean
+  isLog: boolean
+  isCat: boolean
 }
 
 interface RankPlotInfo {
@@ -45,10 +45,10 @@ export const GraphRank: FC<{
   const [yParam, setYParam] = useState<SearchSpaceItem | null>(null)
   const objectiveNames: string[] = study?.objective_names || []
 
-  if (xParam == null && searchSpace.length > 0) {
+  if (xParam === null && searchSpace.length > 0) {
     setXParam(searchSpace[0])
   }
-  if (yParam == null && searchSpace.length > 1) {
+  if (yParam === null && searchSpace.length > 1) {
     setYParam(searchSpace[1])
   }
 
@@ -64,13 +64,12 @@ export const GraphRank: FC<{
     setYParam(param || null)
   }
 
-  const rankPlotInfo = getRankPlotInfo(study, objectiveId, xParam, yParam)
-
   useEffect(() => {
     if (study != null) {
+      const rankPlotInfo = getRankPlotInfo(study, objectiveId, xParam, yParam)
       plotRank(rankPlotInfo, theme.palette.mode)
     }
-  }, [study, theme.palette.mode])
+  }, [study, objectiveId, xParam, yParam, theme.palette.mode])
 
   const space: SearchSpaceItem[] = study ? study.union_search_space : []
 
@@ -146,19 +145,19 @@ const getRankPlotInfo = (
   }
 
   const trials = study.trials
-  const filtered_trials = trials.filter(filterFunc)
-  if (filtered_trials.length < 2 || xParam == null || yParam == null) {
+  const filteredTrials = trials.filter(filterFunc)
+  if (filteredTrials.length < 2 || xParam === null || yParam === null) {
     return null
   }
 
-  const xAxis = getAxisInfo(filtered_trials, xParam)
-  const yAxis = getAxisInfo(filtered_trials, yParam)
+  const xAxis = getAxisInfo(filteredTrials, xParam)
+  const yAxis = getAxisInfo(filteredTrials, yParam)
 
-  const xValues: number[] = []
-  const yValues: number[] = []
+  const xValues: (string | number)[] = []
+  const yValues: (string | number)[] = []
   const zValues: number[] = []
   const hovertext: string[] = []
-  filtered_trials.forEach((trial) => {
+  filteredTrials.forEach((trial) => {
     const xValue =
       trial.params.find((p) => p.name === xAxis.name)?.param_internal_value ||
       null
@@ -218,8 +217,8 @@ const getAxisInfoForCategorical = (
   return {
     name: param,
     range: [min, max],
-    is_log: false,
-    is_cat: true,
+    isLog: false,
+    isCat: true,
   }
 }
 
@@ -232,14 +231,14 @@ const getAxisInfoForNumerical = (
     (trial) =>
       trial.params.find((p) => p.name === param)?.param_internal_value || null
   )
-  const non_null_values: number[] = []
+  const nonNullValues: number[] = []
   values.forEach((value) => {
     if (value !== null) {
-      non_null_values.push(value)
+      nonNullValues.push(value)
     }
   })
-  let min = Math.min(...non_null_values)
-  let max = Math.max(...non_null_values)
+  let min = Math.min(...nonNullValues)
+  let max = Math.max(...nonNullValues)
   if (distribution.log) {
     const padding = (Math.log10(max) - Math.log10(min)) * PADDING_RATIO
     min = Math.pow(10, Math.log10(min) - padding)
@@ -253,58 +252,58 @@ const getAxisInfoForNumerical = (
   return {
     name: param,
     range: [min, max],
-    is_log: distribution.log,
-    is_cat: false,
+    isLog: distribution.log,
+    isCat: false,
   }
 }
 
 const getColors = (values: number[]): number[] => {
-  const raw_ranks = getOrderWithSameOrderAveraging(values)
-  let color_idxs: number[] = []
+  const rawRanks = getOrderWithSameOrderAveraging(values)
+  let colorIdxs: number[] = []
   if (values.length > 2) {
-    color_idxs = raw_ranks.map((rank) => rank / (values.length - 1))
+    colorIdxs = rawRanks.map((rank) => rank / (values.length - 1))
   } else {
-    color_idxs = [0.5]
+    colorIdxs = [0.5]
   }
-  return color_idxs
+  return colorIdxs
 }
 
 const getOrderWithSameOrderAveraging = (values: number[]): number[] => {
-  const sorted_values = values.slice().sort()
+  const sortedValues = values.slice().sort()
   const ranks: number[] = []
   values.forEach((value) => {
-    const first_index = sorted_values.indexOf(value)
-    const last_index = sorted_values.lastIndexOf(value)
-    const sum_of_the_value =
-      ((first_index + last_index) * (last_index - first_index + 1)) / 2
-    const rank = sum_of_the_value / (last_index - first_index + 1)
+    const firstIndex = sortedValues.indexOf(value)
+    const lastIndex = sortedValues.lastIndexOf(value)
+    const sumOfTheValue =
+      ((firstIndex + lastIndex) * (lastIndex - firstIndex + 1)) / 2
+    const rank = sumOfTheValue / (lastIndex - firstIndex + 1)
     ranks.push(rank)
   })
   return ranks
 }
 
-const plotRank = (rank_plot_info: RankPlotInfo | null, mode: string) => {
+const plotRank = (rankPlotInfo: RankPlotInfo | null, mode: string) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
 
-  if (rank_plot_info === null) {
+  if (rankPlotInfo === null) {
     plotly.react(plotDomId, [], {
       template: mode === "dark" ? plotlyDarkTemplate : {},
     })
     return
   }
 
-  const xAxis = rank_plot_info.xaxis
-  const yAxis = rank_plot_info.yaxis
+  const xAxis = rankPlotInfo.xaxis
+  const yAxis = rankPlotInfo.yaxis
   const layout: Partial<plotly.Layout> = {
     xaxis: {
       title: xAxis.name,
-      type: xAxis.is_cat ? "category" : xAxis.is_log ? "log" : "linear",
+      type: xAxis.isCat ? "category" : xAxis.isLog ? "log" : "linear",
     },
     yaxis: {
       title: yAxis.name,
-      type: yAxis.is_cat ? "category" : yAxis.is_log ? "log" : "linear",
+      type: yAxis.isCat ? "category" : yAxis.isLog ? "log" : "linear",
     },
     margin: {
       l: 50,
@@ -318,10 +317,10 @@ const plotRank = (rank_plot_info: RankPlotInfo | null, mode: string) => {
   const plotData: Partial<plotly.PlotData>[] = [
     {
       type: "scatter",
-      x: rank_plot_info.xvalues,
-      y: rank_plot_info.yvalues,
+      x: rankPlotInfo.xvalues,
+      y: rankPlotInfo.yvalues,
       marker: {
-        color: rank_plot_info.colors,
+        color: rankPlotInfo.colors,
         colorscale: "Portland",
         colorbar: {
           title: "Rank",
@@ -335,7 +334,7 @@ const plotRank = (rank_plot_info: RankPlotInfo | null, mode: string) => {
       mode: "markers",
       showlegend: false,
       hovertemplate: "%{hovertext}<extra></extra>",
-      hovertext: rank_plot_info.hovertext,
+      hovertext: rankPlotInfo.hovertext,
     },
   ]
   plotly.react(plotDomId, plotData, layout)
