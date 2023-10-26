@@ -5,11 +5,11 @@ What is Preferential Optimization?
 ----------------------------------
 
 Preferential optimization is a method for optimizing hyperparameters, focusing of human preferences, by determining which trial is superior when comparing a pair.
-It differs from `human-in-the-loop optimization utilizing objective form widgets <tutorial-hitl-objective-form-widgets>`_,
+It differs from :ref:`human-in-the-loop optimization utilizing objective form widgets <tutorial-hitl-objective-form-widgets>`,
 which relies on absolute evaluations, as it significantly reduces fluctuations in evaluators' criteria, thus ensuring more consistent results.
 
 In this tutorial, we'll interactively optimize RGB values to generate a color resembling a "sunset hue",
-aligining with the problem setting in `this tutorial <tutorial-hitl-objective-form-widgets>`_.
+aligining with the problem setting in :ref:`this tutorial <tutorial-hitl-objective-form-widgets>`.
 Familiarity with the tutorial ob objective form widgets may enhance your understanding.
 
 How to Run Preferential Optimization
