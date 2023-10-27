@@ -175,9 +175,25 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
       <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
         <Grid2 xs={6}>
           <Card>
-            {artifactEnabled && studyDetail !== null && (
-              <StudyArtifactCards study={studyDetail} />
-            )}
+            <CardContent
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{
+                  margin: "1em 0",
+                  fontWeight: theme.typography.fontWeightBold,
+                }}
+              >
+                Study Artifacts
+              </Typography>
+              {artifactEnabled && studyDetail !== null && (
+                <StudyArtifactCards study={studyDetail} />
+              )}
+            </CardContent>
           </Card>
         </Grid2>
       </Grid2>

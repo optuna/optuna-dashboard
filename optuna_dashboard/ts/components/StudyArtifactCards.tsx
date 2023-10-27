@@ -40,13 +40,6 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
 
   return (
     <>
-      <Typography
-        variant="h5"
-        sx={{ fontWeight: theme.typography.fontWeightBold }}
-      >
-        Study Artifacts Test
-      </Typography>
-
       <Box sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}>
         {study.artifacts.map((artifact) => {
           const urlPath = `/artifacts/${study.id}/${artifact.artifact_id}`
@@ -57,6 +50,7 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
                 marginBottom: theme.spacing(2),
                 width: width,
                 margin: theme.spacing(0, 1, 1, 0),
+                border: `1px solid ${theme.palette.divider}`,
               }}
             >
               <ArtifactCardMedia
