@@ -34,6 +34,9 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
     useDeleteArtifactDialog()
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
     useThreejsArtifactModal()
+  const isArtifactModifiable = (trial: Trial) => {
+    return trial.state === "Running" || trial.state === "Waiting"
+  }
 
   const width = "200px"
   const height = "150px"
@@ -75,11 +78,11 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
                     p: theme.spacing(0.5, 0),
                     flexGrow: 1,
                     wordWrap: "break-word",
-                    maxWidth: `calc(100% - ${
-                      isThreejsArtifact(artifact)
-                        ? theme.spacing(12)
-                        : theme.spacing(8)
-                    })`,
+                    maxWidth: `calc(100% - ${theme.spacing(
+                      4 +
+                        (isThreejsArtifact(artifact) ? 4 : 0) +
+                        (isArtifactModifiable(trial) ? 4 : 0)
+                    )})`,
                   }}
                 >
                   {artifact.filename}
@@ -97,21 +100,23 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
                     <FullscreenIcon />
                   </IconButton>
                 ) : null}
-                <IconButton
-                  aria-label="delete artifact"
-                  size="small"
-                  color="inherit"
-                  sx={{ margin: "auto 0" }}
-                  onClick={() => {
-                    openDeleteArtifactDialog(
-                      trial.study_id,
-                      trial.trial_id,
-                      artifact
-                    )
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
+                {isArtifactModifiable(trial) ? (
+                  <IconButton
+                    aria-label="delete artifact"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    onClick={() => {
+                      openDeleteArtifactDialog(
+                        trial.study_id,
+                        trial.trial_id,
+                        artifact
+                      )
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                ) : null}
                 <IconButton
                   aria-label="download artifact"
                   size="small"
@@ -126,7 +131,9 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
             </Card>
           )
         })}
-        <TrialArtifactUploader trial={trial} width={width} height={height} />
+        {isArtifactModifiable(trial) ? (
+          <TrialArtifactUploader trial={trial} width={width} height={height} />
+        ) : null}
       </Box>
       {renderDeleteArtifactDialog()}
       {renderThreejsArtifactModal()}
@@ -143,9 +150,6 @@ const TrialArtifactUploader: FC<{
   const action = actionCreator()
   const [dragOver, setDragOver] = useState<boolean>(false)
 
-  if (trial.state !== "Running" && trial.state !== "Waiting") {
-    return null
-  }
   const inputRef = useRef<HTMLInputElement>(null)
   const handleClick: MouseEventHandler = () => {
     if (!inputRef || !inputRef.current) {
