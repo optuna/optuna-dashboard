@@ -359,7 +359,9 @@ function stableSort<T>(
   stabilizedThis.sort((a, b) => {
     if (less) {
       const ascending = order == "asc"
-      const result = ascending ? -less(a[0], b[0], ascending) : less(a[0], b[0], ascending)
+      const result = ascending
+        ? -less(a[0], b[0], ascending)
+        : less(a[0], b[0], ascending)
       if (result !== 0) return result
     } else {
       const result = comparator(a[0], b[0])

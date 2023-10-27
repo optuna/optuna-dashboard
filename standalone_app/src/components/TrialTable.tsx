@@ -65,7 +65,7 @@ export const TrialTable: FC<{
             return 0
           }
           if (firstVal === undefined) {
-            return ascending ? -1 : 1 
+            return ascending ? -1 : 1
           } else if (secondVal === undefined) {
             return ascending ? 1 : -1
           }
