@@ -64,8 +64,7 @@ export const StudyList: FC<{
     return useMemo(() => new URLSearchParams(search), [search])
   }
   const query = useQuery()
-  const initialSortBy =
-    query.get("studies_order_by") === "desc" ? "desc" : "asc"
+  const initialSortBy = query.get("studies_order_by") === "asc" ? "asc" : "desc"
   const [sortBy, setSortBy] = useState<"asc" | "desc">(initialSortBy)
 
   let filteredStudies = studies.filter((s) => !studyFilter(s))
