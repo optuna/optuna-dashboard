@@ -159,10 +159,10 @@ const getRankPlotInfo = (
   const hovertext: string[] = []
   filteredTrials.forEach((trial) => {
     const xValue =
-      trial.params.find((p) => p.name === xAxis.name)?.param_internal_value ||
+      trial.params.find((p) => p.name === xAxis.name)?.param_external_value ||
       null
     const yValue =
-      trial.params.find((p) => p.name === yAxis.name)?.param_internal_value ||
+      trial.params.find((p) => p.name === yAxis.name)?.param_external_value ||
       null
     if (trial.values === undefined || xValue === null || yValue === null) {
       return
@@ -314,11 +314,42 @@ const plotRank = (rankPlotInfo: RankPlotInfo | null, mode: string) => {
     uirevision: "true",
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
+  
+  let xValues = rankPlotInfo.xvalues
+  let yValues = rankPlotInfo.yvalues
+  if (xAxis.isCat && !yAxis.isCat) {
+    const xIndices: number[] = Array
+      .from(Array(xValues.length).keys())
+      .sort((a, b) => xValues[a].toString().toLowerCase().localeCompare(xValues[b].toString().toLowerCase()))
+    xValues = xIndices.map((i) => xValues[i])
+    yValues = xIndices.map((i) => yValues[i])
+  }
+  if (!xAxis.isCat && yAxis.isCat) {
+    const yIndices: number[] = Array
+      .from(Array(yValues.length).keys())
+      .sort((a, b) => yValues[a].toString().toLowerCase().localeCompare(yValues[b].toString().toLowerCase()))
+    xValues = yIndices.map((i) => xValues[i])
+    yValues = yIndices.map((i) => yValues[i])
+  }
+  if (xAxis.isCat && yAxis.isCat) {
+    const indices: number[] = Array
+      .from(Array(xValues.length).keys())
+      .sort((a, b) => {
+        const xComp = xValues[a].toString().toLowerCase().localeCompare(xValues[b].toString().toLowerCase())
+        if (xComp !== 0) {
+          return xComp
+        }
+        return yValues[a].toString().toLowerCase().localeCompare(yValues[b].toString().toLowerCase())
+      })
+    xValues = indices.map((i) => xValues[i])
+    yValues = indices.map((i) => yValues[i])
+  }
+
   const plotData: Partial<plotly.PlotData>[] = [
     {
       type: "scatter",
-      x: rankPlotInfo.xvalues,
-      y: rankPlotInfo.yvalues,
+      x: xValues,
+      y: yValues,
       marker: {
         color: rankPlotInfo.colors,
         colorscale: "Portland",
