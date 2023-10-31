@@ -314,33 +314,47 @@ const plotRank = (rankPlotInfo: RankPlotInfo | null, mode: string) => {
     uirevision: "true",
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
-  
+
   let xValues = rankPlotInfo.xvalues
   let yValues = rankPlotInfo.yvalues
   if (xAxis.isCat && !yAxis.isCat) {
-    const xIndices: number[] = Array
-      .from(Array(xValues.length).keys())
-      .sort((a, b) => xValues[a].toString().toLowerCase().localeCompare(xValues[b].toString().toLowerCase()))
+    const xIndices: number[] = Array.from(Array(xValues.length).keys()).sort(
+      (a, b) =>
+        xValues[a]
+          .toString()
+          .toLowerCase()
+          .localeCompare(xValues[b].toString().toLowerCase())
+    )
     xValues = xIndices.map((i) => xValues[i])
     yValues = xIndices.map((i) => yValues[i])
   }
   if (!xAxis.isCat && yAxis.isCat) {
-    const yIndices: number[] = Array
-      .from(Array(yValues.length).keys())
-      .sort((a, b) => yValues[a].toString().toLowerCase().localeCompare(yValues[b].toString().toLowerCase()))
+    const yIndices: number[] = Array.from(Array(yValues.length).keys()).sort(
+      (a, b) =>
+        yValues[a]
+          .toString()
+          .toLowerCase()
+          .localeCompare(yValues[b].toString().toLowerCase())
+    )
     xValues = yIndices.map((i) => xValues[i])
     yValues = yIndices.map((i) => yValues[i])
   }
   if (xAxis.isCat && yAxis.isCat) {
-    const indices: number[] = Array
-      .from(Array(xValues.length).keys())
-      .sort((a, b) => {
-        const xComp = xValues[a].toString().toLowerCase().localeCompare(xValues[b].toString().toLowerCase())
+    const indices: number[] = Array.from(Array(xValues.length).keys()).sort(
+      (a, b) => {
+        const xComp = xValues[a]
+          .toString()
+          .toLowerCase()
+          .localeCompare(xValues[b].toString().toLowerCase())
         if (xComp !== 0) {
           return xComp
         }
-        return yValues[a].toString().toLowerCase().localeCompare(yValues[b].toString().toLowerCase())
-      })
+        return yValues[a]
+          .toString()
+          .toLowerCase()
+          .localeCompare(yValues[b].toString().toLowerCase())
+      }
+    )
     xValues = indices.map((i) => xValues[i])
     yValues = indices.map((i) => yValues[i])
   }
