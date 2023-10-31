@@ -98,7 +98,7 @@ const plotIntermediateValue = (
       mode: "lines+markers",
       type: "scatter",
       name,
-      ...(isFeasible && { line: { color: "#CCCCCC" } }),
+      ...(isFeasible && { line: { color: "#CCCCCC",  dash: "dash" } }),
     }
   })
   plotly.react(plotDomId, plotData, layout)
