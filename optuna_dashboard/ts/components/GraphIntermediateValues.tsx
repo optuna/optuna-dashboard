@@ -98,7 +98,7 @@ const plotIntermediateValue = (
           ? "(infeasible)"
           : ""
       }`,
-      ...(!isFeasible && { line: { color: "#CCCCCC", dash: "dash" } }),
+      ...(!isFeasible && { line: { color: "#CCCCCC" } }),
     }
   })
   plotly.react(plotDomId, plotData, layout)
