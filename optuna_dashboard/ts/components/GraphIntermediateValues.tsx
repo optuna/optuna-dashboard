@@ -85,20 +85,19 @@ const plotIntermediateValue = (
       (iv) => iv.value !== "inf" && iv.value !== "-inf" && iv.value !== "nan"
     )
     const isFeasible = trial.constraints.every((c) => c <= 0)
-    const name = `trial #${trial.number} ${
-      trial.state === "Running"
-        ? "(running)"
-        : !isFeasible
-        ? " (infeasible)"
-        : ""
-    }`
     return {
       x: values.map((iv) => iv.step),
       y: values.map((iv) => iv.value),
       marker: { maxdisplayed: 10 },
       mode: "lines+markers",
       type: "scatter",
-      name,
+      name: `trial #${trial.number} ${
+        trial.state === "Running"
+          ? "(running)"
+          : !isFeasible
+          ? "(infeasible)"
+          : ""
+      }`,
       ...(!isFeasible && { line: { color: "#CCCCCC", dash: "dash" } }),
     }
   })
