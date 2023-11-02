@@ -11,7 +11,7 @@ import { actionCreator } from "../action"
 
 export const useDeleteTrialArtifactDialog = (): [
   (studyId: number, trialId: number, artifact: Artifact) => void,
-  () => ReactNode,
+  () => ReactNode
 ] => {
   const action = actionCreator()
 
@@ -58,7 +58,7 @@ export const useDeleteTrialArtifactDialog = (): [
 
 export const useDeleteStudyArtifactDialog = (): [
   (studyId: number, artifact: Artifact) => void,
-  () => ReactNode,
+  () => ReactNode
 ] => {
   const action = actionCreator()
 
