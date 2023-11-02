@@ -92,12 +92,7 @@ const plotTimeline = (trials: Trial[], mode: string) => {
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
-  const traces: Partial<plotly.PlotData>[] = []
-  for (const s of Object.keys(cm) as TrialState[]) {
-    const bars = trials.filter((t) => t.state === s)
-    if (bars.length === 0) {
-      continue
-    }
+  const makeTrace = (bars: Trial[], name: string, color: string) => {
     const starts = bars.map((b) => b.datetime_start ?? new Date())
     const completes = bars.map((b, i) => b.datetime_complete ?? starts[i])
     const trace: Partial<plotly.PlotData> = {
@@ -106,14 +101,38 @@ const plotTimeline = (trials: Trial[], mode: string) => {
       y: bars.map((b) => b.number),
       // @ts-ignore: To suppress ts(2322)
       base: starts.map((s) => s.toISOString()),
-      name: s,
+      name: name,
       text: bars.map((b) => makeHovertext(b)),
-      hovertemplate: "%{text}<extra>" + s + "</extra>",
+      hovertemplate: "%{text}<extra>" + name + "</extra>",
       orientation: "h",
-      marker: { color: cm[s] },
+      marker: { color: color },
       textposition: "none", // Avoid drawing hovertext in a bar.
     }
-    traces.push(trace)
+    return trace
+  }
+
+  const traces: Partial<plotly.PlotData>[] = []
+  for (const s of Object.keys(cm) as TrialState[]) {
+    const bars = trials.filter((t) => t.state === s)
+    if (bars.length === 0) {
+      continue
+    }
+    if (s == "Complete") {
+      const feasibleTrials = bars.filter((t) =>
+        t.constraints.every((c) => c <= 0)
+      )
+      const infeasibleTrials = bars.filter((t) =>
+        t.constraints.some((c) => c > 0)
+      )
+      if (feasibleTrials.length > 0) {
+        traces.push(makeTrace(feasibleTrials, "Complete", cm[s]))
+      }
+      if (infeasibleTrials.length > 0) {
+        traces.push(makeTrace(infeasibleTrials, "Infeasible", "#cccccc"))
+      }
+    } else {
+      traces.push(makeTrace(bars, s, cm[s]))
+    }
   }
   plotly.react(plotDomId, traces, layout)
 }
