@@ -12,14 +12,16 @@ import {
   Box,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
-import { AxisInfo, getAxisInfo, makeHovertext } from "../graphUtil"
+import { getAxisInfo, makeHovertext } from "../graphUtil"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 
 const plotDomId = "graph-rank"
 
 interface RankPlotInfo {
-  xaxis: AxisInfo
-  yaxis: AxisInfo
+  xtitle: string
+  ytitle: string
+  xtype: plotly.AxisType
+  ytype: plotly.AxisType
   xvalues: (string | number)[]
   yvalues: (string | number)[]
   zvalues: number[]
@@ -146,8 +148,8 @@ const getRankPlotInfo = (
   const xAxis = getAxisInfo(filteredTrials, xParam)
   const yAxis = getAxisInfo(filteredTrials, yParam)
 
-  const xValues: (string | number)[] = []
-  const yValues: (string | number)[] = []
+  let xValues: (string | number)[] = []
+  let yValues: (string | number)[] = []
   const zValues: number[] = []
   const isFeasible: boolean[] = []
   const hovertext: string[] = []
@@ -167,9 +169,53 @@ const getRankPlotInfo = (
 
   const colors = getColors(zValues)
 
+  if (xAxis.isCat && !yAxis.isCat) {
+    const xIndices: number[] = Array.from(Array(xValues.length).keys()).sort(
+      (a, b) =>
+        xValues[a]
+          .toString()
+          .toLowerCase()
+          .localeCompare(xValues[b].toString().toLowerCase())
+    )
+    xValues = xIndices.map((i) => xValues[i])
+    yValues = xIndices.map((i) => yValues[i])
+  }
+  if (!xAxis.isCat && yAxis.isCat) {
+    const yIndices: number[] = Array.from(Array(yValues.length).keys()).sort(
+      (a, b) =>
+        yValues[a]
+          .toString()
+          .toLowerCase()
+          .localeCompare(yValues[b].toString().toLowerCase())
+    )
+    xValues = yIndices.map((i) => xValues[i])
+    yValues = yIndices.map((i) => yValues[i])
+  }
+  if (xAxis.isCat && yAxis.isCat) {
+    const indices: number[] = Array.from(Array(xValues.length).keys()).sort(
+      (a, b) => {
+        const xComp = xValues[a]
+          .toString()
+          .toLowerCase()
+          .localeCompare(xValues[b].toString().toLowerCase())
+        if (xComp !== 0) {
+          return xComp
+        }
+        return yValues[a]
+          .toString()
+          .toLowerCase()
+          .localeCompare(yValues[b].toString().toLowerCase())
+      }
+    )
+    xValues = indices.map((i) => xValues[i])
+    yValues = indices.map((i) => yValues[i])
+  }
+
   return {
-    xaxis: xAxis,
-    yaxis: yAxis,
+    xtitle: xAxis.name,
+    ytitle: yAxis.name,
+    xtype: xAxis.isCat ? "category" : xAxis.isLog ? "log" : "linear",
+    ytype: yAxis.isCat ? "category" : yAxis.isLog ? "log" : "linear",
     xvalues: xValues,
     yvalues: yValues,
     zvalues: zValues,
@@ -220,16 +266,14 @@ const plotRank = (rankPlotInfo: RankPlotInfo | null, mode: string) => {
     return
   }
 
-  const xAxis = rankPlotInfo.xaxis
-  const yAxis = rankPlotInfo.yaxis
   const layout: Partial<plotly.Layout> = {
     xaxis: {
-      title: xAxis.name,
-      type: xAxis.isCat ? "category" : xAxis.isLog ? "log" : "linear",
+      title: rankPlotInfo.xtitle,
+      type: rankPlotInfo.xtype,
     },
     yaxis: {
-      title: yAxis.name,
-      type: yAxis.isCat ? "category" : yAxis.isLog ? "log" : "linear",
+      title: rankPlotInfo.ytitle,
+      type: rankPlotInfo.ytype,
     },
     margin: {
       l: 50,
@@ -241,49 +285,8 @@ const plotRank = (rankPlotInfo: RankPlotInfo | null, mode: string) => {
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
-  let xValues = rankPlotInfo.xvalues
-  let yValues = rankPlotInfo.yvalues
-  if (xAxis.isCat && !yAxis.isCat) {
-    const xIndices: number[] = Array.from(Array(xValues.length).keys()).sort(
-      (a, b) =>
-        xValues[a]
-          .toString()
-          .toLowerCase()
-          .localeCompare(xValues[b].toString().toLowerCase())
-    )
-    xValues = xIndices.map((i) => xValues[i])
-    yValues = xIndices.map((i) => yValues[i])
-  }
-  if (!xAxis.isCat && yAxis.isCat) {
-    const yIndices: number[] = Array.from(Array(yValues.length).keys()).sort(
-      (a, b) =>
-        yValues[a]
-          .toString()
-          .toLowerCase()
-          .localeCompare(yValues[b].toString().toLowerCase())
-    )
-    xValues = yIndices.map((i) => xValues[i])
-    yValues = yIndices.map((i) => yValues[i])
-  }
-  if (xAxis.isCat && yAxis.isCat) {
-    const indices: number[] = Array.from(Array(xValues.length).keys()).sort(
-      (a, b) => {
-        const xComp = xValues[a]
-          .toString()
-          .toLowerCase()
-          .localeCompare(xValues[b].toString().toLowerCase())
-        if (xComp !== 0) {
-          return xComp
-        }
-        return yValues[a]
-          .toString()
-          .toLowerCase()
-          .localeCompare(yValues[b].toString().toLowerCase())
-      }
-    )
-    xValues = indices.map((i) => xValues[i])
-    yValues = indices.map((i) => yValues[i])
-  }
+  const xValues = rankPlotInfo.xvalues
+  const yValues = rankPlotInfo.yvalues
 
   const plotData: Partial<plotly.PlotData>[] = [
     {
