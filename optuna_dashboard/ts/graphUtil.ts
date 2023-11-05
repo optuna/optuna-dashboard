@@ -2,8 +2,6 @@ const PADDING_RATIO = 0.05
 
 export type AxisInfo = {
   name: string
-  min: number
-  max: number
   isLog: boolean
   isCat: boolean
   indices: (string | number)[]
@@ -42,11 +40,6 @@ const getAxisInfoForCategoricalParams = (
       trial.params.find((p) => p.name === paramName)?.param_external_value ||
       null
   )
-  const isDynamic = values.some((v) => v === null)
-  const span = distribution.choices.length - (isDynamic ? 2 : 1)
-  const padding = span * PADDING_RATIO
-  const min = -padding
-  const max = span + padding
 
   const indices = distribution.choices
     .map((c) => c.value)
@@ -59,8 +52,6 @@ const getAxisInfoForCategoricalParams = (
     )
   return {
     name: paramName,
-    min,
-    max,
     isLog: false,
     isCat: true,
     indices,
@@ -101,8 +92,6 @@ const getAxisInfoForNumericalParams = (
   }
   return {
     name: paramName,
-    min,
-    max,
     isLog: distribution.log,
     isCat: false,
     indices,
