@@ -12,18 +12,10 @@ import {
   Box,
 } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
-import { makeHovertext } from "../graphUtil"
+import { AxisInfo, getAxisInfo, makeHovertext } from "../graphUtil"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 
-const PADDING_RATIO = 0.05
 const plotDomId = "graph-rank"
-
-interface AxisInfo {
-  name: string
-  range: [number, number]
-  isLog: boolean
-  isCat: boolean
-}
 
 interface RankPlotInfo {
   xaxis: AxisInfo
@@ -159,23 +151,18 @@ const getRankPlotInfo = (
   const zValues: number[] = []
   const isFeasible: boolean[] = []
   const hovertext: string[] = []
-  filteredTrials.forEach((trial) => {
-    const xValue =
-      trial.params.find((p) => p.name === xAxis.name)?.param_external_value ||
-      null
-    const yValue =
-      trial.params.find((p) => p.name === yAxis.name)?.param_external_value ||
-      null
-    if (trial.values === undefined || xValue === null || yValue === null) {
-      return
+  filteredTrials.forEach((trial, i) => {
+    if (xAxis.values[i] && yAxis.values[i] && trial.values) {
+      const xValue = xAxis.values[i] as string | number
+      const yValue = yAxis.values[i] as string | number
+      xValues.push(xValue)
+      yValues.push(yValue)
+      const zValue = Number(trial.values[objectiveId])
+      zValues.push(zValue)
+      const feasibility = trial.constraints.every((c) => c <= 0)
+      isFeasible.push(feasibility)
+      hovertext.push(makeHovertext(trial))
     }
-    const zValue = Number(trial.values[objectiveId])
-    const feasibility = trial.constraints.every((c) => c <= 0)
-    xValues.push(xValue)
-    yValues.push(yValue)
-    zValues.push(zValue)
-    isFeasible.push(feasibility)
-    hovertext.push(makeHovertext(trial))
   })
 
   const colors = getColors(zValues)
@@ -194,72 +181,6 @@ const getRankPlotInfo = (
 
 const filterFunc = (trial: Trial): boolean => {
   return trial.state === "Complete" && trial.values !== undefined
-}
-
-const getAxisInfo = (trials: Trial[], param: SearchSpaceItem): AxisInfo => {
-  if (param.distribution.type === "CategoricalDistribution") {
-    return getAxisInfoForCategorical(trials, param.name, param.distribution)
-  } else {
-    return getAxisInfoForNumerical(trials, param.name, param.distribution)
-  }
-}
-
-const getAxisInfoForCategorical = (
-  trials: Trial[],
-  param: string,
-  distribution: CategoricalDistribution
-): AxisInfo => {
-  const values = trials.map(
-    (trial) =>
-      trial.params.find((p) => p.name === param)?.param_internal_value || null
-  )
-  const isDynamic = values.some((v) => v === null)
-  const span = distribution.choices.length - (isDynamic ? 2 : 1)
-  const padding = span * PADDING_RATIO
-  const min = -padding
-  const max = span + padding
-
-  return {
-    name: param,
-    range: [min, max],
-    isLog: false,
-    isCat: true,
-  }
-}
-
-const getAxisInfoForNumerical = (
-  trials: Trial[],
-  param: string,
-  distribution: FloatDistribution | IntDistribution
-): AxisInfo => {
-  const values = trials.map(
-    (trial) =>
-      trial.params.find((p) => p.name === param)?.param_internal_value || null
-  )
-  const nonNullValues: number[] = []
-  values.forEach((value) => {
-    if (value !== null) {
-      nonNullValues.push(value)
-    }
-  })
-  let min = Math.min(...nonNullValues)
-  let max = Math.max(...nonNullValues)
-  if (distribution.log) {
-    const padding = (Math.log10(max) - Math.log10(min)) * PADDING_RATIO
-    min = Math.pow(10, Math.log10(min) - padding)
-    max = Math.pow(10, Math.log10(max) + padding)
-  } else {
-    const padding = (max - min) * PADDING_RATIO
-    min = min - padding
-    max = max + padding
-  }
-
-  return {
-    name: param,
-    range: [min, max],
-    isLog: distribution.log,
-    isCat: false,
-  }
 }
 
 const getColors = (values: number[]): number[] => {

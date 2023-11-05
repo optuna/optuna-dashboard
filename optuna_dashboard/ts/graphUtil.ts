@@ -1,6 +1,6 @@
 const PADDING_RATIO = 0.05
 
-type AxisInfo = {
+export type AxisInfo = {
   name: string
   min: number
   max: number
