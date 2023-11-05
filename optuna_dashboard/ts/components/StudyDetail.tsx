@@ -27,6 +27,7 @@ import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { Contour } from "./GraphContour"
 import { GraphSlice } from "./GraphSlice"
 import { GraphEdf } from "./GraphEdf"
+import { GraphRank } from "./GraphRank"
 import { TrialList } from "./TrialList"
 import { StudyHistory } from "./StudyHistory"
 import { PreferentialTrials } from "./PreferentialTrials"
@@ -119,6 +120,11 @@ export const StudyDetail: FC<{
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
             <Contour study={studyDetail} />
+          </CardContent>
+        </Card>
+        <Card sx={{ margin: theme.spacing(2) }}>
+          <CardContent>
+            <GraphRank study={studyDetail} />
           </CardContent>
         </Card>
         <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
