@@ -24,7 +24,6 @@ interface RankPlotInfo {
   ytype: plotly.AxisType
   xvalues: (string | number)[]
   yvalues: (string | number)[]
-  zvalues: number[]
   colors: number[]
   is_feasible: boolean[]
   hovertext: string[]
@@ -170,15 +169,9 @@ const getRankPlotInfo = (
   const colors = getColors(zValues)
 
   if (xAxis.isCat && !yAxis.isCat) {
-    const xIndices: number[] = Array.from(Array(xValues.length).keys()).sort(
-      (a, b) =>
-        xValues[a]
-          .toString()
-          .toLowerCase()
-          .localeCompare(xValues[b].toString().toLowerCase())
-    )
-    xValues = xIndices.map((i) => xValues[i])
-    yValues = xIndices.map((i) => yValues[i])
+    const indices = xAxis.indices
+    xValues = indices.map((i: number) => xValues[i])
+    yValues = indices.map((i) => yValues[i])
   }
   if (!xAxis.isCat && yAxis.isCat) {
     const yIndices: number[] = Array.from(Array(yValues.length).keys()).sort(
@@ -218,7 +211,6 @@ const getRankPlotInfo = (
     ytype: yAxis.isCat ? "category" : yAxis.isLog ? "log" : "linear",
     xvalues: xValues,
     yvalues: yValues,
-    zvalues: zValues,
     colors,
     is_feasible: isFeasible,
     hovertext,
@@ -284,9 +276,6 @@ const plotRank = (rankPlotInfo: RankPlotInfo | null, mode: string) => {
     uirevision: "true",
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
-
-  const xValues = rankPlotInfo.xvalues
-  const yValues = rankPlotInfo.yvalues
 
   const plotData: Partial<plotly.PlotData>[] = [
     {
