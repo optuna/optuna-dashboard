@@ -92,7 +92,7 @@ const plotTimeline = (trials: Trial[], mode: string) => {
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
-  const makeTrace = (bars: Trial[], name: string, color: string) => {
+  const makeTrace = (bars: Trial[], state: string, color: string) => {
     const starts = bars.map((b) => b.datetime_start ?? new Date())
     const completes = bars.map((b, i) => b.datetime_complete ?? starts[i])
     const trace: Partial<plotly.PlotData> = {
@@ -101,9 +101,9 @@ const plotTimeline = (trials: Trial[], mode: string) => {
       y: bars.map((b) => b.number),
       // @ts-ignore: To suppress ts(2322)
       base: starts.map((s) => s.toISOString()),
-      name: name,
+      name: state,
       text: bars.map((b) => makeHovertext(b)),
-      hovertemplate: "%{text}<extra>" + name + "</extra>",
+      hovertemplate: "%{text}<extra>" + state + "</extra>",
       orientation: "h",
       marker: { color: color },
       textposition: "none", // Avoid drawing hovertext in a bar.
