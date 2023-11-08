@@ -117,7 +117,7 @@ const plotTimeline = (trials: Trial[], mode: string) => {
     if (bars.length === 0) {
       continue
     }
-    if (state == "Complete") {
+    if (state === "Complete") {
       const feasibleTrials = bars.filter((t) =>
         t.constraints.every((c) => c <= 0)
       )
