@@ -165,6 +165,60 @@ const makeMarker = (
   }
 }
 
+const getIsDominatedTrialND = (normalizedValues: number[][]) => {
+  // Fallback for straight-forward pareto front algorithm (O(N^2) complexity).
+  const dominatedTrials: boolean[] = []
+  normalizedValues.forEach((values0: number[], i: number) => {
+    const dominated = normalizedValues.some((values1: number[], j: number) => {
+      if (i === j) {
+        return false
+      }
+      return values0.every((value0: number, k: number) => {
+        return values1[k] <= value0
+      })
+    })
+    dominatedTrials.push(dominated)
+  })
+  return dominatedTrials
+}
+
+const getIsDominatedTrial2D = (normalizedValues: number[][]) => {
+  // Fast pareto front algorithm (O(N log N) complexity).
+  const sorted = normalizedValues
+    .map((values, i) => [values[0], values[1], i])
+    .sort()
+  let minValue1 = sorted[0][1]
+  const dominatedTrials: boolean[] = new Array(normalizedValues.length).fill(
+    true
+  )
+
+  sorted.forEach((values) => {
+    if (values[1] <= minValue1) {
+      dominatedTrials[values[2]] = false
+      minValue1 = values[1]
+    }
+  })
+  return dominatedTrials
+}
+
+const getIsDominatedTrial1D = (normalizedValues: number[][]) => {
+  const best_value = Math.min(...normalizedValues.map((values) => values[0]))
+  return normalizedValues.map((value) => value[0] !== best_value)
+}
+
+const getIsDominatedTrial = (normalizedValues: number[][]) => {
+  if (normalizedValues.length == 0) {
+    return []
+  }
+  if (normalizedValues[0].length == 1) {
+    return getIsDominatedTrial1D(normalizedValues)
+  } else if (normalizedValues[0].length == 2) {
+    return getIsDominatedTrial2D(normalizedValues)
+  } else {
+    return getIsDominatedTrialND(normalizedValues)
+  }
+}
+
 const plotParetoFront = (
   study: StudyDetail,
   objectiveXId: number,
@@ -218,18 +272,7 @@ const plotParetoFront = (
     }
   })
 
-  const dominatedTrials: boolean[] = []
-  normalizedValues.forEach((values0: number[], i: number) => {
-    const dominated = normalizedValues.some((values1: number[], j: number) => {
-      if (i === j) {
-        return false
-      }
-      return values0.every((value0: number, k: number) => {
-        return values1[k] <= value0
-      })
-    })
-    dominatedTrials.push(dominated)
-  })
+  const dominatedTrials: boolean[] = getIsDominatedTrial(normalizedValues)
 
   const plotData: Partial<plotly.PlotData>[] = [
     makeScatterObject(
