@@ -134,6 +134,5 @@ const plotTimeline = (trials: Trial[], mode: string) => {
       traces.push(makeTrace(bars, state, color))
     }
   }
-  }
   plotly.react(plotDomId, traces, layout)
 }
