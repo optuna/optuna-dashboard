@@ -196,57 +196,36 @@ const plotSlice = (
   )
 
   const trialNumbers: number[] = trials.map((t) => t.number)
-  if (selectedParamSpace.distribution.type !== "CategoricalDistribution") {
-    const trace: plotly.Data[] = [
-      {
-        type: "scatter",
-        x: values,
-        y: objectiveValues,
-        mode: "markers",
-        marker: {
-          color: trialNumbers,
-          colorscale: "Blues",
-          reversescale: true,
-          colorbar: {
-            title: "Trial",
-          },
-          line: {
-            color: "Grey",
-            width: 0.5,
-          },
+  const trace: plotly.Data[] = [
+    {
+      type: "scatter",
+      x: values,
+      y: objectiveValues,
+      mode: "markers",
+      marker: {
+        color: trialNumbers,
+        colorscale: "Blues",
+        reversescale: true,
+        colorbar: {
+          title: "Trial",
+        },
+        line: {
+          color: "Grey",
+          width: 0.5,
         },
       },
-    ]
+    },
+  ]
+  if (selectedParamSpace.distribution.type !== "CategoricalDistribution") {
     layout["xaxis"] = {
       title: selectedParamTarget.toLabel(),
       type: isLogScale(selectedParamSpace) ? "log" : "linear",
       gridwidth: 1,
       automargin: true, // Otherwise the label is outside of the plot
     }
-    plotly.react(plotDomId, trace, layout)
   } else {
     const vocabArr = selectedParamSpace.distribution.choices.map((c) => c.value)
     const tickvals: number[] = vocabArr.map((v, i) => i)
-    const trace: plotly.Data[] = [
-      {
-        type: "scatter",
-        x: values,
-        y: objectiveValues,
-        mode: "markers",
-        marker: {
-          color: trialNumbers,
-          colorscale: "Blues",
-          reversescale: true,
-          colorbar: {
-            title: "Trial",
-          },
-          line: {
-            color: "Grey",
-            width: 0.5,
-          },
-        },
-      },
-    ]
     layout["xaxis"] = {
       title: selectedParamTarget.toLabel(),
       type: "linear",
@@ -255,6 +234,6 @@ const plotSlice = (
       ticktext: vocabArr,
       automargin: true, // Otherwise the label is outside of the plot
     }
-    plotly.react(plotDomId, trace, layout)
   }
+  plotly.react(plotDomId, trace, layout)
 }
