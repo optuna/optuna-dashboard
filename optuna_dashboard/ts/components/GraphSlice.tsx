@@ -188,22 +188,38 @@ const plotSlice = (
     return
   }
 
-  const objectiveValues: number[] = trials.map(
+  const feasibleTrials: Trial[] = []
+  const infeasibleTrials: Trial[] = []
+  trials.forEach((t) => {
+    if (t.constraints.every((c) => c <= 0)) {
+      feasibleTrials.push(t)
+    } else {
+      infeasibleTrials.push(t)
+    }
+  })
+
+  const feasibleObjectiveValues: number[] = feasibleTrials.map(
     (t) => objectiveTarget.getTargetValue(t) as number
   )
-  const values = trials.map(
-    (t) => selectedParamTarget.getTargetValue(t) as number
+  const infeasibleObjectiveValues: number[] = infeasibleTrials.map(
+    (t) => objectiveTarget.getTargetValue(t) as number
   )
 
-  const trialNumbers: number[] = trials.map((t) => t.number)
+  const feasibleValues = feasibleTrials.map(
+    (t) => selectedParamTarget.getTargetValue(t) as number
+  )
+  const infeasibleValues = infeasibleTrials.map(
+    (t) => selectedParamTarget.getTargetValue(t) as number
+  )
   const trace: plotly.Data[] = [
     {
       type: "scatter",
-      x: values,
-      y: objectiveValues,
+      x: feasibleValues,
+      y: feasibleObjectiveValues,
       mode: "markers",
+      name: "Feasible Trial",
       marker: {
-        color: trialNumbers,
+        color: feasibleTrials.map((t) => t.number),
         colorscale: "Blues",
         reversescale: true,
         colorbar: {
@@ -213,6 +229,17 @@ const plotSlice = (
           color: "Grey",
           width: 0.5,
         },
+      },
+    },
+    {
+      type: "scatter",
+      x: infeasibleValues,
+      y: infeasibleObjectiveValues,
+      mode: "markers",
+      name: "Infeasible Trial",
+      marker: {
+        color: "#cccccc",
+        reversescale: true,
       },
     },
   ]
