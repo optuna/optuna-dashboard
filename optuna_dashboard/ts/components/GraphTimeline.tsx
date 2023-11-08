@@ -112,12 +112,12 @@ const plotTimeline = (trials: Trial[], mode: string) => {
   }
 
   const traces: Partial<plotly.PlotData>[] = []
-  for (const s of Object.keys(cm) as TrialState[]) {
-    const bars = trials.filter((t) => t.state === s)
+  for (const [state, color] of Object.entries(cm)) {
+    const bars = trials.filter((t) => t.state === state)
     if (bars.length === 0) {
       continue
     }
-    if (s == "Complete") {
+    if (state == "Complete") {
       const feasibleTrials = bars.filter((t) =>
         t.constraints.every((c) => c <= 0)
       )
@@ -125,14 +125,15 @@ const plotTimeline = (trials: Trial[], mode: string) => {
         t.constraints.some((c) => c > 0)
       )
       if (feasibleTrials.length > 0) {
-        traces.push(makeTrace(feasibleTrials, "Complete", cm[s]))
+        traces.push(makeTrace(feasibleTrials, "Complete", color))
       }
       if (infeasibleTrials.length > 0) {
         traces.push(makeTrace(infeasibleTrials, "Infeasible", "#cccccc"))
       }
     } else {
-      traces.push(makeTrace(bars, s, cm[s]))
+      traces.push(makeTrace(bars, state, color))
     }
+  }
   }
   plotly.react(plotDomId, traces, layout)
 }
