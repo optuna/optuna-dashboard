@@ -32,6 +32,7 @@ interface RankPlotInfo {
   yvalues: (string | number)[]
   zvalues: number[]
   colors: number[]
+  is_feasible: boolean[]
   hovertext: string[]
 }
 
@@ -156,6 +157,7 @@ const getRankPlotInfo = (
   const xValues: (string | number)[] = []
   const yValues: (string | number)[] = []
   const zValues: number[] = []
+  const isFeasible: boolean[] = []
   const hovertext: string[] = []
   filteredTrials.forEach((trial) => {
     const xValue =
@@ -168,9 +170,11 @@ const getRankPlotInfo = (
       return
     }
     const zValue = Number(trial.values[objectiveId])
+    const feasibility = trial.constraints.every((c) => c <= 0)
     xValues.push(xValue)
     yValues.push(yValue)
     zValues.push(zValue)
+    isFeasible.push(feasibility)
     hovertext.push(makeHovertext(trial))
   })
 
@@ -183,6 +187,7 @@ const getRankPlotInfo = (
     yvalues: yValues,
     zvalues: zValues,
     colors,
+    is_feasible: isFeasible,
     hovertext,
   }
 }
@@ -382,5 +387,10 @@ const plotRank = (rankPlotInfo: RankPlotInfo | null, mode: string) => {
       hovertext: rankPlotInfo.hovertext,
     },
   ]
+  for (let i = 0; i < plotData.length; i++) {
+    if(rankPlotInfo.is_feasible[i] == false){
+      plotData[i].marker.color = "#cccccc"
+    }
+  }
   plotly.react(plotDomId, plotData, layout)
 }
