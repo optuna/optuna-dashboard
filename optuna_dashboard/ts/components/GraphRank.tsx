@@ -370,7 +370,9 @@ const plotRank = (rankPlotInfo: RankPlotInfo | null, mode: string) => {
       x: xValues.filter((_, i) => rankPlotInfo.is_feasible[i]),
       y: yValues.filter((_, i) => rankPlotInfo.is_feasible[i]),
       marker: {
-        color: rankPlotInfo.colors.filter((_, i) => rankPlotInfo.is_feasible[i]),
+        color: rankPlotInfo.colors.filter(
+          (_, i) => rankPlotInfo.is_feasible[i]
+        ),
         colorscale: "Portland",
         colorbar: {
           title: "Rank",
@@ -382,10 +384,11 @@ const plotRank = (rankPlotInfo: RankPlotInfo | null, mode: string) => {
         },
       },
       mode: "markers",
-      name: "Feasible Trial",
       showlegend: false,
       hovertemplate: "%{hovertext}<extra></extra>",
-      hovertext: rankPlotInfo.hovertext.filter((_, i) => rankPlotInfo.is_feasible[i]),
+      hovertext: rankPlotInfo.hovertext.filter(
+        (_, i) => rankPlotInfo.is_feasible[i]
+      ),
     },
     {
       type: "scatter",
@@ -400,11 +403,12 @@ const plotRank = (rankPlotInfo: RankPlotInfo | null, mode: string) => {
         },
       },
       mode: "markers",
-      name: "Infeasible Trial",
       showlegend: false,
       hovertemplate: "%{hovertext}<extra></extra>",
-      hovertext: rankPlotInfo.hovertext.filter((_, i) => !rankPlotInfo.is_feasible[i]),
-    }
+      hovertext: rankPlotInfo.hovertext.filter(
+        (_, i) => !rankPlotInfo.is_feasible[i]
+      ),
+    },
   ]
   plotly.react(plotDomId, plotData, layout)
 }
