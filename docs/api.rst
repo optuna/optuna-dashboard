@@ -44,6 +44,8 @@ Preferential Optimization
    optuna_dashboard.preferential.create_study
    optuna_dashboard.preferential.load_study
    optuna_dashboard.preferential.PreferentialStudy
+   optuna_dashboard.preferential.samplers.gp.PreferentialGPSampler
+   optuna_dashboard.register_preference_feedback_component
 
 Streamlit
 -----------------

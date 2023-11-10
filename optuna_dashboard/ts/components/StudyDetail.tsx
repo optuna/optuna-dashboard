@@ -18,8 +18,8 @@ import { actionCreator } from "../action"
 import {
   reloadIntervalState,
   useStudyDetailValue,
+  useStudyIsPreferential,
   useStudyName,
-  useStudySummaryValue,
 } from "../state"
 import { TrialTable } from "./TrialTable"
 import { AppDrawer, PageId } from "./AppDrawer"
@@ -27,11 +27,13 @@ import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { Contour } from "./GraphContour"
 import { GraphSlice } from "./GraphSlice"
 import { GraphEdf } from "./GraphEdf"
+import { GraphRank } from "./GraphRank"
 import { TrialList } from "./TrialList"
 import { StudyHistory } from "./StudyHistory"
 import { PreferentialTrials } from "./PreferentialTrials"
 import { PreferenceHistory } from "./PreferenceHistory"
 import { PreferentialAnalytics } from "./PreferentialAnalytics"
+import { PreferentialGraph } from "./PreferentialGraph"
 
 interface ParamTypes {
   studyId: string
@@ -51,11 +53,9 @@ export const StudyDetail: FC<{
   const action = actionCreator()
   const studyId = useURLVars()
   const studyDetail = useStudyDetailValue(studyId)
-  const studySummary = useStudySummaryValue(studyId)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studyName = useStudyName(studyId)
-  const isPreferential =
-    studySummary?.is_preferential ?? studyDetail?.is_preferential ?? false
+  const isPreferential = useStudyIsPreferential(studyId)
 
   const title =
     studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
@@ -122,6 +122,11 @@ export const StudyDetail: FC<{
             <Contour study={studyDetail} />
           </CardContent>
         </Card>
+        <Card sx={{ margin: theme.spacing(2) }}>
+          <CardContent>
+            <GraphRank study={studyDetail} />
+          </CardContent>
+        </Card>
         <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
           Empirical Distribution of the Objective Value
         </Typography>
@@ -174,6 +179,17 @@ export const StudyDetail: FC<{
           latestNote={studyDetail.note}
           cardSx={{ flexGrow: 1 }}
         />
+      </Box>
+    )
+  } else if (page === "graph") {
+    content = (
+      <Box
+        sx={{
+          height: `calc(100vh - ${theme.spacing(8)})`,
+          padding: theme.spacing(2),
+        }}
+      >
+        <PreferentialGraph studyDetail={studyDetail} />
       </Box>
     )
   } else if (page == "preferenceHistory") {

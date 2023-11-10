@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import multiprocessing
 import pickle
+import sys
 from typing import Callable
 from unittest.mock import patch
 import uuid
@@ -20,6 +21,10 @@ import pytest
 
 from ..storage_supplier import parametrize_storages
 from ..storage_supplier import StorageSupplier
+
+
+if sys.version_info < (3, 8):
+    pytest.skip("BoTorch dropped Python3.7 support", allow_module_level=True)
 
 
 @parametrize_storages

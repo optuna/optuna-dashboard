@@ -14,6 +14,7 @@ from ._form_widget import TextInputWidget  # noqa
 from ._named_objectives import set_objective_names  # noqa
 from ._note import get_note  # noqa
 from ._note import save_note  # noqa
+from ._preference_setting import register_preference_feedback_component  # noqa
 
 
-__version__ = "0.13.0b1"
+__version__ = "0.13.0"
