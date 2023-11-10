@@ -11,15 +11,6 @@ import pytest
 from ...test_server import make_test_server
 
 
-def suggest_and_save_user_attr(study: optuna.Study) -> None:
-    trial = study.ask()
-    r = trial.suggest_int("r", 0, 255)
-    g = trial.suggest_int("g", 0, 255)
-    b = trial.suggest_int("b", 0, 255)
-
-    trial.set_user_attr("r+g+b", r + g + b)
-
-
 def make_test_storage() -> optuna.storages.InMemoryStorage:
     storage = optuna.storages.InMemoryStorage()
     sampler = optuna.samplers.RandomSampler(seed=0)
@@ -30,15 +21,12 @@ def make_test_storage() -> optuna.storages.InMemoryStorage:
         sampler=sampler,
     )
 
-    study.set_metric_names(["Looks like sunset color?"])
-
     register_objective_form_widgets(
         study,
         widgets=[
             ChoiceWidget(
                 choices=["Good", "So-so", "Bad"],
                 values=[-1, 0, 1],
-                description="Please input your score!",
             ),
         ],
     )
@@ -48,7 +36,7 @@ def make_test_storage() -> optuna.storages.InMemoryStorage:
         running_trials = study.get_trials(deepcopy=False, states=(TrialState.RUNNING,))
         if len(running_trials) >= n_batch:
             break
-        suggest_and_save_user_attr(study)
+        study.ask()
 
     return storage
 
