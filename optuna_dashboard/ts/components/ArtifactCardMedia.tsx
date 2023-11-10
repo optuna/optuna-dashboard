@@ -55,7 +55,8 @@ export const ArtifactCardMedia: FC<{
   } else if (
     artifact.mimetype === "chemical/x-pdb" ||
     artifact.mimetype === "chemical/x-mol2" ||
-    artifact.mimetype === "chemical/x-mdl-sdfile"
+    artifact.mimetype === "chemical/x-mdl-sdfile" ||
+    artifact.filename.endsWith(".pdb")
   ) {
     return (
       <AtomsArtifactViewer
