@@ -168,14 +168,12 @@ const makeMarker = (
 const getIsDominatedTrialND = (normalizedValues: number[][]) => {
   // Fallback for straight-forward pareto front algorithm (O(N^2) complexity).
   const dominatedTrials: boolean[] = []
-  normalizedValues.forEach((values0: number[], i: number) => {
-    const dominated = normalizedValues.some((values1: number[], j: number) => {
-      if (i === j) {
+  normalizedValues.forEach((values0: number[]) => {
+    const dominated = normalizedValues.some((values1: number[]) => {
+      if (values0.every((value0: number, k: number) => values1[k] === value0)) {
         return false
       }
-      return values0.every((value0: number, k: number) => {
-        return values1[k] <= value0
-      })
+      return values0.every((value0: number, k: number) => values1[k] <= value0)
     })
     dominatedTrials.push(dominated)
   })
@@ -186,7 +184,9 @@ const getIsDominatedTrial2D = (normalizedValues: number[][]) => {
   // Fast pareto front algorithm (O(N log N) complexity).
   const sorted = normalizedValues
     .map((values, i) => [values[0], values[1], i])
-    .sort()
+    .sort((a, b) => {
+      return a[0] - b[0]
+    })
   let minValue1 = sorted[0][1]
   const dominatedTrials: boolean[] = new Array(normalizedValues.length).fill(
     true
