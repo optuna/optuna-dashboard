@@ -53,3 +53,44 @@ class NoteTestCase(TestCase):
                 note_dict = note.get_note_from_system_attrs(system_attrs, trial._trial_id)
                 self.assertEqual(note_dict["body"], body)
                 self.assertEqual(note_dict["version"], expected_ver)
+
+    def test_delete_notes_trial(self) -> None:
+        study = optuna.create_study()
+        trial_1 = study.ask({"x1": optuna.distributions.FloatDistribution(0, 10)})
+        trial_2 = study.ask({"x1": optuna.distributions.FloatDistribution(0, 10)})
+        storage = study._storage
+
+        for trial, body in [(trial_1, "version 1"), (trial_2, "version 2")]:
+            save_note(trial, body)
+
+            # first assert existence
+            actual = get_note(trial)
+            self.assertEqual(actual, body)
+
+            # delete
+            note.delete_notes(storage, study._study_id, trial._trial_id)
+
+            # assert deletion
+            actual = get_note(trial)
+            self.assertEqual(actual, "")
+
+
+        note.delete_study_notes(storage, study._study_id)
+
+    def test_delete_notes_study(self) -> None:
+        pass
+
+    def test_transfer_notes(self) -> None:
+        study = optuna.create_study()
+        trial_1 = study.ask({"x1": optuna.distributions.FloatDistribution(0, 10)})
+        trial_2 = study.ask({"x2": optuna.distributions.FloatDistribution(0, 10)})
+        storage = study._storage
+
+        save_note(trial_1, "trial 1")
+        save_note(trial_2, "trial 2")
+
+        new_study = optuna.create_study(
+            storage=storage, directions=study.directions
+        )
+        note.transfer_notes(storage, study, new_study)
+

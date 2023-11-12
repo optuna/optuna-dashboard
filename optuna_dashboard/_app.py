@@ -164,7 +164,8 @@ def create_app(
         if new_study_summary is None:
             response.status = 500
             return {"reason": "Failed to load the new study"}
-
+        
+        note.transfer_notes(storage, src_study, dst_study)
         storage.delete_study(src_study._study_id)
         response.status = 201
         return serialize_study_summary(new_study_summary)
@@ -176,6 +177,7 @@ def create_app(
             delete_all_artifacts(artifact_store, storage, study_id)
 
         try:
+            note.delete_study_notes(storage, study_id)
             storage.delete_study(study_id)
         except KeyError:
             response.status = 404  # Not found
