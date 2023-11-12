@@ -195,12 +195,16 @@ const plotContour = (
   const xValues: plotly.Datum[] = []
   const yValues: plotly.Datum[] = []
   const zValues: plotly.Datum[][] = new Array(yIndices.length)
+  const feasibleXY = new Set<number>()
   for (let j = 0; j < yIndices.length; j++) {
     zValues[j] = new Array(xIndices.length).fill(null)
   }
 
   filteredTrials.forEach((trial, i) => {
     if (xAxis.values[i] && yAxis.values[i] && trial.values) {
+      if (trial.constraints.every((c) => c <= 0)) {
+        feasibleXY.add(xValues.length)
+      }
       const xValue = xAxis.values[i] as string | number
       const yValue = yAxis.values[i] as string | number
       xValues.push(xValue)
@@ -234,9 +238,17 @@ const plotContour = (
       },
       {
         type: "scatter",
-        x: xValues,
-        y: yValues,
+        x: xValues.filter((_, i) => feasibleXY.has(i)),
+        y: yValues.filter((_, i) => feasibleXY.has(i)),
         marker: { line: { width: 2.0, color: "Grey" }, color: "black" },
+        mode: "markers",
+        showlegend: false,
+      },
+      {
+        type: "scatter",
+        x: xValues.filter((_, i) => !feasibleXY.has(i)),
+        y: yValues.filter((_, i) => !feasibleXY.has(i)),
+        marker: { line: { width: 2.0, color: "Grey" }, color: "#cccccc" },
         mode: "markers",
         showlegend: false,
       },
