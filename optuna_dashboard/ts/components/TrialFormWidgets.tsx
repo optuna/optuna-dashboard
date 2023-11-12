@@ -45,12 +45,12 @@ export const TrialFormWidgets: FC<{
       ? "Set Objective Values Form"
       : "Set Objective Value Form"
   const widgetNames = formWidgets.widgets.map((widget, i) => {
-    if (formWidgets.output_type == "objective") {
+    if (formWidgets.output_type === "objective") {
       if (objectiveNames.at(i) !== undefined) {
         return objectiveNames[i]
       }
-      return directions.length == 1 ? "Objective" : `Objective ${i}`
-    } else if (formWidgets.output_type == "user_attr") {
+      return directions.length === 1 ? "Objective" : `Objective ${i}`
+    } else if (formWidgets.output_type === "user_attr") {
       if (widget.type !== "user_attr" && widget.user_attr_key !== undefined) {
         return widget.user_attr_key
       }
@@ -118,13 +118,13 @@ const UpdatableFormWidgets: FC<{
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>): void => {
     e.preventDefault()
     const values = widgetStates.map((ws) => ws.value)
-    if (formWidgets.output_type == "objective") {
+    if (formWidgets.output_type === "objective") {
       const filtered = values.filter<number>((v): v is number => v !== null)
       if (filtered.length !== formWidgets.widgets.length) {
         return
       }
       action.makeTrialComplete(trial.study_id, trial.trial_id, filtered)
-    } else if (formWidgets.output_type == "user_attr") {
+    } else if (formWidgets.output_type === "user_attr") {
       const user_attrs = Object.fromEntries(
         formWidgets.widgets.map((widget, i) => [
           widget.user_attr_key,
@@ -433,7 +433,7 @@ const ReadonlyFormWidgets: FC<{
                     max={widget.max}
                     step={widget.step}
                     marks={
-                      widget.labels === null || widget.labels.length == 0
+                      widget.labels === null || widget.labels.length === 0
                         ? true
                         : widget.labels
                     }

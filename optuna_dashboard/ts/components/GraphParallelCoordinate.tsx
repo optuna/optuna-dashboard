@@ -164,7 +164,7 @@ const plotCoordinate = (
     return truncated
       .split("")
       .map((c, i) => {
-        return (i + 1) % breakLength == 0 ? c + "<br>" : c
+        return (i + 1) % breakLength === 0 ? c + "<br>" : c
       })
       .join("")
   }

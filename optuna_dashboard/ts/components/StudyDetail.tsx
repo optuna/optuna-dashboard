@@ -192,7 +192,7 @@ export const StudyDetail: FC<{
         <PreferentialGraph studyDetail={studyDetail} />
       </Box>
     )
-  } else if (page == "preferenceHistory") {
+  } else if (page === "preferenceHistory") {
     content = <PreferenceHistory studyDetail={studyDetail} />
   }
 

@@ -154,7 +154,7 @@ export const actionCreator = () => {
           currentValue > bestValue
         ) {
           newStudy.best_trials = [newTrial]
-        } else if (currentValue == bestValue) {
+        } else if (currentValue === bestValue) {
           newStudy.best_trials = [...newStudy.best_trials, newTrial]
         }
       }
