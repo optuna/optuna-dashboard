@@ -153,9 +153,9 @@ const getRankPlotInfo = (
   const isFeasible: boolean[] = []
   const hovertext: string[] = []
   filteredTrials.forEach((trial, i) => {
-    if (xAxis.values[i] && yAxis.values[i] && trial.values) {
-      const xValue = xAxis.values[i] as string | number
-      const yValue = yAxis.values[i] as string | number
+    const xValue = xAxis.values[i]
+    const yValue = yAxis.values[i]
+    if (xValue && yValue && trial.values) {
       xValues.push(xValue)
       yValues.push(yValue)
       const zValue = Number(trial.values[objectiveId])
@@ -169,22 +169,26 @@ const getRankPlotInfo = (
   const colors = getColors(zValues)
 
   if (xAxis.isCat && !yAxis.isCat) {
-    const indices = xAxis.indices
-    xValues = indices.map((i: number) => xValues[i])
+    const indices: number[] = Array.from(Array(xValues.length).keys()).sort(
+      (a, b) =>
+        xValues[a]
+          .toString()
+          .toLowerCase()
+          .localeCompare(xValues[b].toString().toLowerCase())
+    )
+    xValues = indices.map((i) => xValues[i])
     yValues = indices.map((i) => yValues[i])
-  }
-  if (!xAxis.isCat && yAxis.isCat) {
-    const yIndices: number[] = Array.from(Array(yValues.length).keys()).sort(
+  } else if (!xAxis.isCat && yAxis.isCat) {
+    const indices: number[] = Array.from(Array(yValues.length).keys()).sort(
       (a, b) =>
         yValues[a]
           .toString()
           .toLowerCase()
           .localeCompare(yValues[b].toString().toLowerCase())
     )
-    xValues = yIndices.map((i) => xValues[i])
-    yValues = yIndices.map((i) => yValues[i])
-  }
-  if (xAxis.isCat && yAxis.isCat) {
+    xValues = indices.map((i) => xValues[i])
+    yValues = indices.map((i) => yValues[i])
+  } else if (xAxis.isCat && yAxis.isCat) {
     const indices: number[] = Array.from(Array(xValues.length).keys()).sort(
       (a, b) => {
         const xComp = xValues[a]
