@@ -15,6 +15,7 @@ import {
   useTheme,
 } from "@mui/material"
 import { styled } from "@mui/system"
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import FilterListIcon from "@mui/icons-material/FilterList"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
@@ -61,8 +62,16 @@ function DataGrid<T>(props: {
   const [orderBy, setOrderBy] = React.useState<number>(0) // index of columns
   const [page, setPage] = React.useState(0)
   const [filters, setFilters] = React.useState<RowFilter[]>([])
-  const [filterMenuAnchorEls, setFilterMenuAnchorEls] =
-    React.useState(new Array(columns.length).fill(null))
+  const [filterMenuAnchorEls, setFilterMenuAnchorEls] = React.useState(
+    new Array(columns.length).fill(null)
+  )
+  const [filteringMenus, setFilteringMenus] = React.useState<
+    (HTMLElement | null)[][]
+  >(
+    columns.map((column) =>
+      column.filterChoices ? Array(column.filterChoices.length).fill(null) : []
+    )
+  )
 
   const getRowIndex = (row: T): number => {
     return rows.findIndex((row2) => row[keyField] === row2[keyField])
@@ -73,8 +82,8 @@ function DataGrid<T>(props: {
   initialRowsPerPage = initialRowsPerPage // use first element as default
     ? initialRowsPerPage
     : isNumber(rowsPerPageOption[0])
-      ? rowsPerPageOption[0]
-      : rowsPerPageOption[0].value
+    ? rowsPerPageOption[0]
+    : rowsPerPageOption[0].value
   const [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage)
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -111,19 +120,19 @@ function DataGrid<T>(props: {
     return filters.length === 0
       ? true
       : filters.some((f) => {
-        if (columns.length <= f.columnIdx) {
-          console.log(
-            `columnIdx=${f.columnIdx} must be smaller than columns.length=${columns.length}`
-          )
-          return true
-        }
-        const toCellValue = columns[f.columnIdx].toCellValue
-        if (toCellValue !== undefined) {
-          return toCellValue(rowIdx) === f.value
-        }
-        const field = columns[f.columnIdx].field
-        return row[field] === f.value
-      })
+          if (columns.length <= f.columnIdx) {
+            console.log(
+              `columnIdx=${f.columnIdx} must be smaller than columns.length=${columns.length}`
+            )
+            return true
+          }
+          const toCellValue = columns[f.columnIdx].toCellValue
+          if (toCellValue !== undefined) {
+            return toCellValue(rowIdx) === f.value
+          }
+          const field = columns[f.columnIdx].field
+          return row[field] === f.value
+        })
   })
 
   // Sorting
@@ -213,12 +222,18 @@ function DataGrid<T>(props: {
                       <div>
                         <IconButton
                           aria-controls={
-                            filterMenuAnchorEls[columnIdx] ? `filter-${column.label}` : undefined
+                            filterMenuAnchorEls[columnIdx]
+                              ? `filter-${column.label}`
+                              : undefined
                           }
                           aria-haspopup="true"
-                          aria-expanded={filterMenuAnchorEls[columnIdx] ? "true" : undefined}
+                          aria-expanded={
+                            filterMenuAnchorEls[columnIdx] ? "true" : undefined
+                          }
                           onClick={(e) => {
-                            let newFilterMenuAnchorEls = Array(...filterMenuAnchorEls)
+                            const newFilterMenuAnchorEls = Array(
+                              ...filterMenuAnchorEls
+                            )
                             newFilterMenuAnchorEls[columnIdx] = e.currentTarget
                             setFilterMenuAnchorEls(newFilterMenuAnchorEls)
                           }}
@@ -230,19 +245,36 @@ function DataGrid<T>(props: {
                           id={`filter-${column.label}`}
                           open={Boolean(filterMenuAnchorEls[columnIdx])}
                           onClose={() => {
-                            let newFilterMenuAnchorEls = Array(...filterMenuAnchorEls)
+                            const newFilterMenuAnchorEls = Array(
+                              ...filterMenuAnchorEls
+                            )
                             newFilterMenuAnchorEls[columnIdx] = null
                             setFilterMenuAnchorEls(newFilterMenuAnchorEls)
                           }}
                         >
-                          {column.filterChoices.map((choice, _) => (
+                          {column.filterChoices.map((choice, i) => (
                             <MenuItem
                               key={choice}
-                              // TODO: Apply the setState here.
-                              onClick={() => {}}
+                              onClick={(e) => {
+                                const newFilteringMenus = filteringMenus.map(
+                                  (filteringMenu) => filteringMenu.slice()
+                                )
+                                if (newFilteringMenus[columnIdx].length > i) {
+                                  newFilteringMenus[columnIdx][i] =
+                                    newFilteringMenus[columnIdx][i]
+                                      ? null
+                                      : e.currentTarget
+                                }
+                                setFilteringMenus(newFilteringMenus)
+                              }}
                             >
                               <ListItemIcon>
-                                <CheckBoxIcon color="primary" />
+                                {filteringMenus[columnIdx].length > i &&
+                                filteringMenus[columnIdx][i] ? (
+                                  <CheckBoxOutlineBlankIcon color="primary" />
+                                ) : (
+                                  <CheckBoxIcon color="primary" />
+                                )}
                               </ListItemIcon>
                               {choice}
                             </MenuItem>
@@ -330,7 +362,7 @@ function DataGridRow<T>(props: {
           const cellItem = column.toCellValue
             ? column.toCellValue(rowIndex)
             : // TODO(c-bata): Avoid this implicit type conversion.
-            (row[column.field] as number | string | null | undefined)
+              (row[column.field] as number | string | null | undefined)
 
           return column.filterable ? (
             <TableCell
