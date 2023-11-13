@@ -21,7 +21,6 @@ import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { Clear } from "@mui/icons-material"
-import { trialsUpdatingState } from "../state"
 
 type Order = "asc" | "desc"
 
@@ -30,20 +29,13 @@ type Value = any
 
 const defaultRowsPerPageOption = [10, 50, 100, { label: "All", value: -1 }]
 
-const states: TrialState[] = [
-  "Complete",
-  "Pruned",
-  "Fail",
-  "Running",
-  "Waiting",
-]
-
 interface DataGridColumn<T> {
   field: keyof T
   label: string
   sortable?: boolean
   less?: (a: T, b: T, ascending: boolean) => number
   filterable?: boolean
+  filterChoices?: string[]
   toCellValue?: (rowIndex: number) => string | React.ReactNode
   padding?: "normal" | "checkbox" | "none"
 }
@@ -53,7 +45,7 @@ interface RowFilter {
   value: Value
 }
 
-function DataGrid<T extends object>(props: {
+function DataGrid<T>(props: {
   columns: DataGridColumn<T>[]
   rows: T[]
   keyField: keyof T
@@ -69,9 +61,8 @@ function DataGrid<T extends object>(props: {
   const [orderBy, setOrderBy] = React.useState<number>(0) // index of columns
   const [page, setPage] = React.useState(0)
   const [filters, setFilters] = React.useState<RowFilter[]>([])
-  const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
-    React.useState<null | HTMLElement>(null)
-  const openFilterMenu = Boolean(filterMenuAnchorEl)
+  const [filterMenuAnchorEls, setFilterMenuAnchorEls] =
+    React.useState(new Array(columns.length).fill(null))
 
   const getRowIndex = (row: T): number => {
     return rows.findIndex((row2) => row[keyField] === row2[keyField])
@@ -134,7 +125,6 @@ function DataGrid<T extends object>(props: {
         return row[field] === f.value
       })
   })
-  const trialCounts = states.map((state) => filteredRows.filter((row) => "state" in row ? row.state === state : false).length)
 
   // Sorting
   const createSortHandler = (columnId: number) => () => {
@@ -219,40 +209,42 @@ function DataGrid<T extends object>(props: {
                         <Clear />
                       </IconButton>
                     ) : null}
-                    {column.label === "State" ? (
+                    {column.filterChoices ? (
                       <div>
                         <IconButton
-                          aria-label="Filter"
                           aria-controls={
-                            openFilterMenu ? "filter-trials" : undefined
+                            filterMenuAnchorEls[columnIdx] ? `filter-${column.label}` : undefined
                           }
                           aria-haspopup="true"
-                          aria-expanded={openFilterMenu ? "true" : undefined}
+                          aria-expanded={filterMenuAnchorEls[columnIdx] ? "true" : undefined}
                           onClick={(e) => {
-                            setFilterMenuAnchorEl(e.currentTarget)
+                            let newFilterMenuAnchorEls = Array(...filterMenuAnchorEls)
+                            newFilterMenuAnchorEls[columnIdx] = e.currentTarget
+                            setFilterMenuAnchorEls(newFilterMenuAnchorEls)
                           }}
                         >
                           <FilterListIcon fontSize="small" />
                         </IconButton>
                         <Menu
-                          anchorEl={filterMenuAnchorEl}
-                          id="filter-trials"
-                          open={openFilterMenu}
+                          anchorEl={filterMenuAnchorEls[columnIdx]}
+                          id={`filter-${column.label}`}
+                          open={Boolean(filterMenuAnchorEls[columnIdx])}
                           onClose={() => {
-                            setFilterMenuAnchorEl(null)
+                            let newFilterMenuAnchorEls = Array(...filterMenuAnchorEls)
+                            newFilterMenuAnchorEls[columnIdx] = null
+                            setFilterMenuAnchorEls(newFilterMenuAnchorEls)
                           }}
                         >
-                          {states.map((state, i) => (
+                          {column.filterChoices.map((choice, _) => (
                             <MenuItem
-                              key={state}
+                              key={choice}
                               // TODO: Apply the setState here.
                               onClick={() => {}}
-                              disabled={trialCounts[i] === 0}
                             >
                               <ListItemIcon>
                                 <CheckBoxIcon color="primary" />
                               </ListItemIcon>
-                              {state} ({trialCounts[i]})
+                              {choice}
                             </MenuItem>
                           ))}
                         </Menu>

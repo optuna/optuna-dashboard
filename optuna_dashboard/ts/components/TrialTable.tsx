@@ -19,6 +19,7 @@ export const TrialTable: FC<{
       label: "State",
       sortable: true,
       filterable: true,
+      filterChoices: ["Complete", "Pruned", "Fail", "Running", "Waiting"],
       padding: "none",
       toCellValue: (i) => trials[i].state.toString(),
     },
