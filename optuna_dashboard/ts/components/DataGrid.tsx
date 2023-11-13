@@ -10,12 +10,18 @@ import {
   TableSortLabel,
   Collapse,
   IconButton,
+  Menu,
+  MenuItem,
   useTheme,
 } from "@mui/material"
 import { styled } from "@mui/system"
+import CheckBoxIcon from "@mui/icons-material/CheckBox"
+import FilterListIcon from "@mui/icons-material/FilterList"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp"
+import ListItemIcon from "@mui/material/ListItemIcon"
 import { Clear } from "@mui/icons-material"
+import { trialsUpdatingState } from "../state"
 
 type Order = "asc" | "desc"
 
@@ -23,6 +29,14 @@ type Order = "asc" | "desc"
 type Value = any
 
 const defaultRowsPerPageOption = [10, 50, 100, { label: "All", value: -1 }]
+
+const states: TrialState[] = [
+  "Complete",
+  "Pruned",
+  "Fail",
+  "Running",
+  "Waiting",
+]
 
 interface DataGridColumn<T> {
   field: keyof T
@@ -39,7 +53,7 @@ interface RowFilter {
   value: Value
 }
 
-function DataGrid<T>(props: {
+function DataGrid<T extends object>(props: {
   columns: DataGridColumn<T>[]
   rows: T[]
   keyField: keyof T
@@ -55,6 +69,9 @@ function DataGrid<T>(props: {
   const [orderBy, setOrderBy] = React.useState<number>(0) // index of columns
   const [page, setPage] = React.useState(0)
   const [filters, setFilters] = React.useState<RowFilter[]>([])
+  const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
+    React.useState<null | HTMLElement>(null)
+  const openFilterMenu = Boolean(filterMenuAnchorEl)
 
   const getRowIndex = (row: T): number => {
     return rows.findIndex((row2) => row[keyField] === row2[keyField])
@@ -65,8 +82,8 @@ function DataGrid<T>(props: {
   initialRowsPerPage = initialRowsPerPage // use first element as default
     ? initialRowsPerPage
     : isNumber(rowsPerPageOption[0])
-    ? rowsPerPageOption[0]
-    : rowsPerPageOption[0].value
+      ? rowsPerPageOption[0]
+      : rowsPerPageOption[0].value
   const [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage)
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -103,20 +120,21 @@ function DataGrid<T>(props: {
     return filters.length === 0
       ? true
       : filters.some((f) => {
-          if (columns.length <= f.columnIdx) {
-            console.log(
-              `columnIdx=${f.columnIdx} must be smaller than columns.length=${columns.length}`
-            )
-            return true
-          }
-          const toCellValue = columns[f.columnIdx].toCellValue
-          if (toCellValue !== undefined) {
-            return toCellValue(rowIdx) === f.value
-          }
-          const field = columns[f.columnIdx].field
-          return row[field] === f.value
-        })
+        if (columns.length <= f.columnIdx) {
+          console.log(
+            `columnIdx=${f.columnIdx} must be smaller than columns.length=${columns.length}`
+          )
+          return true
+        }
+        const toCellValue = columns[f.columnIdx].toCellValue
+        if (toCellValue !== undefined) {
+          return toCellValue(rowIdx) === f.value
+        }
+        const field = columns[f.columnIdx].field
+        return row[field] === f.value
+      })
   })
+  const trialCounts = states.map((state) => filteredRows.filter((row) => "state" in row ? row.state === state : false).length)
 
   // Sorting
   const createSortHandler = (columnId: number) => () => {
@@ -201,6 +219,45 @@ function DataGrid<T>(props: {
                         <Clear />
                       </IconButton>
                     ) : null}
+                    {column.label === "State" ? (
+                      <div>
+                        <IconButton
+                          aria-label="Filter"
+                          aria-controls={
+                            openFilterMenu ? "filter-trials" : undefined
+                          }
+                          aria-haspopup="true"
+                          aria-expanded={openFilterMenu ? "true" : undefined}
+                          onClick={(e) => {
+                            setFilterMenuAnchorEl(e.currentTarget)
+                          }}
+                        >
+                          <FilterListIcon fontSize="small" />
+                        </IconButton>
+                        <Menu
+                          anchorEl={filterMenuAnchorEl}
+                          id="filter-trials"
+                          open={openFilterMenu}
+                          onClose={() => {
+                            setFilterMenuAnchorEl(null)
+                          }}
+                        >
+                          {states.map((state, i) => (
+                            <MenuItem
+                              key={state}
+                              // TODO: Apply the setState here.
+                              onClick={() => {}}
+                              disabled={trialCounts[i] === 0}
+                            >
+                              <ListItemIcon>
+                                <CheckBoxIcon color="primary" />
+                              </ListItemIcon>
+                              {state} ({trialCounts[i]})
+                            </MenuItem>
+                          ))}
+                        </Menu>
+                      </div>
+                    ) : null}
                   </TableHeaderCellSpan>
                 </TableCell>
               ))}
@@ -281,7 +338,7 @@ function DataGridRow<T>(props: {
           const cellItem = column.toCellValue
             ? column.toCellValue(rowIndex)
             : // TODO(c-bata): Avoid this implicit type conversion.
-              (row[column.field] as number | string | null | undefined)
+            (row[column.field] as number | string | null | undefined)
 
           return column.filterable ? (
             <TableCell
