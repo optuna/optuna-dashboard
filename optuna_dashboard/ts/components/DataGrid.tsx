@@ -65,11 +65,9 @@ function DataGrid<T>(props: {
   const [filterMenuAnchorEls, setFilterMenuAnchorEls] = React.useState(
     new Array(columns.length).fill(null)
   )
-  const [filteringMenus, setFilteringMenus] = React.useState<
-    (HTMLElement | null)[][]
-  >(
+  const [filteredMenus, setFilteredMenus] = React.useState(
     columns.map((column) =>
-      column.filterChoices ? Array(column.filterChoices.length).fill(null) : []
+      column.filterChoices ? Array(column.filterChoices.length).fill(true) : []
     )
   )
 
@@ -106,11 +104,63 @@ function DataGrid<T>(props: {
       return
     }
     const newFilters = [...filters, { columnIdx: columnIdx, value: value }]
+    const newFilteredMenus = filteredMenus.map((filteredMenu) =>
+      filteredMenu.slice()
+    )
+    const choices = columns[columnIdx].filterChoices
+    if (choices) {
+      newFilteredMenus[columnIdx] = Array(choices.length).fill(false)
+      const choiceIdx = choices.findIndex((choice) => choice === value)
+      newFilteredMenus[columnIdx][choiceIdx] = true
+      setFilteredMenus(newFilteredMenus)
+    }
+
     setFilters(newFilters)
   }
 
   const clearFilter = (columnIdx: number): void => {
+    const newFilteredMenus = filteredMenus.map((filteredMenu) =>
+      filteredMenu.slice()
+    )
+    const choices = columns[columnIdx].filterChoices
+    if (choices) {
+      newFilteredMenus[columnIdx] = Array(choices.length).fill(true)
+      setFilteredMenus(newFilteredMenus)
+    }
     setFilters(filters.filter((f) => f.columnIdx !== columnIdx))
+  }
+
+  const updateFilter = (
+    columnIdx: number,
+    filteredMenus: boolean[][]
+  ): void => {
+    const choices = columns[columnIdx].filterChoices
+    if (!choices) {
+      return
+    }
+    const newFilters = filters.filter((f) => f.columnIdx !== columnIdx)
+    for (const [choiceIdx, filtered] of filteredMenus[columnIdx].entries()) {
+      if (filtered) {
+        newFilters.push({ columnIdx: columnIdx, value: choices[choiceIdx] })
+      }
+    }
+    setFilters(newFilters)
+  }
+
+  const handleCheckFilterMenu = (
+    columnIdx: number,
+    choiceIdx: number
+  ): void => {
+    const newFilteredMenus = filteredMenus.map((filteredMenu) =>
+      filteredMenu.slice()
+    )
+    if (newFilteredMenus[columnIdx].length > choiceIdx) {
+      newFilteredMenus[columnIdx][choiceIdx] =
+        !newFilteredMenus[columnIdx][choiceIdx]
+
+      updateFilter(columnIdx, newFilteredMenus)
+    }
+    setFilteredMenus(newFilteredMenus)
   }
 
   const filteredRows = rows.filter((row, rowIdx) => {
@@ -255,25 +305,16 @@ function DataGrid<T>(props: {
                           {column.filterChoices.map((choice, i) => (
                             <MenuItem
                               key={choice}
-                              onClick={(e) => {
-                                const newFilteringMenus = filteringMenus.map(
-                                  (filteringMenu) => filteringMenu.slice()
-                                )
-                                if (newFilteringMenus[columnIdx].length > i) {
-                                  newFilteringMenus[columnIdx][i] =
-                                    newFilteringMenus[columnIdx][i]
-                                      ? null
-                                      : e.currentTarget
-                                }
-                                setFilteringMenus(newFilteringMenus)
+                              onClick={() => {
+                                handleCheckFilterMenu(columnIdx, i)
                               }}
                             >
                               <ListItemIcon>
-                                {filteringMenus[columnIdx].length > i &&
-                                filteringMenus[columnIdx][i] ? (
-                                  <CheckBoxOutlineBlankIcon color="primary" />
-                                ) : (
+                                {filteredMenus[columnIdx].length > i &&
+                                filteredMenus[columnIdx][i] ? (
                                   <CheckBoxIcon color="primary" />
+                                ) : (
+                                  <CheckBoxOutlineBlankIcon color="primary" />
                                 )}
                               </ListItemIcon>
                               {choice}
