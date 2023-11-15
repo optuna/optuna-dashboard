@@ -119,7 +119,7 @@ function DataGrid<T>(props: {
   })
 
   // Sorting
-  const createSortHandler = (columnId: number) => () => {
+  const createSortHandler = (columnId: number) => {
     const isAsc = orderBy === columnId && order === "asc"
     setOrder(isAsc ? "desc" : "asc")
     setOrderBy(columnId)
@@ -135,20 +135,6 @@ function DataGrid<T>(props: {
   const RootDiv = styled("div")({
     width: "100%",
   })
-  const HiddenSpan = styled("span")({
-    border: 0,
-    clip: "rect(0 0 0 0)",
-    height: 1,
-    margin: -1,
-    overflow: "hidden",
-    padding: 0,
-    position: "absolute",
-    top: 20,
-    width: 1,
-  })
-  const TableHeaderCellSpan = styled("span")({
-    display: "inline-flex",
-  })
   return (
     <RootDiv>
       <TableContainer>
@@ -161,48 +147,16 @@ function DataGrid<T>(props: {
             <TableRow>
               {collapseBody ? <TableCell /> : null}
               {columns.map((column, columnIdx) => (
-                <TableCell
-                  key={columnIdx}
-                  padding={column.padding || "normal"}
-                  sortDirection={orderBy === column.field ? order : false}
-                >
-                  <TableHeaderCellSpan>
-                    {column.sortable ? (
-                      <TableSortLabel
-                        active={orderBy === columnIdx}
-                        direction={orderBy === columnIdx ? order : "asc"}
-                        onClick={createSortHandler(columnIdx)}
-                      >
-                        {column.label}
-                        {orderBy === column.field ? (
-                          <HiddenSpan>
-                            {order === "desc"
-                              ? "sorted descending"
-                              : "sorted ascending"}
-                          </HiddenSpan>
-                        ) : null}
-                      </TableSortLabel>
-                    ) : (
-                      column.label
-                    )}
-                    {column.filterable ? (
-                      <IconButton
-                        size={dense ? "small" : "medium"}
-                        style={
-                          fieldAlreadyFiltered(columnIdx)
-                            ? {}
-                            : { visibility: "hidden" }
-                        }
-                        color="inherit"
-                        onClick={() => {
-                          clearFilter(columnIdx)
-                        }}
-                      >
-                        <Clear />
-                      </IconButton>
-                    ) : null}
-                  </TableHeaderCellSpan>
-                </TableCell>
+                <DataGridHeaderColumn<T>
+                  key={column.label}
+                  createSortHandler={createSortHandler}
+                  column={column}
+                  columnIdx={columnIdx}
+                  orderBy={orderBy}
+                  order={order}
+                  clearFilter={clearFilter}
+                  filtered={fieldAlreadyFiltered(columnIdx)}
+                />
               ))}
             </TableRow>
           </TableHead>
@@ -236,6 +190,82 @@ function DataGrid<T>(props: {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </RootDiv>
+  )
+}
+
+function DataGridHeaderColumn<T>(props: {
+  column: DataGridColumn<T>
+  columnIdx: number
+  orderBy: number
+  order: Order
+  dense?: boolean
+  createSortHandler: (columnIdx: number) => void
+  clearFilter: (columnIdx: number) => void
+  filtered: boolean
+}) {
+  const {
+    column,
+    columnIdx,
+    dense,
+    orderBy,
+    order,
+    createSortHandler,
+    clearFilter,
+    filtered,
+  } = props
+
+  const HiddenSpan = styled("span")({
+    border: 0,
+    clip: "rect(0 0 0 0)",
+    height: 1,
+    margin: -1,
+    overflow: "hidden",
+    padding: 0,
+    position: "absolute",
+    top: 20,
+    width: 1,
+  })
+  const TableHeaderCellSpan = styled("span")({
+    display: "inline-flex",
+  })
+  return (
+    <TableCell
+      padding={column.padding || "normal"}
+      sortDirection={orderBy === column.field ? order : false}
+    >
+      <TableHeaderCellSpan>
+        {column.sortable ? (
+          <TableSortLabel
+            active={orderBy === columnIdx}
+            direction={orderBy === columnIdx ? order : "asc"}
+            onClick={() => {
+              createSortHandler(columnIdx)
+            }}
+          >
+            {column.label}
+            {orderBy === column.field ? (
+              <HiddenSpan>
+                {order === "desc" ? "sorted descending" : "sorted ascending"}
+              </HiddenSpan>
+            ) : null}
+          </TableSortLabel>
+        ) : (
+          column.label
+        )}
+        {column.filterable ? (
+          <IconButton
+            size={dense ? "small" : "medium"}
+            style={filtered ? {} : { visibility: "hidden" }}
+            color="inherit"
+            onClick={() => {
+              clearFilter(columnIdx)
+            }}
+          >
+            <Clear />
+          </IconButton>
+        ) : null}
+      </TableHeaderCellSpan>
+    </TableCell>
   )
 }
 
