@@ -102,8 +102,8 @@ function DataGrid<T>(props: {
       return
     }
     const newFilters = filters.filter((f) => f.columnIdx !== columnIdx)
-    for (const [choiceIdx, filtered] of filteredMenus[columnIdx].entries()) {
-      if (filtered) {
+    for (const choiceIdx in filteredMenus[columnIdx]) {
+      if (filteredMenus[columnIdx][choiceIdx]) {
         newFilters.push({ columnIdx: columnIdx, value: choices[choiceIdx] })
       }
     }
@@ -124,6 +124,21 @@ function DataGrid<T>(props: {
       updateFilter(columnIdx, newFilteredMenus)
     }
     setFilteredMenus(newFilteredMenus)
+  }
+
+  const handleClickFilterMenu = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    columnIdx: number
+  ): void => {
+    const newFilterMenuAnchorEls = Array(...filterMenuAnchorEls)
+    newFilterMenuAnchorEls[columnIdx] = e.currentTarget
+    setFilterMenuAnchorEls(newFilterMenuAnchorEls)
+  }
+
+  const handleCloseFilterMenu = (columnIdx: number): void => {
+    const newFilterMenuAnchorEls = Array(...filterMenuAnchorEls)
+    newFilterMenuAnchorEls[columnIdx] = null
+    setFilterMenuAnchorEls(newFilterMenuAnchorEls)
   }
 
   const filteredRows = rows.filter((row, rowIdx) => {
@@ -228,11 +243,7 @@ function DataGrid<T>(props: {
                             filterMenuAnchorEls[columnIdx] ? "true" : undefined
                           }
                           onClick={(e) => {
-                            const newFilterMenuAnchorEls = Array(
-                              ...filterMenuAnchorEls
-                            )
-                            newFilterMenuAnchorEls[columnIdx] = e.currentTarget
-                            setFilterMenuAnchorEls(newFilterMenuAnchorEls)
+                            handleClickFilterMenu(e, columnIdx)
                           }}
                         >
                           <FilterListIcon fontSize="small" />
@@ -242,11 +253,7 @@ function DataGrid<T>(props: {
                           id={`filter-${column.label}`}
                           open={Boolean(filterMenuAnchorEls[columnIdx])}
                           onClose={() => {
-                            const newFilterMenuAnchorEls = Array(
-                              ...filterMenuAnchorEls
-                            )
-                            newFilterMenuAnchorEls[columnIdx] = null
-                            setFilterMenuAnchorEls(newFilterMenuAnchorEls)
+                            handleCloseFilterMenu(columnIdx)
                           }}
                         >
                           {column.filterChoices.map((choice, i) => (
