@@ -12,7 +12,6 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  useTheme,
 } from "@mui/material"
 import { styled } from "@mui/system"
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
@@ -21,7 +20,6 @@ import FilterListIcon from "@mui/icons-material/FilterList"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp"
 import ListItemIcon from "@mui/material/ListItemIcon"
-import { Clear } from "@mui/icons-material"
 
 type Order = "asc" | "desc"
 
@@ -35,7 +33,6 @@ interface DataGridColumn<T> {
   label: string
   sortable?: boolean
   less?: (a: T, b: T, ascending: boolean) => number
-  filterable?: boolean
   filterChoices?: string[]
   toCellValue?: (rowIndex: number) => string | React.ReactNode
   padding?: "normal" | "checkbox" | "none"
@@ -96,40 +93,6 @@ function DataGrid<T>(props: {
   }
 
   // Filtering
-  const fieldAlreadyFiltered = (columnIdx: number): boolean =>
-    filters.some((f) => f.columnIdx === columnIdx)
-
-  const handleClickFilterCell = (columnIdx: number, value: Value) => {
-    if (fieldAlreadyFiltered(columnIdx)) {
-      return
-    }
-    const newFilters = [...filters, { columnIdx: columnIdx, value: value }]
-    const newFilteredMenus = filteredMenus.map((filteredMenu) =>
-      filteredMenu.slice()
-    )
-    const choices = columns[columnIdx].filterChoices
-    if (choices) {
-      newFilteredMenus[columnIdx] = Array(choices.length).fill(false)
-      const choiceIdx = choices.findIndex((choice) => choice === value)
-      newFilteredMenus[columnIdx][choiceIdx] = true
-      setFilteredMenus(newFilteredMenus)
-    }
-
-    setFilters(newFilters)
-  }
-
-  const clearFilter = (columnIdx: number): void => {
-    const newFilteredMenus = filteredMenus.map((filteredMenu) =>
-      filteredMenu.slice()
-    )
-    const choices = columns[columnIdx].filterChoices
-    if (choices) {
-      newFilteredMenus[columnIdx] = Array(choices.length).fill(true)
-      setFilteredMenus(newFilteredMenus)
-    }
-    setFilters(filters.filter((f) => f.columnIdx !== columnIdx))
-  }
-
   const updateFilter = (
     columnIdx: number,
     filteredMenus: boolean[][]
@@ -252,22 +215,6 @@ function DataGrid<T>(props: {
                     ) : (
                       column.label
                     )}
-                    {column.filterable ? (
-                      <IconButton
-                        size={dense ? "small" : "medium"}
-                        style={
-                          fieldAlreadyFiltered(columnIdx)
-                            ? {}
-                            : { visibility: "hidden" }
-                        }
-                        color="inherit"
-                        onClick={() => {
-                          clearFilter(columnIdx)
-                        }}
-                      >
-                        <Clear />
-                      </IconButton>
-                    ) : null}
                     {column.filterChoices ? (
                       <div>
                         <IconButton
@@ -337,7 +284,6 @@ function DataGrid<T>(props: {
                 keyField={keyField}
                 collapseBody={collapseBody}
                 key={`${row[keyField]}`}
-                handleClickFilterCell={handleClickFilterCell}
               />
             ))}
             {emptyRows > 0 && (
@@ -367,24 +313,10 @@ function DataGridRow<T>(props: {
   row: T
   keyField: keyof T
   collapseBody?: (rowIndex: number) => React.ReactNode
-  handleClickFilterCell: (columnIdx: number, value: Value) => void
 }) {
-  const {
-    columns,
-    rowIndex,
-    row,
-    keyField,
-    collapseBody,
-    handleClickFilterCell,
-  } = props
+  const { columns, rowIndex, row, keyField, collapseBody } = props
   const [open, setOpen] = React.useState(false)
-  const theme = useTheme()
 
-  const FilterableDiv = styled("div")({
-    color: theme.palette.primary.main,
-    textDecoration: "underline",
-    cursor: "pointer",
-  })
   return (
     <React.Fragment>
       <TableRow hover tabIndex={-1}>
@@ -405,21 +337,7 @@ function DataGridRow<T>(props: {
             : // TODO(c-bata): Avoid this implicit type conversion.
               (row[column.field] as number | string | null | undefined)
 
-          return column.filterable ? (
-            <TableCell
-              key={`${row[keyField]}:${column.field.toString()}:${columnIndex}`}
-              padding={column.padding || "normal"}
-              onClick={() => {
-                const value =
-                  column.toCellValue !== undefined
-                    ? column.toCellValue(rowIndex)
-                    : row[column.field]
-                handleClickFilterCell(columnIndex, value)
-              }}
-            >
-              <FilterableDiv>{cellItem}</FilterableDiv>
-            </TableCell>
-          ) : (
+          return (
             <TableCell
               key={`${row[keyField]}:${column.field.toString()}:${columnIndex}`}
               padding={column.padding || "normal"}

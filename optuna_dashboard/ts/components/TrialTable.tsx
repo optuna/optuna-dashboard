@@ -18,7 +18,6 @@ export const TrialTable: FC<{
       field: "state",
       label: "State",
       sortable: true,
-      filterable: true,
       filterChoices: ["Complete", "Pruned", "Fail", "Running", "Waiting"],
       padding: "none",
       toCellValue: (i) => trials[i].state.toString(),
@@ -98,7 +97,6 @@ export const TrialTable: FC<{
   ) {
     studyDetail?.intersection_search_space.forEach((s) => {
       const sortable = s.distribution.type !== "CategoricalDistribution"
-      const filterable = s.distribution.type === "CategoricalDistribution"
       columns.push({
         field: "params",
         label: `Param ${s.name}`,
@@ -106,7 +104,10 @@ export const TrialTable: FC<{
           trials[i].params.find((p) => p.name === s.name)
             ?.param_external_value || null,
         sortable: sortable,
-        filterable: filterable,
+        filterChoices:
+          "choices" in s.distribution
+            ? s.distribution.choices.map((c) => c.value)
+            : undefined,
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         less: (firstEl, secondEl, _): number => {
           const firstVal = firstEl.params.find(
@@ -147,7 +148,6 @@ export const TrialTable: FC<{
         trials[i].user_attrs.find((attr) => attr.key === attr_spec.key)
           ?.value || null,
       sortable: attr_spec.sortable,
-      filterable: !attr_spec.sortable,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       less: (firstEl, secondEl, _): number => {
         const firstVal = firstEl.user_attrs.find(

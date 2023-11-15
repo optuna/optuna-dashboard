@@ -23,7 +23,7 @@ it("Filter rows of DataGrid", () => {
     { id: 5, key: "foo", value: 3 },
   ]
   const columns: DataGridColumn<DummyAttribute>[] = [
-    { field: "key", label: "Key", filterable: true },
+    { field: "key", label: "Key", filterChoices: ["foo", "bar"] },
     {
       field: "value",
       label: "Value",
@@ -60,7 +60,7 @@ it("Filter rows after sorted", () => {
     { id: 5, key: "foo", value: 5000 },
   ]
   const columns: DataGridColumn<DummyAttribute>[] = [
-    { field: "key", label: "Key", filterable: true },
+    { field: "key", label: "Key", filterChoices: ["foo", "bar"] },
     {
       field: "value",
       label: "Value",
