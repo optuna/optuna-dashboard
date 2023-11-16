@@ -262,7 +262,7 @@ function DataGridHeaderColumn<T>(props: {
                 setFilterMenuAnchorEl(null)
               }}
             >
-              {filterChoices.map((choice, i) => (
+              {filterChoices.map((choice) => (
                 <MenuItem
                   key={choice}
                   onClick={() => {
