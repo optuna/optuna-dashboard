@@ -92,10 +92,6 @@ function DataGrid<T>(props: {
     setFilters(newFilters)
   }
 
-  const clearFilter = (columnIdx: number): void => {
-    setFilters(filters.filter((f) => f.columnIdx !== columnIdx))
-  }
-
   const filteredRows = rows.filter((row, rowIdx) => {
     if (defaultFilter !== undefined && defaultFilter(row)) {
       return false
@@ -119,11 +115,6 @@ function DataGrid<T>(props: {
   })
 
   // Sorting
-  const createSortHandler = (columnId: number) => {
-    const isAsc = orderBy === columnId && order === "asc"
-    setOrder(isAsc ? "desc" : "asc")
-    setOrderBy(columnId)
-  }
   const sortedRows = stableSort<T>(filteredRows, order, orderBy, columns)
   const currentPageRows =
     rowsPerPage > 0
@@ -149,12 +140,15 @@ function DataGrid<T>(props: {
               {columns.map((column, columnIdx) => (
                 <DataGridHeaderColumn<T>
                   key={column.label}
-                  createSortHandler={createSortHandler}
                   column={column}
-                  columnIdx={columnIdx}
-                  orderBy={orderBy}
-                  order={order}
-                  clearFilter={clearFilter}
+                  orderBy={orderBy === columnIdx ? order : null}
+                  onOrderByChange={(direction: Order) => {
+                    setOrder(direction)
+                    setOrderBy(columnIdx)
+                  }}
+                  onFilterClear={() => {
+                    setFilters(filters.filter((f) => f.columnIdx !== columnIdx))
+                  }}
                   filtered={fieldAlreadyFiltered(columnIdx)}
                 />
               ))}
@@ -195,24 +189,14 @@ function DataGrid<T>(props: {
 
 function DataGridHeaderColumn<T>(props: {
   column: DataGridColumn<T>
-  columnIdx: number
-  orderBy: number
-  order: Order
-  dense?: boolean
-  createSortHandler: (columnIdx: number) => void
-  clearFilter: (columnIdx: number) => void
+  orderBy: Order | null
+  onOrderByChange: (direction: Order) => void
   filtered: boolean
+  onFilterClear: () => void
+  dense?: boolean
 }) {
-  const {
-    column,
-    columnIdx,
-    dense,
-    orderBy,
-    order,
-    createSortHandler,
-    clearFilter,
-    filtered,
-  } = props
+  const { column, orderBy, onOrderByChange, filtered, onFilterClear, dense } =
+    props
 
   const HiddenSpan = styled("span")({
     border: 0,
@@ -231,21 +215,25 @@ function DataGridHeaderColumn<T>(props: {
   return (
     <TableCell
       padding={column.padding || "normal"}
-      sortDirection={orderBy === column.field ? order : false}
+      sortDirection={orderBy || false}
     >
       <TableHeaderCellSpan>
         {column.sortable ? (
           <TableSortLabel
-            active={orderBy === columnIdx}
-            direction={orderBy === columnIdx ? order : "asc"}
+            active={orderBy !== null}
+            direction={orderBy || "asc"}
             onClick={() => {
-              createSortHandler(columnIdx)
+              if (orderBy === null) {
+                onOrderByChange("asc")
+              } else {
+                onOrderByChange(orderBy === "desc" ? "asc" : "desc")
+              }
             }}
           >
             {column.label}
-            {orderBy === column.field ? (
+            {orderBy !== null ? (
               <HiddenSpan>
-                {order === "desc" ? "sorted descending" : "sorted ascending"}
+                {orderBy === "desc" ? "sorted descending" : "sorted ascending"}
               </HiddenSpan>
             ) : null}
           </TableSortLabel>
@@ -258,7 +246,7 @@ function DataGridHeaderColumn<T>(props: {
             style={filtered ? {} : { visibility: "hidden" }}
             color="inherit"
             onClick={() => {
-              clearFilter(columnIdx)
+              onFilterClear()
             }}
           >
             <Clear />
