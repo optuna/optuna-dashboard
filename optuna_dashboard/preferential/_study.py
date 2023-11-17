@@ -7,9 +7,9 @@ from typing import Iterable
 
 import optuna
 from optuna import logging
+from optuna._imports import try_import
 from optuna.distributions import BaseDistribution
 from optuna.samplers import BaseSampler
-from optuna.samplers import RandomSampler
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
 from optuna_dashboard.preferential._system_attrs import get_n_generate
@@ -18,6 +18,10 @@ from optuna_dashboard.preferential._system_attrs import get_skipped_trial_ids
 from optuna_dashboard.preferential._system_attrs import is_skipped_trial
 from optuna_dashboard.preferential._system_attrs import report_preferences
 from optuna_dashboard.preferential._system_attrs import set_n_generate
+
+
+with try_import() as _imports:
+    from optuna_dashboard.preferential.samplers.gp import PreferentialGPSampler
 
 
 _logger = logging.get_logger(__name__)
@@ -37,6 +41,10 @@ class PreferentialStudy:
     To create and load a study, please refer to the documentation of
     :func:`~optuna_dashboard.preferential.create_study` and
     :func:`~optuna_dashboard.preferential.load_study` respectively.
+
+    .. note::
+        Preferential optimization is an experimental feature (introduced in v0.13.0).
+        The interface may change in newer versions without prior notice.
     """
 
     def __init__(self, study: optuna.Study) -> None:
@@ -340,11 +348,10 @@ def create_study(
 
         sampler:
             A sampler object that implements background algorithm for value suggestion.
-            If :obj:`None` is specified, `RandomSampler`_ is used. Please note that
-            most Optuna samplers does not work efficiently for preferential optimization.
-
-            .. _RandomSampler: https://optuna.readthedocs.io/en/stable/reference/\
-            samplers/generated/optuna.samplers.RandomSampler.html
+            If :obj:`None` is specified,
+            :class:`~optuna_dashboard.preferential.samplers.gp.PreferentialGPSampler` is used.
+            Please note that most Optuna samplers does not work efficiently for preferential
+            optimization.
 
         study_name:
             Study's name. If this argument is set to None, a unique name is generated
@@ -359,11 +366,19 @@ def create_study(
 
     Returns:
         A :class:`~optuna_dashboard.preferential.PreferentialStudy` object.
+
+    .. note::
+        Preferential optimization is an experimental feature (introduced in v0.13.0).
+        The interface may change in newer versions without prior notice.
     """
     try:
+        if sampler is None:
+            _imports.check()  # If BoTorch is not installed, raise ImportError.
+            sampler = PreferentialGPSampler()
+
         study = optuna.create_study(
             storage=storage,
-            sampler=sampler or RandomSampler(),
+            sampler=sampler,
             study_name=study_name,
         )
         study._storage.set_study_system_attr(
@@ -433,18 +448,23 @@ def load_study(
             :func:`~optuna.study.create_study` for further details.
         sampler:
             A sampler object that implements background algorithm for value suggestion.
-            If :obj:`None` is specified, `RandomSampler`_ is used. Please note that
-            most Optuna samplers does not work efficiently for preferential optimization.
-
-            .. _RandomSampler: https://optuna.readthedocs.io/en/stable/reference/samplers/\
-            generated/optuna.samplers.RandomSampler.html
+            If :obj:`None` is specified,
+            :class:`~optuna_dashboard.preferential.samplers.gp.PreferentialGPSampler` is used.
+            Please note that most Optuna samplers does not work efficiently for preferential
+            optimization.
 
     Returns:
         A :class:`~optuna_dashboard.preferential.PreferentialStudy` object.
+
+    .. note::
+        Preferential optimization is an experimental feature (introduced in v0.13.0).
+        The interface may change in newer versions without prior notice.
     """
-    study = optuna.load_study(
-        study_name=study_name, storage=storage, sampler=sampler or RandomSampler()
-    )
+    if sampler is None:
+        _imports.check()  # If BoTorch is not installed, raise ImportError.
+        sampler = PreferentialGPSampler()
+
+    study = optuna.load_study(study_name=study_name, storage=storage, sampler=sampler)
     system_attrs = study._storage.get_study_system_attrs(study._study_id)
     if not system_attrs.get(_SYSTEM_ATTR_PREFERENTIAL_STUDY):
         raise ValueError("The study is not a PreferentialStudy.")

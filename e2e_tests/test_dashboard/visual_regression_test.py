@@ -4,7 +4,7 @@ import optuna
 from playwright.sync_api import Page
 import pytest
 
-from .test_server import make_test_server
+from ..test_server import make_test_server
 
 
 @pytest.fixture

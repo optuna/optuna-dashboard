@@ -5,7 +5,9 @@ import { GizmoHelper, GizmoViewport, OrbitControls } from "@react-three/drei"
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader"
 import { Rhino3dmLoader } from "three/examples/jsm/loaders/3DMLoader"
 import { PerspectiveCamera } from "three"
-import { Modal, Box } from "@mui/material"
+import { Modal, Box, useTheme } from "@mui/material"
+import ClearIcon from "@mui/icons-material/Clear"
+import IconButton from "@mui/material/IconButton"
 
 export const isThreejsArtifact = (artifact: Artifact): boolean => {
   return (
@@ -32,7 +34,7 @@ const CustomGizmoHelper: React.FC = () => {
   )
 }
 
-const calculateBoundingBox = (geometries: THREE.BufferGeometry[]) => {
+const computeBoundingBox = (geometries: THREE.BufferGeometry[]) => {
   const boundingBox = new THREE.Box3()
   geometries.forEach((geometry) => {
     const mesh = new THREE.Mesh(geometry)
@@ -45,8 +47,11 @@ export const ThreejsArtifactViewer: React.FC<ThreejsArtifactViewerProps> = (
   props
 ) => {
   const [geometry, setGeometry] = useState<THREE.BufferGeometry[]>([])
-  const [modelSize, setModelSize] = useState<THREE.Vector3>(
-    new THREE.Vector3(10, 10, 10)
+  const [boundingBox, setBoundingBox] = useState<THREE.Box3>(
+    new THREE.Box3(
+      new THREE.Vector3(-10, -10, -10),
+      new THREE.Vector3(10, 10, 10)
+    )
   )
   const [cameraSettings, setCameraSettings] = useState<PerspectiveCamera>(
     new THREE.PerspectiveCamera()
@@ -54,11 +59,11 @@ export const ThreejsArtifactViewer: React.FC<ThreejsArtifactViewerProps> = (
 
   const handleLoadedGeometries = (geometries: THREE.BufferGeometry[]) => {
     setGeometry(geometries)
-    const boundingBox = calculateBoundingBox(geometries)
+    const boundingBox = computeBoundingBox(geometries)
     if (boundingBox !== null) {
-      const size = boundingBox.getSize(new THREE.Vector3())
-      setModelSize(size)
+      setBoundingBox(boundingBox)
     }
+    return boundingBox
   }
 
   useEffect(() => {
@@ -81,19 +86,29 @@ export const ThreejsArtifactViewer: React.FC<ThreejsArtifactViewerProps> = (
         }
       })
     }
-    const maxModelSize = Math.max(modelSize.x, modelSize.y, modelSize.z)
-    const cameraSet = new THREE.PerspectiveCamera(
-      modelSize
-        ? Math.min(
-            45,
-            Math.atan(modelSize.y / modelSize.z) * (180 / Math.PI) * 2
-          )
-        : 45,
-      window.innerWidth / window.innerHeight
-    )
-    cameraSet.position.set(maxModelSize * 2, maxModelSize * 2, maxModelSize * 2)
-    setCameraSettings(cameraSet)
   }, [])
+
+  useEffect(() => {
+    const cameraSet = new THREE.PerspectiveCamera(
+      50,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      boundingBox.getSize(new THREE.Vector3()).length() * 100
+    )
+    const maxPosition = Math.max(
+      boundingBox.max.x,
+      boundingBox.max.y,
+      boundingBox.max.z
+    )
+    cameraSet.position.set(
+      maxPosition * 1.5,
+      maxPosition * 1.5,
+      maxPosition * 1.5
+    )
+    const center = boundingBox.getCenter(new THREE.Vector3())
+    cameraSet.lookAt(center.x, center.y, center.z)
+    setCameraSettings(cameraSet)
+  }, [boundingBox])
 
   return (
     <Canvas
@@ -102,7 +117,7 @@ export const ThreejsArtifactViewer: React.FC<ThreejsArtifactViewerProps> = (
     >
       <ambientLight />
       <OrbitControls />
-      <gridHelper args={[Math.max(modelSize?.x, modelSize?.y) * 5]} />
+      <gridHelper args={[Math.max(boundingBox.max.x, boundingBox.max.y) * 5]} />
       {props.hasGizmo && <CustomGizmoHelper />}
       <axesHelper />
       {geometry.length > 0 &&
@@ -121,6 +136,7 @@ export const useThreejsArtifactModal = (): [
 ] => {
   const [open, setOpen] = useState(false)
   const [target, setTarget] = useState<[string, Artifact | null]>(["", null])
+  const theme = useTheme()
 
   const openModal = (artifactUrlPath: string, artifact: Artifact) => {
     setTarget([artifactUrlPath, artifact])
@@ -146,6 +162,19 @@ export const useThreejsArtifactModal = (): [
             borderRadius: "15px",
           }}
         >
+          <IconButton
+            sx={{
+              position: "absolute",
+              top: theme.spacing(2),
+              right: theme.spacing(2),
+            }}
+            onClick={() => {
+              setOpen(false)
+              setTarget(["", null])
+            }}
+          >
+            <ClearIcon />
+          </IconButton>
           <ThreejsArtifactViewer
             src={target[0]}
             width={`${innerWidth * 0.8}px`}
