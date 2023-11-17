@@ -145,6 +145,8 @@ export const StudyDetail: FC<{
         </Grid2>
       </Box>
     )
+  } else if (page === "trialList") {
+    content = <TrialList studyDetail={studyDetail} />
   } else if (page === "trialTable") {
     content = (
       <Card sx={{ margin: theme.spacing(2) }}>
@@ -153,8 +155,6 @@ export const StudyDetail: FC<{
         </CardContent>
       </Card>
     )
-  } else if (page === "trialList") {
-    content = <TrialList studyDetail={studyDetail} />
   } else if (page === "note" && studyDetail !== null) {
     content = (
       <Box
