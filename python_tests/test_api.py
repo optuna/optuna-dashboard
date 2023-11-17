@@ -246,7 +246,6 @@ class APITestCase(TestCase):
         assert study.trials[0].user_attrs == request_body["user_attrs"]
         assert study.trials[1].user_attrs == {}
 
-
     def test_save_trial_user_attrs_empty(self) -> None:
         study = optuna.create_study()
         trial = study.ask()
@@ -261,7 +260,6 @@ class APITestCase(TestCase):
         )
         self.assertEqual(status, 400)
         assert study.trials[0].user_attrs == {}
-
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
     def test_skip_trial(self) -> None:
