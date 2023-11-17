@@ -4,7 +4,7 @@ import "./index.css"
 import { App } from "./components/App"
 import { RecoilRoot, useSetRecoilState, SetterOrUpdater } from "recoil"
 import { studiesState } from "./state"
-import { loadStorage } from "./sqlite3"
+import { loadSQLite3Storage } from "./sqlite3"
 
 export const AppWrapper: FC = () => {
   const setStudies = useSetRecoilState<Study[]>(studiesState)
@@ -35,7 +35,7 @@ export const AppWrapper: FC = () => {
             bytes[i] = binaryString.charCodeAt(i)
           }
           arrayBuffer = bytes.buffer
-          loadStorage(arrayBuffer, onceSetStudies)
+          loadSQLite3Storage(arrayBuffer, onceSetStudies)
           break
       }
     })

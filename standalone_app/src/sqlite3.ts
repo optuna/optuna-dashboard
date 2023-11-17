@@ -10,7 +10,7 @@ type SQLite3DB = {
   }): void
 }
 
-export const loadStorage = (
+export const loadSQLite3Storage = (
   arrayBuffer: ArrayBuffer,
   setter: SetterOrUpdater<Study[]>
 ): void => {
