@@ -29,17 +29,24 @@ export const Settings: FC = () => {
   }
 
   return (
-    <Grid container spacing={2} style={{ padding: "40px" }}>
+    <Grid container spacing={4} sx={{ padding: '40px' }}>
       <Grid item xs={12}>
-        <Typography variant="h3">Settings</Typography>
+        <Typography variant="h3" gutterBottom color="textSecondary">
+          Settings
+        </Typography>
       </Grid>
       <Grid item xs={12}>
-        <Typography variant="h5">Plotly Color Scales</Typography>
+        <Typography variant="h5" gutterBottom color="textPrimary">
+          Plotly Color Scales
+        </Typography>
       </Grid>
       <Grid item xs={2}>
-        <Typography variant="h5">Dark Mode</Typography>
+        <Typography variant="h6" color="textSecondary">
+          Dark Mode
+        </Typography>
       </Grid>
-      <Grid item xs={10}>
+      
+      <Grid item xs={10} sx={{ display: 'flex', alignItems: 'center' }}>
         <Select value={darkModeColor} onChange={handleDarkModeColorChange}>
           <MenuItem value={"default"}>Default</MenuItem>
           <MenuItem value={"seaborn"}>Seaborn</MenuItem>
@@ -53,9 +60,11 @@ export const Settings: FC = () => {
       </Grid>
 
       <Grid item xs={2}>
-        <Typography variant="h5">Light Mode</Typography>
+        <Typography variant="h6" color="textSecondary">
+          Light Mode
+        </Typography>
       </Grid>
-      <Grid item xs={10}>
+      <Grid item xs={10} sx={{ display: 'flex', alignItems: 'center' }}>
         <Select value={lightModeColor} onChange={handleLightModeColorChange}>
           <MenuItem value={"default"}>Default</MenuItem>
           <MenuItem value={"seaborn"}>Seaborn</MenuItem>
