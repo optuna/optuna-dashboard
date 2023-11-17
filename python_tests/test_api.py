@@ -463,20 +463,20 @@ class APITestCase(TestCase):
         study = optuna.create_study(storage=storage)
         for state in ["Pruned", "Running", "Waiting", "Invalid"]:
             trial_id = study.ask()._trial_id
-
             app = create_app(storage)
-            status, _, _ = send_request(
-                app,
-                f"/api/trials/{trial_id}/tell",
-                "POST",
-                body=json.dumps(
-                    {
-                        "state": state,
-                    }
-                ),
-                content_type="application/json",
-            )
-            self.assertEqual(status, 400)
+            with self.subTest(state=state):
+                status, _, _ = send_request(
+                    app,
+                    f"/api/trials/{trial_id}/tell",
+                    "POST",
+                    body=json.dumps(
+                        {
+                            "state": state,
+                        }
+                    ),
+                    content_type="application/json",
+                )
+                self.assertEqual(status, 400)
 
     def test_tell_trial_with_no_values(self) -> None:
         storage = optuna.storages.InMemoryStorage()
@@ -502,21 +502,21 @@ class APITestCase(TestCase):
         study = optuna.create_study(storage=storage)
         for values in [1.0, ["foo"]]:
             trial_id = study.ask()._trial_id
-
             app = create_app(storage)
-            status, _, _ = send_request(
-                app,
-                f"/api/trials/{trial_id}/tell",
-                "POST",
-                body=json.dumps(
-                    {
-                        "state": "Complete",
-                        "values": values,
-                    }
-                ),
-                content_type="application/json",
-            )
-            self.assertEqual(status, 400)
+            with self.subTest(values=values):
+                status, _, _ = send_request(
+                    app,
+                    f"/api/trials/{trial_id}/tell",
+                    "POST",
+                    body=json.dumps(
+                        {
+                            "state": "Complete",
+                            "values": values,
+                        }
+                    ),
+                    content_type="application/json",
+                )
+                self.assertEqual(status, 400)
 
 
 class BottleRequestHookTestCase(TestCase):
