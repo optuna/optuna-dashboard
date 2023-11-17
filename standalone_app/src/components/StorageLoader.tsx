@@ -7,6 +7,7 @@ import React, {
   useState,
 } from "react"
 import { loadSQLite3Storage } from "../sqlite3"
+import { loadJournalStorage } from "../journalStorage"
 import { useSetRecoilState } from "recoil"
 import { studiesState } from "../state"
 import {
@@ -29,8 +30,13 @@ export const StorageLoader: FC = () => {
     const r = new FileReader()
     r.addEventListener("load", () => {
       const arrayBuffer = r.result as ArrayBuffer | null
+      const fileExtension = file.name.split(".").pop()
       if (arrayBuffer !== null) {
-        loadSQLite3Storage(arrayBuffer, setStudies)
+        if (fileExtension == "log") {
+          loadJournalStorage(arrayBuffer, setStudies)
+        } else {
+          loadSQLite3Storage(arrayBuffer, setStudies)
+        }
       }
     })
     r.readAsArrayBuffer(file)
