@@ -204,10 +204,6 @@ def register_artifact_route(
             return {"reason": "Cannot access to the artifacts."}
         artifact_store.remove(artifact_id)
 
-        # The artifact's metadata is stored in one of the following two locations:
-        storage.set_study_system_attr(
-            study_id, _dashboard_artifact_prefix(study_id) + artifact_id, json.dumps(None)
-        )
         storage.set_study_system_attr(
             study_id, ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None)
         )
