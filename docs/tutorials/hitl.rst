@@ -95,7 +95,7 @@ Given the above system, we carry out HITL optimization as follows:
 Environment setup
 ^^^^^^^^^^^^^^^^^
 
-To run `the script <https://github.com/optuna/optuna-dashboard/blob/main/examples/hitl/main.py>`_ used in this tutorial, you need to install following libraries:
+To run `the script <https://github.com/optuna/optuna-examples/blob/main/dashboard/hitl/main.py>`_ used in this tutorial, you need to install following libraries:
 
 .. code-block:: console
 
@@ -109,7 +109,7 @@ You will use SQLite for the storage backend in this tutorial. Ensure that the fo
 Execution of the HITL optimization script
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Run a python script below which you copied from `main.py <https://github.com/optuna/optuna-dashboard/blob/main/examples/hitl/main.py>`_
+Run a python script below which you copied from `main.py <https://github.com/optuna/optuna-examples/blob/main/dashboard/hitl/main.py>`_
 
 .. code-block:: console
 
@@ -150,7 +150,7 @@ Click the third item in the sidebar. You will see a list of all trials.
 
 .. image:: ./images/hitl10.png
 
-For each trial, you can see its details such as RGB parameter values and importantly, the generated image based on these values. 
+For each trial, you can see its details such as RGB parameter values and importantly, the generated image based on these values.
 
 .. image:: ./images/hitl11.gif
     :width: 90%
@@ -189,21 +189,21 @@ Let’s walk through the script we used for the optimization.
         r = trial.suggest_int("r", 0, 255)
         g = trial.suggest_int("g", 0, 255)
         b = trial.suggest_int("b", 0, 255)
-    
+
         # 2. Generate image
         image_path = f"tmp/sample-{trial.number}.png"
         image = Image.new("RGB", (320, 240), color=(r, g, b))
         image.save(image_path)
-    
+
         # 3. Upload Artifact
         artifact_id = upload_artifact(trial, image_path, artifact_store)
         artifact_path = get_artifact_path(trial, artifact_id)
-    
+
         # 4. Save Note
         note = textwrap.dedent(
             f"""\
         ## Trial {trial.number}
-    
+
         ![generated-image]({artifact_path})
         """
         )
@@ -222,10 +222,10 @@ In the ``suggest_and_generate_image`` function, a new Trial is obtained and new 
             sampler=optuna.samplers.TPESampler(constant_liar=True, n_startup_trials=5),
             load_if_exists=True,
         )
-    
+
         # 2. Set an objective name
         study.set_metric_names(["Looks like sunset color?"])
-    
+
         # 3. Register ChoiceWidget
         register_objective_form_widgets(
             study,
@@ -237,7 +237,7 @@ In the ``suggest_and_generate_image`` function, a new Trial is obtained and new 
                 ),
             ],
         )
-    
+
         # 4. Start Human-in-the-loop Optimization
         n_batch = 4
         while True:
@@ -259,17 +259,17 @@ The function ``start_optimization`` defines our loop for HITL optimization to ge
 
     def main() -> NoReturn:
         tmp_path = os.path.join(os.path.dirname(__file__), "tmp")
-    
+
         # 1. Create Artifact Store
         artifact_path = os.path.join(os.path.dirname(__file__), "artifact")
         artifact_store = FileSystemArtifactStore(artifact_path)
-    
+
         if not os.path.exists(artifact_path):
             os.mkdir(artifact_path)
-    
+
         if not os.path.exists(tmp_path):
             os.mkdir(tmp_path)
-    
+
         # 2. Run optimize loop
         start_optimization(artifact_store)
 

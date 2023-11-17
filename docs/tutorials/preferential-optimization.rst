@@ -99,7 +99,7 @@ enabling the Optuna Dashboard to display images on the evaluation feedback page.
    register_preference_feedback_component(study, "artifact", user_attr_key)
 
 Following this, we create a loop that continuously checks if new trials should be generated, awaiting human evaluation if not.
-Within the while loop, new trials are generated if the condition :meth:`~optuna_dashboard.preferential.PreferentialStudy.should_generate` returns ``True``. 
+Within the while loop, new trials are generated if the condition :meth:`~optuna_dashboard.preferential.PreferentialStudy.should_generate` returns ``True``.
 For each trial, RGB values are sampled, an image is generated with these values, saved temporarily.
 Then the image is uploaded to the artifact store, and finally, the ``artifact_id`` is stored to the key, which is specified via :func:`~optuna_dashboard.register_preference_feedback_component`.
 
@@ -127,4 +127,4 @@ Then the image is uploaded to the artifact store, and finally, the ``artifact_id
        artifact_id = upload_artifact(trial, image_path, artifact_store)
        trial.set_user_attr(user_attr_key, artifact_id)
 
-.. _generator.py: https://github.com/optuna/optuna-dashboard/blob/main/examples/preferential-optimization/generator.py
+.. _generator.py: https://github.com/optuna/optuna-examples/blob/main/dashboard/preferential-optimization/generator.py
