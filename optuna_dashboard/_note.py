@@ -176,7 +176,7 @@ def save_note_with_version(
             storage.set_study_system_attr(study_id, f"{note_str_key_prefix(trial_id)}{i}", "")
 
 
-def delete_study_notes(storage: BaseStorage, study_id):
+def delete_study_notes(storage: BaseStorage, study_id: int) -> None:
     for trial in storage.get_all_trials(study_id):
         delete_notes(storage, study_id, trial._trial_id)
 
