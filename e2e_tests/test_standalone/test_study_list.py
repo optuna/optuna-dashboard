@@ -1,4 +1,5 @@
 import os
+import tempfile
 
 from playwright.sync_api import Page
 import pytest
@@ -28,18 +29,14 @@ def test_load_storage(
     page: Page,
     server_url: str,
 ) -> None:
-    test_file = "./e2etest.db"
     current_dir = os.getcwd()
-    path = os.path.join(current_dir, test_file)
     study_name = "single-objective"
+    url = f"{server_url}"
 
-    if os.path.exists(path):
-        os.remove(path)
-
-    def create_storage_file():
+    def create_storage_file(filename: str):
         import optuna
 
-        storage = optuna.storages.RDBStorage(f"sqlite:///{test_file}")
+        storage = optuna.storages.RDBStorage(f"sqlite:///{filename}")
         study = optuna.create_study(study_name=study_name, storage=storage)
 
         def objective(trial: optuna.Trial) -> float:
@@ -49,23 +46,23 @@ def test_load_storage(
 
         study.optimize(objective, n_trials=100)
 
-    create_storage_file()
+    with tempfile.NamedTemporaryFile() as fp:
+        filename = fp.name
+        path = os.path.join(current_dir, filename)
+        create_storage_file(filename)
+        page.goto(url)
+        with page.expect_file_chooser() as fc_info:
+            page.get_by_role(
+                "button",
+                name="Load an Optuna Storage Drag your SQLite3 file here or click to browse.",
+            ).click()
+        file_chooser = fc_info.value
+        file_chooser.set_files(path)
 
-    url = f"{server_url}"
-    page.goto(url)
-    with page.expect_file_chooser() as fc_info:
-        page.get_by_role(
-            "button", name="Load an Optuna Storage Drag your SQLite3 file here or click to browse."
-        ).click()
-    file_chooser = fc_info.value
-    file_chooser.set_files(path)
+        page.get_by_role("link", name=study_name).click()
 
-    page.get_by_role("link", name=study_name).click()
-
-    element = page.query_selector(".MuiTypography-root")
-    assert element is not None
-    title = element.text_content()
-    assert title is not None
-    assert title == "Optuna Dashboard"
-
-    os.remove(path)
+        element = page.query_selector(".MuiTypography-root")
+        assert element is not None
+        title = element.text_content()
+        assert title is not None
+        assert title == "Optuna Dashboard"
