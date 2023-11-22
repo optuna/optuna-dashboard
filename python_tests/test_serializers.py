@@ -36,7 +36,7 @@ def test_serialize_numpy_integer() -> None:
         }
     )
     assert len(serialized) == 4
-    assert all([v["value"] == 1 for v in serialized])
+    assert all([v["value"] == "1" for v in serialized])
 
 
 def test_serialize_numpy_floating() -> None:
@@ -49,7 +49,7 @@ def test_serialize_numpy_floating() -> None:
         }
     )
     assert len(serialized) == 4
-    assert all([v["value"] == 1.0 for v in serialized])
+    assert all([v["value"] == "1.0" for v in serialized])
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
