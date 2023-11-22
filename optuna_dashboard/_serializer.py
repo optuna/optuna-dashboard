@@ -7,6 +7,7 @@ from typing import Any
 from typing import TYPE_CHECKING
 from typing import Union
 
+import numpy as np
 from optuna.distributions import BaseDistribution
 from optuna.distributions import CategoricalDistribution
 from optuna.study import StudySummary

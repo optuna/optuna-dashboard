@@ -3,7 +3,6 @@ from __future__ import annotations
 import copy
 import numbers
 import threading
-from typing import Any
 from typing import List
 from typing import Optional
 from typing import Set
