@@ -2,12 +2,14 @@ from __future__ import annotations
 
 import copy
 import threading
+from typing import Any
 from typing import List
 from typing import Optional
 from typing import Set
 from typing import Tuple
 from typing import TYPE_CHECKING
 
+import numpy as np
 from optuna.distributions import BaseDistribution
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
@@ -84,12 +86,11 @@ class _CachedExtraStudyProperty:
 
         self._cursor = next_cursor
 
+    def _is_sortable_value(self, v: Any) -> bool:
+        return not isinstance(v, bool) and isinstance(v, (int, float, np.integer, np.floating))
+
     def _update_user_attrs(self, trial: FrozenTrial) -> None:
-        # TODO(c-bata): Support numpy-specific number types.
-        current_user_attrs = {
-            k: not isinstance(v, bool) and isinstance(v, (int, float))
-            for k, v in trial.user_attrs.items()
-        }
+        current_user_attrs = {k: self._is_sortable_value(v) for k, v in trial.user_attrs.items()}
         for attr_name, current_is_sortable in current_user_attrs.items():
             is_sortable = self._union_user_attrs.get(attr_name)
             if is_sortable is None:
