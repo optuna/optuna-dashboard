@@ -9,7 +9,8 @@ from optuna import get_all_study_summaries
 from optuna.study import StudyDirection
 from optuna_dashboard._app import create_app
 from optuna_dashboard._app import create_new_study
-from optuna_dashboard._note import note_str_key_prefix, note_ver_key
+from optuna_dashboard._note import note_str_key_prefix
+from optuna_dashboard._note import note_ver_key
 from optuna_dashboard._preference_setting import register_preference_feedback_component
 from optuna_dashboard._preferential_history import NewHistory
 from optuna_dashboard._preferential_history import remove_history
