@@ -299,7 +299,7 @@ class APITestCase(TestCase):
         }
 
     def test_save_trial_note(self) -> None:
-        request_body = {"body": "Test note.", "version": 1}
+        request_body: dict[str, int | str] = {"body": "Test note.", "version": 1}
         status, study = self._test_save_trial_note(request_body)
         self.assertEqual(status, 204)
         assert study.system_attrs == {
@@ -308,7 +308,7 @@ class APITestCase(TestCase):
         }
 
     def test_save_trial_note_with_wrong_version(self) -> None:
-        request_body = {"body": "Test note.", "version": 0}
+        request_body: dict[str, int | str] = {"body": "Test note.", "version": 0}
         status, study = self._test_save_trial_note(request_body)
         self.assertEqual(status, 409)
         assert study.system_attrs == {}
