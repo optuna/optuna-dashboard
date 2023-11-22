@@ -105,7 +105,7 @@ def serialize_attrs(attrs: dict[str, Any]) -> list[Attribute]:
         elif isinstance(v, str):
             value = v
         elif isinstance(v, (np.floating, np.integer)):
-            value = v.item()
+            value = str(v.item())
         else:
             value = json.dumps(v)
             value = value[:MAX_ATTR_LENGTH] if len(value) > MAX_ATTR_LENGTH else value
