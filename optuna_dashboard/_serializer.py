@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from datetime import datetime
 import json
+import numbers
 from typing import Any
 from typing import TYPE_CHECKING
 from typing import Union
 
-import numpy as np
 from optuna.distributions import BaseDistribution
 from optuna.distributions import CategoricalDistribution
 from optuna.study import StudySummary
@@ -104,8 +104,8 @@ def serialize_attrs(attrs: dict[str, Any]) -> list[Attribute]:
             value = "<binary object>"
         elif isinstance(v, str):
             value = v
-        elif isinstance(v, (np.floating, np.integer)):
-            value = str(v.item())
+        elif isinstance(v, numbers.Real):
+            value = str(v)
         else:
             value = json.dumps(v)
             value = value[:MAX_ATTR_LENGTH] if len(value) > MAX_ATTR_LENGTH else value
