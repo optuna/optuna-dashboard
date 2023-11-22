@@ -294,7 +294,7 @@ class APITestCase(TestCase):
         # Check if the version 1 is deleted.
         assert study.system_attrs == {
             note_ver_key(0): request_body["version"],
-            f"{note_str_key_prefix(0)}{0}": request_body["body"], 
+            f"{note_str_key_prefix(0)}{0}": request_body["body"],
         }
 
     def test_save_trial_note(self) -> None:
@@ -303,7 +303,7 @@ class APITestCase(TestCase):
         self.assertEqual(status, 204)
         assert study.system_attrs == {
             note_ver_key(0): request_body["version"],
-            f"{note_str_key_prefix(0)}{0}": request_body["body"], 
+            f"{note_str_key_prefix(0)}{0}": request_body["body"],
         }
 
     def test_save_trial_note_with_wrong_version(self) -> None:
