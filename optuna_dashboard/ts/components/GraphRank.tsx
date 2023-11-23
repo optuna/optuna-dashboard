@@ -281,6 +281,9 @@ const plotRank = (rankPlotInfo: RankPlotInfo | null, mode: string) => {
     template: mode === "dark" ? plotlyDarkTemplate : {},
   }
 
+  const xValues = rankPlotInfo.xvalues
+  const yValues = rankPlotInfo.yvalues
+
   const plotData: Partial<plotly.PlotData>[] = [
     {
       type: "scatter",
