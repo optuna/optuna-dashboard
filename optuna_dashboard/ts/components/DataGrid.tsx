@@ -28,7 +28,7 @@ interface DataGridColumn<T> {
   field: keyof T
   label: string
   sortable?: boolean
-  less?: (a: T, b: T) => number
+  less?: (a: T, b: T, ascending: boolean) => number
   filterable?: boolean
   toCellValue?: (rowIndex: number) => string | React.ReactNode
   padding?: "normal" | "checkbox" | "none"
@@ -92,10 +92,6 @@ function DataGrid<T>(props: {
     setFilters(newFilters)
   }
 
-  const clearFilter = (columnIdx: number): void => {
-    setFilters(filters.filter((f) => f.columnIdx !== columnIdx))
-  }
-
   const filteredRows = rows.filter((row, rowIdx) => {
     if (defaultFilter !== undefined && defaultFilter(row)) {
       return false
@@ -119,11 +115,6 @@ function DataGrid<T>(props: {
   })
 
   // Sorting
-  const createSortHandler = (columnId: number) => () => {
-    const isAsc = orderBy === columnId && order === "asc"
-    setOrder(isAsc ? "desc" : "asc")
-    setOrderBy(columnId)
-  }
   const sortedRows = stableSort<T>(filteredRows, order, orderBy, columns)
   const currentPageRows =
     rowsPerPage > 0
@@ -134,20 +125,6 @@ function DataGrid<T>(props: {
 
   const RootDiv = styled("div")({
     width: "100%",
-  })
-  const HiddenSpan = styled("span")({
-    border: 0,
-    clip: "rect(0 0 0 0)",
-    height: 1,
-    margin: -1,
-    overflow: "hidden",
-    padding: 0,
-    position: "absolute",
-    top: 20,
-    width: 1,
-  })
-  const TableHeaderCellSpan = styled("span")({
-    display: "inline-flex",
   })
   return (
     <RootDiv>
@@ -161,48 +138,19 @@ function DataGrid<T>(props: {
             <TableRow>
               {collapseBody ? <TableCell /> : null}
               {columns.map((column, columnIdx) => (
-                <TableCell
-                  key={columnIdx}
-                  padding={column.padding || "normal"}
-                  sortDirection={orderBy === column.field ? order : false}
-                >
-                  <TableHeaderCellSpan>
-                    {column.sortable ? (
-                      <TableSortLabel
-                        active={orderBy === columnIdx}
-                        direction={orderBy === columnIdx ? order : "asc"}
-                        onClick={createSortHandler(columnIdx)}
-                      >
-                        {column.label}
-                        {orderBy === column.field ? (
-                          <HiddenSpan>
-                            {order === "desc"
-                              ? "sorted descending"
-                              : "sorted ascending"}
-                          </HiddenSpan>
-                        ) : null}
-                      </TableSortLabel>
-                    ) : (
-                      column.label
-                    )}
-                    {column.filterable ? (
-                      <IconButton
-                        size={dense ? "small" : "medium"}
-                        style={
-                          fieldAlreadyFiltered(columnIdx)
-                            ? {}
-                            : { visibility: "hidden" }
-                        }
-                        color="inherit"
-                        onClick={() => {
-                          clearFilter(columnIdx)
-                        }}
-                      >
-                        <Clear />
-                      </IconButton>
-                    ) : null}
-                  </TableHeaderCellSpan>
-                </TableCell>
+                <DataGridHeaderColumn<T>
+                  key={column.label}
+                  column={column}
+                  orderBy={orderBy === columnIdx ? order : null}
+                  onOrderByChange={(direction: Order) => {
+                    setOrder(direction)
+                    setOrderBy(columnIdx)
+                  }}
+                  onFilterClear={() => {
+                    setFilters(filters.filter((f) => f.columnIdx !== columnIdx))
+                  }}
+                  filtered={fieldAlreadyFiltered(columnIdx)}
+                />
               ))}
             </TableRow>
           </TableHead>
@@ -236,6 +184,76 @@ function DataGrid<T>(props: {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </RootDiv>
+  )
+}
+
+function DataGridHeaderColumn<T>(props: {
+  column: DataGridColumn<T>
+  orderBy: Order | null
+  onOrderByChange: (direction: Order) => void
+  filtered: boolean
+  onFilterClear: () => void
+  dense?: boolean
+}) {
+  const { column, orderBy, onOrderByChange, filtered, onFilterClear, dense } =
+    props
+
+  const HiddenSpan = styled("span")({
+    border: 0,
+    clip: "rect(0 0 0 0)",
+    height: 1,
+    margin: -1,
+    overflow: "hidden",
+    padding: 0,
+    position: "absolute",
+    top: 20,
+    width: 1,
+  })
+  const TableHeaderCellSpan = styled("span")({
+    display: "inline-flex",
+  })
+  return (
+    <TableCell
+      padding={column.padding || "normal"}
+      sortDirection={orderBy || false}
+    >
+      <TableHeaderCellSpan>
+        {column.sortable ? (
+          <TableSortLabel
+            active={orderBy !== null}
+            direction={orderBy || "asc"}
+            onClick={() => {
+              if (orderBy === null) {
+                onOrderByChange("asc")
+              } else {
+                onOrderByChange(orderBy === "desc" ? "asc" : "desc")
+              }
+            }}
+          >
+            {column.label}
+            {orderBy !== null ? (
+              <HiddenSpan>
+                {orderBy === "desc" ? "sorted descending" : "sorted ascending"}
+              </HiddenSpan>
+            ) : null}
+          </TableSortLabel>
+        ) : (
+          column.label
+        )}
+        {column.filterable ? (
+          <IconButton
+            size={dense ? "small" : "medium"}
+            style={filtered ? {} : { visibility: "hidden" }}
+            color="inherit"
+            onClick={() => {
+              onFilterClear()
+            }}
+          >
+            <Clear />
+          </IconButton>
+        ) : null}
+      </TableHeaderCellSpan>
+    </TableCell>
   )
 }
 
@@ -358,7 +376,10 @@ function stableSort<T>(
   const stabilizedThis = array.map((el, index) => [el, index] as [T, number])
   stabilizedThis.sort((a, b) => {
     if (less) {
-      const result = order == "asc" ? -less(a[0], b[0]) : less(a[0], b[0])
+      const ascending = order == "asc"
+      const result = ascending
+        ? -less(a[0], b[0], ascending)
+        : less(a[0], b[0], ascending)
       if (result !== 0) return result
     } else {
       const result = comparator(a[0], b[0])
