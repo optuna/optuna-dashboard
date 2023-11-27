@@ -280,21 +280,28 @@ class APITestCase(TestCase):
         study = optuna.create_study()
         trial = study.ask()
         app = create_app(study._storage)
+
+        def _get_request_body(note_version: int) -> dict[str, str | int]:
+            return {"body": f"Test note ver. {note_version}.", "version": note_version}
+
         for ver in range(1, 3):
-            request_body = {"body": f"Test note ver. {ver}.", "version": ver}
             status, _, _ = send_request(
                 app,
                 f"/api/studies/{study._study_id}/{trial._trial_id}/note",
                 "PUT",
                 content_type="application/json",
-                body=json.dumps(request_body),
+                body=json.dumps(_get_request_body(note_version=ver)),
             )
         assert status == 204
         # Check if the version 1 is deleted.
-        assert study.system_attrs == {
-            note_ver_key(0): request_body["version"],
-            f"{note_str_key_prefix(0)}{0}": request_body["body"],
+        expected_request_body = _get_request_body(note_version=2)
+        expected_system_attrs = {
+            note_ver_key(trial_id=0): expected_request_body["version"],
+            f"{note_str_key_prefix(trial_id=0)}{0}": expected_request_body["body"],
         }
+        for k, v in expected_system_attrs.items():
+            assert k in study.system_attrs
+            assert study.system_attrs[k] == v
 
     def test_save_trial_note(self) -> None:
         request_body: dict[str, int | str] = {"body": "Test note.", "version": 1}
