@@ -263,9 +263,7 @@ class APITestCase(TestCase):
         self.assertEqual(status, 400)
         assert study.trials[0].user_attrs == {}
 
-    def _save_trial_note(
-        self, request_body: dict[str, int | str]
-    ) -> tuple[int, optuna.Study]:
+    def _save_trial_note(self, request_body: dict[str, int | str]) -> tuple[int, optuna.Study]:
         study = optuna.create_study()
         trial = study.ask()
         app = create_app(study._storage)
