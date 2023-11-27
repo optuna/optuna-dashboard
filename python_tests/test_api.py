@@ -263,7 +263,7 @@ class APITestCase(TestCase):
         self.assertEqual(status, 400)
         assert study.trials[0].user_attrs == {}
 
-    def _test_save_trial_note(
+    def _save_trial_note(
         self, request_body: dict[str, int | str]
     ) -> tuple[int, optuna.Study]:
         study = optuna.create_study()
@@ -300,7 +300,7 @@ class APITestCase(TestCase):
 
     def test_save_trial_note(self) -> None:
         request_body: dict[str, int | str] = {"body": "Test note.", "version": 1}
-        status, study = self._test_save_trial_note(request_body)
+        status, study = self._save_trial_note(request_body)
         self.assertEqual(status, 204)
         expected_system_attrs = {
             note_ver_key(0): request_body["version"],
@@ -312,12 +312,12 @@ class APITestCase(TestCase):
 
     def test_save_trial_note_with_wrong_version(self) -> None:
         request_body: dict[str, int | str] = {"body": "Test note.", "version": 0}
-        status, study = self._test_save_trial_note(request_body)
+        status, study = self._save_trial_note(request_body)
         self.assertEqual(status, 409)
         assert note_ver_key(0) not in study.system_attrs
 
     def test_save_trial_note_empty(self) -> None:
-        status, study = self._test_save_trial_note(request_body={})
+        status, study = self._save_trial_note(request_body={})
         self.assertEqual(status, 400)
         assert note_ver_key(0) not in study.system_attrs
 
