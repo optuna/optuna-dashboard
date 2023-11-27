@@ -125,10 +125,11 @@ class TestProxyStudyArtifact(TestCase):
                 f.flush()
                 artifact_id = upload_artifact(self.study, f.name, artifact_store=artifact_store)
             app = create_app(self.storage, artifact_store)
-            status, _, _ = send_request(
+            status, _, body = send_request(
                 app,
                 f"/artifacts/{self.study._study_id}/{artifact_id}",
                 "GET",
                 content_type="application/json",
             )
             self.assertEqual(status, 200)
+            self.assertEqual(body, b"dummy_content")
