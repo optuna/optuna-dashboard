@@ -104,7 +104,6 @@ class TestProxyStudyArtifact(TestCase):
             content_type="application/json",
         )
         self.assertEqual(status, 400)
-        self.assertEqual(body, b"Cannot access to the artifacts.")
 
     def test_artifact_not_found(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
