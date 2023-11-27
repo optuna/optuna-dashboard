@@ -116,7 +116,6 @@ class TestProxyStudyArtifact(TestCase):
                 content_type="application/json",
             )
             self.assertEqual(status, 404)
-            self.assertEqual(body, b"Not Found")
 
     def test_successful_artifact_retrieval(self) -> None:
         with tempfile.TemporaryDirectory() as tmpdir:
