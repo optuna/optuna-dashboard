@@ -291,7 +291,7 @@ class APITestCase(TestCase):
                 content_type="application/json",
                 body=json.dumps(request_body),
             )
-        self.assertEqual(status, 204)
+        assert status == 204
         # Check if the version 1 is deleted.
         assert study.system_attrs == {
             note_ver_key(0): request_body["version"],
@@ -301,7 +301,7 @@ class APITestCase(TestCase):
     def test_save_trial_note(self) -> None:
         request_body: dict[str, int | str] = {"body": "Test note.", "version": 1}
         status, study = self._save_trial_note(request_body)
-        self.assertEqual(status, 204)
+        assert status == 204
         expected_system_attrs = {
             note_ver_key(0): request_body["version"],
             f"{note_str_key_prefix(0)}{0}": request_body["body"],
@@ -313,12 +313,12 @@ class APITestCase(TestCase):
     def test_save_trial_note_with_wrong_version(self) -> None:
         request_body: dict[str, int | str] = {"body": "Test note.", "version": 0}
         status, study = self._save_trial_note(request_body)
-        self.assertEqual(status, 409)
+        assert status == 409
         assert note_ver_key(0) not in study.system_attrs
 
     def test_save_trial_note_empty(self) -> None:
         status, study = self._save_trial_note(request_body={})
-        self.assertEqual(status, 400)
+        assert status == 400
         assert note_ver_key(0) not in study.system_attrs
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
