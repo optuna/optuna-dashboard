@@ -1,8 +1,16 @@
+import tempfile
+from unittest import TestCase
 from unittest.mock import MagicMock
 
+import optuna
+from optuna.artifacts import FileSystemArtifactStore
+from optuna.artifacts import upload_artifact
 from optuna.storages import BaseStorage
+from optuna_dashboard._app import create_app
 from optuna_dashboard.artifact import _backend
 import pytest
+
+from ..wsgi_client import send_request
 
 
 def test_get_artifact_path() -> None:
@@ -80,3 +88,49 @@ def test_list_trial_artifacts(init_storage_with_artifact_meta: MagicMock) -> Non
         {"artifact_id": "id1", "filename": "bar.txt"},
         {"artifact_id": "id2", "filename": "baz.txt"},
     ]
+
+
+class TestProxyStudyArtifact(TestCase):
+    def setUp(self) -> None:
+        self.storage = optuna.storages.InMemoryStorage()
+        self.study = optuna.create_study(storage=self.storage)
+
+    def test_artifact_store_none(self) -> None:
+        app = create_app(self.storage)
+        status, _, body = send_request(
+            app,
+            "/artifacts/0/0",
+            "GET",
+            content_type="application/json",
+        )
+        self.assertEqual(status, 400)
+        self.assertEqual(body, b"Cannot access to the artifacts.")
+
+    def test_artifact_not_found(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            artifact_store = FileSystemArtifactStore(tmpdir)
+            app = create_app(self.storage, artifact_store)
+            status, _, body = send_request(
+                app,
+                f"/artifacts/{self.study._study_id}/abc123",
+                "GET",
+                content_type="application/json",
+            )
+            self.assertEqual(status, 404)
+            self.assertEqual(body, b"Not Found")
+
+    def test_successful_artifact_retrieval(self) -> None:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            artifact_store = FileSystemArtifactStore(tmpdir)
+            with tempfile.NamedTemporaryFile() as f:
+                f.write(b"dummy_content")
+                f.flush()
+                artifact_id = upload_artifact(self.study, f.name, artifact_store=artifact_store)
+            app = create_app(self.storage, artifact_store)
+            status, _, _ = send_request(
+                app,
+                f"/artifacts/{self.study._study_id}/{artifact_id}",
+                "GET",
+                content_type="application/json",
+            )
+            self.assertEqual(status, 200)
