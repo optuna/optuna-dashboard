@@ -99,11 +99,11 @@ function DataGrid<T>(props: {
             return true
           }
           const toCellValue = columns[f.columnIdx].toCellValue
-          const value =
+          const cellValue =
             toCellValue !== undefined
               ? toCellValue(rowIdx)
               : row[columns[f.columnIdx].field]
-          return f.values.some((v) => v === value)
+          return f.values.some((v) => v === cellValue)
         })
   })
 
@@ -266,17 +266,17 @@ function DataGridHeaderColumn<T>(props: {
                 <MenuItem
                   key={choice}
                   onClick={() => {
-                    const values =
+                    const newTickedValues =
                       filter === null
-                        ? filterChoices.filter((v) => v !== choice)
+                        ? filterChoices.filter((v) => v !== choice)  // By default, every choice is ticked, so the chosen option will be unticked.
                         : filter.values.some((v) => v === choice)
                         ? filter.values.filter((v) => v !== choice)
                         : [...filter.values, choice]
-                    onFilterChange(values)
+                    onFilterChange(newTickedValues)
                   }}
                 >
                   <ListItemIcon>
-                    {!filter || !filter.values.every((v) => v !== choice) ? (
+                    {!filter || filter.values.some((v) => v === choice) ? (
                       <CheckBoxIcon color="primary" />
                     ) : (
                       <CheckBoxOutlineBlankIcon color="primary" />
