@@ -54,50 +54,7 @@ class NoteTestCase(TestCase):
                 self.assertEqual(note_dict["body"], body)
                 self.assertEqual(note_dict["version"], expected_ver)
 
-    def test_delete_notes_trial(self) -> None:
-        study = optuna.create_study()
-        trials = [
-            study.ask({"x1": optuna.distributions.FloatDistribution(0, 10)}) for _ in range(2)
-        ]
-        storage = study._storage
-
-        notes = ["trial 0", "trial 1"]
-        for trial, body in zip(trials, notes):
-            with self.subTest(body):
-                save_note(trial, body)
-
-                self.assertEqual(get_note(trial), body)
-
-                note.delete_notes(storage, study._study_id, trial._trial_id)
-
-                self.assertEqual(get_note(trial), "")
-
-    def test_delete_notes_study(self) -> None:
-        study = optuna.create_study()
-        trials = [
-            study.ask({"x1": optuna.distributions.FloatDistribution(0, 10)}) for _ in range(2)
-        ]
-        storage = study._storage
-
-        notes = ["trial 0", "trial 1"]
-        for trial, body in zip(trials, notes):
-            with self.subTest(body):
-                save_note(trial, body)
-
-                actual = get_note(trial)
-                self.assertEqual(actual, body)
-
-        save_note(study, "Study note")
-        actual = get_note(study)
-        self.assertEqual(actual, "Study note")
-
-        note.delete_study_notes(storage, study._study_id)
-
-        for trial in trials:
-            self.assertEqual(get_note(trial), "")
-        self.assertEqual(get_note(study), "")
-
-    def test_transfer_notes(self) -> None:
+    def test_copy_notes(self) -> None:
         old_study = optuna.create_study()
         old_trials = [
             old_study.ask({"x1": optuna.distributions.FloatDistribution(0, 10)}) for _ in range(2)
@@ -112,12 +69,7 @@ class NoteTestCase(TestCase):
         new_study = optuna.create_study(storage=storage, directions=old_study.directions)
         new_study.add_trials(old_study.get_trials(deepcopy=False))
 
-        note.transfer_notes(storage, old_study, new_study)
-
-        for old_trial in old_trials:
-            self.assertEqual(get_note(old_trial), "")
-        self.assertEqual(get_note(old_study), "")
-
+        note.copy_notes(storage, old_study, new_study)
         system_attrs = new_study._storage.get_study_system_attrs(new_study._study_id)
         for new_trial, body in zip(new_study.get_trials(), notes):
             actual = note.get_note_from_system_attrs(system_attrs, new_trial._trial_id)

@@ -110,21 +110,17 @@ def note_str_key_prefix(trial_id: Optional[int]) -> str:
     return f"dashboard:{trial_id}:note_str:"
 
 
-def transfer_notes(storage: BaseStorage, src_study: optuna.Study, dst_study: optuna.Study) -> None:
+def copy_notes(storage: BaseStorage, src_study: optuna.Study, dst_study: optuna.Study) -> None:
     system_attrs = storage.get_study_system_attrs(study_id=src_study._study_id)
 
-    def transfer(src_trial_id: Optional[int], dst_trial_id: Optional[int]) -> None:
-        note = get_note_from_system_attrs(system_attrs, src_trial_id)["body"]
-        save_note_with_version(storage, dst_study._study_id, dst_trial_id, 0, note)
-        delete_notes(storage, src_study._study_id, src_trial_id)
-
-    # Transfer individual trial notes
+    # Copy individual trial notes
     for src_trial, dst_trial in zip(src_study.get_trials(), dst_study.get_trials()):
-        transfer(src_trial._trial_id, dst_trial._trial_id)
+        note = get_note_from_system_attrs(system_attrs, src_trial._trial_id)["body"]
+        save_note_with_version(storage, dst_study._study_id, dst_trial._trial_id, 0, note)
 
-    # Transfer study note
-    NO_SRC_TRIAL, NO_DST_TRIAL = None, None
-    transfer(NO_SRC_TRIAL, NO_DST_TRIAL)
+    # Copy study note
+    note = get_note_from_system_attrs(system_attrs, None)["body"]
+    save_note_with_version(storage, dst_study._study_id, None, 0, note)
 
 
 def get_note_from_system_attrs(system_attrs: dict[str, Any], trial_id: Optional[int]) -> NoteType:
@@ -149,17 +145,6 @@ def version_is_incremented(
     return req_note_ver == db_note_ver + 1
 
 
-def all_trial_notes(
-    storage: BaseStorage, study_id: int, trial_id: Optional[int]
-) -> dict[str, str]:
-    all_note_attrs: dict[str, str] = {
-        key: value
-        for key, value in storage.get_study_system_attrs(study_id).items()
-        if key.startswith(note_str_key_prefix(trial_id))
-    }
-    return all_note_attrs
-
-
 def save_note_with_version(
     storage: BaseStorage, study_id: int, trial_id: Optional[int], ver: int, body: str
 ) -> None:
@@ -170,24 +155,14 @@ def save_note_with_version(
         storage.set_study_system_attr(study_id, k, v)
 
     # Clear previous messages
-    all_note_attrs = all_trial_notes(storage, study_id, trial_id)
+    all_note_attrs: dict[str, str] = {
+        key: value
+        for key, value in storage.get_study_system_attrs(study_id).items()
+        if key.startswith(note_str_key_prefix(trial_id))
+    }
     if len(all_note_attrs) > len(attrs):
         for i in range(len(attrs), len(all_note_attrs)):
             storage.set_study_system_attr(study_id, f"{note_str_key_prefix(trial_id)}{i}", "")
-
-
-def delete_study_notes(storage: BaseStorage, study_id: int) -> None:
-    for trial in storage.get_all_trials(study_id):
-        delete_notes(storage, study_id, trial._trial_id)
-
-    delete_notes(storage, study_id, None)
-
-
-def delete_notes(storage: BaseStorage, study_id: int, trial_id: Optional[int]) -> None:
-    all_note_attrs = all_trial_notes(storage, study_id, trial_id)
-
-    for i in range(len(all_note_attrs)):
-        storage.set_study_system_attr(study_id, f"{note_str_key_prefix(trial_id)}{i}", "")
 
 
 def split_body(note_str: str, trial_id: Optional[int]) -> dict[str, str]:
