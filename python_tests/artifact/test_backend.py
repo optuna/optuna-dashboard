@@ -89,19 +89,18 @@ def test_list_trial_artifacts(init_storage_with_artifact_meta: MagicMock) -> Non
     ]
 
 
-def test_artifact_store_none() -> None:
+def test_study_artifact_store_none() -> None:
     storage = optuna.storages.InMemoryStorage()
     app = create_app(storage)
     status, _, body = send_request(
         app,
         "/artifacts/0/0",
         "GET",
-        content_type="application/json",
     )
     assert status == 400
 
 
-def test_artifact_not_found() -> None:
+def test_study_artifact_not_found() -> None:
     storage = optuna.storages.InMemoryStorage()
     study = optuna.create_study(storage=storage)
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -111,12 +110,11 @@ def test_artifact_not_found() -> None:
             app,
             f"/artifacts/{study._study_id}/abc123",
             "GET",
-            content_type="application/json",
         )
         assert status == 404
 
 
-def test_successful_artifact_retrieval() -> None:
+def test_successful_study_artifact_retrieval() -> None:
     storage = optuna.storages.InMemoryStorage()
     study = optuna.create_study(storage=storage)
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -130,7 +128,52 @@ def test_successful_artifact_retrieval() -> None:
             app,
             f"/artifacts/{study._study_id}/{artifact_id}",
             "GET",
-            content_type="application/json",
+        )
+        assert status == 200
+        assert body == b"dummy_content"
+
+
+def test_trial_artifact_store_none() -> None:
+    storage = optuna.storages.InMemoryStorage()
+    app = create_app(storage)
+    status, _, body = send_request(
+        app,
+        "/artifacts/0/0/0",
+        "GET",
+    )
+    assert status == 400
+
+
+def test_trial_artifact_not_found() -> None:
+    storage = optuna.storages.InMemoryStorage()
+    study = optuna.create_study(storage=storage)
+    trial = study.ask()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        artifact_store = FileSystemArtifactStore(tmpdir)
+        app = create_app(storage, artifact_store)
+        status, _, body = send_request(
+            app,
+            f"/artifacts/{study._study_id}/{trial._trial_id}/abc123",
+            "GET",
+        )
+        assert status == 404
+
+
+def test_successful_trial_artifact_retrieval() -> None:
+    storage = optuna.storages.InMemoryStorage()
+    study = optuna.create_study(storage=storage)
+    trial = study.ask()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        artifact_store = FileSystemArtifactStore(tmpdir)
+        with tempfile.NamedTemporaryFile() as f:
+            f.write(b"dummy_content")
+            f.flush()
+            artifact_id = upload_artifact(trial, f.name, artifact_store=artifact_store)
+        app = create_app(storage, artifact_store)
+        status, _, body = send_request(
+            app,
+            f"/artifacts/{study._study_id}/{trial._trial_id}/{artifact_id}",
+            "GET",
         )
         assert status == 200
         assert body == b"dummy_content"
