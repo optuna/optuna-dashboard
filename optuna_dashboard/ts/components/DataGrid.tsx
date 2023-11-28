@@ -268,7 +268,7 @@ function DataGridHeaderColumn<T>(props: {
                   onClick={() => {
                     const newTickedValues =
                       filter === null
-                        ? filterChoices.filter((v) => v !== choice)  // By default, every choice is ticked, so the chosen option will be unticked.
+                        ? filterChoices.filter((v) => v !== choice) // By default, every choice is ticked, so the chosen option will be unticked.
                         : filter.values.some((v) => v === choice)
                         ? filter.values.filter((v) => v !== choice)
                         : [...filter.values, choice]
