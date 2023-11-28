@@ -139,6 +139,7 @@ def register_artifact_route(
         storage.set_trial_system_attr(trial_id, attr_key, json.dumps(artifact))
         response.status = 201
 
+        trial = storage.get_trial(trial_id)  # Fetch trial.system_attrs again.
         return {
             "artifact_id": artifact_id,
             "artifacts": list_trial_artifacts(storage.get_study_system_attrs(study_id), trial),
