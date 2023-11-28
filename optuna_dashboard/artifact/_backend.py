@@ -105,7 +105,7 @@ def register_artifact_route(
 
     @app.post("/api/artifacts/<study_id:int>/<trial_id:int>")
     @json_api_view
-    def upload_artifact_api(study_id: int, trial_id: int) -> dict[str, Any]:
+    def upload_trial_artifact_api(study_id: int, trial_id: int) -> dict[str, Any]:
         trial = storage.get_trial(trial_id)
         if trial is None:
             response.status = 400
@@ -144,9 +144,42 @@ def register_artifact_route(
             "artifacts": list_trial_artifacts(storage.get_study_system_attrs(study_id), trial),
         }
 
+    @app.post("/api/artifacts/<study_id:int>")
+    @json_api_view
+    def upload_study_artifact_api(study_id: int) -> dict[str, Any]:
+        if artifact_store is None:
+            response.status = 400  # Bad Request
+            return {"reason": "Cannot access to the artifacts."}
+        file = request.json.get("file")
+        if file is None:
+            response.status = 400
+            return {"reason": "Please specify the 'file' key."}
+
+        _, data = parse_data_uri(file)
+        filename = request.json.get("filename", "")
+        artifact_id = str(uuid.uuid4())
+        artifact_store.write(artifact_id, io.BytesIO(data))
+
+        mimetype, encoding = mimetypes.guess_type(filename)
+        artifact = {
+            "artifact_id": artifact_id,
+            "filename": filename,
+            "mimetype": mimetype or DEFAULT_MIME_TYPE,
+            "encoding": encoding,
+        }
+        attr_key = ARTIFACTS_ATTR_PREFIX + artifact_id
+        storage.set_study_system_attr(study_id, attr_key, json.dumps(artifact))
+
+        response.status = 201
+
+        return {
+            "artifact_id": artifact_id,
+            "artifacts": list_study_artifacts(storage.get_study_system_attrs(study_id)),
+        }
+
     @app.delete("/api/artifacts/<study_id:int>/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
     @json_api_view
-    def delete_artifact(study_id: int, trial_id: int, artifact_id: str) -> dict[str, Any]:
+    def delete_trial_artifact(study_id: int, trial_id: int, artifact_id: str) -> dict[str, Any]:
         if artifact_store is None:
             response.status = 400  # Bad Request
             return {"reason": "Cannot access to the artifacts."}
@@ -154,10 +187,25 @@ def register_artifact_route(
 
         # The artifact's metadata is stored in one of the following two locations:
         storage.set_study_system_attr(
-            study_id, _dashboard_trial_artifact_prefix(trial_id) + artifact_id, json.dumps(None)
+            study_id, _dashboard_artifact_prefix(trial_id) + artifact_id, json.dumps(None)
         )
         storage.set_trial_system_attr(
             trial_id, ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None)
+        )
+
+        response.status = 204
+        return {}
+
+    @app.delete("/api/artifacts/<study_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
+    @json_api_view
+    def delete_study_artifact(study_id: int, artifact_id: str) -> dict[str, Any]:
+        if artifact_store is None:
+            response.status = 400  # Bad Request
+            return {"reason": "Cannot access to the artifacts."}
+        artifact_store.remove(artifact_id)
+
+        storage.set_study_system_attr(
+            study_id, ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None)
         )
 
         response.status = 204
@@ -220,7 +268,7 @@ def upload_artifact(
     return artifact_id
 
 
-def _dashboard_trial_artifact_prefix(trial_id: int) -> str:
+def _dashboard_artifact_prefix(trial_id: int) -> str:
     return DASHBOARD_ARTIFACTS_ATTR_PREFIX + f"{trial_id}:"
 
 
@@ -240,7 +288,7 @@ def get_trial_artifact_meta(
 ) -> Optional[ArtifactMeta]:
     # Search study_system_attrs due to backward compatibility.
     study_system_attrs = storage.get_study_system_attrs(study_id)
-    attr_key = _dashboard_trial_artifact_prefix(trial_id=trial_id) + artifact_id
+    attr_key = _dashboard_artifact_prefix(trial_id=trial_id) + artifact_id
     artifact_meta = study_system_attrs.get(attr_key)
     if artifact_meta is not None:
         return json.loads(artifact_meta)
@@ -284,7 +332,7 @@ def list_trial_artifacts(
     dashboard_artifact_metas = [
         json.loads(value)
         for key, value in study_system_attrs.items()
-        if key.startswith(_dashboard_trial_artifact_prefix(trial._trial_id))
+        if key.startswith(_dashboard_artifact_prefix(trial._trial_id))
     ]
 
     # Collect ArtifactMeta from trial_system_attrs. Note that artifacts uploaded via

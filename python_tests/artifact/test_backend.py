@@ -12,7 +12,7 @@ def test_get_artifact_path() -> None:
 
 
 def test_artifact_prefix() -> None:
-    actual = _backend._dashboard_trial_artifact_prefix(trial_id=0)
+    actual = _backend._dashboard_artifact_prefix(trial_id=0)
     assert actual == "dashboard:artifacts:0:"
 
 

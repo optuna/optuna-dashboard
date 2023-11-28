@@ -5,7 +5,8 @@ module.exports = {
     '@typescript-eslint',
   ],
   rules: {
-      "@typescript-eslint/ban-ts-comment": "off"
+      "@typescript-eslint/ban-ts-comment": "off",
+      "eqeqeq": ["error", "smart"],
   },
   extends: [
     'eslint:recommended',

@@ -23,7 +23,7 @@ export const TrialTable: FC<{
       toCellValue: (i) => trials[i].state.toString(),
     },
   ]
-  if (studyDetail === null || studyDetail.directions.length == 1) {
+  if (studyDetail === null || studyDetail.directions.length === 1) {
     columns.push({
       field: "values",
       label: "Value",
