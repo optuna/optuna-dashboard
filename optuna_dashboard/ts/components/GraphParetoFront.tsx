@@ -208,7 +208,7 @@ const getIsDominatedTrial = (normalizedValues: number[][]) => {
   if (normalizedValues.length == 0) {
     return []
   }
-  if (normalizedValues[0].length == 1) {
+  if (normalizedValues[0].length === 1) {
     return getIsDominatedTrial1D(normalizedValues)
   } else if (normalizedValues[0].length == 2) {
     return getIsDominatedTrial2D(normalizedValues)
