@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import os.path
 from socketserver import ThreadingMixIn
 import sys
 from typing import TYPE_CHECKING
@@ -116,7 +117,7 @@ def main() -> None:
     args = parser.parse_args()
 
     storage: BaseStorage
-    storage = get_storage(args.storage, storage_class=args.storage_class)
+    storage = get_storage(os.path.expandvars(args.storage), storage_class=args.storage_class)
 
     artifact_store: ArtifactStore | None
     if args.artifact_dir is None:
