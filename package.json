@@ -41,7 +41,8 @@
     "rehype-raw": "^6.1.1",
     "remark-gfm": "^3.0.1",
     "remark-math": "^5.1.1",
-    "three": "^0.155.0"
+    "three": "^0.155.0",
+    "wavesurfer.js": "^7.4.12"
   },
   "devDependencies": {
     "@babel/core": "^7.14.3",

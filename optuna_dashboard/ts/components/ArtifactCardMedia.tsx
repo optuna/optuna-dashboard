@@ -3,6 +3,7 @@ import {
   ThreejsArtifactViewer,
   isThreejsArtifact,
 } from "./ThreejsArtifactViewer"
+import { WaveSurferArtifactViewer } from "./WaveSurferArtifactViewer"
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 import { CardMedia, Box } from "@mui/material"
 
@@ -43,9 +44,12 @@ export const ArtifactCardMedia: FC<{
           alignItems: "center",
         }}
       >
-        <audio controls style={{ width: "100%" }}>
-          <source src={urlPath} type={artifact.mimetype} />
-        </audio>
+        <WaveSurferArtifactViewer
+          height={100}
+          waveColor="rgb(200, 0, 200)"
+          progressColor="rgb(100, 0, 100)"
+          url={urlPath}
+        />
       </Box>
     )
   } else if (artifact.mimetype.startsWith("image")) {
