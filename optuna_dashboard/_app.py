@@ -152,6 +152,7 @@ def create_app(
                 storage=storage, study_name=dst_study_name, directions=src_study.directions
             )
             dst_study.add_trials(src_study.get_trials(deepcopy=False))
+            note.copy_notes(storage, src_study, dst_study)
         except DuplicatedStudyError:
             response.status = 400  # Bad request
             return {"reason": f"study_name={dst_study_name} is duplicaated"}
@@ -165,7 +166,6 @@ def create_app(
             response.status = 500
             return {"reason": "Failed to load the new study"}
 
-        note.copy_notes(storage, src_study, dst_study)
         storage.delete_study(src_study._study_id)
         response.status = 201
         return serialize_study_summary(new_study_summary)
