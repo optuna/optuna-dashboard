@@ -9,15 +9,12 @@ interface WaveSurferArtifactViewerProps {
   url: string
 }
 
-// WaveSurfer hook
 const useWavesurfer = (
   containerRef: React.MutableRefObject<HTMLDivElement>,
   options: WaveSurferArtifactViewerProps
 ) => {
   const [wavesurfer, setWavesurfer] = useState<WaveSurfer | null>(null)
 
-  // Initialize wavesurfer when the container mounts
-  // or any of the props change
   useEffect(() => {
     if (!containerRef.current) return
 
@@ -36,8 +33,7 @@ const useWavesurfer = (
   return wavesurfer
 }
 
-// Create a React component that will render wavesurfer.
-// Props are wavesurfer options.
+// Create a React component of wavesurfer.
 export const WaveSurferArtifactViewer: React.FC<
   WaveSurferArtifactViewerProps
 > = (props) => {
@@ -45,14 +41,11 @@ export const WaveSurferArtifactViewer: React.FC<
   const [isPlaying, setIsPlaying] = useState(false)
   const wavesurfer = useWavesurfer(containerRef, props)
 
-  // On play button click
   const onPlayClick = useCallback(() => {
     if (!wavesurfer) return
     wavesurfer.isPlaying() ? wavesurfer.pause() : wavesurfer.play()
   }, [wavesurfer])
 
-  // Initialize wavesurfer when the container mounts
-  // or any of the props change
   useEffect(() => {
     if (!wavesurfer) return
 
