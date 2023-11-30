@@ -201,7 +201,7 @@ def test_upload_artifact_invalid() -> None:
             body=json.dumps({"file": DUMMY_DATA}),
             content_type="application/json",
         )
-        assert status == 500  # TODO: This should return 400
+        assert status == 500  # TODO(contramundum53): This should return 400
 
         # Invalid: complete trial
         study.add_trial(optuna.create_trial(value=1.0, distributions={}, params={}))
