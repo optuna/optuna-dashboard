@@ -27,7 +27,7 @@ export const getDominatedTrials = (
   const dominatedTrials: boolean[] = []
   normalizedValues.forEach((values0: number[], i: number) => {
     const dominated = normalizedValues.some((values1: number[], j: number) => {
-      if (i === j || values0.every((v, i) => v == values1[i])) {
+      if (i === j || values0.every((v, i) => v === values1[i])) {
         return false
       }
       return values0.every((value0: number, k: number) => {

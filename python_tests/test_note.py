@@ -53,3 +53,25 @@ class NoteTestCase(TestCase):
                 note_dict = note.get_note_from_system_attrs(system_attrs, trial._trial_id)
                 self.assertEqual(note_dict["body"], body)
                 self.assertEqual(note_dict["version"], expected_ver)
+
+    def test_copy_notes(self) -> None:
+        old_study = optuna.create_study()
+        old_trials = [
+            old_study.ask({"x1": optuna.distributions.FloatDistribution(0, 10)}) for _ in range(2)
+        ]
+        storage = old_study._storage
+
+        notes = ["trial 0", "trial 1"]
+        for trial, body in zip(old_trials, notes):
+            save_note(trial, body)
+        save_note(old_study, "Study")
+
+        new_study = optuna.create_study(storage=storage, directions=old_study.directions)
+        new_study.add_trials(old_study.get_trials(deepcopy=False))
+
+        note.copy_notes(storage, old_study, new_study)
+        system_attrs = new_study._storage.get_study_system_attrs(new_study._study_id)
+        for new_trial, body in zip(new_study.get_trials(), notes):
+            actual = note.get_note_from_system_attrs(system_attrs, new_trial._trial_id)
+            self.assertEqual(actual["body"], body)
+        self.assertEqual(get_note(new_study), "Study")

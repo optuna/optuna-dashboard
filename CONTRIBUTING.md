@@ -83,6 +83,7 @@ $ pytest python_tests/
 
 ```
 $ pip install -r requirements.txt
+$ playwright install
 $ pytest e2e_tests
 ```
 
@@ -91,6 +92,9 @@ If you want to create a screenshot for each test, please run a following command
 ```
 $ pytest e2e_tests --screenshot on --output tmp
 ```
+
+If you want to generate a locator in each webpage, please use the playwright codegen. See [this page](https://playwright.dev/python/docs/codegen-intro) for more details.
+
 
 For more detail options, you can check [this page](https://playwright.dev/python/docs/test-runners).
 

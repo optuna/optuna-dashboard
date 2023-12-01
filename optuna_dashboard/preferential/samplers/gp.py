@@ -317,7 +317,7 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
 
         self._rng = np.random.RandomState(seed)
         self.independent_sampler = independent_sampler or optuna.samplers.RandomSampler(
-            seed=self._rng.randint(2**32)
+            seed=self._rng.randint(2**32, dtype=np.int64)
         )
 
         self._search_space = optuna.search_space.IntersectionSearchSpace()
@@ -355,7 +355,7 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
         )
         pref_ids = torch.tensor([[ids[b], ids[w]] for b, w in preferences], dtype=torch.int32)
         with torch.random.fork_rng():
-            torch.manual_seed(self._rng.randint(2**32))
+            torch.manual_seed(self._rng.randint(2**32, dtype=np.int64))
 
             self._gp = self._gp or _PreferentialGP(
                 kernel=self.kernel

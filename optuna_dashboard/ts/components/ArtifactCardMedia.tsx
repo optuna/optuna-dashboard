@@ -4,7 +4,7 @@ import {
   isThreejsArtifact,
 } from "./ThreejsArtifactViewer"
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
-import { CardMedia } from "@mui/material"
+import { CardMedia, Box } from "@mui/material"
 import { AtomsArtifactViewer } from "./AtomsArtifactViewer"
 
 export const ArtifactCardMedia: FC<{
@@ -36,9 +36,18 @@ export const ArtifactCardMedia: FC<{
     )
   } else if (artifact.mimetype.startsWith("audio")) {
     return (
-      <audio controls>
-        <source src={urlPath} type={artifact.mimetype} />
-      </audio>
+      <Box
+        style={{
+          width: "100%",
+          height: height,
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        <audio controls style={{ width: "100%" }}>
+          <source src={urlPath} type={artifact.mimetype} />
+        </audio>
+      </Box>
     )
   } else if (artifact.mimetype.startsWith("image")) {
     return (
