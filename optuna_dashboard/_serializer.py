@@ -141,11 +141,13 @@ def serialize_study_detail(
     has_intermediate_values: bool,
     plotly_graph_objects: dict[str, str],
     skipped_trial_numbers: list[int],
+    fetched_trials_partially: bool,
 ) -> dict[str, Any]:
     serialized: dict[str, Any] = {
         "name": summary.study_name,
         "directions": [d.name.lower() for d in summary.directions],
         "user_attrs": serialize_attrs(summary.user_attrs),
+        "fetched_trials_partially": fetched_trials_partially,
     }
     system_attrs = getattr(summary, "system_attrs", {})
     serialized["artifacts"] = list_study_artifacts(system_attrs)

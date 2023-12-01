@@ -33,6 +33,11 @@ export const drawerOpenState = atom<boolean>({
   default: false,
 })
 
+export const isTrialLeftInCache = atom<boolean>({
+  key: "isTrialLeftInCache",
+  default: false,
+})
+
 export const isFileUploading = atom<boolean>({
   key: "isFileUploading",
   default: false,

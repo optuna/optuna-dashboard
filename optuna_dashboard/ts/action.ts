@@ -27,6 +27,7 @@ import {
   studySummariesState,
   paramImportanceState,
   isFileUploading,
+  isTrialLeftInCache,
   artifactIsAvailable,
   reloadIntervalState,
   trialsUpdatingState,
@@ -46,6 +47,7 @@ export const actionCreator = () => {
   const setUploading = useSetRecoilState<boolean>(isFileUploading)
   const setTrialsUpdating = useSetRecoilState(trialsUpdatingState)
   const setArtifactIsAvailable = useSetRecoilState<boolean>(artifactIsAvailable)
+  const setIsTrialLeftInCache = useSetRecoilState<boolean>(isTrialLeftInCache)
 
   const setStudyDetailState = (studyId: number, study: StudyDetail) => {
     setStudyDetails((prevVal) => {
@@ -233,6 +235,7 @@ export const actionCreator = () => {
 
   const updateStudyDetail = (studyId: number) => {
     let nLocalFixedTrials = 0
+    let nMaximumTrialsAtOnce = 1000
     if (studyId in studyDetails) {
       const currentTrials = studyDetails[studyId].trials
       const firstUpdatable = currentTrials.findIndex((trial) =>
@@ -240,15 +243,20 @@ export const actionCreator = () => {
       )
       nLocalFixedTrials =
         firstUpdatable === -1 ? currentTrials.length : firstUpdatable
+      nMaximumTrialsAtOnce = 2000
     }
-    getStudyDetailAPI(studyId, nLocalFixedTrials)
+    getStudyDetailAPI(studyId, nLocalFixedTrials, nMaximumTrialsAtOnce)
       .then((study) => {
         const currentFixedTrials =
           studyId in studyDetails
             ? studyDetails[studyId].trials.slice(0, nLocalFixedTrials)
             : []
-        study.trials = currentFixedTrials.concat(study.trials)
-        setStudyDetailState(studyId, study)
+        if (study.trials.length !== 0 || !(studyId in studyDetails)) {
+          // Update trials only if necessary. The second condition is for study with no trials.
+          study.trials = currentFixedTrials.concat(study.trials)
+          setStudyDetailState(studyId, study)
+          setIsTrialLeftInCache(study.fetched_trials_partially)
+        }
       })
       .catch((err) => {
         const reason = err.response?.data.reason
