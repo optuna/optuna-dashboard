@@ -1,0 +1,21 @@
+# These owners will be the default owners for everything in the repo.
+# Unless a later match takes precedence, @c-bata will be requested for review.
+*  @c-bata
+
+# All Optuna Dashboard collaborators owns any Python files, tests, and docs.
+/optuna_dashboard/**/*.py   @keisuke-umezawa @hrntsm @contramundum53 @not522 @knshnb @hrntsm @Alnusjaponica @nabenabe0928 @toshihikoyanase @eukaryo @gen740 @HideakiImamura
+/optuna_dashboard/preferential/
+
+/python_tests/  @keisuke-umezawa @hrntsm @contramundum53 @not522 @knshnb @hrntsm @Alnusjaponica @nabenabe0928 @toshihikoyanase @eukaryo @gen740 @HideakiImamura
+
+/docs/  @keisuke-umezawa @hrntsm @contramundum53 @not522 @knshnb @hrntsm @Alnusjaponica @nabenabe0928 @toshihikoyanase @eukaryo @gen740 @HideakiImamura
+
+*.md  @keisuke-umezawa @hrntsm @contramundum53 @not522 @knshnb @hrntsm @Alnusjaponica @nabenabe0928 @toshihikoyanase @eukaryo @gen740 @HideakiImamura
+
+
+# Following developers owns the code for preferential optimization.
+/optuna_dashboard/preferential/  @contramundum53 @not522
+
+# Following developers owns the code for e2e tests.
+/e2e_tests/  @keisuke-umezawa
+
