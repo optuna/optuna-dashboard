@@ -200,7 +200,7 @@ def test_upload_artifact_invalid_no_trial() -> None:
             body=json.dumps({"file": DUMMY_DATA_URL}),
             content_type="application/json",
         )
-        assert status == 500  # TODO: This should return 400
+        assert status == 500  # TODO(contramundum53): This should return 400
 
 def test_upload_artifact_invalid_complete_trial() -> None:
     storage = optuna.storages.InMemoryStorage()
