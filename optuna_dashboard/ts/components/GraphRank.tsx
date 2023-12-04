@@ -237,7 +237,7 @@ const getColors = (values: number[]): number[] => {
 }
 
 const getOrderWithSameOrderAveraging = (values: number[]): number[] => {
-  const sortedValues = values.slice().sort()
+  const sortedValues = values.slice().sort((a, b) => a - b)
   const ranks: number[] = []
   values.forEach((value) => {
     const firstIndex = sortedValues.indexOf(value)
