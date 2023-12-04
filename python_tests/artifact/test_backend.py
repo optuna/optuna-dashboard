@@ -181,10 +181,10 @@ def test_successful_trial_artifact_retrieval() -> None:
         assert body == b"dummy_content"
 
 
-DUMMY_DATA = f"data:text/plain; charset=utf-8,{base64.b64encode(b'dummy_content').decode('utf-8')}"
+DUMMY_DATA_URL = f"data:text/plain; charset=utf-8,{base64.b64encode(b'dummy_content').decode('utf-8')}"
 
 
-def test_upload_artifact_invalid() -> None:
+def test_upload_artifact_invalid_no_trial() -> None:
     storage = optuna.storages.InMemoryStorage()
 
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -193,24 +193,31 @@ def test_upload_artifact_invalid() -> None:
         app = create_app(storage, artifact_store)
         study = optuna.create_study(storage=storage)
 
-        # Invalid: no trial
         status, _, body = send_request(
             app,
             f"/api/artifacts/{study._study_id}/0",
             "POST",
-            body=json.dumps({"file": DUMMY_DATA}),
+            body=json.dumps({"file": DUMMY_DATA_URL}),
             content_type="application/json",
         )
         assert status == 500  # TODO: This should return 400
 
-        # Invalid: complete trial
+def test_upload_artifact_invalid_complete_trial() -> None:
+    storage = optuna.storages.InMemoryStorage()
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        artifact_store = FileSystemArtifactStore(tmpdir)
+
+        app = create_app(storage, artifact_store)
+        study = optuna.create_study(storage=storage)
+
         study.add_trial(optuna.create_trial(value=1.0, distributions={}, params={}))
         trial = study.trials[-1]
         status, _, body = send_request(
             app,
             f"/api/artifacts/{study._study_id}/{trial._trial_id}",
             "POST",
-            body=json.dumps({"file": DUMMY_DATA}),
+            body=json.dumps({"file": DUMMY_DATA_URL}),
             content_type="application/json",
         )
         assert status == 400
@@ -231,7 +238,7 @@ def test_upload_artifact() -> None:
             app,
             f"/api/artifacts/{study._study_id}/{trial._trial_id}",
             "POST",
-            body=json.dumps({"file": DUMMY_DATA}),
+            body=json.dumps({"file": DUMMY_DATA_URL}),
             content_type="application/json",
         )
         assert status == 201
