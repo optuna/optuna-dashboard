@@ -181,7 +181,9 @@ def test_successful_trial_artifact_retrieval() -> None:
         assert body == b"dummy_content"
 
 
-DUMMY_DATA_URL = f"data:text/plain; charset=utf-8,{base64.b64encode(b'dummy_content').decode('utf-8')}"
+DUMMY_DATA_URL = (
+    f"data:text/plain; charset=utf-8,{base64.b64encode(b'dummy_content').decode('utf-8')}"
+)
 
 
 def test_upload_artifact_invalid_no_trial() -> None:
@@ -201,6 +203,7 @@ def test_upload_artifact_invalid_no_trial() -> None:
             content_type="application/json",
         )
         assert status == 500  # TODO(contramundum53): This should return 400
+
 
 def test_upload_artifact_invalid_complete_trial() -> None:
     storage = optuna.storages.InMemoryStorage()
