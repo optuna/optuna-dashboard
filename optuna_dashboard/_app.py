@@ -3,6 +3,7 @@ from __future__ import annotations
 import csv
 import functools
 import io
+from itertools import chain
 import logging
 import os
 import typing
@@ -463,13 +464,13 @@ def create_app(
         param_names = sorted(set(chain.from_iterable([t.params.keys() for t in trials])))
         user_attr_names = sorted(set(chain.from_iterable([t.user_attrs.keys() for t in trials])))
 
-        param_names_heading = [f"Param {x}" for x in param_names]
-        user_attr_names_heading = [f"UserAttribute {x}" for x in user_attr_names]
-        value_heading = ["Value"]
+        param_names_header = [f"Param {x}" for x in param_names]
+        user_attr_names_header = [f"UserAttribute {x}" for x in user_attr_names]
+        value_header = ["Value"]
         if len(trials[0].values) > 1:
-            value_heading = [f"Objective {x}" for x in range(len(trials[0].values))]
+            value_header = [f"Objective {x}" for x in range(len(trials[0].values))]
         column_names = (
-            ["Number", "State"] + value_heading + param_names_heading + user_attr_names_heading
+            ["Number", "State"] + value_header + param_names_header + user_attr_names_header
         )
 
         buf = io.StringIO("")
