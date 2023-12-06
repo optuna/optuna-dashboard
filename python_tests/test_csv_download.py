@@ -1,10 +1,58 @@
 from typing import Any
 
 import optuna
+from optuna.trial import TrialState
 from optuna_dashboard._app import create_app
 import pytest
 
 from .wsgi_client import send_request
+
+
+def test_download_csv_no_trial() -> None:
+    def objective(trial: optuna.Trial) -> float:
+        x = trial.suggest_float("x", -100, 100)
+        y = trial.suggest_categorical("y", [-1, 0, 1])
+        return x**2 + y
+
+    storage = optuna.storages.InMemoryStorage()
+    study = optuna.create_study(storage=storage)
+    study.optimize(objective, n_trials=0)
+    app = create_app(storage)
+    status, _, body = send_request(
+        app,
+        "/csv/0",
+        "GET",
+        content_type="application/json",
+    )
+    assert status == 200
+
+
+def test_download_csv_all_waiting() -> None:
+    storage = optuna.storages.InMemoryStorage()
+    study = optuna.create_study(storage=storage)
+    study.add_trial(optuna.trial.create_trial(state=TrialState.WAITING))
+    app = create_app(storage)
+    status, _, body = send_request(
+        app,
+        "/csv/0",
+        "GET",
+        content_type="application/json",
+    )
+    assert status == 200
+
+
+def test_download_csv_all_running() -> None:
+    storage = optuna.storages.InMemoryStorage()
+    study = optuna.create_study(storage=storage)
+    study.add_trial(optuna.trial.create_trial(state=TrialState.RUNNING))
+    app = create_app(storage)
+    status, _, body = send_request(
+        app,
+        "/csv/0",
+        "GET",
+        content_type="application/json",
+    )
+    assert status == 200
 
 
 @pytest.mark.parametrize("id", [0, 1])
@@ -47,7 +95,7 @@ def test_download_csv_multi_obj(is_multi_obj: bool) -> None:
     app = create_app(storage)
     status, _, body = send_request(
         app,
-        f"/csv/{0}",
+        "/csv/0",
         "GET",
         content_type="application/json",
     )
@@ -68,7 +116,7 @@ def test_download_csv_user_attr() -> None:
     app = create_app(storage)
     status, _, body = send_request(
         app,
-        f"/csv/{0}",
+        "/csv/0",
         "GET",
         content_type="application/json",
     )
