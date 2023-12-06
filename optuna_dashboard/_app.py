@@ -489,9 +489,9 @@ def create_app(
             writer.writerow(row)
 
         # Set response headers
-        output_filename = re.sub(r'[\\/:*?"<>|]+', "", summary.study_name)
+        output_name = re.sub(r'[\\/:*?"<>|]+', "", summary.study_name)
         response.headers["Content-Type"] = "text/csv; chatset=cp932"
-        response.headers["Content-Disposition"] = f"attachment; filename=trials_{output_filename}.csv"
+        response.headers["Content-Disposition"] = f"attachment; filename={output_name}.csv"
 
         # Response body
         buf.seek(0)
