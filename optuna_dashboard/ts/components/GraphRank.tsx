@@ -154,8 +154,12 @@ const getRankPlotInfo = (
   const hovertext: string[] = []
   const convertTrialValueToNumber = (value: TrialValueNumber): number => {
     // TrialValueNumber takes `number`, "inf", or "-inf".
-    return typeof(value) === "number" ? value : value.includes("-") ? -Infinity : Infinity
-  };
+    return typeof value === "number"
+      ? value
+      : value.includes("-")
+      ? -Infinity
+      : Infinity
+  }
   filteredTrials.forEach((trial, i) => {
     const xValue = xAxis.values[i]
     const yValue = yAxis.values[i]
