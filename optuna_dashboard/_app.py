@@ -480,7 +480,8 @@ def create_app(
         writer = csv.writer(buf)
         writer.writerow(column_names)
         for frozen_trial in trials:
-            row = [frozen_trial.number, frozen_trial.state.name] + frozen_trial.values
+            row = [frozen_trial.number, frozen_trial.state.name]
+            row.extend(frozen_trial.values if frozen_trial.values is not None else [None] * n_objs)
             row.extend([frozen_trial.params.get(name, None) for name in param_names])
             row.extend([frozen_trial.user_attrs.get(name, None) for name in user_attr_names])
             writer.writerow(row)
