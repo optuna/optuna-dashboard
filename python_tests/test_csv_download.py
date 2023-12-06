@@ -1,3 +1,5 @@
+from typing import Any
+
 import optuna
 from optuna_dashboard._app import create_app
 import pytest
@@ -28,7 +30,7 @@ def test_download_csv_fail(id: int) -> None:
 
 @pytest.mark.parametrize("is_multi_obj", [True, False])
 def test_download_csv_multi_obj(is_multi_obj: bool) -> None:
-    def objective(trial: optuna.Trial) -> float:
+    def objective(trial: optuna.Trial) -> Any:
         x = trial.suggest_float("x", -100, 100)
         y = trial.suggest_categorical("y", [-1, 0, 1])
         if is_multi_obj:
