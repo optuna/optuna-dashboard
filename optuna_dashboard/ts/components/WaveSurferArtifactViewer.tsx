@@ -28,7 +28,7 @@ const useWavesurfer = (
     return () => {
       ws.destroy()
     }
-  }, [options, containerRef])
+  }, [containerRef])
 
   return wavesurfer
 }
