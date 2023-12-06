@@ -460,15 +460,8 @@ def create_app(
             return {"reason": f"study_id={study_id} is not found"}
         trials = get_trials(storage, study_id)
 
-        param_names = []
-        user_attr_names = []
-        for trial in trials:
-            for param_name in trial.params.keys():
-                if param_name not in param_names:
-                    param_names.append(param_name)
-            for attr_name in trial.user_attrs.keys():
-                if attr_name not in user_attr_names:
-                    user_attr_names.append(attr_name)
+        param_names = sorted(set(chain.from_iterable([t.params.keys() for t in trials])))
+        user_attr_names = sorted(set(chain.from_iterable([t.user_attrs.keys() for t in trials])))
 
         param_names_heading = [f"Param {x}" for x in param_names]
         user_attr_names_heading = [f"UserAttribute {x}" for x in user_attr_names]
