@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import csv
 import functools
-import io   
+import io
 import logging
 import os
 import typing
@@ -453,38 +453,57 @@ def create_app(
     
     @app.get("/csv/<study_id:int>")
     def download_csv(study_id: int) -> BottleViewReturn:
-        # TODO: Create a CSV file
+        # Create a CSV file
         summary = get_study_summary(storage, study_id)
         if summary is None:
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
         trials = get_trials(storage, study_id)
 
-        param_names = list(trials[0].params.keys())
-        union_user_attrs = list(trials[0].user_attrs)
-        column_names = ["Number", "State", "Value"] + param_names + union_user_attrs
+        param_names = []
+        user_attr_names = []
+        for trial in trials:
+            for param_name in trial.params.keys():
+                if param_name not in param_names:
+                    param_names.append(param_name)
+            for attr_name in trial.user_attrs.keys():
+                if attr_name not in user_attr_names:
+                    user_attr_names.append(attr_name)
+
+        param_names_heading = [f"Param {x}" for x in param_names]
+        user_attr_names_heading = [f"UserAttribute {x}" for x in user_attr_names]
+        value_heading = ["Value"]
+        if len(trials[0].values) > 1:
+            value_heading = [f"Objective {x}" for x in range(len(trials[0].values))]
+        column_names = (
+            ["Number", "State"] + value_heading + param_names_heading + user_attr_names_heading
+        )
 
         buf = io.StringIO("")
         writer = csv.writer(buf)
         writer.writerow(column_names)
         for frozen_trial in trials:
-            row = [
-                frozen_trial.number,
-                frozen_trial.state,
-                frozen_trial.values[0]
-                ]
-            row += [frozen_trial.params[param] for param in param_names]
-            row += [frozen_trial.user_attrs[attr] for attr in union_user_attrs]
+            row = [frozen_trial.number, frozen_trial.state.name]
+            row += frozen_trial.values
+            for param_name in param_names:
+                if param_name in frozen_trial.params.keys():
+                    row += [frozen_trial.params[param_name]]
+                else:
+                    row += [None]
+            for attr_name in user_attr_names:
+                if attr_name in frozen_trial.user_attrs.keys():
+                    row += [frozen_trial.user_attrs[attr_name]]
+                else:
+                    row += [None]
             writer.writerow(row)
-            
-        # TODO: Set response headers
+
+        # Set response headers
         response.headers["Content-Type"] = "text/csv; chatset=cp932"
         response.headers["Content-Disposition"] = f"attachment; filename=trials_{study_id}.csv"
 
-        # TODO: Response body
+        # Response body
         buf.seek(0)
         return buf.read()
-    
 
     @app.get("/favicon.ico")
     def favicon() -> BottleViewReturn:
