@@ -456,24 +456,22 @@ def create_app(
     @app.get("/csv/<study_id:int>")
     def download_csv(study_id: int) -> BottleViewReturn:
         # Create a CSV file
-        summary = get_study_summary(storage, study_id)
-        if summary is None:
+        try:
+            study_name = storage.get_study_name_from_id(study_id)
+            study = optuna.load_study(storage=storage, study_name=study_name)
+        except KeyError:
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
-        trials = get_trials(storage, study_id)
-
+        trials = study.trials
         param_names = sorted(set(chain.from_iterable([t.params.keys() for t in trials])))
         user_attr_names = sorted(set(chain.from_iterable([t.user_attrs.keys() for t in trials])))
-
         param_names_header = [f"Param {x}" for x in param_names]
         user_attr_names_header = [f"UserAttribute {x}" for x in user_attr_names]
-        value_header = ["Value"]
-        n_objs = len(summary.directions)
-        if n_objs > 1:
-            if "study:metric_names" in summary._system_attrs:
-                value_header = summary._system_attrs["study:metric_names"]
-            else:
-                value_header = [f"Objective {x}" for x in range(n_objs)]
+        n_objs = len(study.directions)
+        if study.metric_names is not None:
+            value_header = study.metric_names
+        else:
+            value_header = ["Value"] if n_objs == 1 else [f"Objective {x}" for x in range(n_objs)]
         column_names = (
             ["Number", "State"] + value_header + param_names_header + user_attr_names_header
         )
@@ -489,7 +487,7 @@ def create_app(
             writer.writerow(row)
 
         # Set response headers
-        output_name = re.sub(r'[\\/:*?"<>|]+', "", summary.study_name)
+        output_name = re.sub(r'[\\/:*?"<>|]+', "", study_name)
         response.headers["Content-Type"] = "text/csv; chatset=cp932"
         response.headers["Content-Disposition"] = f"attachment; filename={output_name}.csv"
 
