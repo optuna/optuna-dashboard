@@ -149,11 +149,28 @@ export const StudyDetail: FC<{
     content = <TrialList studyDetail={studyDetail} />
   } else if (page === "trialTable") {
     content = (
-      <Card sx={{ margin: theme.spacing(2) }}>
-        <CardContent>
-          <TrialTable studyDetail={studyDetail} initialRowsPerPage={50} />
-        </CardContent>
-      </Card>
+      <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
+        <Card sx={{ margin: theme.spacing(2) }}>
+          <CardContent>
+            <TrialTable studyDetail={studyDetail} initialRowsPerPage={50} />
+          </CardContent>
+        </Card>
+        <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
+          Download CSV File
+        </Typography> <Card sx={{ margin: theme.spacing(2), width:
+        80, height: 80, display: 'flex', justifyContent: 'center',
+        alignItems: 'center' }}>
+          <CardContent>
+            <IconButton
+              aria-label="download csv" size="small" color="inherit"
+              download={`trials_${studyDetail?.id}.csv`} sx={{ margin:
+              "auto 0" }} href={`/csv/${studyDetail?.id}`}
+            >
+              <DownloadIcon />
+            </IconButton>
+          </CardContent>
+        </Card>
+      </Box>
     )
   } else if (page === "note" && studyDetail !== null) {
     content = (
