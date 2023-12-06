@@ -483,18 +483,9 @@ def create_app(
         writer = csv.writer(buf)
         writer.writerow(column_names)
         for frozen_trial in trials:
-            row = [frozen_trial.number, frozen_trial.state.name]
-            row += frozen_trial.values
-            for param_name in param_names:
-                if param_name in frozen_trial.params.keys():
-                    row += [frozen_trial.params[param_name]]
-                else:
-                    row += [None]
-            for attr_name in user_attr_names:
-                if attr_name in frozen_trial.user_attrs.keys():
-                    row += [frozen_trial.user_attrs[attr_name]]
-                else:
-                    row += [None]
+            row = [frozen_trial.number, frozen_trial.state.name] + frozen_trial.values
+            row.extend([frozen_trial.params.get(name, None) for name in param_names])
+            row.extend([frozen_trial.user_attrs.get(name, None) for name in user_attr_names])
             writer.writerow(row)
 
         # Set response headers
