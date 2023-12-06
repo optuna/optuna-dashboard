@@ -6,6 +6,7 @@ import io
 from itertools import chain
 import logging
 import os
+import re
 import typing
 from typing import Any
 from typing import Optional
@@ -467,9 +468,12 @@ def create_app(
         param_names_header = [f"Param {x}" for x in param_names]
         user_attr_names_header = [f"UserAttribute {x}" for x in user_attr_names]
         value_header = ["Value"]
-        n_objs = max([len(t.values) for t in trials if t.values is not None], default=1)
+        n_objs = len(summary.directions)
         if n_objs > 1:
-            value_header = [f"Objective {x}" for x in range(n_objs)]
+            if "study:metric_names" in summary._system_attrs:
+                value_header = summary._system_attrs["study:metric_names"]
+            else:
+                value_header = [f"Objective {x}" for x in range(n_objs)]
         column_names = (
             ["Number", "State"] + value_header + param_names_header + user_attr_names_header
         )
@@ -485,8 +489,9 @@ def create_app(
             writer.writerow(row)
 
         # Set response headers
+        output_filename = re.sub(r'[\\/:*?"<>|]+', "", summary.study_name)
         response.headers["Content-Type"] = "text/csv; chatset=cp932"
-        response.headers["Content-Disposition"] = f"attachment; filename=trials_{study_id}.csv"
+        response.headers["Content-Disposition"] = f"attachment; filename=trials_{output_filename}.csv"
 
         # Response body
         buf.seek(0)
