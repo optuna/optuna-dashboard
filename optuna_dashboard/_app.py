@@ -469,8 +469,9 @@ def create_app(
         param_names_header = [f"Param {x}" for x in param_names]
         user_attr_names_header = [f"UserAttribute {x}" for x in user_attr_names]
         value_header = ["Value"]
-        if len(trials[0].values) > 1:
-            value_header = [f"Objective {x}" for x in range(len(trials[0].values))]
+        n_objs = max([len(t.values) for t in trials if t.values is not None], default=1)
+        if n_objs > 1:
+            value_header = [f"Objective {x}" for x in range(n_objs)]
         column_names = (
             ["Number", "State"] + value_header + param_names_header + user_attr_names_header
         )
