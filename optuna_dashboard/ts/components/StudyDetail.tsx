@@ -151,19 +151,11 @@ export const StudyDetail: FC<{
   } else if (page === "trialTable") {
     content = (
       <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
-        <Card sx={{ margin: theme.spacing(2) }}>
-          <CardContent>
-            <TrialTable studyDetail={studyDetail} initialRowsPerPage={50} />
-          </CardContent>
-        </Card>
-        <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
-          Download CSV File
-        </Typography>{" "}
         <Card
           sx={{
             margin: theme.spacing(2),
-            width: 80,
-            height: 80,
+            width: "auto",
+            height: "auto",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
@@ -179,7 +171,15 @@ export const StudyDetail: FC<{
               href={`/csv/${studyDetail?.id}`}
             >
               <DownloadIcon />
+              <Typography variant="button" sx={{ margin: theme.spacing(2) }}>
+                Download CSV File
+              </Typography>
             </IconButton>
+          </CardContent>
+        </Card>
+        <Card sx={{ margin: theme.spacing(2) }}>
+          <CardContent>
+            <TrialTable studyDetail={studyDetail} initialRowsPerPage={50} />
           </CardContent>
         </Card>
       </Box>
