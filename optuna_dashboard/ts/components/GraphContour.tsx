@@ -14,25 +14,8 @@ import {
 import blue from "@mui/material/colors/blue"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { useMergedUnionSearchSpace } from "../searchSpace"
+import { getAxisInfo } from "../graphUtil"
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const unique = (array: any[]) => {
-  const knownElements = new Map()
-  array.forEach((elem) => knownElements.set(elem, true))
-  return Array.from(knownElements.keys())
-}
-
-type AxisInfo = {
-  name: string
-  min: number
-  max: number
-  isLog: boolean
-  isCat: boolean
-  indices: (string | number)[]
-  values: (string | number | null)[]
-}
-
-const PADDING_RATIO = 0.05
 const plotDomId = "graph-contour"
 
 export const Contour: FC<{
@@ -162,19 +145,19 @@ const plotContour = (
     return
   }
 
-  const xAxis = getAxisInfo(study, trials, xParam)
-  const yAxis = getAxisInfo(study, trials, yParam)
+  const xAxis = getAxisInfo(trials, xParam)
+  const yAxis = getAxisInfo(trials, yParam)
   const xIndices = xAxis.indices
   const yIndices = yAxis.indices
 
   const layout: Partial<plotly.Layout> = {
     xaxis: {
       title: xParam.name,
-      type: xAxis.isCat ? "category" : undefined,
+      type: xAxis.isCat ? "category" : xAxis.isLog ? "log" : "linear",
     },
     yaxis: {
       title: yParam.name,
-      type: yAxis.isCat ? "category" : undefined,
+      type: yAxis.isCat ? "category" : yAxis.isLog ? "log" : "linear",
     },
     margin: {
       l: 50,
@@ -195,12 +178,16 @@ const plotContour = (
   const xValues: plotly.Datum[] = []
   const yValues: plotly.Datum[] = []
   const zValues: plotly.Datum[][] = new Array(yIndices.length)
+  const feasibleXY = new Set<number>()
   for (let j = 0; j < yIndices.length; j++) {
     zValues[j] = new Array(xIndices.length).fill(null)
   }
 
   filteredTrials.forEach((trial, i) => {
     if (xAxis.values[i] && yAxis.values[i] && trial.values) {
+      if (trial.constraints.every((c) => c <= 0)) {
+        feasibleXY.add(xValues.length)
+      }
       const xValue = xAxis.values[i] as string | number
       const yValue = yAxis.values[i] as string | number
       xValues.push(xValue)
@@ -234,9 +221,17 @@ const plotContour = (
       },
       {
         type: "scatter",
-        x: xValues,
-        y: yValues,
+        x: xValues.filter((_, i) => feasibleXY.has(i)),
+        y: yValues.filter((_, i) => feasibleXY.has(i)),
         marker: { line: { width: 2.0, color: "Grey" }, color: "black" },
+        mode: "markers",
+        showlegend: false,
+      },
+      {
+        type: "scatter",
+        x: xValues.filter((_, i) => !feasibleXY.has(i)),
+        y: yValues.filter((_, i) => !feasibleXY.has(i)),
+        marker: { line: { width: 2.0, color: "Grey" }, color: "#cccccc" },
         mode: "markers",
         showlegend: false,
       },
@@ -271,88 +266,4 @@ const plotContour = (
     },
   ]
   plotly.react(plotDomId, plotData, layout)
-}
-
-const getAxisInfoForNumericalParams = (
-  trials: Trial[],
-  paramName: string,
-  distribution: FloatDistribution | IntDistribution
-): AxisInfo => {
-  const padding = (distribution.high - distribution.low) * PADDING_RATIO
-  const min = distribution.low - padding
-  const max = distribution.high + padding
-
-  const values = trials.map(
-    (trial) =>
-      trial.params.find((p) => p.name === paramName)?.param_internal_value ||
-      null
-  )
-  const indices = unique(values)
-    .filter((v) => v !== null)
-    .sort((a, b) => a - b)
-  if (indices.length >= 2) {
-    indices.unshift(min)
-    indices.push(max)
-  }
-  return {
-    name: paramName,
-    min,
-    max,
-    isLog: distribution.log,
-    isCat: false,
-    indices,
-    values,
-  }
-}
-
-const getAxisInfoForCategoricalParams = (
-  trials: Trial[],
-  paramName: string,
-  distribution: CategoricalDistribution
-): AxisInfo => {
-  const values = trials.map(
-    (trial) =>
-      trial.params.find((p) => p.name === paramName)?.param_external_value ||
-      null
-  )
-  const isDynamic = values.some((v) => v === null)
-  const span = distribution.choices.length - (isDynamic ? 2 : 1)
-  const padding = span * PADDING_RATIO
-  const min = -padding
-  const max = span + padding
-
-  const indices = distribution.choices
-    .map((c) => c.value)
-    .sort((a, b) =>
-      a.toLowerCase() < b.toLowerCase()
-        ? -1
-        : a.toLowerCase() > b.toLowerCase()
-        ? 1
-        : 0
-    )
-  return {
-    name: paramName,
-    min,
-    max,
-    isLog: false,
-    isCat: true,
-    indices,
-    values,
-  }
-}
-
-const getAxisInfo = (
-  study: StudyDetail,
-  trials: Trial[],
-  param: SearchSpaceItem
-): AxisInfo => {
-  if (param.distribution.type === "CategoricalDistribution") {
-    return getAxisInfoForCategoricalParams(
-      trials,
-      param.name,
-      param.distribution
-    )
-  } else {
-    return getAxisInfoForNumericalParams(trials, param.name, param.distribution)
-  }
 }

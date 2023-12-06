@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from unittest import TestCase
 
 import optuna
@@ -8,12 +9,15 @@ from optuna import get_all_study_summaries
 from optuna.study import StudyDirection
 from optuna_dashboard._app import create_app
 from optuna_dashboard._app import create_new_study
+from optuna_dashboard._note import note_str_key_prefix
+from optuna_dashboard._note import note_ver_key
 from optuna_dashboard._preference_setting import register_preference_feedback_component
 from optuna_dashboard._preferential_history import NewHistory
 from optuna_dashboard._preferential_history import remove_history
 from optuna_dashboard._preferential_history import report_history
 from optuna_dashboard._serializer import serialize_preference_history
 from optuna_dashboard.preferential import create_study
+import pytest
 
 from .wsgi_client import send_request
 
@@ -105,6 +109,7 @@ class APITestCase(TestCase):
         )
         self.assertEqual(status, 400)
 
+    @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
     def test_get_best_trials_of_preferential_study(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(n_generate=4, storage=storage)
@@ -128,6 +133,7 @@ class APITestCase(TestCase):
         assert len(best_trials) == 1
         assert best_trials[0]["number"] == 0
 
+    @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
     def test_report_preference(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(n_generate=4, storage=storage)
@@ -161,6 +167,7 @@ class APITestCase(TestCase):
         assert better.number == 2
         assert worse.number == 1
 
+    @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
     def test_report_preference_when_typo_mode(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(storage=storage, n_generate=3)
@@ -184,6 +191,7 @@ class APITestCase(TestCase):
         )
         self.assertEqual(status, 400)
 
+    @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
     def test_change_component(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(storage=storage, n_generate=3)
@@ -214,6 +222,111 @@ class APITestCase(TestCase):
         assert study_detail["feedback_component_type"]["output_type"] == "artifact"
         assert study_detail["feedback_component_type"]["artifact_key"] == "image"
 
+    def test_save_trial_user_attrs(self) -> None:
+        study = optuna.create_study()
+        trials: list[optuna.Trial] = []
+        for _ in range(2):
+            trial = study.ask()
+            trials.append(trial)
+
+        request_body = {
+            "user_attrs": {
+                "number": 0,
+            },
+        }
+
+        app = create_app(study._storage)
+        status, _, _ = send_request(
+            app,
+            f"/api/trials/{trials[0]._trial_id}/user-attrs",
+            "POST",
+            content_type="application/json",
+            body=json.dumps(request_body),
+        )
+        self.assertEqual(status, 204)
+
+        assert study.trials[0].user_attrs == request_body["user_attrs"]
+        assert study.trials[1].user_attrs == {}
+
+    def test_save_trial_user_attrs_empty(self) -> None:
+        study = optuna.create_study()
+        trial = study.ask()
+
+        app = create_app(study._storage)
+        status, _, _ = send_request(
+            app,
+            f"/api/trials/{trial._trial_id}/user-attrs",
+            "POST",
+            content_type="application/json",
+            body=json.dumps({}),
+        )
+        self.assertEqual(status, 400)
+        assert study.trials[0].user_attrs == {}
+
+    def _save_trial_note(self, request_body: dict[str, int | str]) -> tuple[int, optuna.Study]:
+        study = optuna.create_study()
+        trial = study.ask()
+        app = create_app(study._storage)
+        status, _, _ = send_request(
+            app,
+            f"/api/studies/{study._study_id}/{trial._trial_id}/note",
+            "PUT",
+            content_type="application/json",
+            body=json.dumps(request_body),
+        )
+        return status, study
+
+    def test_save_trial_note_overwrite(self) -> None:
+        study = optuna.create_study()
+        trial = study.ask()
+        app = create_app(study._storage)
+
+        def _get_request_body(note_version: int) -> dict[str, str | int]:
+            return {"body": f"Test note ver. {note_version}.", "version": note_version}
+
+        for ver in range(1, 3):
+            status, _, _ = send_request(
+                app,
+                f"/api/studies/{study._study_id}/{trial._trial_id}/note",
+                "PUT",
+                content_type="application/json",
+                body=json.dumps(_get_request_body(note_version=ver)),
+            )
+        assert status == 204
+        # Check if the version 1 is deleted.
+        expected_request_body = _get_request_body(note_version=2)
+        expected_system_attrs = {
+            note_ver_key(trial_id=0): expected_request_body["version"],
+            f"{note_str_key_prefix(trial_id=0)}{0}": expected_request_body["body"],
+        }
+        for k, v in expected_system_attrs.items():
+            assert k in study.system_attrs
+            assert study.system_attrs[k] == v
+
+    def test_save_trial_note(self) -> None:
+        request_body: dict[str, int | str] = {"body": "Test note.", "version": 1}
+        status, study = self._save_trial_note(request_body)
+        assert status == 204
+        expected_system_attrs = {
+            note_ver_key(0): request_body["version"],
+            f"{note_str_key_prefix(0)}{0}": request_body["body"],
+        }
+        for k, v in expected_system_attrs.items():
+            assert k in study.system_attrs
+            assert study.system_attrs[k] == v
+
+    def test_save_trial_note_with_wrong_version(self) -> None:
+        request_body: dict[str, int | str] = {"body": "Test note.", "version": 0}
+        status, study = self._save_trial_note(request_body)
+        assert status == 409
+        assert note_ver_key(0) not in study.system_attrs
+
+    def test_save_trial_note_empty(self) -> None:
+        status, study = self._save_trial_note(request_body={})
+        assert status == 400
+        assert note_ver_key(0) not in study.system_attrs
+
+    @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
     def test_skip_trial(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(n_generate=4, storage=storage)
@@ -238,6 +351,7 @@ class APITestCase(TestCase):
         assert len(best_trials) == 1
         assert best_trials[0].number == 2
 
+    @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
     def test_remove_history(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(storage=storage, n_generate=3)
@@ -271,6 +385,7 @@ class APITestCase(TestCase):
         assert histories[0]["is_removed"]
         assert len(study.get_preferences()) == 0
 
+    @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
     def test_restore_history(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(storage=storage, n_generate=3)
@@ -389,6 +504,125 @@ class APITestCase(TestCase):
             content_type="application/json",
         )
         self.assertEqual(status, 404)
+
+    def test_tell_trial_complete(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = optuna.create_study(storage=storage)
+        trial_id = study.ask()._trial_id
+
+        app = create_app(storage)
+        status, _, _ = send_request(
+            app,
+            f"/api/trials/{trial_id}/tell",
+            "POST",
+            body=json.dumps(
+                {
+                    "state": "Complete",
+                    "values": [0, 1, 2],
+                }
+            ),
+            content_type="application/json",
+        )
+        self.assertEqual(status, 204)
+        trial = storage.get_trial(trial_id)
+        assert trial.state == optuna.trial.TrialState.COMPLETE
+        assert trial.values == [0, 1, 2]
+
+    def test_tell_trial_fail(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = optuna.create_study(storage=storage)
+        trial_id = study.ask()._trial_id
+
+        app = create_app(storage)
+        status, _, _ = send_request(
+            app,
+            f"/api/trials/{trial_id}/tell",
+            "POST",
+            body=json.dumps(
+                {
+                    "state": "Fail",
+                }
+            ),
+            content_type="application/json",
+        )
+        self.assertEqual(status, 204)
+        trial = storage.get_trial(trial_id)
+        assert trial.state == optuna.trial.TrialState.FAIL
+
+    def test_tell_trial_with_no_state(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = optuna.create_study(storage=storage)
+        trial_id = study.ask()._trial_id
+
+        app = create_app(storage)
+        status, _, _ = send_request(
+            app,
+            f"/api/trials/{trial_id}/tell",
+            "POST",
+            body=json.dumps({}),
+            content_type="application/json",
+        )
+        self.assertEqual(status, 400)
+
+    def test_tell_trial_with_invalid_state(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = optuna.create_study(storage=storage)
+        for state in ["Pruned", "Running", "Waiting", "Invalid"]:
+            trial_id = study.ask()._trial_id
+            app = create_app(storage)
+            with self.subTest(state=state):
+                status, _, _ = send_request(
+                    app,
+                    f"/api/trials/{trial_id}/tell",
+                    "POST",
+                    body=json.dumps(
+                        {
+                            "state": state,
+                        }
+                    ),
+                    content_type="application/json",
+                )
+                self.assertEqual(status, 400)
+
+    def test_tell_trial_with_no_values(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = optuna.create_study(storage=storage)
+        trial_id = study.ask()._trial_id
+
+        app = create_app(storage)
+        status, _, _ = send_request(
+            app,
+            f"/api/trials/{trial_id}/tell",
+            "POST",
+            body=json.dumps(
+                {
+                    "state": "Complete",
+                }
+            ),
+            content_type="application/json",
+        )
+        self.assertEqual(status, 400)
+
+    def test_tell_trial_with_invalid_values(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = optuna.create_study(storage=storage)
+        for values in [1.0, ["foo"]]:
+            trial_id = study.ask()._trial_id
+            app = create_app(storage)
+            with self.subTest(values=values):
+                status, _, _ = send_request(
+                    app,
+                    f"/api/trials/{trial_id}/tell",
+                    "POST",
+                    body=json.dumps(
+                        {
+                            "state": "Complete",
+                            "values": values,
+                        }
+                    ),
+                    content_type="application/json",
+                )
+                self.assertEqual(status, 400)
 
 
 class BottleRequestHookTestCase(TestCase):

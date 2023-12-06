@@ -63,7 +63,7 @@ export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
 
 export const useStudySummaryValue = (studyId: number): StudySummary | null => {
   const studySummaries = useRecoilValue<StudySummary[]>(studySummariesState)
-  return studySummaries.find((s) => s.study_id == studyId) || null
+  return studySummaries.find((s) => s.study_id === studyId) || null
 }
 
 export const useTrialUpdatingValue = (trialId: number): boolean => {
@@ -87,7 +87,7 @@ export const useStudyDirections = (
   return studyDetail?.directions || studySummary?.directions || null
 }
 
-export const useStudyIsPreferencial = (studyId: number): boolean | null => {
+export const useStudyIsPreferential = (studyId: number): boolean | null => {
   const studyDetail = useStudyDetailValue(studyId)
   const studySummary = useStudySummaryValue(studyId)
   return studyDetail?.is_preferential || studySummary?.is_preferential || null

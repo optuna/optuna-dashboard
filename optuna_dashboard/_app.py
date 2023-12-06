@@ -154,6 +154,7 @@ def create_app(
                 storage=storage, study_name=dst_study_name, directions=src_study.directions
             )
             dst_study.add_trials(src_study.get_trials(deepcopy=False))
+            note.copy_notes(storage, src_study, dst_study)
         except DuplicatedStudyError:
             response.status = 400  # Bad request
             return {"reason": f"study_name={dst_study_name} is duplicaated"}

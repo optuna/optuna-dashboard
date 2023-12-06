@@ -164,9 +164,24 @@ const plotCoordinate = (
     return truncated
       .split("")
       .map((c, i) => {
-        return (i + 1) % breakLength == 0 ? c + "<br>" : c
+        return (i + 1) % breakLength === 0 ? c + "<br>" : c
       })
       .join("")
+  }
+
+  const calculateLogScale = (values: number[]) => {
+    const logValues = values.map((v) => {
+      return Math.log10(v)
+    })
+    const minValue = Math.min(...logValues)
+    const maxValue = Math.max(...logValues)
+    const range = [Math.floor(minValue), Math.ceil(maxValue)]
+    const tickvals = Array.from(
+      { length: Math.ceil(maxValue) - Math.floor(minValue) + 1 },
+      (_, i) => i + Math.floor(minValue)
+    )
+    const ticktext = tickvals.map((x) => `${Math.pow(10, x).toPrecision(3)}`)
+    return { logValues, range, tickvals, ticktext }
   }
 
   const dimensions = targets.map((target) => {
@@ -187,13 +202,7 @@ const plotCoordinate = (
       const values: number[] = trials.map(
         (t) => target.getTargetValue(t) as number
       )
-      if (s.distribution.type !== "CategoricalDistribution") {
-        return {
-          label: breakLabelIfTooLong(s.name),
-          values: values,
-          range: [s.distribution.low, s.distribution.high],
-        }
-      } else {
+      if (s.distribution.type === "CategoricalDistribution") {
         // categorical
         const vocabArr: string[] = s.distribution.choices.map((c) => c.value)
         const tickvals: number[] = vocabArr.map((v, i) => i)
@@ -204,6 +213,24 @@ const plotCoordinate = (
           // @ts-ignore
           tickvals: tickvals,
           ticktext: vocabArr,
+        }
+      } else if (s.distribution.log) {
+        // numerical and log
+        const { logValues, range, tickvals, ticktext } =
+          calculateLogScale(values)
+        return {
+          label: breakLabelIfTooLong(s.name),
+          values: logValues,
+          range,
+          tickvals,
+          ticktext,
+        }
+      } else {
+        // numerical and linear
+        return {
+          label: breakLabelIfTooLong(s.name),
+          values: values,
+          range: [s.distribution.low, s.distribution.high],
         }
       }
     }

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from typing import Callable
 from typing import TYPE_CHECKING
 
@@ -13,6 +14,7 @@ from optuna_dashboard._preferential_history import restore_history
 from optuna_dashboard._serializer import serialize_preference_history
 from optuna_dashboard.preferential import create_study
 from optuna_dashboard.preferential._system_attrs import _SYSTEM_ATTR_PREFIX_PREFERENCE
+import pytest
 
 from .storage_supplier import parametrize_storages
 from .storage_supplier import StorageSupplier
@@ -20,6 +22,10 @@ from .storage_supplier import StorageSupplier
 
 if TYPE_CHECKING:
     from optuna_dashboard._preferential_history import History
+
+
+if sys.version_info < (3, 8):
+    pytest.skip("BoTorch dropped Python3.7 support", allow_module_level=True)
 
 
 @parametrize_storages

@@ -78,22 +78,27 @@ const plotIntermediateValue = (
         t.state === "Pruned" &&
         t.values &&
         t.values.length > 0) ||
-      t.state == "Running"
+      t.state === "Running"
   )
   const plotData: Partial<plotly.PlotData>[] = filteredTrials.map((trial) => {
     const values = trial.intermediate_values.filter(
       (iv) => iv.value !== "inf" && iv.value !== "-inf" && iv.value !== "nan"
     )
+    const isFeasible = trial.constraints.every((c) => c <= 0)
     return {
       x: values.map((iv) => iv.step),
       y: values.map((iv) => iv.value),
       marker: { maxdisplayed: 10 },
       mode: "lines+markers",
       type: "scatter",
-      name:
-        trial.state !== "Running"
-          ? `trial #${trial.number}`
-          : `trial #${trial.number} (running)`,
+      name: `trial #${trial.number} ${
+        trial.state === "Running"
+          ? "(running)"
+          : !isFeasible
+          ? "(infeasible)"
+          : ""
+      }`,
+      ...(!isFeasible && { line: { color: "#CCCCCC" } }),
     }
   })
   plotly.react(plotDomId, plotData, layout)

@@ -38,10 +38,11 @@ export const loadStorage = (
     )
     db.checkRc(rc)
     try {
-      if (!isSupportedSchema(db)) {
+      const schemaVersion = getSchemaVersion(db)
+      if (!isSupportedSchema(schemaVersion)) {
         return
       }
-      const studies = getStudies(db)
+      const studies = getStudies(db, schemaVersion)
       setter((prev) => [...prev, ...studies])
     } finally {
       db.close()
@@ -49,21 +50,41 @@ export const loadStorage = (
   })
 }
 
-const isSupportedSchema = (db: SQLite3DB): boolean => {
-  let supported = true
+const getSchemaVersion = (db: SQLite3DB): string => {
+  let schemaVersion = ""
   db.exec({
-    sql: "SELECT schema_version FROM version_info LIMIT 1",
+    sql: "SELECT version_num FROM alembic_version LIMIT 1",
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callback: (vals: any[]) => {
-      if (vals[0] != 12) {
-        supported = false
-      }
+      schemaVersion = vals[0]
     },
   })
-  return supported
+  return schemaVersion
 }
 
-const getStudies = (db: SQLite3DB): Study[] => {
+const isSupportedSchema = (schemaVersion: string): boolean => {
+  const lowestVersion = "v2.6.0.a" // supported: "v3.2.0.a", "v3.0.0.{a,b,c,d}", "v2.6.0.a"
+  if (schemaVersion === lowestVersion) return true
+  return isGreaterSchemaVersion(schemaVersion, lowestVersion)
+}
+
+const isGreaterSchemaVersion = (
+  leftVersion: string,
+  rightVersion: string
+): boolean => {
+  // return leftVersion > rightVersion
+  const leftSuffix = leftVersion.split(".").reverse()[0]
+  const rightSuffix = rightVersion.split(".").reverse()[0]
+  leftVersion = leftVersion.replace(/\D/g, "")
+  rightVersion = rightVersion.replace(/\D/g, "")
+
+  const left = Number(leftVersion)
+  const right = Number(rightVersion)
+  if (left === right) return leftSuffix > rightSuffix
+  return left > right
+}
+
+const getStudies = (db: SQLite3DB, schemaVersion: string): Study[] => {
   const studies: Study[] = []
   db.exec({
     sql:
@@ -78,14 +99,14 @@ const getStudies = (db: SQLite3DB): Study[] => {
         vals[2] === "MINIMIZE" ? "minimize" : "maximize"
       const objective = vals[3]
 
-      const trials = getTrials(db, studyId)
+      const trials = getTrials(db, studyId, schemaVersion)
       const union_search_space: SearchSpaceItem[] = []
       const union_user_attrs: AttributeSpec[] = []
       let intersection_search_space: Set<SearchSpaceItem> = new Set()
       trials.forEach((trial) => {
         const userAttrs = getTrialUserAttributes(db, trial.trial_id)
         userAttrs.forEach((attr) => {
-          if (union_user_attrs.findIndex((s) => s.key === attr.key) == -1) {
+          if (union_user_attrs.findIndex((s) => s.key === attr.key) === -1) {
             union_user_attrs.push({ key: attr.key, sortable: false })
           }
         })
@@ -95,7 +116,7 @@ const getStudies = (db: SQLite3DB): Study[] => {
         params.forEach((param) => {
           param_names.add(param.name)
           if (
-            union_search_space.findIndex((s) => s.name === param.name) == -1
+            union_search_space.findIndex((s) => s.name === param.name) === -1
           ) {
             union_search_space.push({ name: param.name })
           }
@@ -136,7 +157,11 @@ const getStudies = (db: SQLite3DB): Study[] => {
   return studies
 }
 
-const getTrials = (db: SQLite3DB, studyId: number): Trial[] => {
+const getTrials = (
+  db: SQLite3DB,
+  studyId: number,
+  schemaVersion: string
+): Trial[] => {
   const trials: Trial[] = []
   db.exec({
     sql:
@@ -160,8 +185,12 @@ const getTrials = (db: SQLite3DB, studyId: number): Trial[] => {
         number: vals[1],
         study_id: studyId,
         state: state,
-        values: getTrialValues(db, trialId),
-        intermediate_values: getTrialIntermediateValues(db, trialId),
+        values: getTrialValues(db, trialId, schemaVersion),
+        intermediate_values: getTrialIntermediateValues(
+          db,
+          trialId,
+          schemaVersion
+        ),
         params: [], // Set this column later
         user_attrs: [], // Set this column later
         datetime_start: vals[3],
@@ -173,24 +202,41 @@ const getTrials = (db: SQLite3DB, studyId: number): Trial[] => {
   return trials
 }
 
-const getTrialValues = (db: SQLite3DB, trialId: number): TrialValueNumber[] => {
+const getTrialValues = (
+  db: SQLite3DB,
+  trialId: number,
+  schemaVersion: string
+): TrialValueNumber[] => {
   const values: TrialValueNumber[] = []
-  db.exec({
-    sql:
-      "SELECT value, value_type" +
-      ` FROM trial_values WHERE trial_id = ${trialId}` +
-      " ORDER BY objective",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    callback: (vals: any[]) => {
-      values.push(
-        vals[1] === "INF_NEG"
-          ? "-inf"
-          : vals[1] === "INF_POS"
-          ? "+inf"
-          : vals[0]
-      )
-    },
-  })
+  if (isGreaterSchemaVersion(schemaVersion, "v3.0.0.c")) {
+    db.exec({
+      sql:
+        "SELECT value, value_type" +
+        ` FROM trial_values WHERE trial_id = ${trialId}` +
+        " ORDER BY objective",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      callback: (vals: any[]) => {
+        values.push(
+          vals[1] === "INF_NEG"
+            ? "-inf"
+            : vals[1] === "INF_POS"
+            ? "+inf"
+            : vals[0]
+        )
+      },
+    })
+  } else {
+    db.exec({
+      sql:
+        "SELECT value" +
+        ` FROM trial_values WHERE trial_id = ${trialId}` +
+        " ORDER BY objective",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      callback: (vals: any[]) => {
+        values.push(vals[0])
+      },
+    })
+  }
   return values
 }
 
@@ -241,6 +287,30 @@ const parseDistributionJSON = (t: string): Distribution => {
       step: parsed.attributes.step as number,
       log: parsed.attributes.log as boolean,
     }
+  } else if (parsed.name === "UniformDistribution") {
+    return {
+      type: "FloatDistribution",
+      low: parsed.attributes.low as number,
+      high: parsed.attributes.high as number,
+      step: null,
+      log: false,
+    }
+  } else if (parsed.name === "LogUniformDistribution") {
+    return {
+      type: "FloatDistribution",
+      low: parsed.attributes.low as number,
+      high: parsed.attributes.high as number,
+      step: null,
+      log: true,
+    }
+  } else if (parsed.name === "DiscreteUniformDistribution") {
+    return {
+      type: "FloatDistribution",
+      low: parsed.attributes.low as number,
+      high: parsed.attributes.high as number,
+      step: parsed.attributes.q,
+      log: false,
+    }
   } else if (parsed.name === "IntDistribution") {
     return {
       type: "IntDistribution",
@@ -248,6 +318,22 @@ const parseDistributionJSON = (t: string): Distribution => {
       high: parsed.attributes.high as number,
       step: parsed.attributes.step as number,
       log: parsed.attributes.log as boolean,
+    }
+  } else if (parsed.name === "IntUniformDistribution") {
+    return {
+      type: "IntDistribution",
+      low: parsed.attributes.low as number,
+      high: parsed.attributes.high as number,
+      step: parsed.attributes.step as number,
+      log: false,
+    }
+  } else if (parsed.name === "IntLogUniformDistribution") {
+    return {
+      type: "IntDistribution",
+      low: parsed.attributes.low as number,
+      high: parsed.attributes.high as number,
+      step: parsed.attributes.step as number,
+      log: true,
     }
   } else {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -287,26 +373,45 @@ const getTrialUserAttributes = (
 
 const getTrialIntermediateValues = (
   db: SQLite3DB,
-  trialId: number
+  trialId: number,
+  schemaVersion: string
 ): TrialIntermediateValue[] => {
   const values: TrialIntermediateValue[] = []
-  db.exec({
-    sql:
-      "SELECT step, intermediate_value, intermediate_value_type" +
-      ` FROM trial_intermediate_values WHERE trial_id = ${trialId}` +
-      " ORDER BY step",
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    callback: (vals: any[]) => {
-      values.push({
-        step: vals[0],
-        value:
-          vals[2] === "INF_NEG"
-            ? "-inf"
-            : vals[2] === "INF_POS"
-            ? "+inf"
-            : vals[1],
-      })
-    },
-  })
+  if (isGreaterSchemaVersion(schemaVersion, "v3.0.0.c")) {
+    db.exec({
+      sql:
+        "SELECT step, intermediate_value, intermediate_value_type" +
+        ` FROM trial_intermediate_values WHERE trial_id = ${trialId}` +
+        " ORDER BY step",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      callback: (vals: any[]) => {
+        values.push({
+          step: vals[0],
+          value:
+            vals[2] === "INF_NEG"
+              ? "-inf"
+              : vals[2] === "INF_POS"
+              ? "+inf"
+              : vals[2] === "NAN"
+              ? "nan"
+              : vals[1],
+        })
+      },
+    })
+  } else {
+    db.exec({
+      sql:
+        "SELECT step, intermediate_value" +
+        ` FROM trial_intermediate_values WHERE trial_id = ${trialId}` +
+        " ORDER BY step",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      callback: (vals: any[]) => {
+        values.push({
+          step: vals[0],
+          value: vals[1],
+        })
+      },
+    })
+  }
   return values
 }

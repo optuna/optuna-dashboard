@@ -19,7 +19,7 @@ import { actionCreator } from "../action"
 import {
   reloadIntervalState,
   useStudyDetailValue,
-  useStudyIsPreferencial,
+  useStudyIsPreferential,
   useStudyName,
 } from "../state"
 import { TrialTable } from "./TrialTable"
@@ -28,6 +28,7 @@ import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { Contour } from "./GraphContour"
 import { GraphSlice } from "./GraphSlice"
 import { GraphEdf } from "./GraphEdf"
+import { GraphRank } from "./GraphRank"
 import { TrialList } from "./TrialList"
 import { StudyHistory } from "./StudyHistory"
 import { PreferentialTrials } from "./PreferentialTrials"
@@ -55,7 +56,7 @@ export const StudyDetail: FC<{
   const studyDetail = useStudyDetailValue(studyId)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studyName = useStudyName(studyId)
-  const isPreferential = useStudyIsPreferencial(studyId)
+  const isPreferential = useStudyIsPreferential(studyId)
 
   const title =
     studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
@@ -122,6 +123,11 @@ export const StudyDetail: FC<{
             <Contour study={studyDetail} />
           </CardContent>
         </Card>
+        <Card sx={{ margin: theme.spacing(2) }}>
+          <CardContent>
+            <GraphRank study={studyDetail} />
+          </CardContent>
+        </Card>
         <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
           Empirical Distribution of the Objective Value
         </Typography>
@@ -140,6 +146,8 @@ export const StudyDetail: FC<{
         </Grid2>
       </Box>
     )
+  } else if (page === "trialList") {
+    content = <TrialList studyDetail={studyDetail} />
   } else if (page === "trialTable") {
     content = (
       <Card sx={{ margin: theme.spacing(2) }}>
@@ -158,8 +166,6 @@ export const StudyDetail: FC<{
         </CardContent>
       </Card>
     )
-  } else if (page === "trialList") {
-    content = <TrialList studyDetail={studyDetail} />
   } else if (page === "note" && studyDetail !== null) {
     content = (
       <Box
@@ -197,7 +203,7 @@ export const StudyDetail: FC<{
         <PreferentialGraph studyDetail={studyDetail} />
       </Box>
     )
-  } else if (page == "preferenceHistory") {
+  } else if (page === "preferenceHistory") {
     content = <PreferenceHistory studyDetail={studyDetail} />
   }
 
