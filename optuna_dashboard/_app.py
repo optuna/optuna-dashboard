@@ -450,7 +450,7 @@ def create_app(
         note.save_note_with_version(storage, study_id, trial_id, req_note_ver, req_note_body)
         response.status = 204  # No content
         return {}
-    
+
     @app.get("/csv/<study_id:int>")
     def download_csv(study_id: int) -> BottleViewReturn:
         # Create a CSV file
