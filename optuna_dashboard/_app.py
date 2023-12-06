@@ -460,8 +460,6 @@ def create_app(
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
         trials = get_trials(storage, study_id)
-        if len(trials) == 0:
-            return {"reason": f"study_id={study_id} has no trials"}
 
         param_names = sorted(set(chain.from_iterable([t.params.keys() for t in trials])))
         user_attr_names = sorted(set(chain.from_iterable([t.user_attrs.keys() for t in trials])))
