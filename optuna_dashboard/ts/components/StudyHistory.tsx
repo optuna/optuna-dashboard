@@ -108,17 +108,6 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
         </CardContent>
       </Card>
       <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
-        {studyDetail !== null &&
-        studyDetail.directions.length === 1 &&
-        studyDetail.has_intermediate_values ? (
-          <Grid2 xs={6}>
-            <GraphIntermediateValues
-              trials={trials}
-              includePruned={includePruned}
-              logScale={logScale}
-            />
-          </Grid2>
-        ) : null}
         <Grid2 xs={6}>
           <GraphHyperparameterImportance
             studyId={studyId}
@@ -170,6 +159,17 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
             </CardContent>
           </Card>
         </Grid2>
+        {studyDetail !== null &&
+        studyDetail.directions.length === 1 &&
+        studyDetail.has_intermediate_values ? (
+          <Grid2 xs={6}>
+            <GraphIntermediateValues
+              trials={trials}
+              includePruned={includePruned}
+              logScale={logScale}
+            />
+          </Grid2>
+        ) : null}
       </Grid2>
 
       {artifactEnabled && studyDetail !== null && (
