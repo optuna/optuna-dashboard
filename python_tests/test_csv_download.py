@@ -90,7 +90,10 @@ def test_download_csv_multi_obj(is_multi_obj: bool) -> None:
     study = optuna.create_study(storage=storage, directions=directions)
     optuna.logging.set_verbosity(optuna.logging.ERROR)
     study.optimize(objective, n_trials=10)
-    _validate_output(storage, 200, 0)
+    cols = ["Param x", "Param y"]
+    cols += ["Objective 0", "Objective 1"] if is_multi_obj else ["Value"]
+    _validate_output(storage, 200, 0, extra_col_names=cols)
+
 
 
 def test_download_csv_user_attr() -> None:
