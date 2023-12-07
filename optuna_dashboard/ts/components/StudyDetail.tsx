@@ -157,8 +157,8 @@ export const StudyDetail: FC<{
             width: "auto",
             height: "auto",
             display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
+            justifyContent: "left",
+            alignItems: "left",
           }}
         >
           <CardContent>
@@ -166,7 +166,6 @@ export const StudyDetail: FC<{
               aria-label="download csv"
               size="small"
               color="inherit"
-              download={`trials_${studyDetail?.id}.csv`}
               sx={{ margin: "auto 0" }}
               href={`/csv/${studyDetail?.id}`}
             >
