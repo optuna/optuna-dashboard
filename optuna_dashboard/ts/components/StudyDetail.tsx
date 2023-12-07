@@ -166,6 +166,7 @@ export const StudyDetail: FC<{
               aria-label="download csv"
               size="small"
               color="inherit"
+              download
               sx={{ margin: "auto 0" }}
               href={`/csv/${studyDetail?.id}`}
             >
