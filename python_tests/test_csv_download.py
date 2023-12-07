@@ -86,10 +86,8 @@ def test_download_csv_multi_obj(is_multi_obj: bool) -> None:
         return x**2 + y
 
     storage = optuna.storages.InMemoryStorage()
-    if is_multi_obj:
-        study = optuna.create_study(storage=storage, directions=["minimize", "minimize"])
-    else:
-        study = optuna.create_study(storage=storage)
+    directions = ["minimize", "minimize"] if is_multi_obj else ["minimize"]
+    study = optuna.create_study(storage=storage, directions=directions)
     optuna.logging.set_verbosity(optuna.logging.ERROR)
     study.optimize(objective, n_trials=10)
     app = create_app(storage)
