@@ -15,15 +15,23 @@ def _validate_output(
     storage: optuna.storages.BaseStorage,
     correct_status: int,
     study_id: int,
+    expect_no_result: bool = False,
+    extra_col_names: list[str] | None = None,
 ) -> None:
     app = create_app(storage)
-    status, _, _ = send_request(
+    status, _, body = send_request(
         app,
         f"/csv/{study_id}",
         "GET",
         content_type="application/json",
     )
     assert status == correct_status
+    decoded_csv = str(body.decode("utf-8"))
+    if expect_no_result:
+        assert "is not found" in decoded_csv
+    else:
+        col_names = ["Number", "State"] + ([] if extra_col_names is None else extra_col_names)
+        assert all(col_name in decoded_csv for col_name in col_names)
 
 
 def test_download_csv_no_trial() -> None:
