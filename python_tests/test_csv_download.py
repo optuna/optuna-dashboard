@@ -18,7 +18,7 @@ def test_download_csv_no_trial() -> None:
     study = optuna.create_study(storage=storage)
     study.optimize(objective, n_trials=0)
     app = create_app(storage)
-    status, _, body = send_request(
+    status, _, _ = send_request(
         app,
         "/csv/0",
         "GET",
