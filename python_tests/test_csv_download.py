@@ -55,8 +55,8 @@ def test_download_csv_all_running() -> None:
     assert status == 200
 
 
-@pytest.mark.parametrize("id", [0, 1])
-def test_download_csv_fail(id: int) -> None:
+@pytest.mark.parametrize("study_id", [0, 1])
+def test_download_csv_fail(study_id: int) -> None:
     def objective(trial: optuna.Trial) -> float:
         x = trial.suggest_float("x", -100, 100)
         y = trial.suggest_categorical("y", [-1, 0, 1])
