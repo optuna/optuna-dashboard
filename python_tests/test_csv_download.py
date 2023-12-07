@@ -107,4 +107,6 @@ def test_download_csv_user_attr() -> None:
     study = optuna.create_study(storage=storage)
     optuna.logging.set_verbosity(optuna.logging.ERROR)
     study.optimize(objective, n_trials=10)
-    _validate_output(storage, 200, 0)
+    cols = ["Param x", "Param y", "Value", "UserAttribute abs_y"]
+    _validate_output(storage, 200, 0, extra_col_names=cols)
+
