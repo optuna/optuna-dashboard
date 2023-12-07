@@ -71,7 +71,9 @@ def test_download_csv_fail(study_id: int) -> None:
     study = optuna.create_study(storage=storage)
     optuna.logging.set_verbosity(optuna.logging.ERROR)
     study.optimize(objective, n_trials=10)
-    _validate_output(storage, 404 if study_id != 0 else 200, study_id)
+    expect_no_result = study_id != 0
+    cols = ["Param x", "Param y", "Value"]
+    _validate_output(storage, 404 if expect_no_result else 200, study_id, expect_no_result, cols)
 
 
 @pytest.mark.parametrize("is_multi_obj", [True, False])
