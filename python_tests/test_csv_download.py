@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from typing import Any
 
-
 import optuna
 from optuna.trial import TrialState
 from optuna_dashboard._app import create_app
@@ -95,7 +94,6 @@ def test_download_csv_multi_obj(is_multi_obj: bool) -> None:
     _validate_output(storage, 200, 0, extra_col_names=cols)
 
 
-
 def test_download_csv_user_attr() -> None:
     def objective(trial: optuna.Trial) -> float:
         x = trial.suggest_float("x", -100, 100)
@@ -109,4 +107,3 @@ def test_download_csv_user_attr() -> None:
     study.optimize(objective, n_trials=10)
     cols = ["Param x", "Param y", "Value", "UserAttribute abs_y"]
     _validate_output(storage, 200, 0, extra_col_names=cols)
-
