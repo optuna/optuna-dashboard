@@ -1,19 +1,11 @@
 from typing import Callable
 
 import optuna
-from optuna_dashboard._storage import trials_cache
-from optuna_dashboard._storage import trials_cache_lock
-from optuna_dashboard._storage import trials_last_fetched_at
 from playwright.sync_api import Page
 import pytest
 
 from ..test_server import make_test_server
-
-
-def clear_inmemory_cache() -> None:
-    with trials_cache_lock:
-        trials_cache.clear()
-        trials_last_fetched_at.clear()
+from ..utils import clear_inmemory_cache
 
 
 @pytest.fixture
