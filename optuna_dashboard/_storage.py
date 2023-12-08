@@ -40,6 +40,8 @@ def _should_update_trials_cache(storage: BaseStorage, study_id: int) -> bool:
         pass
 
     for t in trials:
+        # It is very likely that the number of updatable trials (running or waiting) is bounded
+        # by n_jobs, and when n_trials is huge (e.g. 10K), n_jobs is often very small (< 10).
         if (
             not t.state.is_finished()
             and storage.get_trial(trial_id=t._trial_id).state.is_finished()
