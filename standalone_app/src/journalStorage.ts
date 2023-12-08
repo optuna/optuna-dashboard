@@ -42,6 +42,13 @@ interface JournalOpCreateTrial extends JournalOpBase {
   values?: number[]
 }
 
+interface JournalOpSetTrialParam extends JournalOpBase {
+  trial_id: number
+  param_name: string
+  param_value_internal: number
+  distribution: string
+}
+
 const trialStateNumToTrialState = (state: number): TrialState => {
   switch (state) {
     case 0:
@@ -85,14 +92,159 @@ const parseDistribution = (distribution: string): Distribution => {
   }
 }
 
+class JournalStorage {
+  private studies: Study[] = []
+  private nextStudyId = 0
+  private studyIdToTrialIDs: Map<number, number[]> = new Map()
+  private trialIdToStudyId: Map<number,number> = new Map()
+  private trialNumber = 0
+
+  public getStudies(): Study[] {
+    return this.studies
+  }
+
+  public applyCreateStudy(log: JournalOpCreateStudy): void {
+    this.studies.push({
+      study_id: this.nextStudyId,
+      study_name: log.study_name,
+      directions: [log.directions[0] === 1 ? "minimize" : "maximize"],
+      union_search_space: [],
+      intersection_search_space: [],
+      union_user_attrs: [],
+      trials: [],
+    })
+    this.nextStudyId++
+  }
+
+  public applyDeleteStudy(log: JournalOpDeleteStudy): void {
+    this.studies = this.studies.filter((item) => item.study_id != log.study_id)
+  }
+
+  public applyCreateTrial(log: JournalOpCreateTrial): void {
+    let thisStudy = this.studies.find((item) => item.study_id == log.study_id)
+    if (thisStudy === undefined) {
+      return
+    }
+
+    let paramItems = Object.entries(log.params).map(([name, _]) => {
+      return name
+    })
+
+    paramItems.forEach((name) => {
+      if (!thisStudy!.union_search_space.find((item) => item.name === name)) {
+        thisStudy!.union_search_space = thisStudy!.union_search_space.concat({
+          name: name,
+        })
+      }
+    })
+
+    if (thisStudy.trials.length === 0) {
+      thisStudy.intersection_search_space = paramItems.map((value) => {
+        return {
+          name: value,
+        }
+      })
+    } else {
+      thisStudy.intersection_search_space =
+        thisStudy.intersection_search_space.filter((value) => {
+          return paramItems.includes(value.name)
+        })
+    }
+
+    let params: TrialParam[] = Object.entries(log.params).map(
+      ([name, value]) => {
+        const distribution = parseDistribution(log.distributions[name])
+
+        return {
+          name: name,
+          param_internal_value: value,
+          param_external_type: distribution.type,
+          param_external_value: (() => {
+            if (distribution.type === "FloatDistribution") {
+              return value.toString()
+            } else if (distribution.type === "IntDistribution") {
+              return value.toString()
+            } else {
+              return distribution.choices[value].value
+            }
+          })(),
+          distribution: distribution,
+        }
+      }
+    )
+
+    const userAtter = Object.entries(log.user_attrs).map(([key, value]) => {
+      if (!thisStudy!.union_user_attrs.find((item) => item.key === key)) {
+        thisStudy!.union_user_attrs = thisStudy!.union_user_attrs.concat({
+          key: key,
+          sortable: false,
+        })
+      }
+      return {
+        key: key,
+        value: value,
+      }
+    })
+
+    // append trial id to studyIdToTrialIDs
+    this.studyIdToTrialIDs.set(
+      log.study_id,
+      this.studyIdToTrialIDs
+        .get(log.study_id)
+        ?.concat([this.trialNumber]) ?? [this.trialNumber]
+    )
+
+    this.trialIdToStudyId.set(this.trialNumber, log.study_id)
+
+    thisStudy.trials.push({
+      trial_id: this.trialNumber++,
+      number: this.studyIdToTrialIDs.get(log.study_id)?.length ?? 0,
+      study_id: log.study_id,
+      state: trialStateNumToTrialState(log.state),
+      values: (() => {
+        if (log.value !== undefined) {
+          return [log.value]
+        } else if (log.values !== undefined) {
+          return log.values
+        } else {
+          return undefined
+        }
+      })(),
+      params: params,
+      intermediate_values: [],
+      user_attrs: userAtter,
+      datetime_start: new Date(log.datetime_start),
+    })
+
+  }
+
+  public applySetTrialParam(log: JournalOpSetTrialParam) {
+    let thisStudy = this.studies.find((item) => item.study_id == this.trialIdToStudyId.get(log.trial_id))
+    if (thisStudy === undefined) {
+      return
+    }
+
+    let thisTrial = thisStudy.trials.find((item) => item.trial_id == log.trial_id)
+    if (thisTrial === undefined) {
+      return
+    }
+
+
+
+
+  }
+
+}
+
 export const loadJournalStorage = (
   arrayBuffer: ArrayBuffer,
   setter: SetterOrUpdater<Study[]>
 ): void => {
   const decoder = new TextDecoder("utf-8")
   const logs = decoder.decode(arrayBuffer).split("\n")
-  let studies: Study[] = []
-  let nextStudyId = 0
+
+  let journalStorage = new JournalStorage()
+
   for (let log of logs) {
     if (log === "") {
       continue
@@ -100,25 +252,10 @@ export const loadJournalStorage = (
     let parsedLog: JournalOpBase = JSON.parse(log)
     switch (parsedLog.op_code) {
       case JournalOperation.CREATE_STUDY:
-        const createStudyLog = parsedLog as JournalOpCreateStudy
-        studies.push({
-          study_id: nextStudyId,
-          study_name: createStudyLog.study_name,
-          directions: [
-            createStudyLog.directions[0] === 1 ? "minimize" : "maximize",
-          ],
-          union_search_space: [],
-          intersection_search_space: [],
-          union_user_attrs: [],
-          trials: [],
-        })
-        nextStudyId++
+        journalStorage.applyCreateStudy(parsedLog as JournalOpCreateStudy)
         break
       case JournalOperation.DELETE_STUDY:
-        const deleteStudyLog = parsedLog as JournalOpDeleteStudy
-        studies = studies.filter(
-          (item) => item.study_id != deleteStudyLog.study_id
-        )
+        journalStorage.applyDeleteStudy(parsedLog as JournalOpDeleteStudy)
         break
       case JournalOperation.SET_STUDY_USER_ATTR:
         // Unsupported set for study user_attr
@@ -127,61 +264,11 @@ export const loadJournalStorage = (
         // Unsupported set for study system_attr
         break
       case JournalOperation.CREATE_TRIAL:
-        const createTrialLog = parsedLog as JournalOpCreateTrial
-        let trials = studies.find(
-          (item) => item.study_id == createTrialLog.study_id
-        )?.trials
-        if (trials === undefined) {
-          return
-        }
-
-        let params: TrialParam[] = Object.entries(createTrialLog.params).map(
-          ([key, value]) => {
-            const distribution = parseDistribution(
-              createTrialLog.distributions[key]
-            )
-            return {
-              name: key,
-              param_internal_value: value,
-              param_external_type: distribution.type,
-              param_external_value: (() => {
-                if (distribution.type === "FloatDistribution") {
-                  return value.toString()
-                } else if (distribution.type === "IntDistribution") {
-                  return value.toString()
-                } else {
-                  return distribution.choices[value].value
-                }
-              })(),
-              distribution: distribution,
-            }
-          }
-        )
-
-        console.log(params);
-
-        trials.push({
-          trial_id: trials.length,
-          number: 0,
-          study_id: createTrialLog.study_id,
-          state: trialStateNumToTrialState(createTrialLog.state),
-          values: (() => {
-            if (createTrialLog.value !== undefined) {
-              return [createTrialLog.value]
-            } else if (createTrialLog.values !== undefined) {
-              return createTrialLog.values
-            } else {
-              return undefined
-            }
-          })(),
-          params: params,
-          intermediate_values: [],
-          user_attrs: [],
-          datetime_start: new Date(createTrialLog.datetime_start),
-        })
+        journalStorage.applyCreateTrial(parsedLog as JournalOpCreateTrial)
         break
     }
   }
 
-  setter((prev) => [...prev, ...studies])
+  console.log(journalStorage.getStudies())
+  setter((prev) => [...prev, ...journalStorage.getStudies()])
 }
