@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import csv
 import functools
+import io
+from itertools import chain
 import logging
 import os
+import re
 import typing
 from typing import Any
 from typing import Optional
@@ -448,6 +452,48 @@ def create_app(
         note.save_note_with_version(storage, study_id, trial_id, req_note_ver, req_note_body)
         response.status = 204  # No content
         return {}
+
+    @app.get("/csv/<study_id:int>")
+    def download_csv(study_id: int) -> BottleViewReturn:
+        # Create a CSV file
+        try:
+            study_name = storage.get_study_name_from_id(study_id)
+            study = optuna.load_study(storage=storage, study_name=study_name)
+        except KeyError:
+            response.status = 404  # Not found
+            return {"reason": f"study_id={study_id} is not found"}
+        trials = study.trials
+        param_names = sorted(set(chain.from_iterable([t.params.keys() for t in trials])))
+        user_attr_names = sorted(set(chain.from_iterable([t.user_attrs.keys() for t in trials])))
+        param_names_header = [f"Param {x}" for x in param_names]
+        user_attr_names_header = [f"UserAttribute {x}" for x in user_attr_names]
+        n_objs = len(study.directions)
+        if study.metric_names is not None:
+            value_header = study.metric_names
+        else:
+            value_header = ["Value"] if n_objs == 1 else [f"Objective {x}" for x in range(n_objs)]
+        column_names = (
+            ["Number", "State"] + value_header + param_names_header + user_attr_names_header
+        )
+
+        buf = io.StringIO("")
+        writer = csv.writer(buf)
+        writer.writerow(column_names)
+        for frozen_trial in trials:
+            row = [frozen_trial.number, frozen_trial.state.name]
+            row.extend(frozen_trial.values if frozen_trial.values is not None else [None] * n_objs)
+            row.extend([frozen_trial.params.get(name, None) for name in param_names])
+            row.extend([frozen_trial.user_attrs.get(name, None) for name in user_attr_names])
+            writer.writerow(row)
+
+        # Set response headers
+        output_name = "-".join(re.sub(r'[\\/:*?"<>|]+', "", study_name).split(" "))
+        response.headers["Content-Type"] = "text/csv; chatset=cp932"
+        response.headers["Content-Disposition"] = f"attachment; filename={output_name}.csv"
+
+        # Response body
+        buf.seek(0)
+        return buf.read()
 
     @app.get("/favicon.ico")
     def favicon() -> BottleViewReturn:
