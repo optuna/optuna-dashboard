@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from datetime import datetime
-from datetime import timedelta
 import threading
 import typing
 
@@ -21,30 +19,44 @@ if typing.TYPE_CHECKING:
 # In-memory trials cache
 trials_cache_lock = threading.Lock()
 trials_cache: dict[int, list[FrozenTrial]] = {}
-trials_last_fetched_at: dict[int, datetime] = {}
+
+
+def _should_update_trials_cache(storage: BaseStorage, study_id: int) -> bool:
+    trials = trials_cache.get(study_id, None)
+    if trials is None or len(trials) == 0:
+        return True
+
+    max_trial_number = max(t.number for t in trials)
+    try:
+        # If another trial that did not exist is found in the database, nothing will be raised.
+        # For RDB, the time complexity of this query is O(log N)
+        storage.get_trial_id_from_study_id_trial_number(
+            study_id=study_id,
+            trial_number=max_trial_number + 1,
+        )
+        return True
+    except KeyError:
+        # No new trials are found.
+        pass
+
+    for t in trials:
+        if (
+            not t.state.is_finished()
+            and storage.get_trial(trial_id=first_updatable_id).is_finished()
+        ):
+            return True
+    else:
+        return False
 
 
 def get_trials(storage: BaseStorage, study_id: int) -> list[FrozenTrial]:
     with trials_cache_lock:
-        trials = trials_cache.get(study_id, None)
-
-        # Not a big fan of the heuristic, but I can't think of anything better.
-        if trials is None or len(trials) < 100:
-            ttl_seconds = 2
-        elif len(trials) < 500:
-            ttl_seconds = 5
-        else:
-            ttl_seconds = 10
-
-        last_fetched_at = trials_last_fetched_at.get(study_id, None)
-        if (
-            trials is not None
-            and last_fetched_at is not None
-            and datetime.now() - last_fetched_at < timedelta(seconds=ttl_seconds)
-        ):
+        if not _should_update_trials_cache(storage, study_id):
+            trials = trials_cache.get(study_id, None)
+            assert trials is not None, "mypy redefinition"
             return trials
-    trials = storage.get_all_trials(study_id, deepcopy=False)
 
+    trials = storage.get_all_trials(study_id, deepcopy=False)
     if (
         # See https://github.com/optuna/optuna/pull/3702
         version.parse(optuna_ver) <= version.Version("3.0.0rc0.dev")
@@ -54,8 +66,8 @@ def get_trials(storage: BaseStorage, study_id: int) -> list[FrozenTrial]:
         trials = sorted(trials, key=lambda t: t.number)
 
     with trials_cache_lock:
-        trials_last_fetched_at[study_id] = datetime.now()
         trials_cache[study_id] = trials
+
     return trials
 
 
