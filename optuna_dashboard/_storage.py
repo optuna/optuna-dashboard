@@ -42,7 +42,7 @@ def _should_update_trials_cache(storage: BaseStorage, study_id: int) -> bool:
     for t in trials:
         if (
             not t.state.is_finished()
-            and storage.get_trial(trial_id=first_updatable_id).is_finished()
+            and storage.get_trial(trial_id=t._trial_id).state.is_finished()
         ):
             return True
     else:
