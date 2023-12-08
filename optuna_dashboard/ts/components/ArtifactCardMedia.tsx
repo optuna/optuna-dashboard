@@ -5,6 +5,7 @@ import {
 } from "./ThreejsArtifactViewer"
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 import { CardMedia, Box } from "@mui/material"
+import { AtomsArtifactViewer } from "./AtomsArtifactViewer"
 
 export const ArtifactCardMedia: FC<{
   artifact: Artifact
@@ -58,6 +59,21 @@ export const ArtifactCardMedia: FC<{
         style={{
           objectFit: "contain",
         }}
+      />
+    )
+  } else if (
+    artifact.mimetype === "chemical/x-pdb" ||
+    artifact.mimetype === "chemical/x-mol2" ||
+    artifact.mimetype === "chemical/x-mdl-sdfile" ||
+    artifact.filename.endsWith(".pdb")
+  ) {
+    return (
+      <AtomsArtifactViewer
+        artifactId={artifact.artifact_id}
+        src={urlPath}
+        width={"100%"}
+        height={height}
+        filetype={artifact.filename.split(".").pop()}
       />
     )
   }
