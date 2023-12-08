@@ -28,15 +28,61 @@ interface JournalOpDeleteStudy extends JournalOpBase {
   study_id: number
 }
 
-interface JournalOpSetStudyUserAttr extends JournalOpBase {
-  study_id: number
-  user_attr: { [key: string]: any }
-}
-
 interface JournalOpCreateTrial extends JournalOpBase {
   study_id: number
   datetime_start: string
-  params: TrialParam[]
+  datetime_complete: string
+  distributions: { [key: string]: string }
+  params: { [key: string]: any }
+  user_attrs: { [key: string]: any }
+  system_attrs: { [key: string]: any }
+  state: number
+  intermediate_values: { [key: string]: number }
+  value?: number
+  values?: number[]
+}
+
+const trialStateNumToTrialState = (state: number): TrialState => {
+  switch (state) {
+    case 0:
+      return "Running"
+    case 1:
+      return "Complete"
+    case 2:
+      return "Pruned"
+    case 3:
+      return "Fail"
+    case 4:
+      return "Waiting"
+    default:
+      return "Running"
+  }
+}
+
+const parseDistribution = (distribution: string): Distribution => {
+  const distributionJson = JSON.parse(distribution)
+  if (distributionJson["name"] === "IntDistribution") {
+    return {
+      ...distributionJson["attributes"],
+      type: "IntDistribution",
+    }
+  } else if (distributionJson["name"] === "FloatDistribution") {
+    return {
+      ...distributionJson["attributes"],
+      type: "FloatDistribution",
+    }
+  } else {
+    return {
+      // TODO(gen740): support other types
+      type: "CategoricalDistribution",
+      choices: distributionJson["attributes"]["choices"].map((choice: any) => {
+        return {
+          pytype: "str",
+          value: choice.toString(),
+        }
+      }),
+    }
+  }
 }
 
 export const loadJournalStorage = (
@@ -75,26 +121,10 @@ export const loadJournalStorage = (
         )
         break
       case JournalOperation.SET_STUDY_USER_ATTR:
-        // const setStudyUserAttrLog = parsedLog as JournalOpSetStudyUserAttr
-        // studies = studies.map((item) => {
-        //   if (item.study_id === setStudyUserAttrLog.study_id) {
-        //     return {
-        //       ...item,
-        //       union_user_attrs: Object.entries(
-        //         setStudyUserAttrLog.user_attr
-        //       ).map(([key, value]) => {
-        //         return {
-        //           key: key,
-        //           value: value,
-        //         }
-        //       }),
-        //     }
-        //   } else {
-        //     return item
-        //   }
-        // })
+        // Unsupported set for study user_attr
         break
       case JournalOperation.SET_STUDY_SYSTEM_ATTR:
+        // Unsupported set for study system_attr
         break
       case JournalOperation.CREATE_TRIAL:
         const createTrialLog = parsedLog as JournalOpCreateTrial
@@ -104,13 +134,47 @@ export const loadJournalStorage = (
         if (trials === undefined) {
           return
         }
+
+        let params: TrialParam[] = Object.entries(createTrialLog.params).map(
+          ([key, value]) => {
+            const distribution = parseDistribution(
+              createTrialLog.distributions[key]
+            )
+            return {
+              name: key,
+              param_internal_value: value,
+              param_external_type: distribution.type,
+              param_external_value: (() => {
+                if (distribution.type === "FloatDistribution") {
+                  return value.toString()
+                } else if (distribution.type === "IntDistribution") {
+                  return value.toString()
+                } else {
+                  return distribution.choices[value].value
+                }
+              })(),
+              distribution: distribution,
+            }
+          }
+        )
+
+        console.log(params);
+
         trials.push({
           trial_id: trials.length,
           number: 0,
           study_id: createTrialLog.study_id,
-          state: "Running",
-          values: [],
-          params: [],
+          state: trialStateNumToTrialState(createTrialLog.state),
+          values: (() => {
+            if (createTrialLog.value !== undefined) {
+              return [createTrialLog.value]
+            } else if (createTrialLog.values !== undefined) {
+              return createTrialLog.values
+            } else {
+              return undefined
+            }
+          })(),
+          params: params,
           intermediate_values: [],
           user_attrs: [],
           datetime_start: new Date(createTrialLog.datetime_start),
