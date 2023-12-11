@@ -71,7 +71,7 @@ export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
 
 export const useStudySummaryValue = (studyId: number): StudySummary | null => {
   const studySummaries = useRecoilValue<StudySummary[]>(studySummariesState)
-  return studySummaries.find((s) => s.study_id == studyId) || null
+  return studySummaries.find((s) => s.study_id === studyId) || null
 }
 
 export const useTrialUpdatingValue = (trialId: number): boolean => {

@@ -110,6 +110,19 @@ def note_str_key_prefix(trial_id: Optional[int]) -> str:
     return f"dashboard:{trial_id}:note_str:"
 
 
+def copy_notes(storage: BaseStorage, src_study: optuna.Study, dst_study: optuna.Study) -> None:
+    system_attrs = storage.get_study_system_attrs(study_id=src_study._study_id)
+
+    # Copy individual trial notes
+    for src_trial, dst_trial in zip(src_study.get_trials(), dst_study.get_trials()):
+        note = get_note_from_system_attrs(system_attrs, src_trial._trial_id)["body"]
+        save_note_with_version(storage, dst_study._study_id, dst_trial._trial_id, 0, note)
+
+    # Copy study note
+    note = get_note_from_system_attrs(system_attrs, None)["body"]
+    save_note_with_version(storage, dst_study._study_id, None, 0, note)
+
+
 def get_note_from_system_attrs(system_attrs: dict[str, Any], trial_id: Optional[int]) -> NoteType:
     if note_ver_key(trial_id) not in system_attrs:
         return {
