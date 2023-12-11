@@ -30,14 +30,14 @@ interface JournalOpDeleteStudy extends JournalOpBase {
 
 interface JournalOpCreateTrial extends JournalOpBase {
   study_id: number
-  datetime_start: string
-  datetime_complete: string
-  distributions: { [key: string]: string }
-  params: { [key: string]: any }
-  user_attrs: { [key: string]: any }
-  system_attrs: { [key: string]: any }
-  state: number
-  intermediate_values: { [key: string]: number }
+  datetime_start?: string
+  datetime_complete?: string
+  distributions?: { [key: string]: string }
+  params?: { [key: string]: any }
+  user_attrs?: { [key: string]: any }
+  system_attrs?: { [key: string]: any }
+  state?: number
+  intermediate_values?: { [key: string]: number }
   value?: number
   values?: number[]
 }
@@ -96,10 +96,49 @@ class JournalStorage {
   private studies: Study[] = []
   private nextStudyId = 0
   private studyIdToTrialIDs: Map<number, number[]> = new Map()
-  private trialIdToStudyId: Map<number,number> = new Map()
+  private trialIdToStudyId: Map<number, number> = new Map()
   private trialNumber = 0
 
   public getStudies(): Study[] {
+    for (let study of this.studies) {
+      let unionUserAttrs: Set<string> = new Set()
+      let unionSearchSpace: Set<string> = new Set()
+      let intersectionSearchSpace: string[] = []
+
+      study.trials.forEach((trial, index) => {
+        for (let userAttr of trial.user_attrs) {
+          unionUserAttrs.add(userAttr.key)
+        }
+        for (let param of trial.params) {
+          unionSearchSpace.add(param.name)
+        }
+        if (index === 0) {
+          intersectionSearchSpace = Array.from(unionSearchSpace)
+        } else {
+          intersectionSearchSpace = intersectionSearchSpace.filter((name) =>
+            trial.params.some((param) => param.name === name)
+          )
+        }
+      })
+
+      study.union_user_attrs = Array.from(unionUserAttrs).map((key) => {
+        return {
+          key: key,
+          sortable: false,
+        }
+      })
+      study.union_search_space = Array.from(unionSearchSpace).map((name) => {
+        return {
+          name: name,
+        }
+      })
+      study.intersection_search_space = intersectionSearchSpace.map((name) => {
+        return {
+          name: name,
+        }
+      })
+    }
+
     return this.studies
   }
 
@@ -126,81 +165,51 @@ class JournalStorage {
       return
     }
 
-    let paramItems = Object.entries(log.params).map(([name, _]) => {
-      return name
-    })
-
-    paramItems.forEach((name) => {
-      if (!thisStudy!.union_search_space.find((item) => item.name === name)) {
-        thisStudy!.union_search_space = thisStudy!.union_search_space.concat({
-          name: name,
-        })
-      }
-    })
-
-    if (thisStudy.trials.length === 0) {
-      thisStudy.intersection_search_space = paramItems.map((value) => {
-        return {
-          name: value,
-        }
-      })
-    } else {
-      thisStudy.intersection_search_space =
-        thisStudy.intersection_search_space.filter((value) => {
-          return paramItems.includes(value.name)
-        })
-    }
-
-    let params: TrialParam[] = Object.entries(log.params).map(
-      ([name, value]) => {
-        const distribution = parseDistribution(log.distributions[name])
-
-        return {
-          name: name,
-          param_internal_value: value,
-          param_external_type: distribution.type,
-          param_external_value: (() => {
-            if (distribution.type === "FloatDistribution") {
-              return value.toString()
-            } else if (distribution.type === "IntDistribution") {
-              return value.toString()
-            } else {
-              return distribution.choices[value].value
+    let params: TrialParam[] =
+      log.params === undefined
+        ? []
+        : Object.entries(log.params).map(([name, value]) => {
+            const distribution = parseDistribution(log.distributions![name])
+            return {
+              name: name,
+              param_internal_value: value,
+              param_external_type: distribution.type,
+              param_external_value: (() => {
+                if (distribution.type === "FloatDistribution") {
+                  return value.toString()
+                } else if (distribution.type === "IntDistribution") {
+                  return value.toString()
+                } else {
+                  return distribution.choices[value].value
+                }
+              })(),
+              distribution: distribution,
             }
-          })(),
-          distribution: distribution,
-        }
-      }
-    )
+          })
 
-    const userAtter = Object.entries(log.user_attrs).map(([key, value]) => {
-      if (!thisStudy!.union_user_attrs.find((item) => item.key === key)) {
-        thisStudy!.union_user_attrs = thisStudy!.union_user_attrs.concat({
-          key: key,
-          sortable: false,
-        })
-      }
-      return {
-        key: key,
-        value: value,
-      }
-    })
-
-    // append trial id to studyIdToTrialIDs
     this.studyIdToTrialIDs.set(
       log.study_id,
-      this.studyIdToTrialIDs
-        .get(log.study_id)
-        ?.concat([this.trialNumber]) ?? [this.trialNumber]
+      this.studyIdToTrialIDs.get(log.study_id)?.concat([this.trialNumber]) ?? [
+        this.trialNumber,
+      ]
     )
 
     this.trialIdToStudyId.set(this.trialNumber, log.study_id)
+
+    const userAtter = log.user_attrs
+      ? Object.entries(log.user_attrs).map(([key, value]) => {
+          return {
+            key: key,
+            value: value,
+          }
+        })
+      : []
 
     thisStudy.trials.push({
       trial_id: this.trialNumber++,
       number: this.studyIdToTrialIDs.get(log.study_id)?.length ?? 0,
       study_id: log.study_id,
-      state: trialStateNumToTrialState(log.state),
+      state: trialStateNumToTrialState(log.state ?? 0),
       values: (() => {
         if (log.value !== undefined) {
           return [log.value]
@@ -213,27 +222,48 @@ class JournalStorage {
       params: params,
       intermediate_values: [],
       user_attrs: userAtter,
-      datetime_start: new Date(log.datetime_start),
+      datetime_start: log.datetime_start
+        ? new Date(log.datetime_start)
+        : undefined,
+      datetime_complete: log.datetime_complete
+        ? new Date(log.datetime_complete)
+        : undefined,
     })
-
   }
 
   public applySetTrialParam(log: JournalOpSetTrialParam) {
-    let thisStudy = this.studies.find((item) => item.study_id == this.trialIdToStudyId.get(log.trial_id))
+    let thisStudy = this.studies.find(
+      (item) => item.study_id == this.trialIdToStudyId.get(log.trial_id)
+    )
     if (thisStudy === undefined) {
       return
     }
 
-    let thisTrial = thisStudy.trials.find((item) => item.trial_id == log.trial_id)
+    let thisTrial = thisStudy.trials.find(
+      (item) => item.trial_id == log.trial_id
+    )
     if (thisTrial === undefined) {
       return
     }
 
-
-
-
+    // if (thisTrial.params.some((param) => param.name === log.param_name)) {
+    //   thisTrial.params.find((param) => param.name === log.param_name)[0] = {
+    //     name: log.param_name,
+    //     param_internal_value: log.param_value_internal,
+    //     param_external_type: "FloatDistribution",
+    //     param_external_value: log.param_value_internal.toString(),
+    //     distribution: parseDistribution(log.distribution),
+    //   }
+    // } else {
+      thisTrial.params.push({
+        name: log.param_name,
+        param_internal_value: log.param_value_internal,
+        param_external_type: "FloatDistribution",
+        param_external_value: log.param_value_internal.toString(),
+        distribution: parseDistribution(log.distribution),
+      })
+    // }
   }
-
 }
 
 export const loadJournalStorage = (
