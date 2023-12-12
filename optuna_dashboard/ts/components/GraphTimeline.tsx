@@ -68,13 +68,14 @@ const plotTimeline = (trials: Trial[], mode: string) => {
   )
   const maxRunDuration = Math.max(
     ...trials.map((t) => {
-      const start = t.datetime_start?.getTime() ?? new Date().getTime()
-      const complete = t.datetime_complete?.getTime() ?? start
-      return t.state === runningKey ? -Infinity : complete - start
+      return t.datetime_start === undefined || t.datetime_complete === undefined
+        ? -Infinity
+        : t.datetime_start.getTime() - t.datetime_complete.getTime()
     })
   )
   const hasRunning =
-    maxRunDuration === -Infinity ||
+    (maxRunDuration === -Infinity &&
+      trials.some((t) => t.state === runningKey)) ||
     trials.some((t) => {
       if (t.state !== runningKey) {
         return false
@@ -120,7 +121,10 @@ const plotTimeline = (trials: Trial[], mode: string) => {
       const start = b.datetime_start?.getTime() ?? new Date().getTime()
       const complete = b.datetime_complete?.getTime() ?? start
       // By using 1 as the min value, we can recognize these bars at least when zooming in.
-      return Math.max(1, !isRunning ? complete - start : maxDatetime.getTime() - start)
+      return Math.max(
+        1,
+        !isRunning ? complete - start : maxDatetime.getTime() - start
+      )
     })
     const trace: Partial<plotly.PlotData> = {
       type: "bar",
