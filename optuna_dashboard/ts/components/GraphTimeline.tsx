@@ -70,7 +70,7 @@ const plotTimeline = (trials: Trial[], mode: string) => {
     ...trials.map((t) => {
       return t.datetime_start === undefined || t.datetime_complete === undefined
         ? -Infinity
-        : t.datetime_start.getTime() - t.datetime_complete.getTime()
+        : t.datetime_complete.getTime() - t.datetime_start.getTime()
     })
   )
   const hasRunning =
