@@ -66,32 +66,33 @@ const plotTimeline = (trials: Trial[], mode: string) => {
     )
   )
   const maxRunDuration = Math.max(
-    ...lastTrials.map(
-      (t) => {
-        const start = t.datetime_start?.getTime() ?? new Date().getTime()
-        const complete = t.datetime_complete?.getTime() ?? start
-        return complete - start
-      }
-    )
+    ...lastTrials.map((t) => {
+      const start = t.datetime_start?.getTime() ?? new Date().getTime()
+      const complete = t.datetime_complete?.getTime() ?? start
+      return complete - start
+    })
   )
-  const hasRunning = maxRunDuration === 0 || lastTrials.some((t) => {
+  const hasRunning =
+    maxRunDuration === 0 ||
+    lastTrials.some((t) => {
       const isRunning = t.state === "Running"
-      if (!isRunning){
+      if (!isRunning) {
         return false
       }
       const start = t.datetime_start?.getTime() ?? new Date().getTime()
       const now = new Date().getTime()
       // This is an ad-hoc handling to check if the trial is running.
       return now - start < maxRunDuration * 5
-    }
-  )
-  const maxDatetime = hasRunning ? new Date() : new Date(
-    Math.max(
-      ...lastTrials.map(
-        (t) => t.datetime_complete?.getTime() ?? minDatetime.getTime()
+    })
+  const maxDatetime = hasRunning
+    ? new Date()
+    : new Date(
+        Math.max(
+          ...lastTrials.map(
+            (t) => t.datetime_complete?.getTime() ?? minDatetime.getTime()
+          )
+        )
       )
-    )
-  )
   const layout: Partial<plotly.Layout> = {
     margin: {
       l: 50,
