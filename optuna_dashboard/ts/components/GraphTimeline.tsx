@@ -65,10 +65,30 @@ const plotTimeline = (trials: Trial[], mode: string) => {
       )
     )
   )
-  const maxDatetime = new Date(
+  const maxRunDuration = Math.max(
+    ...lastTrials.map(
+      (t) => {
+        const start = t.datetime_start?.getTime() ?? new Date().getTime()
+        const complete = t.datetime_complete?.getTime() ?? start
+        return complete - start
+      }
+    )
+  )
+  const hasRunning = maxRunDuration === 0 || lastTrials.some((t) => {
+      const isRunning = t.state === "Running"
+      if (!isRunning){
+        return false
+      }
+      const start = t.datetime_start?.getTime() ?? new Date().getTime()
+      const now = new Date().getTime()
+      // This is an ad-hoc handling to check if the trial is running.
+      return now - start < maxRunDuration * 5
+    }
+  )
+  const maxDatetime = hasRunning ? new Date() : new Date(
     Math.max(
       ...lastTrials.map(
-        (t) => t.datetime_start?.getTime() ?? minDatetime.getTime()
+        (t) => t.datetime_complete?.getTime() ?? minDatetime.getTime()
       )
     )
   )
@@ -95,9 +115,16 @@ const plotTimeline = (trials: Trial[], mode: string) => {
   const makeTrace = (bars: Trial[], state: string, color: string) => {
     const starts = bars.map((b) => b.datetime_start ?? new Date())
     const completes = bars.map((b, i) => b.datetime_complete ?? starts[i])
+    const isRunning = state === "Running"
+    const runDurations = bars.map((b) => {
+      const start = b.datetime_start?.getTime() ?? new Date().getTime()
+      const complete = b.datetime_complete?.getTime() ?? start
+      return !isRunning ? complete - start : maxDatetime.getTime() - start
+    })
+    starts.map((s, i) => Math.max(10, completes[i].getTime() - s.getTime()))
     const trace: Partial<plotly.PlotData> = {
       type: "bar",
-      x: starts.map((s, i) => completes[i].getTime() - s.getTime()),
+      x: runDurations,
       y: bars.map((b) => b.number),
       // @ts-ignore: To suppress ts(2322)
       base: starts.map((s) => s.toISOString()),
