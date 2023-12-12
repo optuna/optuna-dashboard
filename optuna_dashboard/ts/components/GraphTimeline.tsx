@@ -56,6 +56,7 @@ const plotTimeline = (trials: Trial[], mode: string) => {
     Running: "green",
     Waiting: "gray",
   }
+  const runningKey = "Running"
 
   const lastTrials = trials.slice(-maxBars) // To only show last elements
   const minDatetime = new Date(
@@ -66,17 +67,16 @@ const plotTimeline = (trials: Trial[], mode: string) => {
     )
   )
   const maxRunDuration = Math.max(
-    ...lastTrials.map((t) => {
+    ...trials.map((t) => {
       const start = t.datetime_start?.getTime() ?? new Date().getTime()
       const complete = t.datetime_complete?.getTime() ?? start
-      return complete - start
+      return t.state === runningKey ? -Infinity : complete - start
     })
   )
   const hasRunning =
-    maxRunDuration === 0 ||
-    lastTrials.some((t) => {
-      const isRunning = t.state === "Running"
-      if (!isRunning) {
+    maxRunDuration === -Infinity ||
+    trials.some((t) => {
+      if (t.state !== runningKey) {
         return false
       }
       const start = t.datetime_start?.getTime() ?? new Date().getTime()
@@ -114,15 +114,14 @@ const plotTimeline = (trials: Trial[], mode: string) => {
   }
 
   const makeTrace = (bars: Trial[], state: string, color: string) => {
+    const isRunning = state === runningKey
     const starts = bars.map((b) => b.datetime_start ?? new Date())
-    const completes = bars.map((b, i) => b.datetime_complete ?? starts[i])
-    const isRunning = state === "Running"
     const runDurations = bars.map((b) => {
       const start = b.datetime_start?.getTime() ?? new Date().getTime()
       const complete = b.datetime_complete?.getTime() ?? start
-      return !isRunning ? complete - start : maxDatetime.getTime() - start
+      // By using 1 as the min value, we can recognize these bars at least when zooming in.
+      return Math.max(1, !isRunning ? complete - start : maxDatetime.getTime() - start)
     })
-    starts.map((s, i) => Math.max(10, completes[i].getTime() - s.getTime()))
     const trace: Partial<plotly.PlotData> = {
       type: "bar",
       x: runDurations,
