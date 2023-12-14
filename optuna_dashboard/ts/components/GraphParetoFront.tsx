@@ -181,20 +181,38 @@ const getIsDominatedTrialND = (normalizedValues: number[][]) => {
 }
 
 const getIsDominatedTrial2D = (normalizedValues: number[][]) => {
+  if (normalizedValues.length === 0) {
+    return []
+  }
   // Fast pareto front algorithm (O(N log N) complexity).
   const sorted = normalizedValues
     .map((values, i) => [values[0], values[1], i])
-    .sort()
+    .sort((a, b) =>
+      a[0] > b[0]
+        ? 1
+        : a[0] < b[0]
+        ? -1
+        : a[1] > b[1]
+        ? 1
+        : a[1] < b[1]
+        ? -1
+        : 0
+    )
+  let maxValue0 = sorted[0][0]
   let minValue1 = sorted[0][1]
-  const dominatedTrials: boolean[] = new Array(normalizedValues.length).fill(
-    true
-  )
 
+  const dominatedTrials: boolean[] = new Array(normalizedValues.length).fill(
+    false
+  )
   sorted.forEach((values) => {
-    if (values[1] <= minValue1) {
-      dominatedTrials[values[2]] = false
+    if (
+      values[1] > minValue1 ||
+      (values[1] >= minValue1 && values[0] > maxValue0)
+    ) {
+      dominatedTrials[values[2]] = true
       minValue1 = values[1]
     }
+    maxValue0 = values[0]
   })
   return dominatedTrials
 }
