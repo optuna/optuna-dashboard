@@ -219,7 +219,7 @@ const getIsDominatedTrial2D = (normalizedValues: number[][]) => {
 
 const getIsDominatedTrial1D = (normalizedValues: number[][]) => {
   const best_value = Math.min(...normalizedValues.map((values) => values[0]))
-  return normalizedValues.map((value) => value[0] !== best_value)
+  return normalizedValues.map((values) => values[0] !== best_value)
 }
 
 const getIsDominatedTrial = (normalizedValues: number[][]) => {
