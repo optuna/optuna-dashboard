@@ -181,9 +181,6 @@ const getIsDominatedND = (normalizedValues: number[][]) => {
 }
 
 const getIsDominated2D = (normalizedValues: number[][]) => {
-  if (normalizedValues.length === 0) {
-    return []
-  }
   // Fast pareto front algorithm (O(N log N) complexity).
   const sorted = normalizedValues
     .map((values, i) => [values[0], values[1], i])
