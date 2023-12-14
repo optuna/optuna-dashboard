@@ -202,9 +202,10 @@ const getIsDominated2D = (normalizedValues: number[][]) => {
   sorted.forEach((values) => {
     if (
       values[1] > minValue1 ||
-      (values[1] >= minValue1 && values[0] > maxValue0)
+      (values[1] === minValue1 && values[0] > maxValue0)
     ) {
       isDominated[values[2]] = true
+    } else {
       minValue1 = values[1]
     }
     maxValue0 = values[0]
