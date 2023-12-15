@@ -49,6 +49,25 @@ interface JournalOpSetTrialParam extends JournalOpBase {
   distribution: string
 }
 
+interface JournalOpSetTrialStateValue extends JournalOpBase {
+  trial_id: number
+  state: number
+  values?: number[]
+  datetime_start?: string
+  datetime_complete?: string
+}
+
+interface JournalOpSetTrialIntermediateValue extends JournalOpBase {
+  trial_id: number
+  step: number
+  intermediate_value: number
+}
+
+interface JournalOpSetTrialUserAttr extends JournalOpBase {
+  trial_id: number
+  user_attr: { [key: string]: any }
+}
+
 const trialStateNumToTrialState = (state: number): TrialState => {
   switch (state) {
     case 0:
@@ -97,7 +116,7 @@ class JournalStorage {
   private nextStudyId = 0
   private studyIdToTrialIDs: Map<number, number[]> = new Map()
   private trialIdToStudyId: Map<number, number> = new Map()
-  private trialNumber = 0
+  private trialID = 0
 
   public getStudies(): Study[] {
     for (let study of this.studies) {
@@ -107,6 +126,7 @@ class JournalStorage {
 
       study.trials.forEach((trial, index) => {
         for (let userAttr of trial.user_attrs) {
+          console.log(userAttr.key)
           unionUserAttrs.add(userAttr.key)
         }
         for (let param of trial.params) {
@@ -115,12 +135,11 @@ class JournalStorage {
         if (index === 0) {
           intersectionSearchSpace = Array.from(unionSearchSpace)
         } else {
-          intersectionSearchSpace = intersectionSearchSpace.filter((name) =>
-            trial.params.some((param) => param.name === name)
-          )
+          intersectionSearchSpace = intersectionSearchSpace.filter((name) => {
+            return trial.params.some((param) => param.name === name)
+          })
         }
       })
-
       study.union_user_attrs = Array.from(unionUserAttrs).map((key) => {
         return {
           key: key,
@@ -187,15 +206,6 @@ class JournalStorage {
             }
           })
 
-    this.studyIdToTrialIDs.set(
-      log.study_id,
-      this.studyIdToTrialIDs.get(log.study_id)?.concat([this.trialNumber]) ?? [
-        this.trialNumber,
-      ]
-    )
-
-    this.trialIdToStudyId.set(this.trialNumber, log.study_id)
-
     const userAtter = log.user_attrs
       ? Object.entries(log.user_attrs).map(([key, value]) => {
           return {
@@ -206,7 +216,7 @@ class JournalStorage {
       : []
 
     thisStudy.trials.push({
-      trial_id: this.trialNumber++,
+      trial_id: this.trialID,
       number: this.studyIdToTrialIDs.get(log.study_id)?.length ?? 0,
       study_id: log.study_id,
       state: trialStateNumToTrialState(log.state ?? 0),
@@ -229,40 +239,84 @@ class JournalStorage {
         ? new Date(log.datetime_complete)
         : undefined,
     })
+    this.studyIdToTrialIDs.set(
+      log.study_id,
+      this.studyIdToTrialIDs.get(log.study_id)?.concat([this.trialID]) ?? [
+        this.trialID,
+      ]
+    )
+    this.trialIdToStudyId.set(this.trialID, log.study_id)
+    this.trialID++
+  }
+
+  private getStudyAndTrial(trial_id: number): [Study?, Trial?] {
+    let study = this.studies.find(
+      (item) => item.study_id == this.trialIdToStudyId.get(trial_id)
+    )
+    if (study === undefined) {
+      return [undefined, undefined]
+    }
+
+    const trial = study.trials.find((item) => item.trial_id == trial_id)
+    if (trial === undefined) {
+      return [study, undefined]
+    }
+    return [study, trial]
   }
 
   public applySetTrialParam(log: JournalOpSetTrialParam) {
-    let thisStudy = this.studies.find(
-      (item) => item.study_id == this.trialIdToStudyId.get(log.trial_id)
-    )
-    if (thisStudy === undefined) {
+    let [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
+    if (thisStudy === undefined || thisTrial === undefined) {
       return
     }
+    thisTrial.params.push({
+      name: log.param_name,
+      param_internal_value: log.param_value_internal,
+      param_external_type: "FloatDistribution",
+      param_external_value: log.param_value_internal.toString(),
+      distribution: parseDistribution(log.distribution),
+    })
+  }
 
-    let thisTrial = thisStudy.trials.find(
-      (item) => item.trial_id == log.trial_id
-    )
-    if (thisTrial === undefined) {
+  public applySetTrialStateValues(log: JournalOpSetTrialStateValue): void {
+    let [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
+    if (thisStudy === undefined || thisTrial === undefined) {
       return
     }
+    thisTrial.state = trialStateNumToTrialState(log.state)
+    thisTrial.values = log.values
+    thisTrial.datetime_start = log.datetime_start
+      ? new Date(log.datetime_start)
+      : undefined
+    thisTrial.datetime_complete = log.datetime_complete
+      ? new Date(log.datetime_complete)
+      : undefined
+  }
 
-    // if (thisTrial.params.some((param) => param.name === log.param_name)) {
-    //   thisTrial.params.find((param) => param.name === log.param_name)[0] = {
-    //     name: log.param_name,
-    //     param_internal_value: log.param_value_internal,
-    //     param_external_type: "FloatDistribution",
-    //     param_external_value: log.param_value_internal.toString(),
-    //     distribution: parseDistribution(log.distribution),
-    //   }
-    // } else {
-      thisTrial.params.push({
-        name: log.param_name,
-        param_internal_value: log.param_value_internal,
-        param_external_type: "FloatDistribution",
-        param_external_value: log.param_value_internal.toString(),
-        distribution: parseDistribution(log.distribution),
+  public applySetTrialIntermediateValue(
+    log: JournalOpSetTrialIntermediateValue
+  ) {
+    let [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
+    if (thisStudy === undefined || thisTrial === undefined) {
+      return
+    }
+    thisTrial.intermediate_values.push({
+      step: log.step,
+      value: log.intermediate_value,
+    })
+  }
+
+  public applySetTrialUserAttr(log: JournalOpSetTrialUserAttr) {
+    let [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
+    if (thisStudy === undefined || thisTrial === undefined) {
+      return
+    }
+    for (let [key, value] of Object.entries(log.user_attr)) {
+      thisTrial.user_attrs.push({
+        key: key,
+        value: value.toString(),
       })
-    // }
+    }
   }
 }
 
@@ -295,6 +349,27 @@ export const loadJournalStorage = (
         break
       case JournalOperation.CREATE_TRIAL:
         journalStorage.applyCreateTrial(parsedLog as JournalOpCreateTrial)
+        break
+      case JournalOperation.SET_TRIAL_PARAM:
+        journalStorage.applySetTrialParam(parsedLog as JournalOpSetTrialParam)
+        break
+      case JournalOperation.SET_TRIAL_STATE_VALUES:
+        journalStorage.applySetTrialStateValues(
+          parsedLog as JournalOpSetTrialStateValue
+        )
+        break
+      case JournalOperation.SET_TRIAL_INTERMEDIATE_VALUE:
+        journalStorage.applySetTrialIntermediateValue(
+          parsedLog as JournalOpSetTrialIntermediateValue
+        )
+        break
+      case JournalOperation.SET_TRIAL_USER_ATTR:
+        journalStorage.applySetTrialUserAttr(
+          parsedLog as JournalOpSetTrialUserAttr
+        )
+        break
+      case JournalOperation.SET_TRIAL_SYSTEM_ATTR:
+        // Unsupported set for trial system_attr
         break
     }
   }
