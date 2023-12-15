@@ -20,7 +20,7 @@ export const TrialTable: FC<{
     },
   ]
 
-  if (study === null || study.directions.length == 1) {
+  if (study === null || study.directions.length === 1) {
     columns.push({
       field: "values",
       label: "Value",

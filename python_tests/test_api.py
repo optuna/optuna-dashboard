@@ -9,6 +9,8 @@ from optuna import get_all_study_summaries
 from optuna.study import StudyDirection
 from optuna_dashboard._app import create_app
 from optuna_dashboard._app import create_new_study
+from optuna_dashboard._note import note_str_key_prefix
+from optuna_dashboard._note import note_ver_key
 from optuna_dashboard._preference_setting import register_preference_feedback_component
 from optuna_dashboard._preferential_history import NewHistory
 from optuna_dashboard._preferential_history import remove_history
@@ -219,6 +221,110 @@ class APITestCase(TestCase):
         study_detail = json.loads(body)
         assert study_detail["feedback_component_type"]["output_type"] == "artifact"
         assert study_detail["feedback_component_type"]["artifact_key"] == "image"
+
+    def test_save_trial_user_attrs(self) -> None:
+        study = optuna.create_study()
+        trials: list[optuna.Trial] = []
+        for _ in range(2):
+            trial = study.ask()
+            trials.append(trial)
+
+        request_body = {
+            "user_attrs": {
+                "number": 0,
+            },
+        }
+
+        app = create_app(study._storage)
+        status, _, _ = send_request(
+            app,
+            f"/api/trials/{trials[0]._trial_id}/user-attrs",
+            "POST",
+            content_type="application/json",
+            body=json.dumps(request_body),
+        )
+        self.assertEqual(status, 204)
+
+        assert study.trials[0].user_attrs == request_body["user_attrs"]
+        assert study.trials[1].user_attrs == {}
+
+    def test_save_trial_user_attrs_empty(self) -> None:
+        study = optuna.create_study()
+        trial = study.ask()
+
+        app = create_app(study._storage)
+        status, _, _ = send_request(
+            app,
+            f"/api/trials/{trial._trial_id}/user-attrs",
+            "POST",
+            content_type="application/json",
+            body=json.dumps({}),
+        )
+        self.assertEqual(status, 400)
+        assert study.trials[0].user_attrs == {}
+
+    def _save_trial_note(self, request_body: dict[str, int | str]) -> tuple[int, optuna.Study]:
+        study = optuna.create_study()
+        trial = study.ask()
+        app = create_app(study._storage)
+        status, _, _ = send_request(
+            app,
+            f"/api/studies/{study._study_id}/{trial._trial_id}/note",
+            "PUT",
+            content_type="application/json",
+            body=json.dumps(request_body),
+        )
+        return status, study
+
+    def test_save_trial_note_overwrite(self) -> None:
+        study = optuna.create_study()
+        trial = study.ask()
+        app = create_app(study._storage)
+
+        def _get_request_body(note_version: int) -> dict[str, str | int]:
+            return {"body": f"Test note ver. {note_version}.", "version": note_version}
+
+        for ver in range(1, 3):
+            status, _, _ = send_request(
+                app,
+                f"/api/studies/{study._study_id}/{trial._trial_id}/note",
+                "PUT",
+                content_type="application/json",
+                body=json.dumps(_get_request_body(note_version=ver)),
+            )
+        assert status == 204
+        # Check if the version 1 is deleted.
+        expected_request_body = _get_request_body(note_version=2)
+        expected_system_attrs = {
+            note_ver_key(trial_id=0): expected_request_body["version"],
+            f"{note_str_key_prefix(trial_id=0)}{0}": expected_request_body["body"],
+        }
+        for k, v in expected_system_attrs.items():
+            assert k in study.system_attrs
+            assert study.system_attrs[k] == v
+
+    def test_save_trial_note(self) -> None:
+        request_body: dict[str, int | str] = {"body": "Test note.", "version": 1}
+        status, study = self._save_trial_note(request_body)
+        assert status == 204
+        expected_system_attrs = {
+            note_ver_key(0): request_body["version"],
+            f"{note_str_key_prefix(0)}{0}": request_body["body"],
+        }
+        for k, v in expected_system_attrs.items():
+            assert k in study.system_attrs
+            assert study.system_attrs[k] == v
+
+    def test_save_trial_note_with_wrong_version(self) -> None:
+        request_body: dict[str, int | str] = {"body": "Test note.", "version": 0}
+        status, study = self._save_trial_note(request_body)
+        assert status == 409
+        assert note_ver_key(0) not in study.system_attrs
+
+    def test_save_trial_note_empty(self) -> None:
+        status, study = self._save_trial_note(request_body={})
+        assert status == 400
+        assert note_ver_key(0) not in study.system_attrs
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
     def test_skip_trial(self) -> None:

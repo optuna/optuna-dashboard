@@ -64,7 +64,7 @@ const getSchemaVersion = (db: SQLite3DB): string => {
 
 const isSupportedSchema = (schemaVersion: string): boolean => {
   const lowestVersion = "v2.6.0.a" // supported: "v3.2.0.a", "v3.0.0.{a,b,c,d}", "v2.6.0.a"
-  if (schemaVersion == lowestVersion) return true
+  if (schemaVersion === lowestVersion) return true
   return isGreaterSchemaVersion(schemaVersion, lowestVersion)
 }
 
@@ -80,7 +80,7 @@ const isGreaterSchemaVersion = (
 
   const left = Number(leftVersion)
   const right = Number(rightVersion)
-  if (left == right) return leftSuffix > rightSuffix
+  if (left === right) return leftSuffix > rightSuffix
   return left > right
 }
 
@@ -106,7 +106,7 @@ const getStudies = (db: SQLite3DB, schemaVersion: string): Study[] => {
       trials.forEach((trial) => {
         const userAttrs = getTrialUserAttributes(db, trial.trial_id)
         userAttrs.forEach((attr) => {
-          if (union_user_attrs.findIndex((s) => s.key === attr.key) == -1) {
+          if (union_user_attrs.findIndex((s) => s.key === attr.key) === -1) {
             union_user_attrs.push({ key: attr.key, sortable: false })
           }
         })
@@ -116,7 +116,7 @@ const getStudies = (db: SQLite3DB, schemaVersion: string): Study[] => {
         params.forEach((param) => {
           param_names.add(param.name)
           if (
-            union_search_space.findIndex((s) => s.name === param.name) == -1
+            union_search_space.findIndex((s) => s.name === param.name) === -1
           ) {
             union_search_space.push({ name: param.name })
           }
