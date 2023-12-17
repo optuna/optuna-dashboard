@@ -33,9 +33,9 @@ interface JournalOpCreateTrial extends JournalOpBase {
   datetime_start?: string
   datetime_complete?: string
   distributions?: { [key: string]: string }
-  params?: { [key: string]: any }
-  user_attrs?: { [key: string]: any }
-  system_attrs?: { [key: string]: any }
+  params?: { [key: string]: any } // eslint-disable-line @typescript-eslint/no-explicit-any
+  user_attrs?: { [key: string]: any } // eslint-disable-line @typescript-eslint/no-explicit-any
+  system_attrs?: { [key: string]: any } // eslint-disable-line @typescript-eslint/no-explicit-any
   state?: number
   intermediate_values?: { [key: string]: number }
   value?: number
@@ -65,7 +65,7 @@ interface JournalOpSetTrialIntermediateValue extends JournalOpBase {
 
 interface JournalOpSetTrialUserAttr extends JournalOpBase {
   trial_id: number
-  user_attr: { [key: string]: any }
+  user_attr: { [key: string]: any } // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 const trialStateNumToTrialState = (state: number): TrialState => {
@@ -101,6 +101,7 @@ const parseDistribution = (distribution: string): Distribution => {
     return {
       // TODO(gen740): support other types
       type: "CategoricalDistribution",
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       choices: distributionJson["attributes"]["choices"].map((choice: any) => {
         return {
           pytype: "str",
@@ -119,17 +120,17 @@ class JournalStorage {
   private trialID = 0
 
   public getStudies(): Study[] {
-    for (let study of this.studies) {
-      let unionUserAttrs: Set<string> = new Set()
-      let unionSearchSpace: Set<string> = new Set()
+    for (const study of this.studies) {
+      const unionUserAttrs: Set<string> = new Set()
+      const unionSearchSpace: Set<string> = new Set()
       let intersectionSearchSpace: string[] = []
 
       study.trials.forEach((trial, index) => {
-        for (let userAttr of trial.user_attrs) {
+        for (const userAttr of trial.user_attrs) {
           console.log(userAttr.key)
           unionUserAttrs.add(userAttr.key)
         }
-        for (let param of trial.params) {
+        for (const param of trial.params) {
           unionSearchSpace.add(param.name)
         }
         if (index === 0) {
@@ -175,17 +176,19 @@ class JournalStorage {
   }
 
   public applyDeleteStudy(log: JournalOpDeleteStudy): void {
-    this.studies = this.studies.filter((item) => item.study_id != log.study_id)
+    this.studies = this.studies.filter((item) => item.study_id !== log.study_id)
   }
 
   public applyCreateTrial(log: JournalOpCreateTrial): void {
-    let thisStudy = this.studies.find((item) => item.study_id == log.study_id)
+    const thisStudy = this.studies.find(
+      (item) => item.study_id === log.study_id
+    )
     if (thisStudy === undefined) {
       return
     }
 
-    let params: TrialParam[] =
-      log.params === undefined
+    const params: TrialParam[] =
+      log.params === undefined || log.distributions === undefined
         ? []
         : Object.entries(log.params).map(([name, value]) => {
             const distribution = parseDistribution(log.distributions![name])
@@ -250,14 +253,14 @@ class JournalStorage {
   }
 
   private getStudyAndTrial(trial_id: number): [Study?, Trial?] {
-    let study = this.studies.find(
-      (item) => item.study_id == this.trialIdToStudyId.get(trial_id)
+    const study = this.studies.find(
+      (item) => item.study_id === this.trialIdToStudyId.get(trial_id)
     )
     if (study === undefined) {
       return [undefined, undefined]
     }
 
-    const trial = study.trials.find((item) => item.trial_id == trial_id)
+    const trial = study.trials.find((item) => item.trial_id === trial_id)
     if (trial === undefined) {
       return [study, undefined]
     }
@@ -265,7 +268,7 @@ class JournalStorage {
   }
 
   public applySetTrialParam(log: JournalOpSetTrialParam) {
-    let [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
+    const [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
     if (thisStudy === undefined || thisTrial === undefined) {
       return
     }
@@ -279,7 +282,7 @@ class JournalStorage {
   }
 
   public applySetTrialStateValues(log: JournalOpSetTrialStateValue): void {
-    let [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
+    const [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
     if (thisStudy === undefined || thisTrial === undefined) {
       return
     }
@@ -296,7 +299,7 @@ class JournalStorage {
   public applySetTrialIntermediateValue(
     log: JournalOpSetTrialIntermediateValue
   ) {
-    let [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
+    const [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
     if (thisStudy === undefined || thisTrial === undefined) {
       return
     }
@@ -307,11 +310,11 @@ class JournalStorage {
   }
 
   public applySetTrialUserAttr(log: JournalOpSetTrialUserAttr) {
-    let [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
+    const [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
     if (thisStudy === undefined || thisTrial === undefined) {
       return
     }
-    for (let [key, value] of Object.entries(log.user_attr)) {
+    for (const [key, value] of Object.entries(log.user_attr)) {
       thisTrial.user_attrs.push({
         key: key,
         value: value.toString(),
@@ -327,13 +330,13 @@ export const loadJournalStorage = (
   const decoder = new TextDecoder("utf-8")
   const logs = decoder.decode(arrayBuffer).split("\n")
 
-  let journalStorage = new JournalStorage()
+  const journalStorage = new JournalStorage()
 
-  for (let log of logs) {
+  for (const log of logs) {
     if (log === "") {
       continue
     }
-    let parsedLog: JournalOpBase = JSON.parse(log)
+    const parsedLog: JournalOpBase = JSON.parse(log)
     switch (parsedLog.op_code) {
       case JournalOperation.CREATE_STUDY:
         journalStorage.applyCreateStudy(parsedLog as JournalOpCreateStudy)

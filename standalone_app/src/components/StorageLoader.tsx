@@ -32,7 +32,7 @@ export const StorageLoader: FC = () => {
       const arrayBuffer = r.result as ArrayBuffer | null
       const fileExtension = file.name.split(".").pop()
       if (arrayBuffer !== null) {
-        if (fileExtension == "log") {
+        if (fileExtension === "log") {
           loadJournalStorage(arrayBuffer, setStudies)
         } else {
           loadSQLite3Storage(arrayBuffer, setStudies)
