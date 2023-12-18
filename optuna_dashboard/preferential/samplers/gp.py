@@ -50,15 +50,15 @@ def _orthants_MVN_Gibbs_sampling(cov_inv: Tensor, cycles: int, initial_sample: T
 
 
 def _one_side_trunc_norm_sampling(lower: Tensor) -> Tensor:
-    if lower > 4.0:
-        r = torch.clamp_min(torch.rand(torch.Size(()), dtype=torch.float64), min=1e-300)
-        return (lower * lower - 2 * r.log()).sqrt()
-    else:
-        SQRT2 = math.sqrt(2)
-        r = torch.rand(torch.Size(()), dtype=torch.float64) * torch.erfc(lower / SQRT2)
-        while 1 - r == 1:
-            r = torch.rand(torch.Size(()), dtype=torch.float64) * torch.erfc(lower / SQRT2)
-        return torch.erfinv(1 - r) * SQRT2
+    r = torch.rand(torch.Size(()), dtype=torch.float64)
+    ret = -torch.special.ndtri(torch.exp(torch.special.log_ndtr(-lower) + r.log()))
+
+    # If sampled random number is very small, `ret` becomes inf.
+    while torch.isinf(ret):
+        r = torch.rand(torch.Size(()), dtype=torch.float64)
+        ret = -torch.special.ndtri(torch.exp(torch.special.log_ndtr(-lower) + r.log()))
+
+    return ret
 
 
 _orthants_MVN_Gibbs_sampling_jit = torch.jit.script(_orthants_MVN_Gibbs_sampling)
@@ -284,6 +284,26 @@ class _PreferentialGP:
 
 
 class PreferentialGPSampler(optuna.samplers.BaseSampler):
+    """Sampler for preferential optimization using Gaussian process.
+
+    The sampling algorithm is based on `Takeno et al., 2023 <https://arxiv.org/abs/2302.01513>`_.
+    This sampler uses BoTorch to optimize acquisition function.
+
+    Args:
+        kernel:
+            Kernel that computes the covariance on the Gaussian process. Defaults to
+            Matern 3/2 Kernel + ARD.
+        noise_prior:
+            Prior of the observation noise. Defaults to gamma prior.
+        independent_sampler:
+            A :class:`~optuna.samplers.BaseSampler` instance that is used for independent
+            sampling. The parameters not contained in the relative search space are sampled
+            by this sampler. If :obj:`None` is specified,
+            :class:`~optuna.samplers.RandomSampler` is used as the default.
+        seed:
+            Seed for random number generator.
+    """
+
     def __init__(
         self,
         *,
@@ -297,7 +317,7 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
 
         self._rng = np.random.RandomState(seed)
         self.independent_sampler = independent_sampler or optuna.samplers.RandomSampler(
-            seed=self._rng.randint(2**32)
+            seed=self._rng.randint(2**32, dtype=np.int64)
         )
 
         self._search_space = optuna.search_space.IntersectionSearchSpace()
@@ -335,7 +355,7 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
         )
         pref_ids = torch.tensor([[ids[b], ids[w]] for b, w in preferences], dtype=torch.int32)
         with torch.random.fork_rng():
-            torch.manual_seed(self._rng.randint(2**32))
+            torch.manual_seed(self._rng.randint(2**32, dtype=np.int64))
 
             self._gp = self._gp or _PreferentialGP(
                 kernel=self.kernel

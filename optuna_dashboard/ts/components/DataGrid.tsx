@@ -10,12 +10,16 @@ import {
   TableSortLabel,
   Collapse,
   IconButton,
-  useTheme,
+  Menu,
+  MenuItem,
 } from "@mui/material"
 import { styled } from "@mui/system"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp"
-import { Clear } from "@mui/icons-material"
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
+import CheckBoxIcon from "@mui/icons-material/CheckBox"
+import FilterListIcon from "@mui/icons-material/FilterList"
+import ListItemIcon from "@mui/material/ListItemIcon"
 
 type Order = "asc" | "desc"
 
@@ -28,15 +32,15 @@ interface DataGridColumn<T> {
   field: keyof T
   label: string
   sortable?: boolean
-  less?: (a: T, b: T) => number
-  filterable?: boolean
+  less?: (a: T, b: T, ascending: boolean) => number
+  filterChoices?: string[]
   toCellValue?: (rowIndex: number) => string | React.ReactNode
   padding?: "normal" | "checkbox" | "none"
 }
 
 interface RowFilter {
   columnIdx: number
-  value: Value
+  values: Value[]
 }
 
 function DataGrid<T>(props: {
@@ -81,28 +85,13 @@ function DataGrid<T>(props: {
   }
 
   // Filtering
-  const fieldAlreadyFiltered = (columnIdx: number): boolean =>
-    filters.some((f) => f.columnIdx === columnIdx)
-
-  const handleClickFilterCell = (columnIdx: number, value: Value) => {
-    if (fieldAlreadyFiltered(columnIdx)) {
-      return
-    }
-    const newFilters = [...filters, { columnIdx: columnIdx, value: value }]
-    setFilters(newFilters)
-  }
-
-  const clearFilter = (columnIdx: number): void => {
-    setFilters(filters.filter((f) => f.columnIdx !== columnIdx))
-  }
-
   const filteredRows = rows.filter((row, rowIdx) => {
     if (defaultFilter !== undefined && defaultFilter(row)) {
       return false
     }
     return filters.length === 0
       ? true
-      : filters.some((f) => {
+      : filters.every((f) => {
           if (columns.length <= f.columnIdx) {
             console.log(
               `columnIdx=${f.columnIdx} must be smaller than columns.length=${columns.length}`
@@ -110,20 +99,15 @@ function DataGrid<T>(props: {
             return true
           }
           const toCellValue = columns[f.columnIdx].toCellValue
-          if (toCellValue !== undefined) {
-            return toCellValue(rowIdx) === f.value
-          }
-          const field = columns[f.columnIdx].field
-          return row[field] === f.value
+          const cellValue =
+            toCellValue !== undefined
+              ? toCellValue(rowIdx)
+              : row[columns[f.columnIdx].field]
+          return f.values.some((v) => v === cellValue)
         })
   })
 
   // Sorting
-  const createSortHandler = (columnId: number) => () => {
-    const isAsc = orderBy === columnId && order === "asc"
-    setOrder(isAsc ? "desc" : "asc")
-    setOrderBy(columnId)
-  }
   const sortedRows = stableSort<T>(filteredRows, order, orderBy, columns)
   const currentPageRows =
     rowsPerPage > 0
@@ -134,20 +118,6 @@ function DataGrid<T>(props: {
 
   const RootDiv = styled("div")({
     width: "100%",
-  })
-  const HiddenSpan = styled("span")({
-    border: 0,
-    clip: "rect(0 0 0 0)",
-    height: 1,
-    margin: -1,
-    overflow: "hidden",
-    padding: 0,
-    position: "absolute",
-    top: 20,
-    width: 1,
-  })
-  const TableHeaderCellSpan = styled("span")({
-    display: "inline-flex",
   })
   return (
     <RootDiv>
@@ -160,50 +130,32 @@ function DataGrid<T>(props: {
           <TableHead>
             <TableRow>
               {collapseBody ? <TableCell /> : null}
-              {columns.map((column, columnIdx) => (
-                <TableCell
-                  key={columnIdx}
-                  padding={column.padding || "normal"}
-                  sortDirection={orderBy === column.field ? order : false}
-                >
-                  <TableHeaderCellSpan>
-                    {column.sortable ? (
-                      <TableSortLabel
-                        active={orderBy === columnIdx}
-                        direction={orderBy === columnIdx ? order : "asc"}
-                        onClick={createSortHandler(columnIdx)}
-                      >
-                        {column.label}
-                        {orderBy === column.field ? (
-                          <HiddenSpan>
-                            {order === "desc"
-                              ? "sorted descending"
-                              : "sorted ascending"}
-                          </HiddenSpan>
-                        ) : null}
-                      </TableSortLabel>
-                    ) : (
-                      column.label
-                    )}
-                    {column.filterable ? (
-                      <IconButton
-                        size={dense ? "small" : "medium"}
-                        style={
-                          fieldAlreadyFiltered(columnIdx)
-                            ? {}
-                            : { visibility: "hidden" }
-                        }
-                        color="inherit"
-                        onClick={() => {
-                          clearFilter(columnIdx)
-                        }}
-                      >
-                        <Clear />
-                      </IconButton>
-                    ) : null}
-                  </TableHeaderCellSpan>
-                </TableCell>
-              ))}
+              {columns.map((column, columnIdx) => {
+                return (
+                  <DataGridHeaderColumn<T>
+                    key={columnIdx}
+                    column={column}
+                    order={orderBy === columnIdx ? order : null}
+                    filter={
+                      filters.find((f) => f.columnIdx === columnIdx) || null
+                    }
+                    onOrderByChange={(direction: Order) => {
+                      setOrder(direction)
+                      setOrderBy(columnIdx)
+                    }}
+                    onFilterChange={(values: Value[]) => {
+                      const newFilters = filters.filter(
+                        (f) => f.columnIdx !== columnIdx
+                      )
+                      newFilters.push({
+                        columnIdx: columnIdx,
+                        values: values,
+                      })
+                      setFilters(newFilters)
+                    }}
+                  />
+                )
+              })}
             </TableRow>
           </TableHead>
           <TableBody>
@@ -215,7 +167,6 @@ function DataGrid<T>(props: {
                 keyField={keyField}
                 collapseBody={collapseBody}
                 key={`${row[keyField]}`}
-                handleClickFilterCell={handleClickFilterCell}
               />
             ))}
             {emptyRows > 0 && (
@@ -239,30 +190,119 @@ function DataGrid<T>(props: {
   )
 }
 
+const TableHeaderCellSpan = styled("span")({
+  display: "inline-flex",
+})
+
+const HiddenSpan = styled("span")({
+  border: 0,
+  clip: "rect(0 0 0 0)",
+  height: 1,
+  margin: -1,
+  overflow: "hidden",
+  padding: 0,
+  position: "absolute",
+  top: 20,
+  width: 1,
+})
+
+function DataGridHeaderColumn<T>(props: {
+  column: DataGridColumn<T>
+  order: Order | null
+  onOrderByChange: (order: Order) => void
+  filter: RowFilter | null
+  onFilterChange: (values: Value[]) => void
+  dense?: boolean
+}) {
+  const { column, order, onOrderByChange, filter, onFilterChange, dense } =
+    props
+  const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
+    React.useState<null | HTMLElement>(null)
+
+  const filterChoices = column.filterChoices
+
+  return (
+    <TableCell
+      padding={column.padding || "normal"}
+      sortDirection={order !== null ? order : false}
+    >
+      <TableHeaderCellSpan>
+        {column.sortable ? (
+          <TableSortLabel
+            active={order !== null}
+            direction={order || "asc"}
+            onClick={() => {
+              onOrderByChange(order === "asc" ? "desc" : "asc")
+            }}
+          >
+            {column.label}
+            {order !== null ? (
+              <HiddenSpan>
+                {order === "desc" ? "sorted descending" : "sorted ascending"}
+              </HiddenSpan>
+            ) : null}
+          </TableSortLabel>
+        ) : (
+          column.label
+        )}
+        {filterChoices !== undefined ? (
+          <>
+            <IconButton
+              size={dense ? "small" : "medium"}
+              onClick={(e) => {
+                setFilterMenuAnchorEl(e.currentTarget)
+              }}
+            >
+              <FilterListIcon fontSize="small" />
+            </IconButton>
+            <Menu
+              anchorEl={filterMenuAnchorEl}
+              open={filterMenuAnchorEl !== null}
+              onClose={() => {
+                setFilterMenuAnchorEl(null)
+              }}
+            >
+              {filterChoices.map((choice) => (
+                <MenuItem
+                  key={choice}
+                  onClick={() => {
+                    const newTickedValues =
+                      filter === null
+                        ? filterChoices.filter((v) => v !== choice) // By default, every choice is ticked, so the chosen option will be unticked.
+                        : filter.values.some((v) => v === choice)
+                        ? filter.values.filter((v) => v !== choice)
+                        : [...filter.values, choice]
+                    onFilterChange(newTickedValues)
+                  }}
+                >
+                  <ListItemIcon>
+                    {!filter || filter.values.some((v) => v === choice) ? (
+                      <CheckBoxIcon color="primary" />
+                    ) : (
+                      <CheckBoxOutlineBlankIcon color="primary" />
+                    )}
+                  </ListItemIcon>
+                  {choice}
+                </MenuItem>
+              ))}
+            </Menu>
+          </>
+        ) : null}
+      </TableHeaderCellSpan>
+    </TableCell>
+  )
+}
+
 function DataGridRow<T>(props: {
   columns: DataGridColumn<T>[]
   rowIndex: number
   row: T
   keyField: keyof T
   collapseBody?: (rowIndex: number) => React.ReactNode
-  handleClickFilterCell: (columnIdx: number, value: Value) => void
 }) {
-  const {
-    columns,
-    rowIndex,
-    row,
-    keyField,
-    collapseBody,
-    handleClickFilterCell,
-  } = props
+  const { columns, rowIndex, row, keyField, collapseBody } = props
   const [open, setOpen] = React.useState(false)
-  const theme = useTheme()
 
-  const FilterableDiv = styled("div")({
-    color: theme.palette.primary.main,
-    textDecoration: "underline",
-    cursor: "pointer",
-  })
   return (
     <React.Fragment>
       <TableRow hover tabIndex={-1}>
@@ -283,21 +323,7 @@ function DataGridRow<T>(props: {
             : // TODO(c-bata): Avoid this implicit type conversion.
               (row[column.field] as number | string | null | undefined)
 
-          return column.filterable ? (
-            <TableCell
-              key={`${row[keyField]}:${column.field.toString()}:${columnIndex}`}
-              padding={column.padding || "normal"}
-              onClick={() => {
-                const value =
-                  column.toCellValue !== undefined
-                    ? column.toCellValue(rowIndex)
-                    : row[column.field]
-                handleClickFilterCell(columnIndex, value)
-              }}
-            >
-              <FilterableDiv>{cellItem}</FilterableDiv>
-            </TableCell>
-          ) : (
+          return (
             <TableCell
               key={`${row[keyField]}:${column.field.toString()}:${columnIndex}`}
               padding={column.padding || "normal"}
@@ -358,7 +384,10 @@ function stableSort<T>(
   const stabilizedThis = array.map((el, index) => [el, index] as [T, number])
   stabilizedThis.sort((a, b) => {
     if (less) {
-      const result = order == "asc" ? -less(a[0], b[0]) : less(a[0], b[0])
+      const ascending = order === "asc"
+      const result = ascending
+        ? -less(a[0], b[0], ascending)
+        : less(a[0], b[0], ascending)
       if (result !== 0) return result
     } else {
       const result = comparator(a[0], b[0])

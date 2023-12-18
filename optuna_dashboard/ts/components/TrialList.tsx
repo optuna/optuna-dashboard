@@ -119,7 +119,7 @@ const useIsBestTrial = (
   return useMemo(() => {
     const bestTrialIDs = studyDetail?.best_trials.map((t) => t.trial_id) || []
     return (trialId: number): boolean =>
-      bestTrialIDs.findIndex((a) => a === trialId) != -1
+      bestTrialIDs.findIndex((a) => a === trialId) !== -1
   }, [studyDetail])
 }
 

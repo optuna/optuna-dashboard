@@ -14,6 +14,10 @@ Nothing to configure.
 
 ## Release Notes
 
+### 0.1.0
+
+Added older database schemas support (Optuna 2.6.0 or later)
+
 ### 0.0.1
 
 Initial Release

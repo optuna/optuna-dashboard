@@ -4,12 +4,17 @@ import { Canvas } from "@react-three/fiber"
 import { GizmoHelper, GizmoViewport, OrbitControls } from "@react-three/drei"
 import { STLLoader } from "three/examples/jsm/loaders/STLLoader"
 import { Rhino3dmLoader } from "three/examples/jsm/loaders/3DMLoader"
+import { OBJLoader } from "three/examples/jsm/loaders/OBJLoader"
 import { PerspectiveCamera } from "three"
-import { Modal, Box } from "@mui/material"
+import { Modal, Box, useTheme } from "@mui/material"
+import ClearIcon from "@mui/icons-material/Clear"
+import IconButton from "@mui/material/IconButton"
 
 export const isThreejsArtifact = (artifact: Artifact): boolean => {
   return (
-    artifact.filename.endsWith(".stl") || artifact.filename.endsWith(".3dm")
+    artifact.filename.endsWith(".stl") ||
+    artifact.filename.endsWith(".3dm") ||
+    artifact.filename.endsWith(".obj")
   )
 }
 
@@ -32,7 +37,7 @@ const CustomGizmoHelper: React.FC = () => {
   )
 }
 
-const calculateBoundingBox = (geometries: THREE.BufferGeometry[]) => {
+const computeBoundingBox = (geometries: THREE.BufferGeometry[]) => {
   const boundingBox = new THREE.Box3()
   geometries.forEach((geometry) => {
     const mesh = new THREE.Mesh(geometry)
@@ -45,8 +50,11 @@ export const ThreejsArtifactViewer: React.FC<ThreejsArtifactViewerProps> = (
   props
 ) => {
   const [geometry, setGeometry] = useState<THREE.BufferGeometry[]>([])
-  const [modelSize, setModelSize] = useState<THREE.Vector3>(
-    new THREE.Vector3(10, 10, 10)
+  const [boundingBox, setBoundingBox] = useState<THREE.Box3>(
+    new THREE.Box3(
+      new THREE.Vector3(-10, -10, -10),
+      new THREE.Vector3(10, 10, 10)
+    )
   )
   const [cameraSettings, setCameraSettings] = useState<PerspectiveCamera>(
     new THREE.PerspectiveCamera()
@@ -54,55 +62,54 @@ export const ThreejsArtifactViewer: React.FC<ThreejsArtifactViewerProps> = (
 
   const handleLoadedGeometries = (geometries: THREE.BufferGeometry[]) => {
     setGeometry(geometries)
-    const boundingBox = calculateBoundingBox(geometries)
+    const boundingBox = computeBoundingBox(geometries)
     if (boundingBox !== null) {
-      const size = boundingBox.getSize(new THREE.Vector3())
-      setModelSize(size)
+      setBoundingBox(boundingBox)
     }
+    return boundingBox
   }
 
   useEffect(() => {
     if ("stl" === props.filetype) {
-      const stlLoader = new STLLoader()
-      stlLoader.load(props.src, (stlGeometries: THREE.BufferGeometry) => {
-        if (stlGeometries) {
-          handleLoadedGeometries([stlGeometries])
-        }
-      })
+      loadSTL(props, handleLoadedGeometries)
     } else if ("3dm" === props.filetype) {
-      const loader = new Rhino3dmLoader()
-      loader.setLibraryPath("https://cdn.jsdelivr.net/npm/rhino3dm@7.15.0/")
-      loader.load(props.src, (object: THREE.Object3D) => {
-        const meshes = object.children as THREE.Mesh[]
-        const rhinoGeometries = meshes.map((mesh) => mesh.geometry)
-        THREE.Object3D.DEFAULT_UP.set(0, 0, 1)
-        if (rhinoGeometries.length > 0) {
-          handleLoadedGeometries(rhinoGeometries)
-        }
-      })
+      loadRhino3dm(props, handleLoadedGeometries)
+    } else if ("obj" === props.filetype) {
+      loadOBJ(props, handleLoadedGeometries)
     }
-    const maxModelSize = Math.max(modelSize.x, modelSize.y, modelSize.z)
-    const cameraSet = new THREE.PerspectiveCamera(
-      modelSize
-        ? Math.min(
-            45,
-            Math.atan(modelSize.y / modelSize.z) * (180 / Math.PI) * 2
-          )
-        : 45,
-      window.innerWidth / window.innerHeight
-    )
-    cameraSet.position.set(maxModelSize * 2, maxModelSize * 2, maxModelSize * 2)
-    setCameraSettings(cameraSet)
   }, [])
+
+  useEffect(() => {
+    const cameraSet = new THREE.PerspectiveCamera(
+      50,
+      window.innerWidth / window.innerHeight,
+      0.1,
+      boundingBox.getSize(new THREE.Vector3()).length() * 100
+    )
+    const maxPosition = Math.max(
+      boundingBox.max.x,
+      boundingBox.max.y,
+      boundingBox.max.z
+    )
+    cameraSet.position.set(
+      maxPosition * 1.5,
+      maxPosition * 1.5,
+      maxPosition * 1.5
+    )
+    const center = boundingBox.getCenter(new THREE.Vector3())
+    cameraSet.lookAt(center.x, center.y, center.z)
+    setCameraSettings(cameraSet)
+  }, [boundingBox])
 
   return (
     <Canvas
+      frameloop="demand"
       camera={cameraSettings}
       style={{ width: props.width, height: props.height }}
     >
       <ambientLight />
       <OrbitControls />
-      <gridHelper args={[Math.max(modelSize?.x, modelSize?.y) * 5]} />
+      <gridHelper args={[Math.max(boundingBox.max.x, boundingBox.max.y) * 5]} />
       {props.hasGizmo && <CustomGizmoHelper />}
       <axesHelper />
       {geometry.length > 0 &&
@@ -121,6 +128,7 @@ export const useThreejsArtifactModal = (): [
 ] => {
   const [open, setOpen] = useState(false)
   const [target, setTarget] = useState<[string, Artifact | null]>(["", null])
+  const theme = useTheme()
 
   const openModal = (artifactUrlPath: string, artifact: Artifact) => {
     setTarget([artifactUrlPath, artifact])
@@ -146,6 +154,19 @@ export const useThreejsArtifactModal = (): [
             borderRadius: "15px",
           }}
         >
+          <IconButton
+            sx={{
+              position: "absolute",
+              top: theme.spacing(2),
+              right: theme.spacing(2),
+            }}
+            onClick={() => {
+              setOpen(false)
+              setTarget(["", null])
+            }}
+          >
+            <ClearIcon />
+          </IconButton>
           <ThreejsArtifactViewer
             src={target[0]}
             width={`${innerWidth * 0.8}px`}
@@ -158,4 +179,46 @@ export const useThreejsArtifactModal = (): [
     )
   }
   return [openModal, renderDeleteStudyDialog]
+}
+
+function loadSTL(
+  props: ThreejsArtifactViewerProps,
+  handleLoadedGeometries: (geometries: THREE.BufferGeometry[]) => THREE.Box3
+) {
+  const stlLoader = new STLLoader()
+  stlLoader.load(props.src, (stlGeometries: THREE.BufferGeometry) => {
+    if (stlGeometries) {
+      handleLoadedGeometries([stlGeometries])
+    }
+  })
+}
+
+function loadRhino3dm(
+  props: ThreejsArtifactViewerProps,
+  handleLoadedGeometries: (geometries: THREE.BufferGeometry[]) => THREE.Box3
+) {
+  const rhino3dmLoader = new Rhino3dmLoader()
+  rhino3dmLoader.setLibraryPath("https://cdn.jsdelivr.net/npm/rhino3dm@7.15.0/")
+  rhino3dmLoader.load(props.src, (object: THREE.Object3D) => {
+    const meshes = object.children as THREE.Mesh[]
+    const rhinoGeometries = meshes.map((mesh) => mesh.geometry)
+    THREE.Object3D.DEFAULT_UP.set(0, 0, 1)
+    if (rhinoGeometries.length > 0) {
+      handleLoadedGeometries(rhinoGeometries)
+    }
+  })
+}
+
+function loadOBJ(
+  props: ThreejsArtifactViewerProps,
+  handleLoadedGeometries: (geometries: THREE.BufferGeometry[]) => THREE.Box3
+) {
+  const objLoader = new OBJLoader()
+  objLoader.load(props.src, (object: THREE.Object3D) => {
+    const meshes = object.children as THREE.Mesh[]
+    const objGeometries = meshes.map((mesh) => mesh.geometry)
+    if (objGeometries.length > 0) {
+      handleLoadedGeometries(objGeometries)
+    }
+  })
 }

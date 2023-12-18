@@ -18,17 +18,17 @@ export const TrialTable: FC<{
       field: "state",
       label: "State",
       sortable: true,
-      filterable: true,
+      filterChoices: ["Complete", "Pruned", "Fail", "Running", "Waiting"],
       padding: "none",
       toCellValue: (i) => trials[i].state.toString(),
     },
   ]
-  if (studyDetail === null || studyDetail.directions.length == 1) {
+  if (studyDetail === null || studyDetail.directions.length === 1) {
     columns.push({
       field: "values",
       label: "Value",
       sortable: true,
-      less: (firstEl, secondEl): number => {
+      less: (firstEl, secondEl, ascending): number => {
         const firstVal = firstEl.values?.[0]
         const secondVal = secondEl.values?.[0]
 
@@ -36,9 +36,9 @@ export const TrialTable: FC<{
           return 0
         }
         if (firstVal === undefined) {
-          return -1
+          return ascending ? -1 : 1
         } else if (secondVal === undefined) {
-          return 1
+          return ascending ? 1 : -1
         }
         if (firstVal === "-inf" || secondVal === "inf") {
           return 1
@@ -63,7 +63,7 @@ export const TrialTable: FC<{
             ? objectiveNames[objectiveId]
             : `Objective ${objectiveId}`,
         sortable: true,
-        less: (firstEl, secondEl): number => {
+        less: (firstEl, secondEl, ascending): number => {
           const firstVal = firstEl.values?.[objectiveId]
           const secondVal = secondEl.values?.[objectiveId]
 
@@ -71,9 +71,9 @@ export const TrialTable: FC<{
             return 0
           }
           if (firstVal === undefined) {
-            return -1
+            return ascending ? -1 : 1
           } else if (secondVal === undefined) {
-            return 1
+            return ascending ? 1 : -1
           }
           if (firstVal === "-inf" || secondVal === "inf") {
             return 1
@@ -97,7 +97,10 @@ export const TrialTable: FC<{
   ) {
     studyDetail?.intersection_search_space.forEach((s) => {
       const sortable = s.distribution.type !== "CategoricalDistribution"
-      const filterable = s.distribution.type === "CategoricalDistribution"
+      const filterChoices =
+        s.distribution.type === "CategoricalDistribution"
+          ? s.distribution.choices.map((c) => c.value)
+          : undefined
       columns.push({
         field: "params",
         label: `Param ${s.name}`,
@@ -105,8 +108,9 @@ export const TrialTable: FC<{
           trials[i].params.find((p) => p.name === s.name)
             ?.param_external_value || null,
         sortable: sortable,
-        filterable: filterable,
-        less: (firstEl, secondEl): number => {
+        filterChoices: filterChoices,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        less: (firstEl, secondEl, _): number => {
           const firstVal = firstEl.params.find(
             (p) => p.name === s.name
           )?.param_internal_value
@@ -145,8 +149,8 @@ export const TrialTable: FC<{
         trials[i].user_attrs.find((attr) => attr.key === attr_spec.key)
           ?.value || null,
       sortable: attr_spec.sortable,
-      filterable: !attr_spec.sortable,
-      less: (firstEl, secondEl): number => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      less: (firstEl, secondEl, _): number => {
         const firstVal = firstEl.user_attrs.find(
           (attr) => attr.key === attr_spec.key
         )?.value

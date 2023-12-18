@@ -17,12 +17,15 @@ import { DataGrid, DataGridColumn } from "./DataGrid"
 import { GraphHyperparameterImportance } from "./GraphHyperparameterImportances"
 import { UserDefinedPlot } from "./UserDefinedPlot"
 import { BestTrialsCard } from "./BestTrialsCard"
+import { StudyArtifactCards } from "./StudyArtifactCards"
+import { useRecoilValue } from "recoil"
 import {
   useStudyDetailValue,
   useStudyDirections,
   useStudySummaryValue,
 } from "../state"
 import FormControlLabel from "@mui/material/FormControlLabel"
+import { artifactIsAvailable } from "../state"
 
 export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   const theme = useTheme()
@@ -31,6 +34,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   const studyDetail = useStudyDetailValue(studyId)
   const [logScale, setLogScale] = useState<boolean>(false)
   const [includePruned, setIncludePruned] = useState<boolean>(true)
+  const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
 
   const handleLogScaleChange = () => {
     setLogScale(!logScale)
@@ -104,17 +108,6 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
         </CardContent>
       </Card>
       <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
-        {studyDetail !== null &&
-        studyDetail.directions.length == 1 &&
-        studyDetail.has_intermediate_values ? (
-          <Grid2 xs={6}>
-            <GraphIntermediateValues
-              trials={trials}
-              includePruned={includePruned}
-              logScale={logScale}
-            />
-          </Grid2>
-        ) : null}
         <Grid2 xs={6}>
           <GraphHyperparameterImportance
             studyId={studyId}
@@ -166,7 +159,44 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
             </CardContent>
           </Card>
         </Grid2>
+        {studyDetail !== null &&
+        studyDetail.directions.length === 1 &&
+        studyDetail.has_intermediate_values ? (
+          <Grid2 xs={6}>
+            <GraphIntermediateValues
+              trials={trials}
+              includePruned={includePruned}
+              logScale={logScale}
+            />
+          </Grid2>
+        ) : null}
       </Grid2>
+
+      {artifactEnabled && studyDetail !== null && (
+        <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
+          <Grid2 xs={6}>
+            <Card>
+              <CardContent
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  sx={{
+                    margin: "1em 0",
+                    fontWeight: theme.typography.fontWeightBold,
+                  }}
+                >
+                  Study Artifacts
+                </Typography>
+                <StudyArtifactCards study={studyDetail} />
+              </CardContent>
+            </Card>
+          </Grid2>
+        </Grid2>
+      )}
     </Box>
   )
 }
