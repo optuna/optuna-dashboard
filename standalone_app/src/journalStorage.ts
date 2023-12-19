@@ -127,7 +127,6 @@ class JournalStorage {
 
       study.trials.forEach((trial, index) => {
         for (const userAttr of trial.user_attrs) {
-          console.log(userAttr.key)
           unionUserAttrs.add(userAttr.key)
         }
         for (const param of trial.params) {
@@ -377,6 +376,5 @@ export const loadJournalStorage = (
     }
   }
 
-  console.log(journalStorage.getStudies())
   setter((prev) => [...prev, ...journalStorage.getStudies()])
 }
