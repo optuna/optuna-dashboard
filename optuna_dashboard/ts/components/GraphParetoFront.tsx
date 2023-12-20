@@ -195,8 +195,8 @@ const getIsDominated2D = (normalizedValues: number[][]) => {
         ? -1
         : 0
     )
-  let maxValue0 = sorted[0][0]
-  let minValue1 = sorted[0][1]
+  let maxValueSeen0 = sorted[0][0]
+  let minValueSeen1 = sorted[0][1]
 
   const isDominated: boolean[] = new Array(normalizedValues.length).fill(false)
   sorted.forEach((values) => {
