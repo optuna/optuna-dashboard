@@ -49,7 +49,7 @@ function PaginationTextFieldComponent(props: {
   onInputChange: (value: number) => void
   maxPageNumber: number
 }): React.ReactElement {
-  // This component is separated from DataGrid to prevent it from updating,
+  // This component is separated from DataGrid to prevent `DataGrid` from re-rendering the page,
   // every time any letters are input.
   const { onInputChange, maxPageNumber } = props
   const [navigationPage, setNavigationPage] = React.useState("")
@@ -62,7 +62,7 @@ function PaginationTextFieldComponent(props: {
       return
     }
     const newPageNumber = newPage <= 0 ? 1 : Math.min(newPage, maxPageNumber)
-    // 0-indexed.
+    // Page is 0-indexed in `TablePagination`.
     onInputChange(newPageNumber - 1)
   }
 
@@ -215,6 +215,7 @@ function DataGrid<T>(props: {
         </Table>
       </TableContainer>
       {filteredRows.length > 0 ? (
+        // tslint:disable-next-line: 2590
         <Box display="flex" alignItems="center">
           <TablePagination
             rowsPerPageOptions={rowsPerPageOption}
