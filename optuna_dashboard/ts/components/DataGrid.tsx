@@ -13,7 +13,6 @@ import {
   IconButton,
   Menu,
   MenuItem,
-  Button,
   Box,
 } from "@mui/material"
 import { styled } from "@mui/system"
@@ -46,7 +45,7 @@ interface RowFilter {
   values: Value[]
 }
 
-function PaginationTextFieldComponent<T>(props: {
+function PaginationTextFieldComponent(props: {
   onInputChange: (value: number) => void
   maxPageNumber: number
 }): React.ReactElement {
