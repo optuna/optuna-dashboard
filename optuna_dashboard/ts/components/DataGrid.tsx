@@ -8,10 +8,13 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
+  TextField,
   Collapse,
   IconButton,
   Menu,
   MenuItem,
+  Button,
+  Box,
 } from "@mui/material"
 import { styled } from "@mui/system"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
@@ -41,6 +44,40 @@ interface DataGridColumn<T> {
 interface RowFilter {
   columnIdx: number
   values: Value[]
+}
+
+function PaginationTextFieldComponent<T>(props: {
+  onInputChange: (value: number) => void
+  maxPageNumber: number
+}): React.ReactElement {
+  // This component is separated from DataGrid to prevent it from updating,
+  // every time any letters are input.
+  const { onInputChange, maxPageNumber } = props
+  const [navigationPage, setNavigationPage] = React.useState("")
+
+  const handleSubmitPageNumber = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const newPage = parseInt(navigationPage, 10)
+    setNavigationPage("") // reset the input field
+    if (Number.isNaN(newPage)) {
+      return
+    }
+    const newPageNumber = newPage <= 0 ? 1 : Math.min(newPage, maxPageNumber)
+    // 0-indexed.
+    onInputChange(newPageNumber - 1)
+  }
+
+  return (
+    <form onSubmit={handleSubmitPageNumber}>
+      <TextField
+        label="Go to Page"
+        value={navigationPage}
+        onChange={(e) => {
+          setNavigationPage(e.target.value)
+        }}
+      />
+    </form>
+  )
 }
 
 function DataGrid<T>(props: {
@@ -119,6 +156,7 @@ function DataGrid<T>(props: {
   const RootDiv = styled("div")({
     width: "100%",
   })
+  const maxPageNumber = Math.ceil(filteredRows.length / rowsPerPage)
   return (
     <RootDiv>
       <TableContainer>
@@ -177,15 +215,25 @@ function DataGrid<T>(props: {
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={rowsPerPageOption}
-        component="div"
-        count={filteredRows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
+      {filteredRows.length > 0 ? (
+        <Box display="flex" alignItems="center">
+          <TablePagination
+            rowsPerPageOptions={rowsPerPageOption}
+            component="div"
+            count={filteredRows.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+          {maxPageNumber > 4 ? (
+            <PaginationTextFieldComponent
+              onInputChange={(page) => setPage(page)}
+              maxPageNumber={Math.ceil(filteredRows.length / rowsPerPage)}
+            />
+          ) : null}
+        </Box>
+      ) : null}
     </RootDiv>
   )
 }
