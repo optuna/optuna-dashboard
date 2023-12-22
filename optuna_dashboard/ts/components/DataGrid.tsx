@@ -22,7 +22,6 @@ import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import FilterListIcon from "@mui/icons-material/FilterList"
 import ListItemIcon from "@mui/material/ListItemIcon"
-import { Margin } from "@mui/icons-material"
 
 type Order = "asc" | "desc"
 
@@ -217,7 +216,7 @@ function DataGrid<T>(props: {
       </TableContainer>
       {filteredRows.length > 0 ? (
         <>
-          {/* tslint:disable-next-line: 2590 */}
+          {/* @ts-ignore */}
           <Box display="flex" alignItems="center">
             <TablePagination
               rowsPerPageOptions={rowsPerPageOption}
@@ -225,7 +224,9 @@ function DataGrid<T>(props: {
               count={filteredRows.length}
               rowsPerPage={rowsPerPage}
               page={page}
-              labelDisplayedRows={({ page }) => `${page+1} of ${maxPageNumber}`}
+              labelDisplayedRows={({ page }) =>
+                `${page + 1} of ${maxPageNumber}`
+              }
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
             />
