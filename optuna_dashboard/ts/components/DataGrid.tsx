@@ -22,6 +22,7 @@ import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import FilterListIcon from "@mui/icons-material/FilterList"
 import ListItemIcon from "@mui/material/ListItemIcon"
+import { Margin } from "@mui/icons-material"
 
 type Order = "asc" | "desc"
 
@@ -215,24 +216,27 @@ function DataGrid<T>(props: {
         </Table>
       </TableContainer>
       {filteredRows.length > 0 ? (
-        // tslint:disable-next-line: 2590
-        <Box display="flex" alignItems="center">
-          <TablePagination
-            rowsPerPageOptions={rowsPerPageOption}
-            component="div"
-            count={filteredRows.length}
-            rowsPerPage={rowsPerPage}
-            page={page}
-            onPageChange={handleChangePage}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-          {maxPageNumber > 4 ? (
-            <PaginationTextFieldComponent
-              onInputChange={(page) => setPage(page)}
-              maxPageNumber={Math.ceil(filteredRows.length / rowsPerPage)}
+        <>
+          {/* tslint:disable-next-line: 2590 */}
+          <Box display="flex" alignItems="center">
+            <TablePagination
+              rowsPerPageOptions={rowsPerPageOption}
+              component="div"
+              count={filteredRows.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              labelDisplayedRows={({ page }) => `${page+1} of ${maxPageNumber}`}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
             />
-          ) : null}
-        </Box>
+            {maxPageNumber > 4 ? (
+              <PaginationTextFieldComponent
+                onInputChange={(page) => setPage(page)}
+                maxPageNumber={maxPageNumber}
+              />
+            ) : null}
+          </Box>
+        </>
       ) : null}
     </RootDiv>
   )
