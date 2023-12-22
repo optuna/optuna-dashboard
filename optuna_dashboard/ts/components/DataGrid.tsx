@@ -46,33 +46,33 @@ interface RowFilter {
 }
 
 function PaginationTextFieldComponent(props: {
-  onInputChange: (value: number) => void
+  onPageNumberSubmit: (value: number) => void
   maxPageNumber: number
 }): React.ReactElement {
   // This component is separated from DataGrid to prevent `DataGrid` from re-rendering the page,
   // every time any letters are input.
-  const { onInputChange, maxPageNumber } = props
-  const [navigationPage, setNavigationPage] = React.useState("")
+  const { onPageNumberSubmit, maxPageNumber } = props
+  const [specifiedPageText, setSpecifiedPageText] = React.useState("")
 
   const handleSubmitPageNumber = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
-    const newPage = parseInt(navigationPage, 10)
-    setNavigationPage("") // reset the input field
+    const newPage = parseInt(specifiedPageText, 10)
+    setSpecifiedPageText("") // reset the input field
     if (Number.isNaN(newPage)) {
       return
     }
     const newPageNumber = newPage <= 0 ? 1 : Math.min(newPage, maxPageNumber)
     // Page is 0-indexed in `TablePagination`.
-    onInputChange(newPageNumber - 1)
+    onPageNumberSubmit(newPageNumber - 1)
   }
 
   return (
     <form onSubmit={handleSubmitPageNumber}>
       <TextField
         label="Go to Page"
-        value={navigationPage}
+        value={specifiedPageText}
         onChange={(e) => {
-          setNavigationPage(e.target.value)
+          setSpecifiedPageText(e.target.value)
         }}
       />
     </form>
@@ -232,7 +232,7 @@ function DataGrid<T>(props: {
             />
             {maxPageNumber > 4 ? (
               <PaginationTextFieldComponent
-                onInputChange={(page) => setPage(page)}
+                onPageNumberSubmit={(page) => setPage(page)}
                 maxPageNumber={maxPageNumber}
               />
             ) : null}
