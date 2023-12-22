@@ -45,40 +45,6 @@ interface RowFilter {
   values: Value[]
 }
 
-function PaginationTextFieldComponent(props: {
-  onPageNumberSubmit: (value: number) => void
-  maxPageNumber: number
-}): React.ReactElement {
-  // This component is separated from DataGrid to prevent `DataGrid` from re-rendering the page,
-  // every time any letters are input.
-  const { onPageNumberSubmit, maxPageNumber } = props
-  const [specifiedPageText, setSpecifiedPageText] = React.useState("")
-
-  const handleSubmitPageNumber = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    const newPage = parseInt(specifiedPageText, 10)
-    setSpecifiedPageText("") // reset the input field
-    if (Number.isNaN(newPage)) {
-      return
-    }
-    const newPageNumber = newPage <= 0 ? 1 : Math.min(newPage, maxPageNumber)
-    // Page is 0-indexed in `TablePagination`.
-    onPageNumberSubmit(newPageNumber - 1)
-  }
-
-  return (
-    <form onSubmit={handleSubmitPageNumber}>
-      <TextField
-        label="Go to Page"
-        value={specifiedPageText}
-        onChange={(e) => {
-          setSpecifiedPageText(e.target.value)
-        }}
-      />
-    </form>
-  )
-}
-
 function DataGrid<T>(props: {
   columns: DataGridColumn<T>[]
   rows: T[]
@@ -118,6 +84,41 @@ function DataGrid<T>(props: {
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10))
     setPage(0)
+  }
+
+  const PaginationTextFieldComponent: React.FC<{
+    onPageNumberSubmit: (value: number) => void
+    maxPageNumber: number
+  }> = ({ onPageNumberSubmit, maxPageNumber }) => {
+    // This component is separated from DataGrid to prevent `DataGrid` from re-rendering the page,
+    // every time any letters are input.
+    const [specifiedPageText, setSpecifiedPageText] = React.useState("")
+
+    const handleSubmitPageNumber = (
+      event: React.FormEvent<HTMLFormElement>
+    ) => {
+      event.preventDefault()
+      const newPage = parseInt(specifiedPageText, 10)
+      setSpecifiedPageText("") // reset the input field
+      if (Number.isNaN(newPage)) {
+        return
+      }
+      const newPageNumber = newPage <= 0 ? 1 : Math.min(newPage, maxPageNumber)
+      // Page is 0-indexed in `TablePagination`.
+      onPageNumberSubmit(newPageNumber - 1)
+    }
+
+    return (
+      <form onSubmit={handleSubmitPageNumber}>
+        <TextField
+          label="Go to Page"
+          value={specifiedPageText}
+          onChange={(e) => {
+            setSpecifiedPageText(e.target.value)
+          }}
+        />
+      </form>
+    )
   }
 
   // Filtering
