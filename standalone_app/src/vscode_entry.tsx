@@ -25,6 +25,8 @@ export const AppWrapper: FC = () => {
       let len: number
       let bytes: Uint8Array
       let arrayBuffer: ArrayBuffer
+      let header: Uint8Array
+      let headerString: string
 
       switch (message.type) {
         case "optunaStorage":
@@ -36,12 +38,12 @@ export const AppWrapper: FC = () => {
             bytes[i] = binaryString.charCodeAt(i)
           }
           arrayBuffer = bytes.buffer
-          const header = new Uint8Array(arrayBuffer, 0, 16)
-          const headerString = new TextDecoder().decode(header)
+          header = new Uint8Array(arrayBuffer, 0, 16)
+          headerString = new TextDecoder().decode(header)
           if (headerString === "SQLite format 3\u0000") {
-            loadSQLite3Storage(arrayBuffer, setStudies)
+            loadSQLite3Storage(arrayBuffer, onceSetStudies)
           } else {
-            loadJournalStorage(arrayBuffer, setStudies)
+            loadJournalStorage(arrayBuffer, onceSetStudies)
           }
           break
       }
