@@ -376,5 +376,6 @@ export const loadJournalStorage = (
     }
   }
 
-  setter((prev) => [...prev, ...journalStorage.getStudies()])
+  const studies = journalStorage.getStudies()
+  setter((prev) => [...prev, ...studies])
 }

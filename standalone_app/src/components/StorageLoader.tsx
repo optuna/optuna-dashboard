@@ -30,12 +30,13 @@ export const StorageLoader: FC = () => {
     const r = new FileReader()
     r.addEventListener("load", () => {
       const arrayBuffer = r.result as ArrayBuffer | null
-      const fileExtension = file.name.split(".").pop()
       if (arrayBuffer !== null) {
-        if (fileExtension === "log") {
-          loadJournalStorage(arrayBuffer, setStudies)
-        } else {
+        const header = new Uint8Array(arrayBuffer, 0, 16)
+        const headerString = new TextDecoder().decode(header)
+        if (headerString === "SQLite format 3\u0000") {
           loadSQLite3Storage(arrayBuffer, setStudies)
+        } else {
+          loadJournalStorage(arrayBuffer, setStudies)
         }
       }
     })
