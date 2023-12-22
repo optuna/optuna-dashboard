@@ -314,10 +314,15 @@ class JournalStorage {
       return
     }
     for (const [key, value] of Object.entries(log.user_attr)) {
-      thisTrial.user_attrs.push({
-        key: key,
-        value: value.toString(),
-      })
+      const index = thisTrial.user_attrs.findIndex((item) => item.key === key)
+      if (index !== -1) {
+        thisTrial.user_attrs[index].value = value.toString()
+      } else {
+        thisTrial.user_attrs.push({
+          key: key,
+          value: value.toString(),
+        })
+      }
     }
   }
 }
@@ -344,10 +349,10 @@ export const loadJournalStorage = (
         journalStorage.applyDeleteStudy(parsedLog as JournalOpDeleteStudy)
         break
       case JournalOperation.SET_STUDY_USER_ATTR:
-        // Unsupported set for study user_attr
+        // Unsupported
         break
       case JournalOperation.SET_STUDY_SYSTEM_ATTR:
-        // Unsupported set for study system_attr
+        // Unsupported
         break
       case JournalOperation.CREATE_TRIAL:
         journalStorage.applyCreateTrial(parsedLog as JournalOpCreateTrial)
@@ -371,7 +376,7 @@ export const loadJournalStorage = (
         )
         break
       case JournalOperation.SET_TRIAL_SYSTEM_ATTR:
-        // Unsupported set for trial system_attr
+        // Unsupported
         break
     }
   }

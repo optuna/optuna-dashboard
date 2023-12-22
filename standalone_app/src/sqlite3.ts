@@ -174,12 +174,12 @@ const getTrials = (
         vals[2] === "COMPLETE"
           ? "Complete"
           : vals[2] === "PRUNED"
-            ? "Pruned"
-            : vals[2] === "RUNNING"
-              ? "Running"
-              : vals[2] === "WAITING"
-                ? "Waiting"
-                : "Fail"
+          ? "Pruned"
+          : vals[2] === "RUNNING"
+          ? "Running"
+          : vals[2] === "WAITING"
+          ? "Waiting"
+          : "Fail"
       const trial: Trial = {
         trial_id: trialId,
         number: vals[1],
@@ -220,8 +220,8 @@ const getTrialValues = (
           vals[1] === "INF_NEG"
             ? "-inf"
             : vals[1] === "INF_POS"
-              ? "+inf"
-              : vals[0]
+            ? "+inf"
+            : vals[0]
         )
       },
     })
@@ -391,10 +391,10 @@ const getTrialIntermediateValues = (
             vals[2] === "INF_NEG"
               ? "-inf"
               : vals[2] === "INF_POS"
-                ? "+inf"
-                : vals[2] === "NAN"
-                  ? "nan"
-                  : vals[1],
+              ? "+inf"
+              : vals[2] === "NAN"
+              ? "nan"
+              : vals[1],
         })
       },
     })
