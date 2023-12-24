@@ -123,12 +123,11 @@ const plotTimeline = (trials: Trial[], mode: string) => {
     const starts = bars.map((b) => b.datetime_start ?? new Date())
     const runDurations = bars.map((b, i) => {
       const startTime = starts[i].getTime()
-      const completeTime = b.datetime_complete?.getTime() ?? startTime
+      const completeTime = isRunning
+        ? maxDatetime.getTime()
+        : b.datetime_complete?.getTime() ?? startTime
       // By using 1 as the min value, we can recognize these bars at least when zooming in.
-      return Math.max(
-        1,
-        !isRunning ? completeTime - startTime : maxDatetime.getTime() - startTime
-      )
+      return Math.max(1, completeTime - startTime)
     })
     const trace: Partial<plotly.PlotData> = {
       type: "bar",
