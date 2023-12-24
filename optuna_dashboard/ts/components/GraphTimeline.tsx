@@ -83,6 +83,10 @@ const plotTimeline = (trials: Trial[], mode: string) => {
       const start = t.datetime_start?.getTime() ?? new Date().getTime()
       const now = new Date().getTime()
       // This is an ad-hoc handling to check if the trial is running.
+      // We do not check via `trialState` because some trials may have state=RUNNING,
+      // even if they are not running because of unexpected job kills.
+      // In this case, we would like to ensure that these trials will not squash the timeline plot
+      // for the other trials.
       return now - start < maxRunDuration * 5
     })
   const maxDatetime = hasRunning
@@ -117,13 +121,13 @@ const plotTimeline = (trials: Trial[], mode: string) => {
   const makeTrace = (bars: Trial[], state: string, color: string) => {
     const isRunning = state === runningKey
     const starts = bars.map((b) => b.datetime_start ?? new Date())
-    const runDurations = bars.map((b) => {
-      const start = b.datetime_start?.getTime() ?? new Date().getTime()
-      const complete = b.datetime_complete?.getTime() ?? start
+    const runDurations = bars.map((b, i) => {
+      const startTime = starts[i].getTime()
+      const completeTime = b.datetime_complete?.getTime() ?? startTime
       // By using 1 as the min value, we can recognize these bars at least when zooming in.
       return Math.max(
         1,
-        !isRunning ? complete - start : maxDatetime.getTime() - start
+        !isRunning ? completeTime - startTime : maxDatetime.getTime() - startTime
       )
     })
     const trace: Partial<plotly.PlotData> = {
