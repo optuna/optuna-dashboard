@@ -235,7 +235,7 @@ export const actionCreator = () => {
 
   const updateStudyDetail = (studyId: number) => {
     let nLocalFixedTrials = 0
-    let nMaximumTrialsAtOnce = 1000
+    let nMaximumTrialsAtOnce = 2000
     if (studyId in studyDetails) {
       const currentTrials = studyDetails[studyId].trials
       const firstUpdatable = currentTrials.findIndex((trial) =>
@@ -243,7 +243,6 @@ export const actionCreator = () => {
       )
       nLocalFixedTrials =
         firstUpdatable === -1 ? currentTrials.length : firstUpdatable
-      nMaximumTrialsAtOnce = 2000
     }
     getStudyDetailAPI(studyId, nLocalFixedTrials, nMaximumTrialsAtOnce)
       .then((study) => {
