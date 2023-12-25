@@ -191,6 +191,7 @@ def create_app(
     @app.get("/api/studies/<study_id:int>")
     @json_api_view
     def get_study_detail(study_id: int) -> dict[str, Any]:
+        # Use the following default values if not specified in request.params.
         query_params = dict(after=0, limit=1000)
         for query_key in query_params:
             try:
