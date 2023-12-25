@@ -33,8 +33,8 @@ export const drawerOpenState = atom<boolean>({
   default: false,
 })
 
-export const isTrialLeftInCache = atom<boolean>({
-  key: "isTrialLeftInCache",
+export const fetchedTrialsPartiallyState = atom<boolean>({
+  key: "fetchedTrialsPartially",
   default: false,
 })
 

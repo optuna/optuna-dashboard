@@ -17,7 +17,7 @@ import DownloadIcon from "@mui/icons-material/Download"
 import { StudyNote } from "./Note"
 import { actionCreator } from "../action"
 import {
-  isTrialLeftInCache,
+  fetchedTrialsPartiallyState,
   reloadIntervalState,
   useStudyDetailValue,
   useStudyIsPreferential,
@@ -58,7 +58,9 @@ export const StudyDetail: FC<{
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studyName = useStudyName(studyId)
   const isPreferential = useStudyIsPreferential(studyId)
-  const isTrialLeft = useRecoilValue<boolean>(isTrialLeftInCache)
+  const fetchedTrialsPartially = useRecoilValue<boolean>(
+    fetchedTrialsPartiallyState
+  )
 
   const title =
     studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
@@ -78,7 +80,7 @@ export const StudyDetail: FC<{
     // If trials are left in cache, we collect them quickly.
     // For Human-in-the-loop Optimization, the interval is set to 2 seconds
     // when the number of trials is small, and the page is "trialList" or top page of preferential.
-    if (isTrialLeft) {
+    if (fetchedTrialsPartially) {
       // Too short time is frustrating because the page freezes until the rendering is done.
       interval = 3000
     } else if (
