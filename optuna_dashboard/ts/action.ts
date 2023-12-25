@@ -248,16 +248,18 @@ export const actionCreator = () => {
     }
     getStudyDetailAPI(studyId, nLocalFixedTrials, nMaximumTrialsAtOnce)
       .then((study) => {
+        if (studyId in studyDetails && study.trials.length === 0) {
+          // Update trials only if necessary.
+          // NOTE: The first condition is for study with no trials.
+          return
+        }
         const currentFixedTrials =
           studyId in studyDetails
             ? studyDetails[studyId].trials.slice(0, nLocalFixedTrials)
             : []
-        if (study.trials.length !== 0 || !(studyId in studyDetails)) {
-          // Update trials only if necessary. The second condition is for study with no trials.
-          study.trials = currentFixedTrials.concat(study.trials)
-          setStudyDetailState(studyId, study)
-          setFetchedTrialsPartially(study.fetched_trials_partially)
-        }
+        study.trials = currentFixedTrials.concat(study.trials)
+        setStudyDetailState(studyId, study)
+        setFetchedTrialsPartially(study.fetched_trials_partially)
       })
       .catch((err) => {
         const reason = err.response?.data.reason
