@@ -80,8 +80,8 @@ const plotTimeline = (trials: Trial[], mode: string) => {
       if (t.state !== runningKey) {
         return false
       }
-      const start = t.datetime_start?.getTime() ?? new Date().getTime()
       const now = new Date().getTime()
+      const start = t.datetime_start?.getTime() ?? now
       // This is an ad-hoc handling to check if the trial is running.
       // We do not check via `trialState` because some trials may have state=RUNNING,
       // even if they are not running because of unexpected job kills.
@@ -120,7 +120,8 @@ const plotTimeline = (trials: Trial[], mode: string) => {
 
   const makeTrace = (bars: Trial[], state: string, color: string) => {
     const isRunning = state === runningKey
-    const starts = bars.map((b) => b.datetime_start ?? new Date())
+    // Waiting trials should not squash other trials, so use `maxDatetime` instead of `new Date()`.
+    const starts = bars.map((b) => b.datetime_start ?? maxDatetime)
     const runDurations = bars.map((b, i) => {
       const startTime = starts[i].getTime()
       const completeTime = isRunning
