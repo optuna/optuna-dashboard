@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import json
-import pytest
 import sys
+from typing import Any
 from unittest import TestCase
 
 import optuna
 from optuna import get_all_study_summaries
 from optuna.study import StudyDirection
-from optuna.trial import FrozenTrial
 from optuna_dashboard._app import create_app
 from optuna_dashboard._app import create_new_study
 from optuna_dashboard._note import note_str_key_prefix
@@ -47,8 +46,10 @@ class APITestCase(TestCase):
         self.assertEqual(len(study_summaries), 2)
 
     def run_get_study_details(
-        self, queries: dict[str, str] | None = None, expected_status: int = 200,
-    ) -> tuple[int, list[FrozenTrial]]:
+        self,
+        queries: dict[str, str] | None = None,
+        expected_status: int = 200,
+    ) -> list[dict[str, Any]]:
         study = optuna.create_study()
         study_id = study._study_id
         study.optimize(objective, n_trials=10)
