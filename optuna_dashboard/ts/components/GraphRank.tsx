@@ -13,7 +13,7 @@ import {
 } from "@mui/material"
 import { getAxisInfo, makeHovertext } from "../graphUtil"
 import { useMergedUnionSearchSpace } from "../searchSpace"
-import { getColorTemplate } from "./PlotlyDarkMode"
+import { getColorTemplate } from "./PlotlyColorTemplates"
 import { plotlyColorTheme } from "../state"
 import { useRecoilValue } from "recoil"
 

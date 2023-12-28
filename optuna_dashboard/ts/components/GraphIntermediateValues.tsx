@@ -1,7 +1,7 @@
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
 import { Box, Typography, useTheme, CardContent, Card } from "@mui/material"
-import { getColorTemplate } from "./PlotlyDarkMode"
+import { getColorTemplate } from "./PlotlyColorTemplates"
 import { plotlyColorTheme } from "../state"
 import { useRecoilValue } from "recoil"
 

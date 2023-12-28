@@ -2,7 +2,7 @@ import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useMemo } from "react"
 import { Typography, useTheme, Box } from "@mui/material"
 import { Target, useFilteredTrialsFromStudies } from "../trialFilter"
-import { getColorTemplate } from "./PlotlyDarkMode"
+import { getColorTemplate } from "./PlotlyColorTemplates"
 import { plotlyColorTheme } from "../state"
 import { useRecoilValue } from "recoil"
 

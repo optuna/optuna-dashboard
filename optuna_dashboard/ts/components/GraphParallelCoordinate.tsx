@@ -9,7 +9,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material"
-import { getColorTemplate } from "./PlotlyDarkMode"
+import { getColorTemplate } from "./PlotlyColorTemplates"
 import { useRecoilValue } from "recoil"
 import { plotlyColorTheme } from "../state"
 import {

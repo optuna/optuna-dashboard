@@ -2,7 +2,7 @@ import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
 import { Card, CardContent, Grid, Typography, useTheme } from "@mui/material"
 import { makeHovertext } from "../graphUtil"
-import { getColorTemplate } from "./PlotlyDarkMode"
+import { getColorTemplate } from "./PlotlyColorTemplates"
 import { plotlyColorTheme } from "../state"
 import { useRecoilValue } from "recoil"
 

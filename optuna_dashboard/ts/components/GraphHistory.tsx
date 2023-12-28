@@ -20,7 +20,7 @@ import {
   Target,
   useObjectiveAndUserAttrTargetsFromStudies,
 } from "../trialFilter"
-import { getColorTemplate } from "./PlotlyDarkMode"
+import { getColorTemplate } from "./PlotlyColorTemplates"
 import { plotlyColorTheme } from "../state"
 import { useRecoilValue } from "recoil"
 

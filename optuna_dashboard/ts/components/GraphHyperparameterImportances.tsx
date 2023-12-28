@@ -5,7 +5,7 @@ import { Typography, useTheme, Box, Card, CardContent } from "@mui/material"
 import { actionCreator } from "../action"
 import { useParamImportanceValue, useStudyDirections } from "../state"
 const plotDomId = "graph-hyperparameter-importances"
-import { getColorTemplate } from "./PlotlyDarkMode"
+import { getColorTemplate } from "./PlotlyColorTemplates"
 import { plotlyColorTheme } from "../state"
 import { useRecoilValue } from "recoil"
 

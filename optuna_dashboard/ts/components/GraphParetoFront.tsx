@@ -12,7 +12,7 @@ import {
   Box,
 } from "@mui/material"
 import { makeHovertext } from "../graphUtil"
-import { getColorTemplate } from "./PlotlyDarkMode"
+import { getColorTemplate } from "./PlotlyColorTemplates"
 import { plotlyColorTheme } from "../state"
 import { useRecoilValue } from "recoil"
 

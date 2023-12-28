@@ -3,7 +3,6 @@ import * as plotly from "plotly.js-dist-min"
 // Following template is extracted from the sdist of plotly Python library.
 // See https://github.com/plotly/plotly.py/blob/v5.6.0/packages/python/plotly/templategen/__init__.py and
 // https://github.com/plotly/plotly.py/blob/v5.6.0/packages/python/plotly/templategen/definitions.py
-
 export const getColorTemplate = (mode: string, theme: PlotlyColorTheme):  Partial<Plotly.Template> => {
   console.log("getColorTeplate", mode, theme.dark, theme.light)
   if (mode === "dark") {
