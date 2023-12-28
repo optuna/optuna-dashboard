@@ -50,11 +50,8 @@ export const Settings: FC = () => {
         <Select value={darkModeColor} onChange={handleDarkModeColorChange}>
           <MenuItem value={"default"}>Default</MenuItem>
           <MenuItem value={"seaborn"}>Seaborn</MenuItem>
-          <MenuItem value={"simpleWhite"}>SimpleWhite</MenuItem>
           <MenuItem value={"presentation"}>Presentation</MenuItem>
           <MenuItem value={"ggplot2"}>GGPlot2</MenuItem>
-          <MenuItem value={"gridon"}>GridOn</MenuItem>
-          <MenuItem value={"xgridOff"}>XGridOff</MenuItem>
           <MenuItem value={"ygridOff"}>YGridOff</MenuItem>
         </Select>
       </Grid>
