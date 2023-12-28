@@ -87,46 +87,32 @@ export const TrialTable: FC<{
       }))
     columns.push(...objectiveColumns)
   }
-  if (
-    studyDetail?.union_search_space.length ===
-    studyDetail?.intersection_search_space.length
-  ) {
-    studyDetail?.intersection_search_space.forEach((s) => {
-      const sortable = s.distribution.type !== "CategoricalDistribution"
-      const filterChoices =
-        s.distribution.type === "CategoricalDistribution"
-          ? s.distribution.choices.map((c) => c.value)
-          : undefined
-      columns.push({
-        field: "params",
-        label: `Param ${s.name}`,
-        toCellValue: (i) =>
-          trials[i].params.find((p) => p.name === s.name)
-            ?.param_external_value || null,
-        sortable: sortable,
-        filterChoices: filterChoices,
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        less: (firstEl, secondEl, _): number => {
-          const firstVal = firstEl.params.find(
-            (p) => p.name === s.name
-          )?.param_internal_value
-          const secondVal = secondEl.params.find(
-            (p) => p.name === s.name
-          )?.param_internal_value
-          return valueComparator(firstVal, secondVal)
-        },
-      })
-    })
-  } else {
+  studyDetail?.union_search_space.forEach((s) => {
+    const sortable = s.distribution.type !== "CategoricalDistribution"
+    const filterChoices =
+      s.distribution.type === "CategoricalDistribution"
+        ? s.distribution.choices.map((c) => c.value)
+        : undefined
     columns.push({
       field: "params",
-      label: "Params",
+      label: `Param ${s.name}`,
       toCellValue: (i) =>
-        trials[i].params
-          .map((p) => p.name + ": " + p.param_external_value)
-          .join(", "),
+        trials[i].params.find((p) => p.name === s.name)
+          ?.param_external_value || null,
+      sortable: sortable,
+      filterChoices: filterChoices,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      less: (firstEl, secondEl, _): number => {
+        const firstVal = firstEl.params.find(
+          (p) => p.name === s.name
+        )?.param_internal_value
+        const secondVal = secondEl.params.find(
+          (p) => p.name === s.name
+        )?.param_internal_value
+        return valueComparator(firstVal, secondVal)
+      },
     })
-  }
+  })
 
   studyDetail?.union_user_attrs.forEach((attr_spec) => {
     columns.push({
