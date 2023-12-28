@@ -23,29 +23,37 @@ export const TrialTable: FC<{
       toCellValue: (i) => trials[i].state.toString(),
     },
   ]
+  const valueComparator = (
+    firstVal?: TrialValueNumber,
+    secondVal?: TrialValueNumber,
+    ascending: boolean = true
+  ): number => {
+    if (firstVal === secondVal) {
+      return 0
+    }
+    if (firstVal === undefined) {
+      return ascending ? -1 : 1
+    } else if (secondVal === undefined) {
+      return ascending ? 1 : -1
+    }
+    if (firstVal === "-inf" || secondVal === "inf") {
+      return 1
+    } else if (secondVal === "-inf" || firstVal === "inf") {
+      return -1
+    }
+    return firstVal < secondVal ? 1 : -1
+  }
   if (studyDetail === null || studyDetail.directions.length === 1) {
     columns.push({
       field: "values",
       label: "Value",
       sortable: true,
       less: (firstEl, secondEl, ascending): number => {
-        const firstVal = firstEl.values?.[0]
-        const secondVal = secondEl.values?.[0]
-
-        if (firstVal === secondVal) {
-          return 0
-        }
-        if (firstVal === undefined) {
-          return ascending ? -1 : 1
-        } else if (secondVal === undefined) {
-          return ascending ? 1 : -1
-        }
-        if (firstVal === "-inf" || secondVal === "inf") {
-          return 1
-        } else if (secondVal === "-inf" || firstVal === "inf") {
-          return -1
-        }
-        return firstVal < secondVal ? 1 : -1
+        return valueComparator(
+          firstEl.values?.[0],
+          secondEl.values?.[0],
+          ascending
+        )
       },
       toCellValue: (i) => {
         if (trials[i].values === undefined) {
@@ -64,23 +72,11 @@ export const TrialTable: FC<{
             : `Objective ${objectiveId}`,
         sortable: true,
         less: (firstEl, secondEl, ascending): number => {
-          const firstVal = firstEl.values?.[objectiveId]
-          const secondVal = secondEl.values?.[objectiveId]
-
-          if (firstVal === secondVal) {
-            return 0
-          }
-          if (firstVal === undefined) {
-            return ascending ? -1 : 1
-          } else if (secondVal === undefined) {
-            return ascending ? 1 : -1
-          }
-          if (firstVal === "-inf" || secondVal === "inf") {
-            return 1
-          } else if (secondVal === "-inf" || firstVal === "inf") {
-            return -1
-          }
-          return firstVal < secondVal ? 1 : -1
+          return valueComparator(
+            firstEl.values?.[objectiveId],
+            secondEl.values?.[objectiveId],
+            ascending
+          )
         },
         toCellValue: (i) => {
           if (trials[i].values === undefined) {
@@ -117,16 +113,7 @@ export const TrialTable: FC<{
           const secondVal = secondEl.params.find(
             (p) => p.name === s.name
           )?.param_internal_value
-
-          if (firstVal === secondVal) {
-            return 0
-          } else if (firstVal && secondVal) {
-            return firstVal < secondVal ? 1 : -1
-          } else if (firstVal) {
-            return -1
-          } else {
-            return 1
-          }
+          return valueComparator(firstVal, secondVal)
         },
       })
     })
@@ -151,22 +138,16 @@ export const TrialTable: FC<{
       sortable: attr_spec.sortable,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       less: (firstEl, secondEl, _): number => {
-        const firstVal = firstEl.user_attrs.find(
+        const firstValString = firstEl.user_attrs.find(
           (attr) => attr.key === attr_spec.key
         )?.value
-        const secondVal = secondEl.user_attrs.find(
+        const secondValString = secondEl.user_attrs.find(
           (attr) => attr.key === attr_spec.key
         )?.value
-
-        if (firstVal === secondVal) {
-          return 0
-        } else if (firstVal && secondVal) {
-          return Number(firstVal) < Number(secondVal) ? 1 : -1
-        } else if (firstVal) {
-          return -1
-        } else {
-          return 1
-        }
+        return valueComparator(
+          Number(firstValString) ?? firstValString,
+          Number(secondValString) ?? secondValString
+        )
       },
     })
   })
