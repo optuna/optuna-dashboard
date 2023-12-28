@@ -282,7 +282,7 @@ function DataGridHeaderColumn<T>(props: {
                       <CheckBoxOutlineBlankIcon color="primary" />
                     )}
                   </ListItemIcon>
-                  {choice}
+                  {choice ?? "(missing value)"}
                 </MenuItem>
               ))}
             </Menu>

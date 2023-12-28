@@ -87,20 +87,26 @@ export const TrialTable: FC<{
       }))
     columns.push(...objectiveColumns)
   }
+  const isDynamicSpace =
+    studyDetail?.union_search_space.length !==
+    studyDetail?.intersection_search_space.length
   studyDetail?.union_search_space.forEach((s) => {
     const sortable = s.distribution.type !== "CategoricalDistribution"
     const filterChoices =
       s.distribution.type === "CategoricalDistribution"
         ? s.distribution.choices.map((c) => c.value)
         : undefined
+    const filterChoicesWithNull: (string | null)[] | undefined = filterChoices
+      ? [...filterChoices, null]
+      : undefined
     columns.push({
       field: "params",
       label: `Param ${s.name}`,
       toCellValue: (i) =>
-        trials[i].params.find((p) => p.name === s.name)
-          ?.param_external_value || null,
+        trials[i].params.find((p) => p.name === s.name)?.param_external_value ||
+        null,
       sortable: sortable,
-      filterChoices: filterChoices,
+      filterChoices: isDynamicSpace ? filterChoicesWithNull : filterChoices,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       less: (firstEl, secondEl, _): number => {
         const firstVal = firstEl.params.find(
