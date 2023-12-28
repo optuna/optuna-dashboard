@@ -11,9 +11,11 @@ import {
   useTheme,
   Box,
 } from "@mui/material"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { getAxisInfo, makeHovertext } from "../graphUtil"
 import { useMergedUnionSearchSpace } from "../searchSpace"
+import { getColorTemplate } from "./PlotlyDarkMode"
+import { plotlyColorTheme } from "../state"
+import { useRecoilValue } from "recoil"
 
 const plotDomId = "graph-rank"
 
@@ -57,11 +59,12 @@ export const GraphRank: FC<{
     const param = searchSpace.find((item) => item.name === event.target.value)
     setYParam(param || null)
   }
+  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
 
   useEffect(() => {
     if (study != null) {
       const rankPlotInfo = getRankPlotInfo(study, objectiveId, xParam, yParam)
-      plotRank(rankPlotInfo, theme.palette.mode)
+      plotRank(rankPlotInfo, theme.palette.mode, colorTheme)
     }
   }, [study, objectiveId, xParam, yParam, theme.palette.mode])
 
@@ -157,8 +160,8 @@ const getRankPlotInfo = (
     return typeof value === "number"
       ? value
       : value.includes("-")
-      ? -Infinity
-      : Infinity
+        ? -Infinity
+        : Infinity
   }
   filteredTrials.forEach((trial, i) => {
     const xValue = xAxis.values[i]
@@ -258,14 +261,18 @@ const getOrderWithSameOrderAveraging = (values: number[]): number[] => {
   return ranks
 }
 
-const plotRank = (rankPlotInfo: RankPlotInfo | null, mode: string) => {
+const plotRank = (
+  rankPlotInfo: RankPlotInfo | null,
+  mode: string,
+  colorTheme: PlotlyColorTheme
+) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
 
   if (rankPlotInfo === null) {
     plotly.react(plotDomId, [], {
-      template: mode === "dark" ? plotlyDarkTemplate : {},
+      template: getColorTemplate(mode, colorTheme),
     })
     return
   }
@@ -286,7 +293,7 @@ const plotRank = (rankPlotInfo: RankPlotInfo | null, mode: string) => {
       b: 50,
     },
     uirevision: "true",
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: getColorTemplate(mode, colorTheme),
   }
 
   const xValues = rankPlotInfo.xvalues
