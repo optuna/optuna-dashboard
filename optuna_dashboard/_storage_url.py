@@ -84,8 +84,15 @@ def get_journal_file_storage(file_path: str) -> JournalStorage:
 
     from optuna.storages import JournalFileStorage
     from optuna.storages import JournalStorage
+    from optuna.storages import JournalFileOpenLock
 
-    return JournalStorage(JournalFileStorage(file_path=file_path))
+    storage: JournalStorage
+    if os.name == "nt":
+        lock_obj = JournalFileOpenLock(file_path)
+        storage = JournalStorage(JournalFileStorage(file_path=file_path, lock_obj=lock_obj))
+    else:
+        storage = JournalStorage(JournalFileStorage(file_path=file_path))
+    return storage
 
 
 def get_journal_redis_storage(redis_url: str) -> JournalStorage:
