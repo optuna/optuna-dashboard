@@ -60,12 +60,14 @@ def test_load_storage(
             file_chooser.set_files(path)
 
         page.get_by_role("link", name=study_name).click()
-        
+
         def count_components(page: Page, component_name: str):
-            component_count = page.evaluate(f'''() => {{
+            component_count = page.evaluate(
+                f"""() => {{
                 const components = document.querySelectorAll('.{component_name}');
                 return components.length;
-            }}''')
+            }}"""
+            )
             return component_count
 
         count = count_components(page, "MuiCardContent-root")
