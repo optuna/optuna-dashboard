@@ -1,6 +1,6 @@
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
-import { Typography, useTheme, Box, Card, CardContent } from "@mui/material"
+import { Typography, useTheme, Box } from "@mui/material"
 import init, { wasm_fanova_calculate } from "optuna"
 
 import { plotlyDarkTemplate } from "../PlotlyDarkMode"

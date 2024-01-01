@@ -1,6 +1,6 @@
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
-import { Box, Typography, useTheme, CardContent, Card } from "@mui/material"
+import { Box, Typography, useTheme } from "@mui/material"
 import { plotlyDarkTemplate } from "../PlotlyDarkMode"
 
 const plotDomId = "graph-intermediate-values"
