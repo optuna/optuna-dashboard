@@ -29,7 +29,6 @@ def test_load_storage(
     page: Page,
     server_url: str,
 ) -> None:
-    current_dir = os.getcwd()
     study_name = "single-objective"
     url = f"{server_url}"
 
@@ -46,23 +45,28 @@ def test_load_storage(
 
         study.optimize(objective, n_trials=100)
 
-    with tempfile.NamedTemporaryFile() as fp:
-        filename = fp.name
-        path = os.path.join(current_dir, filename)
-        create_storage_file(filename)
-        page.goto(url)
-        with page.expect_file_chooser() as fc_info:
-            page.get_by_role(
-                "button",
-                name="Load an Optuna Storage Drag your SQLite3 file here or click to browse.",
-            ).click()
-        file_chooser = fc_info.value
-        file_chooser.set_files(path)
+    with tempfile.TemporaryDirectory() as dir:
+        with tempfile.NamedTemporaryFile() as fp:
+            filename = fp.name
+            path = os.path.join(dir, filename)
+            create_storage_file(filename)
+            page.goto(url)
+            with page.expect_file_chooser() as fc_info:
+                page.get_by_role(
+                    "button",
+                    name="Load an Optuna Storage Drag your SQLite3 file here or click to browse.",
+                ).click()
+            file_chooser = fc_info.value
+            file_chooser.set_files(path)
 
         page.get_by_role("link", name=study_name).click()
+        
+        def count_components(page: Page, component_name: str):
+            component_count = page.evaluate(f'''() => {{
+                const components = document.querySelectorAll('.{component_name}');
+                return components.length;
+            }}''')
+            return component_count
 
-        element = page.query_selector(".MuiTypography-root")
-        assert element is not None
-        title = element.text_content()
-        assert title is not None
-        assert title == "Optuna Dashboard"
+        count = count_components(page, "MuiCardContent-root")
+        assert count is 6
