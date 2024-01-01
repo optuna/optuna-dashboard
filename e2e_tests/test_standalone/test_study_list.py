@@ -71,4 +71,4 @@ def test_load_storage(
             return component_count
 
         count = count_components(page, "MuiCardContent-root")
-        assert count is 6
+        assert count == 6
