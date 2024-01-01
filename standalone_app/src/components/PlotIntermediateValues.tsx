@@ -23,17 +23,15 @@ export const PlotIntermediateValues: FC<{
   }, [trials, theme.palette.mode, false, includePruned, logScale])
 
   return (
-    <Card>
-      <CardContent>
-        <Typography
-          variant="h6"
-          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
-        >
-          Intermediate values
-        </Typography>
-        <Box id={plotDomId} sx={{ height: "450px" }} />
-      </CardContent>
-    </Card>
+    <Box>
+      <Typography
+        variant="h6"
+        sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
+      >
+        Intermediate values
+      </Typography>
+      <Box id={plotDomId} sx={{ height: "450px" }} />
+    </Box>
   )
 }
 

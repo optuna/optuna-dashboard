@@ -1,6 +1,8 @@
 import * as plotly from "plotly.js-dist-min"
 import React, { ChangeEvent, FC, useEffect, useState } from "react"
 import {
+  Card,
+  CardContent,
   Grid,
   FormControl,
   FormLabel,
@@ -72,100 +74,104 @@ export const PlotHistory: FC<{
   ])
 
   return (
-    <Grid container direction="row">
-      <Grid
-        item
-        xs={3}
-        container
-        direction="column"
-        sx={{ paddingRight: theme.spacing(2) }}
-      >
-        <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
-          History
-        </Typography>
-        {study !== null && study.directions.length !== 1 ? (
-          <FormControl
-            component="fieldset"
-            sx={{ marginBottom: theme.spacing(2) }}
+    <Card>
+      <CardContent>
+        <Grid container direction="row">
+          <Grid
+            item
+            xs={3}
+            container
+            direction="column"
+            sx={{ paddingRight: theme.spacing(2) }}
           >
-            <FormLabel component="legend">Objective ID:</FormLabel>
-            <Select value={objectiveId} onChange={handleObjectiveChange}>
-              {study.directions.map((d, i) => (
-                <MenuItem value={i} key={i}>
-                  {i}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        ) : null}
-        <FormControl
-          component="fieldset"
-          sx={{ marginBottom: theme.spacing(2) }}
-        >
-          <FormLabel component="legend">Log y scale:</FormLabel>
-          <Switch
-            checked={logScale}
-            onChange={handleLogScaleChange}
-            value="enable"
-          />
-        </FormControl>
-        <FormControl
-          component="fieldset"
-          sx={{ marginBottom: theme.spacing(2) }}
-        >
-          <FormLabel component="legend">Filter state:</FormLabel>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={!filterCompleteTrial}
-                onChange={handleFilterCompleteChange}
+            <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+              History
+            </Typography>
+            {study !== null && study.directions.length !== 1 ? (
+              <FormControl
+                component="fieldset"
+                sx={{ marginBottom: theme.spacing(2) }}
+              >
+                <FormLabel component="legend">Objective ID:</FormLabel>
+                <Select value={objectiveId} onChange={handleObjectiveChange}>
+                  {study.directions.map((d, i) => (
+                    <MenuItem value={i} key={i}>
+                      {i}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            ) : null}
+            <FormControl
+              component="fieldset"
+              sx={{ marginBottom: theme.spacing(2) }}
+            >
+              <FormLabel component="legend">Log y scale:</FormLabel>
+              <Switch
+                checked={logScale}
+                onChange={handleLogScaleChange}
+                value="enable"
               />
-            }
-            label="Complete"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={!filterPrunedTrial}
-                onChange={handleFilterPrunedChange}
+            </FormControl>
+            <FormControl
+              component="fieldset"
+              sx={{ marginBottom: theme.spacing(2) }}
+            >
+              <FormLabel component="legend">Filter state:</FormLabel>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={!filterCompleteTrial}
+                    onChange={handleFilterCompleteChange}
+                  />
+                }
+                label="Complete"
               />
-            }
-            label="Pruned"
-          />
-        </FormControl>
-        <FormControl
-          component="fieldset"
-          sx={{ marginBottom: theme.spacing(2) }}
-        >
-          <FormLabel component="legend">X-axis:</FormLabel>
-          <RadioGroup
-            aria-label="gender"
-            name="gender1"
-            value={xAxis}
-            onChange={handleXAxisChange}
-          >
-            <FormControlLabel
-              value="number"
-              control={<Radio />}
-              label="Number"
-            />
-            <FormControlLabel
-              value="datetime_start"
-              control={<Radio />}
-              label="Datetime start"
-            />
-            <FormControlLabel
-              value="datetime_complete"
-              control={<Radio />}
-              label="Datetime complete"
-            />
-          </RadioGroup>
-        </FormControl>
-      </Grid>
-      <Grid item xs={9}>
-        <div id={plotDomId} />
-      </Grid>
-    </Grid>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={!filterPrunedTrial}
+                    onChange={handleFilterPrunedChange}
+                  />
+                }
+                label="Pruned"
+              />
+            </FormControl>
+            <FormControl
+              component="fieldset"
+              sx={{ marginBottom: theme.spacing(2) }}
+            >
+              <FormLabel component="legend">X-axis:</FormLabel>
+              <RadioGroup
+                aria-label="gender"
+                name="gender1"
+                value={xAxis}
+                onChange={handleXAxisChange}
+              >
+                <FormControlLabel
+                  value="number"
+                  control={<Radio />}
+                  label="Number"
+                />
+                <FormControlLabel
+                  value="datetime_start"
+                  control={<Radio />}
+                  label="Datetime start"
+                />
+                <FormControlLabel
+                  value="datetime_complete"
+                  control={<Radio />}
+                  label="Datetime complete"
+                />
+              </RadioGroup>
+            </FormControl>
+          </Grid>
+          <Grid item xs={9}>
+            <div id={plotDomId} />
+          </Grid>
+        </Grid>
+      </CardContent>
+    </Card>
   )
 }
 
