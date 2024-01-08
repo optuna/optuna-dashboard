@@ -9,7 +9,6 @@ from playwright.sync_api import Page
 import pytest
 
 from ...test_server import make_test_server
-from ...utils import clear_inmemory_cache
 
 
 def make_test_storage() -> optuna.storages.InMemoryStorage:
@@ -44,7 +43,6 @@ def make_test_storage() -> optuna.storages.InMemoryStorage:
 
 @pytest.fixture
 def storage() -> optuna.storages.InMemoryStorage:
-    clear_inmemory_cache()
     storage = make_test_storage()
     return storage
 
