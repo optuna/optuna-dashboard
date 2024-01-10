@@ -23,7 +23,7 @@ export const PlotIntermediateValues: FC<{
   }, [trials, theme.palette.mode, false, includePruned, logScale])
 
   return (
-    <Box>
+    <>
       <Typography
         variant="h6"
         sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
@@ -31,7 +31,7 @@ export const PlotIntermediateValues: FC<{
         Intermediate values
       </Typography>
       <Box id={plotDomId} sx={{ height: "450px" }} />
-    </Box>
+    </>
   )
 }
 

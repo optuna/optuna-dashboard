@@ -59,7 +59,7 @@ export const PlotImportance: FC<{ study: Study }> = ({ study }) => {
   }, [nObjectives, importance, theme.palette.mode])
 
   return (
-    <Box>
+    <>
       <Typography
         variant="h6"
         sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
@@ -67,7 +67,7 @@ export const PlotImportance: FC<{ study: Study }> = ({ study }) => {
         Hyperparameter Importance
       </Typography>
       <Box id={plotDomId} sx={{ height: "450px" }} />
-    </Box>
+    </>
   )
 }
 
