@@ -35,7 +35,7 @@ jobs:
         # Add Python '3.11' after released Optuna v3.1
         # since Optuna v3.0.4 depends on scipy<1.9.0 and >=1.7.0
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
-        optuna-version: ['optuna==3.1.0', 'git+https://github.com/optuna/optuna.git']
+        optuna-version: ['optuna>=3.1.0', 'git+https://github.com/optuna/optuna.git']
     steps:
       - uses: actions/checkout@v2
       - name: Setup Python${{ matrix.python-version }}
