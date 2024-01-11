@@ -36,7 +36,7 @@ export const GraphEdf: FC<{
 
   useEffect(() => {
     plotEdf(edfPlotInfos, target, domId, theme.palette.mode, colorTheme)
-  }, [studies, target, theme.palette.mode])
+  }, [studies, target, theme.palette.mode, colorTheme])
 
   return (
     <Box>

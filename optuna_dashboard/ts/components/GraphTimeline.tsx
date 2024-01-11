@@ -21,7 +21,7 @@ export const GraphTimeline: FC<{
     if (study !== null) {
       plotTimeline(trials, theme.palette.mode, colorTheme)
     }
-  }, [trials, theme.palette.mode])
+  }, [trials, theme.palette.mode, colorTheme])
 
   return (
     <Card>

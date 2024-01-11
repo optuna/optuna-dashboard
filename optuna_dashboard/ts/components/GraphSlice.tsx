@@ -70,6 +70,7 @@ export const GraphSlice: FC<{
     selectedParamTarget,
     logYScale,
     theme.palette.mode,
+    colorTheme,
   ])
 
   const handleObjectiveChange = (event: SelectChangeEvent<string>) => {

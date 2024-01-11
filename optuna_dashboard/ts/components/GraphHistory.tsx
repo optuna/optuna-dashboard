@@ -74,7 +74,15 @@ export const GraphHistory: FC<{
       colorTheme,
       markerSize
     )
-  }, [studies, selected, logScale, xAxis, theme.palette.mode, markerSize])
+  }, [
+    studies,
+    selected,
+    logScale,
+    xAxis,
+    theme.palette.mode,
+    colorTheme,
+    markerSize,
+  ])
 
   const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
     setTarget(event.target.value)

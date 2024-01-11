@@ -106,7 +106,7 @@ export const GraphParallelCoordinate: FC<{
         colorTheme
       )
     }
-  }, [study, trials, targets, searchSpace, theme.palette.mode])
+  }, [study, trials, targets, searchSpace, theme.palette.mode, colorTheme])
 
   return (
     <Grid container direction="row">

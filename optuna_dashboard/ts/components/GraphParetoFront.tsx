@@ -45,7 +45,7 @@ export const GraphParetoFront: FC<{
         colorTheme
       )
     }
-  }, [study, objectiveXId, objectiveYId, theme.palette.mode])
+  }, [study, objectiveXId, objectiveYId, theme.palette.mode, colorTheme])
 
   return (
     <Grid container direction="row">

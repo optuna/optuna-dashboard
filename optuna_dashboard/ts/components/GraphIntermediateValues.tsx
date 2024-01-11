@@ -24,7 +24,7 @@ export const GraphIntermediateValues: FC<{
       !includePruned,
       logScale
     )
-  }, [trials, theme.palette.mode, false, includePruned, logScale])
+  }, [trials, theme.palette.mode, colorTheme, includePruned, logScale])
 
   return (
     <Card>

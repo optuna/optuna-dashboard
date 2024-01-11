@@ -66,7 +66,7 @@ export const GraphRank: FC<{
       const rankPlotInfo = getRankPlotInfo(study, objectiveId, xParam, yParam)
       plotRank(rankPlotInfo, theme.palette.mode, colorTheme)
     }
-  }, [study, objectiveId, xParam, yParam, theme.palette.mode])
+  }, [study, objectiveId, xParam, yParam, theme.palette.mode, colorTheme])
 
   const space: SearchSpaceItem[] = study ? study.union_search_space : []
 
