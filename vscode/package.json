@@ -3,7 +3,7 @@
   "displayName": "Optuna Dashboard",
   "description": "Web Dashboard for Optuna",
   "publisher": "Optuna",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "icon": "images/optuna-logo.png",
   "engines": {
