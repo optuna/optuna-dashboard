@@ -4,6 +4,7 @@ from typing import Any
 from unittest import TestCase
 import warnings
 
+import numpy as np
 import optuna
 from optuna import create_trial
 from optuna.distributions import BaseDistribution
@@ -254,11 +255,29 @@ class _CachedExtraStudyPropertyUserAttrs(TestCase):
 
     def test_infer_sortable(self) -> None:
         user_attrs_list: list[dict[str, Any]] = [
-            {"a": 1, "b": 1, "c": 1, "d": "a", "e": 1, "f": True},
+            {
+                "a": 1,
+                "b": 1,
+                "c": 1,
+                "d": "a",
+                "e": 1,
+                "f": True,
+                "g": np.float128(1.1),
+                "h": np.int64(2),
+            },
             {"a": 2, "b": "a", "c": "a", "d": "a"},
             {"a": 3, "b": None, "c": 3, "d": "a", "e": 3},
         ]
-        expected = {"a": True, "b": False, "c": False, "d": False, "e": True, "f": False}
+        expected = {
+            "a": True,
+            "b": False,
+            "c": False,
+            "d": False,
+            "e": True,
+            "f": False,
+            "g": True,
+            "h": True,
+        }
 
         trials = []
         for user_attrs in user_attrs_list:

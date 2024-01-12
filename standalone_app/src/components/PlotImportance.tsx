@@ -1,6 +1,6 @@
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
-import { Typography, useTheme, Box, Card, CardContent } from "@mui/material"
+import { Typography, useTheme, Box } from "@mui/material"
 import init, { wasm_fanova_calculate } from "optuna"
 
 import { plotlyDarkTemplate } from "../PlotlyDarkMode"
@@ -59,17 +59,15 @@ export const PlotImportance: FC<{ study: Study }> = ({ study }) => {
   }, [nObjectives, importance, theme.palette.mode])
 
   return (
-    <Card>
-      <CardContent>
-        <Typography
-          variant="h6"
-          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
-        >
-          Hyperparameter Importance
-        </Typography>
-        <Box id={plotDomId} sx={{ height: "450px" }} />
-      </CardContent>
-    </Card>
+    <>
+      <Typography
+        variant="h6"
+        sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
+      >
+        Hyperparameter Importance
+      </Typography>
+      <Box id={plotDomId} sx={{ height: "450px" }} />
+    </>
   )
 }
 

@@ -1,6 +1,6 @@
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
-import { Box, Typography, useTheme, CardContent, Card } from "@mui/material"
+import { Box, Typography, useTheme } from "@mui/material"
 import { plotlyDarkTemplate } from "../PlotlyDarkMode"
 
 const plotDomId = "graph-intermediate-values"
@@ -23,17 +23,15 @@ export const PlotIntermediateValues: FC<{
   }, [trials, theme.palette.mode, false, includePruned, logScale])
 
   return (
-    <Card>
-      <CardContent>
-        <Typography
-          variant="h6"
-          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
-        >
-          Intermediate values
-        </Typography>
-        <Box id={plotDomId} sx={{ height: "450px" }} />
-      </CardContent>
-    </Card>
+    <>
+      <Typography
+        variant="h6"
+        sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
+      >
+        Intermediate values
+      </Typography>
+      <Box id={plotDomId} sx={{ height: "450px" }} />
+    </>
   )
 }
 
@@ -78,7 +76,7 @@ const plotIntermediateValue = (
         t.state === "Pruned" &&
         t.values &&
         t.values.length > 0) ||
-      t.state == "Running"
+      t.state === "Running"
   )
   const plotData: Partial<plotly.PlotData>[] = filteredTrials.map((trial) => {
     const values = trial.intermediate_values.filter(

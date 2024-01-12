@@ -47,4 +47,10 @@ jobs:
         run: playwright install
 
       - name: Run e2e tests
-        run: pytest e2e_tests/test_dashboard
+        run: |
+          if [ "${{ matrix.optuna-version }}" = "optuna==2.10.0" ]; then
+            ignore_option="--ignore e2e_tests/test_dashboard/test_usecases/test_preferential_optimization.py"
+          else
+            ignore_option=""
+          fi
+          pytest e2e_tests/test_dashboard $ignore_option

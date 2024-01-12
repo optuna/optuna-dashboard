@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import numbers
 import threading
 from typing import List
 from typing import Optional
@@ -85,9 +86,8 @@ class _CachedExtraStudyProperty:
         self._cursor = next_cursor
 
     def _update_user_attrs(self, trial: FrozenTrial) -> None:
-        # TODO(c-bata): Support numpy-specific number types.
         current_user_attrs = {
-            k: not isinstance(v, bool) and isinstance(v, (int, float))
+            k: not isinstance(v, bool) and isinstance(v, numbers.Real)
             for k, v in trial.user_attrs.items()
         }
         for attr_name, current_is_sortable in current_user_attrs.items():

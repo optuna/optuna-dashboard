@@ -188,65 +188,71 @@ const plotSlice = (
     return
   }
 
-  const objectiveValues: number[] = trials.map(
+  const feasibleTrials: Trial[] = []
+  const infeasibleTrials: Trial[] = []
+  trials.forEach((t) => {
+    if (t.constraints.every((c) => c <= 0)) {
+      feasibleTrials.push(t)
+    } else {
+      infeasibleTrials.push(t)
+    }
+  })
+
+  const feasibleObjectiveValues: number[] = feasibleTrials.map(
     (t) => objectiveTarget.getTargetValue(t) as number
   )
-  const values = trials.map(
-    (t) => selectedParamTarget.getTargetValue(t) as number
+  const infeasibleObjectiveValues: number[] = infeasibleTrials.map(
+    (t) => objectiveTarget.getTargetValue(t) as number
   )
 
-  const trialNumbers: number[] = trials.map((t) => t.number)
-  if (selectedParamSpace.distribution.type !== "CategoricalDistribution") {
-    const trace: plotly.Data[] = [
-      {
-        type: "scatter",
-        x: values,
-        y: objectiveValues,
-        mode: "markers",
-        marker: {
-          color: trialNumbers,
-          colorscale: "Blues",
-          reversescale: true,
-          colorbar: {
-            title: "Trial",
-          },
-          line: {
-            color: "Grey",
-            width: 0.5,
-          },
+  const feasibleValues = feasibleTrials.map(
+    (t) => selectedParamTarget.getTargetValue(t) as number
+  )
+  const infeasibleValues = infeasibleTrials.map(
+    (t) => selectedParamTarget.getTargetValue(t) as number
+  )
+  const trace: plotly.Data[] = [
+    {
+      type: "scatter",
+      x: feasibleValues,
+      y: feasibleObjectiveValues,
+      mode: "markers",
+      name: "Feasible Trial",
+      marker: {
+        color: feasibleTrials.map((t) => t.number),
+        colorscale: "Blues",
+        reversescale: true,
+        colorbar: {
+          title: "Trial",
+        },
+        line: {
+          color: "Grey",
+          width: 0.5,
         },
       },
-    ]
+    },
+    {
+      type: "scatter",
+      x: infeasibleValues,
+      y: infeasibleObjectiveValues,
+      mode: "markers",
+      name: "Infeasible Trial",
+      marker: {
+        color: "#cccccc",
+        reversescale: true,
+      },
+    },
+  ]
+  if (selectedParamSpace.distribution.type !== "CategoricalDistribution") {
     layout["xaxis"] = {
       title: selectedParamTarget.toLabel(),
       type: isLogScale(selectedParamSpace) ? "log" : "linear",
       gridwidth: 1,
       automargin: true, // Otherwise the label is outside of the plot
     }
-    plotly.react(plotDomId, trace, layout)
   } else {
     const vocabArr = selectedParamSpace.distribution.choices.map((c) => c.value)
     const tickvals: number[] = vocabArr.map((v, i) => i)
-    const trace: plotly.Data[] = [
-      {
-        type: "scatter",
-        x: values,
-        y: objectiveValues,
-        mode: "markers",
-        marker: {
-          color: trialNumbers,
-          colorscale: "Blues",
-          reversescale: true,
-          colorbar: {
-            title: "Trial",
-          },
-          line: {
-            color: "Grey",
-            width: 0.5,
-          },
-        },
-      },
-    ]
     layout["xaxis"] = {
       title: selectedParamTarget.toLabel(),
       type: "linear",
@@ -255,6 +261,6 @@ const plotSlice = (
       ticktext: vocabArr,
       automargin: true, // Otherwise the label is outside of the plot
     }
-    plotly.react(plotDomId, trace, layout)
   }
+  plotly.react(plotDomId, trace, layout)
 }
