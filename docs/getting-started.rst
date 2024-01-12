@@ -228,8 +228,8 @@ or install the code-server extension via `Open VSX <https://open-vsx.org/extensi
 To use, right-click the SQLite3 files (``*.db`` or ``*.sqlite3``) in the file explorer and select the "Open in Optuna Dashboard" from the dropdown menu.
 This extension leverages the browser-only version of Optuna Dashboard, so the same limitations apply.
 
-Please note that the we confirmed that the behavior of the code-server extension can be unstable.
-When you open SQLite files, the dashboard may not appear on the first attempt, but it should be displayed upon a second try.
+Please note that we have confirmed the behavior of the code-server extension can be unstable.
+When opening SQLite files, the dashboard may not appear on the first attempt, but it should be displayed upon a second try.
 
 Google Colaboratory
 -------------------
