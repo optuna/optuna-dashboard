@@ -107,6 +107,7 @@ function DataGrid<T>(props: {
     return (
       <form onSubmit={handleSubmitPageNumber}>
         <TextField
+          size="small"
           label={`Go to Page: n / ${maxPageNumber}`}
           value={specifiedPageText}
           type="number"
@@ -224,9 +225,6 @@ function DataGrid<T>(props: {
               count={filteredRows.length}
               rowsPerPage={rowsPerPage}
               page={page}
-              labelDisplayedRows={({ page }) =>
-                `${page + 1} of ${maxPageNumber}`
-              }
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
             />
