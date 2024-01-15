@@ -14,7 +14,6 @@ from bottle import HTTPResponse
 from bottle import request
 from bottle import response
 import optuna
-from optuna.artifacts.exceptions import ArtifactNotFound
 from optuna.trial import FrozenTrial
 
 from .._bottle_util import json_api_view
@@ -182,6 +181,8 @@ def register_artifact_route(
     @app.delete("/api/artifacts/<study_id:int>/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
     @json_api_view
     def delete_trial_artifact(study_id: int, trial_id: int, artifact_id: str) -> dict[str, Any]:
+        from optuna.artifacts.exceptions import ArtifactNotFound
+
         if artifact_store is None:
             response.status = 400  # Bad Request
             return {"reason": "Cannot access to the artifacts."}
@@ -205,6 +206,8 @@ def register_artifact_route(
     @app.delete("/api/artifacts/<study_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
     @json_api_view
     def delete_study_artifact(study_id: int, artifact_id: str) -> dict[str, Any]:
+        from optuna.artifacts.exceptions import ArtifactNotFound
+
         if artifact_store is None:
             response.status = 400  # Bad Request
             return {"reason": "Cannot access to the artifacts."}
