@@ -14,6 +14,7 @@ from bottle import HTTPResponse
 from bottle import request
 from bottle import response
 import optuna
+from optuna.artifacts.exceptions import ArtifactNotFound
 from optuna.trial import FrozenTrial
 
 from .._bottle_util import json_api_view
@@ -184,7 +185,11 @@ def register_artifact_route(
         if artifact_store is None:
             response.status = 400  # Bad Request
             return {"reason": "Cannot access to the artifacts."}
-        artifact_store.remove(artifact_id)
+        try:
+            artifact_store.remove(artifact_id)
+        except ArtifactNotFound as e:
+            response.status = 404
+            return {"reason": str(e)}
 
         # The artifact's metadata is stored in one of the following two locations:
         storage.set_study_system_attr(
@@ -203,7 +208,11 @@ def register_artifact_route(
         if artifact_store is None:
             response.status = 400  # Bad Request
             return {"reason": "Cannot access to the artifacts."}
-        artifact_store.remove(artifact_id)
+        try:
+            artifact_store.remove(artifact_id)
+        except ArtifactNotFound as e:
+            response.status = 404
+            return {"reason": str(e)}
 
         storage.set_study_system_attr(
             study_id, ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None)

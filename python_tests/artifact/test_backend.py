@@ -249,3 +249,52 @@ def test_upload_artifact() -> None:
         with open(f"{tmpdir}/{res['artifact_id']}", "r") as f:
             data = f.read()
             assert data == "dummy_content"
+
+
+def test_delete_study_artifact() -> None:
+    storage = optuna.storages.InMemoryStorage()
+    study = optuna.create_study(storage=storage)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        artifact_store = FileSystemArtifactStore(tmpdir)
+        with tempfile.NamedTemporaryFile() as f:
+            f.write(b"dummy_content")
+            f.flush()
+            artifact_id = upload_artifact(study, f.name, artifact_store=artifact_store)
+        app = create_app(storage, artifact_store)
+        status, _, _ = send_request(
+            app,
+            f"/api/artifacts/{study._study_id}/{artifact_id}",
+            "DELETE",
+        )
+        assert status == 204
+        status, _, _ = send_request(
+            app,
+            f"/api/artifacts/{study._study_id}/{artifact_id}",
+            "DELETE",
+        )
+        assert status == 404
+
+
+def test_delete_trial_artifact() -> None:
+    storage = optuna.storages.InMemoryStorage()
+    study = optuna.create_study(storage=storage)
+    trial = study.ask()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        artifact_store = FileSystemArtifactStore(tmpdir)
+        with tempfile.NamedTemporaryFile() as f:
+            f.write(b"dummy_content")
+            f.flush()
+            artifact_id = upload_artifact(trial, f.name, artifact_store=artifact_store)
+        app = create_app(storage, artifact_store)
+        status, _, _ = send_request(
+            app,
+            f"/api/artifacts/{study._study_id}/{trial._trial_id}/{artifact_id}",
+            "DELETE",
+        )
+        assert status == 204
+        status, _, _ = send_request(
+            app,
+            f"/api/artifacts/{study._study_id}/{trial._trial_id}/{artifact_id}",
+            "DELETE",
+        )
+        assert status == 404
