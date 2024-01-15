@@ -86,7 +86,7 @@ function DataGrid<T>(props: {
     setPage(0)
   }
 
-  const PaginationTextFieldComponent: React.FC<{
+  const PaginationForm: React.FC<{
     onPageNumberSubmit: (value: number) => void
     maxPageNumber: number
   }> = ({ onPageNumberSubmit, maxPageNumber }) => {
@@ -98,21 +98,20 @@ function DataGrid<T>(props: {
       event: React.FormEvent<HTMLFormElement>
     ) => {
       event.preventDefault()
-      const newPage = parseInt(specifiedPageText, 10)
-      setSpecifiedPageText("") // reset the input field
-      if (Number.isNaN(newPage)) {
-        return
-      }
-      const newPageNumber = newPage <= 0 ? 1 : Math.min(newPage, maxPageNumber)
+      const newPageNumber = parseInt(specifiedPageText, 10)
       // Page is 0-indexed in `TablePagination`.
       onPageNumberSubmit(newPageNumber - 1)
+      setSpecifiedPageText("") // reset the input field
     }
 
     return (
       <form onSubmit={handleSubmitPageNumber}>
         <TextField
-          label="Go to Page"
+          label={`Go to Page: n / ${maxPageNumber}`}
           value={specifiedPageText}
+          type="number"
+          style={{ width: 200 }}
+          inputProps={{ min: 1, max: maxPageNumber }}
           onChange={(e) => {
             setSpecifiedPageText(e.target.value)
           }}
@@ -232,7 +231,7 @@ function DataGrid<T>(props: {
               onRowsPerPageChange={handleChangeRowsPerPage}
             />
             {maxPageNumber > 4 ? (
-              <PaginationTextFieldComponent
+              <PaginationForm
                 onPageNumberSubmit={(page) => setPage(page)}
                 maxPageNumber={maxPageNumber}
               />
