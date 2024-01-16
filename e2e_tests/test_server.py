@@ -8,6 +8,8 @@ import optuna
 from optuna_dashboard import wsgi
 import pytest
 
+from .utils import clear_inmemory_cache
+
 
 def get_free_port() -> int:
     tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -28,6 +30,7 @@ def make_test_server(
     thread.start()
 
     def stop_server() -> None:
+        clear_inmemory_cache()
         httpd.shutdown()
         httpd.server_close()
         thread.join()
