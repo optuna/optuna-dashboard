@@ -4,7 +4,8 @@ import "./index.css"
 import { App } from "./components/App"
 import { RecoilRoot, useSetRecoilState, SetterOrUpdater } from "recoil"
 import { studiesState } from "./state"
-import { loadStorage } from "./sqlite3"
+import { loadSQLite3Storage } from "./sqlite3"
+import { loadJournalStorage } from "./journalStorage"
 
 export const AppWrapper: FC = () => {
   const setStudies = useSetRecoilState<Study[]>(studiesState)
@@ -24,6 +25,8 @@ export const AppWrapper: FC = () => {
       let len: number
       let bytes: Uint8Array
       let arrayBuffer: ArrayBuffer
+      let header: Uint8Array
+      let headerString: string
 
       switch (message.type) {
         case "optunaStorage":
@@ -35,7 +38,13 @@ export const AppWrapper: FC = () => {
             bytes[i] = binaryString.charCodeAt(i)
           }
           arrayBuffer = bytes.buffer
-          loadStorage(arrayBuffer, onceSetStudies)
+          header = new Uint8Array(arrayBuffer, 0, 16)
+          headerString = new TextDecoder().decode(header)
+          if (headerString === "SQLite format 3\u0000") {
+            loadSQLite3Storage(arrayBuffer, onceSetStudies)
+          } else {
+            loadJournalStorage(arrayBuffer, onceSetStudies)
+          }
           break
       }
     })
