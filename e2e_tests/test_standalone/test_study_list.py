@@ -52,10 +52,7 @@ def test_load_storage(
             create_storage_file(filename)
             page.goto(url)
             with page.expect_file_chooser() as fc_info:
-                page.get_by_role(
-                    "button",
-                    name="Load an Optuna Storage Drag your SQLite3 file here or click to browse.",
-                ).click()
+                page.get_by_role("button").nth(2).click()
             file_chooser = fc_info.value
             file_chooser.set_files(path)
 
