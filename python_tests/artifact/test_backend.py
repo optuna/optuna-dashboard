@@ -9,9 +9,9 @@ from optuna.artifacts import upload_artifact
 from optuna.storages import BaseStorage
 from optuna_dashboard._app import create_app
 from optuna_dashboard.artifact import _backend
+from optuna_dashboard.artifact import upload_artifact as dashboard_upload_artifact
 from optuna_dashboard.artifact._backend_to_store import to_artifact_store
 from optuna_dashboard.artifact.file_system import FileSystemBackend
-from optuna_dashboard.artifact import upload_artifact as dashboard_upload_artifact
 import pytest
 
 from ..wsgi_client import send_request
