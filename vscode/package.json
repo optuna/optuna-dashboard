@@ -39,7 +39,7 @@
       "explorer/context": [
         {
           "command": "optuna-dashboard.openOptunaDashboard",
-          "when": "resourceExtname == .db || resourceExtname == .sqlite3"
+          "when": "resourceExtname == .db || resourceExtname == .sqlite3 || resourceExtname == .log"
         }
       ]
 	}
