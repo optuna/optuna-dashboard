@@ -17,7 +17,7 @@ Prerequisite
 Optuna Dashboard supports Python 3.7 or newer.
 
 
-Installing from PyPi
+Installing from PyPI
 ~~~~~~~~~~~~~~~~~~~~
 
 You can install optuna-dashboard via `PyPI <https://pypi.org/project/optuna-dashboard/>`_ or `Anaconda Cloud <https://anaconda.org/conda-forge/optuna-dashboard>`_.
@@ -40,7 +40,7 @@ Please clone the git repository and execute following commands to build sdist pa
 
 .. code-block:: console
 
-   $ git clone git@github.com:optuna/optuna.git
+   $ git clone git@github.com:optuna/optuna-dashboard.git
    $ cd optuna
 
 .. code-block:: console
