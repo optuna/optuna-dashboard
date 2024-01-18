@@ -31,6 +31,7 @@ import {
   artifactIsAvailable,
   reloadIntervalState,
   trialsUpdatingState,
+  studySummariesLoadingState,
 } from "./state"
 import { getDominatedTrials } from "./dominatedTrials"
 
@@ -56,6 +57,9 @@ export const actionCreator = () => {
   const setUploading = useSetRecoilState<boolean>(isFileUploading)
   const setTrialsUpdating = useSetRecoilState(trialsUpdatingState)
   const setArtifactIsAvailable = useSetRecoilState<boolean>(artifactIsAvailable)
+  const setStudySummariesLoading = useSetRecoilState<boolean>(
+    studySummariesLoadingState
+  )
 
   const setStudyDetailState = (studyId: number, study: StudyDetail) => {
     setStudyDetails((prevVal) => {
@@ -225,8 +229,10 @@ export const actionCreator = () => {
   }
 
   const updateStudySummaries = (successMsg?: string) => {
+    setStudySummariesLoading(true)
     getStudySummariesAPI()
       .then((studySummaries: StudySummary[]) => {
+        setStudySummariesLoading(false)
         setStudySummaries(studySummaries)
 
         if (successMsg) {
@@ -234,6 +240,7 @@ export const actionCreator = () => {
         }
       })
       .catch((err) => {
+        setStudySummariesLoading(false)
         enqueueSnackbar(`Failed to fetch study list.`, {
           variant: "error",
         })
