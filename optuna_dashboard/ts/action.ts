@@ -235,7 +235,10 @@ export const actionCreator = () => {
       })
   }
 
-  const updateStudyDetail = (studyId: number, forceFetchAllTrials: boolean = false) => {
+  const updateStudyDetail = (
+    studyId: number,
+    forceFetchAllTrials: boolean = false
+  ) => {
     let nLocalFixedTrials = 0
     const nMaximumTrialsAtOnce = forceFetchAllTrials ? 0 : 2000
     if (studyId in studyDetails) {
