@@ -82,10 +82,17 @@ def get_journal_file_storage(file_path: str) -> JournalStorage:
     if version.parse(optuna_ver) < version.Version("v3.1.0"):
         raise ValueError("JournalRedisStorage is available from Optuna v3.1.0")
 
+    from optuna.storages import JournalFileOpenLock
     from optuna.storages import JournalFileStorage
     from optuna.storages import JournalStorage
 
-    return JournalStorage(JournalFileStorage(file_path=file_path))
+    storage: JournalStorage
+    if os.name == "nt":
+        lock_obj = JournalFileOpenLock(file_path)
+        storage = JournalStorage(JournalFileStorage(file_path=file_path, lock_obj=lock_obj))
+    else:
+        storage = JournalStorage(JournalFileStorage(file_path=file_path))
+    return storage
 
 
 def get_journal_redis_storage(redis_url: str) -> JournalStorage:

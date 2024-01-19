@@ -9,6 +9,9 @@ from optuna.artifacts import upload_artifact
 from optuna.storages import BaseStorage
 from optuna_dashboard._app import create_app
 from optuna_dashboard.artifact import _backend
+from optuna_dashboard.artifact import upload_artifact as dashboard_upload_artifact
+from optuna_dashboard.artifact._backend_to_store import to_artifact_store
+from optuna_dashboard.artifact.file_system import FileSystemBackend
 import pytest
 
 from ..wsgi_client import send_request
@@ -249,3 +252,80 @@ def test_upload_artifact() -> None:
         with open(f"{tmpdir}/{res['artifact_id']}", "r") as f:
             data = f.read()
             assert data == "dummy_content"
+
+
+def test_delete_study_artifact() -> None:
+    storage = optuna.storages.InMemoryStorage()
+    study = optuna.create_study(storage=storage)
+    with tempfile.TemporaryDirectory() as tmpdir:
+        artifact_store = FileSystemArtifactStore(tmpdir)
+        with tempfile.NamedTemporaryFile() as f:
+            f.write(b"dummy_content")
+            f.flush()
+            artifact_id = upload_artifact(study, f.name, artifact_store=artifact_store)
+        app = create_app(storage, artifact_store)
+        status, _, _ = send_request(
+            app,
+            f"/api/artifacts/{study._study_id}/{artifact_id}",
+            "DELETE",
+        )
+        assert status == 204
+        status, _, _ = send_request(
+            app,
+            f"/api/artifacts/{study._study_id}/{artifact_id}",
+            "DELETE",
+        )
+        assert status == 404
+
+
+def test_delete_trial_artifact() -> None:
+    storage = optuna.storages.InMemoryStorage()
+    study = optuna.create_study(storage=storage)
+    trial = study.ask()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        artifact_store = FileSystemArtifactStore(tmpdir)
+        with tempfile.NamedTemporaryFile() as f:
+            f.write(b"dummy_content")
+            f.flush()
+            artifact_id = upload_artifact(trial, f.name, artifact_store=artifact_store)
+        app = create_app(storage, artifact_store)
+        status, _, _ = send_request(
+            app,
+            f"/api/artifacts/{study._study_id}/{trial._trial_id}/{artifact_id}",
+            "DELETE",
+        )
+        assert status == 204
+        status, _, _ = send_request(
+            app,
+            f"/api/artifacts/{study._study_id}/{trial._trial_id}/{artifact_id}",
+            "DELETE",
+        )
+        assert status == 404
+
+
+# Check the backward compatibility with the artifact backend.
+def test_delete_artifact_with_dashboard_file_system_backend() -> None:
+    storage = optuna.storages.InMemoryStorage()
+    study = optuna.create_study(storage=storage)
+    trial = study.ask()
+    with tempfile.TemporaryDirectory() as tmpdir:
+        artifact_backend = FileSystemBackend(tmpdir)
+        with tempfile.NamedTemporaryFile() as f:
+            f.write(b"dummy_content")
+            f.flush()
+            artifact_id = dashboard_upload_artifact(artifact_backend, trial, f.name)
+
+        artifact_store = to_artifact_store(artifact_backend)
+        app = create_app(storage, artifact_store)
+        status, _, _ = send_request(
+            app,
+            f"/api/artifacts/{study._study_id}/{trial._trial_id}/{artifact_id}",
+            "DELETE",
+        )
+        assert status == 204
+        status, _, _ = send_request(
+            app,
+            f"/api/artifacts/{study._study_id}/{trial._trial_id}/{artifact_id}",
+            "DELETE",
+        )
+        assert status == 404

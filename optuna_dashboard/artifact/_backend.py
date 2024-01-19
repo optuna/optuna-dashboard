@@ -181,10 +181,16 @@ def register_artifact_route(
     @app.delete("/api/artifacts/<study_id:int>/<trial_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
     @json_api_view
     def delete_trial_artifact(study_id: int, trial_id: int, artifact_id: str) -> dict[str, Any]:
+        from optuna.artifacts.exceptions import ArtifactNotFound
+
         if artifact_store is None:
             response.status = 400  # Bad Request
             return {"reason": "Cannot access to the artifacts."}
-        artifact_store.remove(artifact_id)
+        try:
+            artifact_store.remove(artifact_id)
+        except ArtifactNotFound as e:
+            response.status = 404
+            return {"reason": str(e)}
 
         # The artifact's metadata is stored in one of the following two locations:
         storage.set_study_system_attr(
@@ -200,10 +206,16 @@ def register_artifact_route(
     @app.delete("/api/artifacts/<study_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
     @json_api_view
     def delete_study_artifact(study_id: int, artifact_id: str) -> dict[str, Any]:
+        from optuna.artifacts.exceptions import ArtifactNotFound
+
         if artifact_store is None:
             response.status = 400  # Bad Request
             return {"reason": "Cannot access to the artifacts."}
-        artifact_store.remove(artifact_id)
+        try:
+            artifact_store.remove(artifact_id)
+        except ArtifactNotFound as e:
+            response.status = 404
+            return {"reason": str(e)}
 
         storage.set_study_system_attr(
             study_id, ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None)

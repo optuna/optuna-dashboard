@@ -6,7 +6,8 @@ import React, {
   useRef,
   useState,
 } from "react"
-import { loadStorage } from "../sqlite3"
+import { loadSQLite3Storage } from "../sqlite3"
+import { loadJournalStorage } from "../journalStorage"
 import { useSetRecoilState } from "recoil"
 import { studiesState } from "../state"
 import {
@@ -30,7 +31,13 @@ export const StorageLoader: FC = () => {
     r.addEventListener("load", () => {
       const arrayBuffer = r.result as ArrayBuffer | null
       if (arrayBuffer !== null) {
-        loadStorage(arrayBuffer, setStudies)
+        const header = new Uint8Array(arrayBuffer, 0, 16)
+        const headerString = new TextDecoder().decode(header)
+        if (headerString === "SQLite format 3\u0000") {
+          loadSQLite3Storage(arrayBuffer, setStudies)
+        } else {
+          loadJournalStorage(arrayBuffer, setStudies)
+        }
       }
     })
     r.readAsArrayBuffer(file)
@@ -108,7 +115,7 @@ export const StorageLoader: FC = () => {
           <Typography
             sx={{ textAlign: "center", color: theme.palette.grey.A400 }}
           >
-            Drag your SQLite3 file here or click to browse.
+            Drag your SQLite3/JournalStorage file here or click to browse.
           </Typography>
         </CardContent>
       </CardActionArea>

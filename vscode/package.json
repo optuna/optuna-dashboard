@@ -3,7 +3,7 @@
   "displayName": "Optuna Dashboard",
   "description": "Web Dashboard for Optuna",
   "publisher": "Optuna",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "license": "MIT",
   "icon": "images/optuna-logo.png",
   "engines": {
@@ -27,7 +27,7 @@
     "optuna-dashboard"
   ],
   "activationEvents": [],
-  "browser": "./dist/web/extension.js",
+  "main": "./dist/web/extension.js",
   "contributes": {
     "commands": [
       {
@@ -39,7 +39,7 @@
       "explorer/context": [
         {
           "command": "optuna-dashboard.openOptunaDashboard",
-          "when": "resourceExtname == .db || resourceExtname == .sqlite3"
+          "when": "resourceExtname == .db || resourceExtname == .sqlite3 || resourceExtname == .log"
         }
       ]
 	}
@@ -62,7 +62,7 @@
     "@typescript-eslint/parser": "^5.59.1",
     "mocha": "^10.2.0",
     "typescript": "^5.0.4",
-    "@vscode/test-web": "^0.0.43",
+    "@vscode/test-web": "^0.0.50",
     "ts-loader": "^9.4.2",
     "webpack": "^5.81.0",
     "webpack-cli": "^5.0.2",
