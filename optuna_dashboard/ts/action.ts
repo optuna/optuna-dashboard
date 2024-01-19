@@ -23,7 +23,6 @@ import {
   reportFeedbackComponentAPI,
 } from "./apiClient"
 import {
-  graphVisibilityState,
   studyDetailsState,
   studySummariesState,
   paramImportanceState,
@@ -34,13 +33,6 @@ import {
 } from "./state"
 import { getDominatedTrials } from "./dominatedTrials"
 
-const localStorageGraphVisibility = "graphVisibility"
-const localStorageReloadInterval = "reloadInterval"
-
-type LocalStorageReloadInterval = {
-  reloadInterval?: number
-}
-
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const actionCreator = () => {
   const { enqueueSnackbar } = useSnackbar()
@@ -48,8 +40,6 @@ export const actionCreator = () => {
     useRecoilState<StudySummary[]>(studySummariesState)
   const [studyDetails, setStudyDetails] =
     useRecoilState<StudyDetails>(studyDetailsState)
-  const [graphVisibility, setGraphVisibility] =
-    useRecoilState<GraphVisibility>(graphVisibilityState)
   const setReloadInterval = useSetRecoilState<number>(reloadIntervalState)
   const [paramImportance, setParamImportance] =
     useRecoilState<StudyParamImportance>(paramImportanceState)
@@ -340,41 +330,8 @@ export const actionCreator = () => {
       })
   }
 
-  const getGraphVisibility = () => {
-    const localStoragePreferences = localStorage.getItem(
-      localStorageGraphVisibility
-    )
-    if (localStoragePreferences !== null) {
-      const merged = {
-        ...graphVisibility,
-        ...JSON.parse(localStoragePreferences),
-      }
-      setGraphVisibility(merged)
-    }
-  }
-
-  const saveGraphVisibility = (value: GraphVisibility) => {
-    setGraphVisibility(value)
-    localStorage.setItem(localStorageGraphVisibility, JSON.stringify(value))
-  }
-
-  const loadReloadInterval = () => {
-    const reloadIntervalJSON = localStorage.getItem(localStorageReloadInterval)
-    if (reloadIntervalJSON === null) {
-      return
-    }
-    const gp = JSON.parse(reloadIntervalJSON) as LocalStorageReloadInterval
-    if (gp.reloadInterval !== undefined) {
-      setReloadInterval(gp.reloadInterval)
-    }
-  }
-
   const saveReloadInterval = (interval: number) => {
     setReloadInterval(interval)
-    const value: LocalStorageReloadInterval = {
-      reloadInterval: interval,
-    }
-    localStorage.setItem(localStorageReloadInterval, JSON.stringify(value))
   }
 
   const saveStudyNote = (studyId: number, note: Note): Promise<void> => {
@@ -749,9 +706,6 @@ export const actionCreator = () => {
     createNewStudy,
     deleteStudy,
     renameStudy,
-    getGraphVisibility,
-    saveGraphVisibility,
-    loadReloadInterval,
     saveReloadInterval,
     saveStudyNote,
     saveTrialNote,
