@@ -360,13 +360,13 @@ export const AppDrawer: FC<{
             >
               <Box
                 sx={{
-                  position: "absolute" as "absolute",
+                  position: "absolute",
                   top: "10%",
                   left: "10%",
                   overflow: "auto",
                   width: "80%",
                   height: "80%",
-                  bgcolor: "background.default",
+                  bgcolor: "background.paper",
                 }}
               >
                 <Settings />
