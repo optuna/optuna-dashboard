@@ -1,7 +1,7 @@
 import React, { FC } from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles"
-import Popover from "@mui/material/Popover"
+import Modal from "@mui/material/Modal"
 import { Settings } from "./Settings"
 import Box from "@mui/material/Box"
 import MuiDrawer from "@mui/material/Drawer"
@@ -164,19 +164,15 @@ export const AppDrawer: FC<{
     setOpen(false)
   }
 
-  const [settingAnchorEl, setSettingAnchorEl] =
-    React.useState<HTMLDivElement | null>(null)
+  const [settingOpen, setSettingOpen] = React.useState(false)
 
-  const onSettingBottunClick = (event: React.MouseEvent<HTMLDivElement>) => {
-    setSettingAnchorEl(event.currentTarget)
+  const handleSettingOpen = () => {
+    setSettingOpen(true)
   }
 
-  const onSettingClose = () => {
-    setSettingAnchorEl(null)
+  const handleSettingClose = () => {
+    setSettingOpen(false)
   }
-
-  const settingOpened = Boolean(settingAnchorEl)
-  const settingUIId = settingOpened ? "simple-popover" : undefined
 
   return (
     <Box sx={{ display: "flex", width: "100%" }}>
@@ -349,25 +345,33 @@ export const AppDrawer: FC<{
           <ListItem key="Settings" disablePadding sx={styleListItem}>
             <ListItemButton
               sx={styleListItemButton}
-              onClick={onSettingBottunClick}
+              onClick={handleSettingOpen}
             >
               <ListItemIcon sx={styleListItemIcon}>
                 <SettingsIcon />
               </ListItemIcon>
               <ListItemText primary="Settings" sx={styleListItemText} />
             </ListItemButton>
-            <Popover
-              id={settingUIId}
-              open={settingOpened}
-              anchorEl={settingAnchorEl}
-              onClose={onSettingClose}
-              anchorOrigin={{
-                vertical: "center",
-                horizontal: "left",
-              }}
+            <Modal
+              open={settingOpen}
+              onClose={handleSettingClose}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
             >
-              <Settings />
-            </Popover>
+              <Box
+                sx={{
+                  position: "absolute" as "absolute",
+                  top: "10%",
+                  left: "10%",
+                  overflow: "auto",
+                  width: "80%",
+                  height: "80%",
+                  bgcolor: "background.default",
+                }}
+              >
+                <Settings />
+              </Box>
+            </Modal>
           </ListItem>
           <ListItem key="DarkMode" disablePadding sx={styleListItem}>
             <ListItemButton
