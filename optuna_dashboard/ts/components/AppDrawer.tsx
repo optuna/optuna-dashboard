@@ -1,6 +1,8 @@
 import React, { FC } from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles"
+import Popover from "@mui/material/Popover"
+import { Settings } from "./Settings"
 import Box from "@mui/material/Box"
 import MuiDrawer from "@mui/material/Drawer"
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar"
@@ -48,7 +50,6 @@ export type PageId =
   | "trialTable"
   | "trialList"
   | "note"
-  | "settings"
   | "preferenceHistory"
   | "graph"
 
@@ -162,6 +163,20 @@ export const AppDrawer: FC<{
   const handleDrawerClose = () => {
     setOpen(false)
   }
+
+  const [settingAnchorEl, setSettingAnchorEl] =
+    React.useState<HTMLDivElement | null>(null)
+
+  const onSettingBottunClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    setSettingAnchorEl(event.currentTarget)
+  }
+
+  const onSettingClose = () => {
+    setSettingAnchorEl(null)
+  }
+
+  const settingOpened = Boolean(settingAnchorEl)
+  const settingUIId = settingOpened ? "simple-popover" : undefined
 
   return (
     <Box sx={{ display: "flex", width: "100%" }}>
@@ -303,19 +318,6 @@ export const AppDrawer: FC<{
                 <ListItemText primary="Note" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
-            <ListItem key="Settings" disablePadding sx={styleListItem}>
-              <ListItemButton
-                component={Link}
-                to={`${URL_PREFIX}/studies/${studyId}/settings`}
-                sx={styleListItemButton}
-                selected={page === "settings"}
-              >
-                <ListItemIcon sx={styleListItemIcon}>
-                  <SettingsIcon />
-                </ListItemIcon>
-                <ListItemText primary="Settings" sx={styleListItemText} />
-              </ListItemButton>
-            </ListItem>
           </List>
         )}
         <Box sx={{ flexGrow: 1 }} />
@@ -344,6 +346,29 @@ export const AppDrawer: FC<{
               </ListItemButton>
             </ListItem>
           )}
+          <ListItem key="Settings" disablePadding sx={styleListItem}>
+            <ListItemButton
+              sx={styleListItemButton}
+              onClick={onSettingBottunClick}
+            >
+              <ListItemIcon sx={styleListItemIcon}>
+                <SettingsIcon />
+              </ListItemIcon>
+              <ListItemText primary="Settings" sx={styleListItemText} />
+            </ListItemButton>
+            <Popover
+              id={settingUIId}
+              open={settingOpened}
+              anchorEl={settingAnchorEl}
+              onClose={onSettingClose}
+              anchorOrigin={{
+                vertical: "center",
+                horizontal: "left",
+              }}
+            >
+              <Settings />
+            </Popover>
+          </ListItem>
           <ListItem key="DarkMode" disablePadding sx={styleListItem}>
             <ListItemButton
               sx={styleListItemButton}

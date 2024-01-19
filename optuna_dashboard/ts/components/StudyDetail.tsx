@@ -34,7 +34,6 @@ import { StudyHistory } from "./StudyHistory"
 import { PreferentialTrials } from "./PreferentialTrials"
 import { PreferenceHistory } from "./PreferenceHistory"
 import { PreferentialAnalytics } from "./PreferentialAnalytics"
-import { Settings } from "./Settings"
 import { PreferentialGraph } from "./PreferentialGraph"
 
 interface ParamTypes {
@@ -211,8 +210,6 @@ export const StudyDetail: FC<{
         />
       </Box>
     )
-  } else if (page === "settings") {
-    content = <Settings />
   } else if (page === "graph") {
     content = (
       <Box
