@@ -192,7 +192,7 @@ def create_app(
     @json_api_view
     def get_study_detail(study_id: int) -> dict[str, Any]:
         # Use the following default values if not specified in request.params.
-        query_params = dict(after=0, limit=1000)
+        query_params = dict(after=0, limit=2000)
         for query_key in query_params:
             try:
                 query_params[query_key] = int(request.params[query_key])
@@ -235,6 +235,7 @@ def create_app(
         plotly_graph_objects = get_plotly_graph_objects(system_attrs)
         skipped_trial_ids = get_skipped_trial_ids(system_attrs)
         skipped_trial_numbers = [t.number for t in trials if t._trial_id in skipped_trial_ids]
+        limit = len(trials) if limit == 0 else limit
         fetched_trials_partially = after + limit < len(trials)
         return serialize_study_detail(
             summary,

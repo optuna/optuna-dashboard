@@ -235,9 +235,9 @@ export const actionCreator = () => {
       })
   }
 
-  const updateStudyDetail = (studyId: number) => {
+  const updateStudyDetail = (studyId: number, forceFetchAllTrials: boolean = false) => {
     let nLocalFixedTrials = 0
-    const nMaximumTrialsAtOnce = 2000
+    const nMaximumTrialsAtOnce = forceFetchAllTrials ? 0 : 2000
     if (studyId in studyDetails) {
       const currentTrials = studyDetails[studyId].trials
       const firstUpdatable = currentTrials.findIndex((trial) =>
