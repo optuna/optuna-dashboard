@@ -19,9 +19,7 @@ import {
   useParamTargets,
 } from "../trialFilter"
 import { useMergedUnionSearchSpace } from "../searchSpace"
-import { getColorTemplate } from "./PlotlyColorTemplates"
-import { plotlyColorTheme } from "../state"
-import { useRecoilValue } from "recoil"
+import { usePlotlyColorTheme } from "../state"
 
 const plotDomId = "graph-slice"
 
@@ -36,6 +34,7 @@ export const GraphSlice: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
 
   const [objectiveTargets, selectedObjective, setObjectiveTarget] =
     useObjectiveAndUserAttrTargets(study)
@@ -51,7 +50,6 @@ export const GraphSlice: FC<{
       : [selectedObjective],
     false
   )
-  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
 
   useEffect(() => {
     plotSlice(
@@ -60,7 +58,6 @@ export const GraphSlice: FC<{
       selectedParamTarget,
       searchSpace.find((s) => s.name === selectedParamTarget?.key) || null,
       logYScale,
-      theme.palette.mode,
       colorTheme
     )
   }, [
@@ -69,7 +66,6 @@ export const GraphSlice: FC<{
     searchSpace,
     selectedParamTarget,
     logYScale,
-    theme.palette.mode,
     colorTheme,
   ])
 
@@ -152,8 +148,7 @@ const plotSlice = (
   selectedParamTarget: Target | null,
   selectedParamSpace: SearchSpaceItem | null,
   logYScale: boolean,
-  mode: string,
-  colorTheme: PlotlyColorTheme
+  colorTheme: Partial<Plotly.Template>
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -183,7 +178,7 @@ const plotSlice = (
     },
     showlegend: false,
     uirevision: "true",
-    template: getColorTemplate(mode, colorTheme),
+    template: colorTheme,
   }
   if (
     selectedParamSpace === null ||

@@ -9,9 +9,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material"
-import { getColorTemplate } from "./PlotlyColorTemplates"
-import { useRecoilValue } from "recoil"
-import { plotlyColorTheme } from "../state"
+import { usePlotlyColorTheme } from "../state"
 import {
   Target,
   useFilteredTrials,
@@ -90,23 +88,16 @@ export const GraphParallelCoordinate: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
-  const [targets, searchSpace, renderCheckBoxes] = useTargets(study)
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
 
-  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
+  const [targets, searchSpace, renderCheckBoxes] = useTargets(study)
 
   const trials = useFilteredTrials(study, targets, false)
   useEffect(() => {
     if (study !== null) {
-      plotCoordinate(
-        study,
-        trials,
-        targets,
-        searchSpace,
-        theme.palette.mode,
-        colorTheme
-      )
+      plotCoordinate(study, trials, targets, searchSpace, colorTheme)
     }
-  }, [study, trials, targets, searchSpace, theme.palette.mode, colorTheme])
+  }, [study, trials, targets, searchSpace, colorTheme])
 
   return (
     <Grid container direction="row">
@@ -141,8 +132,7 @@ const plotCoordinate = (
   trials: Trial[],
   targets: Target[],
   searchSpace: SearchSpaceItem[],
-  mode: string,
-  colorTheme: PlotlyColorTheme
+  colorTheme: Partial<Plotly.Template>
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -155,7 +145,7 @@ const plotCoordinate = (
       r: 50,
       b: 100,
     },
-    template: getColorTemplate(mode, colorTheme),
+    template: colorTheme,
     uirevision: "true",
   }
   if (trials.length === 0 || targets.length === 0) {

@@ -13,9 +13,7 @@ import {
 } from "@mui/material"
 import blue from "@mui/material/colors/blue"
 import { useMergedUnionSearchSpace } from "../searchSpace"
-import { getColorTemplate } from "./PlotlyColorTemplates"
-import { useRecoilValue } from "recoil"
-import { plotlyColorTheme } from "../state"
+import { usePlotlyColorTheme } from "../state"
 import { getAxisInfo } from "../graphUtil"
 
 const plotDomId = "graph-contour"
@@ -24,6 +22,8 @@ export const Contour: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
+
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
   const [xParam, setXParam] = useState<SearchSpaceItem | null>(null)
@@ -49,20 +49,11 @@ export const Contour: FC<{
     setYParam(param || null)
   }
 
-  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
-
   useEffect(() => {
     if (study != null) {
-      plotContour(
-        study,
-        objectiveId,
-        xParam,
-        yParam,
-        theme.palette.mode,
-        colorTheme
-      )
+      plotContour(study, objectiveId, xParam, yParam, colorTheme)
     }
-  }, [study, objectiveId, xParam, yParam, theme.palette.mode])
+  }, [study, objectiveId, xParam, yParam, colorTheme])
 
   const space: SearchSpaceItem[] = study ? study.union_search_space : []
 
@@ -141,8 +132,7 @@ const plotContour = (
   objectiveId: number,
   xParam: SearchSpaceItem | null,
   yParam: SearchSpaceItem | null,
-  mode: string,
-  colorTheme: PlotlyColorTheme
+  colorTheme: Partial<Plotly.Template>
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -152,7 +142,7 @@ const plotContour = (
   const filteredTrials = trials.filter((t) => filterFunc(t, objectiveId))
   if (filteredTrials.length < 2 || xParam === null || yParam === null) {
     plotly.react(plotDomId, [], {
-      template: getColorTemplate(mode, colorTheme),
+      template: colorTheme,
     })
     return
   }
@@ -178,7 +168,7 @@ const plotContour = (
       b: 50,
     },
     uirevision: "true",
-    template: getColorTemplate(mode, colorTheme),
+    template: colorTheme,
   }
 
   // TODO(c-bata): Support parameters that only have the single value

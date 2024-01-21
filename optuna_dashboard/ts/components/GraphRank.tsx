@@ -13,9 +13,7 @@ import {
 } from "@mui/material"
 import { getAxisInfo, makeHovertext } from "../graphUtil"
 import { useMergedUnionSearchSpace } from "../searchSpace"
-import { getColorTemplate } from "./PlotlyColorTemplates"
-import { plotlyColorTheme } from "../state"
-import { useRecoilValue } from "recoil"
+import { usePlotlyColorTheme } from "../state"
 
 const plotDomId = "graph-rank"
 
@@ -35,6 +33,8 @@ export const GraphRank: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
+
   const [objectiveId, setobjectiveId] = useState<number>(0)
   const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
   const [xParam, setXParam] = useState<SearchSpaceItem | null>(null)
@@ -59,12 +59,11 @@ export const GraphRank: FC<{
     const param = searchSpace.find((item) => item.name === event.target.value)
     setYParam(param || null)
   }
-  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
 
   useEffect(() => {
     if (study != null) {
       const rankPlotInfo = getRankPlotInfo(study, objectiveId, xParam, yParam)
-      plotRank(rankPlotInfo, theme.palette.mode, colorTheme)
+      plotRank(rankPlotInfo, colorTheme)
     }
   }, [study, objectiveId, xParam, yParam, theme.palette.mode, colorTheme])
 
@@ -263,8 +262,7 @@ const getOrderWithSameOrderAveraging = (values: number[]): number[] => {
 
 const plotRank = (
   rankPlotInfo: RankPlotInfo | null,
-  mode: string,
-  colorTheme: PlotlyColorTheme
+  colorTheme: Partial<Plotly.Template>
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -272,7 +270,7 @@ const plotRank = (
 
   if (rankPlotInfo === null) {
     plotly.react(plotDomId, [], {
-      template: getColorTemplate(mode, colorTheme),
+      template: colorTheme,
     })
     return
   }
@@ -293,7 +291,7 @@ const plotRank = (
       b: 50,
     },
     uirevision: "true",
-    template: getColorTemplate(mode, colorTheme),
+    template: colorTheme,
   }
 
   const xValues = rankPlotInfo.xvalues

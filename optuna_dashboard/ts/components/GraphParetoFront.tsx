@@ -12,9 +12,7 @@ import {
   Box,
 } from "@mui/material"
 import { makeHovertext } from "../graphUtil"
-import { getColorTemplate } from "./PlotlyColorTemplates"
-import { plotlyColorTheme } from "../state"
-import { useRecoilValue } from "recoil"
+import { usePlotlyColorTheme } from "../state"
 
 const plotDomId = "graph-pareto-front"
 
@@ -22,10 +20,11 @@ export const GraphParetoFront: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
+
   const [objectiveXId, setObjectiveXId] = useState<number>(0)
   const [objectiveYId, setObjectiveYId] = useState<number>(1)
   const objectiveNames: string[] = study?.objective_names || []
-  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
 
   const handleObjectiveXChange = (event: SelectChangeEvent<number>) => {
     setObjectiveXId(event.target.value as number)
@@ -245,7 +244,7 @@ const plotParetoFront = (
   objectiveXId: number,
   objectiveYId: number,
   mode: string,
-  colorTheme: PlotlyColorTheme
+  colorTheme: Partial<Plotly.Template>
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -258,7 +257,7 @@ const plotParetoFront = (
       r: 50,
       b: 0,
     },
-    template: getColorTemplate(mode, colorTheme),
+    template: colorTheme,
     uirevision: "true",
   }
 

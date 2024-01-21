@@ -2,9 +2,7 @@ import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useMemo } from "react"
 import { Typography, useTheme, Box } from "@mui/material"
 import { Target, useFilteredTrialsFromStudies } from "../trialFilter"
-import { getColorTemplate } from "./PlotlyColorTemplates"
-import { plotlyColorTheme } from "../state"
-import { useRecoilValue } from "recoil"
+import { usePlotlyColorTheme } from "../state"
 
 const getPlotDomId = (objectiveId: number) => `graph-edf-${objectiveId}`
 
@@ -18,6 +16,8 @@ export const GraphEdf: FC<{
   objectiveId: number
 }> = ({ studies, objectiveId }) => {
   const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
+
   const domId = getPlotDomId(objectiveId)
   const target = useMemo<Target>(
     () => new Target("objective", objectiveId),
@@ -32,11 +32,9 @@ export const GraphEdf: FC<{
     return e
   })
 
-  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
-
   useEffect(() => {
-    plotEdf(edfPlotInfos, target, domId, theme.palette.mode, colorTheme)
-  }, [studies, target, theme.palette.mode, colorTheme])
+    plotEdf(edfPlotInfos, target, domId, colorTheme)
+  }, [studies, target, colorTheme])
 
   return (
     <Box>
@@ -55,15 +53,14 @@ const plotEdf = (
   edfPlotInfos: EdfPlotInfo[],
   target: Target,
   domId: string,
-  mode: string,
-  colorTheme: PlotlyColorTheme
+  colorTheme: Partial<Plotly.Template>
 ) => {
   if (document.getElementById(domId) === null) {
     return
   }
   if (edfPlotInfos.length === 0) {
     plotly.react(domId, [], {
-      template: getColorTemplate(mode, colorTheme),
+      template: colorTheme,
     })
     return
   }
@@ -82,7 +79,7 @@ const plotEdf = (
       r: 50,
       b: 50,
     },
-    template: getColorTemplate(mode, colorTheme),
+    template: colorTheme,
   }
 
   const plotData: Partial<plotly.PlotData>[] = edfPlotInfos.map((h) => {

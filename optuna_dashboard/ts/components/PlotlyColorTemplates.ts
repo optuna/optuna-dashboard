@@ -3,16 +3,6 @@ import * as plotly from "plotly.js-dist-min"
 // Following template is extracted from the sdist of plotly Python library.
 // See https://github.com/plotly/plotly.py/blob/v5.6.0/packages/python/plotly/templategen/__init__.py and
 // https://github.com/plotly/plotly.py/blob/v5.6.0/packages/python/plotly/templategen/definitions.py
-export const getColorTemplate = (
-  mode: string,
-  theme: PlotlyColorTheme
-): Partial<Plotly.Template> => {
-  if (mode === "dark") {
-    return DarkColorTemplates[theme.dark]
-  } else {
-    return LightColorTemplates[theme.light]
-  }
-}
 
 // @ts-ignore
 // prettier-ignore
@@ -42,7 +32,7 @@ const xgridOff: Partial<plotly.Template> = {"layout":{"xaxis":{"showgrid":false,
 // prettier-ignore
 const ygridOff: Partial<plotly.Template> = {"layout":{"yaxis":{"showgrid":false}},"data":{"pie":[{"automargin":true,"type":"pie"}]}}
 
-const DarkColorTemplates: Record<string, Partial<plotly.Template>> = {
+export const DarkColorTemplates: Record<string, Partial<plotly.Template>> = {
   default: plotlyDark,
   seaborn: seaborn,
   simpleWhite: simpleWhite,
@@ -53,7 +43,7 @@ const DarkColorTemplates: Record<string, Partial<plotly.Template>> = {
   ygridOff: ygridOff,
 }
 
-const LightColorTemplates: Record<string, Partial<plotly.Template>> = {
+export const LightColorTemplates: Record<string, Partial<plotly.Template>> = {
   default: plotlyWhite,
   seaborn: seaborn,
   presentation: presentation,

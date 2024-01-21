@@ -4,10 +4,9 @@ import { Typography, useTheme, Box, Card, CardContent } from "@mui/material"
 
 import { actionCreator } from "../action"
 import { useParamImportanceValue, useStudyDirections } from "../state"
+import { usePlotlyColorTheme } from "../state"
+
 const plotDomId = "graph-hyperparameter-importances"
-import { getColorTemplate } from "./PlotlyColorTemplates"
-import { plotlyColorTheme } from "../state"
-import { useRecoilValue } from "recoil"
 
 export const GraphHyperparameterImportance: FC<{
   studyId: number
@@ -15,6 +14,8 @@ export const GraphHyperparameterImportance: FC<{
   graphHeight: string
 }> = ({ studyId, study = null, graphHeight }) => {
   const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
+
   const action = actionCreator()
   const importances = useParamImportanceValue(studyId)
   const numCompletedTrials =
@@ -24,7 +25,6 @@ export const GraphHyperparameterImportance: FC<{
     study?.objective_names ||
     study?.directions.map((d, i) => `Objective ${i}`) ||
     []
-  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
 
   useEffect(() => {
     action.updateParamImportance(studyId)
@@ -32,14 +32,9 @@ export const GraphHyperparameterImportance: FC<{
 
   useEffect(() => {
     if (importances !== null && nObjectives === importances.length) {
-      plotParamImportance(
-        importances,
-        objectiveNames,
-        theme.palette.mode,
-        colorTheme
-      )
+      plotParamImportance(importances, objectiveNames, colorTheme)
     }
-  }, [nObjectives, importances, theme.palette.mode])
+  }, [nObjectives, importances, colorTheme])
 
   return (
     <Card>
@@ -59,8 +54,7 @@ export const GraphHyperparameterImportance: FC<{
 const plotParamImportance = (
   importances: ParamImportance[][],
   objectiveNames: string[],
-  mode: string,
-  colorTheme: PlotlyColorTheme
+  colorTheme: Partial<Plotly.Template>
 ) => {
   const layout: Partial<plotly.Layout> = {
     xaxis: {
@@ -80,7 +74,7 @@ const plotParamImportance = (
     bargap: 0.15,
     bargroupgap: 0.1,
     uirevision: "true",
-    template: getColorTemplate(mode, colorTheme),
+    template: colorTheme,
   }
 
   if (document.getElementById(plotDomId) === null) {

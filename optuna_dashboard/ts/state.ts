@@ -1,4 +1,8 @@
 import { atom, useRecoilValue } from "recoil"
+import {
+  LightColorTemplates,
+  DarkColorTemplates,
+} from "./components/PlotlyColorTemplates"
 
 export const studySummariesState = atom<StudySummary[]>({
   key: "studySummaries",
@@ -101,4 +105,13 @@ export const useArtifacts = (studyId: number, trialId: number): Artifact[] => {
     return []
   }
   return trial.artifacts
+}
+
+export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
+  const theme = useRecoilValue(plotlyColorTheme)
+  if (mode === "dark") {
+    return DarkColorTemplates[theme.dark]
+  } else {
+    return LightColorTemplates[theme.light]
+  }
 }
