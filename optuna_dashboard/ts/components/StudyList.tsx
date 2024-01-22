@@ -1,5 +1,5 @@
-import React, { FC, useEffect, useMemo, useState } from "react"
-import { useNavigate, useLocation } from "react-router-dom"
+import React, { FC, useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { useRecoilValue } from "recoil"
 import { Link } from "react-router-dom"
 import {
@@ -33,6 +33,7 @@ import { AppDrawer } from "./AppDrawer"
 import { useCreateStudyDialog } from "./CreateStudyDialog"
 import { useDeleteStudyDialog } from "./DeleteStudyDialog"
 import { useRenameStudyDialog } from "./RenameStudyDialog"
+import { useQuery } from "../queryUtil"
 
 export const StudyList: FC<{
   toggleColorMode: () => void
@@ -59,10 +60,6 @@ export const StudyList: FC<{
     useRenameStudyDialog(studies)
 
   const navigate = useNavigate()
-  const useQuery = (): URLSearchParams => {
-    const { search } = useLocation()
-    return useMemo(() => new URLSearchParams(search), [search])
-  }
   const query = useQuery()
   const initialSortBy = query.get("studies_order_by") === "asc" ? "asc" : "desc"
   const [sortBy, setSortBy] = useState<"asc" | "desc">(initialSortBy)

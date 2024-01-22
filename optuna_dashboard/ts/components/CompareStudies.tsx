@@ -29,12 +29,8 @@ import { studySummariesState, studyDetailsState } from "../state"
 import { AppDrawer } from "./AppDrawer"
 import { GraphEdf } from "./GraphEdf"
 import { GraphHistory } from "./GraphHistory"
-import { useNavigate, useLocation } from "react-router-dom"
-
-const useQuery = (): URLSearchParams => {
-  const { search } = useLocation()
-  return useMemo(() => new URLSearchParams(search), [search])
-}
+import { useNavigate } from "react-router-dom"
+import { useQuery } from "../queryUtil"
 
 const useQueriedStudies = (
   studies: StudySummary[],
