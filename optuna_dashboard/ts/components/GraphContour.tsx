@@ -15,10 +15,40 @@ import blue from "@mui/material/colors/blue"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { getAxisInfo } from "../graphUtil"
+import { useQuery } from "../urlQuery"
 
 const plotDomId = "graph-contour"
 
 export const Contour: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  const query = useQuery()
+  if (query.get("backend") === "true") {
+    return <ContourBackend studyId={study?.id} />
+  } else {
+    return <ContourFrontend study={study} />
+  }
+}
+
+const ContourBackend: FC<{
+  studyId: number | undefined
+}> = ({ studyId }) => {
+  // TODO(knshnb) handle null and undefined
+  useEffect(() => {
+    fetch(`/api/studies/${studyId}/contour_plot`, {mode: "cors"})
+    .then((response) => response.json())
+    .then((figure) => {
+      plotly.react(plotDomId, figure.data, figure.layout)
+    }).catch((err) => {
+      console.error(err);
+    })
+  }, [studyId])
+  return (
+    <Box id={plotDomId} sx={{ height: "450px" }} />
+  )
+}
+
+const ContourFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
