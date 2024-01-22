@@ -228,7 +228,7 @@ function DataGrid<T>(props: {
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
             />
-            {maxPageNumber > 4 ? (
+            {maxPageNumber > 2 ? (
               <PaginationForm
                 onPageNumberSubmit={(page) => setPage(page)}
                 maxPageNumber={maxPageNumber}
