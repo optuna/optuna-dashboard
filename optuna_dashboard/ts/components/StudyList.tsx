@@ -33,7 +33,7 @@ import { AppDrawer } from "./AppDrawer"
 import { useCreateStudyDialog } from "./CreateStudyDialog"
 import { useDeleteStudyDialog } from "./DeleteStudyDialog"
 import { useRenameStudyDialog } from "./RenameStudyDialog"
-import { useQuery } from "../queryUtil"
+import { useQuery } from "../urlQuery"
 
 export const StudyList: FC<{
   toggleColorMode: () => void

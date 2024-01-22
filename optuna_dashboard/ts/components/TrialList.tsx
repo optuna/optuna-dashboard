@@ -28,7 +28,7 @@ import { artifactIsAvailable } from "../state"
 import { actionCreator } from "../action"
 import { TrialFormWidgets } from "./TrialFormWidgets"
 import { TrialArtifactCards } from "./TrialArtifactCards"
-import { useQuery } from "../queryUtil"
+import { useQuery } from "../urlQuery"
 
 const states: TrialState[] = [
   "Complete",

@@ -30,7 +30,7 @@ import { AppDrawer } from "./AppDrawer"
 import { GraphEdf } from "./GraphEdf"
 import { GraphHistory } from "./GraphHistory"
 import { useNavigate } from "react-router-dom"
-import { useQuery } from "../queryUtil"
+import { useQuery } from "../urlQuery"
 
 const useQueriedStudies = (
   studies: StudySummary[],
