@@ -261,6 +261,15 @@ def create_app(
             response.status = 400  # Bad request
             return {"reason": str(e)}
 
+    @app.get("/api/studies/<study_id:int>/contour_plot")
+    @json_api_view
+    def get_contour_plot(study_id: int) -> dict[str, Any]:
+        study = optuna.load_study(
+            study_name=storage.get_study_name_from_id(study_id), storage=storage
+        )
+        fig = optuna.visualization.plot_contour(study)
+        return fig.to_json()
+
     @app.put("/api/studies/<study_id:int>/note")
     @json_api_view
     def save_study_note(study_id: int) -> dict[str, Any]:
