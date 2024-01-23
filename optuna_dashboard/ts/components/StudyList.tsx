@@ -129,12 +129,12 @@ export const StudyList: FC<{
   let studyListContent
   if (isLoading) {
     studyListContent = (
-      <div style={{ margin: theme.spacing(2) }}>
+      <Box sx={{ margin: theme.spacing(2) }}>
         <SvgIcon fontSize="small" color="action">
           <HourglassTop />
         </SvgIcon>
         Loading studies...
-      </div>
+      </Box>
     )
   } else {
     studyListContent = filteredStudies.map((study) => (
