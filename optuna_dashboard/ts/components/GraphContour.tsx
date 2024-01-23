@@ -16,6 +16,9 @@ import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { getAxisInfo } from "../graphUtil"
 import { useQuery } from "../urlQuery"
+import { allPlotlyFiguresState } from "../state"
+import { useRecoilValue } from "recoil"
+import { AllPlotlyFigures, actionCreator } from "../action"
 
 const plotDomId = "graph-contour"
 
@@ -24,25 +27,33 @@ export const Contour: FC<{
 }> = ({ study = null }) => {
   const query = useQuery()
   if (query.get("plotlypy_rendering") === "true") {
-    return <ContourBackend studyId={study?.id} />
+    return <ContourBackend study={study} />
   } else {
     return <ContourFrontend study={study} />
   }
 }
 
 const ContourBackend: FC<{
-  studyId: number | undefined
-}> = ({ studyId }) => {
-  // TODO(knshnb) handle null and undefined
+  study: StudyDetail | null
+}> = ({ study }) => {
+  if (study === null) {
+    return (
+      <Box id={plotDomId} sx={{ height: "450px" }} />
+    )
+  }
+  const studyId = study.id
+  const allPlotlyFigures = useRecoilValue<AllPlotlyFigures>(allPlotlyFiguresState)
+  const contourPlot = allPlotlyFigures[studyId]?.contour
+  const action = actionCreator()
   useEffect(() => {
-    fetch(`/api/studies/${studyId}/contour_plot`, {mode: "cors"})
-    .then((response) => response.json())
-    .then((figure) => {
-      plotly.react(plotDomId, figure.data, figure.layout)
-    }).catch((err) => {
-      console.error(err);
-    })
-  }, [studyId])
+    action.updatePlotlyFigures(studyId)
+  }, [study])
+  useEffect(() => {
+    if (contourPlot === undefined) {
+      return
+    }
+    plotly.react(plotDomId, JSON.parse(JSON.stringify(contourPlot.data)), JSON.parse(JSON.stringify(contourPlot.layout)))
+  }, [contourPlot])
   return (
     <Box id={plotDomId} sx={{ height: "450px" }} />
   )

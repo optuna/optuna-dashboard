@@ -1,4 +1,5 @@
 import { atom, useRecoilValue } from "recoil"
+import { AllPlotlyFigures } from "./action"
 
 export const studySummariesState = atom<StudySummary[]>({
   key: "studySummaries",
@@ -41,6 +42,11 @@ export const isFileUploading = atom<boolean>({
 export const artifactIsAvailable = atom<boolean>({
   key: "artifactIsAvailable",
   default: false,
+})
+
+export const allPlotlyFiguresState = atom<AllPlotlyFigures>({
+  key: "plotlyFigures",
+  default: {},
 })
 
 export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
