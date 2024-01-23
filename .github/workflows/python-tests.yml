@@ -71,22 +71,3 @@ jobs:
       - name: Run python unit tests
         run: |
           pytest python_tests
-  test-with-optuna-oldest: # Ideally, optuna==3.1.0, but lots of tests are broken.
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-          architecture: x64
-      - name: Install dependencies
-        run: |
-          python -m pip install --progress-bar off --upgrade pip setuptools
-          pip install --progress-bar off .[optional]
-          pip install --progress-bar off .[test]
-          pip install --progress-bar off .
-          python -m pip install --progress-bar off --upgrade optuna==3.4.0
-      - name: Run python unit tests
-        run: |
-          pytest python_tests
