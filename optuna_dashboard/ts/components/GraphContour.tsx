@@ -23,7 +23,7 @@ export const Contour: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const query = useQuery()
-  if (query.get("backend") === "true") {
+  if (query.get("plotlypy_rendering") === "true") {
     return <ContourBackend studyId={study?.id} />
   } else {
     return <ContourFrontend study={study} />
