@@ -27,7 +27,7 @@ classifiers = [
 ]
 dependencies = [
     "bottle",
-    "optuna>=2.4.0",
+    "optuna>=3.1.0",
     "packaging",
     "scikit-learn",
 ]
