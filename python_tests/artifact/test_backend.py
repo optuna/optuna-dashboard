@@ -128,6 +128,10 @@ def test_study_artifact_not_found() -> None:
         assert status == 404
 
 
+@pytest.mark.skipif(
+    version.parse(optuna.__version__) < version.parse("3.4.0"),
+    reason="upload_artiract needs storage",
+)
 def test_successful_study_artifact_retrieval() -> None:
     storage = optuna.storages.InMemoryStorage()
     study = optuna.create_study(storage=storage)
@@ -263,6 +267,10 @@ def test_upload_artifact() -> None:
             assert data == "dummy_content"
 
 
+@pytest.mark.skipif(
+    version.parse(optuna.__version__) < version.parse("3.4.0"),
+    reason="upload_artiract needs storage",
+)
 def test_delete_study_artifact() -> None:
     storage = optuna.storages.InMemoryStorage()
     study = optuna.create_study(storage=storage)

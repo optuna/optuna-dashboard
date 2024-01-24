@@ -11,8 +11,8 @@ import pytest
 from .wsgi_client import send_request
 
 
-if version.parse(optuna.__version__) < version.parse("3.2.0"):
-    pytest.skip("Study.metrics_name is introduced at v3.2.0", allow_module_level=True)
+if version.parse(optuna.__version__) < version.parse("3.4.0"):
+    pytest.skip("Study.metrics_name is introduced at v3.4.0", allow_module_level=True)
 
 
 def _validate_output(
