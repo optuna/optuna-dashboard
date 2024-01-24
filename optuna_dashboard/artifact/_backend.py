@@ -139,10 +139,12 @@ def register_artifact_route(
         storage.set_trial_system_attr(trial_id, attr_key, json.dumps(artifact))
         response.status = 201
 
-        trial = storage.get_trial(trial_id)  # Fetch trial.system_attrs again.
+        study_system_attrs = storage.get_study_system_attrs(study_id)
+        trial_system_attrs = storage.get_trial_system_attrs(trial_id)
+        artifacts = list_trial_artifacts(study_system_attrs, trial_system_attrs, trial)
         return {
             "artifact_id": artifact_id,
-            "artifacts": list_trial_artifacts(storage.get_study_system_attrs(study_id), trial),
+            "artifacts": artifacts,
         }
 
     @app.post("/api/artifacts/<study_id:int>")
@@ -322,7 +324,11 @@ def delete_all_artifacts(backend: ArtifactStore, storage: BaseStorage, study_id:
     study_system_attrs = storage.get_study_system_attrs(study_id)
     artifact_metas.extend(list_study_artifacts(study_system_attrs))
     for trial in storage.get_all_trials(study_id):
-        trial_artifacts = list_trial_artifacts(study_system_attrs, trial)
+        trial_system_attrs = getattr(trial, "_system_attrs")
+        if trial_system_attrs is None:
+            # This is unreachable line until Optuna v5.0.0 release.
+            trial_system_attrs = storage.get_trial_system_attrs(trial._trial_id)
+        trial_artifacts = list_trial_artifacts(study_system_attrs, trial_system_attrs, trial)
         artifact_metas.extend(trial_artifacts)
 
     for meta in artifact_metas:
@@ -339,7 +345,7 @@ def list_study_artifacts(study_system_attrs: dict[str, Any]) -> list[ArtifactMet
 
 
 def list_trial_artifacts(
-    study_system_attrs: dict[str, Any], trial: FrozenTrial
+    study_system_attrs: dict[str, Any], trial_system_attrs: dict[str, Any], trial: FrozenTrial
 ) -> list[ArtifactMeta]:
     # Collect ArtifactMeta from study_system_attrs due to backward compatibility.
     dashboard_artifact_metas = [
@@ -353,7 +359,7 @@ def list_trial_artifacts(
     # See https://github.com/optuna/optuna/blob/f827582a8/optuna/artifacts/_upload.py#L16
     optuna_artifact_metas = [
         json.loads(value)
-        for key, value in trial.system_attrs.items()
+        for key, value in trial_system_attrs.items()
         if key.startswith(ARTIFACTS_ATTR_PREFIX)
     ]
     artifact_metas = dashboard_artifact_metas + optuna_artifact_metas
