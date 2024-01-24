@@ -338,7 +338,8 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
         trial: optuna.trial.FrozenTrial,
         search_space: dict[str, optuna.distributions.BaseDistribution],
     ) -> dict[str, Any]:
-        preferences = get_preferences(study.system_attrs)
+        study_system_attrs = study._storage.get_study_system_attrs(study._study_id)
+        preferences = get_preferences(study_system_attrs)
         if len(preferences) == 0 or len(search_space) == 0:
             return {}
 
