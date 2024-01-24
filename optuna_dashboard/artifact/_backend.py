@@ -52,7 +52,18 @@ def get_artifact_path(
     study_or_trial: optuna.Trial | optuna.Study,
     artifact_id: str,
 ) -> str:
-    """Get the URL path for a given artifact ID."""
+    """Get the URL path for a given artifact ID.
+
+    Args:
+        study_or_trial:
+            A Trial object, or a Study object.
+
+        artifact_id:
+            An artifact ID.
+
+    Returns:
+        A URL path to the artifact.
+    """
     if isinstance(study_or_trial, optuna.Study):
         study_id = study_or_trial._study_id
         return f"/artifacts/{study_id}/{artifact_id}"
