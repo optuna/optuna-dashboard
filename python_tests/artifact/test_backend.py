@@ -84,9 +84,12 @@ def test_delete_all_artifacts(init_storage_with_artifact_meta: MagicMock) -> Non
 
 def test_list_trial_artifacts(init_storage_with_artifact_meta: MagicMock) -> None:
     storage = init_storage_with_artifact_meta
-    trial = MagicMock(_trial_id=0, system_attrs=storage.get_trial_system_attrs(0))
+    trial_system_attrs = storage.get_trial_system_attrs(0)
+    trial = MagicMock(_trial_id=0, system_attrs={})
 
-    actual = _backend.list_trial_artifacts(storage.get_study_system_attrs(0), trial)
+    actual = _backend.list_trial_artifacts(
+        storage.get_study_system_attrs(0), trial_system_attrs, trial
+    )
     assert actual == [
         {"artifact_id": "id0", "filename": "foo.txt"},
         {"artifact_id": "id1", "filename": "bar.txt"},
