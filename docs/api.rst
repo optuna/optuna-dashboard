@@ -66,6 +66,7 @@ Artifact
    :nosignatures:
 
    optuna_dashboard.artifact.upload_artifact
+   optuna_dashboard.artifact.get_artifact_path
    optuna_dashboard.artifact.file_system.FileSystemBackend
    optuna_dashboard.artifact.boto3.Boto3Backend
    optuna_dashboard.artifact.backoff.Backoff
