@@ -18,7 +18,7 @@ import {
   TextField,
   CardActions,
 } from "@mui/material"
-import { Delete, Refresh, Search } from "@mui/icons-material"
+import { Delete, Refresh, Search, HourglassTop } from "@mui/icons-material"
 import SortIcon from "@mui/icons-material/Sort"
 import HomeIcon from "@mui/icons-material/Home"
 import AddBoxIcon from "@mui/icons-material/AddBox"
@@ -27,7 +27,7 @@ import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutli
 
 import { actionCreator } from "../action"
 import { DebouncedInputTextField } from "./Debounce"
-import { studySummariesState } from "../state"
+import { studySummariesLoadingState, studySummariesState } from "../state"
 import { styled } from "@mui/system"
 import { AppDrawer } from "./AppDrawer"
 import { useCreateStudyDialog } from "./CreateStudyDialog"
@@ -58,6 +58,7 @@ export const StudyList: FC<{
     useDeleteStudyDialog()
   const [openRenameStudyDialog, renderRenameStudyDialog] =
     useRenameStudyDialog(studies)
+  const isLoading = useRecoilValue<boolean>(studySummariesLoadingState)
 
   const navigate = useNavigate()
   const query = useQuery()
@@ -69,7 +70,6 @@ export const StudyList: FC<{
   if (sortBy === "desc") {
     filteredStudies = filteredStudies.reverse()
   }
-
   useEffect(() => {
     action.updateStudySummaries()
   }, [])
@@ -122,6 +122,71 @@ export const StudyList: FC<{
   )
 
   const toolbar = <HomeIcon sx={{ margin: theme.spacing(0, 1) }} />
+
+  let studyListContent
+  if (isLoading) {
+    studyListContent = (
+      <Box sx={{ margin: theme.spacing(2) }}>
+        <SvgIcon fontSize="small" color="action">
+          <HourglassTop />
+        </SvgIcon>
+        Loading studies...
+      </Box>
+    )
+  } else {
+    studyListContent = filteredStudies.map((study) => (
+      <Card
+        key={study.study_id}
+        sx={{ margin: theme.spacing(2), width: "500px" }}
+      >
+        <CardActionArea
+          component={Link}
+          to={`${URL_PREFIX}/studies/${study.study_id}`}
+        >
+          <CardContent>
+            <Typography variant="h5">
+              {study.study_id}. {study.study_name}
+            </Typography>
+            <Typography
+              variant="subtitle1"
+              color="text.secondary"
+              component="div"
+            >
+              {study.is_preferential
+                ? "Preferential Optimization"
+                : "Direction: " +
+                  study.directions
+                    .map((d) => d.toString().toUpperCase())
+                    .join(", ")}
+            </Typography>
+          </CardContent>
+        </CardActionArea>
+        <CardActions disableSpacing sx={{ paddingTop: 0 }}>
+          <Box sx={{ flexGrow: 1 }} />
+          <IconButton
+            aria-label="rename study"
+            size="small"
+            color="inherit"
+            onClick={() => {
+              openRenameStudyDialog(study.study_id, study.study_name)
+            }}
+          >
+            <DriveFileRenameOutlineIcon />
+          </IconButton>
+          <IconButton
+            aria-label="delete study"
+            size="small"
+            color="inherit"
+            onClick={() => {
+              openDeleteStudyDialog(study.study_id)
+            }}
+          >
+            <Delete />
+          </IconButton>
+        </CardActions>
+      </Card>
+    ))
+  }
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -193,58 +258,7 @@ export const StudyList: FC<{
             </CardContent>
           </Card>
           <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-            {filteredStudies.map((study) => (
-              <Card
-                key={study.study_id}
-                sx={{ margin: theme.spacing(2), width: "500px" }}
-              >
-                <CardActionArea
-                  component={Link}
-                  to={`${URL_PREFIX}/studies/${study.study_id}`}
-                >
-                  <CardContent>
-                    <Typography variant="h5">
-                      {study.study_id}. {study.study_name}
-                    </Typography>
-                    <Typography
-                      variant="subtitle1"
-                      color="text.secondary"
-                      component="div"
-                    >
-                      {study.is_preferential
-                        ? "Preferential Optimization"
-                        : "Direction: " +
-                          study.directions
-                            .map((d) => d.toString().toUpperCase())
-                            .join(", ")}
-                    </Typography>
-                  </CardContent>
-                </CardActionArea>
-                <CardActions disableSpacing sx={{ paddingTop: 0 }}>
-                  <Box sx={{ flexGrow: 1 }} />
-                  <IconButton
-                    aria-label="rename study"
-                    size="small"
-                    color="inherit"
-                    onClick={() => {
-                      openRenameStudyDialog(study.study_id, study.study_name)
-                    }}
-                  >
-                    <DriveFileRenameOutlineIcon />
-                  </IconButton>
-                  <IconButton
-                    aria-label="delete study"
-                    size="small"
-                    color="inherit"
-                    onClick={() => {
-                      openDeleteStudyDialog(study.study_id)
-                    }}
-                  >
-                    <Delete />
-                  </IconButton>
-                </CardActions>
-              </Card>
-            ))}
+            {studyListContent}
           </Box>
         </Container>
       </AppDrawer>
