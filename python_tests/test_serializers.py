@@ -9,6 +9,7 @@ from optuna_dashboard._serializer import serialize_study_detail
 from optuna_dashboard._serializer import serialize_study_summary
 from optuna_dashboard._storage import get_study_summaries
 from optuna_dashboard.preferential import create_study
+from packaging import version
 import pytest
 
 
@@ -53,6 +54,9 @@ def test_serialize_numpy_floating() -> None:
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
+@pytest.mark.skipif(
+    version.parse(optuna.__version__) < version.parse("3.2.0"), reason="Needs optuna.search_space"
+)
 def test_get_study_detail_is_preferential() -> None:
     storage = optuna.storages.InMemoryStorage()
     study = create_study(n_generate=4, storage=storage)
@@ -80,6 +84,9 @@ def test_get_study_detail_is_not_preferential() -> None:
 
 
 @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
+@pytest.mark.skipif(
+    version.parse(optuna.__version__) < version.parse("3.2.0"), reason="Needs optuna.search_space"
+)
 def test_get_study_summary_is_preferential() -> None:
     storage = optuna.storages.InMemoryStorage()
     create_study(n_generate=4, storage=storage)

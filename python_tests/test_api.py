@@ -17,6 +17,7 @@ from optuna_dashboard._preferential_history import remove_history
 from optuna_dashboard._preferential_history import report_history
 from optuna_dashboard._serializer import serialize_preference_history
 from optuna_dashboard.preferential import create_study
+from packaging import version
 import pytest
 
 from .wsgi_client import send_request
@@ -110,6 +111,10 @@ class APITestCase(TestCase):
         self.assertEqual(status, 400)
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
+    @pytest.mark.skipif(
+        version.parse(optuna.__version__) < version.parse("3.2.0"),
+        reason="Needs optuna.search_space",
+    )
     def test_get_best_trials_of_preferential_study(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(n_generate=4, storage=storage)
@@ -134,6 +139,10 @@ class APITestCase(TestCase):
         assert best_trials[0]["number"] == 0
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
+    @pytest.mark.skipif(
+        version.parse(optuna.__version__) < version.parse("3.2.0"),
+        reason="Needs optuna.search_space",
+    )
     def test_report_preference(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(n_generate=4, storage=storage)
@@ -168,6 +177,10 @@ class APITestCase(TestCase):
         assert worse.number == 1
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
+    @pytest.mark.skipif(
+        version.parse(optuna.__version__) < version.parse("3.2.0"),
+        reason="Needs optuna.search_space",
+    )
     def test_report_preference_when_typo_mode(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(storage=storage, n_generate=3)
@@ -192,6 +205,10 @@ class APITestCase(TestCase):
         self.assertEqual(status, 400)
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
+    @pytest.mark.skipif(
+        version.parse(optuna.__version__) < version.parse("3.2.0"),
+        reason="Needs optuna.search_space",
+    )
     def test_change_component(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(storage=storage, n_generate=3)
@@ -327,6 +344,10 @@ class APITestCase(TestCase):
         assert note_ver_key(0) not in study.system_attrs
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
+    @pytest.mark.skipif(
+        version.parse(optuna.__version__) < version.parse("3.2.0"),
+        reason="Needs optuna.search_space",
+    )
     def test_skip_trial(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(n_generate=4, storage=storage)
@@ -352,6 +373,10 @@ class APITestCase(TestCase):
         assert best_trials[0].number == 2
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
+    @pytest.mark.skipif(
+        version.parse(optuna.__version__) < version.parse("3.2.0"),
+        reason="Needs optuna.search_space",
+    )
     def test_remove_history(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(storage=storage, n_generate=3)
@@ -386,6 +411,10 @@ class APITestCase(TestCase):
         assert len(study.get_preferences()) == 0
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
+    @pytest.mark.skipif(
+        version.parse(optuna.__version__) < version.parse("3.2.0"),
+        reason="Needs optuna.search_space",
+    )
     def test_restore_history(self) -> None:
         storage = optuna.storages.InMemoryStorage()
         study = create_study(storage=storage, n_generate=3)
