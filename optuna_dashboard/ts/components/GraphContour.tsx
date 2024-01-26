@@ -16,6 +16,7 @@ import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { getAxisInfo } from "../graphUtil"
 import { useQuery } from "../urlQuery"
+import { getPlotAPI } from "../apiClient"
 
 const plotDomId = "graph-contour"
 
@@ -24,21 +25,23 @@ export const Contour: FC<{
 }> = ({ study = null }) => {
   const query = useQuery()
   if (query.get("plotlypy_rendering") === "true") {
-    return <ContourBackend studyId={study?.id} />
+    return <ContourBackend study={study} />
   } else {
     return <ContourFrontend study={study} />
   }
 }
 
 const ContourBackend: FC<{
-  studyId: number | undefined
-}> = ({ studyId }) => {
-  // TODO(knshnb) handle null and undefined
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  const studyId = study?.id
   useEffect(() => {
-    fetch(`/api/studies/${studyId}/contour_plot`, { mode: "cors" })
-      .then((response) => response.json())
-      .then((figure) => {
-        plotly.react(plotDomId, figure.data, figure.layout)
+    if (studyId === undefined) {
+      return
+    }
+    getPlotAPI(studyId, "contour")
+      .then(({ data, layout }) => {
+        plotly.react(plotDomId, data, layout)
       })
       .catch((err) => {
         console.error(err)

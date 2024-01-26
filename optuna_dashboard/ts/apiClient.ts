@@ -1,3 +1,4 @@
+import * as plotly from "plotly.js-dist-min"
 import axios from "axios"
 
 const axiosInstance = axios.create({ baseURL: API_ENDPOINT })
@@ -438,4 +439,17 @@ export const reportFeedbackComponentAPI = (
     .then(() => {
       return
     })
+}
+
+type PlotResponse = {
+  data: plotly.Data[]
+  layout: plotly.Layout
+}
+export const getPlotAPI = (
+  studyId: number,
+  plotName: string
+): Promise<PlotResponse> => {
+  return axiosInstance
+    .get<PlotResponse>(`/api/studies/${studyId}/plot/${plotName}`)
+    .then<PlotResponse>((res) => res.data)
 }
