@@ -17,6 +17,8 @@ import {
   useParamTargets,
 } from "../trialFilter"
 import { useMergedUnionSearchSpace } from "../searchSpace"
+import { getPlotAPI, PlotType } from "../apiClient"
+import { useBackendRender } from "../state"
 
 const plotDomId = "graph-parallel-coordinate"
 
@@ -85,6 +87,35 @@ const useTargets = (
 }
 
 export const GraphParallelCoordinate: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  if (useBackendRender()) {
+    return <GraphParallelCoordinateBackend study={study} />
+  } else {
+    return <GraphParallelCoordinateFrontend study={study} />
+  }
+}
+
+const GraphParallelCoordinateBackend: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  const studyId = study?.id
+  useEffect(() => {
+    if (studyId === undefined) {
+      return
+    }
+    getPlotAPI(studyId, PlotType.ParallelCoordinate)
+      .then(({ data, layout }) => {
+        plotly.react(plotDomId, data, layout)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+  }, [studyId])
+  return <Box id={plotDomId} sx={{ height: "450px" }} />
+}
+
+const GraphParallelCoordinateFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
