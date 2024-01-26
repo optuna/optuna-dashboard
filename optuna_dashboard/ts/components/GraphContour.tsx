@@ -37,12 +37,12 @@ const ContourBackend: FC<{
   study: StudyDetail | null
 }> = ({ study }) => {
   if (study === null) {
-    return (
-      <Box id={plotDomId} sx={{ height: "450px" }} />
-    )
+    return <Box id={plotDomId} sx={{ height: "450px" }} />
   }
   const studyId = study.id
-  const allPlotlyFigures = useRecoilValue<AllPlotlyFigures>(allPlotlyFiguresState)
+  const allPlotlyFigures = useRecoilValue<AllPlotlyFigures>(
+    allPlotlyFiguresState
+  )
   const contourPlot = allPlotlyFigures[studyId]?.contour
   const action = actionCreator()
   useEffect(() => {
@@ -52,11 +52,13 @@ const ContourBackend: FC<{
     if (contourPlot === undefined) {
       return
     }
-    plotly.react(plotDomId, JSON.parse(JSON.stringify(contourPlot.data)), JSON.parse(JSON.stringify(contourPlot.layout)))
+    plotly.react(
+      plotDomId,
+      JSON.parse(JSON.stringify(contourPlot.data)),
+      JSON.parse(JSON.stringify(contourPlot.layout))
+    )
   }, [contourPlot])
-  return (
-    <Box id={plotDomId} sx={{ height: "450px" }} />
-  )
+  return <Box id={plotDomId} sx={{ height: "450px" }} />
 }
 
 const ContourFrontend: FC<{
