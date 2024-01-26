@@ -15,27 +15,16 @@ import blue from "@mui/material/colors/blue"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { getAxisInfo } from "../graphUtil"
-import { useQuery } from "../urlQuery"
 import { getPlotAPI, PlotType } from "../apiClient"
-import { useRecoilValue } from "recoil"
-import { plotlypyIsAvailableState } from "../state"
+import { useBackendRender } from "../state"
 
 const plotDomId = "graph-contour"
 
 export const Contour: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  const query = useQuery()
-  const plotlypyIsAvailable = useRecoilValue<boolean>(plotlypyIsAvailableState)
-  if (query.get("plotlypy_rendering") === "true") {
-    if (plotlypyIsAvailable) {
-      return <ContourBackend study={study} />
-    } else {
-      console.warn(
-        "Use frontend rendering because plotlypy is specified but not available."
-      )
-      return <ContourFrontend study={study} />
-    }
+  if (useBackendRender()) {
+    return <ContourBackend study={study} />
   } else {
     return <ContourFrontend study={study} />
   }

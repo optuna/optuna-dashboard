@@ -1,4 +1,5 @@
 import { atom, useRecoilValue } from "recoil"
+import { useQuery } from "./urlQuery"
 
 export const studySummariesState = atom<StudySummary[]>({
   key: "studySummaries",
@@ -103,4 +104,19 @@ export const useArtifacts = (studyId: number, trialId: number): Artifact[] => {
     return []
   }
   return trial.artifacts
+}
+
+export const useBackendRender = (): boolean => {
+  const query = useQuery()
+  const plotlypyIsAvailable = useRecoilValue<boolean>(plotlypyIsAvailableState)
+
+  if (query.get("plotlypy_rendering") === "true") {
+    if (plotlypyIsAvailable) {
+      return true
+    }
+    console.warn(
+      "Use frontend rendering because plotlypy is specified but not available."
+    )
+  }
+  return false
 }
