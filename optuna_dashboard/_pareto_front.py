@@ -9,6 +9,17 @@ from typing import Sequence
 from optuna.study._study_direction import StudyDirection
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
+from optuna_dashboard._serializer import CONSTRAINTS_KEY
+
+
+def _get_feasible_trials(trials: Sequence[FrozenTrial]) -> List[FrozenTrial]:
+    trials = [trial for trial in trials if trial.state == TrialState.COMPLETE]
+    feasible_trials = []
+    for trial in trials:
+        constraints = trial.system_attrs.get(CONSTRAINTS_KEY)
+        if constraints is None or all([x <= 0.0 for x in constraints]):
+            feasible_trials.append(trial)
+    return feasible_trials
 
 
 def get_pareto_front_trials(
@@ -22,7 +33,7 @@ def get_pareto_front_trials(
 def _get_pareto_front_trials_2d(
     trials: Sequence[FrozenTrial], directions: Sequence[StudyDirection]
 ) -> list[FrozenTrial]:
-    trials = [trial for trial in trials if trial.state == TrialState.COMPLETE]
+    trials = _get_feasible_trials(trials)
 
     n_trials = len(trials)
     if n_trials == 0:
@@ -52,7 +63,7 @@ def _get_pareto_front_trials_nd(
     trials: Sequence[FrozenTrial], directions: Sequence[StudyDirection]
 ) -> list[FrozenTrial]:
     pareto_front = []
-    trials = [t for t in trials if t.state == TrialState.COMPLETE]
+    trials = _get_feasible_trials(trials)
 
     # TODO(vincent): Optimize (use the fast non dominated sort defined in the NSGA-II paper).
     for trial in trials:
