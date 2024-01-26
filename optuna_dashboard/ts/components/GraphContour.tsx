@@ -35,17 +35,16 @@ const ContourBackend: FC<{
 }> = ({ studyId }) => {
   // TODO(knshnb) handle null and undefined
   useEffect(() => {
-    fetch(`/api/studies/${studyId}/contour_plot`, {mode: "cors"})
-    .then((response) => response.json())
-    .then((figure) => {
-      plotly.react(plotDomId, figure.data, figure.layout)
-    }).catch((err) => {
-      console.error(err);
-    })
+    fetch(`/api/studies/${studyId}/contour_plot`, { mode: "cors" })
+      .then((response) => response.json())
+      .then((figure) => {
+        plotly.react(plotDomId, figure.data, figure.layout)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
   }, [studyId])
-  return (
-    <Box id={plotDomId} sx={{ height: "450px" }} />
-  )
+  return <Box id={plotDomId} sx={{ height: "450px" }} />
 }
 
 const ContourFrontend: FC<{
