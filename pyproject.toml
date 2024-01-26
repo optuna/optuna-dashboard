@@ -59,6 +59,10 @@ preferential = [
     "botorch>=0.8.1",
 ]
 
+plotlypy = [
+    "plotly",
+]
+
 [project.scripts]
 optuna-dashboard = "optuna_dashboard._cli:main"
 
