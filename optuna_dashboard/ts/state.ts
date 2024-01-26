@@ -43,6 +43,11 @@ export const artifactIsAvailable = atom<boolean>({
   default: false,
 })
 
+export const plotlypyIsAvailableState = atom<boolean>({
+  key: "plotlypyIsAvailable",
+  default: true,
+})
+
 export const studySummariesLoadingState = atom<boolean>({
   key: "studySummariesLoadingState",
   default: false,

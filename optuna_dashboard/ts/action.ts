@@ -28,6 +28,7 @@ import {
   paramImportanceState,
   isFileUploading,
   artifactIsAvailable,
+  plotlypyIsAvailableState,
   reloadIntervalState,
   trialsUpdatingState,
   studySummariesLoadingState,
@@ -47,6 +48,9 @@ export const actionCreator = () => {
   const setUploading = useSetRecoilState<boolean>(isFileUploading)
   const setTrialsUpdating = useSetRecoilState(trialsUpdatingState)
   const setArtifactIsAvailable = useSetRecoilState<boolean>(artifactIsAvailable)
+  const setPlotlypyIsAvailable = useSetRecoilState<boolean>(
+    plotlypyIsAvailableState
+  )
   const setStudySummariesLoading = useSetRecoilState<boolean>(
     studySummariesLoadingState
   )
@@ -215,6 +219,7 @@ export const actionCreator = () => {
   const updateAPIMeta = () => {
     getMetaInfoAPI().then((r) => {
       setArtifactIsAvailable(r.artifact_is_available)
+      setPlotlypyIsAvailable(r.plotlypy_is_available)
     })
   }
 

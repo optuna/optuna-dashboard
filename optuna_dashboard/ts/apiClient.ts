@@ -5,6 +5,7 @@ const axiosInstance = axios.create({ baseURL: API_ENDPOINT })
 
 type APIMeta = {
   artifact_is_available: boolean
+  plotlypy_is_available: boolean
 }
 
 export const getMetaInfoAPI = (): Promise<APIMeta> => {
