@@ -271,6 +271,14 @@ def create_app(
         )
         if plot_type == "contour":
             fig = optuna.visualization.plot_contour(study)
+        elif plot_type == "slice":
+            fig = optuna.visualization.plot_slice(study)
+        elif plot_type == "parallel_coordinate":
+            fig = optuna.visualization.plot_parallel_coordinate(study)
+        elif plot_type == "rank":
+            fig = optuna.visualization.plot_rank(study)
+        elif plot_type == "edf":
+            fig = optuna.visualization.plot_edf(study)
         else:
             response.status = 404  # Not found
             return {"reason": f"plot_type={plot_type} is not supported."}
