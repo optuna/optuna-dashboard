@@ -16,7 +16,7 @@ import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { getAxisInfo } from "../graphUtil"
 import { useQuery } from "../urlQuery"
-import { getPlotAPI } from "../apiClient"
+import { getPlotAPI, PlotType } from "../apiClient"
 
 const plotDomId = "graph-contour"
 
@@ -39,7 +39,7 @@ const ContourBackend: FC<{
     if (studyId === undefined) {
       return
     }
-    getPlotAPI(studyId, "contour")
+    getPlotAPI(studyId, PlotType.Contour)
       .then(({ data, layout }) => {
         plotly.react(plotDomId, data, layout)
       })

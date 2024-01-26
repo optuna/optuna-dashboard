@@ -445,11 +445,14 @@ type PlotResponse = {
   data: plotly.Data[]
   layout: plotly.Layout
 }
+export enum PlotType {
+  Contour = "contour",
+}
 export const getPlotAPI = (
   studyId: number,
-  plotName: string
+  plotType: PlotType
 ): Promise<PlotResponse> => {
   return axiosInstance
-    .get<PlotResponse>(`/api/studies/${studyId}/plot/${plotName}`)
+    .get<PlotResponse>(`/api/studies/${studyId}/plot/${plotType}`)
     .then<PlotResponse>((res) => res.data)
 }
