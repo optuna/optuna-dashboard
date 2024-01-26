@@ -17,6 +17,8 @@ import { useMergedUnionSearchSpace } from "../searchSpace"
 import { getAxisInfo } from "../graphUtil"
 import { useQuery } from "../urlQuery"
 import { getPlotAPI, PlotType } from "../apiClient"
+import { useRecoilValue } from "recoil"
+import { plotlypyIsAvailableState } from "../state"
 
 const plotDomId = "graph-contour"
 
@@ -24,8 +26,16 @@ export const Contour: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const query = useQuery()
+  const plotlypyIsAvailable = useRecoilValue<boolean>(plotlypyIsAvailableState)
   if (query.get("plotlypy_rendering") === "true") {
-    return <ContourBackend study={study} />
+    if (plotlypyIsAvailable) {
+      return <ContourBackend study={study} />
+    } else {
+      console.warn(
+        "Use frontend rendering because plotlypy is specified but not available."
+      )
+      return <ContourFrontend study={study} />
+    }
   } else {
     return <ContourFrontend study={study} />
   }

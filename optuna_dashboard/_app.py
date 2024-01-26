@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import functools
+import importlib
 import io
 from itertools import chain
 import logging
@@ -95,6 +96,7 @@ def create_app(
     def api_meta() -> dict[str, Any]:
         return {
             "artifact_is_available": artifact_store is not None,
+            "plotlypy_is_available": importlib.util.find_spec("plotly") is not None,
         }
 
     @app.get("/api/studies")
