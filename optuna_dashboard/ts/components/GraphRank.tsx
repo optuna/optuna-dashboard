@@ -14,6 +14,8 @@ import {
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { getAxisInfo, makeHovertext } from "../graphUtil"
 import { useMergedUnionSearchSpace } from "../searchSpace"
+import { getPlotAPI, PlotType } from "../apiClient"
+import { useBackendRender } from "../state"
 
 const plotDomId = "graph-rank"
 
@@ -30,6 +32,35 @@ interface RankPlotInfo {
 }
 
 export const GraphRank: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  if (useBackendRender()) {
+    return <GraphRankBackend study={study} />
+  } else {
+    return <GraphRankFrontend study={study} />
+  }
+}
+
+const GraphRankBackend: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  const studyId = study?.id
+  useEffect(() => {
+    if (studyId === undefined) {
+      return
+    }
+    getPlotAPI(studyId, PlotType.Rank)
+      .then(({ data, layout }) => {
+        plotly.react(plotDomId, data, layout)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+  }, [studyId])
+  return <Box id={plotDomId} sx={{ height: "450px" }} />
+}
+
+const GraphRankFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
