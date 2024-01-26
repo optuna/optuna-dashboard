@@ -20,6 +20,8 @@ import {
   useParamTargets,
 } from "../trialFilter"
 import { useMergedUnionSearchSpace } from "../searchSpace"
+import { getPlotAPI, PlotType } from "../apiClient"
+import { useBackendRender } from "../state"
 
 const plotDomId = "graph-slice"
 
@@ -31,6 +33,35 @@ const isLogScale = (s: SearchSpaceItem): boolean => {
 }
 
 export const GraphSlice: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  if (useBackendRender()) {
+    return <GraphSliceBackend study={study} />
+  } else {
+    return <GraphSliceFrontend study={study} />
+  }
+}
+
+const GraphSliceBackend: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  const studyId = study?.id
+  useEffect(() => {
+    if (studyId === undefined) {
+      return
+    }
+    getPlotAPI(studyId, PlotType.Slice)
+      .then(({ data, layout }) => {
+        plotly.react(plotDomId, data, layout)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+  }, [studyId])
+  return <Box id={plotDomId} sx={{ height: "450px" }} />
+}
+
+const GraphSliceFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
