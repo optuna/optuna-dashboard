@@ -1,4 +1,3 @@
-import * as plotly from "plotly.js"
 import { useRecoilState, useSetRecoilState } from "recoil"
 import { useSnackbar } from "notistack"
 import {
@@ -31,17 +30,8 @@ import {
   artifactIsAvailable,
   reloadIntervalState,
   trialsUpdatingState,
-  allPlotlyFiguresState,
 } from "./state"
 import { getDominatedTrials } from "./dominatedTrials"
-
-type PlotlyFigure = {
-  data: plotly.Data[]
-  layout: plotly.Layout
-}
-export type AllPlotlyFigures = {
-  [studyId: number]: { [plotName: string]: PlotlyFigure }
-}
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const actionCreator = () => {
@@ -56,8 +46,6 @@ export const actionCreator = () => {
   const setUploading = useSetRecoilState<boolean>(isFileUploading)
   const setTrialsUpdating = useSetRecoilState(trialsUpdatingState)
   const setArtifactIsAvailable = useSetRecoilState<boolean>(artifactIsAvailable)
-  const [allPlotlyFigures, setAllPlotlyFigures] =
-    useRecoilState<AllPlotlyFigures>(allPlotlyFiguresState)
 
   const setStudyDetailState = (studyId: number, study: StudyDetail) => {
     setStudyDetails((prevVal) => {
@@ -710,25 +698,6 @@ export const actionCreator = () => {
       })
   }
 
-  const updatePlotlyFigures = (studyId: number) => {
-    fetch(`/api/studies/${studyId}/contour_plot`, { mode: "cors" })
-      .then((response) => response.json())
-      .then((figure) => {
-        const newAllPlotlyFigures = Object.assign({}, allPlotlyFigures)
-        if (!(studyId in newAllPlotlyFigures)) {
-          newAllPlotlyFigures[studyId] = {}
-        }
-        newAllPlotlyFigures[studyId].contour = {
-          data: figure.data,
-          layout: figure.layout,
-        }
-        setAllPlotlyFigures(newAllPlotlyFigures)
-      })
-      .catch((err) => {
-        console.error(err)
-      })
-  }
-
   return {
     updateAPIMeta,
     updateStudyDetail,
@@ -752,7 +721,6 @@ export const actionCreator = () => {
     removePreferentialHistory,
     restorePreferentialHistory,
     updateFeedbackComponent,
-    updatePlotlyFigures,
   }
 }
 
