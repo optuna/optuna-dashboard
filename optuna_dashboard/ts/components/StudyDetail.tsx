@@ -12,7 +12,6 @@ import {
 import Grid2 from "@mui/material/Unstable_Grid2"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import HomeIcon from "@mui/icons-material/Home"
-import DownloadIcon from "@mui/icons-material/Download"
 
 import { StudyNote } from "./Note"
 import { actionCreator } from "../action"
