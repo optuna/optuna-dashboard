@@ -5,7 +5,6 @@ from typing import Any
 import optuna
 from optuna.trial import TrialState
 from optuna_dashboard._app import create_app
-from packaging import version
 import pytest
 
 from .wsgi_client import send_request
