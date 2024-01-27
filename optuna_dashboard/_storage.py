@@ -45,14 +45,6 @@ def get_trials(storage: BaseStorage, study_id: int) -> list[FrozenTrial]:
             return trials
     trials = storage.get_all_trials(study_id, deepcopy=False)
 
-    if (
-        # See https://github.com/optuna/optuna/pull/3702
-        version.parse(optuna_ver) <= version.Version("3.0.0rc0.dev")
-        and isinstance(storage, RDBStorage)
-        and storage.url.startswith("postgresql")
-    ):
-        trials = sorted(trials, key=lambda t: t.number)
-
     with trials_cache_lock:
         trials_last_fetched_at[study_id] = datetime.now()
         trials_cache[study_id] = trials
@@ -60,15 +52,10 @@ def get_trials(storage: BaseStorage, study_id: int) -> list[FrozenTrial]:
 
 
 def get_study_summaries(storage: BaseStorage) -> list[StudySummary]:
-    if version.parse(optuna_ver) >= version.Version("3.0.0rc0.dev"):
-        frozen_studies = storage.get_all_studies()  # type: ignore
-        if isinstance(storage, RDBStorage):
-            frozen_studies = sorted(frozen_studies, key=lambda s: s._study_id)
-        return [_frozen_study_to_study_summary(s) for s in frozen_studies]
-    elif version.parse(optuna_ver) >= version.Version("3.0.0b0.dev"):
-        return storage.get_all_study_summaries(include_best_trial=False)  # type: ignore
-    else:
-        return storage.get_all_study_summaries()  # type: ignore
+    frozen_studies = storage.get_all_studies()
+    if isinstance(storage, RDBStorage):
+        frozen_studies = sorted(frozen_studies, key=lambda s: s._study_id)
+    return [_frozen_study_to_study_summary(s) for s in frozen_studies]
 
 
 def get_study_summary(storage: BaseStorage, study_id: int) -> StudySummary | None:
@@ -83,18 +70,11 @@ def get_study_summary(storage: BaseStorage, study_id: int) -> StudySummary | Non
 def create_new_study(
     storage: BaseStorage, study_name: str, directions: list[StudyDirection]
 ) -> int:
-    if version.parse(optuna_ver) >= version.Version("3.1.0.dev") and version.parse(
-        optuna_ver
-    ) != version.Version("3.1.0b0"):
-        study_id = storage.create_new_study(directions, study_name=study_name)  # type: ignore
-    else:
-        study_id = storage.create_new_study(study_name)  # type: ignore
-        storage.set_study_directions(study_id, directions)  # type: ignore
+    study_id = storage.create_new_study(directions, study_name=study_name)
     return study_id
 
 
-# TODO(c-bata): Remove type:ignore after released Optuna v3.0.0rc0.
-def _frozen_study_to_study_summary(frozen_study: "FrozenStudy") -> StudySummary:  # type: ignore
+def _frozen_study_to_study_summary(frozen_study: "FrozenStudy") -> StudySummary:
     is_single = len(frozen_study.directions) == 1
     return StudySummary(
         study_name=frozen_study.study_name,
