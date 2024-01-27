@@ -1,6 +1,7 @@
 import React, { FC } from "react"
-import { IconButton } from "@mui/material"
+import { IconButton, Button, useTheme } from "@mui/material"
 import LinkIcon from "@mui/icons-material/Link"
+import DownloadIcon from "@mui/icons-material/Download"
 
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { Link } from "react-router-dom"
@@ -9,6 +10,7 @@ export const TrialTable: FC<{
   studyDetail: StudyDetail | null
   initialRowsPerPage?: number
 }> = ({ studyDetail, initialRowsPerPage }) => {
+  const theme = useTheme()
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
   const objectiveNames: string[] = studyDetail?.objective_names || []
 
@@ -190,12 +192,23 @@ export const TrialTable: FC<{
   })
 
   return (
-    <DataGrid<Trial>
-      columns={columns}
-      rows={trials}
-      keyField={"trial_id"}
-      dense={true}
-      initialRowsPerPage={initialRowsPerPage}
-    />
+    <>
+      <DataGrid<Trial>
+        columns={columns}
+        rows={trials}
+        keyField={"trial_id"}
+        dense={true}
+        initialRowsPerPage={initialRowsPerPage}
+      />
+      <Button
+        variant="outlined"
+        startIcon={<DownloadIcon />}
+        download
+        href={`/csv/${studyDetail?.id}`}
+        sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
+      >
+        Download CSV File
+      </Button>
+    </>
   )
 }
