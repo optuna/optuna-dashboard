@@ -483,9 +483,9 @@ def create_app(
         param_names_header = [f"Param {x}" for x in param_names]
         user_attr_names_header = [f"UserAttribute {x}" for x in user_attr_names]
         n_objs = len(study.directions)
-        if study.metric_names is not None:
+        if hasattr(study, "metric_names") and study.metric_names is not None:
             value_header = study.metric_names
-        else:
+        else:  # optuna < v3.4.0
             value_header = ["Value"] if n_objs == 1 else [f"Objective {x}" for x in range(n_objs)]
         column_names = (
             ["Number", "State"] + value_header + param_names_header + user_attr_names_header
