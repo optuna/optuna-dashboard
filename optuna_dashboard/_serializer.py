@@ -10,6 +10,8 @@ from typing import Union
 import numpy as np
 from optuna.distributions import BaseDistribution
 from optuna.distributions import CategoricalDistribution
+from optuna.distributions import FloatDistribution
+from optuna.distributions import IntDistribution
 from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
 
@@ -291,8 +293,7 @@ def serialize_frozen_trial(
 
 
 def serialize_distribution(distribution: BaseDistribution) -> DistributionJSON:
-    if distribution.__class__.__name__ == "FloatDistribution":
-        # Added from Optuna v3.0
+    if isinstance(distribution, FloatDistribution):
         float_distribution: FloatDistributionJSON = {
             "type": "FloatDistribution",
             "low": getattr(distribution, "low"),
@@ -301,38 +302,7 @@ def serialize_distribution(distribution: BaseDistribution) -> DistributionJSON:
             "log": getattr(distribution, "log"),
         }
         return float_distribution
-    if distribution.__class__.__name__ == "UniformDistribution":
-        # Deprecated from Optuna v3.0
-        uniform: FloatDistributionJSON = {
-            "type": "FloatDistribution",
-            "low": getattr(distribution, "low"),
-            "high": getattr(distribution, "high"),
-            "step": 0,
-            "log": False,
-        }
-        return uniform
-    if distribution.__class__.__name__ == "LogUniformDistribution":
-        # Deprecated from Optuna v3.0
-        log_uniform: FloatDistributionJSON = {
-            "type": "FloatDistribution",
-            "low": getattr(distribution, "low"),
-            "high": getattr(distribution, "high"),
-            "step": 0,
-            "log": True,
-        }
-        return log_uniform
-    if distribution.__class__.__name__ == "DiscreteUniformDistribution":
-        # Deprecated from Optuna v3.0
-        discrete_uniform: FloatDistributionJSON = {
-            "type": "FloatDistribution",
-            "low": getattr(distribution, "low"),
-            "high": getattr(distribution, "high"),
-            "step": getattr(distribution, "q"),
-            "log": False,
-        }
-        return discrete_uniform
-    if distribution.__class__.__name__ == "IntDistribution":
-        # Added from Optuna v3.0
+    if isinstance(distribution, IntDistribution):
         int_distribution: IntDistributionJSON = {
             "type": "IntDistribution",
             "low": getattr(distribution, "low"),
@@ -341,26 +311,6 @@ def serialize_distribution(distribution: BaseDistribution) -> DistributionJSON:
             "log": getattr(distribution, "log"),
         }
         return int_distribution
-    if distribution.__class__.__name__ == "IntUniformDistribution":
-        # Deprecated from Optuna v3.0
-        int_uniform: IntDistributionJSON = {
-            "type": "IntDistribution",
-            "low": getattr(distribution, "low"),
-            "high": getattr(distribution, "high"),
-            "step": getattr(distribution, "step"),
-            "log": False,
-        }
-        return int_uniform
-    if distribution.__class__.__name__ == "IntLogUniformDistribution":
-        # Deprecated from Optuna v3.0
-        int_log_uniform: IntDistributionJSON = {
-            "type": "IntDistribution",
-            "low": getattr(distribution, "low"),
-            "high": getattr(distribution, "high"),
-            "step": getattr(distribution, "step"),
-            "log": True,
-        }
-        return int_log_uniform
     if isinstance(distribution, CategoricalDistribution):
         categorical: CategoricalDistributionJSON = {
             "type": "CategoricalDistribution",
