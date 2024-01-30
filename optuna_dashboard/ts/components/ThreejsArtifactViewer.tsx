@@ -115,7 +115,7 @@ export const ThreejsArtifactViewer: React.FC<ThreejsArtifactViewerProps> = (
       {geometry.length > 0 &&
         geometry.map((geo, index) => (
           <mesh key={index} geometry={geo}>
-            <meshNormalMaterial />
+            <meshNormalMaterial side={THREE.DoubleSide} />
           </mesh>
         ))}
     </Canvas>
