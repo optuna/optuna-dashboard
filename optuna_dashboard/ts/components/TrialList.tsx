@@ -27,7 +27,7 @@ import { useRecoilValue } from "recoil"
 import { artifactIsAvailable } from "../state"
 import { actionCreator } from "../action"
 import { TrialFormWidgets } from "./TrialFormWidgets"
-import { TrialArtifactCards } from "./TrialArtifactCards"
+import { TrialArtifactCards } from "./Artifact/TrialArtifactCards"
 import { useQuery } from "../urlQuery"
 
 const states: TrialState[] = [

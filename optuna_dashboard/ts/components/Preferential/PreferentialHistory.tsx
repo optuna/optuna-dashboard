@@ -15,11 +15,11 @@ import DeleteIcon from "@mui/icons-material/Delete"
 import Modal from "@mui/material/Modal"
 import { red } from "@mui/material/colors"
 
-import { TrialListDetail } from "./TrialList"
+import { TrialListDetail } from "../TrialList"
 import { getArtifactUrlPath } from "./PreferentialTrials"
-import { formatDate } from "../dateUtil"
-import { actionCreator } from "../action"
-import { useStudyDetailValue } from "../state"
+import { formatDate } from "../../dateUtil"
+import { actionCreator } from "../../action"
+import { useStudyDetailValue } from "../../state"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
 
 type TrialType = "worst" | "none"
@@ -252,7 +252,7 @@ const ChoiceTrials: FC<{
   )
 }
 
-export const PreferenceHistory: FC<{ studyDetail: StudyDetail | null }> = ({
+export const PreferentialHistory: FC<{ studyDetail: StudyDetail | null }> = ({
   studyDetail,
 }) => {
   if (
