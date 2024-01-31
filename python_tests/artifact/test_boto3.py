@@ -2,12 +2,17 @@ import io
 from unittest import TestCase
 
 import boto3
-from moto import mock_s3
 from optuna_dashboard.artifact.boto3 import Boto3Backend
 from optuna_dashboard.artifact.exceptions import ArtifactNotFound
 
 
-@mock_s3
+try:
+    from moto import mock_aws
+except ImportError:
+    from moto import mock_s3 as mock_aws
+
+
+@mock_aws
 class Boto3BackendTestCase(TestCase):
     def setUp(self) -> None:
         self.s3_client = boto3.client("s3")
