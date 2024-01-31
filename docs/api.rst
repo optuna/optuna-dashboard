@@ -12,9 +12,9 @@ General APIs
 
    optuna_dashboard.run_server
    optuna_dashboard.wsgi
-   optuna_dashboard.set_objective_names
    optuna_dashboard.save_note
    optuna_dashboard.save_plotly_graph_object
+   optuna_dashboard.artifact.get_artifact_path
 
 Human-in-the-loop
 -----------------
@@ -57,19 +57,3 @@ Streamlit
    optuna_dashboard.streamlit.render_trial_note
    optuna_dashboard.streamlit.render_objective_form_widgets
    optuna_dashboard.streamlit.render_user_attr_form_widgets
-
-Artifact
---------
-
-.. autosummary::
-   :toctree: _generated/
-   :nosignatures:
-
-   optuna_dashboard.artifact.upload_artifact
-   optuna_dashboard.artifact.get_artifact_path
-   optuna_dashboard.artifact.file_system.FileSystemBackend
-   optuna_dashboard.artifact.boto3.Boto3Backend
-   optuna_dashboard.artifact.backoff.Backoff
-   optuna_dashboard.artifact.prefix.AppendPrefix
-   optuna_dashboard.artifact.protocol.ArtifactBackend
-   optuna_dashboard.artifact.exceptions.ArtifactNotFound
