@@ -7,7 +7,7 @@ import {
   Button,
   DialogActions,
 } from "@mui/material"
-import { actionCreator } from "../action"
+import { actionCreator } from "../../action"
 
 export const useDeleteTrialArtifactDialog = (): [
   (studyId: number, trialId: number, artifact: Artifact) => void,

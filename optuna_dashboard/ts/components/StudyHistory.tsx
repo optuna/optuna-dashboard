@@ -17,7 +17,7 @@ import { DataGrid, DataGridColumn } from "./DataGrid"
 import { GraphHyperparameterImportance } from "./GraphHyperparameterImportances"
 import { UserDefinedPlot } from "./UserDefinedPlot"
 import { BestTrialsCard } from "./BestTrialsCard"
-import { StudyArtifactCards } from "./StudyArtifactCards"
+import { StudyArtifactCards } from "./Artifact/StudyArtifactCards"
 import { useRecoilValue } from "recoil"
 import {
   useStudyDetailValue,
