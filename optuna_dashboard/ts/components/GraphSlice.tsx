@@ -46,6 +46,8 @@ const GraphSliceBackend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const studyId = study?.id
+  const numCompletedTrials =
+    study?.trials.filter((t) => t.state === "Complete").length || 0
   useEffect(() => {
     if (studyId === undefined) {
       return
@@ -57,7 +59,7 @@ const GraphSliceBackend: FC<{
       .catch((err) => {
         console.error(err)
       })
-  }, [studyId])
+  }, [studyId, numCompletedTrials])
   return <Box id={plotDomId} sx={{ height: "450px" }} />
 }
 
