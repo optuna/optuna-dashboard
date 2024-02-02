@@ -288,6 +288,21 @@ def create_app(
             return {"reason": f"plot_type={plot_type} is not supported."}
         return fig.to_json()
 
+    @app.get("/api/compare-studies/plot/<plot_type>")
+    @json_api_view
+    def get_compare_studies_plot(plot_type: str) -> dict[str, Any]:
+        study_ids = map(int, request.query.getall("study_ids[]"))
+        studies = [
+            optuna.load_study(study_name=storage.get_study_name_from_id(study_id), storage=storage)
+            for study_id in study_ids
+        ]
+        if plot_type == "edf":
+            fig = optuna.visualization.plot_edf(studies)
+        else:
+            response.status = 404  # Not found
+            return {"reason": f"plot_type={plot_type} is not supported."}
+        return fig.to_json()
+
     @app.put("/api/studies/<study_id:int>/note")
     @json_api_view
     def save_study_note(study_id: int) -> dict[str, Any]:
