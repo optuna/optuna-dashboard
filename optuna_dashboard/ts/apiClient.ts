@@ -448,6 +448,10 @@ type PlotResponse = {
 }
 export enum PlotType {
   Contour = "contour",
+  Slice = "slice",
+  ParallelCoordinate = "parallel_coordinate",
+  Rank = "rank",
+  EDF = "edf",
 }
 export const getPlotAPI = (
   studyId: number,

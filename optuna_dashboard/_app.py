@@ -271,6 +271,18 @@ def create_app(
         )
         if plot_type == "contour":
             fig = optuna.visualization.plot_contour(study)
+        elif plot_type == "slice":
+            fig = optuna.visualization.plot_slice(study)
+            # Note: Optuna's implementation forces a minimum width.
+            # We override it to prevent the figure from going beyond the screen width.
+            # https://github.com/optuna/optuna/blob/2abd0ae81eaf3683ce1dd580429904c8a705300d/optuna/visualization/_slice.py#L237-L239
+            fig.update_layout(width=None)
+        elif plot_type == "parallel_coordinate":
+            fig = optuna.visualization.plot_parallel_coordinate(study)
+        elif plot_type == "rank":
+            fig = optuna.visualization.plot_rank(study)
+        elif plot_type == "edf":
+            fig = optuna.visualization.plot_edf(study)
         else:
             response.status = 404  # Not found
             return {"reason": f"plot_type={plot_type} is not supported."}
