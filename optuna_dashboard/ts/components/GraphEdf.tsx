@@ -29,6 +29,11 @@ const GraphEdfBackend: FC<{
 }> = ({ studies }) => {
   const studyIds = studies.map((s) => s.id)
   const domId = getPlotDomId(-1)
+  const numCompletedTrials = studies.reduce(
+    (acc, study) =>
+      acc + study?.trials.filter((t) => t.state === "Complete").length,
+    0
+  )
   useEffect(() => {
     if (studyIds.length === 0) {
       return
@@ -40,7 +45,7 @@ const GraphEdfBackend: FC<{
       .catch((err) => {
         console.error(err)
       })
-  }, [studyIds])
+  }, [studyIds, numCompletedTrials])
   return <Box id={domId} sx={{ height: "450px" }} />
 }
 
