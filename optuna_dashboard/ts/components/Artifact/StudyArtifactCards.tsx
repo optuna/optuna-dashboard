@@ -20,7 +20,7 @@ import DownloadIcon from "@mui/icons-material/Download"
 import DeleteIcon from "@mui/icons-material/Delete"
 import FullscreenIcon from "@mui/icons-material/Fullscreen"
 
-import { actionCreator } from "../action"
+import { actionCreator } from "../../action"
 import { useDeleteStudyArtifactDialog } from "./DeleteArtifactDialog"
 import {
   useThreejsArtifactModal,

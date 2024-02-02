@@ -21,13 +21,14 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import StopCircleIcon from "@mui/icons-material/StopCircle"
 
 import { TrialNote } from "./Note"
-import { useNavigate, useLocation } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useRecoilValue } from "recoil"
 import { artifactIsAvailable } from "../state"
 import { actionCreator } from "../action"
 import { TrialFormWidgets } from "./TrialFormWidgets"
-import { TrialArtifactCards } from "./TrialArtifactCards"
+import { TrialArtifactCards } from "./Artifact/TrialArtifactCards"
+import { useQuery } from "../urlQuery"
 
 const states: TrialState[] = [
   "Complete",
@@ -59,12 +60,6 @@ const getChipColor = (state: TrialState): Color => {
     return "error"
   }
   return "default"
-}
-
-const useQuery = (): URLSearchParams => {
-  const { search } = useLocation()
-
-  return useMemo(() => new URLSearchParams(search), [search])
 }
 
 const useExcludedStates = (query: URLSearchParams): TrialState[] => {

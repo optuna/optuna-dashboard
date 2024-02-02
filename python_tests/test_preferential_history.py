@@ -5,6 +5,7 @@ import sys
 from typing import Callable
 from typing import TYPE_CHECKING
 
+import optuna
 from optuna.storages import BaseStorage
 from optuna_dashboard._preferential_history import _SYSTEM_ATTR_PREFIX_HISTORY
 from optuna_dashboard._preferential_history import NewHistory
@@ -14,6 +15,7 @@ from optuna_dashboard._preferential_history import restore_history
 from optuna_dashboard._serializer import serialize_preference_history
 from optuna_dashboard.preferential import create_study
 from optuna_dashboard.preferential._system_attrs import _SYSTEM_ATTR_PREFIX_PREFERENCE
+from packaging import version
 import pytest
 
 from .storage_supplier import parametrize_storages
@@ -22,6 +24,10 @@ from .storage_supplier import StorageSupplier
 
 if TYPE_CHECKING:
     from optuna_dashboard._preferential_history import History
+
+
+if version.parse(optuna.__version__) < version.parse("3.4.0"):
+    pytest.skip("Preferential optimization is introduced at v3.4.0", allow_module_level=True)
 
 
 if sys.version_info < (3, 8):

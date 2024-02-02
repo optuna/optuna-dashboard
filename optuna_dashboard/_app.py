@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import functools
+import importlib
 import io
 from itertools import chain
 import logging
@@ -95,6 +96,7 @@ def create_app(
     def api_meta() -> dict[str, Any]:
         return {
             "artifact_is_available": artifact_store is not None,
+            "plotlypy_is_available": importlib.util.find_spec("plotly") is not None,
         }
 
     @app.get("/api/studies")
@@ -260,6 +262,19 @@ def create_app(
         except ValueError as e:
             response.status = 400  # Bad request
             return {"reason": str(e)}
+
+    @app.get("/api/studies/<study_id:int>/plot/<plot_type>")
+    @json_api_view
+    def get_plot(study_id: int, plot_type: str) -> dict[str, Any]:
+        study = optuna.load_study(
+            study_name=storage.get_study_name_from_id(study_id), storage=storage
+        )
+        if plot_type == "contour":
+            fig = optuna.visualization.plot_contour(study)
+        else:
+            response.status = 404  # Not found
+            return {"reason": f"plot_type={plot_type} is not supported."}
+        return fig.to_json()
 
     @app.put("/api/studies/<study_id:int>/note")
     @json_api_view
@@ -468,9 +483,9 @@ def create_app(
         param_names_header = [f"Param {x}" for x in param_names]
         user_attr_names_header = [f"UserAttribute {x}" for x in user_attr_names]
         n_objs = len(study.directions)
-        if study.metric_names is not None:
+        if hasattr(study, "metric_names") and study.metric_names is not None:
             value_header = study.metric_names
-        else:
+        else:  # optuna < v3.4.0
             value_header = ["Value"] if n_objs == 1 else [f"Objective {x}" for x in range(n_objs)]
         column_names = (
             ["Number", "State"] + value_header + param_names_header + user_attr_names_header

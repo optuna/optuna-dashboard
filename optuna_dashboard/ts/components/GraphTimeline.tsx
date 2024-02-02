@@ -60,6 +60,7 @@ const plotTimeline = (
     Running: "green",
     Waiting: "gray",
   }
+  const runningKey = "Running"
 
   const lastTrials = trials.slice(-maxBars) // To only show last elements
   const minDatetime = new Date(
@@ -69,13 +70,38 @@ const plotTimeline = (
       )
     )
   )
-  const maxDatetime = new Date(
-    Math.max(
-      ...lastTrials.map(
-        (t) => t.datetime_start?.getTime() ?? minDatetime.getTime()
-      )
-    )
+  const maxRunDuration = Math.max(
+    ...trials.map((t) => {
+      return t.datetime_start === undefined || t.datetime_complete === undefined
+        ? -Infinity
+        : t.datetime_complete.getTime() - t.datetime_start.getTime()
+    })
   )
+  const hasRunning =
+    (maxRunDuration === -Infinity &&
+      trials.some((t) => t.state === runningKey)) ||
+    trials.some((t) => {
+      if (t.state !== runningKey) {
+        return false
+      }
+      const now = new Date().getTime()
+      const start = t.datetime_start?.getTime() ?? now
+      // This is an ad-hoc handling to check if the trial is running.
+      // We do not check via `trialState` because some trials may have state=RUNNING,
+      // even if they are not running because of unexpected job kills.
+      // In this case, we would like to ensure that these trials will not squash the timeline plot
+      // for the other trials.
+      return now - start < maxRunDuration * 5
+    })
+  const maxDatetime = hasRunning
+    ? new Date()
+    : new Date(
+        Math.max(
+          ...lastTrials.map(
+            (t) => t.datetime_complete?.getTime() ?? minDatetime.getTime()
+          )
+        )
+      )
   const layout: Partial<plotly.Layout> = {
     margin: {
       l: 50,
@@ -97,11 +123,20 @@ const plotTimeline = (
   }
 
   const makeTrace = (bars: Trial[], state: string, color: string) => {
-    const starts = bars.map((b) => b.datetime_start ?? new Date())
-    const completes = bars.map((b, i) => b.datetime_complete ?? starts[i])
+    const isRunning = state === runningKey
+    // Waiting trials should not squash other trials, so use `maxDatetime` instead of `new Date()`.
+    const starts = bars.map((b) => b.datetime_start ?? maxDatetime)
+    const runDurations = bars.map((b, i) => {
+      const startTime = starts[i].getTime()
+      const completeTime = isRunning
+        ? maxDatetime.getTime()
+        : b.datetime_complete?.getTime() ?? startTime
+      // By using 1 as the min value, we can recognize these bars at least when zooming in.
+      return Math.max(1, completeTime - startTime)
+    })
     const trace: Partial<plotly.PlotData> = {
       type: "bar",
-      x: starts.map((s, i) => completes[i].getTime() - s.getTime()),
+      x: runDurations,
       y: bars.map((b) => b.number),
       // @ts-ignore: To suppress ts(2322)
       base: starts.map((s) => s.toISOString()),

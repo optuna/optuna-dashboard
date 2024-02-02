@@ -55,6 +55,16 @@ export const plotlyColorTheme = atom<PlotlyColorTheme>({
   },
 })
 
+export const plotlypyIsAvailableState = atom<boolean>({
+  key: "plotlypyIsAvailable",
+  default: true,
+})
+
+export const studySummariesLoadingState = atom<boolean>({
+  key: "studySummariesLoadingState",
+  default: false,
+})
+
 export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
   return studyDetails[studyId] || null

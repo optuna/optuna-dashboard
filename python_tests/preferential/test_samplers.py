@@ -11,6 +11,7 @@ from optuna.distributions import IntDistribution
 from optuna.samplers import BaseSampler
 from optuna.trial import TrialState
 from optuna_dashboard.preferential import create_study
+from packaging import version
 import pytest
 
 
@@ -27,7 +28,9 @@ parametrize_sampler = pytest.mark.parametrize(
         pytest.param(
             PreferentialGPSampler,
             marks=pytest.mark.skipif(
-                sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support"
+                sys.version_info < (3, 8)
+                or version.parse(optuna.__version__) < version.parse("3.2.0"),
+                reason="BoTorch dropped Python3.7 support",
             ),
         ),
     ],

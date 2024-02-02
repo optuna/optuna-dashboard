@@ -23,7 +23,7 @@ import "reactflow/dist/style.css"
 import ELK from "elkjs/lib/elk.bundled.js"
 import { ElkNode } from "elkjs/lib/elk-api.js"
 
-import { useStudyDetailValue } from "../state"
+import { useStudyDetailValue } from "../../state"
 import { getArtifactUrlPath } from "./PreferentialTrials"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
 

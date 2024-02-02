@@ -15,10 +15,52 @@ import blue from "@mui/material/colors/blue"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { usePlotlyColorTheme } from "../state"
 import { getAxisInfo } from "../graphUtil"
+import { useQuery } from "../urlQuery"
+import { getPlotAPI, PlotType } from "../apiClient"
+import { useRecoilValue } from "recoil"
+import { plotlypyIsAvailableState } from "../state"
 
 const plotDomId = "graph-contour"
 
 export const Contour: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  const query = useQuery()
+  const plotlypyIsAvailable = useRecoilValue<boolean>(plotlypyIsAvailableState)
+  if (query.get("plotlypy_rendering") === "true") {
+    if (plotlypyIsAvailable) {
+      return <ContourBackend study={study} />
+    } else {
+      console.warn(
+        "Use frontend rendering because plotlypy is specified but not available."
+      )
+      return <ContourFrontend study={study} />
+    }
+  } else {
+    return <ContourFrontend study={study} />
+  }
+}
+
+const ContourBackend: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  const studyId = study?.id
+  useEffect(() => {
+    if (studyId === undefined) {
+      return
+    }
+    getPlotAPI(studyId, PlotType.Contour)
+      .then(({ data, layout }) => {
+        plotly.react(plotDomId, data, layout)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+  }, [studyId])
+  return <Box id={plotDomId} sx={{ height: "450px" }} />
+}
+
+const ContourFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()

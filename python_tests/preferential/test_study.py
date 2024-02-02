@@ -8,6 +8,7 @@ from typing import Callable
 from unittest.mock import patch
 import uuid
 
+import optuna
 from optuna import copy_study
 from optuna import create_trial
 from optuna import delete_study
@@ -17,11 +18,15 @@ from optuna.exceptions import DuplicatedStudyError
 from optuna.trial import TrialState
 from optuna_dashboard.preferential import create_study
 from optuna_dashboard.preferential import load_study
+from packaging import version
 import pytest
 
 from ..storage_supplier import parametrize_storages
 from ..storage_supplier import StorageSupplier
 
+
+if version.parse(optuna.__version__) < version.parse("3.4.0"):
+    pytest.skip("Preferential optimization is introduced at v3.4.0", allow_module_level=True)
 
 if sys.version_info < (3, 8):
     pytest.skip("BoTorch dropped Python3.7 support", allow_module_level=True)

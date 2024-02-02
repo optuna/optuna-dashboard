@@ -31,10 +31,10 @@ import { GraphEdf } from "./GraphEdf"
 import { GraphRank } from "./GraphRank"
 import { TrialList } from "./TrialList"
 import { StudyHistory } from "./StudyHistory"
-import { PreferentialTrials } from "./PreferentialTrials"
-import { PreferenceHistory } from "./PreferenceHistory"
-import { PreferentialAnalytics } from "./PreferentialAnalytics"
-import { PreferentialGraph } from "./PreferentialGraph"
+import { PreferentialTrials } from "./Preferential/PreferentialTrials"
+import { PreferentialHistory } from "./Preferential/PreferentialHistory"
+import { PreferentialAnalytics } from "./Preferential/PreferentialAnalytics"
+import { PreferentialGraph } from "./Preferential/PreferentialGraph"
 
 interface ParamTypes {
   studyId: string
@@ -221,7 +221,7 @@ export const StudyDetail: FC<{
       </Box>
     )
   } else if (page === "preferenceHistory") {
-    content = <PreferenceHistory studyDetail={studyDetail} />
+    content = <PreferentialHistory studyDetail={studyDetail} />
   }
 
   const toolbar = (
