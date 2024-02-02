@@ -467,7 +467,7 @@ export enum CompareStudiesPlotType {
 }
 export const getCompareStudiesPlotAPI = (
   studyIds: number[],
-  plotType: CompareStudiesPlotType,
+  plotType: CompareStudiesPlotType
 ): Promise<PlotResponse> => {
   return axiosInstance
     .get<PlotResponse>(`/api/compare-studies/plot/${plotType}`, {
