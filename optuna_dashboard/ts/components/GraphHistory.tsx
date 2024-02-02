@@ -72,9 +72,9 @@ export const GraphHistory: FC<{
       markerSize
     )
     const element = document.getElementById(plotDomId)
-    if (element != null && studies.length >= 1) {
+    if (element !== null && studies.length >= 1) {
       // @ts-ignore
-      element.on("plotly_click", function (data) {
+      element.on("plotly_click", (data) => {
         if (data.points[0].data.mode !== "lines") {
           let studyId = 1
           if (data.points[0].data.name.includes("Infeasible Trial of")) {

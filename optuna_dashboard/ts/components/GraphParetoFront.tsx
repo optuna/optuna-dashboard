@@ -40,7 +40,7 @@ export const GraphParetoFront: FC<{
       const element = document.getElementById(plotDomId)
       if (element != null) {
         // @ts-ignore
-        element.on("plotly_click", function (data) {
+        element.on("plotly_click", (data) => {
           const plotTextInfo = JSON.parse(
             data.points[0].text.replace(/<br>/g, "")
           )
