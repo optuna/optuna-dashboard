@@ -3,6 +3,8 @@ import React, { FC, useEffect, useMemo } from "react"
 import { Typography, useTheme, Box } from "@mui/material"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { Target, useFilteredTrialsFromStudies } from "../trialFilter"
+import { getCompareStudiesPlotAPI, CompareStudiesPlotType } from "../apiClient"
+import { useBackendRender } from "../state"
 
 const getPlotDomId = (objectiveId: number) => `graph-edf-${objectiveId}`
 
@@ -12,6 +14,37 @@ interface EdfPlotInfo {
 }
 
 export const GraphEdf: FC<{
+  studies: StudyDetail[]
+  objectiveId: number
+}> = ({ studies, objectiveId }) => {
+  if (useBackendRender()) {
+    return <GraphEdfBackend studies={studies} />
+  } else {
+    return <GraphEdfFrontend studies={studies} objectiveId={objectiveId} />
+  }
+}
+
+const GraphEdfBackend: FC<{
+  studies: StudyDetail[]
+}> = ({ studies }) => {
+  const studyIds = studies.map((s) => s.id)
+  const domId = getPlotDomId(-1)
+  useEffect(() => {
+    if (studyIds.length === 0) {
+      return
+    }
+    getCompareStudiesPlotAPI(studyIds, CompareStudiesPlotType.EDF)
+      .then(({ data, layout }) => {
+        plotly.react(domId, data, layout)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+  }, [studyIds])
+  return <Box id={domId} sx={{ height: "450px" }} />
+}
+
+const GraphEdfFrontend: FC<{
   studies: StudyDetail[]
   objectiveId: number
 }> = ({ studies, objectiveId }) => {

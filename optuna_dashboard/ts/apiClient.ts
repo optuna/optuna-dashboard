@@ -461,3 +461,17 @@ export const getPlotAPI = (
     .get<PlotResponse>(`/api/studies/${studyId}/plot/${plotType}`)
     .then<PlotResponse>((res) => res.data)
 }
+
+export enum CompareStudiesPlotType {
+  EDF = "edf",
+}
+export const getCompareStudiesPlotAPI = (
+  studyIds: number[],
+  plotType: CompareStudiesPlotType,
+): Promise<PlotResponse> => {
+  return axiosInstance
+    .get<PlotResponse>(`/api/compare-studies/plot/${plotType}`, {
+      params: { study_ids: studyIds },
+    })
+    .then<PlotResponse>((res) => res.data)
+}
