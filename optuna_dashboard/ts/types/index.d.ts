@@ -220,6 +220,7 @@ type StudyDetail = {
   plotly_graph_objects: PlotlyGraphObject[]
   artifacts: Artifact[]
   skipped_trial_numbers: number[]
+  fetched_trials_partially: boolean
 }
 
 type StudyDetails = {
