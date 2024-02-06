@@ -47,8 +47,8 @@ const getAxisInfoForCategoricalParams = (
       a.toLowerCase() < b.toLowerCase()
         ? -1
         : a.toLowerCase() > b.toLowerCase()
-        ? 1
-        : 0
+          ? 1
+          : 0
     )
   return {
     name: paramName,

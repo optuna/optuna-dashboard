@@ -71,8 +71,8 @@ function DataGrid<T>(props: {
   initialRowsPerPage = initialRowsPerPage // use first element as default
     ? initialRowsPerPage
     : isNumber(rowsPerPageOption[0])
-    ? rowsPerPageOption[0]
-    : rowsPerPageOption[0].value
+      ? rowsPerPageOption[0]
+      : rowsPerPageOption[0].value
   const [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage)
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -321,8 +321,8 @@ function DataGridHeaderColumn<T>(props: {
                       filter === null
                         ? filterChoices.filter((v) => v !== choice) // By default, every choice is ticked, so the chosen option will be unticked.
                         : filter.values.some((v) => v === choice)
-                        ? filter.values.filter((v) => v !== choice)
-                        : [...filter.values, choice]
+                          ? filter.values.filter((v) => v !== choice)
+                          : [...filter.values, choice]
                     onFilterChange(newTickedValues)
                   }}
                 >

@@ -34,39 +34,38 @@ const useWavesurfer = (
 }
 
 // Create a React component of wavesurfer.
-export const WaveSurferArtifactViewer: React.FC<
-  WaveSurferArtifactViewerProps
-> = (props) => {
-  const containerRef = useRef<HTMLDivElement>(null!)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const wavesurfer = useWavesurfer(containerRef, props)
+export const WaveSurferArtifactViewer: React.FC<WaveSurferArtifactViewerProps> =
+  (props) => {
+    const containerRef = useRef<HTMLDivElement>(null!)
+    const [isPlaying, setIsPlaying] = useState(false)
+    const wavesurfer = useWavesurfer(containerRef, props)
 
-  const onPlayClick = useCallback(() => {
-    if (!wavesurfer) return
-    wavesurfer.isPlaying() ? wavesurfer.pause() : wavesurfer.play()
-  }, [wavesurfer])
+    const onPlayClick = useCallback(() => {
+      if (!wavesurfer) return
+      wavesurfer.isPlaying() ? wavesurfer.pause() : wavesurfer.play()
+    }, [wavesurfer])
 
-  useEffect(() => {
-    if (!wavesurfer) return
+    useEffect(() => {
+      if (!wavesurfer) return
 
-    setIsPlaying(false)
+      setIsPlaying(false)
 
-    const subscriptions = [
-      wavesurfer.on("play", () => setIsPlaying(true)),
-      wavesurfer.on("pause", () => setIsPlaying(false)),
-    ]
+      const subscriptions = [
+        wavesurfer.on("play", () => setIsPlaying(true)),
+        wavesurfer.on("pause", () => setIsPlaying(false)),
+      ]
 
-    return () => {
-      subscriptions.forEach((unsub) => unsub())
-    }
-  }, [wavesurfer])
+      return () => {
+        subscriptions.forEach((unsub) => unsub())
+      }
+    }, [wavesurfer])
 
-  return (
-    <Box style={{ width: "100%", display: "flex", flexDirection: "column" }}>
-      <div ref={containerRef} style={{ minHeight: "120px", width: "100%" }} />
-      <button onClick={onPlayClick} style={{ marginTop: "1em" }}>
-        {isPlaying ? "Pause" : "Play"}
-      </button>
-    </Box>
-  )
-}
+    return (
+      <Box style={{ width: "100%", display: "flex", flexDirection: "column" }}>
+        <div ref={containerRef} style={{ minHeight: "120px", width: "100%" }} />
+        <button onClick={onPlayClick} style={{ marginTop: "1em" }}>
+          {isPlaying ? "Pause" : "Play"}
+        </button>
+      </Box>
+    )
+  }

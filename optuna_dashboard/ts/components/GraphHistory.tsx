@@ -251,8 +251,8 @@ const plotHistory = (
     return xAxis === "number"
       ? trial.number
       : xAxis === "datetime_start"
-      ? trial.datetime_start ?? new Date()
-      : trial.datetime_complete ?? new Date()
+        ? trial.datetime_start ?? new Date()
+        : trial.datetime_complete ?? new Date()
   }
 
   const plotData: Partial<plotly.PlotData>[] = []
