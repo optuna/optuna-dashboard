@@ -389,7 +389,10 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
             def get_all_possible_params(dist: optuna.distributions.BaseDistribution) -> list[Any]:
                 if isinstance(dist, CategoricalDistribution):
                     return list(dist.choices)
-                elif isinstance(dist, (IntDistribution, FloatDistribution)):
+                elif (
+                    isinstance(dist, (IntDistribution, FloatDistribution))
+                    and dist.step is not None
+                ):
                     return list(np.arange(dist.low, dist.high, dist.step))
                 else:
                     return []
