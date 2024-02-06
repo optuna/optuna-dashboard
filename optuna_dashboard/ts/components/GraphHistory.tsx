@@ -108,7 +108,15 @@ export const GraphHistory: FC<{
         element.removeAllListeners("plotly_click")
       }
     }
-  }, [studies, selected, logScale, xAxis, theme.palette.mode, colorTheme, markerSize])
+  }, [
+    studies,
+    selected,
+    logScale,
+    xAxis,
+    theme.palette.mode,
+    colorTheme,
+    markerSize,
+  ])
 
   const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
     setTarget(event.target.value)
