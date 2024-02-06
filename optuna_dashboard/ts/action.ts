@@ -29,8 +29,10 @@ import {
   isFileUploading,
   fetchedTrialsPartiallyState,
   artifactIsAvailable,
+  plotlypyIsAvailableState,
   reloadIntervalState,
   trialsUpdatingState,
+  studySummariesLoadingState,
 } from "./state"
 import { getDominatedTrials } from "./dominatedTrials"
 
@@ -49,6 +51,11 @@ export const actionCreator = () => {
   const setArtifactIsAvailable = useSetRecoilState<boolean>(artifactIsAvailable)
   const setFetchedTrialsPartially = useSetRecoilState<boolean>(
     fetchedTrialsPartiallyState
+  const setPlotlypyIsAvailable = useSetRecoilState<boolean>(
+    plotlypyIsAvailableState
+  )
+  const setStudySummariesLoading = useSetRecoilState<boolean>(
+    studySummariesLoadingState
   )
 
   const setStudyDetailState = (studyId: number, study: StudyDetail) => {
@@ -215,12 +222,15 @@ export const actionCreator = () => {
   const updateAPIMeta = () => {
     getMetaInfoAPI().then((r) => {
       setArtifactIsAvailable(r.artifact_is_available)
+      setPlotlypyIsAvailable(r.plotlypy_is_available)
     })
   }
 
   const updateStudySummaries = (successMsg?: string) => {
+    setStudySummariesLoading(true)
     getStudySummariesAPI()
       .then((studySummaries: StudySummary[]) => {
+        setStudySummariesLoading(false)
         setStudySummaries(studySummaries)
 
         if (successMsg) {
@@ -228,6 +238,7 @@ export const actionCreator = () => {
         }
       })
       .catch((err) => {
+        setStudySummariesLoading(false)
         enqueueSnackbar(`Failed to fetch study list.`, {
           variant: "error",
         })

@@ -65,8 +65,8 @@ function DataGrid<T>(props: {
   initialRowsPerPage = initialRowsPerPage // use first element as default
     ? initialRowsPerPage
     : isNumber(rowsPerPageOption[0])
-    ? rowsPerPageOption[0]
-    : rowsPerPageOption[0].value
+      ? rowsPerPageOption[0]
+      : rowsPerPageOption[0].value
   const [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage)
 
   const handleChangePage = (event: unknown, newPage: number) => {

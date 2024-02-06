@@ -12,7 +12,6 @@ import {
 import Grid2 from "@mui/material/Unstable_Grid2"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import HomeIcon from "@mui/icons-material/Home"
-import DownloadIcon from "@mui/icons-material/Download"
 
 import { StudyNote } from "./Note"
 import { actionCreator } from "../action"
@@ -32,10 +31,10 @@ import { GraphEdf } from "./GraphEdf"
 import { GraphRank } from "./GraphRank"
 import { TrialList } from "./TrialList"
 import { StudyHistory } from "./StudyHistory"
-import { PreferentialTrials } from "./PreferentialTrials"
-import { PreferenceHistory } from "./PreferenceHistory"
-import { PreferentialAnalytics } from "./PreferentialAnalytics"
-import { PreferentialGraph } from "./PreferentialGraph"
+import { PreferentialTrials } from "./Preferential/PreferentialTrials"
+import { PreferentialHistory } from "./Preferential/PreferentialHistory"
+import { PreferentialAnalytics } from "./Preferential/PreferentialAnalytics"
+import { PreferentialGraph } from "./Preferential/PreferentialGraph"
 
 interface ParamTypes {
   studyId: string
@@ -158,32 +157,6 @@ export const StudyDetail: FC<{
   } else if (page === "trialTable") {
     content = (
       <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
-        <Card
-          sx={{
-            margin: theme.spacing(2),
-            width: "auto",
-            height: "auto",
-            display: "flex",
-            justifyContent: "left",
-            alignItems: "left",
-          }}
-        >
-          <CardContent>
-            <IconButton
-              aria-label="download csv"
-              size="small"
-              color="inherit"
-              download
-              sx={{ margin: "auto 0" }}
-              href={`/csv/${studyDetail?.id}`}
-            >
-              <DownloadIcon />
-              <Typography variant="button" sx={{ margin: theme.spacing(2) }}>
-                Download CSV File
-              </Typography>
-            </IconButton>
-          </CardContent>
-        </Card>
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
             <TrialTable studyDetail={studyDetail} initialRowsPerPage={50} />
@@ -229,7 +202,7 @@ export const StudyDetail: FC<{
       </Box>
     )
   } else if (page === "preferenceHistory") {
-    content = <PreferenceHistory studyDetail={studyDetail} />
+    content = <PreferentialHistory studyDetail={studyDetail} />
   }
 
   const toolbar = (

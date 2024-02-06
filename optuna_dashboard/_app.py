@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import functools
+import importlib
 import io
 from itertools import chain
 import logging
@@ -95,6 +96,7 @@ def create_app(
     def api_meta() -> dict[str, Any]:
         return {
             "artifact_is_available": artifact_store is not None,
+            "plotlypy_is_available": importlib.util.find_spec("plotly") is not None,
         }
 
     @app.get("/api/studies")
@@ -269,6 +271,46 @@ def create_app(
         except ValueError as e:
             response.status = 400  # Bad request
             return {"reason": str(e)}
+
+    @app.get("/api/studies/<study_id:int>/plot/<plot_type>")
+    @json_api_view
+    def get_plot(study_id: int, plot_type: str) -> dict[str, Any]:
+        study = optuna.load_study(
+            study_name=storage.get_study_name_from_id(study_id), storage=storage
+        )
+        if plot_type == "contour":
+            fig = optuna.visualization.plot_contour(study)
+        elif plot_type == "slice":
+            fig = optuna.visualization.plot_slice(study)
+            # Note: Optuna's implementation forces a minimum width.
+            # We override it to prevent the figure from going beyond the screen width.
+            # https://github.com/optuna/optuna/blob/2abd0ae81eaf3683ce1dd580429904c8a705300d/optuna/visualization/_slice.py#L237-L239
+            fig.update_layout(width=None)
+        elif plot_type == "parallel_coordinate":
+            fig = optuna.visualization.plot_parallel_coordinate(study)
+        elif plot_type == "rank":
+            fig = optuna.visualization.plot_rank(study)
+        elif plot_type == "edf":
+            fig = optuna.visualization.plot_edf(study)
+        else:
+            response.status = 404  # Not found
+            return {"reason": f"plot_type={plot_type} is not supported."}
+        return fig.to_json()
+
+    @app.get("/api/compare-studies/plot/<plot_type>")
+    @json_api_view
+    def get_compare_studies_plot(plot_type: str) -> dict[str, Any]:
+        study_ids = map(int, request.query.getall("study_ids[]"))
+        studies = [
+            optuna.load_study(study_name=storage.get_study_name_from_id(study_id), storage=storage)
+            for study_id in study_ids
+        ]
+        if plot_type == "edf":
+            fig = optuna.visualization.plot_edf(studies)
+        else:
+            response.status = 404  # Not found
+            return {"reason": f"plot_type={plot_type} is not supported."}
+        return fig.to_json()
 
     @app.put("/api/studies/<study_id:int>/note")
     @json_api_view
@@ -477,9 +519,9 @@ def create_app(
         param_names_header = [f"Param {x}" for x in param_names]
         user_attr_names_header = [f"UserAttribute {x}" for x in user_attr_names]
         n_objs = len(study.directions)
-        if study.metric_names is not None:
+        if hasattr(study, "metric_names") and study.metric_names is not None:
             value_header = study.metric_names
-        else:
+        else:  # optuna < v3.4.0
             value_header = ["Value"] if n_objs == 1 else [f"Objective {x}" for x in range(n_objs)]
         column_names = (
             ["Number", "State"] + value_header + param_names_header + user_attr_names_header

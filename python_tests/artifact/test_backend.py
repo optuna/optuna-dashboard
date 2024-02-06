@@ -4,6 +4,13 @@ import tempfile
 from unittest.mock import MagicMock
 
 import optuna
+from packaging import version
+import pytest
+
+
+if version.parse(optuna.__version__) < version.parse("3.3.0"):
+    pytest.skip("optuna.artiracts module is introduced at v3.3.0", allow_module_level=True)
+
 from optuna.artifacts import FileSystemArtifactStore
 from optuna.artifacts import upload_artifact
 from optuna.storages import BaseStorage
@@ -12,7 +19,6 @@ from optuna_dashboard.artifact import _backend
 from optuna_dashboard.artifact import upload_artifact as dashboard_upload_artifact
 from optuna_dashboard.artifact._backend_to_store import to_artifact_store
 from optuna_dashboard.artifact.file_system import FileSystemBackend
-import pytest
 
 from ..wsgi_client import send_request
 
@@ -84,9 +90,12 @@ def test_delete_all_artifacts(init_storage_with_artifact_meta: MagicMock) -> Non
 
 def test_list_trial_artifacts(init_storage_with_artifact_meta: MagicMock) -> None:
     storage = init_storage_with_artifact_meta
-    trial = MagicMock(_trial_id=0, system_attrs=storage.get_trial_system_attrs(0))
+    trial_system_attrs = storage.get_trial_system_attrs(0)
+    trial = MagicMock(_trial_id=0, system_attrs={})
 
-    actual = _backend.list_trial_artifacts(storage.get_study_system_attrs(0), trial)
+    actual = _backend.list_trial_artifacts(
+        storage.get_study_system_attrs(0), trial_system_attrs, trial
+    )
     assert actual == [
         {"artifact_id": "id0", "filename": "foo.txt"},
         {"artifact_id": "id1", "filename": "bar.txt"},
@@ -119,6 +128,10 @@ def test_study_artifact_not_found() -> None:
         assert status == 404
 
 
+@pytest.mark.skipif(
+    version.parse(optuna.__version__) < version.parse("3.4.0"),
+    reason="upload_artiract needs storage",
+)
 def test_successful_study_artifact_retrieval() -> None:
     storage = optuna.storages.InMemoryStorage()
     study = optuna.create_study(storage=storage)
@@ -254,6 +267,10 @@ def test_upload_artifact() -> None:
             assert data == "dummy_content"
 
 
+@pytest.mark.skipif(
+    version.parse(optuna.__version__) < version.parse("3.4.0"),
+    reason="upload_artiract needs storage",
+)
 def test_delete_study_artifact() -> None:
     storage = optuna.storages.InMemoryStorage()
     study = optuna.create_study(storage=storage)

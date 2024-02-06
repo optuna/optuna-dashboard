@@ -36,8 +36,11 @@ def test_list_optuna_trial_artifacts() -> None:
         study.tell(trial, 0.0)
 
         study_system_attrs = storage.get_study_system_attrs(study._study_id)
+        trial_system_attrs = storage.get_trial_system_attrs(trial._trial_id)
         frozen_trial = storage.get_trial(trial._trial_id)
-        artifact_meta_list = list_trial_artifacts(study_system_attrs, frozen_trial)
+        artifact_meta_list = list_trial_artifacts(
+            study_system_attrs, trial_system_attrs, frozen_trial
+        )
         assert len(artifact_meta_list) == 1
 
         artifact_id = artifact_meta_list[0]["artifact_id"]

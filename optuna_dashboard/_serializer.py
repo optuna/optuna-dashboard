@@ -248,7 +248,7 @@ def serialize_frozen_trial(
         ],
         "user_attrs": serialize_attrs(trial.user_attrs),
         "note": note.get_note_from_system_attrs(study_system_attrs, trial._trial_id),
-        "artifacts": list_trial_artifacts(study_system_attrs, trial),
+        "artifacts": list_trial_artifacts(study_system_attrs, trial_system_attrs, trial),
         "constraints": trial_system_attrs.get(CONSTRAINTS_KEY, []),
     }
 
