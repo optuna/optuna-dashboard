@@ -21,6 +21,7 @@ import {
   useObjectiveAndUserAttrTargetsFromStudies,
 } from "../trialFilter"
 import { usePlotlyColorTheme } from "../state"
+import { useNavigate } from "react-router-dom"
 
 const plotDomId = "graph-history"
 
@@ -38,7 +39,7 @@ export const GraphHistory: FC<{
 }> = ({ studies, logScale, includePruned }) => {
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
-
+  const navigate = useNavigate()
   const [xAxis, setXAxis] = useState<
     "number" | "datetime_start" | "datetime_complete"
   >("number")
@@ -72,15 +73,42 @@ export const GraphHistory: FC<{
       colorTheme,
       markerSize
     )
-  }, [
-    studies,
-    selected,
-    logScale,
-    xAxis,
-    theme.palette.mode,
-    colorTheme,
-    markerSize,
-  ])
+    const element = document.getElementById(plotDomId)
+    if (element !== null && studies.length >= 1) {
+      // @ts-ignore
+      element.on("plotly_click", (data) => {
+        if (data.points[0].data.mode !== "lines") {
+          let studyId = 1
+          if (data.points[0].data.name.includes("Infeasible Trial of")) {
+            const studyInfo: { id: number; name: string }[] = []
+            studies.forEach((study) => {
+              studyInfo.push({ id: study.id, name: study.name })
+            })
+            const dataPointStudyName = data.points[0].data.name.replace(
+              "Infeasible Trial of ",
+              ""
+            )
+            const targetId = studyInfo.find(
+              (s) => s.name === dataPointStudyName
+            )?.id
+            if (targetId !== undefined) {
+              studyId = targetId
+            }
+          } else {
+            studyId = studies[Math.floor(data.points[0].curveNumber / 2)].id
+          }
+          navigate(
+            URL_PREFIX +
+              `/studies/${studyId}/trials?numbers=${data.points[0].x}`
+          )
+        }
+      })
+      return () => {
+        // @ts-ignore
+        element.removeAllListeners("plotly_click")
+      }
+    }
+  }, [studies, selected, logScale, xAxis, theme.palette.mode, colorTheme, markerSize])
 
   const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
     setTarget(event.target.value)
@@ -226,8 +254,8 @@ const plotHistory = (
     return xAxis === "number"
       ? trial.number
       : xAxis === "datetime_start"
-      ? trial.datetime_start ?? new Date()
-      : trial.datetime_complete ?? new Date()
+        ? trial.datetime_start ?? new Date()
+        : trial.datetime_complete ?? new Date()
   }
 
   const plotData: Partial<plotly.PlotData>[] = []

@@ -3,6 +3,7 @@ import {
   LightColorTemplates,
   DarkColorTemplates,
 } from "./components/PlotlyColorTemplates"
+import { useQuery } from "./urlQuery"
 
 export const studySummariesState = atom<StudySummary[]>({
   key: "studySummaries",
@@ -34,6 +35,11 @@ export const reloadIntervalState = atom<number>({
 
 export const drawerOpenState = atom<boolean>({
   key: "drawerOpen",
+  default: false,
+})
+
+export const fetchedTrialsPartiallyState = atom<boolean>({
+  key: "fetchedTrialsPartially",
   default: false,
 })
 
@@ -124,4 +130,19 @@ export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
   } else {
     return LightColorTemplates[theme.light]
   }
+}
+
+export const useBackendRender = (): boolean => {
+  const query = useQuery()
+  const plotlypyIsAvailable = useRecoilValue<boolean>(plotlypyIsAvailableState)
+
+  if (query.get("plotlypy_rendering") === "true") {
+    if (plotlypyIsAvailable) {
+      return true
+    }
+    console.warn(
+      "Use frontend rendering because plotlypy is specified but not available."
+    )
+  }
+  return false
 }

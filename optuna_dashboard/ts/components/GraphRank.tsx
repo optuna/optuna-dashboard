@@ -13,7 +13,8 @@ import {
 } from "@mui/material"
 import { getAxisInfo, makeHovertext } from "../graphUtil"
 import { useMergedUnionSearchSpace } from "../searchSpace"
-import { usePlotlyColorTheme } from "../state"
+import { usePlotlyColorTheme, useBackendRender } from "../state"
+import { getPlotAPI, PlotType } from "../apiClient"
 
 const plotDomId = "graph-rank"
 
@@ -30,6 +31,37 @@ interface RankPlotInfo {
 }
 
 export const GraphRank: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  if (useBackendRender()) {
+    return <GraphRankBackend study={study} />
+  } else {
+    return <GraphRankFrontend study={study} />
+  }
+}
+
+const GraphRankBackend: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  const studyId = study?.id
+  const numCompletedTrials =
+    study?.trials.filter((t) => t.state === "Complete").length || 0
+  useEffect(() => {
+    if (studyId === undefined) {
+      return
+    }
+    getPlotAPI(studyId, PlotType.Rank)
+      .then(({ data, layout }) => {
+        plotly.react(plotDomId, data, layout)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+  }, [studyId, numCompletedTrials])
+  return <Box id={plotDomId} sx={{ height: "450px" }} />
+}
+
+const GraphRankFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
@@ -159,8 +191,8 @@ const getRankPlotInfo = (
     return typeof value === "number"
       ? value
       : value.includes("-")
-      ? -Infinity
-      : Infinity
+        ? -Infinity
+        : Infinity
   }
   filteredTrials.forEach((trial, i) => {
     const xValue = xAxis.values[i]

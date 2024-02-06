@@ -12,11 +12,11 @@ import {
 import Grid2 from "@mui/material/Unstable_Grid2"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import HomeIcon from "@mui/icons-material/Home"
-import DownloadIcon from "@mui/icons-material/Download"
 
 import { StudyNote } from "./Note"
 import { actionCreator } from "../action"
 import {
+  fetchedTrialsPartiallyState,
   reloadIntervalState,
   useStudyDetailValue,
   useStudyIsPreferential,
@@ -57,6 +57,9 @@ export const StudyDetail: FC<{
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studyName = useStudyName(studyId)
   const isPreferential = useStudyIsPreferential(studyId)
+  const fetchedTrialsPartially = useRecoilValue<boolean>(
+    fetchedTrialsPartiallyState
+  )
 
   const title =
     studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
@@ -73,9 +76,13 @@ export const StudyDetail: FC<{
     const nTrials = studyDetail ? studyDetail.trials.length : 0
     let interval = reloadInterval * 1000
 
+    // If trials are left in cache, we collect them quickly.
     // For Human-in-the-loop Optimization, the interval is set to 2 seconds
     // when the number of trials is small, and the page is "trialList" or top page of preferential.
-    if (
+    if (fetchedTrialsPartially) {
+      // Too short time is frustrating because the page freezes until the rendering is done.
+      interval = 3000
+    } else if (
       (!isPreferential && page === "trialList") ||
       (isPreferential && page === "top")
     ) {
@@ -150,32 +157,6 @@ export const StudyDetail: FC<{
   } else if (page === "trialTable") {
     content = (
       <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
-        <Card
-          sx={{
-            margin: theme.spacing(2),
-            width: "auto",
-            height: "auto",
-            display: "flex",
-            justifyContent: "left",
-            alignItems: "left",
-          }}
-        >
-          <CardContent>
-            <IconButton
-              aria-label="download csv"
-              size="small"
-              color="inherit"
-              download
-              sx={{ margin: "auto 0" }}
-              href={`/csv/${studyDetail?.id}`}
-            >
-              <DownloadIcon />
-              <Typography variant="button" sx={{ margin: theme.spacing(2) }}>
-                Download CSV File
-              </Typography>
-            </IconButton>
-          </CardContent>
-        </Card>
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
             <TrialTable studyDetail={studyDetail} initialRowsPerPage={50} />

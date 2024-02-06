@@ -104,16 +104,19 @@ interface StudyDetailResponse {
   artifacts: Artifact[]
   feedback_component_type: FeedbackComponentType
   skipped_trial_numbers?: number[]
+  fetched_trials_partially: boolean
 }
 
 export const getStudyDetailAPI = (
   studyId: number,
-  nLocalTrials: number
+  nLocalTrials: number,
+  nMaximumTrialsAtOnce: number
 ): Promise<StudyDetail> => {
   return axiosInstance
     .get<StudyDetailResponse>(`/api/studies/${studyId}`, {
       params: {
         after: nLocalTrials,
+        limit: nMaximumTrialsAtOnce,
       },
     })
     .then((res) => {
@@ -147,6 +150,7 @@ export const getStudyDetailAPI = (
         plotly_graph_objects: res.data.plotly_graph_objects,
         artifacts: res.data.artifacts,
         skipped_trial_numbers: res.data.skipped_trial_numbers ?? [],
+        fetched_trials_partially: res.data.fetched_trials_partially,
       }
     })
 }
@@ -448,6 +452,10 @@ type PlotResponse = {
 }
 export enum PlotType {
   Contour = "contour",
+  Slice = "slice",
+  ParallelCoordinate = "parallel_coordinate",
+  Rank = "rank",
+  EDF = "edf",
 }
 export const getPlotAPI = (
   studyId: number,
@@ -455,5 +463,19 @@ export const getPlotAPI = (
 ): Promise<PlotResponse> => {
   return axiosInstance
     .get<PlotResponse>(`/api/studies/${studyId}/plot/${plotType}`)
+    .then<PlotResponse>((res) => res.data)
+}
+
+export enum CompareStudiesPlotType {
+  EDF = "edf",
+}
+export const getCompareStudiesPlotAPI = (
+  studyIds: number[],
+  plotType: CompareStudiesPlotType
+): Promise<PlotResponse> => {
+  return axiosInstance
+    .get<PlotResponse>(`/api/compare-studies/plot/${plotType}`, {
+      params: { study_ids: studyIds },
+    })
     .then<PlotResponse>((res) => res.data)
 }

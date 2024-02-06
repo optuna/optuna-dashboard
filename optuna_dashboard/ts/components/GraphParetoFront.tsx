@@ -13,6 +13,7 @@ import {
 } from "@mui/material"
 import { makeHovertext } from "../graphUtil"
 import { usePlotlyColorTheme } from "../state"
+import { useNavigate } from "react-router-dom"
 
 const plotDomId = "graph-pareto-front"
 
@@ -21,7 +22,7 @@ export const GraphParetoFront: FC<{
 }> = ({ study = null }) => {
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
-
+  const navigate = useNavigate()
   const [objectiveXId, setObjectiveXId] = useState<number>(0)
   const [objectiveYId, setObjectiveYId] = useState<number>(1)
   const objectiveNames: string[] = study?.objective_names || []
@@ -43,6 +44,23 @@ export const GraphParetoFront: FC<{
         theme.palette.mode,
         colorTheme
       )
+      const element = document.getElementById(plotDomId)
+      if (element != null) {
+        // @ts-ignore
+        element.on("plotly_click", (data) => {
+          const plotTextInfo = JSON.parse(
+            data.points[0].text.replace(/<br>/g, "")
+          )
+          navigate(
+            URL_PREFIX +
+              `/studies/${study.id}/trials?numbers=${plotTextInfo.number}`
+          )
+        })
+        return () => {
+          // @ts-ignore
+          element.removeAllListeners("plotly_click")
+        }
+      }
     }
   }, [study, objectiveXId, objectiveYId, theme.palette.mode, colorTheme])
 
@@ -196,12 +214,12 @@ const getIsDominated2D = (normalizedValues: number[][]) => {
       a[0] > b[0]
         ? 1
         : a[0] < b[0]
-        ? -1
-        : a[1] > b[1]
-        ? 1
-        : a[1] < b[1]
-        ? -1
-        : 0
+          ? -1
+          : a[1] > b[1]
+            ? 1
+            : a[1] < b[1]
+              ? -1
+              : 0
     )
   let maxValueSeen0 = sorted[0][0]
   let minValueSeen1 = sorted[0][1]
