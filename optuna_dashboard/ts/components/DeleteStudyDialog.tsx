@@ -11,7 +11,7 @@ import { actionCreator } from "../action"
 
 export const useDeleteStudyDialog = (): [
   (studyId: number) => void,
-  () => ReactNode
+  () => ReactNode,
 ] => {
   const action = actionCreator()
 

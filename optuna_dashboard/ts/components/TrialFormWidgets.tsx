@@ -42,8 +42,8 @@ export const TrialFormWidgets: FC<{
     formWidgets.output_type === "user_attr"
       ? "Set User Attributes Form"
       : directions.length > 1
-      ? "Set Objective Values Form"
-      : "Set Objective Value Form"
+        ? "Set Objective Values Form"
+        : "Set Objective Value Form"
   const widgetNames = formWidgets.widgets.map((widget, i) => {
     if (formWidgets.output_type === "objective") {
       if (objectiveNames.at(i) !== undefined) {

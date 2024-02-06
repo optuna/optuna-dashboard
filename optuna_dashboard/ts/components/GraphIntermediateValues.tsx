@@ -95,8 +95,8 @@ const plotIntermediateValue = (
         trial.state === "Running"
           ? "(running)"
           : !isFeasible
-          ? "(infeasible)"
-          : ""
+            ? "(infeasible)"
+            : ""
       }`,
       ...(!isFeasible && { line: { color: "#CCCCCC" } }),
     }

@@ -190,8 +190,8 @@ const getRankPlotInfo = (
     return typeof value === "number"
       ? value
       : value.includes("-")
-      ? -Infinity
-      : Infinity
+        ? -Infinity
+        : Infinity
   }
   filteredTrials.forEach((trial, i) => {
     const xValue = xAxis.values[i]

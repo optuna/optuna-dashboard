@@ -207,12 +207,12 @@ const getIsDominated2D = (normalizedValues: number[][]) => {
       a[0] > b[0]
         ? 1
         : a[0] < b[0]
-        ? -1
-        : a[1] > b[1]
-        ? 1
-        : a[1] < b[1]
-        ? -1
-        : 0
+          ? -1
+          : a[1] > b[1]
+            ? 1
+            : a[1] < b[1]
+              ? -1
+              : 0
     )
   let maxValueSeen0 = sorted[0][0]
   let minValueSeen1 = sorted[0][1]
