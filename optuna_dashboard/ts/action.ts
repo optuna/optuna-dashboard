@@ -51,6 +51,7 @@ export const actionCreator = () => {
   const setArtifactIsAvailable = useSetRecoilState<boolean>(artifactIsAvailable)
   const setFetchedTrialsPartially = useSetRecoilState<boolean>(
     fetchedTrialsPartiallyState
+  )
   const setPlotlypyIsAvailable = useSetRecoilState<boolean>(
     plotlypyIsAvailableState
   )
