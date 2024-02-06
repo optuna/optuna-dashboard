@@ -41,7 +41,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --progress-bar off .
-          python -m pip install --progress-bar off pytest-playwright<0.4.4  # this version is flaky
+          python -m pip install --progress-bar off pytest-playwright==0.4.3  # next version is flaky
 
       - name: Install the required browsers
         run: playwright install
