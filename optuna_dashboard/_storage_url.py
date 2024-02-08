@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os.path
+from pathlib import Path
 import re
 from typing import TYPE_CHECKING
 
@@ -58,11 +59,22 @@ def get_storage(
     return guess_storage_from_url(storage)
 
 
+def _has_sqlite_suffix(storage_url: str) -> bool:
+    storage_path = Path(storage_url)
+    SQLITE_EXTENSIONS = (".db", ".sqlite3")
+    return storage_path.suffix in SQLITE_EXTENSIONS
+
+
 def guess_storage_from_url(storage_url: str) -> BaseStorage:
     if storage_url.startswith("redis"):
         return get_journal_redis_storage(storage_url)
 
     if os.path.isfile(storage_url):
+        if _has_sqlite_suffix(storage_url):
+            raise ValueError(
+                "It looks like you are trying to open a sqlite db. "
+                + "Please make sure you specify the driver, e.g.: sqlite:///example.db"
+            )
         return get_journal_file_storage(storage_url)
 
     if rfc1738_pattern.match(storage_url) is not None:
