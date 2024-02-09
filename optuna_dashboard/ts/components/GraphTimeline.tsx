@@ -37,7 +37,12 @@ const GraphTimelineBackend: FC<{
         console.error(err)
       })
   }, [studyId, numCompletedTrials])
-  return <Grid item xs={9}> <div id={plotDomId} /> </Grid>
+  return (
+    <Grid item xs={9}>
+      {" "}
+      <div id={plotDomId} />{" "}
+    </Grid>
+  )
 }
 
 const GraphTimelineFrontend: FC<{

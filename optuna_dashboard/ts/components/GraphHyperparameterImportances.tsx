@@ -3,7 +3,11 @@ import React, { FC, useEffect } from "react"
 import { Typography, useTheme, Box, Card, CardContent } from "@mui/material"
 
 import { useParamImportance } from "../hooks/useParamImportance"
-import { useStudyDirections, usePlotlyColorTheme, useBackendRender } from "../state"
+import {
+  useStudyDirections,
+  usePlotlyColorTheme,
+  useBackendRender,
+} from "../state"
 import { getPlotAPI, PlotType } from "../apiClient"
 
 const plotDomId = "graph-hyperparameter-importances"
@@ -14,9 +18,21 @@ export const GraphHyperparameterImportance: FC<{
   graphHeight: string
 }> = ({ studyId, study = null, graphHeight }) => {
   if (useBackendRender()) {
-    return <GraphHyperparameterImportanceBackend studyId={studyId} study={study} graphHeight={graphHeight} />
+    return (
+      <GraphHyperparameterImportanceBackend
+        studyId={studyId}
+        study={study}
+        graphHeight={graphHeight}
+      />
+    )
   } else {
-    return <GraphHyperparameterImportanceFrontend studyId={studyId} study={study} graphHeight={graphHeight} />
+    return (
+      <GraphHyperparameterImportanceFrontend
+        studyId={studyId}
+        study={study}
+        graphHeight={graphHeight}
+      />
+    )
   }
 }
 
