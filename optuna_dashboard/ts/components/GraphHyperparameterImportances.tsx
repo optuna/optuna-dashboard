@@ -2,9 +2,8 @@ import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
 import { Typography, useTheme, Box, Card, CardContent } from "@mui/material"
 
-import { actionCreator } from "../action"
-import { useParamImportanceValue, useStudyDirections } from "../state"
-import { usePlotlyColorTheme } from "../state"
+import { useParamImportance } from "../hooks/useParamImportance"
+import { useStudyDirections, usePlotlyColorTheme } from "../state"
 
 const plotDomId = "graph-hyperparameter-importances"
 
@@ -16,10 +15,12 @@ export const GraphHyperparameterImportance: FC<{
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
 
-  const action = actionCreator()
-  const importances = useParamImportanceValue(studyId)
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
+  const { importances } = useParamImportance({
+    numCompletedTrials,
+    studyId,
+  })
   const nObjectives = useStudyDirections(studyId)?.length
   const objectiveNames: string[] =
     study?.objective_names ||
@@ -27,11 +28,7 @@ export const GraphHyperparameterImportance: FC<{
     []
 
   useEffect(() => {
-    action.updateParamImportance(studyId)
-  }, [numCompletedTrials])
-
-  useEffect(() => {
-    if (importances !== null && nObjectives === importances.length) {
+    if (importances !== undefined && nObjectives === importances.length) {
       plotParamImportance(importances, objectiveNames, colorTheme)
     }
   }, [nObjectives, importances, colorTheme])

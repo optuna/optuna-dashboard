@@ -22,11 +22,6 @@ export const trialsUpdatingState = atom<{
   default: {},
 })
 
-export const paramImportanceState = atom<StudyParamImportance>({
-  key: "paramImportance",
-  default: {},
-})
-
 // TODO(c-bata): Consider representing the state as boolean.
 export const reloadIntervalState = atom<number>({
   key: "reloadInterval",
@@ -79,14 +74,6 @@ export const useStudySummaryValue = (studyId: number): StudySummary | null => {
 export const useTrialUpdatingValue = (trialId: number): boolean => {
   const updating = useRecoilValue(trialsUpdatingState)
   return updating[trialId] || false
-}
-
-export const useParamImportanceValue = (
-  studyId: number
-): ParamImportance[][] | null => {
-  const studyParamImportance =
-    useRecoilValue<StudyParamImportance>(paramImportanceState)
-  return studyParamImportance[studyId] || null
 }
 
 export const useStudyDirections = (
