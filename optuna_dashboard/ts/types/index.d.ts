@@ -226,9 +226,6 @@ type StudyDetails = {
   [study_id: string]: StudyDetail
 }
 
-type StudyParamImportance = {
-  [study_id: string]: ParamImportance[][]
-}
 type PreferenceHistory = {
   id: string
   candidates: number[]
