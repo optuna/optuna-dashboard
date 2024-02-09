@@ -17,7 +17,7 @@ export const useParamImportance = ({
     queryKey: ["paramImportance", studyId, numCompletedTrials],
     queryFn: () => getParamImportances(studyId),
     staleTime: Infinity,
-    gcTime: Infinity,
+    gcTime: 30 * 60 * 1000, // 30 minutes
   })
 
   useEffect(() => {

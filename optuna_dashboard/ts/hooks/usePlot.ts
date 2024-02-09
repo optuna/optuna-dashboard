@@ -25,7 +25,7 @@ export const usePlot = ({
       return getPlotAPI(studyId, plotType)
     },
     staleTime: Infinity,
-    gcTime: Infinity,
+    gcTime: 30 * 60 * 1000, // 30 minutes
   })
 
   return {
