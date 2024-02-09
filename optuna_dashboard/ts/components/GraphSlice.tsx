@@ -20,8 +20,9 @@ import {
   useParamTargets,
 } from "../trialFilter"
 import { useMergedUnionSearchSpace } from "../searchSpace"
-import { getPlotAPI, PlotType } from "../apiClient"
+import { PlotType } from "../apiClient"
 import { useBackendRender } from "../state"
+import { usePlot } from "../hooks/usePlot"
 
 const plotDomId = "graph-slice"
 
@@ -48,18 +49,24 @@ const GraphSliceBackend: FC<{
   const studyId = study?.id
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
+
+  const { data, layout, error } = usePlot({
+    numCompletedTrials,
+    studyId,
+    plotType: PlotType.Slice,
+  })
+
   useEffect(() => {
-    if (studyId === undefined) {
-      return
+    if (data && layout) {
+      plotly.react(plotDomId, data, layout)
     }
-    getPlotAPI(studyId, PlotType.Slice)
-      .then(({ data, layout }) => {
-        plotly.react(plotDomId, data, layout)
-      })
-      .catch((err) => {
-        console.error(err)
-      })
-  }, [studyId, numCompletedTrials])
+  }, [data, layout])
+  useEffect(() => {
+    if (error) {
+      console.error(error)
+    }
+  }, [error])
+
   return <Box id={plotDomId} sx={{ height: "450px" }} />
 }
 

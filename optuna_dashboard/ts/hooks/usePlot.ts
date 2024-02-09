@@ -17,7 +17,7 @@ export const usePlot = ({
     AxiosError
   >({
     enabled: studyId !== undefined,
-    queryKey: ["plot", studyId, numCompletedTrials],
+    queryKey: ["plot", studyId, numCompletedTrials, plotType],
     queryFn: () => {
       if (studyId === undefined) {
         return Promise.reject(new Error("Invalid studyId"))

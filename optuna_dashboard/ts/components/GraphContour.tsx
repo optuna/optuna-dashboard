@@ -15,8 +15,9 @@ import blue from "@mui/material/colors/blue"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { getAxisInfo } from "../graphUtil"
-import { getPlotAPI, PlotType } from "../apiClient"
+import { PlotType } from "../apiClient"
 import { useBackendRender } from "../state"
+import { usePlot } from "../hooks/usePlot"
 
 const plotDomId = "graph-contour"
 
@@ -36,18 +37,23 @@ const ContourBackend: FC<{
   const studyId = study?.id
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
+  const { data, layout, error } = usePlot({
+    numCompletedTrials,
+    studyId,
+    plotType: PlotType.Contour,
+  })
+
   useEffect(() => {
-    if (studyId === undefined) {
-      return
+    if (data && layout) {
+      plotly.react(plotDomId, data, layout)
     }
-    getPlotAPI(studyId, PlotType.Contour)
-      .then(({ data, layout }) => {
-        plotly.react(plotDomId, data, layout)
-      })
-      .catch((err) => {
-        console.error(err)
-      })
-  }, [studyId, numCompletedTrials])
+  }, [data, layout])
+  useEffect(() => {
+    if (error) {
+      console.error(error)
+    }
+  }, [error])
+
   return <Box id={plotDomId} sx={{ height: "450px" }} />
 }
 
