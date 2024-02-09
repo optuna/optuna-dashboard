@@ -48,6 +48,7 @@ const GraphRankBackend: FC<{
   const studyId = study?.id
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
+
   const { data, layout, error } = usePlot({
     numCompletedTrials,
     studyId,
