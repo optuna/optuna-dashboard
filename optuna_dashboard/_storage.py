@@ -10,8 +10,6 @@ from optuna.storages import RDBStorage
 from optuna.study import StudyDirection
 from optuna.study import StudySummary
 from optuna.trial import FrozenTrial
-from optuna.version import __version__ as optuna_ver
-from packaging import version
 
 
 if typing.TYPE_CHECKING:
