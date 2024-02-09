@@ -27,7 +27,6 @@ import {
   studySummariesState,
   paramImportanceState,
   isFileUploading,
-  fetchedTrialsPartiallyState,
   artifactIsAvailable,
   plotlypyIsAvailableState,
   reloadIntervalState,
@@ -49,9 +48,6 @@ export const actionCreator = () => {
   const setUploading = useSetRecoilState<boolean>(isFileUploading)
   const setTrialsUpdating = useSetRecoilState(trialsUpdatingState)
   const setArtifactIsAvailable = useSetRecoilState<boolean>(artifactIsAvailable)
-  const setFetchedTrialsPartially = useSetRecoilState<boolean>(
-    fetchedTrialsPartiallyState
-  )
   const setPlotlypyIsAvailable = useSetRecoilState<boolean>(
     plotlypyIsAvailableState
   )
@@ -247,12 +243,8 @@ export const actionCreator = () => {
       })
   }
 
-  const updateStudyDetail = (
-    studyId: number,
-    forceFetchAllTrials: boolean = false
-  ) => {
+  const updateStudyDetail = (studyId: number) => {
     let nLocalFixedTrials = 0
-    const nMaximumTrialsAtOnce = forceFetchAllTrials ? 0 : 2000
     if (studyId in studyDetails) {
       const currentTrials = studyDetails[studyId].trials
       const firstUpdatable = currentTrials.findIndex((trial) =>
@@ -261,20 +253,14 @@ export const actionCreator = () => {
       nLocalFixedTrials =
         firstUpdatable === -1 ? currentTrials.length : firstUpdatable
     }
-    getStudyDetailAPI(studyId, nLocalFixedTrials, nMaximumTrialsAtOnce)
+    getStudyDetailAPI(studyId, nLocalFixedTrials)
       .then((study) => {
-        if (studyId in studyDetails && study.trials.length === 0) {
-          // Update trials only if necessary.
-          // NOTE: The first condition is for study with no trials.
-          return
-        }
         const currentFixedTrials =
           studyId in studyDetails
             ? studyDetails[studyId].trials.slice(0, nLocalFixedTrials)
             : []
         study.trials = currentFixedTrials.concat(study.trials)
         setStudyDetailState(studyId, study)
-        setFetchedTrialsPartially(study.fetched_trials_partially)
       })
       .catch((err) => {
         const reason = err.response?.data.reason
