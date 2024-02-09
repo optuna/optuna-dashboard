@@ -12,7 +12,6 @@ import {
   useTheme,
   Box,
 } from "@mui/material"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import {
   Target,
   useFilteredTrials,
@@ -20,8 +19,8 @@ import {
   useParamTargets,
 } from "../trialFilter"
 import { useMergedUnionSearchSpace } from "../searchSpace"
+import { usePlotlyColorTheme, useBackendRender } from "../state"
 import { getPlotAPI, PlotType } from "../apiClient"
-import { useBackendRender } from "../state"
 
 const plotDomId = "graph-slice"
 
@@ -67,6 +66,7 @@ const GraphSliceFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
 
   const [objectiveTargets, selectedObjective, setObjectiveTarget] =
     useObjectiveAndUserAttrTargets(study)
@@ -90,7 +90,7 @@ const GraphSliceFrontend: FC<{
       selectedParamTarget,
       searchSpace.find((s) => s.name === selectedParamTarget?.key) || null,
       logYScale,
-      theme.palette.mode
+      colorTheme
     )
   }, [
     trials,
@@ -98,7 +98,7 @@ const GraphSliceFrontend: FC<{
     searchSpace,
     selectedParamTarget,
     logYScale,
-    theme.palette.mode,
+    colorTheme,
   ])
 
   const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
@@ -180,7 +180,7 @@ const plotSlice = (
   selectedParamTarget: Target | null,
   selectedParamSpace: SearchSpaceItem | null,
   logYScale: boolean,
-  mode: string
+  colorTheme: Partial<Plotly.Template>
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -210,7 +210,7 @@ const plotSlice = (
     },
     showlegend: false,
     uirevision: "true",
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: colorTheme,
   }
   if (
     selectedParamSpace === null ||

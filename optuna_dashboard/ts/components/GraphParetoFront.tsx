@@ -11,8 +11,8 @@ import {
   useTheme,
   Box,
 } from "@mui/material"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { makeHovertext } from "../graphUtil"
+import { usePlotlyColorTheme } from "../state"
 import { useNavigate } from "react-router-dom"
 
 const plotDomId = "graph-pareto-front"
@@ -21,6 +21,7 @@ export const GraphParetoFront: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
   const navigate = useNavigate()
   const [objectiveXId, setObjectiveXId] = useState<number>(0)
   const [objectiveYId, setObjectiveYId] = useState<number>(1)
@@ -36,7 +37,13 @@ export const GraphParetoFront: FC<{
 
   useEffect(() => {
     if (study != null) {
-      plotParetoFront(study, objectiveXId, objectiveYId, theme.palette.mode)
+      plotParetoFront(
+        study,
+        objectiveXId,
+        objectiveYId,
+        theme.palette.mode,
+        colorTheme
+      )
       const element = document.getElementById(plotDomId)
       if (element != null) {
         // @ts-ignore
@@ -55,7 +62,7 @@ export const GraphParetoFront: FC<{
         }
       }
     }
-  }, [study, objectiveXId, objectiveYId, theme.palette.mode])
+  }, [study, objectiveXId, objectiveYId, theme.palette.mode, colorTheme])
 
   return (
     <Grid container direction="row">
@@ -254,7 +261,8 @@ const plotParetoFront = (
   study: StudyDetail,
   objectiveXId: number,
   objectiveYId: number,
-  mode: string
+  mode: string,
+  colorTheme: Partial<Plotly.Template>
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -267,7 +275,7 @@ const plotParetoFront = (
       r: 50,
       b: 0,
     },
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: colorTheme,
     uirevision: "true",
   }
 
