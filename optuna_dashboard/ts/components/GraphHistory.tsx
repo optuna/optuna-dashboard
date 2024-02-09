@@ -15,12 +15,12 @@ import {
   useTheme,
   Slider,
 } from "@mui/material"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import {
   useFilteredTrialsFromStudies,
   Target,
   useObjectiveAndUserAttrTargetsFromStudies,
 } from "../trialFilter"
+import { usePlotlyColorTheme } from "../state"
 import { useNavigate } from "react-router-dom"
 
 const plotDomId = "graph-history"
@@ -38,6 +38,7 @@ export const GraphHistory: FC<{
   includePruned: boolean
 }> = ({ studies, logScale, includePruned }) => {
   const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
   const navigate = useNavigate()
   const [xAxis, setXAxis] = useState<
     "number" | "datetime_start" | "datetime_complete"
@@ -69,6 +70,7 @@ export const GraphHistory: FC<{
       xAxis,
       logScale,
       theme.palette.mode,
+      colorTheme,
       markerSize
     )
     const element = document.getElementById(plotDomId)
@@ -106,7 +108,15 @@ export const GraphHistory: FC<{
         element.removeAllListeners("plotly_click")
       }
     }
-  }, [studies, selected, logScale, xAxis, theme.palette.mode, markerSize])
+  }, [
+    studies,
+    selected,
+    logScale,
+    xAxis,
+    theme.palette.mode,
+    colorTheme,
+    markerSize,
+  ])
 
   const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
     setTarget(event.target.value)
@@ -216,6 +226,7 @@ const plotHistory = (
   xAxis: "number" | "datetime_start" | "datetime_complete",
   logScale: boolean,
   mode: string,
+  colorTheme: Partial<Plotly.Template>,
   markerSize: number
 ) => {
   if (document.getElementById(plotDomId) === null) {
@@ -223,7 +234,7 @@ const plotHistory = (
   }
   if (historyPlotInfos.length === 0) {
     plotly.react(plotDomId, [], {
-      template: mode === "dark" ? plotlyDarkTemplate : {},
+      template: colorTheme,
     })
     return
   }
@@ -244,7 +255,7 @@ const plotHistory = (
       type: xAxis === "number" ? "linear" : "date",
     },
     showlegend: historyPlotInfos.length === 1 ? false : true,
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: colorTheme,
   }
 
   const getAxisX = (trial: Trial): number | Date => {

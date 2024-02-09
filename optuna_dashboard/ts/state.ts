@@ -1,4 +1,8 @@
 import { atom, useRecoilValue } from "recoil"
+import {
+  LightColorTemplates,
+  DarkColorTemplates,
+} from "./components/PlotlyColorTemplates"
 import { useQuery } from "./urlQuery"
 
 export const studySummariesState = atom<StudySummary[]>({
@@ -29,6 +33,11 @@ export const drawerOpenState = atom<boolean>({
   default: false,
 })
 
+export const fetchedTrialsPartiallyState = atom<boolean>({
+  key: "fetchedTrialsPartially",
+  default: false,
+})
+
 export const isFileUploading = atom<boolean>({
   key: "isFileUploading",
   default: false,
@@ -37,6 +46,14 @@ export const isFileUploading = atom<boolean>({
 export const artifactIsAvailable = atom<boolean>({
   key: "artifactIsAvailable",
   default: false,
+})
+
+export const plotlyColorTheme = atom<PlotlyColorTheme>({
+  key: "plotlyDarkColorScale",
+  default: {
+    dark: "default",
+    light: "default",
+  },
 })
 
 export const plotlypyIsAvailableState = atom<boolean>({
@@ -91,6 +108,15 @@ export const useArtifacts = (studyId: number, trialId: number): Artifact[] => {
     return []
   }
   return trial.artifacts
+}
+
+export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
+  const theme = useRecoilValue(plotlyColorTheme)
+  if (mode === "dark") {
+    return DarkColorTemplates[theme.dark]
+  } else {
+    return LightColorTemplates[theme.light]
+  }
 }
 
 export const useBackendRender = (): boolean => {

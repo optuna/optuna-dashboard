@@ -1,6 +1,8 @@
 import React, { FC } from "react"
 import { useRecoilState, useRecoilValue } from "recoil"
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles"
+import Modal from "@mui/material/Modal"
+import { Settings } from "./Settings"
 import Box from "@mui/material/Box"
 import MuiDrawer from "@mui/material/Drawer"
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar"
@@ -28,6 +30,8 @@ import Brightness4Icon from "@mui/icons-material/Brightness4"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
 import TableViewIcon from "@mui/icons-material/TableView"
 import RateReviewIcon from "@mui/icons-material/RateReview"
+import SettingsIcon from "@mui/icons-material/Settings"
+
 import MenuIcon from "@mui/icons-material/Menu"
 import GitHubIcon from "@mui/icons-material/GitHub"
 import OpenInNewIcon from "@mui/icons-material/OpenInNew"
@@ -158,6 +162,16 @@ export const AppDrawer: FC<{
 
   const handleDrawerClose = () => {
     setOpen(false)
+  }
+
+  const [settingOpen, setSettingOpen] = React.useState(false)
+
+  const handleSettingOpen = () => {
+    setSettingOpen(true)
+  }
+
+  const handleSettingClose = () => {
+    setSettingOpen(false)
   }
 
   return (
@@ -310,7 +324,12 @@ export const AppDrawer: FC<{
               <ListItemButton
                 sx={styleListItemButton}
                 onClick={() => {
-                  action.saveReloadInterval(reloadInterval === -1 ? 10 : -1)
+                  const newReloadInterval = reloadInterval === -1 ? 10 : -1
+                  action.saveReloadInterval(newReloadInterval)
+                  if (newReloadInterval === -1) {
+                    const forceFetchAllTrials = true
+                    action.updateStudyDetail(studyId, forceFetchAllTrials)
+                  }
                 }}
               >
                 <ListItemIcon sx={styleListItemIcon}>
@@ -328,6 +347,37 @@ export const AppDrawer: FC<{
               </ListItemButton>
             </ListItem>
           )}
+          <ListItem key="Settings" disablePadding sx={styleListItem}>
+            <ListItemButton
+              sx={styleListItemButton}
+              onClick={handleSettingOpen}
+            >
+              <ListItemIcon sx={styleListItemIcon}>
+                <SettingsIcon />
+              </ListItemIcon>
+              <ListItemText primary="Settings" sx={styleListItemText} />
+            </ListItemButton>
+            <Modal
+              open={settingOpen}
+              onClose={handleSettingClose}
+              aria-labelledby="modal-modal-title"
+              aria-describedby="modal-modal-description"
+            >
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: "10%",
+                  left: "10%",
+                  overflow: "auto",
+                  width: "80%",
+                  height: "80%",
+                  bgcolor: "background.paper",
+                }}
+              >
+                <Settings />
+              </Box>
+            </Modal>
+          </ListItem>
           <ListItem key="DarkMode" disablePadding sx={styleListItem}>
             <ListItemButton
               sx={styleListItemButton}

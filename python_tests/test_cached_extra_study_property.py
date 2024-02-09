@@ -132,7 +132,7 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
             create_trial(
                 state=TrialState.COMPLETE, value=0, distributions=distributions, params=params
             ),
-            create_trial(state=TrialState.FAIL, value=0, distributions={}, params={}),
+            create_trial(state=TrialState.FAIL, value=None, distributions={}, params={}),
             create_trial(
                 state=TrialState.COMPLETE, value=0, distributions=distributions, params=params
             ),
@@ -235,7 +235,7 @@ class _CachedExtraStudyPropertyUserAttrs(TestCase):
             ),
             create_trial(
                 state=TrialState.FAIL,
-                value=0,
+                value=None,
                 distributions={},
                 params={},
                 user_attrs={"bar": "bar"},

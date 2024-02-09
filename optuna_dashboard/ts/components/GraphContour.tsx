@@ -12,8 +12,8 @@ import {
   Box,
 } from "@mui/material"
 import blue from "@mui/material/colors/blue"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { useMergedUnionSearchSpace } from "../searchSpace"
+import { usePlotlyColorTheme } from "../state"
 import { getAxisInfo } from "../graphUtil"
 import { PlotType } from "../apiClient"
 import { useBackendRender } from "../state"
@@ -61,6 +61,8 @@ const ContourFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
+
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
   const [xParam, setXParam] = useState<SearchSpaceItem | null>(null)
@@ -88,9 +90,9 @@ const ContourFrontend: FC<{
 
   useEffect(() => {
     if (study != null) {
-      plotContour(study, objectiveId, xParam, yParam, theme.palette.mode)
+      plotContour(study, objectiveId, xParam, yParam, colorTheme)
     }
-  }, [study, objectiveId, xParam, yParam, theme.palette.mode])
+  }, [study, objectiveId, xParam, yParam, colorTheme])
 
   const space: SearchSpaceItem[] = study ? study.union_search_space : []
 
@@ -169,7 +171,7 @@ const plotContour = (
   objectiveId: number,
   xParam: SearchSpaceItem | null,
   yParam: SearchSpaceItem | null,
-  mode: string
+  colorTheme: Partial<Plotly.Template>
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -179,7 +181,7 @@ const plotContour = (
   const filteredTrials = trials.filter((t) => filterFunc(t, objectiveId))
   if (filteredTrials.length < 2 || xParam === null || yParam === null) {
     plotly.react(plotDomId, [], {
-      template: mode === "dark" ? plotlyDarkTemplate : {},
+      template: colorTheme,
     })
     return
   }
@@ -205,7 +207,7 @@ const plotContour = (
       b: 50,
     },
     uirevision: "true",
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: colorTheme,
   }
 
   // TODO(c-bata): Support parameters that only have the single value

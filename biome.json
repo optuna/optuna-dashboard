@@ -12,7 +12,7 @@
 			"vscode/src/**/*.tsx"
 		],
 		"ignore": [
-			"optuna_dashboard/ts/components/PlotlyDarkMode.ts",
+			"optuna_dashboard/ts/components/PlotlyColorTemplates.ts",
 			"standalone_app/src/PlotlyDarkMode.ts"
 		]
 	},
