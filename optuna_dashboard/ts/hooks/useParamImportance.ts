@@ -10,7 +10,10 @@ export const useParamImportance = ({
 }: { numCompletedTrials: number; studyId: number }) => {
   const { enqueueSnackbar } = useSnackbar()
 
-  const { data, isLoading, error } = useQuery<ParamImportance[][], AxiosError<{reason: string}>>({
+  const { data, isLoading, error } = useQuery<
+    ParamImportance[][],
+    AxiosError<{ reason: string }>
+  >({
     queryKey: ["paramImportance", studyId, numCompletedTrials],
     queryFn: () => getParamImportances(studyId),
     staleTime: Infinity,
