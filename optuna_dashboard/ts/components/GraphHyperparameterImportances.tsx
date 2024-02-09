@@ -3,11 +3,46 @@ import React, { FC, useEffect } from "react"
 import { Typography, useTheme, Box, Card, CardContent } from "@mui/material"
 
 import { useParamImportance } from "../hooks/useParamImportance"
-import { useStudyDirections, usePlotlyColorTheme } from "../state"
+import { useStudyDirections, usePlotlyColorTheme, useBackendRender } from "../state"
+import { getPlotAPI, PlotType } from "../apiClient"
 
 const plotDomId = "graph-hyperparameter-importances"
 
 export const GraphHyperparameterImportance: FC<{
+  studyId: number
+  study: StudyDetail | null
+  graphHeight: string
+}> = ({ studyId, study = null, graphHeight }) => {
+  if (useBackendRender()) {
+    return <GraphHyperparameterImportanceBackend studyId={studyId} study={study} graphHeight={graphHeight} />
+  } else {
+    return <GraphHyperparameterImportanceFrontend studyId={studyId} study={study} graphHeight={graphHeight} />
+  }
+}
+
+const GraphHyperparameterImportanceBackend: FC<{
+  studyId: number
+  study: StudyDetail | null
+  graphHeight: string
+}> = ({ studyId, study = null, graphHeight }) => {
+  const numCompletedTrials =
+    study?.trials.filter((t) => t.state === "Complete").length || 0
+  useEffect(() => {
+    if (studyId === undefined) {
+      return
+    }
+    getPlotAPI(studyId, PlotType.ParamImportances)
+      .then(({ data, layout }) => {
+        plotly.react(plotDomId, data, layout)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+  }, [studyId, numCompletedTrials])
+  return <Box id={plotDomId} sx={{ height: graphHeight }} />
+}
+
+const GraphHyperparameterImportanceFrontend: FC<{
   studyId: number
   study: StudyDetail | null
   graphHeight: string

@@ -453,6 +453,7 @@ export enum PlotType {
   Rank = "rank",
   EDF = "edf",
   Timeline = "timeline",
+  ParamImportances = "param_importances",
 }
 export const getPlotAPI = (
   studyId: number,

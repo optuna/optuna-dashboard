@@ -285,6 +285,8 @@ def create_app(
             fig = optuna.visualization.plot_edf(study)
         elif plot_type == "timeline":
             fig = optuna.visualization.plot_timeline(study)
+        elif plot_type == "param_importances":
+            fig = optuna.visualization.plot_param_importances(study)
         else:
             response.status = 404  # Not found
             return {"reason": f"plot_type={plot_type} is not supported."}
