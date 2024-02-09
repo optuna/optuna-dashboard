@@ -287,6 +287,8 @@ def create_app(
             fig = optuna.visualization.plot_timeline(study)
         elif plot_type == "param_importances":
             fig = optuna.visualization.plot_param_importances(study)
+        elif plot_type == "pareto_front":
+            fig = optuna.visualization.plot_pareto_front(study)
         else:
             response.status = 404  # Not found
             return {"reason": f"plot_type={plot_type} is not supported."}
