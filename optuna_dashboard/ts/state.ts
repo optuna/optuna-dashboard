@@ -3,7 +3,6 @@ import {
   LightColorTemplates,
   DarkColorTemplates,
 } from "./components/PlotlyColorTemplates"
-import { useQuery } from "./urlQuery"
 
 export const studySummariesState = atom<StudySummary[]>({
   key: "studySummaries",
