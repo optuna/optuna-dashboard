@@ -324,12 +324,7 @@ export const AppDrawer: FC<{
               <ListItemButton
                 sx={styleListItemButton}
                 onClick={() => {
-                  const newReloadInterval = reloadInterval === -1 ? 10 : -1
-                  action.saveReloadInterval(newReloadInterval)
-                  if (newReloadInterval === -1) {
-                    const forceFetchAllTrials = true
-                    action.updateStudyDetail(studyId, forceFetchAllTrials)
-                  }
+                  action.saveReloadInterval(reloadInterval === -1 ? 10 : -1)
                 }}
               >
                 <ListItemIcon sx={styleListItemIcon}>

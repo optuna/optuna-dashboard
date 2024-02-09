@@ -193,20 +193,14 @@ def create_app(
     @app.get("/api/studies/<study_id:int>")
     @json_api_view
     def get_study_detail(study_id: int) -> dict[str, Any]:
-        # Use the following default values if not specified in request.params.
-        query_params = dict(after=0, limit=2000)
-        for query_key in query_params:
-            try:
-                query_params[query_key] = int(request.params[query_key])
-                assert query_params[query_key] >= 0
-            except AssertionError:
-                response.status = 400  # Bad parameter
-                return {"reason": f"`{query_key}` should be larger than or equal to 0."}
-            except KeyError:
-                # Use the default parameter defined in query_params.
-                pass
-
-        after, limit = query_params["after"], query_params["limit"]
+        try:
+            after = int(request.params["after"])
+            assert after >= 0
+        except AssertionError:
+            response.status = 400  # Bad parameter
+            return {"reason": "`after` should be larger or equal 0."}
+        except KeyError:
+            after = 0
         summary = get_study_summary(storage, study_id)
         if summary is None:
             response.status = 404  # Not found
@@ -237,19 +231,16 @@ def create_app(
         plotly_graph_objects = get_plotly_graph_objects(system_attrs)
         skipped_trial_ids = get_skipped_trial_ids(system_attrs)
         skipped_trial_numbers = [t.number for t in trials if t._trial_id in skipped_trial_ids]
-        limit = len(trials) if limit == 0 else limit
-        fetched_trials_partially = after + limit < len(trials)
         return serialize_study_detail(
             summary,
             best_trials,
-            trials[after : after + limit],
+            trials[after:],
             intersection,
             union,
             union_user_attrs,
             has_intermediate_values,
             plotly_graph_objects,
             skipped_trial_numbers,
-            fetched_trials_partially,
         )
 
     @app.get("/api/studies/<study_id:int>/param_importances")

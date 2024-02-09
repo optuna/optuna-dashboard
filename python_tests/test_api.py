@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import sys
-from typing import Any
 from unittest import TestCase
 
 import optuna
@@ -46,53 +45,70 @@ class APITestCase(TestCase):
         study_summaries = json.loads(body)["study_summaries"]
         self.assertEqual(len(study_summaries), 2)
 
-    def run_get_study_details(
-        self,
-        queries: dict[str, str] | None = None,
-        expected_status: int = 200,
-    ) -> list[dict[str, Any]]:
+    def test_get_study_details_without_after_param(self) -> None:
         study = optuna.create_study()
         study_id = study._study_id
-        study.optimize(objective, n_trials=10)
+        study.optimize(objective, n_trials=2)
         app = create_app(study._storage)
 
         status, _, body = send_request(
             app,
             f"/api/studies/{study_id}",
             "GET",
-            queries=queries,
             content_type="application/json",
         )
-        self.assertEqual(status, expected_status)
-        if expected_status == 400:
-            return []
-        else:
-            return json.loads(body)["trials"]
-
-    def test_get_study_details_without_after_param(self) -> None:
-        all_trials = self.run_get_study_details()
-        self.assertEqual(len(all_trials), 10)
+        self.assertEqual(status, 200)
+        all_trials = json.loads(body)["trials"]
+        self.assertEqual(len(all_trials), 2)
 
     def test_get_study_details_with_after_param_partial(self) -> None:
-        all_trials = self.run_get_study_details({"after": "5"})
-        self.assertEqual(len(all_trials), 5)
+        study = optuna.create_study()
+        study_id = study._study_id
+        study.optimize(objective, n_trials=2)
+        app = create_app(study._storage)
 
-    def test_get_study_details_with_params(self) -> None:
-        for after in [0, 5, 9, 10]:
-            for limit in [1, 2, 5, 10]:
-                trials = self.run_get_study_details({"after": str(after), "limit": str(limit)})
-                ans = list(range(after, min(10, after + limit)))
-                self.assertEqual([t["number"] for t in trials], ans)
+        status, _, body = send_request(
+            app,
+            f"/api/studies/{study_id}",
+            "GET",
+            queries={"after": "1"},
+            content_type="application/json",
+        )
+        self.assertEqual(status, 200)
+        all_trials = json.loads(body)["trials"]
+        self.assertEqual(len(all_trials), 1)
 
     def test_get_study_details_with_after_param_full(self) -> None:
-        all_trials = self.run_get_study_details({"after": "10"})
+        study = optuna.create_study()
+        study_id = study._study_id
+        study.optimize(objective, n_trials=2)
+        app = create_app(study._storage)
+
+        status, _, body = send_request(
+            app,
+            f"/api/studies/{study_id}",
+            "GET",
+            queries={"after": "2"},
+            content_type="application/json",
+        )
+        self.assertEqual(status, 200)
+        all_trials = json.loads(body)["trials"]
         self.assertEqual(len(all_trials), 0)
 
     def test_get_study_details_with_after_param_illegal(self) -> None:
-        self.run_get_study_details({"after": "-1"}, expected_status=400)
+        study = optuna.create_study()
+        study_id = study._study_id
+        study.optimize(objective, n_trials=2)
+        app = create_app(study._storage)
 
-    def test_get_study_details_with_limit_param_illegal(self) -> None:
-        self.run_get_study_details({"limit": "-1"}, expected_status=400)
+        status, _, body = send_request(
+            app,
+            f"/api/studies/{study_id}",
+            "GET",
+            queries={"after": "-1"},
+            content_type="application/json",
+        )
+        self.assertEqual(status, 400)
 
     @pytest.mark.skipif(sys.version_info < (3, 8), reason="BoTorch dropped Python3.7 support")
     @pytest.mark.skipif(

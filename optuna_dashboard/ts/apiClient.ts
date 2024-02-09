@@ -104,19 +104,16 @@ interface StudyDetailResponse {
   artifacts: Artifact[]
   feedback_component_type: FeedbackComponentType
   skipped_trial_numbers?: number[]
-  fetched_trials_partially: boolean
 }
 
 export const getStudyDetailAPI = (
   studyId: number,
-  nLocalTrials: number,
-  nMaximumTrialsAtOnce: number
+  nLocalTrials: number
 ): Promise<StudyDetail> => {
   return axiosInstance
     .get<StudyDetailResponse>(`/api/studies/${studyId}`, {
       params: {
         after: nLocalTrials,
-        limit: nMaximumTrialsAtOnce,
       },
     })
     .then((res) => {
@@ -150,7 +147,6 @@ export const getStudyDetailAPI = (
         plotly_graph_objects: res.data.plotly_graph_objects,
         artifacts: res.data.artifacts,
         skipped_trial_numbers: res.data.skipped_trial_numbers ?? [],
-        fetched_trials_partially: res.data.fetched_trials_partially,
       }
     })
 }

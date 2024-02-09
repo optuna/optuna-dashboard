@@ -38,11 +38,6 @@ export const drawerOpenState = atom<boolean>({
   default: false,
 })
 
-export const fetchedTrialsPartiallyState = atom<boolean>({
-  key: "fetchedTrialsPartially",
-  default: false,
-})
-
 export const isFileUploading = atom<boolean>({
   key: "isFileUploading",
   default: false,
