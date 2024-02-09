@@ -119,7 +119,9 @@ export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
 }
 
 export const useBackendRender = (): boolean => {
-  const plotBackendRendering = useRecoilValue<boolean>(plotBackendRenderingState)
+  const plotBackendRendering = useRecoilValue<boolean>(
+    plotBackendRenderingState
+  )
   const plotlypyIsAvailable = useRecoilValue<boolean>(plotlypyIsAvailableState)
 
   if (plotBackendRendering) {

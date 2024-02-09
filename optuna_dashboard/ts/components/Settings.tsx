@@ -29,7 +29,8 @@ export const Settings: FC = () => {
     setPlotlyColorTheme({ dark: darkModeColor, light: event.target.value })
   }
 
-  const [plotBackendRendering, setPlotBackendRendering] = useRecoilState<boolean>(plotBackendRenderingState)
+  const [plotBackendRendering, setPlotBackendRendering] =
+    useRecoilState<boolean>(plotBackendRenderingState)
   const handleBackendRenderingChange = () => {
     setPlotBackendRendering(!plotBackendRendering)
   }
