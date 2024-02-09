@@ -3,11 +3,44 @@ import React, { FC, useEffect } from "react"
 import { Card, CardContent, Grid, Typography, useTheme } from "@mui/material"
 import { makeHovertext } from "../graphUtil"
 import { usePlotlyColorTheme } from "../state"
+import { getPlotAPI, PlotType } from "../apiClient"
+import { useBackendRender } from "../state"
 
 const plotDomId = "graph-timeline"
 const maxBars = 100
 
 export const GraphTimeline: FC<{
+  study: StudyDetail | null
+}> = ({ study }) => {
+  if (useBackendRender()) {
+    return <GraphTimelineBackend study={study} />
+  } else {
+    return <GraphTimelineFrontend study={study} />
+  }
+}
+
+const GraphTimelineBackend: FC<{
+  study: StudyDetail | null
+}> = ({ study }) => {
+  const studyId = study?.id
+  const numCompletedTrials =
+    study?.trials.filter((t) => t.state === "Complete").length || 0
+  useEffect(() => {
+    if (studyId === undefined) {
+      return
+    }
+    getPlotAPI(studyId, PlotType.Timeline)
+      .then(({ data, layout }) => {
+        plotly.react(plotDomId, data, layout)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+  }, [studyId, numCompletedTrials])
+  return <Grid item xs={9}> <div id={plotDomId} /> </Grid>
+}
+
+const GraphTimelineFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study }) => {
   const theme = useTheme()
