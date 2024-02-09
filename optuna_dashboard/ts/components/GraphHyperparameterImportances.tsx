@@ -3,7 +3,6 @@ import React, { FC, useEffect } from "react"
 import { Typography, useTheme, Box, Card, CardContent } from "@mui/material"
 
 import { useParamImportance } from "../hooks/useParamImportance"
-import { actionCreator } from "../action"
 import { useStudyDirections, usePlotlyColorTheme } from "../state"
 
 const plotDomId = "graph-hyperparameter-importances"
