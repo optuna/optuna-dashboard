@@ -59,10 +59,12 @@ def get_storage(
     return guess_storage_from_url(storage)
 
 
-def _has_sqlite_suffix(storage_url: str) -> bool:
+def _has_sqlite_header(storage_url: str) -> bool:
     storage_path = Path(storage_url)
-    SQLITE_EXTENSIONS = (".db", ".sqlite3")
-    return storage_path.suffix in SQLITE_EXTENSIONS
+    SQLITE_HEADER = b"SQLite format 3\x00" # see https://github.com/optuna/optuna-dashboard/pull/800
+    with storage_path.open(mode="rb") as f:
+        header = f.read(len(SQLITE_HEADER))
+    return header == SQLITE_HEADER
 
 
 def guess_storage_from_url(storage_url: str) -> BaseStorage:
@@ -70,12 +72,10 @@ def guess_storage_from_url(storage_url: str) -> BaseStorage:
         return get_journal_redis_storage(storage_url)
 
     if os.path.isfile(storage_url):
-        if _has_sqlite_suffix(storage_url):
-            raise ValueError(
-                "It looks like you are trying to open a sqlite db. "
-                + "Please make sure you specify the driver, e.g.: sqlite:///example.db"
-            )
-        return get_journal_file_storage(storage_url)
+        if _has_sqlite_header(storage_url):
+            return get_rdb_storage("sqlite:///" + storage_url)
+        else:
+            return get_journal_file_storage(storage_url)
 
     if rfc1738_pattern.match(storage_url) is not None:
         return get_rdb_storage(storage_url)
