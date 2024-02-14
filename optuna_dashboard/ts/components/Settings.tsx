@@ -55,7 +55,7 @@ export const Settings = ({ handleClose }: SettingsProps) => {
 
       <Typography
         variant="h4"
-        sx={{ fontWeight: theme.typography.fontWeightBold, marginTop: 0 }}
+        sx={{ fontWeight: theme.typography.fontWeightBold }}
       >
         Settings
       </Typography>
@@ -76,9 +76,16 @@ export const Settings = ({ handleClose }: SettingsProps) => {
                 value={plotlyColorTheme.dark}
                 onChange={handleDarkModeColorChange}
               >
-                <MenuItem value={"default" as PlotlyColorThemeDark}>
-                  Default
-                </MenuItem>
+                {(
+                  [{ value: "default", label: "Default" }] as {
+                    value: PlotlyColorThemeDark
+                    label: string
+                  }[]
+                ).map((v) => (
+                  <MenuItem key={v.value} value={v.value}>
+                    {v.label}
+                  </MenuItem>
+                ))}
               </Select>
             </Stack>
             <Typography color="textSecondary">
@@ -92,18 +99,21 @@ export const Settings = ({ handleClose }: SettingsProps) => {
               value={plotlyColorTheme.light}
               onChange={handleLightModeColorChange}
             >
-              <MenuItem value={"default" as PlotlyColorThemeLight}>
-                Default
-              </MenuItem>
-              <MenuItem value={"seaborn" as PlotlyColorThemeLight}>
-                Seaborn
-              </MenuItem>
-              <MenuItem value={"presentation" as PlotlyColorThemeLight}>
-                Presentation
-              </MenuItem>
-              <MenuItem value={"ggplot2" as PlotlyColorThemeLight}>
-                GGPlot2
-              </MenuItem>
+              {(
+                [
+                  { value: "default", label: "Default" },
+                  { value: "seaborn", label: "Seaborn" },
+                  { value: "presentation", label: "Presentation" },
+                  { value: "ggplot2", label: "GGPlot2" },
+                ] as {
+                  value: PlotlyColorThemeLight
+                  label: string
+                }[]
+              ).map((v) => (
+                <MenuItem key={v.value} value={v.value}>
+                  {v.label}
+                </MenuItem>
+              ))}
             </Select>
           </Stack>
         )}
