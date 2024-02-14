@@ -1,5 +1,4 @@
-import React, { useState } from "react"
-
+import React from "react"
 import {
   Typography,
   Select,
@@ -10,9 +9,8 @@ import {
   IconButton,
 } from "@mui/material"
 import ClearIcon from "@mui/icons-material/Clear"
-
-import { useRecoilValue, useSetRecoilState } from "recoil"
-import { plotlyColorTheme } from "../state"
+import { useRecoilState } from "recoil"
+import { plotlyColorThemeState } from "../state"
 
 interface SettingsProps {
   handleClose: () => void
@@ -20,20 +18,18 @@ interface SettingsProps {
 
 export const Settings = ({ handleClose }: SettingsProps) => {
   const theme = useTheme()
-  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
-  const setPlotlyColorTheme = useSetRecoilState(plotlyColorTheme)
-
-  const [darkModeColor, setDarkModeColor] = useState(colorTheme.dark)
-  const [lightModeColor, setLightModeColor] = useState(colorTheme.light)
+  const [plotlyColorTheme, setPlotlyColorTheme] = useRecoilState(
+    plotlyColorThemeState
+  )
 
   const handleDarkModeColorChange = (event: SelectChangeEvent) => {
-    setDarkModeColor(event.target.value)
-    setPlotlyColorTheme({ dark: event.target.value, light: lightModeColor })
+    const dark = event.target.value as PlotlyColorThemeDark
+    setPlotlyColorTheme((prev) => ({ ...prev, dark }))
   }
 
   const handleLightModeColorChange = (event: SelectChangeEvent) => {
-    setLightModeColor(event.target.value)
-    setPlotlyColorTheme({ dark: darkModeColor, light: event.target.value })
+    const light = event.target.value as PlotlyColorThemeLight
+    setPlotlyColorTheme((prev) => ({ ...prev, light }))
   }
 
   return (
@@ -75,7 +71,7 @@ export const Settings = ({ handleClose }: SettingsProps) => {
           <Typography variant="h6">Dark Mode</Typography>
           <Select
             disabled
-            value={darkModeColor}
+            value={plotlyColorTheme.dark}
             onChange={handleDarkModeColorChange}
           >
             <MenuItem value={"default" as PlotlyColorThemeDark}>
@@ -89,7 +85,10 @@ export const Settings = ({ handleClose }: SettingsProps) => {
 
         <Stack direction="row" spacing={2} alignItems="center">
           <Typography variant="h6">Light Mode</Typography>
-          <Select value={lightModeColor} onChange={handleLightModeColorChange}>
+          <Select
+            value={plotlyColorTheme.light}
+            onChange={handleLightModeColorChange}
+          >
             <MenuItem value={"default" as PlotlyColorThemeLight}>
               Default
             </MenuItem>
