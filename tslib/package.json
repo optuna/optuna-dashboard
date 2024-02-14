@@ -8,7 +8,9 @@
     "build": "tsc && vite build",
     "lint": "biome lint .",
     "preview": "vite preview --port 5173",
-    "fmt": "biome format --write ."
+    "fmt": "biome format --write .",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -17,9 +19,18 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
+    "@storybook/addon-essentials": "^7.6.15",
+    "@storybook/addon-interactions": "^7.6.15",
+    "@storybook/addon-links": "^7.6.15",
+    "@storybook/addon-onboarding": "^1.0.11",
+    "@storybook/blocks": "^7.6.15",
+    "@storybook/react": "^7.6.15",
+    "@storybook/react-vite": "^7.6.15",
+    "@storybook/test": "^7.6.15",
     "@types/react": "^18.2.55",
     "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react-swc": "^3.5.0",
+    "storybook": "^7.6.15",
     "typescript": "^5.2.2",
     "vite": "^5.1.0"
   }
