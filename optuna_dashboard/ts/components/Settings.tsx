@@ -2,6 +2,7 @@ import React from "react"
 import {
   Typography,
   Select,
+  Switch,
   MenuItem,
   SelectChangeEvent,
   Stack,
@@ -10,7 +11,7 @@ import {
 } from "@mui/material"
 import ClearIcon from "@mui/icons-material/Clear"
 import { useRecoilState } from "recoil"
-import { plotlyColorThemeState } from "../state"
+import { plotlyColorThemeState, plotBackendRenderingState } from "../state"
 
 interface SettingsProps {
   handleClose: () => void
@@ -30,6 +31,12 @@ export const Settings = ({ handleClose }: SettingsProps) => {
   const handleLightModeColorChange = (event: SelectChangeEvent) => {
     const light = event.target.value as PlotlyColorThemeLight
     setPlotlyColorTheme((prev) => ({ ...prev, light }))
+  }
+
+  const [plotBackendRendering, setPlotBackendRendering] =
+    useRecoilState<boolean>(plotBackendRenderingState)
+  const handleBackendRenderingChange = () => {
+    setPlotBackendRendering(!plotBackendRendering)
   }
 
   return (
@@ -117,6 +124,15 @@ export const Settings = ({ handleClose }: SettingsProps) => {
             </Select>
           </Stack>
         )}
+        
+        <Typography variant="h6" color="textSecondary">
+          Use Plotlypy
+        </Typography>
+        <Switch
+          checked={plotBackendRendering}
+          onChange={handleBackendRenderingChange}
+          value="enable"
+        />
       </Stack>
     </Stack>
   )

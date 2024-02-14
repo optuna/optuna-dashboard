@@ -3,7 +3,6 @@ import {
   LightColorTemplates,
   DarkColorTemplates,
 } from "./components/PlotlyColorTemplates"
-import { useQuery } from "./urlQuery"
 
 export const studySummariesState = atom<StudySummary[]>({
   key: "studySummaries",
@@ -19,11 +18,6 @@ export const trialsUpdatingState = atom<{
   [trialId: string]: boolean
 }>({
   key: "trialsUpdating",
-  default: {},
-})
-
-export const paramImportanceState = atom<StudyParamImportance>({
-  key: "paramImportance",
   default: {},
 })
 
@@ -56,6 +50,11 @@ export const plotlyColorThemeState = atom<PlotlyColorTheme>({
   },
 })
 
+export const plotBackendRenderingState = atom<boolean>({
+  key: "plotBackendRendering",
+  default: false,
+})
+
 export const plotlypyIsAvailableState = atom<boolean>({
   key: "plotlypyIsAvailable",
   default: true,
@@ -79,14 +78,6 @@ export const useStudySummaryValue = (studyId: number): StudySummary | null => {
 export const useTrialUpdatingValue = (trialId: number): boolean => {
   const updating = useRecoilValue(trialsUpdatingState)
   return updating[trialId] || false
-}
-
-export const useParamImportanceValue = (
-  studyId: number
-): ParamImportance[][] | null => {
-  const studyParamImportance =
-    useRecoilValue<StudyParamImportance>(paramImportanceState)
-  return studyParamImportance[studyId] || null
 }
 
 export const useStudyDirections = (
@@ -128,10 +119,12 @@ export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
 }
 
 export const useBackendRender = (): boolean => {
-  const query = useQuery()
+  const plotBackendRendering = useRecoilValue<boolean>(
+    plotBackendRenderingState
+  )
   const plotlypyIsAvailable = useRecoilValue<boolean>(plotlypyIsAvailableState)
 
-  if (query.get("plotlypy_rendering") === "true") {
+  if (plotBackendRendering) {
     if (plotlypyIsAvailable) {
       return true
     }
