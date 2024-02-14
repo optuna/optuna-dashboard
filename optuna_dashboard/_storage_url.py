@@ -61,7 +61,9 @@ def get_storage(
 
 def _has_sqlite_header(storage_url: str) -> bool:
     storage_path = Path(storage_url)
-    SQLITE_HEADER = b"SQLite format 3\x00" # see https://github.com/optuna/optuna-dashboard/pull/800
+    SQLITE_HEADER = (
+        b"SQLite format 3\x00"  # see https://github.com/optuna/optuna-dashboard/pull/800
+    )
     with storage_path.open(mode="rb") as f:
         header = f.read(len(SQLITE_HEADER))
     return header == SQLITE_HEADER
