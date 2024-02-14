@@ -3,13 +3,14 @@ import React, { FC, useState } from "react"
 import {
   Typography,
   Select,
+  Switch,
   MenuItem,
   Grid,
   SelectChangeEvent,
 } from "@mui/material"
 
-import { useRecoilValue, useSetRecoilState } from "recoil"
-import { plotlyColorTheme } from "../state"
+import { useRecoilValue, useSetRecoilState, useRecoilState } from "recoil"
+import { plotlyColorTheme, plotBackendRenderingState } from "../state"
 
 export const Settings: FC = () => {
   const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
@@ -26,6 +27,12 @@ export const Settings: FC = () => {
   const handleLightModeColorChange = (event: SelectChangeEvent) => {
     setLightModeColor(event.target.value)
     setPlotlyColorTheme({ dark: darkModeColor, light: event.target.value })
+  }
+
+  const [plotBackendRendering, setPlotBackendRendering] =
+    useRecoilState<boolean>(plotBackendRenderingState)
+  const handleBackendRenderingChange = () => {
+    setPlotBackendRendering(!plotBackendRendering)
   }
 
   return (
@@ -67,6 +74,19 @@ export const Settings: FC = () => {
           <MenuItem value={"presentation"}>Presentation</MenuItem>
           <MenuItem value={"ggplot2"}>GGPlot2</MenuItem>
         </Select>
+      </Grid>
+
+      <Grid item xs={2}>
+        <Typography variant="h6" color="textSecondary">
+          Use Plotlypy
+        </Typography>
+      </Grid>
+      <Grid item xs={10} sx={{ display: "flex", alignItems: "center" }}>
+        <Switch
+          checked={plotBackendRendering}
+          onChange={handleBackendRenderingChange}
+          value="enable"
+        />
       </Grid>
     </Grid>
   )

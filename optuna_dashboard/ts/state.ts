@@ -3,7 +3,6 @@ import {
   LightColorTemplates,
   DarkColorTemplates,
 } from "./components/PlotlyColorTemplates"
-import { useQuery } from "./urlQuery"
 
 export const studySummariesState = atom<StudySummary[]>({
   key: "studySummaries",
@@ -49,6 +48,11 @@ export const plotlyColorTheme = atom<PlotlyColorTheme>({
     dark: "default",
     light: "default",
   },
+})
+
+export const plotBackendRenderingState = atom<boolean>({
+  key: "plotBackendRendering",
+  default: false,
 })
 
 export const plotlypyIsAvailableState = atom<boolean>({
@@ -115,10 +119,12 @@ export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
 }
 
 export const useBackendRender = (): boolean => {
-  const query = useQuery()
+  const plotBackendRendering = useRecoilValue<boolean>(
+    plotBackendRenderingState
+  )
   const plotlypyIsAvailable = useRecoilValue<boolean>(plotlypyIsAvailableState)
 
-  if (query.get("plotlypy_rendering") === "true") {
+  if (plotBackendRendering) {
     if (plotlypyIsAvailable) {
       return true
     }
