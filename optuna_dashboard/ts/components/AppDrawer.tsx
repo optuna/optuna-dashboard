@@ -361,15 +361,16 @@ export const AppDrawer: FC<{
               <Box
                 sx={{
                   position: "absolute",
-                  top: "10%",
-                  left: "10%",
-                  overflow: "auto",
-                  width: "80%",
-                  height: "80%",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  overflow: "scroll",
+                  width: "500px",
+                  height: "400px",
                   bgcolor: "background.paper",
                 }}
               >
-                <Settings />
+                <Settings handleClose={handleSettingClose} />
               </Box>
             </Modal>
           </ListItem>

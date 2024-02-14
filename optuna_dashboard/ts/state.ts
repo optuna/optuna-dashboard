@@ -42,8 +42,8 @@ export const artifactIsAvailable = atom<boolean>({
   default: false,
 })
 
-export const plotlyColorTheme = atom<PlotlyColorTheme>({
-  key: "plotlyDarkColorScale",
+export const plotlyColorThemeState = atom<PlotlyColorTheme>({
+  key: "plotlyColorThemeState",
   default: {
     dark: "default",
     light: "default",
@@ -110,7 +110,7 @@ export const useArtifacts = (studyId: number, trialId: number): Artifact[] => {
 }
 
 export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
-  const theme = useRecoilValue(plotlyColorTheme)
+  const theme = useRecoilValue(plotlyColorThemeState)
   if (mode === "dark") {
     return DarkColorTemplates[theme.dark]
   } else {
@@ -119,10 +119,8 @@ export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
 }
 
 export const useBackendRender = (): boolean => {
-  const plotBackendRendering = useRecoilValue<boolean>(
-    plotBackendRenderingState
-  )
-  const plotlypyIsAvailable = useRecoilValue<boolean>(plotlypyIsAvailableState)
+  const plotBackendRendering = useRecoilValue(plotBackendRenderingState)
+  const plotlypyIsAvailable = useRecoilValue(plotlypyIsAvailableState)
 
   if (plotBackendRendering) {
     if (plotlypyIsAvailable) {
