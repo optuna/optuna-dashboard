@@ -67,42 +67,46 @@ export const Settings = ({ handleClose }: SettingsProps) => {
         >
           Plotly Color Scales
         </Typography>
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Typography variant="h6">Dark Mode</Typography>
-          <Select
-            disabled
-            value={plotlyColorTheme.dark}
-            onChange={handleDarkModeColorChange}
-          >
-            <MenuItem value={"default" as PlotlyColorThemeDark}>
-              Default
-            </MenuItem>
-          </Select>
-        </Stack>
-        <Typography color="textSecondary">
-          Only the "Default" color scale is supported in dark mode
-        </Typography>
-
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Typography variant="h6">Light Mode</Typography>
-          <Select
-            value={plotlyColorTheme.light}
-            onChange={handleLightModeColorChange}
-          >
-            <MenuItem value={"default" as PlotlyColorThemeLight}>
-              Default
-            </MenuItem>
-            <MenuItem value={"seaborn" as PlotlyColorThemeLight}>
-              Seaborn
-            </MenuItem>
-            <MenuItem value={"presentation" as PlotlyColorThemeLight}>
-              Presentation
-            </MenuItem>
-            <MenuItem value={"ggplot2" as PlotlyColorThemeLight}>
-              GGPlot2
-            </MenuItem>
-          </Select>
-        </Stack>
+        {theme.palette.mode === "dark" ? (
+          <>
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Typography variant="h6">Dark Mode</Typography>
+              <Select
+                disabled
+                value={plotlyColorTheme.dark}
+                onChange={handleDarkModeColorChange}
+              >
+                <MenuItem value={"default" as PlotlyColorThemeDark}>
+                  Default
+                </MenuItem>
+              </Select>
+            </Stack>
+            <Typography color="textSecondary">
+              Only the "Default" color scale is supported in dark mode
+            </Typography>
+          </>
+        ) : (
+          <Stack direction="row" spacing={2} alignItems="center">
+            <Typography variant="h6">Light Mode</Typography>
+            <Select
+              value={plotlyColorTheme.light}
+              onChange={handleLightModeColorChange}
+            >
+              <MenuItem value={"default" as PlotlyColorThemeLight}>
+                Default
+              </MenuItem>
+              <MenuItem value={"seaborn" as PlotlyColorThemeLight}>
+                Seaborn
+              </MenuItem>
+              <MenuItem value={"presentation" as PlotlyColorThemeLight}>
+                Presentation
+              </MenuItem>
+              <MenuItem value={"ggplot2" as PlotlyColorThemeLight}>
+                GGPlot2
+              </MenuItem>
+            </Select>
+          </Stack>
+        )}
       </Stack>
     </Stack>
   )
