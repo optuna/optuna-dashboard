@@ -8,7 +8,8 @@ import {
   usePlotlyColorTheme,
   useBackendRender,
 } from "../state"
-import { getPlotAPI, PlotType } from "../apiClient"
+import { PlotType } from "../apiClient"
+import { usePlot } from "../hooks/usePlot"
 
 const plotDomId = "graph-hyperparameter-importances"
 
@@ -43,18 +44,23 @@ const GraphHyperparameterImportanceBackend: FC<{
 }> = ({ studyId, study = null, graphHeight }) => {
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
+  const { data, layout, error } = usePlot({
+    numCompletedTrials,
+    studyId,
+    plotType: PlotType.ParamImportances,
+  })
+
   useEffect(() => {
-    if (studyId === undefined) {
-      return
+    if (data && layout) {
+      plotly.react(plotDomId, data, layout)
     }
-    getPlotAPI(studyId, PlotType.ParamImportances)
-      .then(({ data, layout }) => {
-        plotly.react(plotDomId, data, layout)
-      })
-      .catch((err) => {
-        console.error(err)
-      })
-  }, [studyId, numCompletedTrials])
+  }, [data, layout])
+  useEffect(() => {
+    if (error) {
+      console.error(error)
+    }
+  }, [error])
+
   return <Box id={plotDomId} sx={{ height: graphHeight }} />
 }
 
