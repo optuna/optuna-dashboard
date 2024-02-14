@@ -1,17 +1,25 @@
-import React, { FC, useState } from "react"
+import React, { useState } from "react"
 
 import {
   Typography,
   Select,
   MenuItem,
-  Grid,
   SelectChangeEvent,
+  Stack,
+  useTheme,
+  IconButton,
 } from "@mui/material"
+import ClearIcon from "@mui/icons-material/Clear"
 
 import { useRecoilValue, useSetRecoilState } from "recoil"
 import { plotlyColorTheme } from "../state"
 
-export const Settings: FC = () => {
+interface SettingsProps {
+  handleClose: () => void
+}
+
+export const Settings = ({ handleClose }: SettingsProps) => {
+  const theme = useTheme()
   const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
   const setPlotlyColorTheme = useSetRecoilState(plotlyColorTheme)
 
@@ -29,45 +37,74 @@ export const Settings: FC = () => {
   }
 
   return (
-    <Grid container spacing={4} sx={{ padding: "40px" }}>
-      <Grid item xs={12}>
-        <Typography variant="h3" gutterBottom color="textSecondary">
-          Settings
-        </Typography>
-      </Grid>
-      <Grid item xs={12}>
-        <Typography variant="h5" gutterBottom color="textPrimary">
+    <Stack
+      spacing={4}
+      sx={{
+        position: "relative",
+        p: "2rem",
+      }}
+    >
+      <IconButton
+        sx={{
+          position: "absolute",
+          top: "1rem",
+          right: "1rem",
+          width: "2rem",
+          height: "2rem",
+        }}
+        onClick={handleClose}
+      >
+        <ClearIcon />
+      </IconButton>
+
+      <Typography
+        variant="h4"
+        sx={{ fontWeight: theme.typography.fontWeightBold, marginTop: 0 }}
+      >
+        Settings
+      </Typography>
+
+      <Stack spacing={2}>
+        <Typography
+          variant="h5"
+          sx={{ fontWeight: theme.typography.fontWeightBold }}
+        >
           Plotly Color Scales
         </Typography>
-      </Grid>
-
-      <Grid item xs={2}>
-        <Typography variant="h6" color="textSecondary">
-          Dark Mode
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Typography variant="h6">Dark Mode</Typography>
+          <Select
+            disabled
+            value={darkModeColor}
+            onChange={handleDarkModeColorChange}
+          >
+            <MenuItem value={"default" as PlotlyColorThemeDark}>
+              Default
+            </MenuItem>
+          </Select>
+        </Stack>
+        <Typography color="textSecondary">
+          Only the "Default" color scale is supported in dark mode
         </Typography>
-      </Grid>
-      <Grid item xs={10} sx={{ display: "flex", alignItems: "center" }}>
-        <Select value={darkModeColor} onChange={handleDarkModeColorChange}>
-          <MenuItem value={"default"}>Default</MenuItem>
-          <MenuItem value={"seaborn"}>Seaborn</MenuItem>
-          <MenuItem value={"presentation"}>Presentation</MenuItem>
-          <MenuItem value={"ggplot2"}>GGPlot2</MenuItem>
-        </Select>
-      </Grid>
 
-      <Grid item xs={2}>
-        <Typography variant="h6" color="textSecondary">
-          Light Mode
-        </Typography>
-      </Grid>
-      <Grid item xs={10} sx={{ display: "flex", alignItems: "center" }}>
-        <Select value={lightModeColor} onChange={handleLightModeColorChange}>
-          <MenuItem value={"default"}>Default</MenuItem>
-          <MenuItem value={"seaborn"}>Seaborn</MenuItem>
-          <MenuItem value={"presentation"}>Presentation</MenuItem>
-          <MenuItem value={"ggplot2"}>GGPlot2</MenuItem>
-        </Select>
-      </Grid>
-    </Grid>
+        <Stack direction="row" spacing={2} alignItems="center">
+          <Typography variant="h6">Light Mode</Typography>
+          <Select value={lightModeColor} onChange={handleLightModeColorChange}>
+            <MenuItem value={"default" as PlotlyColorThemeLight}>
+              Default
+            </MenuItem>
+            <MenuItem value={"seaborn" as PlotlyColorThemeLight}>
+              Seaborn
+            </MenuItem>
+            <MenuItem value={"presentation" as PlotlyColorThemeLight}>
+              Presentation
+            </MenuItem>
+            <MenuItem value={"ggplot2" as PlotlyColorThemeLight}>
+              GGPlot2
+            </MenuItem>
+          </Select>
+        </Stack>
+      </Stack>
+    </Stack>
   )
 }
