@@ -1,6 +1,6 @@
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
-import { Card, CardContent, Grid, Typography, useTheme, Box } from "@mui/material"
+import { Card, CardContent, Grid, Typography, useTheme } from "@mui/material"
 import { makeHovertext } from "../graphUtil"
 import { usePlotlyColorTheme } from "../state"
 import { PlotType } from "../apiClient"
