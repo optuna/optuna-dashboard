@@ -13,6 +13,7 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
+    "@sqlite.org/sqlite-wasm": "^3.45.1-build1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "sanitize.css": "^13.0.0"
