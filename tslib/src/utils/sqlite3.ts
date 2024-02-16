@@ -9,11 +9,11 @@ type SQLite3DB = {
   }): void;
 };
 
-export const loadSQLite3Storage = (
+export const loadSQLite3Storage = async (
   arrayBuffer: ArrayBuffer,
   setter: SetterOrUpdater<Study[]>,
-): void => {
-  sqlite3InitModule({
+) => {
+  const sqlite3 = await sqlite3InitModule({
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     print: (...args: any): void => {
       console.log(args);
@@ -23,30 +23,29 @@ export const loadSQLite3Storage = (
       console.log(args);
     },
     // @ts-ignore
-  }).then((sqlite3) => {
-    const p = sqlite3.wasm.allocFromTypedArray(arrayBuffer);
-    const db = new sqlite3.oo1.DB();
-    const rc = sqlite3.capi.sqlite3_deserialize(
-      // @ts-ignore
-      db.pointer,
-      "main",
-      p,
-      arrayBuffer.byteLength,
-      arrayBuffer.byteLength,
-      sqlite3.capi.SQLITE_DESERIALIZE_FREEONCLOSE,
-    );
-    db.checkRc(rc);
-    try {
-      const schemaVersion = getSchemaVersion(db);
-      if (!isSupportedSchema(schemaVersion)) {
-        return;
-      }
-      const studies = getStudies(db, schemaVersion);
-      setter((prev) => [...prev, ...studies]);
-    } finally {
-      db.close();
-    }
   });
+  const p = sqlite3.wasm.allocFromTypedArray(arrayBuffer);
+  const db = new sqlite3.oo1.DB();
+  const rc = sqlite3.capi.sqlite3_deserialize(
+    // @ts-ignore
+    db.pointer,
+    "main",
+    p,
+    arrayBuffer.byteLength,
+    arrayBuffer.byteLength,
+    sqlite3.capi.SQLITE_DESERIALIZE_FREEONCLOSE,
+  );
+  db.checkRc(rc);
+  try {
+    const schemaVersion = getSchemaVersion(db);
+    if (!isSupportedSchema(schemaVersion)) {
+      return;
+    }
+    const studies = getStudies(db, schemaVersion);
+    setter((prev) => [...prev, ...studies]);
+  } finally {
+    db.close();
+  }
 };
 
 const getSchemaVersion = (db: SQLite3DB): string => {
