@@ -9,7 +9,13 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true
+      "recommended": true,
+      "complexity": {
+        "noForEach": "off"
+      },
+      "style": {
+        "noUselessElse": "off"
+      }
     }
   },
   "formatter": {
