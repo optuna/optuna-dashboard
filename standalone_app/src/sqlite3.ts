@@ -389,11 +389,11 @@ const getTrialIntermediateValues = (
           step: vals[0],
           value:
             vals[2] === "INF_NEG"
-              ? "-inf"
+              ? -Infinity
               : vals[2] === "INF_POS"
-                ? "+inf"
+                ? Infinity
                 : vals[2] === "NAN"
-                  ? "nan"
+                  ? NaN
                   : vals[1],
         })
       },

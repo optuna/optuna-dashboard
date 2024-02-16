@@ -37,11 +37,6 @@ export const TrialTable: FC<{
         } else if (secondVal === undefined) {
           return ascending ? 1 : -1
         }
-        if (firstVal === "-inf" || secondVal === "inf") {
-          return 1
-        } else if (secondVal === "-inf" || firstVal === "inf") {
-          return -1
-        }
         return firstVal < secondVal ? 1 : -1
       },
       toCellValue: (i) => {
@@ -68,11 +63,6 @@ export const TrialTable: FC<{
             return ascending ? -1 : 1
           } else if (secondVal === undefined) {
             return ascending ? 1 : -1
-          }
-          if (firstVal === "-inf" || secondVal === "inf") {
-            return 1
-          } else if (secondVal === "-inf" || firstVal === "inf") {
-            return -1
           }
           return firstVal < secondVal ? 1 : -1
         },

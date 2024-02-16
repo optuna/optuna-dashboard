@@ -80,8 +80,8 @@ const filterFunc = (trial: Trial, objectiveId: number): boolean => {
   }
   return (
     trial.values.length > objectiveId &&
-    trial.values[objectiveId] !== "inf" &&
-    trial.values[objectiveId] !== "-inf"
+    trial.values[objectiveId] !== Infinity &&
+    trial.values[objectiveId] !== -Infinity
   )
 }
 

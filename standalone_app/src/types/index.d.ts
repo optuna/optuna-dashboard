@@ -1,6 +1,6 @@
 declare const IS_VSCODE: boolean
 
-type TrialValueNumber = number | "inf" | "-inf"
+type TrialValueNumber = number
 type TrialIntermediateValueNumber = number | "inf" | "-inf" | "nan"
 type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting"
 type TrialStateFinished = "Complete" | "Fail" | "Pruned"

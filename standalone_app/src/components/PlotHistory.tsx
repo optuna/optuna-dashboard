@@ -178,8 +178,8 @@ const filterFunc = (trial: Trial, objectiveId: number): boolean => {
   }
   return (
     trial.values.length > objectiveId &&
-    trial.values[objectiveId] !== "inf" &&
-    trial.values[objectiveId] !== "-inf"
+    trial.values[objectiveId] !== Infinity &&
+    trial.values[objectiveId] !== -Infinity
   )
 }
 
@@ -244,7 +244,7 @@ const plotHistory = (
       return null
     }
     const value = trial.values[objectiveId]
-    if (value === "inf" || value === "-inf") {
+    if (value === Infinity || value === -Infinity) {
       return null
     }
     return value
