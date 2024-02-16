@@ -14,10 +14,49 @@ import {
 import { makeHovertext } from "../graphUtil"
 import { usePlotlyColorTheme } from "../state"
 import { useNavigate } from "react-router-dom"
+import { PlotType } from "../apiClient"
+import { useBackendRender } from "../state"
+import { usePlot } from "../hooks/usePlot"
 
 const plotDomId = "graph-pareto-front"
 
 export const GraphParetoFront: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  if (useBackendRender()) {
+    return <GraphParetoFrontBackend study={study} />
+  } else {
+    return <GraphParetoFrontFrontend study={study} />
+  }
+}
+
+const GraphParetoFrontBackend: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  const studyId = study?.id
+  const numCompletedTrials =
+    study?.trials.filter((t) => t.state === "Complete").length || 0
+  const { data, layout, error } = usePlot({
+    numCompletedTrials,
+    studyId,
+    plotType: PlotType.ParetoFront,
+  })
+
+  useEffect(() => {
+    if (data && layout) {
+      plotly.react(plotDomId, data, layout)
+    }
+  }, [data, layout])
+  useEffect(() => {
+    if (error) {
+      console.error(error)
+    }
+  }, [error])
+
+  return <Box id={plotDomId} sx={{ height: "450px" }} />
+}
+
+const GraphParetoFrontFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const theme = useTheme()

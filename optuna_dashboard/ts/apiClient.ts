@@ -452,6 +452,9 @@ export enum PlotType {
   ParallelCoordinate = "parallel_coordinate",
   Rank = "rank",
   EDF = "edf",
+  Timeline = "timeline",
+  ParamImportances = "param_importances",
+  ParetoFront = "pareto_front",
 }
 export const getPlotAPI = (
   studyId: number,
