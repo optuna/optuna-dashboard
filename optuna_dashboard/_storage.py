@@ -51,7 +51,7 @@ def get_studies(storage: BaseStorage) -> list[FrozenStudy]:
     return frozen_studies
 
 
-def get_study(storage: BaseStorage, study_id: int) -> FrozenStudy:
+def get_study(storage: BaseStorage, study_id: int) -> FrozenStudy | None:
     studies = get_studies(storage)
     for s in studies:
         if s._study_id != study_id:
