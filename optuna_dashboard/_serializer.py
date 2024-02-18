@@ -122,9 +122,7 @@ def serialize_frozen_study(study: FrozenStudy) -> dict[str, Any]:
         "study_name": study.study_name,
         "directions": [d.name.lower() for d in study.directions],
         "user_attrs": serialize_attrs(study.user_attrs),
-        "is_preferential": getattr(study, "_system_attrs", {}).get(
-            _SYSTEM_ATTR_PREFERENTIAL_STUDY, False
-        ),
+        "is_preferential": study.system_attrs.get(_SYSTEM_ATTR_PREFERENTIAL_STUDY, False),
     }
 
     return serialized
@@ -146,7 +144,7 @@ def serialize_study_detail(
         "directions": [d.name.lower() for d in study.directions],
         "user_attrs": serialize_attrs(study.user_attrs),
     }
-    system_attrs = getattr(study, "system_attrs", {})
+    system_attrs = study.system_attrs
     serialized["artifacts"] = list_study_artifacts(system_attrs)
 
     serialized["trials"] = [
