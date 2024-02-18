@@ -3,17 +3,12 @@ from __future__ import annotations
 from datetime import datetime
 from datetime import timedelta
 import threading
-import typing
 
 from optuna.storages import BaseStorage
 from optuna.storages import RDBStorage
 from optuna.study import StudyDirection
-from optuna.study import StudySummary
+from optuna.study._frozen import FrozenStudy
 from optuna.trial import FrozenTrial
-
-
-if typing.TYPE_CHECKING:
-    from optuna.study._frozen import FrozenStudy
 
 
 # In-memory trials cache
@@ -49,19 +44,19 @@ def get_trials(storage: BaseStorage, study_id: int) -> list[FrozenTrial]:
     return trials
 
 
-def get_study_summaries(storage: BaseStorage) -> list[StudySummary]:
+def get_studies(storage: BaseStorage) -> list[FrozenStudy]:
     frozen_studies = storage.get_all_studies()
     if isinstance(storage, RDBStorage):
         frozen_studies = sorted(frozen_studies, key=lambda s: s._study_id)
-    return [_frozen_study_to_study_summary(s) for s in frozen_studies]
+    return frozen_studies
 
 
-def get_study_summary(storage: BaseStorage, study_id: int) -> StudySummary | None:
-    summaries = get_study_summaries(storage)
-    for summary in summaries:
-        if summary._study_id != study_id:
+def get_study(storage: BaseStorage, study_id: int) -> FrozenStudy:
+    studies = get_studies(storage)
+    for s in studies:
+        if s._study_id != study_id:
             continue
-        return summary
+        return s
     return None
 
 
@@ -70,18 +65,3 @@ def create_new_study(
 ) -> int:
     study_id = storage.create_new_study(directions, study_name=study_name)
     return study_id
-
-
-def _frozen_study_to_study_summary(frozen_study: "FrozenStudy") -> StudySummary:
-    is_single = len(frozen_study.directions) == 1
-    return StudySummary(
-        study_name=frozen_study.study_name,
-        study_id=frozen_study._study_id,
-        direction=frozen_study.direction if is_single else None,
-        directions=frozen_study.directions if not is_single else None,
-        user_attrs=frozen_study.user_attrs,
-        system_attrs=frozen_study.system_attrs,
-        best_trial=None,
-        n_trials=-1,  # This field isn't used by Dashboard.
-        datetime_start=None,
-    )

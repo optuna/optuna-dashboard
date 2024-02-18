@@ -5,9 +5,9 @@ import sys
 import numpy as np
 import optuna
 from optuna_dashboard._serializer import serialize_attrs
+from optuna_dashboard._serializer import serialize_frozen_study
 from optuna_dashboard._serializer import serialize_study_detail
-from optuna_dashboard._serializer import serialize_study_summary
-from optuna_dashboard._storage import get_study_summaries
+from optuna_dashboard._storage import get_studies
 from optuna_dashboard.preferential import create_study
 from packaging import version
 import pytest
@@ -60,26 +60,20 @@ def test_serialize_numpy_floating() -> None:
 def test_get_study_detail_is_preferential() -> None:
     storage = optuna.storages.InMemoryStorage()
     study = create_study(n_generate=4, storage=storage)
-    study_summaries = get_study_summaries(storage)
-    assert len(study_summaries) == 1
+    studies = get_studies(storage)
+    assert len(studies) == 1
 
-    study_summary = study_summaries[0]
-    study_detail = serialize_study_detail(
-        study_summary, [], study.trials, [], [], [], False, {}, []
-    )
+    study_detail = serialize_study_detail(studies[0], [], study.trials, [], [], [], False, {}, [])
     assert study_detail["is_preferential"]
 
 
 def test_get_study_detail_is_not_preferential() -> None:
     storage = optuna.storages.InMemoryStorage()
     study = optuna.create_study(storage=storage)
-    study_summaries = get_study_summaries(storage)
-    assert len(study_summaries) == 1
+    studies = get_studies(storage)
+    assert len(studies) == 1
 
-    study_summary = study_summaries[0]
-    study_detail = serialize_study_detail(
-        study_summary, [], study.trials, [], [], [], False, {}, []
-    )
+    study_detail = serialize_study_detail(studies[0], [], study.trials, [], [], [], False, {}, [])
     assert not study_detail["is_preferential"]
 
 
@@ -87,20 +81,20 @@ def test_get_study_detail_is_not_preferential() -> None:
 @pytest.mark.skipif(
     version.parse(optuna.__version__) < version.parse("3.2.0"), reason="Needs optuna.search_space"
 )
-def test_get_study_summary_is_preferential() -> None:
+def test_get_study_is_preferential() -> None:
     storage = optuna.storages.InMemoryStorage()
     create_study(n_generate=4, storage=storage)
-    study_summaries = get_study_summaries(storage)
-    assert len(study_summaries) == 1
+    studies = get_studies(storage)
+    assert len(studies) == 1
 
-    study_summary = serialize_study_summary(study_summaries[0])
-    assert study_summary["is_preferential"]
+    serialized = serialize_frozen_study(studies[0])
+    assert serialized["is_preferential"]
 
 
-def test_get_study_summary_is_not_preferential() -> None:
+def test_get_study_is_not_preferential() -> None:
     storage = optuna.storages.InMemoryStorage()
     optuna.create_study(storage=storage)
-    study_summaries = get_study_summaries(storage)
-    assert len(study_summaries) == 1
-    study_summary = serialize_study_summary(study_summaries[0])
-    assert not study_summary["is_preferential"]
+    studies = get_studies(storage)
+    assert len(studies) == 1
+    serialized = serialize_frozen_study(studies[0])
+    assert not serialized["is_preferential"]

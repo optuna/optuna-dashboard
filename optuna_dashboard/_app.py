@@ -40,11 +40,11 @@ from ._preferential_history import remove_history
 from ._preferential_history import report_history
 from ._preferential_history import restore_history
 from ._rdb_migration import register_rdb_migration_route
+from ._serializer import serialize_frozen_study
 from ._serializer import serialize_study_detail
-from ._serializer import serialize_study_summary
 from ._storage import create_new_study
-from ._storage import get_study_summaries
-from ._storage import get_study_summary
+from ._storage import get_studies
+from ._storage import get_study
 from ._storage import get_trials
 from ._storage_url import get_storage
 from .artifact._backend import delete_all_artifacts
@@ -102,8 +102,8 @@ def create_app(
     @app.get("/api/studies")
     @json_api_view
     def list_study_summaries() -> dict[str, Any]:
-        summaries = get_study_summaries(storage)
-        serialized = [serialize_study_summary(summary) for summary in summaries]
+        studies = get_studies(storage)
+        serialized = [serialize_frozen_study(s) for s in studies]
         return {
             "study_summaries": serialized,
         }
@@ -131,12 +131,12 @@ def create_app(
             response.status = 400  # Bad request
             return {"reason": f"'{study_name}' already exists"}
 
-        summary = get_study_summary(storage, study_id)
-        if summary is None:
+        study = get_study(storage, study_id)
+        if study is None:
             response.status = 500  # Internal server error
             return {"reason": "Failed to create study"}
         response.status = 201  # Created
-        return {"study_summary": serialize_study_summary(summary)}
+        return {"study_summary": serialize_frozen_study(study)}
 
     @app.post("/api/studies/<study_id:int>/rename")
     @json_api_view
@@ -167,14 +167,14 @@ def create_app(
             response.status = 500
             storage.delete_study(dst_study._study_id)
             return {"reason": str(e)}
-        new_study_summary = get_study_summary(storage, dst_study._study_id)
-        if new_study_summary is None:
+        new_study = get_study(storage, dst_study._study_id)
+        if new_study is None:
             response.status = 500
             return {"reason": "Failed to load the new study"}
 
         storage.delete_study(src_study._study_id)
         response.status = 201
-        return serialize_study_summary(new_study_summary)
+        return serialize_frozen_study(new_study)
 
     @app.delete("/api/studies/<study_id:int>")
     @json_api_view
@@ -201,24 +201,24 @@ def create_app(
             return {"reason": "`after` should be larger or equal 0."}
         except KeyError:
             after = 0
-        summary = get_study_summary(storage, study_id)
-        if summary is None:
+        study = get_study(storage, study_id)
+        if study is None:
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
         trials = get_trials(storage, study_id)
 
-        system_attrs = getattr(summary, "system_attrs", {})
+        system_attrs = getattr(study, "system_attrs", {})
         is_preferential = system_attrs.get(_SYSTEM_ATTR_PREFERENTIAL_STUDY, False)
         # TODO(c-bata): Cache best_trials
         if is_preferential:
             best_trials = get_best_preferential_trials(study_id, storage)
-        elif len(summary.directions) == 1:
+        elif len(study.directions) == 1:
             if len([t for t in trials if t.state == TrialState.COMPLETE]) == 0:
                 best_trials = []
             else:
                 best_trials = [storage.get_best_trial(study_id)]
         else:
-            best_trials = get_pareto_front_trials(trials=trials, directions=summary.directions)
+            best_trials = get_pareto_front_trials(trials=trials, directions=study.directions)
         (
             # TODO: intersection_search_space and union_search_space look more clear since now we
             # have union_user_attrs.
@@ -232,7 +232,7 @@ def create_app(
         skipped_trial_ids = get_skipped_trial_ids(system_attrs)
         skipped_trial_numbers = [t.number for t in trials if t._trial_id in skipped_trial_ids]
         return serialize_study_detail(
-            summary,
+            study,
             best_trials,
             trials[after:],
             intersection,

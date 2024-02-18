@@ -12,7 +12,7 @@ from optuna.distributions import BaseDistribution
 from optuna.distributions import CategoricalDistribution
 from optuna.distributions import FloatDistribution
 from optuna.distributions import IntDistribution
-from optuna.study import StudySummary
+from optuna.study._frozen import FrozenStudy
 from optuna.trial import FrozenTrial
 
 from . import _note as note
@@ -116,25 +116,22 @@ def serialize_attrs(attrs: dict[str, Any]) -> list[Attribute]:
     return serialized
 
 
-def serialize_study_summary(summary: StudySummary) -> dict[str, Any]:
+def serialize_frozen_study(study: FrozenStudy) -> dict[str, Any]:
     serialized = {
-        "study_id": summary._study_id,
-        "study_name": summary.study_name,
-        "directions": [d.name.lower() for d in summary.directions],
-        "user_attrs": serialize_attrs(summary.user_attrs),
-        "is_preferential": getattr(summary, "_system_attrs", {}).get(
+        "study_id": study._study_id,
+        "study_name": study.study_name,
+        "directions": [d.name.lower() for d in study.directions],
+        "user_attrs": serialize_attrs(study.user_attrs),
+        "is_preferential": getattr(study, "_system_attrs", {}).get(
             _SYSTEM_ATTR_PREFERENTIAL_STUDY, False
         ),
     }
-
-    if summary.datetime_start is not None:
-        serialized["datetime_start"] = summary.datetime_start.isoformat()
 
     return serialized
 
 
 def serialize_study_detail(
-    summary: StudySummary,
+    study: FrozenStudy,
     best_trials: list[FrozenTrial],
     trials: list[FrozenTrial],
     intersection: list[tuple[str, BaseDistribution]],
@@ -145,20 +142,18 @@ def serialize_study_detail(
     skipped_trial_numbers: list[int],
 ) -> dict[str, Any]:
     serialized: dict[str, Any] = {
-        "name": summary.study_name,
-        "directions": [d.name.lower() for d in summary.directions],
-        "user_attrs": serialize_attrs(summary.user_attrs),
+        "name": study.study_name,
+        "directions": [d.name.lower() for d in study.directions],
+        "user_attrs": serialize_attrs(study.user_attrs),
     }
-    system_attrs = getattr(summary, "system_attrs", {})
+    system_attrs = getattr(study, "system_attrs", {})
     serialized["artifacts"] = list_study_artifacts(system_attrs)
-    if summary.datetime_start is not None:
-        serialized["datetime_start"] = summary.datetime_start.isoformat()
 
     serialized["trials"] = [
-        serialize_frozen_trial(summary._study_id, trial, system_attrs) for trial in trials
+        serialize_frozen_trial(study._study_id, trial, system_attrs) for trial in trials
     ]
     serialized["best_trials"] = [
-        serialize_frozen_trial(summary._study_id, trial, system_attrs) for trial in best_trials
+        serialize_frozen_trial(study._study_id, trial, system_attrs) for trial in best_trials
     ]
     serialized["intersection_search_space"] = serialize_search_space(intersection)
     serialized["union_search_space"] = serialize_search_space(union)
