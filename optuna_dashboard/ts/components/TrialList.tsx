@@ -370,7 +370,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
           height: `calc(100vh - ${theme.spacing(8)})`,
         }}
       >
-        <List sx={{ position: "relateve" }}>
+        <List sx={{ position: "relative" }}>
           <ListSubheader sx={{ display: "flex", flexDirection: "row" }}>
             <Typography sx={{ p: theme.spacing(1, 0) }}>
               {trials.length} Trials
