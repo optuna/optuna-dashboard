@@ -29,6 +29,8 @@ import { actionCreator } from "../action"
 import { TrialFormWidgets } from "./TrialFormWidgets"
 import { TrialArtifactCards } from "./TrialArtifactCards"
 
+import { useVirtualizer } from "@tanstack/react-virtual"
+
 const states: TrialState[] = [
   "Complete",
   "Pruned",
@@ -344,6 +346,14 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
       (state) => allTrials.filter((t) => t.state === state).length
     )
   }, [studyDetail?.trials])
+  const listParentRef = React.useRef(null)
+
+  const rowVirtualizer = useVirtualizer({
+    count: trials.length,
+    getScrollElement: () => listParentRef.current,
+    estimateSize: () => 75,
+    overscan: 10,
+  })
 
   const trialListWidth = 200
 
@@ -353,13 +363,14 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   return (
     <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
       <Box
+        ref={listParentRef}
         sx={{
           minWidth: trialListWidth,
           overflow: "auto",
           height: `calc(100vh - ${theme.spacing(8)})`,
         }}
       >
-        <List>
+        <List sx={{ position: "relateve" }}>
           <ListSubheader sx={{ display: "flex", flexDirection: "row" }}>
             <Typography sx={{ p: theme.spacing(1, 0) }}>
               {trials.length} Trials
@@ -417,65 +428,91 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
             </Menu>
           </ListSubheader>
           <Divider />
-          {trials.map((trial) => {
-            return (
-              <ListItem key={trial.trial_id} disablePadding>
-                <ListItemButton
-                  onClick={(e) => {
-                    if (e.shiftKey) {
-                      let next: number[]
-                      const selectedNumbers = selected.map((t) => t.number)
-                      const alreadySelected =
-                        selectedNumbers.findIndex((n) => n === trial.number) >=
-                        0
-                      if (alreadySelected) {
-                        next = selectedNumbers.filter((n) => n !== trial.number)
-                      } else {
-                        next = [...selectedNumbers, trial.number]
-                      }
-                      navigate(
-                        getTrialListLink(trial.study_id, excludedStates, next)
-                      )
-                    } else {
-                      navigate(
-                        getTrialListLink(trial.study_id, excludedStates, [
-                          trial.number,
-                        ])
-                      )
-                    }
-                  }}
-                  selected={
-                    selected.findIndex((t) => t.number === trial.number) !== -1
-                  }
+          <Box
+            sx={{
+              width: "100%",
+              height: `${rowVirtualizer.getTotalSize()}px`,
+              position: "relative",
+            }}
+          >
+            {rowVirtualizer.getVirtualItems().map((virtualItem) => {
+              console.log(virtualItem.index, virtualItem.start, virtualItem.end)
+              const trial = trials[virtualItem.index]
+              return (
+                <ListItem
+                  key={trial.trial_id}
                   sx={{
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "flex-start",
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    transform: `translateY(${virtualItem.start}px)`,
                   }}
+                  disablePadding
                 >
-                  <ListItemText primary={`Trial ${trial.number}`} />
-                  <Box>
-                    <Chip
-                      color={getChipColor(trial.state)}
-                      label={trial.state}
-                      sx={{ margin: theme.spacing(0) }}
-                      size="small"
-                      variant="outlined"
-                    />
-                    {isBestTrial(trial.trial_id) ? (
+                  <ListItemButton
+                    onClick={(e) => {
+                      if (e.shiftKey) {
+                        let next: number[]
+                        const selectedNumbers = selected.map((t) => t.number)
+                        const alreadySelected =
+                          selectedNumbers.findIndex(
+                            (n) => n === trial.number
+                          ) >= 0
+                        if (alreadySelected) {
+                          next = selectedNumbers.filter(
+                            (n) => n !== trial.number
+                          )
+                        } else {
+                          next = [...selectedNumbers, trial.number]
+                        }
+                        navigate(
+                          getTrialListLink(trial.study_id, excludedStates, next)
+                        )
+                      } else {
+                        navigate(
+                          getTrialListLink(trial.study_id, excludedStates, [
+                            trial.number,
+                          ])
+                        )
+                      }
+                    }}
+                    selected={
+                      selected.findIndex((t) => t.number === trial.number) !==
+                      -1
+                    }
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                    }}
+                  >
+                    <ListItemText primary={`Trial ${trial.number}`} />
+                    <Box>
                       <Chip
-                        label={"Best Trial"}
-                        color="secondary"
-                        sx={{ marginLeft: theme.spacing(1) }}
+                        color={getChipColor(trial.state)}
+                        label={trial.state}
+                        sx={{ margin: theme.spacing(0) }}
                         size="small"
                         variant="outlined"
                       />
-                    ) : null}
-                  </Box>
-                </ListItemButton>
-              </ListItem>
-            )
-          })}
+                      {isBestTrial(trial.trial_id) ? (
+                        <Chip
+                          label={"Best Trial"}
+                          color="secondary"
+                          sx={{ marginLeft: theme.spacing(1) }}
+                          size="small"
+                          variant="outlined"
+                        />
+                      ) : null}
+                    </Box>
+                  </ListItemButton>
+                </ListItem>
+              )
+            })}
+          </Box>
         </List>
       </Box>
       <Divider orientation="vertical" flexItem />
