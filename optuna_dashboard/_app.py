@@ -101,9 +101,10 @@ def create_app(
 
     @app.get("/api/studies")
     @json_api_view
-    def list_study_summaries() -> dict[str, Any]:
+    def list_studies() -> dict[str, Any]:
         studies = get_studies(storage)
         serialized = [serialize_frozen_study(s) for s in studies]
+        # TODO(umezawa): Rename `study_summaries` to `studies`.
         return {
             "study_summaries": serialized,
         }
