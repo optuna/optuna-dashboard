@@ -31,9 +31,6 @@ try:
 except ImportError:
     _logger.warning("optuna>=3.6.0 is required for PedAnovaImportanceEvaluator.")
     PedAnovaImportanceEvaluator = None  # type: ignore
-except Exception as e:
-    _logger.warning(f"Skipping to use PedAnovaImportanceEvaluator due to {e}.")
-    PedAnovaImportanceEvaluator = None  # type: ignore
 
 
 if TYPE_CHECKING:
