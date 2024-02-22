@@ -27,7 +27,7 @@ except Exception as e:
 
 
 try:
-    from optuna.importance import PedAnovaImportanceEvaluator
+    from optuna.importance import PedAnovaImportanceEvaluator  # type: ignore[attr-defined]
 except ImportError:
     _logger.warning("optuna>=3.6.0 is required for PedAnovaImportanceEvaluator.")
     PedAnovaImportanceEvaluator = None  # type: ignore
@@ -73,9 +73,7 @@ def _get_param_importances(
 ) -> dict[str, float]:
     if PedAnovaImportanceEvaluator is not None:
         # TODO(nabenabe0928): We might want to pass baseline_quantile as an argument in the future.
-        return get_param_importances(
-            study, target=target, evaluator=PedAnovaImportanceEvaluator()
-        )
+        return get_param_importances(study, target=target, evaluator=PedAnovaImportanceEvaluator())
 
     if FastFanovaImportanceEvaluator is not None:
         try:
