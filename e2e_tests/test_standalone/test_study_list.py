@@ -1,6 +1,6 @@
 import os
 import tempfile
-from typing import Callable
+from collections.abc import Callable
 
 import optuna
 from playwright.sync_api import Page
@@ -28,8 +28,16 @@ def test_home(
     assert title == "Optuna Dashboard (Wasm ver.)"
 
 
-def create_rdb_storage_sqlite_file(filename: str, study_name: str):
-    storage = optuna.storages.RDBStorage(f"sqlite:///{filename}")
+def create_rdb_storage_file(filename: str, study_name: str, storage_type: str):
+    if storage_type == "rdb":
+        storage = optuna.storages.RDBStorage(f"sqlite:///{filename}")
+    elif storage_type == "journal":
+        storage = optuna.storages.JournalStorage(
+            optuna.storages.JournalFileStorage(f"{filename}"),
+        )
+    else:
+        assert False, f"Got an unexpected storage_type={storage_type}."
+
     study = optuna.create_study(study_name=study_name, storage=storage)
 
     def objective(trial: optuna.Trial) -> float:
@@ -40,24 +48,7 @@ def create_rdb_storage_sqlite_file(filename: str, study_name: str):
     study.optimize(objective, n_trials=100)
 
 
-def create_journal_storage_local_file(filename: str, study_name: str):
-    storage = optuna.storages.JournalStorage(
-        optuna.storages.JournalFileStorage(f"{filename}"),
-    )
-    study = optuna.create_study(study_name=study_name, storage=storage)
-
-    def objective(trial: optuna.Trial) -> float:
-        x1 = trial.suggest_float("x1", 0, 10)
-        x2 = trial.suggest_float("x2", 0, 10)
-        return (x1 - 2) ** 2 + (x2 - 5) ** 2
-
-    study.optimize(objective, n_trials=100)
-
-
-@pytest.mark.parametrize(
-    "create_storage_file",
-    [create_rdb_storage_sqlite_file, create_journal_storage_local_file],
-)
+@pytest.mark.parametrize("storage_type", ["rdb", "journal"])
 def test_load_storage(
     page: Page,
     server_url: str,
