@@ -29,7 +29,7 @@ except Exception as e:
 try:
     from optuna.importance import PedAnovaImportanceEvaluator
 except ImportError:
-    _logger.warning(f"optuna>=3.6.0 is required for PedAnovaImportanceEvaluator.")
+    _logger.warning("optuna>=3.6.0 is required for PedAnovaImportanceEvaluator.")
     PedAnovaImportanceEvaluator = None  # type: ignore
 except Exception as e:
     _logger.warning(f"Skipping to use PedAnovaImportanceEvaluator due to {e}.")
