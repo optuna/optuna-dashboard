@@ -1,7 +1,7 @@
 declare const IS_VSCODE: boolean
 
 type TrialValueNumber = number
-type TrialIntermediateValueNumber = number | "inf" | "-inf" | "nan"
+type TrialIntermediateValueNumber = number
 type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting"
 type TrialStateFinished = "Complete" | "Fail" | "Pruned"
 type StudyDirection = "maximize" | "minimize" | "not_set"
