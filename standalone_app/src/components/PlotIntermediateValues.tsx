@@ -80,7 +80,10 @@ const plotIntermediateValue = (
   )
   const plotData: Partial<plotly.PlotData>[] = filteredTrials.map((trial) => {
     const values = trial.intermediate_values.filter(
-      (iv) => iv.value !== "inf" && iv.value !== "-inf" && iv.value !== "nan"
+      (iv) =>
+        iv.value !== Infinity &&
+        iv.value !== -Infinity &&
+        !Number.isNaN(iv.value)
     )
     return {
       x: values.map((iv) => iv.step),

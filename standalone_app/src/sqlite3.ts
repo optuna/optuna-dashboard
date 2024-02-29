@@ -218,9 +218,9 @@ const getTrialValues = (
       callback: (vals: any[]) => {
         values.push(
           vals[1] === "INF_NEG"
-            ? "-inf"
+            ? -Infinity
             : vals[1] === "INF_POS"
-              ? "+inf"
+              ? Infinity
               : vals[0]
         )
       },
@@ -389,11 +389,11 @@ const getTrialIntermediateValues = (
           step: vals[0],
           value:
             vals[2] === "INF_NEG"
-              ? "-inf"
+              ? -Infinity
               : vals[2] === "INF_POS"
-                ? "+inf"
+                ? Infinity
                 : vals[2] === "NAN"
-                  ? "nan"
+                  ? NaN
                   : vals[1],
         })
       },
