@@ -1,8 +1,9 @@
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useMemo } from "react"
 import { Typography, useTheme, Box } from "@mui/material"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { Target, useFilteredTrialsFromStudies } from "../trialFilter"
+import { getCompareStudiesPlotAPI, CompareStudiesPlotType } from "../apiClient"
+import { usePlotlyColorTheme, useBackendRender } from "../state"
 
 const getPlotDomId = (objectiveId: number) => `graph-edf-${objectiveId}`
 
@@ -15,7 +16,45 @@ export const GraphEdf: FC<{
   studies: StudyDetail[]
   objectiveId: number
 }> = ({ studies, objectiveId }) => {
+  if (useBackendRender()) {
+    return <GraphEdfBackend studies={studies} />
+  } else {
+    return <GraphEdfFrontend studies={studies} objectiveId={objectiveId} />
+  }
+}
+
+const GraphEdfBackend: FC<{
+  studies: StudyDetail[]
+}> = ({ studies }) => {
+  const studyIds = studies.map((s) => s.id)
+  const domId = getPlotDomId(-1)
+  const numCompletedTrials = studies.reduce(
+    (acc, study) =>
+      acc + study?.trials.filter((t) => t.state === "Complete").length,
+    0
+  )
+  useEffect(() => {
+    if (studyIds.length === 0) {
+      return
+    }
+    getCompareStudiesPlotAPI(studyIds, CompareStudiesPlotType.EDF)
+      .then(({ data, layout }) => {
+        plotly.react(domId, data, layout)
+      })
+      .catch((err) => {
+        console.error(err)
+      })
+  }, [studyIds, numCompletedTrials])
+  return <Box id={domId} sx={{ height: "450px" }} />
+}
+
+const GraphEdfFrontend: FC<{
+  studies: StudyDetail[]
+  objectiveId: number
+}> = ({ studies, objectiveId }) => {
   const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
+
   const domId = getPlotDomId(objectiveId)
   const target = useMemo<Target>(
     () => new Target("objective", objectiveId),
@@ -31,8 +70,8 @@ export const GraphEdf: FC<{
   })
 
   useEffect(() => {
-    plotEdf(edfPlotInfos, target, domId, theme.palette.mode)
-  }, [studies, target, theme.palette.mode])
+    plotEdf(edfPlotInfos, target, domId, colorTheme)
+  }, [studies, target, colorTheme])
 
   return (
     <Box>
@@ -51,14 +90,14 @@ const plotEdf = (
   edfPlotInfos: EdfPlotInfo[],
   target: Target,
   domId: string,
-  mode: string
+  colorTheme: Partial<Plotly.Template>
 ) => {
   if (document.getElementById(domId) === null) {
     return
   }
   if (edfPlotInfos.length === 0) {
     plotly.react(domId, [], {
-      template: mode === "dark" ? plotlyDarkTemplate : {},
+      template: colorTheme,
     })
     return
   }
@@ -77,7 +116,7 @@ const plotEdf = (
       r: 50,
       b: 50,
     },
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: colorTheme,
   }
 
   const plotData: Partial<plotly.PlotData>[] = edfPlotInfos.map((h) => {

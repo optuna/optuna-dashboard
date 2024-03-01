@@ -1,9 +1,11 @@
+import * as plotly from "plotly.js-dist-min"
 import axios from "axios"
 
 const axiosInstance = axios.create({ baseURL: API_ENDPOINT })
 
 type APIMeta = {
   artifact_is_available: boolean
+  plotlypy_is_available: boolean
 }
 
 export const getMetaInfoAPI = (): Promise<APIMeta> => {
@@ -438,4 +440,41 @@ export const reportFeedbackComponentAPI = (
     .then(() => {
       return
     })
+}
+
+type PlotResponse = {
+  data: plotly.Data[]
+  layout: plotly.Layout
+}
+export enum PlotType {
+  Contour = "contour",
+  Slice = "slice",
+  ParallelCoordinate = "parallel_coordinate",
+  Rank = "rank",
+  EDF = "edf",
+  Timeline = "timeline",
+  ParamImportances = "param_importances",
+  ParetoFront = "pareto_front",
+}
+export const getPlotAPI = (
+  studyId: number,
+  plotType: PlotType
+): Promise<PlotResponse> => {
+  return axiosInstance
+    .get<PlotResponse>(`/api/studies/${studyId}/plot/${plotType}`)
+    .then<PlotResponse>((res) => res.data)
+}
+
+export enum CompareStudiesPlotType {
+  EDF = "edf",
+}
+export const getCompareStudiesPlotAPI = (
+  studyIds: number[],
+  plotType: CompareStudiesPlotType
+): Promise<PlotResponse> => {
+  return axiosInstance
+    .get<PlotResponse>(`/api/compare-studies/plot/${plotType}`, {
+      params: { study_ids: studyIds },
+    })
+    .then<PlotResponse>((res) => res.data)
 }

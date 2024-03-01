@@ -226,9 +226,6 @@ type StudyDetails = {
   [study_id: string]: StudyDetail
 }
 
-type StudyParamImportance = {
-  [study_id: string]: ParamImportance[][]
-}
 type PreferenceHistory = {
   id: string
   candidates: number[]
@@ -237,4 +234,12 @@ type PreferenceHistory = {
   timestamp: Date
   preferences: [number, number][]
   is_removed: boolean
+}
+
+type PlotlyColorThemeDark = "default"
+type PlotlyColorThemeLight = "default" | "seaborn" | "presentation" | "ggplot2"
+
+type PlotlyColorTheme = {
+  dark: PlotlyColorThemeDark
+  light: PlotlyColorThemeLight
 }

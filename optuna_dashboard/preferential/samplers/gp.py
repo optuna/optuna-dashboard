@@ -338,7 +338,8 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
         trial: optuna.trial.FrozenTrial,
         search_space: dict[str, optuna.distributions.BaseDistribution],
     ) -> dict[str, Any]:
-        preferences = get_preferences(study.system_attrs)
+        study_system_attrs = study._storage.get_study_system_attrs(study._study_id)
+        preferences = get_preferences(study_system_attrs)
         if len(preferences) == 0 or len(search_space) == 0:
             return {}
 
@@ -388,7 +389,10 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
             def get_all_possible_params(dist: optuna.distributions.BaseDistribution) -> list[Any]:
                 if isinstance(dist, CategoricalDistribution):
                     return list(dist.choices)
-                elif isinstance(dist, (IntDistribution, FloatDistribution)):
+                elif (
+                    isinstance(dist, (IntDistribution, FloatDistribution))
+                    and dist.step is not None
+                ):
                     return list(np.arange(dist.low, dist.high, dist.step))
                 else:
                     return []
@@ -400,7 +404,7 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
             is_all_discrete = all(
                 len(possible_params) > 0 for possible_params in all_possible_params.values()
             )
-            search_space_size = np.prod(
+            search_space_size = math.prod(  # Don't use np.prod to avoid overflow
                 [len(possible_params) for possible_params in all_possible_params.values()]
             )
             # TODO(contramundum53): Fix this arbitrarily chosen limit.

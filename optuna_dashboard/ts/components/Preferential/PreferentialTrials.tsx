@@ -27,12 +27,12 @@ import ClearIcon from "@mui/icons-material/Clear"
 import SettingsIcon from "@mui/icons-material/Settings"
 import FullscreenIcon from "@mui/icons-material/Fullscreen"
 
-import { actionCreator } from "../action"
-import { TrialListDetail } from "./TrialList"
+import { actionCreator } from "../../action"
+import { TrialListDetail } from "../TrialList"
 import {
   isThreejsArtifact,
   useThreejsArtifactModal,
-} from "./ThreejsArtifactViewer"
+} from "../Artifact/ThreejsArtifactViewer"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
 
 const SettingsPage: FC<{

@@ -3,7 +3,6 @@ import { useSnackbar } from "notistack"
 import {
   getStudyDetailAPI,
   getStudySummariesAPI,
-  getParamImportances,
   createNewStudyAPI,
   deleteStudyAPI,
   saveStudyNoteAPI,
@@ -23,23 +22,16 @@ import {
   reportFeedbackComponentAPI,
 } from "./apiClient"
 import {
-  graphVisibilityState,
   studyDetailsState,
   studySummariesState,
-  paramImportanceState,
   isFileUploading,
   artifactIsAvailable,
+  plotlypyIsAvailableState,
   reloadIntervalState,
   trialsUpdatingState,
+  studySummariesLoadingState,
 } from "./state"
 import { getDominatedTrials } from "./dominatedTrials"
-
-const localStorageGraphVisibility = "graphVisibility"
-const localStorageReloadInterval = "reloadInterval"
-
-type LocalStorageReloadInterval = {
-  reloadInterval?: number
-}
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const actionCreator = () => {
@@ -48,14 +40,16 @@ export const actionCreator = () => {
     useRecoilState<StudySummary[]>(studySummariesState)
   const [studyDetails, setStudyDetails] =
     useRecoilState<StudyDetails>(studyDetailsState)
-  const [graphVisibility, setGraphVisibility] =
-    useRecoilState<GraphVisibility>(graphVisibilityState)
   const setReloadInterval = useSetRecoilState<number>(reloadIntervalState)
-  const [paramImportance, setParamImportance] =
-    useRecoilState<StudyParamImportance>(paramImportanceState)
   const setUploading = useSetRecoilState<boolean>(isFileUploading)
   const setTrialsUpdating = useSetRecoilState(trialsUpdatingState)
   const setArtifactIsAvailable = useSetRecoilState<boolean>(artifactIsAvailable)
+  const setPlotlypyIsAvailable = useSetRecoilState<boolean>(
+    plotlypyIsAvailableState
+  )
+  const setStudySummariesLoading = useSetRecoilState<boolean>(
+    studySummariesLoadingState
+  )
 
   const setStudyDetailState = (studyId: number, study: StudyDetail) => {
     setStudyDetails((prevVal) => {
@@ -209,24 +203,18 @@ export const actionCreator = () => {
     setStudyDetailState(studyId, newStudy)
   }
 
-  const setStudyParamImportanceState = (
-    studyId: number,
-    importance: ParamImportance[][]
-  ) => {
-    const newVal = Object.assign({}, paramImportance)
-    newVal[studyId] = importance
-    setParamImportance(newVal)
-  }
-
   const updateAPIMeta = () => {
     getMetaInfoAPI().then((r) => {
       setArtifactIsAvailable(r.artifact_is_available)
+      setPlotlypyIsAvailable(r.plotlypy_is_available)
     })
   }
 
   const updateStudySummaries = (successMsg?: string) => {
+    setStudySummariesLoading(true)
     getStudySummariesAPI()
       .then((studySummaries: StudySummary[]) => {
+        setStudySummariesLoading(false)
         setStudySummaries(studySummaries)
 
         if (successMsg) {
@@ -234,6 +222,7 @@ export const actionCreator = () => {
         }
       })
       .catch((err) => {
+        setStudySummariesLoading(false)
         enqueueSnackbar(`Failed to fetch study list.`, {
           variant: "error",
         })
@@ -268,22 +257,6 @@ export const actionCreator = () => {
           })
         }
         console.log(err)
-      })
-  }
-
-  const updateParamImportance = (studyId: number) => {
-    getParamImportances(studyId)
-      .then((importance) => {
-        setStudyParamImportanceState(studyId, importance)
-      })
-      .catch((err) => {
-        const reason = err.response?.data.reason
-        enqueueSnackbar(
-          `Failed to load hyperparameter importance (reason=${reason})`,
-          {
-            variant: "error",
-          }
-        )
       })
   }
 
@@ -340,41 +313,8 @@ export const actionCreator = () => {
       })
   }
 
-  const getGraphVisibility = () => {
-    const localStoragePreferences = localStorage.getItem(
-      localStorageGraphVisibility
-    )
-    if (localStoragePreferences !== null) {
-      const merged = {
-        ...graphVisibility,
-        ...JSON.parse(localStoragePreferences),
-      }
-      setGraphVisibility(merged)
-    }
-  }
-
-  const saveGraphVisibility = (value: GraphVisibility) => {
-    setGraphVisibility(value)
-    localStorage.setItem(localStorageGraphVisibility, JSON.stringify(value))
-  }
-
-  const loadReloadInterval = () => {
-    const reloadIntervalJSON = localStorage.getItem(localStorageReloadInterval)
-    if (reloadIntervalJSON === null) {
-      return
-    }
-    const gp = JSON.parse(reloadIntervalJSON) as LocalStorageReloadInterval
-    if (gp.reloadInterval !== undefined) {
-      setReloadInterval(gp.reloadInterval)
-    }
-  }
-
   const saveReloadInterval = (interval: number) => {
     setReloadInterval(interval)
-    const value: LocalStorageReloadInterval = {
-      reloadInterval: interval,
-    }
-    localStorage.setItem(localStorageReloadInterval, JSON.stringify(value))
   }
 
   const saveStudyNote = (studyId: number, note: Note): Promise<void> => {
@@ -745,13 +685,9 @@ export const actionCreator = () => {
     updateAPIMeta,
     updateStudyDetail,
     updateStudySummaries,
-    updateParamImportance,
     createNewStudy,
     deleteStudy,
     renameStudy,
-    getGraphVisibility,
-    saveGraphVisibility,
-    loadReloadInterval,
     saveReloadInterval,
     saveStudyNote,
     saveTrialNote,

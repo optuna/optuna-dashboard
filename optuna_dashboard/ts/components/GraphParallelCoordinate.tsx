@@ -9,7 +9,7 @@ import {
   FormControlLabel,
   Checkbox,
 } from "@mui/material"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import { usePlotlyColorTheme } from "../state"
 import {
   Target,
   useFilteredTrials,
@@ -17,6 +17,9 @@ import {
   useParamTargets,
 } from "../trialFilter"
 import { useMergedUnionSearchSpace } from "../searchSpace"
+import { PlotType } from "../apiClient"
+import { useBackendRender } from "../state"
+import { usePlot } from "../hooks/usePlot"
 
 const plotDomId = "graph-parallel-coordinate"
 
@@ -87,15 +90,54 @@ const useTargets = (
 export const GraphParallelCoordinate: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  if (useBackendRender()) {
+    return <GraphParallelCoordinateBackend study={study} />
+  } else {
+    return <GraphParallelCoordinateFrontend study={study} />
+  }
+}
+
+const GraphParallelCoordinateBackend: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  const studyId = study?.id
+  const numCompletedTrials =
+    study?.trials.filter((t) => t.state === "Complete").length || 0
+
+  const { data, layout, error } = usePlot({
+    numCompletedTrials,
+    studyId,
+    plotType: PlotType.ParallelCoordinate,
+  })
+
+  useEffect(() => {
+    if (data && layout) {
+      plotly.react(plotDomId, data, layout)
+    }
+  }, [data, layout])
+  useEffect(() => {
+    if (error) {
+      console.error(error)
+    }
+  }, [error])
+
+  return <Box id={plotDomId} sx={{ height: "450px" }} />
+}
+
+const GraphParallelCoordinateFrontend: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
   const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
+
   const [targets, searchSpace, renderCheckBoxes] = useTargets(study)
 
   const trials = useFilteredTrials(study, targets, false)
   useEffect(() => {
     if (study !== null) {
-      plotCoordinate(study, trials, targets, searchSpace, theme.palette.mode)
+      plotCoordinate(study, trials, targets, searchSpace, colorTheme)
     }
-  }, [study, trials, targets, searchSpace, theme.palette.mode])
+  }, [study, trials, targets, searchSpace, colorTheme])
 
   return (
     <Grid container direction="row">
@@ -130,7 +172,7 @@ const plotCoordinate = (
   trials: Trial[],
   targets: Target[],
   searchSpace: SearchSpaceItem[],
-  mode: string
+  colorTheme: Partial<Plotly.Template>
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -143,7 +185,7 @@ const plotCoordinate = (
       r: 50,
       b: 100,
     },
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: colorTheme,
     uirevision: "true",
   }
   if (trials.length === 0 || targets.length === 0) {

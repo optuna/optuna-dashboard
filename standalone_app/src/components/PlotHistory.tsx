@@ -178,8 +178,8 @@ const filterFunc = (trial: Trial, objectiveId: number): boolean => {
   }
   return (
     trial.values.length > objectiveId &&
-    trial.values[objectiveId] !== "inf" &&
-    trial.values[objectiveId] !== "-inf"
+    trial.values[objectiveId] !== Infinity &&
+    trial.values[objectiveId] !== -Infinity
   )
 }
 
@@ -231,8 +231,8 @@ const plotHistory = (
     return xAxis === "number"
       ? trial.number
       : xAxis === "datetime_start"
-      ? trial.datetime_start ?? new Date()
-      : trial.datetime_complete ?? new Date()
+        ? trial.datetime_start ?? new Date()
+        : trial.datetime_complete ?? new Date()
   }
 
   const getValue = (trial: Trial, objectiveId: number): number | null => {
@@ -244,7 +244,7 @@ const plotHistory = (
       return null
     }
     const value = trial.values[objectiveId]
-    if (value === "inf" || value === "-inf") {
+    if (value === Infinity || value === -Infinity) {
       return null
     }
     return value

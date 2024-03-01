@@ -12,7 +12,6 @@ import {
   useTheme,
   Box,
 } from "@mui/material"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import {
   Target,
   useFilteredTrials,
@@ -20,6 +19,9 @@ import {
   useParamTargets,
 } from "../trialFilter"
 import { useMergedUnionSearchSpace } from "../searchSpace"
+import { PlotType } from "../apiClient"
+import { usePlotlyColorTheme, useBackendRender } from "../state"
+import { usePlot } from "../hooks/usePlot"
 
 const plotDomId = "graph-slice"
 
@@ -33,7 +35,45 @@ const isLogScale = (s: SearchSpaceItem): boolean => {
 export const GraphSlice: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  if (useBackendRender()) {
+    return <GraphSliceBackend study={study} />
+  } else {
+    return <GraphSliceFrontend study={study} />
+  }
+}
+
+const GraphSliceBackend: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  const studyId = study?.id
+  const numCompletedTrials =
+    study?.trials.filter((t) => t.state === "Complete").length || 0
+
+  const { data, layout, error } = usePlot({
+    numCompletedTrials,
+    studyId,
+    plotType: PlotType.Slice,
+  })
+
+  useEffect(() => {
+    if (data && layout) {
+      plotly.react(plotDomId, data, layout)
+    }
+  }, [data, layout])
+  useEffect(() => {
+    if (error) {
+      console.error(error)
+    }
+  }, [error])
+
+  return <Box id={plotDomId} sx={{ height: "450px" }} />
+}
+
+const GraphSliceFrontend: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
   const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
 
   const [objectiveTargets, selectedObjective, setObjectiveTarget] =
     useObjectiveAndUserAttrTargets(study)
@@ -57,7 +97,7 @@ export const GraphSlice: FC<{
       selectedParamTarget,
       searchSpace.find((s) => s.name === selectedParamTarget?.key) || null,
       logYScale,
-      theme.palette.mode
+      colorTheme
     )
   }, [
     trials,
@@ -65,7 +105,7 @@ export const GraphSlice: FC<{
     searchSpace,
     selectedParamTarget,
     logYScale,
-    theme.palette.mode,
+    colorTheme,
   ])
 
   const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
@@ -147,7 +187,7 @@ const plotSlice = (
   selectedParamTarget: Target | null,
   selectedParamSpace: SearchSpaceItem | null,
   logYScale: boolean,
-  mode: string
+  colorTheme: Partial<Plotly.Template>
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -177,7 +217,7 @@ const plotSlice = (
     },
     showlegend: false,
     uirevision: "true",
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: colorTheme,
   }
   if (
     selectedParamSpace === null ||

@@ -1,6 +1,6 @@
 import React, { FC, useMemo } from "react"
-import { ArtifactCardMedia } from "./ArtifactCardMedia"
-import { MarkdownRenderer } from "./Note"
+import { ArtifactCardMedia } from "../Artifact/ArtifactCardMedia"
+import { MarkdownRenderer } from "../Note"
 
 export const PreferentialOutputComponent: FC<{
   trial: Trial

@@ -11,9 +11,11 @@ import {
   useTheme,
   Box,
 } from "@mui/material"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { getAxisInfo, makeHovertext } from "../graphUtil"
 import { useMergedUnionSearchSpace } from "../searchSpace"
+import { PlotType } from "../apiClient"
+import { usePlotlyColorTheme, useBackendRender } from "../state"
+import { usePlot } from "../hooks/usePlot"
 
 const plotDomId = "graph-rank"
 
@@ -32,7 +34,46 @@ interface RankPlotInfo {
 export const GraphRank: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  if (useBackendRender()) {
+    return <GraphRankBackend study={study} />
+  } else {
+    return <GraphRankFrontend study={study} />
+  }
+}
+
+const GraphRankBackend: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  const studyId = study?.id
+  const numCompletedTrials =
+    study?.trials.filter((t) => t.state === "Complete").length || 0
+
+  const { data, layout, error } = usePlot({
+    numCompletedTrials,
+    studyId,
+    plotType: PlotType.Rank,
+  })
+
+  useEffect(() => {
+    if (data && layout) {
+      plotly.react(plotDomId, data, layout)
+    }
+  }, [data, layout])
+  useEffect(() => {
+    if (error) {
+      console.error(error)
+    }
+  }, [error])
+
+  return <Box id={plotDomId} sx={{ height: "450px" }} />
+}
+
+const GraphRankFrontend: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
   const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
+
   const [objectiveId, setobjectiveId] = useState<number>(0)
   const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
   const [xParam, setXParam] = useState<SearchSpaceItem | null>(null)
@@ -61,9 +102,9 @@ export const GraphRank: FC<{
   useEffect(() => {
     if (study != null) {
       const rankPlotInfo = getRankPlotInfo(study, objectiveId, xParam, yParam)
-      plotRank(rankPlotInfo, theme.palette.mode)
+      plotRank(rankPlotInfo, colorTheme)
     }
-  }, [study, objectiveId, xParam, yParam, theme.palette.mode])
+  }, [study, objectiveId, xParam, yParam, theme.palette.mode, colorTheme])
 
   const space: SearchSpaceItem[] = study ? study.union_search_space : []
 
@@ -157,8 +198,8 @@ const getRankPlotInfo = (
     return typeof value === "number"
       ? value
       : value.includes("-")
-      ? -Infinity
-      : Infinity
+        ? -Infinity
+        : Infinity
   }
   filteredTrials.forEach((trial, i) => {
     const xValue = xAxis.values[i]
@@ -258,14 +299,17 @@ const getOrderWithSameOrderAveraging = (values: number[]): number[] => {
   return ranks
 }
 
-const plotRank = (rankPlotInfo: RankPlotInfo | null, mode: string) => {
+const plotRank = (
+  rankPlotInfo: RankPlotInfo | null,
+  colorTheme: Partial<Plotly.Template>
+) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
 
   if (rankPlotInfo === null) {
     plotly.react(plotDomId, [], {
-      template: mode === "dark" ? plotlyDarkTemplate : {},
+      template: colorTheme,
     })
     return
   }
@@ -286,7 +330,7 @@ const plotRank = (rankPlotInfo: RankPlotInfo | null, mode: string) => {
       b: 50,
     },
     uirevision: "true",
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: colorTheme,
   }
 
   const xValues = rankPlotInfo.xvalues

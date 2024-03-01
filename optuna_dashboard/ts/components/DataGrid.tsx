@@ -8,10 +8,12 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
+  TextField,
   Collapse,
   IconButton,
   Menu,
   MenuItem,
+  Box,
 } from "@mui/material"
 import { styled } from "@mui/system"
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
@@ -33,7 +35,7 @@ interface DataGridColumn<T> {
   label: string
   sortable?: boolean
   less?: (a: T, b: T, ascending: boolean) => number
-  filterChoices?: string[]
+  filterChoices?: (string | null)[]
   toCellValue?: (rowIndex: number) => string | React.ReactNode
   padding?: "normal" | "checkbox" | "none"
 }
@@ -69,8 +71,8 @@ function DataGrid<T>(props: {
   initialRowsPerPage = initialRowsPerPage // use first element as default
     ? initialRowsPerPage
     : isNumber(rowsPerPageOption[0])
-    ? rowsPerPageOption[0]
-    : rowsPerPageOption[0].value
+      ? rowsPerPageOption[0]
+      : rowsPerPageOption[0].value
   const [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage)
 
   const handleChangePage = (event: unknown, newPage: number) => {
@@ -82,6 +84,41 @@ function DataGrid<T>(props: {
   ) => {
     setRowsPerPage(parseInt(event.target.value, 10))
     setPage(0)
+  }
+
+  const PaginationForm: React.FC<{
+    onPageNumberSubmit: (value: number) => void
+    maxPageNumber: number
+  }> = ({ onPageNumberSubmit, maxPageNumber }) => {
+    // This component is separated from DataGrid to prevent `DataGrid` from re-rendering the page,
+    // every time any letters are input.
+    const [specifiedPageText, setSpecifiedPageText] = React.useState("")
+
+    const handleSubmitPageNumber = (
+      event: React.FormEvent<HTMLFormElement>
+    ) => {
+      event.preventDefault()
+      const newPageNumber = parseInt(specifiedPageText, 10)
+      // Page is 0-indexed in `TablePagination`.
+      onPageNumberSubmit(newPageNumber - 1)
+      setSpecifiedPageText("") // reset the input field
+    }
+
+    return (
+      <form onSubmit={handleSubmitPageNumber}>
+        <TextField
+          size="small"
+          label={`Go to Page: n / ${maxPageNumber}`}
+          value={specifiedPageText}
+          type="number"
+          style={{ width: 200 }}
+          inputProps={{ min: 1, max: maxPageNumber }}
+          onChange={(e) => {
+            setSpecifiedPageText(e.target.value)
+          }}
+        />
+      </form>
+    )
   }
 
   // Filtering
@@ -119,6 +156,7 @@ function DataGrid<T>(props: {
   const RootDiv = styled("div")({
     width: "100%",
   })
+  const maxPageNumber = Math.ceil(filteredRows.length / rowsPerPage)
   return (
     <RootDiv>
       <TableContainer>
@@ -177,15 +215,28 @@ function DataGrid<T>(props: {
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={rowsPerPageOption}
-        component="div"
-        count={filteredRows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-      />
+      {filteredRows.length > 0 ? (
+        <>
+          {/* @ts-ignore */}
+          <Box display="flex" alignItems="center">
+            <TablePagination
+              rowsPerPageOptions={rowsPerPageOption}
+              component="div"
+              count={filteredRows.length}
+              rowsPerPage={rowsPerPage}
+              page={page}
+              onPageChange={handleChangePage}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+            {maxPageNumber > 2 ? (
+              <PaginationForm
+                onPageNumberSubmit={(page) => setPage(page)}
+                maxPageNumber={maxPageNumber}
+              />
+            ) : null}
+          </Box>
+        </>
+      ) : null}
     </RootDiv>
   )
 }
@@ -270,8 +321,8 @@ function DataGridHeaderColumn<T>(props: {
                       filter === null
                         ? filterChoices.filter((v) => v !== choice) // By default, every choice is ticked, so the chosen option will be unticked.
                         : filter.values.some((v) => v === choice)
-                        ? filter.values.filter((v) => v !== choice)
-                        : [...filter.values, choice]
+                          ? filter.values.filter((v) => v !== choice)
+                          : [...filter.values, choice]
                     onFilterChange(newTickedValues)
                   }}
                 >
@@ -282,7 +333,7 @@ function DataGridHeaderColumn<T>(props: {
                       <CheckBoxOutlineBlankIcon color="primary" />
                     )}
                   </ListItemIcon>
-                  {choice}
+                  {choice ?? "(missing value)"}
                 </MenuItem>
               ))}
             </Menu>

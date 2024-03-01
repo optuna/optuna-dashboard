@@ -115,7 +115,7 @@ export const ThreejsArtifactViewer: React.FC<ThreejsArtifactViewerProps> = (
       {geometry.length > 0 &&
         geometry.map((geo, index) => (
           <mesh key={index} geometry={geo}>
-            <meshNormalMaterial />
+            <meshNormalMaterial side={THREE.DoubleSide} />
           </mesh>
         ))}
     </Canvas>
@@ -124,7 +124,7 @@ export const ThreejsArtifactViewer: React.FC<ThreejsArtifactViewerProps> = (
 
 export const useThreejsArtifactModal = (): [
   (path: string, artifact: Artifact) => void,
-  () => ReactNode
+  () => ReactNode,
 ] => {
   const [open, setOpen] = useState(false)
   const [target, setTarget] = useState<[string, Artifact | null]>(["", null])

@@ -11,15 +11,57 @@ import {
   useTheme,
   Box,
 } from "@mui/material"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { makeHovertext } from "../graphUtil"
+import { usePlotlyColorTheme } from "../state"
+import { useNavigate } from "react-router-dom"
+import { PlotType } from "../apiClient"
+import { useBackendRender } from "../state"
+import { usePlot } from "../hooks/usePlot"
 
 const plotDomId = "graph-pareto-front"
 
 export const GraphParetoFront: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  if (useBackendRender()) {
+    return <GraphParetoFrontBackend study={study} />
+  } else {
+    return <GraphParetoFrontFrontend study={study} />
+  }
+}
+
+const GraphParetoFrontBackend: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  const studyId = study?.id
+  const numCompletedTrials =
+    study?.trials.filter((t) => t.state === "Complete").length || 0
+  const { data, layout, error } = usePlot({
+    numCompletedTrials,
+    studyId,
+    plotType: PlotType.ParetoFront,
+  })
+
+  useEffect(() => {
+    if (data && layout) {
+      plotly.react(plotDomId, data, layout)
+    }
+  }, [data, layout])
+  useEffect(() => {
+    if (error) {
+      console.error(error)
+    }
+  }, [error])
+
+  return <Box id={plotDomId} sx={{ height: "450px" }} />
+}
+
+const GraphParetoFrontFrontend: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
   const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
+  const navigate = useNavigate()
   const [objectiveXId, setObjectiveXId] = useState<number>(0)
   const [objectiveYId, setObjectiveYId] = useState<number>(1)
   const objectiveNames: string[] = study?.objective_names || []
@@ -34,9 +76,32 @@ export const GraphParetoFront: FC<{
 
   useEffect(() => {
     if (study != null) {
-      plotParetoFront(study, objectiveXId, objectiveYId, theme.palette.mode)
+      plotParetoFront(
+        study,
+        objectiveXId,
+        objectiveYId,
+        theme.palette.mode,
+        colorTheme
+      )
+      const element = document.getElementById(plotDomId)
+      if (element != null) {
+        // @ts-ignore
+        element.on("plotly_click", (data) => {
+          const plotTextInfo = JSON.parse(
+            data.points[0].text.replace(/<br>/g, "")
+          )
+          navigate(
+            URL_PREFIX +
+              `/studies/${study.id}/trials?numbers=${plotTextInfo.number}`
+          )
+        })
+        return () => {
+          // @ts-ignore
+          element.removeAllListeners("plotly_click")
+        }
+      }
     }
-  }, [study, objectiveXId, objectiveYId, theme.palette.mode])
+  }, [study, objectiveXId, objectiveYId, theme.palette.mode, colorTheme])
 
   return (
     <Grid container direction="row">
@@ -188,12 +253,12 @@ const getIsDominated2D = (normalizedValues: number[][]) => {
       a[0] > b[0]
         ? 1
         : a[0] < b[0]
-        ? -1
-        : a[1] > b[1]
-        ? 1
-        : a[1] < b[1]
-        ? -1
-        : 0
+          ? -1
+          : a[1] > b[1]
+            ? 1
+            : a[1] < b[1]
+              ? -1
+              : 0
     )
   let maxValueSeen0 = sorted[0][0]
   let minValueSeen1 = sorted[0][1]
@@ -235,7 +300,8 @@ const plotParetoFront = (
   study: StudyDetail,
   objectiveXId: number,
   objectiveYId: number,
-  mode: string
+  mode: string,
+  colorTheme: Partial<Plotly.Template>
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -248,7 +314,7 @@ const plotParetoFront = (
       r: 50,
       b: 0,
     },
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: colorTheme,
     uirevision: "true",
   }
 

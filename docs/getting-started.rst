@@ -212,10 +212,11 @@ https://optuna.github.io/optuna-dashboard/
 
    Currently, only a subset of features is available. However, you can still check the optimization history, hyperparameter importances, and etc. in graphs and tables.
 
-VS Code Extension (Experimental)
---------------------------------
+VS Code and code-server Extension (Experimental)
+------------------------------------------------
 
-You can install the VS Code extension via `Visual Studio Marketplace <https://marketplace.visualstudio.com/items?itemName=Optuna.optuna-dashboard#overview>`_.
+You can install the VS Code extension via `Visual Studio Marketplace <https://marketplace.visualstudio.com/items?itemName=Optuna.optuna-dashboard#overview>`_,
+or install the code-server extension via `Open VSX <https://open-vsx.org/extension/Optuna/optuna-dashboard>`_.
 
 .. figure:: _static/vscode-extension.png
    :alt: Screenshot for the VS Code Extension
@@ -227,6 +228,8 @@ You can install the VS Code extension via `Visual Studio Marketplace <https://ma
 To use, right-click the SQLite3 files (``*.db`` or ``*.sqlite3``) in the file explorer and select the "Open in Optuna Dashboard" from the dropdown menu.
 This extension leverages the browser-only version of Optuna Dashboard, so the same limitations apply.
 
+Please note that we have confirmed the behavior of the code-server extension can be unstable.
+When opening SQLite files, the dashboard may not appear on the first attempt, but it should be displayed upon a second try.
 
 Google Colaboratory
 -------------------

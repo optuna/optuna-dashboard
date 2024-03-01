@@ -27,7 +27,7 @@ or use a following dirty hack to unwrap ``_CachedStorage`` class.
 ``set_objective_names()`` function is deprecated. Please use ``study.set_metric_names()`` instead.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:func:`~optuna_dashboard.set_objective_names` function has been ported to Optuna.
+``set_objective_names`` function has been ported to Optuna.
 Please use `study.set_metric_names() <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.study.Study.html#optuna.study.Study>`_ function instead.
 
 .. list-table::
@@ -41,7 +41,7 @@ Please use `study.set_metric_names() <https://optuna.readthedocs.io/en/latest/re
 ``upload_artifact()`` is deprecated. Please use ``optuna.artifacts.upload_artifact()`` instead.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:func:`~optuna_dashboard.artifact.upload_artifact` function has been ported to Optuna.
+``upload_artifact`` function has been ported to Optuna.
 Please use `optuna.artifacts.upload_artifact <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.upload_artifact.html>`_ function instead.
 
 .. list-table::
@@ -57,7 +57,7 @@ Please note that the order of arguments is different between the deprecated and 
 ``FileSystemBackend`` is deprecated. Please use ``FileSystemArtifactStore`` instead.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:class:`~optuna_dashboard.artifact.file_system.FileSystemBackend` class has been ported to Optuna.
+``FileSystemBackend`` class has been ported to Optuna.
 Please use `FileSystemArtifactStore <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.FileSystemArtifactStore.html>`_ class instead.
 
 .. list-table::
@@ -71,7 +71,7 @@ Please use `FileSystemArtifactStore <https://optuna.readthedocs.io/en/latest/ref
 ``Boto3Backend``` is deprecated. Please use ``Boto3ArtifactStore`` instead.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-:class:`~optuna_dashboard.artifact.boto3.Boto3Backend` class has been ported to Optuna.
+``Boto3Backend`` class has been ported to Optuna.
 Please use `Boto3ArtifactStore <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.Boto3ArtifactStore.html>`_ class instead.
 
 .. list-table::

@@ -1,4 +1,8 @@
 import { atom, useRecoilValue } from "recoil"
+import {
+  LightColorTemplates,
+  DarkColorTemplates,
+} from "./components/PlotlyColorTemplates"
 
 export const studySummariesState = atom<StudySummary[]>({
   key: "studySummaries",
@@ -17,25 +21,7 @@ export const trialsUpdatingState = atom<{
   default: {},
 })
 
-export const paramImportanceState = atom<StudyParamImportance>({
-  key: "paramImportance",
-  default: {},
-})
-
-export const graphVisibilityState = atom<GraphVisibility>({
-  key: "graphVisibility",
-  default: {
-    history: true,
-    paretoFront: true,
-    parallelCoordinate: true,
-    intermediateValues: true,
-    edf: true,
-    contour: true,
-    importances: true,
-    slice: true,
-  },
-})
-
+// TODO(c-bata): Consider representing the state as boolean.
 export const reloadIntervalState = atom<number>({
   key: "reloadInterval",
   default: 10,
@@ -56,6 +42,29 @@ export const artifactIsAvailable = atom<boolean>({
   default: false,
 })
 
+export const plotlyColorThemeState = atom<PlotlyColorTheme>({
+  key: "plotlyColorThemeState",
+  default: {
+    dark: "default",
+    light: "default",
+  },
+})
+
+export const plotBackendRenderingState = atom<boolean>({
+  key: "plotBackendRendering",
+  default: false,
+})
+
+export const plotlypyIsAvailableState = atom<boolean>({
+  key: "plotlypyIsAvailable",
+  default: true,
+})
+
+export const studySummariesLoadingState = atom<boolean>({
+  key: "studySummariesLoadingState",
+  default: false,
+})
+
 export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
   return studyDetails[studyId] || null
@@ -69,14 +78,6 @@ export const useStudySummaryValue = (studyId: number): StudySummary | null => {
 export const useTrialUpdatingValue = (trialId: number): boolean => {
   const updating = useRecoilValue(trialsUpdatingState)
   return updating[trialId] || false
-}
-
-export const useParamImportanceValue = (
-  studyId: number
-): ParamImportance[][] | null => {
-  const studyParamImportance =
-    useRecoilValue<StudyParamImportance>(paramImportanceState)
-  return studyParamImportance[studyId] || null
 }
 
 export const useStudyDirections = (
@@ -106,4 +107,28 @@ export const useArtifacts = (studyId: number, trialId: number): Artifact[] => {
     return []
   }
   return trial.artifacts
+}
+
+export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
+  const theme = useRecoilValue(plotlyColorThemeState)
+  if (mode === "dark") {
+    return DarkColorTemplates[theme.dark]
+  } else {
+    return LightColorTemplates[theme.light]
+  }
+}
+
+export const useBackendRender = (): boolean => {
+  const plotBackendRendering = useRecoilValue(plotBackendRenderingState)
+  const plotlypyIsAvailable = useRecoilValue(plotlypyIsAvailableState)
+
+  if (plotBackendRendering) {
+    if (plotlypyIsAvailable) {
+      return true
+    }
+    console.warn(
+      "Use frontend rendering because plotlypy is specified but not available."
+    )
+  }
+  return false
 }

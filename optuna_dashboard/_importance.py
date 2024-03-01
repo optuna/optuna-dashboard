@@ -26,6 +26,13 @@ except Exception as e:
     FastFanovaImportanceEvaluator = None  # type: ignore
 
 
+try:
+    from optuna.importance import PedAnovaImportanceEvaluator  # type: ignore[attr-defined]
+except ImportError:
+    _logger.warning("optuna>=3.6.0 is required for PedAnovaImportanceEvaluator.")
+    PedAnovaImportanceEvaluator = None  # type: ignore
+
+
 if TYPE_CHECKING:
     from typing import Callable
     from typing import Optional
@@ -64,6 +71,10 @@ def _get_param_importances(
     *,
     target: Optional[Callable[[FrozenTrial], float]] = None,
 ) -> dict[str, float]:
+    if PedAnovaImportanceEvaluator is not None:
+        # TODO(nabenabe0928): We might want to pass baseline_quantile as an argument in the future.
+        return get_param_importances(study, target=target, evaluator=PedAnovaImportanceEvaluator())
+
     if FastFanovaImportanceEvaluator is not None:
         try:
             evaluator = FastFanovaImportanceEvaluator(completed_trials=completed_trials)

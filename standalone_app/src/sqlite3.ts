@@ -174,12 +174,12 @@ const getTrials = (
         vals[2] === "COMPLETE"
           ? "Complete"
           : vals[2] === "PRUNED"
-          ? "Pruned"
-          : vals[2] === "RUNNING"
-          ? "Running"
-          : vals[2] === "WAITING"
-          ? "Waiting"
-          : "Fail"
+            ? "Pruned"
+            : vals[2] === "RUNNING"
+              ? "Running"
+              : vals[2] === "WAITING"
+                ? "Waiting"
+                : "Fail"
       const trial: Trial = {
         trial_id: trialId,
         number: vals[1],
@@ -218,10 +218,10 @@ const getTrialValues = (
       callback: (vals: any[]) => {
         values.push(
           vals[1] === "INF_NEG"
-            ? "-inf"
+            ? -Infinity
             : vals[1] === "INF_POS"
-            ? "+inf"
-            : vals[0]
+              ? Infinity
+              : vals[0]
         )
       },
     })
@@ -389,12 +389,12 @@ const getTrialIntermediateValues = (
           step: vals[0],
           value:
             vals[2] === "INF_NEG"
-              ? "-inf"
+              ? -Infinity
               : vals[2] === "INF_POS"
-              ? "+inf"
-              : vals[2] === "NAN"
-              ? "nan"
-              : vals[1],
+                ? Infinity
+                : vals[2] === "NAN"
+                  ? NaN
+                  : vals[1],
         })
       },
     })

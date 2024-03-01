@@ -12,16 +12,57 @@ import {
   Box,
 } from "@mui/material"
 import blue from "@mui/material/colors/blue"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 import { useMergedUnionSearchSpace } from "../searchSpace"
+import { usePlotlyColorTheme } from "../state"
 import { getAxisInfo } from "../graphUtil"
+import { PlotType } from "../apiClient"
+import { useBackendRender } from "../state"
+import { usePlot } from "../hooks/usePlot"
 
 const plotDomId = "graph-contour"
 
 export const Contour: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  if (useBackendRender()) {
+    return <ContourBackend study={study} />
+  } else {
+    return <ContourFrontend study={study} />
+  }
+}
+
+const ContourBackend: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
+  const studyId = study?.id
+  const numCompletedTrials =
+    study?.trials.filter((t) => t.state === "Complete").length || 0
+  const { data, layout, error } = usePlot({
+    numCompletedTrials,
+    studyId,
+    plotType: PlotType.Contour,
+  })
+
+  useEffect(() => {
+    if (data && layout) {
+      plotly.react(plotDomId, data, layout)
+    }
+  }, [data, layout])
+  useEffect(() => {
+    if (error) {
+      console.error(error)
+    }
+  }, [error])
+
+  return <Box id={plotDomId} sx={{ height: "450px" }} />
+}
+
+const ContourFrontend: FC<{
+  study: StudyDetail | null
+}> = ({ study = null }) => {
   const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
+
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
   const [xParam, setXParam] = useState<SearchSpaceItem | null>(null)
@@ -49,9 +90,9 @@ export const Contour: FC<{
 
   useEffect(() => {
     if (study != null) {
-      plotContour(study, objectiveId, xParam, yParam, theme.palette.mode)
+      plotContour(study, objectiveId, xParam, yParam, colorTheme)
     }
-  }, [study, objectiveId, xParam, yParam, theme.palette.mode])
+  }, [study, objectiveId, xParam, yParam, colorTheme])
 
   const space: SearchSpaceItem[] = study ? study.union_search_space : []
 
@@ -130,7 +171,7 @@ const plotContour = (
   objectiveId: number,
   xParam: SearchSpaceItem | null,
   yParam: SearchSpaceItem | null,
-  mode: string
+  colorTheme: Partial<Plotly.Template>
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -140,7 +181,7 @@ const plotContour = (
   const filteredTrials = trials.filter((t) => filterFunc(t, objectiveId))
   if (filteredTrials.length < 2 || xParam === null || yParam === null) {
     plotly.react(plotDomId, [], {
-      template: mode === "dark" ? plotlyDarkTemplate : {},
+      template: colorTheme,
     })
     return
   }
@@ -166,7 +207,7 @@ const plotContour = (
       b: 50,
     },
     uirevision: "true",
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: colorTheme,
   }
 
   // TODO(c-bata): Support parameters that only have the single value
