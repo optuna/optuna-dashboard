@@ -30,20 +30,17 @@ export function activate(context: vscode.ExtensionContext) {
       const appPath = panel.webview.asWebviewUri(indexJsUri)
 
       panel.webview.html = getWebviewContent(appPath)
-      panel.webview.onDidReceiveMessage(
-        async (message: any) => {
-          switch (message.type) {
-            case 'webviewDidLoad':
-              console.log("[host] Receive a webviewDidLoad event.")
-              const storageContentBase64 = await readFileAsBase64(fileUri)
-              panel.webview.postMessage({
-                type: "optunaStorage",
-                content: storageContentBase64,
-              })
-              break
-          }
+      panel.webview.onDidReceiveMessage(async (message: any) => {
+        switch (message.type) {
+          case "webviewDidLoad":
+            const storageContentBase64 = await readFileAsBase64(fileUri)
+            panel.webview.postMessage({
+              type: "optunaStorage",
+              content: storageContentBase64,
+            })
+            break
         }
-      );
+      })
     }
   )
 
@@ -66,7 +63,6 @@ function uint8ArrayToBase64(uint8Array: Uint8Array): string {
 }
 
 function getWebviewContent(indexJsUri: vscode.Uri): string {
-  // https://code.visualstudio.com/api/extension-guides/webview#passing-messages-from-a-webview-to-an-extension
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -78,7 +74,6 @@ function getWebviewContent(indexJsUri: vscode.Uri): string {
       const vscodeApi = acquireVsCodeApi();
       window.addEventListener('DOMContentLoaded', (event) => {
         vscodeApi.postMessage({ type: 'webviewDidLoad' })
-        console.log("[webview] Post a webviewDidLoad event.")
       })
     }())
   </script>
