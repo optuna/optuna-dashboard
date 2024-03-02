@@ -21,6 +21,11 @@ export const trialsUpdatingState = atom<{
   default: {},
 })
 
+export const reloadingState = atom<boolean>({
+  key: "reloadng",
+  default: false,
+})
+
 // TODO(c-bata): Consider representing the state as boolean.
 export const reloadIntervalState = atom<number>({
   key: "reloadInterval",

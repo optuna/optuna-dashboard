@@ -16,6 +16,7 @@ import HomeIcon from "@mui/icons-material/Home"
 import { StudyNote } from "./Note"
 import { actionCreator } from "../action"
 import {
+  reloadingState,
   reloadIntervalState,
   useStudyDetailValue,
   useStudyIsPreferential,
@@ -53,6 +54,7 @@ export const StudyDetail: FC<{
   const action = actionCreator()
   const studyId = useURLVars()
   const studyDetail = useStudyDetailValue(studyId)
+  const isLoading = useRecoilValue<boolean>(reloadingState)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studyName = useStudyName(studyId)
   const isPreferential = useStudyIsPreferential(studyId)
@@ -61,7 +63,9 @@ export const StudyDetail: FC<{
     studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
 
   useEffect(() => {
-    action.updateStudyDetail(studyId)
+    if (!isLoading) {
+      action.updateStudyDetail(studyId)
+    }
     action.updateAPIMeta()
   }, [])
 
@@ -86,7 +90,9 @@ export const StudyDetail: FC<{
     }
 
     const intervalId = setInterval(function () {
-      action.updateStudyDetail(studyId)
+      if (!isLoading) {
+        action.updateStudyDetail(studyId)
+      }
     }, interval)
     return () => clearInterval(intervalId)
   }, [reloadInterval, studyDetail, page])

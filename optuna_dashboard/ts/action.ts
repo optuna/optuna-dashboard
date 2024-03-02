@@ -27,6 +27,7 @@ import {
   isFileUploading,
   artifactIsAvailable,
   plotlypyIsAvailableState,
+  reloadingState,
   reloadIntervalState,
   trialsUpdatingState,
   studySummariesLoadingState,
@@ -40,6 +41,7 @@ export const actionCreator = () => {
     useRecoilState<StudySummary[]>(studySummariesState)
   const [studyDetails, setStudyDetails] =
     useRecoilState<StudyDetails>(studyDetailsState)
+  const setReloading = useSetRecoilState<boolean>(reloadingState)
   const setReloadInterval = useSetRecoilState<number>(reloadIntervalState)
   const setUploading = useSetRecoilState<boolean>(isFileUploading)
   const setTrialsUpdating = useSetRecoilState(trialsUpdatingState)
@@ -231,6 +233,7 @@ export const actionCreator = () => {
   }
 
   const updateStudyDetail = (studyId: number) => {
+    setReloading(true)
     let nLocalFixedTrials = 0
     if (studyId in studyDetails) {
       const currentTrials = studyDetails[studyId].trials
@@ -242,6 +245,7 @@ export const actionCreator = () => {
     }
     getStudyDetailAPI(studyId, nLocalFixedTrials)
       .then((study) => {
+        setReloading(false)
         const currentFixedTrials =
           studyId in studyDetails
             ? studyDetails[studyId].trials.slice(0, nLocalFixedTrials)
@@ -250,6 +254,7 @@ export const actionCreator = () => {
         setStudyDetailState(studyId, study)
       })
       .catch((err) => {
+        setReloading(false)
         const reason = err.response?.data.reason
         if (reason !== undefined) {
           enqueueSnackbar(`Failed to fetch study (reason=${reason})`, {
