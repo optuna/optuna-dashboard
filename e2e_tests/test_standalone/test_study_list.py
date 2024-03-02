@@ -1,4 +1,3 @@
-from collections.abc import Callable
 import os
 import tempfile
 
