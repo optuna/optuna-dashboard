@@ -1,6 +1,6 @@
+from collections.abc import Callable
 import os
 import tempfile
-from collections.abc import Callable
 
 import optuna
 from playwright.sync_api import Page
