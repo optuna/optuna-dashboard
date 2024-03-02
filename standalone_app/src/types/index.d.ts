@@ -1,7 +1,5 @@
 declare const IS_VSCODE: boolean
 
-type TrialValueNumber = number
-type TrialIntermediateValueNumber = number
 type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting"
 type TrialStateFinished = "Complete" | "Fail" | "Pruned"
 type StudyDirection = "maximize" | "minimize" | "not_set"
@@ -22,14 +20,15 @@ type IntDistribution = {
   log: boolean
 }
 
+type CategoricalChoiceType = null | boolean | number | string
 type CategoricalDistribution = {
   type: "CategoricalDistribution"
-  choices: { pytype: string; value: string }[]
+  choices: CategoricalChoiceType[]
 }
 
 type TrialIntermediateValue = {
   step: number
-  value: TrialIntermediateValueNumber
+  value: number
 }
 
 type Distribution =
@@ -63,7 +62,7 @@ type Trial = {
   number: number
   study_id: number
   state: TrialState
-  values?: TrialValueNumber[]
+  values?: number[]
   params: TrialParam[]
   intermediate_values: TrialIntermediateValue[]
   user_attrs: Attribute[]
@@ -74,7 +73,7 @@ type Trial = {
 type TrialParam = {
   name: string
   param_internal_value: number
-  param_external_value: string
+  param_external_value: CategoricalChoiceType
   param_external_type: string
   distribution: Distribution
 }

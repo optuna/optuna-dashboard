@@ -86,8 +86,7 @@ export const TrialTable: FC<{
         null,
       sortable: true,
       filterable: false,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      less: (firstEl, secondEl, _): number => {
+      less: (firstEl, secondEl): number => {
         const firstVal = firstEl.params.find(
           (p) => p.name === s.name
         )?.param_internal_value
@@ -117,8 +116,7 @@ export const TrialTable: FC<{
           ?.value || null,
       sortable: attr_spec.sortable,
       filterable: false,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      less: (firstEl, secondEl, _): number => {
+      less: (firstEl, secondEl): number => {
         const firstVal = firstEl.user_attrs.find(
           (attr) => attr.key === attr_spec.key
         )?.value
