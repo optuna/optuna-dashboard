@@ -28,7 +28,7 @@ def test_home(
     assert title == "Optuna Dashboard (Wasm ver.)"
 
 
-def create_rdb_storage_file(filename: str, study_name: str, storage_type: str):
+def create_storage_file(filename: str, study_name: str, storage_type: str):
     if storage_type == "rdb":
         storage = optuna.storages.RDBStorage(f"sqlite:///{filename}")
     elif storage_type == "journal":
@@ -52,7 +52,7 @@ def create_rdb_storage_file(filename: str, study_name: str, storage_type: str):
 def test_load_storage(
     page: Page,
     server_url: str,
-    create_storage_file: Callable[[str, str], optuna.storages.BaseStorage],
+    storage_type: str,
 ) -> None:
     study_name = "single-objective"
     url = f"{server_url}"
@@ -61,7 +61,7 @@ def test_load_storage(
         with tempfile.NamedTemporaryFile() as fp:
             filename = fp.name
             path = os.path.join(dir, filename)
-            create_storage_file(filename, study_name)
+            create_storage_file(filename, study_name, storage_type)
             page.goto(url)
             with page.expect_file_chooser() as fc_info:
                 page.get_by_role("button").nth(2).click()
