@@ -65,9 +65,9 @@ export const studySummariesLoadingState = atom<boolean>({
   default: false,
 })
 
-export const studyDetailLoadingState = atom<boolean>({
+export const studyDetailLoadingState = atom<Record<number, boolean>>({
   key: "studyDetailLoading",
-  default: false,
+  default: {},
 })
 
 export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
