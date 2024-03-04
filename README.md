@@ -112,9 +112,6 @@ or install the code-server extension via [Open VSX](https://open-vsx.org/extensi
 Please right-click the SQLite3 files (`*.db` or `*.sqlite3`) in the VS Code file explorer and select the "Open in Optuna Dashboard" command from the dropdown menu.
 This extension leverages the browser-only version of Optuna Dashboard, so the same limitations apply.
 
-Please note that we have confirmed the behavior of the code-server extension can be unstable.
-When opening SQLite files, the dashboard may not appear on the first attempt, but it should be displayed upon a second try.
-
 ## Submitting patches
 
 If you want to contribute, please check [Developers Guide](./CONTRIBUTING.md).
