@@ -1,6 +1,7 @@
 import React, { FC, useEffect } from "react"
 import { TextField, TextFieldProps } from "@mui/material"
 
+// TODO(c-bata): Remove this and use `useDeferredValue` instead.
 export const DebouncedInputTextField: FC<{
   onChange: (s: string, valid: boolean) => void
   delay: number
