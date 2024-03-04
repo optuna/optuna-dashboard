@@ -21,11 +21,6 @@ export const trialsUpdatingState = atom<{
   default: {},
 })
 
-export const reloadingState = atom<boolean>({
-  key: "reloadng",
-  default: false,
-})
-
 // TODO(c-bata): Consider representing the state as boolean.
 export const reloadIntervalState = atom<number>({
   key: "reloadInterval",
@@ -67,6 +62,11 @@ export const plotlypyIsAvailableState = atom<boolean>({
 
 export const studySummariesLoadingState = atom<boolean>({
   key: "studySummariesLoadingState",
+  default: false,
+})
+
+export const studyDetailLoadingState = atom<boolean>({
+  key: "studyDetailLoading",
   default: false,
 })
 

@@ -16,7 +16,7 @@ import HomeIcon from "@mui/icons-material/Home"
 import { StudyNote } from "./Note"
 import { actionCreator } from "../action"
 import {
-  reloadingState,
+  studyDetailLoadingState,
   reloadIntervalState,
   useStudyDetailValue,
   useStudyIsPreferential,
@@ -54,7 +54,7 @@ export const StudyDetail: FC<{
   const action = actionCreator()
   const studyId = useURLVars()
   const studyDetail = useStudyDetailValue(studyId)
-  const isLoading = useRecoilValue<boolean>(reloadingState)
+  const isLoading = useRecoilValue<boolean>(studyDetailLoadingState)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studyName = useStudyName(studyId)
   const isPreferential = useStudyIsPreferential(studyId)
