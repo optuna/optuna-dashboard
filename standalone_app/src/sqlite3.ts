@@ -206,8 +206,8 @@ const getTrialValues = (
   db: SQLite3DB,
   trialId: number,
   schemaVersion: string
-): TrialValueNumber[] => {
-  const values: TrialValueNumber[] = []
+): number[] => {
+  const values: number[] = []
   if (isGreaterSchemaVersion(schemaVersion, "v3.0.0.c")) {
     db.exec({
       sql:
@@ -267,13 +267,13 @@ const getTrialParams = (db: SQLite3DB, trialId: number): TrialParam[] => {
 const paramInternalValueToExternalValue = (
   distribution: Distribution,
   internalValue: number
-): string => {
+): CategoricalChoiceType => {
   if (distribution.type === "FloatDistribution") {
     return internalValue.toString()
   } else if (distribution.type === "IntDistribution") {
     return internalValue.toString()
   } else {
-    return distribution.choices[internalValue].value
+    return distribution.choices[internalValue]
   }
 }
 
@@ -336,17 +336,9 @@ const parseDistributionJSON = (t: string): Distribution => {
       log: true,
     }
   } else {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const choices = parsed.attributes.choices.map((value: any) => {
-      // TODO(c-bata): Support other types
-      return {
-        pytype: "str",
-        value: value.toString(),
-      }
-    })
     return {
       type: "CategoricalDistribution",
-      choices: choices,
+      choices: parsed.attributes.choices,
     }
   }
 }
