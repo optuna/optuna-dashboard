@@ -1,4 +1,10 @@
-import React, { FC, useEffect, useState } from "react"
+import React, {
+  FC,
+  useEffect,
+  useState,
+  useDeferredValue,
+  useMemo,
+} from "react"
 import { useNavigate } from "react-router-dom"
 import { useRecoilValue } from "recoil"
 import { Link } from "react-router-dom"
@@ -26,7 +32,6 @@ import CompareIcon from "@mui/icons-material/Compare"
 import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"
 
 import { actionCreator } from "../action"
-import { DebouncedInputTextField } from "./Debounce"
 import { studySummariesLoadingState, studySummariesState } from "../state"
 import { styled } from "@mui/system"
 import { AppDrawer } from "./AppDrawer"
@@ -41,7 +46,8 @@ export const StudyList: FC<{
   const theme = useTheme()
   const action = actionCreator()
 
-  const [studyFilterText, setStudyFilterText] = React.useState<string>("")
+  const [_studyFilterText, setStudyFilterText] = React.useState<string>("")
+  const studyFilterText = useDeferredValue(_studyFilterText)
   const studyFilter = (row: StudySummary) => {
     const keywords = studyFilterText.split(" ")
     return !keywords.every((k) => {
@@ -64,12 +70,14 @@ export const StudyList: FC<{
   const query = useQuery()
   const initialSortBy = query.get("studies_order_by") === "asc" ? "asc" : "desc"
   const [sortBy, setSortBy] = useState<"asc" | "desc">(initialSortBy)
+  const filteredStudies = useMemo(() => {
+    let filteredStudies: StudySummary[] = studies.filter((s) => !studyFilter(s))
+    if (sortBy === "desc") {
+      filteredStudies = filteredStudies.reverse()
+    }
+    return filteredStudies
+  }, [studyFilterText, studies, sortBy])
 
-  let filteredStudies = studies.filter((s) => !studyFilter(s))
-
-  if (sortBy === "desc") {
-    filteredStudies = filteredStudies.reverse()
-  }
   useEffect(() => {
     action.updateStudySummaries()
   }, [])
@@ -201,26 +209,23 @@ export const StudyList: FC<{
           <Card sx={{ margin: theme.spacing(2) }}>
             <CardContent>
               <Box sx={{ display: "flex" }}>
-                <DebouncedInputTextField
-                  onChange={(s) => {
-                    setStudyFilterText(s)
+                <TextField
+                  onChange={(e) => {
+                    setStudyFilterText(e.target.value)
                   }}
-                  delay={500}
-                  textFieldProps={{
-                    fullWidth: true,
-                    id: "search-study",
-                    variant: "outlined",
-                    placeholder: "Search study",
-                    sx: { maxWidth: 500 },
-                    InputProps: {
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <SvgIcon fontSize="small" color="action">
-                            <Search />
-                          </SvgIcon>
-                        </InputAdornment>
-                      ),
-                    },
+                  id="search-study"
+                  variant="outlined"
+                  placeholder="Search study"
+                  fullWidth
+                  sx={{ maxWidth: 500 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SvgIcon fontSize="small" color="action">
+                          <Search />
+                        </SvgIcon>
+                      </InputAdornment>
+                    ),
                   }}
                 />
                 {sortBySelect}
