@@ -29,7 +29,6 @@ except Exception as e:
 try:
     from optuna.importance import PedAnovaImportanceEvaluator  # type: ignore[attr-defined]
 except ImportError:
-    _logger.warning("optuna>=3.6.0 is required for PedAnovaImportanceEvaluator.")
     PedAnovaImportanceEvaluator = None  # type: ignore
 
 
