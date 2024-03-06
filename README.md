@@ -5,6 +5,11 @@
 [![Read the Docs](https://readthedocs.org/projects/optuna-dashboard/badge/?version=latest)](https://optuna-dashboard.readthedocs.io/en/latest/?badge=latest)
 [![Codecov](https://codecov.io/gh/optuna/optuna-dashboard/branch/main/graph/badge.svg)](https://codecov.io/gh/optuna/optuna-dashboard)
 
+:link: [**Website**](https://optuna.org/)
+| :page_with_curl: [**Docs**](https://optuna-dashboard.readthedocs.io/en/stable/)
+| :gear: [**Install Guide**](https://optuna-dashboard.readthedocs.io/en/stable/getting-started.html#installation)
+| :pencil: [**Tutorial**](https://optuna-dashboard.readthedocs.io/en/stable/tutorials/index.html)
+| :bulb: [**Examples**](https://github.com/optuna/optuna-examples/tree/main/dashboard)
 
 Real-time dashboard for [Optuna](https://github.com/optuna/optuna).
 Code files were originally taken from [Goptuna](https://github.com/c-bata/goptuna).
