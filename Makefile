@@ -32,11 +32,11 @@ vscode-extension: vscode/assets/bundle.js
 
 .PHONY: sdist
 sdist: pyproject.toml $(DASHBOARD_TS_OUT)
-	python setup.py sdist
+	python -m build --sdist
 
 .PHONY: wheel
 wheel: pyproject.toml $(DASHBOARD_TS_OUT)
-	python setup.py bdist_wheel
+	python -m build --wheel
 
 .PHONY: docs
 docs: docs/conf.py $(RST_FILES)

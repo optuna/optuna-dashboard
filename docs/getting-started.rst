@@ -48,7 +48,7 @@ Please clone the git repository and execute following commands to build sdist pa
    # Node.js v16 is required to compile TypeScript files.
    $ npm install
    $ npm run build:prd
-   $ python setup.py sdist
+   $ python -m build --sdist
 
 Then you can install it like:
 
