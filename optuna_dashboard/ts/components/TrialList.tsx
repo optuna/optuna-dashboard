@@ -346,7 +346,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const rowVirtualizer = useVirtualizer({
     count: trials.length,
     getScrollElement: () => listParentRef.current,
-    estimateSize: () => 75,
+    estimateSize: () => 73.31,
     overscan: 10,
   })
 
@@ -431,7 +431,6 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
             }}
           >
             {rowVirtualizer.getVirtualItems().map((virtualItem) => {
-              console.log(virtualItem.index, virtualItem.start, virtualItem.end)
               const trial = trials[virtualItem.index]
               return (
                 <ListItem
@@ -479,6 +478,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       -1
                     }
                     sx={{
+                      width: "100%",
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "flex-start",
