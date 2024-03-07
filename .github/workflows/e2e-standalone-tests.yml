@@ -42,7 +42,10 @@ jobs:
           python -m pip install --progress-bar off pytest-playwright==0.4.3  # next version is flaky
 
       - name: Build standalone_app
-        run: make MODE="prd" standalone_app/public/bundle.js
+        working-directory: standalone_app
+        run: |
+          npm install
+          npx vite build --outDir dist
 
       - name: Install the required browsers
         run: playwright install

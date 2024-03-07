@@ -10,7 +10,6 @@ optuna_dashboard/public/
 
 # JS
 node_modules/
-standalone_app/public/
 
 # VSCode
 vscode/assets/

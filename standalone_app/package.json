@@ -4,20 +4,18 @@
   "version": "0.0.0",
   "description": "",
   "scripts": {
-    "watch": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack --watch",
-    "serve": "python3 -m http.server 9000 --directory .",
-    "build:dev": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack",
-    "build:prd": "NODE_ENV=production webpack"
+    "watch": "vite",
+    "build:vscode": "webpack"
   },
   "devDependencies": {
     "@types/plotly.js": "^2.29.2",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",
     "@types/react-router-dom": "^5.3.3",
+    "@vitejs/plugin-react": "^4.2.1",
     "compression-webpack-plugin": "^11.1.0",
     "esbuild-loader": "^4.0.3",
-    "ts-loader": "^9.5.1",
-    "typescript": "^5.4.2",
+    "vite": "^5.1.5",
     "webpack": "^5.90.3",
     "webpack-cli": "^5.1.4"
   },
