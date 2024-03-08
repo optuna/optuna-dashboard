@@ -5,18 +5,18 @@ on:
       - main
     paths:
       - '.github/workflows/e2e-standalone-tests.yml'
-      - '**.py'
-      - '**.ts'
-      - '**.tsx'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tsconfig.json'
+      - 'standalone_app/**.ts'
+      - 'standalone_app/**.tsx'
+      - 'standalone_app/package.json'
+      - 'standalone_app/package-lock.json'
+      - 'standalone_app/tsconfig.json'
+      - 'standalone_app/vite.config.js'
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
-        optuna-version: ['git+https://github.com/optuna/optuna.git']
+        optuna-version: ['optuna']
     steps:
       - uses: actions/checkout@v3
 
@@ -43,8 +43,7 @@ jobs:
 
       - name: Build rustlib
         working-directory: rustlib
-        run: |
-	        wasm-pack build --target web
+        run: wasm-pack build --target web
 
       - name: Build standalone_app
         working-directory: standalone_app
