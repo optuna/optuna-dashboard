@@ -41,6 +41,11 @@ jobs:
           python -m pip install --progress-bar off .
           python -m pip install --progress-bar off pytest-playwright==0.4.3  # next version is flaky
 
+      - name: Build rustlib
+        working-directory: rustlib
+        run: |
+	        wasm-pack build --target web
+
       - name: Build standalone_app
         working-directory: standalone_app
         run: |

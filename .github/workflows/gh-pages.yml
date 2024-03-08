@@ -30,9 +30,15 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '18'
+      - name: Build rustlib
+        working-directory: rustlib
+        run: |
+	        wasm-pack build --target web
       - name: Build standalone_app
         working-directory: standalone_app
-        run: npx vite build --base=/optuna-dashboard/public/ --outDir ../gh-pages
+        run: |
+          npm install
+          npx vite build --base=/optuna-dashboard/public/ --outDir ../gh-pages
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
