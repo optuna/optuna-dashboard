@@ -37,7 +37,7 @@ jobs:
         working-directory: standalone_app
         run: |
           npm install
-          npx vite build --base=/optuna-dashboard/public/ --outDir ./gh-pages
+          npx vite build --base=/optuna-dashboard/ --outDir ./gh-pages
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
