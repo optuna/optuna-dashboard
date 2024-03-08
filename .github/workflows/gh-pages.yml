@@ -32,17 +32,16 @@ jobs:
           node-version: '18'
       - name: Build rustlib
         working-directory: rustlib
-        run: |
-	        wasm-pack build --target web
+        run: wasm-pack build --target web
       - name: Build standalone_app
         working-directory: standalone_app
         run: |
           npm install
-          npx vite build --base=/optuna-dashboard/public/ --outDir ../gh-pages
+          npx vite build --base=/optuna-dashboard/public/ --outDir ./gh-pages
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: './gh-publish'
+          path: './standalone_app/gh-pages'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
