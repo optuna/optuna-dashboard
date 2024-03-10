@@ -235,6 +235,9 @@ export const actionCreator = () => {
   }
 
   const updateStudyDetail = (studyId: number) => {
+    if (studyDetailLoading[studyId]) {
+      return
+    }
     setStudyDetailLoading({ ...studyDetailLoading, [studyId]: true })
     let nLocalFixedTrials = 0
     if (studyId in studyDetails) {

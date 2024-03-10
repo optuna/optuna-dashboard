@@ -54,9 +54,6 @@ export const StudyDetail: FC<{
   const action = actionCreator()
   const studyId = useURLVars()
   const studyDetail = useStudyDetailValue(studyId)
-  const isLoading = useRecoilValue<Record<number, boolean>>(
-    studyDetailLoadingState
-  )
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studyName = useStudyName(studyId)
   const isPreferential = useStudyIsPreferential(studyId)
@@ -65,9 +62,7 @@ export const StudyDetail: FC<{
     studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
 
   useEffect(() => {
-    if (!isLoading[studyId]) {
-      action.updateStudyDetail(studyId)
-    }
+    action.updateStudyDetail(studyId)
     action.updateAPIMeta()
   }, [])
 
@@ -92,9 +87,7 @@ export const StudyDetail: FC<{
     }
 
     const intervalId = setInterval(function () {
-      if (!isLoading[studyId]) {
-        action.updateStudyDetail(studyId)
-      }
+      action.updateStudyDetail(studyId)
     }, interval)
     return () => clearInterval(intervalId)
   }, [reloadInterval, studyDetail, page])
