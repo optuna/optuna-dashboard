@@ -33,9 +33,12 @@ interface JournalOpCreateTrial extends JournalOpBase {
   datetime_start?: string
   datetime_complete?: string
   distributions?: { [key: string]: string }
-  params?: { [key: string]: any } // eslint-disable-line @typescript-eslint/no-explicit-any
-  user_attrs?: { [key: string]: any } // eslint-disable-line @typescript-eslint/no-explicit-any
-  system_attrs?: { [key: string]: any } // eslint-disable-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  params?: { [key: string]: any }
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  user_attrs?: { [key: string]: any }
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  system_attrs?: { [key: string]: any }
   state?: number
   intermediate_values?: { [key: string]: number }
   value?: number
@@ -65,6 +68,7 @@ interface JournalOpSetTrialIntermediateValue extends JournalOpBase {
 
 interface JournalOpSetTrialUserAttr extends JournalOpBase {
   trial_id: number
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   user_attr: { [key: string]: any } // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
@@ -87,22 +91,25 @@ const trialStateNumToTrialState = (state: number): TrialState => {
 
 const parseDistribution = (distribution: string): Distribution => {
   const distributionJson = JSON.parse(distribution)
-  if (distributionJson["name"] === "IntDistribution") {
+  if (distributionJson.name === "IntDistribution") {
     return {
-      ...distributionJson["attributes"],
+      ...distributionJson.attributes,
       type: "IntDistribution",
     }
-  } else if (distributionJson["name"] === "FloatDistribution") {
+  }
+  if (distributionJson.name === "FloatDistribution") {
     return {
-      ...distributionJson["attributes"],
+      ...distributionJson.attributes,
       type: "FloatDistribution",
     }
-  } else {
+  }
+  if (distributionJson.name === "CategoricalDistribution") {
     return {
       type: "CategoricalDistribution",
-      choices: distributionJson["attributes"]["choices"],
+      choices: distributionJson.attributes.choices,
     }
   }
+  throw new Error(`Unexpected distribution: ${distribution}`)
 }
 
 class JournalStorage {
@@ -183,7 +190,9 @@ class JournalStorage {
       log.params === undefined || log.distributions === undefined
         ? []
         : Object.entries(log.params).map(([name, value]) => {
-            const distribution = parseDistribution(log.distributions![name])
+            const distribution = parseDistribution(
+              log.distributions?.[name] || ""
+            )
             return {
               name: name,
               param_internal_value: value,
@@ -191,11 +200,11 @@ class JournalStorage {
               param_external_value: (() => {
                 if (distribution.type === "FloatDistribution") {
                   return value.toString()
-                } else if (distribution.type === "IntDistribution") {
-                  return value.toString()
-                } else {
-                  return distribution.choices[value]
                 }
+                if (distribution.type === "IntDistribution") {
+                  return value.toString()
+                }
+                return distribution.choices[value]
               })(),
               distribution: distribution,
             }
@@ -218,11 +227,11 @@ class JournalStorage {
       values: (() => {
         if (log.value !== undefined) {
           return [log.value]
-        } else if (log.values !== undefined) {
-          return log.values
-        } else {
-          return undefined
         }
+        if (log.values !== undefined) {
+          return log.values
+        }
+        return undefined
       })(),
       params: params,
       intermediate_values: [],

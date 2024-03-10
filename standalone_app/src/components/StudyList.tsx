@@ -1,28 +1,28 @@
-import React, { FC, useState, useMemo, useDeferredValue } from "react"
-import {
-  AppBar,
-  Typography,
-  Container,
-  Toolbar,
-  Box,
-  IconButton,
-  MenuItem,
-  useTheme,
-  Card,
-  CardContent,
-  CardActionArea,
-  TextField,
-  InputAdornment,
-  SvgIcon,
-} from "@mui/material"
-import { styled } from "@mui/system"
-import SortIcon from "@mui/icons-material/Sort"
+import { Search } from "@mui/icons-material"
 import Brightness4Icon from "@mui/icons-material/Brightness4"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
+import SortIcon from "@mui/icons-material/Sort"
+import {
+  AppBar,
+  Box,
+  Card,
+  CardActionArea,
+  CardContent,
+  Container,
+  IconButton,
+  InputAdornment,
+  MenuItem,
+  SvgIcon,
+  TextField,
+  Toolbar,
+  Typography,
+  useTheme,
+} from "@mui/material"
+import { styled } from "@mui/system"
+import React, { FC, useState, useMemo, useDeferredValue } from "react"
+import { Link } from "react-router-dom"
 import { useRecoilValue } from "recoil"
 import { studiesState } from "../state"
-import { Link } from "react-router-dom"
-import { Search } from "@mui/icons-material"
 import { StorageLoader } from "./StorageLoader"
 
 export const StudyList: FC<{
@@ -34,16 +34,16 @@ export const StudyList: FC<{
   const [_studyFilterText, setStudyFilterText] = useState<string>("")
   const [sortBy, setSortBy] = useState<"id-asc" | "id-desc">("id-asc")
   const studyFilterText = useDeferredValue(_studyFilterText)
-  const studyFilter = (row: Study): boolean => {
-    const keywords = studyFilterText.split(" ")
-    return !keywords.every((k) => {
-      if (k === "") {
-        return true
-      }
-      return row.study_name.indexOf(k) >= 0
-    })
-  }
   const filteredStudies = useMemo(() => {
+    const studyFilter = (row: Study): boolean => {
+      const keywords = studyFilterText.split(" ")
+      return !keywords.every((k) => {
+        if (k === "") {
+          return true
+        }
+        return row.study_name.indexOf(k) >= 0
+      })
+    }
     let filteredStudies: Study[] = studies.filter((s) => !studyFilter(s))
     if (sortBy === "id-desc") {
       filteredStudies = filteredStudies.reverse()
@@ -96,7 +96,7 @@ export const StudyList: FC<{
       <AppBar position="static">
         <Container
           sx={{
-            ["@media (min-width: 1280px)"]: {
+            "@media (min-width: 1280px)": {
               maxWidth: "100%",
             },
           }}
@@ -126,7 +126,7 @@ export const StudyList: FC<{
       </AppBar>
       <Container
         sx={{
-          ["@media (min-width: 1280px)"]: {
+          "@media (min-width: 1280px)": {
             maxWidth: "100%",
           },
         }}
@@ -174,8 +174,9 @@ export const StudyList: FC<{
                     color="text.secondary"
                     component="div"
                   >
-                    {"Direction: " +
-                      study.directions.map((d) => d.toUpperCase()).join(", ")}
+                    {`Direction: ${study.directions
+                      .map((d) => d.toUpperCase())
+                      .join(", ")}`}
                   </Typography>
                 </CardContent>
               </CardActionArea>

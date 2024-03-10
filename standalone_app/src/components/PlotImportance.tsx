@@ -1,14 +1,13 @@
+import { Box, Typography, useTheme } from "@mui/material"
+import init, { wasm_fanova_calculate } from "optuna"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
-import { Typography, useTheme, Box } from "@mui/material"
-import init, { wasm_fanova_calculate } from "optuna"
 
 import { plotlyDarkTemplate } from "../PlotlyDarkMode"
 const plotDomId = "graph-hyperparameter-importances"
 
 export const PlotImportance: FC<{ study: Study }> = ({ study }) => {
   const theme = useTheme()
-  const nObjectives = study.directions.length
   const objectiveNames: string[] = study.directions.map(
     (d, i) => `Objective ${i}`
   )
@@ -50,13 +49,13 @@ export const PlotImportance: FC<{ study: Study }> = ({ study }) => {
     }
 
     run_wasm()
-  }, [])
+  }, [study])
 
   useEffect(() => {
     if (importance.length > 0) {
       plotParamImportancesBeta(importance, objectiveNames, theme.palette.mode)
     }
-  }, [nObjectives, importance, theme.palette.mode])
+  }, [objectiveNames, importance, theme.palette.mode])
 
   return (
     <>

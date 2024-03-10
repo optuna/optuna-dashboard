@@ -1,6 +1,6 @@
+import { Box, Typography, useTheme } from "@mui/material"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
-import { Box, Typography, useTheme } from "@mui/material"
 import { plotlyDarkTemplate } from "../PlotlyDarkMode"
 
 const plotDomId = "graph-intermediate-values"
@@ -20,7 +20,7 @@ export const PlotIntermediateValues: FC<{
       !includePruned,
       logScale
     )
-  }, [trials, theme.palette.mode, false, includePruned, logScale])
+  }, [trials, theme.palette.mode, includePruned, logScale])
 
   return (
     <>

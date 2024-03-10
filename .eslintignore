@@ -1,2 +1,3 @@
-venv/**/*.ts
-venv/**/*.js
+venv
+.venv
+standalone_app

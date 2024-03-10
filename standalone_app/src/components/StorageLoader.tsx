@@ -1,3 +1,11 @@
+import UploadFileIcon from "@mui/icons-material/UploadFile"
+import {
+  Card,
+  CardActionArea,
+  CardContent,
+  Typography,
+  useTheme,
+} from "@mui/material"
 import React, {
   ChangeEvent,
   DragEventHandler,
@@ -6,18 +14,10 @@ import React, {
   useRef,
   useState,
 } from "react"
-import { loadSQLite3Storage } from "../sqlite3"
-import { loadJournalStorage } from "../journalStorage"
 import { useSetRecoilState } from "recoil"
+import { loadJournalStorage } from "../journalStorage"
+import { loadSQLite3Storage } from "../sqlite3"
 import { studiesState } from "../state"
-import {
-  Card,
-  CardActionArea,
-  CardContent,
-  Typography,
-  useTheme,
-} from "@mui/material"
-import UploadFileIcon from "@mui/icons-material/UploadFile"
 
 export const StorageLoader: FC = () => {
   const theme = useTheme()
