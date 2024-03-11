@@ -13,19 +13,13 @@ import {
   useTheme,
 } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2"
-import React, { FC } from "react"
+import React, { FC, useContext, useState, useEffect } from "react"
 import { Link, useParams } from "react-router-dom"
-import { useRecoilValue } from "recoil"
-import { studiesState } from "../state"
 import { PlotHistory } from "./PlotHistory"
 import { PlotImportance } from "./PlotImportance"
 import { PlotIntermediateValues } from "./PlotIntermediateValues"
+import { StorageContext } from "./StorageProvider"
 import { TrialTable } from "./TrialTable"
-
-const useStudyValue = (idx: number): Study | null => {
-  const studies = useRecoilValue<Study[]>(studiesState)
-  return studies[idx] || null
-}
 
 export const StudyDetail: FC<{
   toggleColorMode: () => void
@@ -33,10 +27,22 @@ export const StudyDetail: FC<{
   const theme = useTheme()
   const { idx } = useParams<{ idx: string }>()
   const idxNumber = parseInt(idx || "", 10)
-  const study = useStudyValue(idxNumber)
+
+  const { storage } = useContext(StorageContext)
+  const [study, setStudy] = useState<Study | null>(null)
+  useEffect(() => {
+    const fetchStudy = async () => {
+      if (storage === null) {
+        return
+      }
+      const study = await storage.getStudy(idxNumber)
+      setStudy(study)
+    }
+    fetchStudy()
+  }, [storage, idxNumber])
 
   return (
-    <div>
+    <>
       <AppBar position="static">
         <Container
           sx={{
@@ -133,6 +139,6 @@ export const StudyDetail: FC<{
           </Card>
         </>
       </Container>
-    </div>
+    </>
   )
 }

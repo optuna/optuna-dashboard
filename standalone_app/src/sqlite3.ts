@@ -1,6 +1,5 @@
 // @ts-ignore
 import sqlite3InitModule from "@sqlite.org/sqlite-wasm"
-import { SetterOrUpdater } from "recoil"
 
 type SQLite3DB = {
   exec(options: {
@@ -10,44 +9,57 @@ type SQLite3DB = {
   }): void
 }
 
-export const loadSQLite3Storage = (
-  arrayBuffer: ArrayBuffer,
-  setter: SetterOrUpdater<Study[]>
-): void => {
-  sqlite3InitModule({
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    print: (...args: any): void => {
-      console.log(args)
-    },
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-    printErr: (...args: any): void => {
-      console.log(args)
-    },
-    // @ts-ignore
-  }).then((sqlite3) => {
-    const p = sqlite3.wasm.allocFromTypedArray(arrayBuffer)
-    const db = new sqlite3.oo1.DB()
-    const rc = sqlite3.capi.sqlite3_deserialize(
+export class SQLite3Storage implements OptunaStorage {
+  db: Promise<SQLite3DB>
+  summaries_cache: StudySummary[] | null
+  constructor(arrayBuffer: ArrayBuffer) {
+    this.db = this.initDB(arrayBuffer)
+    this.summaries_cache = null
+  }
+
+  async initDB(arrayBuffer: ArrayBuffer): Promise<SQLite3DB> {
+    return sqlite3InitModule({
+      print: console.log,
+      printErr: console.log,
       // @ts-ignore
-      db.pointer,
-      "main",
-      p,
-      arrayBuffer.byteLength,
-      arrayBuffer.byteLength,
-      sqlite3.capi.SQLITE_DESERIALIZE_FREEONCLOSE
-    )
-    db.checkRc(rc)
-    try {
-      const schemaVersion = getSchemaVersion(db)
-      if (!isSupportedSchema(schemaVersion)) {
-        return
-      }
-      const studies = getStudies(db, schemaVersion)
-      setter((prev) => [...prev, ...studies])
-    } finally {
-      db.close()
+    }).then((sqlite3) => {
+      const p = sqlite3.wasm.allocFromTypedArray(arrayBuffer)
+      const db = new sqlite3.oo1.DB()
+      const rc = sqlite3.capi.sqlite3_deserialize(
+        // @ts-ignore
+        db.pointer,
+        "main",
+        p,
+        arrayBuffer.byteLength,
+        arrayBuffer.byteLength,
+        sqlite3.capi.SQLITE_DESERIALIZE_FREEONCLOSE
+      )
+      db.checkRc(rc)
+      return db
+    })
+  }
+
+  getStudies = async (): Promise<StudySummary[]> => {
+    const db = await this.db
+    this.summaries_cache = getStudySummaries(db)
+    return this.summaries_cache
+  }
+
+  getStudy = async (idx: number): Promise<Study | null> => {
+    const db = await this.db
+    const schemaVersion = getSchemaVersion(db)
+    if (!isSupportedSchema(schemaVersion)) {
+      return null
     }
-  })
+    if (this.summaries_cache === null) {
+      this.summaries_cache = getStudySummaries(db)
+    }
+    const summary = this.summaries_cache[idx]
+    if (summary === undefined) {
+      return null
+    }
+    return getStudy(db, schemaVersion, summary)
+  }
 }
 
 const getSchemaVersion = (db: SQLite3DB): string => {
@@ -84,8 +96,8 @@ const isGreaterSchemaVersion = (
   return left > right
 }
 
-const getStudies = (db: SQLite3DB, schemaVersion: string): Study[] => {
-  const studies: Study[] = []
+const getStudySummaries = (db: SQLite3DB): StudySummary[] => {
+  const summaries: StudySummary[] = []
   db.exec({
     sql:
       "SELECT s.study_id, s.study_name, sd.direction, sd.objective" +
@@ -99,64 +111,73 @@ const getStudies = (db: SQLite3DB, schemaVersion: string): Study[] => {
         vals[2] === "MINIMIZE" ? "minimize" : "maximize"
       const objective = vals[3]
 
-      const trials = getTrials(db, studyId, schemaVersion)
-      const union_search_space: SearchSpaceItem[] = []
-      const union_user_attrs: AttributeSpec[] = []
-      let intersection_search_space: Set<SearchSpaceItem> = new Set()
-
-      for (const trial of trials) {
-        const userAttrs = getTrialUserAttributes(db, trial.trial_id)
-        for (const attr of userAttrs) {
-          if (union_user_attrs.findIndex((s) => s.key === attr.key) === -1) {
-            union_user_attrs.push({ key: attr.key, sortable: false })
-          }
-        }
-
-        const params = getTrialParams(db, trial.trial_id)
-        const param_names = new Set<string>()
-        for (const param of params) {
-          param_names.add(param.name)
-          if (
-            union_search_space.findIndex((s) => s.name === param.name) === -1
-          ) {
-            union_search_space.push({ name: param.name })
-          }
-        }
-        if (intersection_search_space.size === 0) {
-          // biome-ignore lint/complexity/noForEach: <explanation>
-          param_names.forEach((s) => {
-            intersection_search_space.add({
-              name: s,
-            })
-          })
-        } else {
-          intersection_search_space = new Set(
-            Array.from(intersection_search_space).filter((s) =>
-              param_names.has(s.name)
-            )
-          )
-        }
-        trial.params = params
-        trial.user_attrs = userAttrs
-      }
-
       if (objective === 0) {
-        studies.push({
+        summaries.push({
           study_id: studyId,
           study_name: studyName,
           directions: [direction],
-          union_search_space: union_search_space,
-          intersection_search_space: Array.from(intersection_search_space),
-          union_user_attrs: union_user_attrs,
-          trials: trials,
         })
         return
       }
-      const index = studies.findIndex((s) => s.study_id === studyId)
-      studies[index].directions.push(direction)
+      const index = summaries.findIndex((s) => s.study_id === studyId)
+      summaries[index].directions.push(direction)
     },
   })
-  return studies
+  return summaries
+}
+
+const getStudy = (
+  db: SQLite3DB,
+  schemaVersion: string,
+  summary: StudySummary
+): Study => {
+  const study: Study = {
+    study_id: summary.study_id,
+    study_name: summary.study_name,
+    directions: summary.directions,
+    union_search_space: [],
+    intersection_search_space: [],
+    union_user_attrs: [],
+    trials: [],
+  }
+
+  let intersection_search_space: Set<SearchSpaceItem> = new Set()
+  study.trials = getTrials(db, summary.study_id, schemaVersion)
+  for (const trial of study.trials) {
+    const userAttrs = getTrialUserAttributes(db, trial.trial_id)
+    for (const attr of userAttrs) {
+      if (study.union_user_attrs.findIndex((s) => s.key === attr.key) === -1) {
+        study.union_user_attrs.push({ key: attr.key, sortable: false })
+      }
+    }
+
+    const params = getTrialParams(db, trial.trial_id)
+    const param_names = new Set<string>()
+    for (const param of params) {
+      param_names.add(param.name)
+      if (
+        study.union_search_space.findIndex((s) => s.name === param.name) === -1
+      ) {
+        study.union_search_space.push({ name: param.name })
+      }
+    }
+    if (intersection_search_space.size === 0) {
+      // biome-ignore lint/complexity/noForEach: <explanation>
+      param_names.forEach((s) => {
+        intersection_search_space.add({ name: s })
+      })
+    } else {
+      intersection_search_space = new Set(
+        Array.from(intersection_search_space).filter((s) =>
+          param_names.has(s.name)
+        )
+      )
+    }
+    trial.params = params
+    trial.user_attrs = userAttrs
+  }
+  study.intersection_search_space = Array.from(intersection_search_space)
+  return study
 }
 
 const getTrials = (

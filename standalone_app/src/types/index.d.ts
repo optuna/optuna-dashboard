@@ -4,6 +4,11 @@ type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting"
 type TrialStateFinished = "Complete" | "Fail" | "Pruned"
 type StudyDirection = "maximize" | "minimize" | "not_set"
 
+type OptunaStorage = {
+  getStudies: () => Promise<StudySummary[]>
+  getStudy: (idx: number) => Promise<Study | null>
+}
+
 type FloatDistribution = {
   type: "FloatDistribution"
   low: number
@@ -44,6 +49,12 @@ type Attribute = {
 type AttributeSpec = {
   key: string
   sortable: boolean
+}
+
+type StudySummary = {
+  study_id: number
+  study_name: string
+  directions: StudyDirection[]
 }
 
 type Study = {
