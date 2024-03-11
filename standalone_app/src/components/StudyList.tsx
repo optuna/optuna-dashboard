@@ -19,23 +19,40 @@ import {
   useTheme,
 } from "@mui/material"
 import { styled } from "@mui/system"
-import React, { FC, useState, useMemo, useDeferredValue } from "react"
+import React, {
+  FC,
+  useEffect,
+  useContext,
+  useState,
+  useMemo,
+  useDeferredValue,
+} from "react"
 import { Link } from "react-router-dom"
-import { useRecoilValue } from "recoil"
-import { studiesState } from "../state"
 import { StorageLoader } from "./StorageLoader"
+import { StorageContext } from "./StorageProvider"
 
 export const StudyList: FC<{
   toggleColorMode: () => void
 }> = ({ toggleColorMode }) => {
   const theme = useTheme()
-  const studies = useRecoilValue<Study[]>(studiesState)
+  const { storage } = useContext(StorageContext)
+  const [studies, setStudies] = useState<StudySummary[]>([])
 
   const [_studyFilterText, setStudyFilterText] = useState<string>("")
   const [sortBy, setSortBy] = useState<"id-asc" | "id-desc">("id-asc")
   const studyFilterText = useDeferredValue(_studyFilterText)
+  useEffect(() => {
+    const fetchStudies = async () => {
+      if (storage === null) {
+        return
+      }
+      const studies = await storage.getStudies()
+      setStudies(studies)
+    }
+    fetchStudies()
+  }, [storage])
   const filteredStudies = useMemo(() => {
-    const studyFilter = (row: Study): boolean => {
+    const studyFilter = (row: StudySummary): boolean => {
       const keywords = studyFilterText.split(" ")
       return !keywords.every((k) => {
         if (k === "") {
@@ -44,7 +61,7 @@ export const StudyList: FC<{
         return row.study_name.indexOf(k) >= 0
       })
     }
-    let filteredStudies: Study[] = studies.filter((s) => !studyFilter(s))
+    let filteredStudies: StudySummary[] = studies.filter((s) => !studyFilter(s))
     if (sortBy === "id-desc") {
       filteredStudies = filteredStudies.reverse()
     }

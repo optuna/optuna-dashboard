@@ -1,22 +1,15 @@
-import React, { FC, useEffect } from "react"
+import React, { FC, useEffect, useContext } from "react"
 import ReactDOM from "react-dom/client"
-import { RecoilRoot, SetterOrUpdater, useSetRecoilState } from "recoil"
 import { App } from "./components/App"
+import {
+  StorageContext,
+  StorageProvider,
+  getStorage,
+} from "./components/StorageProvider"
 import "./index.css"
-import { loadJournalStorage } from "./journalStorage"
-import { loadSQLite3Storage } from "./sqlite3"
-import { studiesState } from "./state"
 
 export const AppWrapper: FC = () => {
-  const setStudies = useSetRecoilState<Study[]>(studiesState)
-
-  // TODO(c-bata): Fix the type annotation
-  const onceSetStudies: SetterOrUpdater<Study[]> = (
-    setter: (currVal: Study[]) => Study[]
-  ): void => {
-    const studies = setter([])
-    setStudies(studies)
-  }
+  const { setStorage } = useContext(StorageContext)
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
@@ -27,8 +20,6 @@ export const AppWrapper: FC = () => {
       let len: number
       let bytes: Uint8Array
       let arrayBuffer: ArrayBuffer
-      let header: Uint8Array
-      let headerString: string
 
       switch (message.type) {
         case "optunaStorage":
@@ -40,13 +31,7 @@ export const AppWrapper: FC = () => {
             bytes[i] = binaryString.charCodeAt(i)
           }
           arrayBuffer = bytes.buffer
-          header = new Uint8Array(arrayBuffer, 0, 16)
-          headerString = new TextDecoder().decode(header)
-          if (headerString === "SQLite format 3\u0000") {
-            loadSQLite3Storage(arrayBuffer, onceSetStudies)
-          } else {
-            loadJournalStorage(arrayBuffer, onceSetStudies)
-          }
+          setStorage(getStorage(arrayBuffer))
           break
       }
     })
@@ -56,8 +41,8 @@ export const AppWrapper: FC = () => {
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <RecoilRoot>
+    <StorageProvider>
       <AppWrapper />
-    </RecoilRoot>
+    </StorageProvider>
   </React.StrictMode>
 )
