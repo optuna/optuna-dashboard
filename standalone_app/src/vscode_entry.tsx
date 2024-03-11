@@ -1,15 +1,16 @@
 import React, { FC, useEffect } from "react"
 import ReactDOM from "react-dom/client"
-import "./index.css"
+import { RecoilRoot, SetterOrUpdater, useSetRecoilState } from "recoil"
 import { App } from "./components/App"
-import { RecoilRoot, useSetRecoilState, SetterOrUpdater } from "recoil"
-import { studiesState } from "./state"
-import { loadSQLite3Storage } from "./sqlite3"
+import "./index.css"
 import { loadJournalStorage } from "./journalStorage"
+import { loadSQLite3Storage } from "./sqlite3"
+import { studiesState } from "./state"
 
 export const AppWrapper: FC = () => {
   const setStudies = useSetRecoilState<Study[]>(studiesState)
 
+  // TODO(c-bata): Fix the type annotation
   const onceSetStudies: SetterOrUpdater<Study[]> = (
     setter: (currVal: Study[]) => Study[]
   ): void => {
@@ -17,6 +18,7 @@ export const AppWrapper: FC = () => {
     setStudies(studies)
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     window.addEventListener("message", (event) => {
       const message = event.data

@@ -1,6 +1,6 @@
 import React, { FC } from "react"
 
-import { DataGridColumn, DataGrid } from "./DataGrid"
+import { DataGrid, DataGridColumn } from "./DataGrid"
 
 export const TrialTable: FC<{
   study: Study
@@ -34,7 +34,8 @@ export const TrialTable: FC<{
         }
         if (firstVal === undefined) {
           return ascending ? -1 : 1
-        } else if (secondVal === undefined) {
+        }
+        if (secondVal === undefined) {
           return ascending ? 1 : -1
         }
         return firstVal < secondVal ? 1 : -1
@@ -61,7 +62,8 @@ export const TrialTable: FC<{
           }
           if (firstVal === undefined) {
             return ascending ? -1 : 1
-          } else if (secondVal === undefined) {
+          }
+          if (secondVal === undefined) {
             return ascending ? 1 : -1
           }
           return firstVal < secondVal ? 1 : -1
@@ -77,6 +79,7 @@ export const TrialTable: FC<{
     columns.push(...objectiveColumns)
   }
 
+  // biome-ignore lint/complexity/noForEach: <explanation>
   study.union_search_space.forEach((s) => {
     columns.push({
       field: "params",
@@ -96,17 +99,19 @@ export const TrialTable: FC<{
 
         if (firstVal === secondVal) {
           return 0
-        } else if (firstVal && secondVal) {
-          return firstVal < secondVal ? 1 : -1
-        } else if (firstVal) {
-          return -1
-        } else {
-          return 1
         }
+        if (firstVal && secondVal) {
+          return firstVal < secondVal ? 1 : -1
+        }
+        if (firstVal) {
+          return -1
+        }
+        return 1
       },
     })
   })
 
+  // biome-ignore lint/complexity/noForEach: <explanation>
   study.union_user_attrs.forEach((attr_spec) => {
     columns.push({
       field: "user_attrs",
@@ -126,13 +131,14 @@ export const TrialTable: FC<{
 
         if (firstVal === secondVal) {
           return 0
-        } else if (firstVal && secondVal) {
-          return firstVal < secondVal ? 1 : -1
-        } else if (firstVal) {
-          return -1
-        } else {
-          return 1
         }
+        if (firstVal && secondVal) {
+          return firstVal < secondVal ? 1 : -1
+        }
+        if (firstVal) {
+          return -1
+        }
+        return 1
       },
     })
   })

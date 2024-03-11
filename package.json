@@ -6,9 +6,9 @@
   "main": "index.js",
   "scripts": {
     "fmt": "biome format --write .",
-    "lint": "npm run lint:eslint && npm run lint:fmt",
+    "lint": "npm run lint:eslint && npm run lint:biome",
     "lint:eslint": "eslint . --ext .ts,.tsx --max-warnings 0",
-    "lint:fmt": "biome format .",
+    "lint:biome": "biome format . && biome ci standalone_app",
     "watch": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack --watch",
     "build": "webpack",
     "build:dev": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack",
