@@ -183,7 +183,7 @@ export const StudyList: FC<{
             >
               <CardActionArea component={Link} to={`/${idx}`}>
                 <CardContent>
-                  <Typography variant="h5">
+                  <Typography variant="h5" sx={{ wordBreak: "break-all" }}>
                     {study.study_id}. {study.study_name}
                   </Typography>
                   <Typography
