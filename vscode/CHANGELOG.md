@@ -6,8 +6,11 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## 0.3.0
+
 * [bug] Fix a bug that the extension cannot show studies on the first attempt.
 * [feature] Enable a "Open in Optuna Dashboard" menu for `.log` files.
+* [enhancement] Add a slight performance improvement when loading a SQLite3 file that contains a lot of trials.
 
 ## 0.2.0
 
