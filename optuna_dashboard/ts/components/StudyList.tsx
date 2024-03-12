@@ -152,7 +152,7 @@ export const StudyList: FC<{
           to={`${URL_PREFIX}/studies/${study.study_id}`}
         >
           <CardContent>
-            <Typography variant="h5">
+            <Typography variant="h5" sx={{ wordBreak: "break-all" }}>
               {study.study_id}. {study.study_name}
             </Typography>
             <Typography
