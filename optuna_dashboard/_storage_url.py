@@ -75,9 +75,10 @@ def guess_storage_from_url(storage_url: str) -> BaseStorage:
 
     if os.path.isfile(storage_url):
         if _has_sqlite_header(storage_url):
-            return get_rdb_storage("sqlite:///" + storage_url)
-        else:
-            return get_journal_file_storage(storage_url)
+            raise ValueError(
+                f"Please specify 'sqlite:///{storage_url}' to use SQLite3 (RDBStorage)"
+            )
+        return get_journal_file_storage(storage_url)
 
     if rfc1738_pattern.match(storage_url) is not None:
         return get_rdb_storage(storage_url)
