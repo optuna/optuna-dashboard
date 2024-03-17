@@ -16,7 +16,6 @@ import HomeIcon from "@mui/icons-material/Home"
 import { StudyNote } from "./Note"
 import { actionCreator } from "../action"
 import {
-  studyDetailLoadingState,
   reloadIntervalState,
   useStudyDetailValue,
   useStudyIsPreferential,
