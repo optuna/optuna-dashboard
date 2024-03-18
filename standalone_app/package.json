@@ -4,38 +4,34 @@
   "version": "0.0.0",
   "description": "",
   "scripts": {
-    "watch": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack --watch",
-    "serve": "python3 -m http.server 9000 --directory .",
-    "build:dev": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack",
-    "build:prd": "NODE_ENV=production webpack"
+    "watch": "vite",
+    "build:vscode": "webpack"
   },
   "devDependencies": {
-    "@types/plotly.js": "^2.12.18",
-    "@types/react": "^18.2.0",
-    "@types/react-dom": "^18.2.1",
+    "@types/plotly.js": "^2.29.2",
+    "@types/react": "^18.2.64",
+    "@types/react-dom": "^18.2.21",
     "@types/react-router-dom": "^5.3.3",
-    "compression-webpack-plugin": "^10.0.0",
-    "esbuild-loader": "^3.0.1",
-    "prettier": "^2.8.8",
-    "ts-loader": "^9.4.2",
-    "typescript": "^5.0.4",
-    "webpack": "^5.82.1",
-    "webpack-cli": "^5.1.1"
+    "@vitejs/plugin-react": "^4.2.1",
+    "compression-webpack-plugin": "^11.1.0",
+    "esbuild-loader": "^4.0.3",
+    "vite": "^5.1.5",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "@emotion/react": "^11.10.8",
-    "@emotion/styled": "^11.10.8",
-    "@mui/icons-material": "^5.11.16",
-    "@mui/lab": "^5.0.0-alpha.128",
-    "@mui/material": "^5.12.2",
-    "@sqlite.org/sqlite-wasm": "^3.41.2-build11",
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.15.12",
+    "@mui/lab": "^5.0.0-alpha.167",
+    "@mui/material": "^5.15.12",
+    "@sqlite.org/sqlite-wasm": "^3.45.1-build1",
     "module-workers-polyfill": "^0.3.2",
     "notistack": "^3.0.1",
     "optuna": "../rustlib/pkg",
-    "plotly.js-dist-min": "^2.22.0",
+    "plotly.js-dist-min": "^2.30.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.11.0",
-    "recoil": "^0.7.7"
+    "react-router-dom": "^6.22.3"
   }
 }

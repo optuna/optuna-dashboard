@@ -12,21 +12,6 @@ Please right-click on the SQLite3 file (`*.db` or `*.sqlite3`) in the file explo
 
 Nothing to configure.
 
-## Release Notes
-
-### 0.2.0
-
-* Added support for `JournalFileStorage`.
-* Added support for code-server.
-
-### 0.1.0
-
-Added older database schemas support (Optuna 2.6.0 or later)
-
-### 0.0.1
-
-Initial Release
-
 ---
 
 **Enjoy!**

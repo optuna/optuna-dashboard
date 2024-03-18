@@ -1,5 +1,9 @@
-import React from "react"
+import { Clear } from "@mui/icons-material"
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp"
 import {
+  Collapse,
+  IconButton,
   Table,
   TableBody,
   TableCell,
@@ -8,18 +12,14 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
-  Collapse,
-  IconButton,
   useTheme,
 } from "@mui/material"
 import { styled } from "@mui/system"
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp"
-import { Clear } from "@mui/icons-material"
+import React from "react"
 
 type Order = "asc" | "desc"
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 type Value = any
 
 const defaultRowsPerPageOption = [10, 50, 100, { label: "All", value: -1 }]
@@ -97,7 +97,7 @@ function DataGrid<T>(props: {
   }
 
   const filteredRows = rows.filter((row, rowIdx) => {
-    if (defaultFilter !== undefined && defaultFilter(row)) {
+    if (defaultFilter?.(row)) {
       return false
     }
     return filters.length === 0
@@ -162,6 +162,7 @@ function DataGrid<T>(props: {
               {collapseBody ? <TableCell /> : null}
               {columns.map((column, columnIdx) => (
                 <TableCell
+                  // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                   key={columnIdx}
                   padding={column.padding || "normal"}
                   sortDirection={orderBy === column.field ? order : false}
@@ -378,4 +379,5 @@ const isNumber = (
   return typeof rowsPerPage === "number"
 }
 
-export { DataGrid, DataGridColumn }
+export { DataGrid }
+export type { DataGridColumn }

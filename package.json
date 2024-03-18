@@ -5,10 +5,10 @@
   "description": "Dashboard for Optuna",
   "main": "index.js",
   "scripts": {
-    "fmt": "biome format --write .",
-    "lint": "npm run lint:eslint && npm run lint:fmt",
+    "fmt": "biome format --write . && biome check standalone_app vscode --apply",
+    "lint": "npm run lint:eslint && npm run lint:biome",
     "lint:eslint": "eslint . --ext .ts,.tsx --max-warnings 0",
-    "lint:fmt": "biome format .",
+    "lint:biome": "biome format . && biome ci standalone_app vscode",
     "watch": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack --watch",
     "build": "webpack",
     "build:dev": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack",

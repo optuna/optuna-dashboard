@@ -1,31 +1,25 @@
-import React, { FC } from "react"
-import { Link, useParams } from "react-router-dom"
-import {
-  AppBar,
-  Typography,
-  Container,
-  Toolbar,
-  Box,
-  IconButton,
-  useTheme,
-  Card,
-  CardContent,
-} from "@mui/material"
-import Grid2 from "@mui/material/Unstable_Grid2"
 import { Home } from "@mui/icons-material"
 import Brightness4Icon from "@mui/icons-material/Brightness4"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
-import { useRecoilValue } from "recoil"
-import { studiesState } from "../state"
-import { TrialTable } from "./TrialTable"
+import {
+  AppBar,
+  Box,
+  Card,
+  CardContent,
+  Container,
+  IconButton,
+  Toolbar,
+  Typography,
+  useTheme,
+} from "@mui/material"
+import Grid2 from "@mui/material/Unstable_Grid2"
+import React, { FC, useContext, useState, useEffect } from "react"
+import { Link, useParams } from "react-router-dom"
 import { PlotHistory } from "./PlotHistory"
 import { PlotImportance } from "./PlotImportance"
 import { PlotIntermediateValues } from "./PlotIntermediateValues"
-
-const useStudyValue = (idx: number): Study | null => {
-  const studies = useRecoilValue<Study[]>(studiesState)
-  return studies[idx] || null
-}
+import { StorageContext } from "./StorageProvider"
+import { TrialTable } from "./TrialTable"
 
 export const StudyDetail: FC<{
   toggleColorMode: () => void
@@ -33,14 +27,26 @@ export const StudyDetail: FC<{
   const theme = useTheme()
   const { idx } = useParams<{ idx: string }>()
   const idxNumber = parseInt(idx || "", 10)
-  const study = useStudyValue(idxNumber)
+
+  const { storage } = useContext(StorageContext)
+  const [study, setStudy] = useState<Study | null>(null)
+  useEffect(() => {
+    const fetchStudy = async () => {
+      if (storage === null) {
+        return
+      }
+      const study = await storage.getStudy(idxNumber)
+      setStudy(study)
+    }
+    fetchStudy()
+  }, [storage, idxNumber])
 
   return (
-    <div>
+    <>
       <AppBar position="static">
         <Container
           sx={{
-            ["@media (min-width: 1280px)"]: {
+            "@media (min-width: 1280px)": {
               maxWidth: "100%",
             },
           }}
@@ -80,7 +86,7 @@ export const StudyDetail: FC<{
       </AppBar>
       <Container
         sx={{
-          ["@media (min-width: 1280px)"]: {
+          "@media (min-width: 1280px)": {
             maxWidth: "100%",
           },
         }}
@@ -133,6 +139,6 @@ export const StudyDetail: FC<{
           </Card>
         </>
       </Container>
-    </div>
+    </>
   )
 }
