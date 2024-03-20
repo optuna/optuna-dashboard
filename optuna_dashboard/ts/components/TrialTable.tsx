@@ -17,24 +17,34 @@ import TableRow from "@mui/material/TableRow"
 import Paper from "@mui/material/Paper"
 
 import {
+  ColumnDef,
   createColumnHelper,
-  Table as ReactTable,
   flexRender,
   getCoreRowModel,
+  getSortedRowModel,
+  SortingState,
   useReactTable,
 } from "@tanstack/react-table"
 
 function BasicTable(props: {
-  columns: any
+  columns: ColumnDef<Trial>[]
   rows: Trial[]
 }): React.ReactElement {
   const { columns, rows } = props
+  const [sorting, setSorting] = React.useState<SortingState>([])
+
   const data = rows
 
   const table = useReactTable({
     data,
     columns,
+    state: {
+      sorting,
+    },
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    debugTable: true,
   })
 
   return (
@@ -48,11 +58,31 @@ function BasicTable(props: {
                   return (
                     <TableCell key={header.id} colSpan={header.colSpan}>
                       {header.isPlaceholder ? null : (
-                        <div>
+                        <div
+                          className={
+                            header.column.getCanSort()
+                              ? "cursor-pointer select-none"
+                              : ""
+                          }
+                          onClick={header.column.getToggleSortingHandler()}
+                          title={
+                            header.column.getCanSort()
+                              ? header.column.getNextSortingOrder() === "asc"
+                                ? "Sort ascending"
+                                : header.column.getNextSortingOrder() === "desc"
+                                  ? "Sort descending"
+                                  : "Clear sort"
+                              : undefined
+                          }
+                        >
                           {flexRender(
                             header.column.columnDef.header,
                             header.getContext()
                           )}
+                          {{
+                            asc: " 🔼",
+                            desc: " 🔽",
+                          }[header.column.getIsSorted() as string] ?? null}
                         </div>
                       )}
                     </TableCell>
@@ -106,7 +136,7 @@ export const TrialTable: FC<{
   ]
 
   const columnHelper = createColumnHelper<Trial>()
-  const tcolumns: any[] = [
+  const tcolumns: ColumnDef<Trial, any>[] = [
     columnHelper.accessor("number", {
       header: "Number",
       footer: (info) => info.column.id,
