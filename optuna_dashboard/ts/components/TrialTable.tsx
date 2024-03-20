@@ -225,6 +225,7 @@ export const TrialTable: FC<{
     })
     tcolumns.push(
       columnHelper.accessor("params", {
+        id: `params_${s.name}`,
         header: `Param ${s.name}`,
         cell: (info) =>
           info.getValue().find((p) => p.name === s.name)
@@ -258,6 +259,7 @@ export const TrialTable: FC<{
     })
     tcolumns.push(
       columnHelper.accessor("user_attrs", {
+        id: `user_attrs_${attr_spec.key}`,
         header: `UserAttribute ${attr_spec.key}`,
         cell: (info) =>
           info.getValue().find((a) => a.key === attr_spec.key)?.value || null,
@@ -283,6 +285,28 @@ export const TrialTable: FC<{
       </IconButton>
     ),
   })
+  tcolumns.push(
+    columnHelper.accessor((row) => row, {
+      header: "Detail",
+      cell: (info) => (
+        <IconButton
+          component={Link}
+          to={
+            URL_PREFIX +
+            `/studies/${info.getValue().study_id}/trials?numbers=${
+              info.getValue().number
+            }`
+          }
+          color="inherit"
+          title="Go to the trial's detail page"
+          size="small"
+        >
+          <LinkIcon />
+        </IconButton>
+      ),
+      footer: (info) => info.column.id,
+    })
+  )
 
   return (
     <>
