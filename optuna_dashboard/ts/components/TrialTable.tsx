@@ -7,6 +7,84 @@ import { Link } from "react-router-dom"
 import { StudyDetail, Trial } from "ts/types/optuna"
 import { DataGrid, DataGridColumn } from "./DataGrid"
 
+import Box from "@mui/material/Box"
+import Table from "@mui/material/Table"
+import TableBody from "@mui/material/TableBody"
+import TableCell from "@mui/material/TableCell"
+import TableContainer from "@mui/material/TableContainer"
+import TableHead from "@mui/material/TableHead"
+import TableRow from "@mui/material/TableRow"
+import Paper from "@mui/material/Paper"
+
+import {
+  createColumnHelper,
+  Table as ReactTable,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table"
+
+function BasicTable(props: {
+  columns: any
+  rows: Trial[]
+}): React.ReactElement {
+  const { columns, rows } = props
+  const data = rows
+
+  const table = useReactTable({
+    data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  })
+
+  return (
+    <Box sx={{ width: "100%" }}>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableCell key={header.id} colSpan={header.colSpan}>
+                      {header.isPlaceholder ? null : (
+                        <div>
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                        </div>
+                      )}
+                    </TableCell>
+                  )
+                })}
+              </TableRow>
+            ))}
+          </TableHead>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => {
+              return (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => {
+                    return (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    )
+                  })}
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
+  )
+}
+
 export const TrialTable: FC<{
   studyDetail: StudyDetail | null
   initialRowsPerPage?: number
@@ -25,6 +103,18 @@ export const TrialTable: FC<{
       padding: "none",
       toCellValue: (i) => trials[i].state.toString(),
     },
+  ]
+
+  const columnHelper = createColumnHelper<Trial>()
+  const tcolumns: any[] = [
+    columnHelper.accessor("number", {
+      header: "Number",
+      footer: (info) => info.column.id,
+    }),
+    columnHelper.accessor("state", {
+      header: "State",
+      footer: (info) => info.column.id,
+    }),
   ]
   const valueComparator = (
     firstVal?: number,
@@ -60,6 +150,12 @@ export const TrialTable: FC<{
         return trials[i].values?.[0]
       },
     })
+    tcolumns.push(
+      columnHelper.accessor("values", {
+        header: "Value",
+        footer: (info) => info.column.id,
+      })
+    )
   } else {
     const objectiveColumns: DataGridColumn<Trial>[] =
       studyDetail.directions.map((s, objectiveId) => ({
@@ -84,6 +180,14 @@ export const TrialTable: FC<{
         },
       }))
     columns.push(...objectiveColumns)
+    tcolumns.push(
+      ...studyDetail.directions.map((s, objectiveId) =>
+        columnHelper.accessor("values", {
+          header: `Objective ${objectiveId}`,
+          footer: (info) => info.column.id,
+        })
+      )
+    )
   }
   const isDynamicSpace =
     studyDetail?.union_search_space.length !==
@@ -119,6 +223,15 @@ export const TrialTable: FC<{
         return valueComparator(firstVal, secondVal)
       },
     })
+    tcolumns.push(
+      columnHelper.accessor("params", {
+        header: `Param ${s.name}`,
+        cell: (info) =>
+          info.getValue().find((p) => p.name === s.name)
+            ?.param_external_value || null,
+        footer: (info) => info.column.id,
+      })
+    )
   })
 
   studyDetail?.union_user_attrs.forEach((attr_spec) => {
@@ -143,6 +256,14 @@ export const TrialTable: FC<{
         )
       },
     })
+    tcolumns.push(
+      columnHelper.accessor("user_attrs", {
+        header: `UserAttribute ${attr_spec.key}`,
+        cell: (info) =>
+          info.getValue().find((a) => a.key === attr_spec.key)?.value || null,
+        footer: (info) => info.column.id,
+      })
+    )
   })
   columns.push({
     field: "trial_id",
@@ -181,6 +302,7 @@ export const TrialTable: FC<{
       >
         Download CSV File
       </Button>
+      <BasicTable columns={tcolumns} rows={trials.slice(1, 10)} />
     </>
   )
 }
