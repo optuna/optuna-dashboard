@@ -1,15 +1,9 @@
 FROM node:20 AS front-builder
 WORKDIR /usr/src
 
-ADD ./package.json /usr/src/package.json
-ADD ./package-lock.json /usr/src/package-lock.json
-RUN npm install
-
-ADD ./tsconfig.json /usr/src/tsconfig.json
-ADD ./webpack.config.js /usr/src/webpack.config.js
-ADD ./optuna_dashboard/ts/ /usr/src/optuna_dashboard/ts
+ADD ./optuna_dashboard_client/ /usr/src/optuna_dashboard_client/
 RUN mkdir -p /usr/src/optuna_dashboard/public
-RUN npm run build:prd
+RUN cd optuna_dashboard_client/ && npm install && npm run build:prd
 
 FROM python:3.11-buster AS python-builder
 

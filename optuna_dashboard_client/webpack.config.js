@@ -1,3 +1,4 @@
+const path = require("path")
 const webpack = require("webpack")
 
 const mode =
@@ -28,9 +29,9 @@ const typeScriptLoader =
 
 var config = {
   mode,
-  entry: [__dirname + "/optuna_dashboard/ts/index.tsx"],
+  entry: [__dirname + "/src/index.tsx"],
   output: {
-    path: __dirname + "/optuna_dashboard/public/",
+    path: path.resolve(__dirname, "..", "optuna_dashboard", "public"),
     filename: "bundle.js",
     publicPath: "/public/",
   },

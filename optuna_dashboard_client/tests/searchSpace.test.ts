@@ -1,4 +1,4 @@
-import { mergeUnionSearchSpace } from "../optuna_dashboard/ts/searchSpace"
+import { mergeUnionSearchSpace } from "../src/searchSpace"
 
 global.URL.createObjectURL = jest.fn()
 

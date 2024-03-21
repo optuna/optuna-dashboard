@@ -2,17 +2,17 @@
 	"$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
 	"files": {
 		"include": [
-			"optuna_dashboard/ts/**/*.ts",
-			"optuna_dashboard/ts/**/*.tsx",
-			"typescript_tests/**/*.ts",
-			"typescript_tests/**/*.tsx",
+			"optuna_dashboard_client/src/**/*.ts",
+			"optuna_dashboard_client/src/**/*.tsx",
+			"optuna_dashboard_client/tests/**/*.ts",
+			"optuna_dashboard_client/tests/**/*.tsx",
 			"standalone_app/src/**/*.ts",
 			"standalone_app/src/**/*.tsx",
 			"vscode/src/**/*.ts",
 			"vscode/src/**/*.tsx"
 		],
 		"ignore": [
-			"optuna_dashboard/ts/components/PlotlyColorTemplates.ts",
+			"optuna_dashboard_client/src/components/PlotlyColorTemplates.ts",
 			"standalone_app/src/PlotlyDarkMode.ts"
 		]
 	},
