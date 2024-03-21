@@ -5,8 +5,6 @@
     "lint:eslint": "eslint . --ext .ts,.tsx --max-warnings 0",
     "lint:biome": "biome format . && biome ci standalone_app vscode"
   },
-  "author": "Masashi Shibata",
-  "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
     "@typescript-eslint/eslint-plugin": "^6.19.1",
