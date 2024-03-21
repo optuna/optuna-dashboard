@@ -65,6 +65,11 @@ export const studySummariesLoadingState = atom<boolean>({
   default: false,
 })
 
+export const studyDetailLoadingState = atom<Record<number, boolean>>({
+  key: "studyDetailLoading",
+  default: {},
+})
+
 export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
   return studyDetails[studyId] || null
