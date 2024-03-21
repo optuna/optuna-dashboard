@@ -9,14 +9,15 @@ The repository is organized as follows:
 
 ```
 .
-├── optuna_dashboard/   # The Python package.
-│   └── ts/             # TypeScript code for the Python package.
-├── standalone_app/     # Standalone application that can be run in browser or within the WebView of the VS Code extension.
-│   ├── browser_app_entry.tsx   # Entry point for browser app, hosted on GitHub pages.
-│   └── vscode_entry.tsx        # Entry point for VS Code app, output placed under `vscode/assets`.
-├── vscode/             # The VS Code extension.
-└── rustlib/            # Rust library exporting Wasm functions.
-    └── pkg/            # Output directory for rustlib, installed from package.json via `"./rustlib/pkg"`.
+├── optuna_dashboard/              # The Python package.
+├── optuna_dashboard_client/       # TypeScript code for the Python package.
+├── standalone_app/                # Standalone application that can be run in browser or within the WebView of the VS Code extension.
+│   └── src/
+│       ├── browser_app_entry.tsx  # Entry point for browser app, hosted on GitHub pages.
+│       └── vscode_entry.tsx       # Entry point for VS Code app, output placed under `vscode/assets`.
+├── vscode/                        # The VS Code extension.
+└── rustlib/                       # Rust library exporting Wasm functions.
+    └── pkg/                       # Output directory for rustlib, installed from package.json via `"./rustlib/pkg"`.
 ```
 
 ## Python package
@@ -26,6 +27,7 @@ The repository is organized as follows:
 Node.js v16 is required to compile TypeScript files.
 
 ```
+$ cd optuna_dashboard_client/
 $ npm install
 $ npm run build:dev
 ```
@@ -34,6 +36,7 @@ $ npm run build:dev
 <summary>Watch for files changes</summary>
 
 ```
+$ cd optuna_dashboard_client/
 $ npm run watch
 ```
 
@@ -43,6 +46,7 @@ $ npm run watch
 <summary>Production builds</summary>
 
 ```
+$ cd optuna_dashboard_client/
 $ npm run build:prd
 ```
 
