@@ -25,6 +25,7 @@
     "@mui/material": "^5.15.6",
     "@react-three/drei": "^9.96.4",
     "@react-three/fiber": "^8.15.15",
+    "@tanstack/react-virtual": "^3.1.2",
     "@tanstack/react-query": "^5.18.1",
     "@types/three": "^0.160.0",
     "axios": "^1.6.7",
