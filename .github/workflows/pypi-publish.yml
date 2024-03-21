@@ -18,8 +18,11 @@ jobs:
       uses: actions/setup-node@v2
       with:
         node-version: '16'
-    - run: npm install
-    - run: npm run build:prd
+    - name: Build bundle.js
+      working-directory: optuna_dashboard_client
+      run: |
+        npm install
+        npm run build:prd
 
     - name: Set up Python
       uses: actions/setup-python@v4
