@@ -16,7 +16,7 @@ vscode/assets/bundle.js: $(RUSTLIB_OUT) $(STANDALONE_SRC)
 	cd standalone_app && npm install && npm run build:vscode
 
 $(DASHBOARD_TS_OUT): $(DASHBOARD_TS_SRC)
-	npm install && npm run build:$(MODE)
+	cd optuna_dashboard_client && npm install && npm run build:$(MODE)
 
 .PHONY: serve-browser-app
 serve-browser-app: $(RUSTLIB_OUT)
