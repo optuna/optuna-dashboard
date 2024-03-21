@@ -144,6 +144,7 @@ export const TrialTable: FC<{
     columnHelper.accessor("state", {
       header: "State",
       footer: (info) => info.column.id,
+      enableSorting: false,
     }),
   ]
   const valueComparator = (
@@ -213,6 +214,7 @@ export const TrialTable: FC<{
     tcolumns.push(
       ...studyDetail.directions.map((s, objectiveId) =>
         columnHelper.accessor("values", {
+          id: `values_${objectiveId}`,
           header: `Objective ${objectiveId}`,
           footer: (info) => info.column.id,
         })
@@ -335,6 +337,7 @@ export const TrialTable: FC<{
         </IconButton>
       ),
       footer: (info) => info.column.id,
+      enableSorting: false,
     })
   )
 
