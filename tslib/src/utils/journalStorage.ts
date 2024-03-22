@@ -1,4 +1,4 @@
-import { SetterOrUpdater } from "recoil"
+import { SetterOrUpdater } from "recoil";
 
 // JournalStorage
 enum JournalOperation {
@@ -15,92 +15,92 @@ enum JournalOperation {
 }
 
 interface JournalOpBase {
-  op_code: JournalOperation
-  workor_id: string
+  op_code: JournalOperation;
+  workor_id: string;
 }
 
 interface JournalOpCreateStudy extends JournalOpBase {
-  study_name: string
-  directions: number[] // TODO(gen740): introduce Study Direction enum
+  study_name: string;
+  directions: number[]; // TODO(gen740): introduce Study Direction enum
 }
 
 interface JournalOpDeleteStudy extends JournalOpBase {
-  study_id: number
+  study_id: number;
 }
 
 interface JournalOpCreateTrial extends JournalOpBase {
-  study_id: number
-  datetime_start?: string
-  datetime_complete?: string
-  distributions?: { [key: string]: string }
+  study_id: number;
+  datetime_start?: string;
+  datetime_complete?: string;
+  distributions?: { [key: string]: string };
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  params?: { [key: string]: any }
+  params?: { [key: string]: any };
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  user_attrs?: { [key: string]: any }
+  user_attrs?: { [key: string]: any };
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  system_attrs?: { [key: string]: any }
-  state?: number
-  intermediate_values?: { [key: string]: number }
-  value?: number
-  values?: number[]
+  system_attrs?: { [key: string]: any };
+  state?: number;
+  intermediate_values?: { [key: string]: number };
+  value?: number;
+  values?: number[];
 }
 
 interface JournalOpSetTrialParam extends JournalOpBase {
-  trial_id: number
-  param_name: string
-  param_value_internal: number
-  distribution: string
+  trial_id: number;
+  param_name: string;
+  param_value_internal: number;
+  distribution: string;
 }
 
 interface JournalOpSetTrialStateValue extends JournalOpBase {
-  trial_id: number
-  state: number
-  values?: number[]
-  datetime_start?: string
-  datetime_complete?: string
+  trial_id: number;
+  state: number;
+  values?: number[];
+  datetime_start?: string;
+  datetime_complete?: string;
 }
 
 interface JournalOpSetTrialIntermediateValue extends JournalOpBase {
-  trial_id: number
-  step: number
-  intermediate_value: number
+  trial_id: number;
+  step: number;
+  intermediate_value: number;
 }
 
 interface JournalOpSetTrialUserAttr extends JournalOpBase {
-  trial_id: number
+  trial_id: number;
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  user_attr: { [key: string]: any }
+  user_attr: { [key: string]: any };
 }
 
 const trialStateNumToTrialState = (state: number): TrialState => {
   switch (state) {
     case 0:
-      return "Running"
+      return "Running";
     case 1:
-      return "Complete"
+      return "Complete";
     case 2:
-      return "Pruned"
+      return "Pruned";
     case 3:
-      return "Fail"
+      return "Fail";
     case 4:
-      return "Waiting"
+      return "Waiting";
     default:
-      return "Running"
+      return "Running";
   }
-}
+};
 
 const parseDistribution = (distribution: string): Distribution => {
-  const distributionJson = JSON.parse(distribution)
+  const distributionJson = JSON.parse(distribution);
   if (distributionJson.name === "IntDistribution") {
     return {
       ...distributionJson.attributes,
       type: "IntDistribution",
-    }
+    };
   } else if (distributionJson.name === "FloatDistribution") {
     return {
       ...distributionJson.attributes,
       type: "FloatDistribution",
-    }
+    };
   } else {
     return {
       // TODO(gen740): support other types
@@ -110,59 +110,59 @@ const parseDistribution = (distribution: string): Distribution => {
         return {
           pytype: "str",
           value: choice.toString(),
-        }
+        };
       }),
-    }
+    };
   }
-}
+};
 
 class JournalStorage {
-  private studies: Study[] = []
-  private nextStudyId = 0
-  private studyIdToTrialIDs: Map<number, number[]> = new Map()
-  private trialIdToStudyId: Map<number, number> = new Map()
-  private trialID = 0
+  private studies: Study[] = [];
+  private nextStudyId = 0;
+  private studyIdToTrialIDs: Map<number, number[]> = new Map();
+  private trialIdToStudyId: Map<number, number> = new Map();
+  private trialID = 0;
 
   public getStudies(): Study[] {
     for (const study of this.studies) {
-      const unionUserAttrs: Set<string> = new Set()
-      const unionSearchSpace: Set<string> = new Set()
-      let intersectionSearchSpace: string[] = []
+      const unionUserAttrs: Set<string> = new Set();
+      const unionSearchSpace: Set<string> = new Set();
+      let intersectionSearchSpace: string[] = [];
 
       study.trials.forEach((trial, index) => {
         for (const userAttr of trial.user_attrs) {
-          unionUserAttrs.add(userAttr.key)
+          unionUserAttrs.add(userAttr.key);
         }
         for (const param of trial.params) {
-          unionSearchSpace.add(param.name)
+          unionSearchSpace.add(param.name);
         }
         if (index === 0) {
-          intersectionSearchSpace = Array.from(unionSearchSpace)
+          intersectionSearchSpace = Array.from(unionSearchSpace);
         } else {
           intersectionSearchSpace = intersectionSearchSpace.filter((name) => {
-            return trial.params.some((param) => param.name === name)
-          })
+            return trial.params.some((param) => param.name === name);
+          });
         }
-      })
+      });
       study.union_user_attrs = Array.from(unionUserAttrs).map((key) => {
         return {
           key: key,
           sortable: false,
-        }
-      })
+        };
+      });
       study.union_search_space = Array.from(unionSearchSpace).map((name) => {
         return {
           name: name,
-        }
-      })
+        };
+      });
       study.intersection_search_space = intersectionSearchSpace.map((name) => {
         return {
           name: name,
-        }
-      })
+        };
+      });
     }
 
-    return this.studies
+    return this.studies;
   }
 
   public applyCreateStudy(log: JournalOpCreateStudy): void {
@@ -174,20 +174,22 @@ class JournalStorage {
       intersection_search_space: [],
       union_user_attrs: [],
       trials: [],
-    })
-    this.nextStudyId++
+    });
+    this.nextStudyId++;
   }
 
   public applyDeleteStudy(log: JournalOpDeleteStudy): void {
-    this.studies = this.studies.filter((item) => item.study_id !== log.study_id)
+    this.studies = this.studies.filter(
+      (item) => item.study_id !== log.study_id,
+    );
   }
 
   public applyCreateTrial(log: JournalOpCreateTrial): void {
     const thisStudy = this.studies.find(
-      (item) => item.study_id === log.study_id
-    )
+      (item) => item.study_id === log.study_id,
+    );
     if (thisStudy === undefined) {
-      return
+      return;
     }
 
     const params: TrialParam[] =
@@ -195,32 +197,32 @@ class JournalStorage {
         ? []
         : Object.entries(log.params).map(([name, value]) => {
             // biome-ignore lint/style/noNonNullAssertion: <explanation>
-            const distribution = parseDistribution(log.distributions![name])
+            const distribution = parseDistribution(log.distributions![name]);
             return {
               name: name,
               param_internal_value: value,
               param_external_type: distribution.type,
               param_external_value: (() => {
                 if (distribution.type === "FloatDistribution") {
-                  return value.toString()
+                  return value.toString();
                 } else if (distribution.type === "IntDistribution") {
-                  return value.toString()
+                  return value.toString();
                 } else {
-                  return distribution.choices[value]
+                  return distribution.choices[value];
                 }
               })(),
               distribution: distribution,
-            }
-          })
+            };
+          });
 
     const userAtter = log.user_attrs
       ? Object.entries(log.user_attrs).map(([key, value]) => {
           return {
             key: key,
             value: value,
-          }
+          };
         })
-      : []
+      : [];
 
     thisStudy.trials.push({
       trial_id: this.trialID,
@@ -229,11 +231,11 @@ class JournalStorage {
       state: trialStateNumToTrialState(log.state ?? 0),
       values: (() => {
         if (log.value !== undefined) {
-          return [log.value]
+          return [log.value];
         } else if (log.values !== undefined) {
-          return log.values
+          return log.values;
         } else {
-          return undefined
+          return undefined;
         }
       })(),
       params: params,
@@ -245,36 +247,36 @@ class JournalStorage {
       datetime_complete: log.datetime_complete
         ? new Date(log.datetime_complete)
         : undefined,
-    })
+    });
     this.studyIdToTrialIDs.set(
       log.study_id,
       this.studyIdToTrialIDs.get(log.study_id)?.concat([this.trialID]) ?? [
         this.trialID,
-      ]
-    )
-    this.trialIdToStudyId.set(this.trialID, log.study_id)
-    this.trialID++
+      ],
+    );
+    this.trialIdToStudyId.set(this.trialID, log.study_id);
+    this.trialID++;
   }
 
   private getStudyAndTrial(trial_id: number): [Study?, Trial?] {
     const study = this.studies.find(
-      (item) => item.study_id === this.trialIdToStudyId.get(trial_id)
-    )
+      (item) => item.study_id === this.trialIdToStudyId.get(trial_id),
+    );
     if (study === undefined) {
-      return [undefined, undefined]
+      return [undefined, undefined];
     }
 
-    const trial = study.trials.find((item) => item.trial_id === trial_id)
+    const trial = study.trials.find((item) => item.trial_id === trial_id);
     if (trial === undefined) {
-      return [study, undefined]
+      return [study, undefined];
     }
-    return [study, trial]
+    return [study, trial];
   }
 
   public applySetTrialParam(log: JournalOpSetTrialParam) {
-    const [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
+    const [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id);
     if (thisStudy === undefined || thisTrial === undefined) {
-      return
+      return;
     }
     thisTrial.params.push({
       name: log.param_name,
@@ -282,51 +284,51 @@ class JournalStorage {
       param_external_type: "FloatDistribution",
       param_external_value: log.param_value_internal.toString(),
       distribution: parseDistribution(log.distribution),
-    })
+    });
   }
 
   public applySetTrialStateValues(log: JournalOpSetTrialStateValue): void {
-    const [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
+    const [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id);
     if (thisStudy === undefined || thisTrial === undefined) {
-      return
+      return;
     }
-    thisTrial.state = trialStateNumToTrialState(log.state)
-    thisTrial.values = log.values
+    thisTrial.state = trialStateNumToTrialState(log.state);
+    thisTrial.values = log.values;
     thisTrial.datetime_start = log.datetime_start
       ? new Date(log.datetime_start)
-      : undefined
+      : undefined;
     thisTrial.datetime_complete = log.datetime_complete
       ? new Date(log.datetime_complete)
-      : undefined
+      : undefined;
   }
 
   public applySetTrialIntermediateValue(
-    log: JournalOpSetTrialIntermediateValue
+    log: JournalOpSetTrialIntermediateValue,
   ) {
-    const [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
+    const [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id);
     if (thisStudy === undefined || thisTrial === undefined) {
-      return
+      return;
     }
     thisTrial.intermediate_values.push({
       step: log.step,
       value: log.intermediate_value,
-    })
+    });
   }
 
   public applySetTrialUserAttr(log: JournalOpSetTrialUserAttr) {
-    const [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
+    const [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id);
     if (thisStudy === undefined || thisTrial === undefined) {
-      return
+      return;
     }
     for (const [key, value] of Object.entries(log.user_attr)) {
-      const index = thisTrial.user_attrs.findIndex((item) => item.key === key)
+      const index = thisTrial.user_attrs.findIndex((item) => item.key === key);
       if (index !== -1) {
-        thisTrial.user_attrs[index].value = value.toString()
+        thisTrial.user_attrs[index].value = value.toString();
       } else {
         thisTrial.user_attrs.push({
           key: key,
           value: value.toString(),
-        })
+        });
       }
     }
   }
@@ -334,58 +336,58 @@ class JournalStorage {
 
 export const loadJournalStorage = (
   arrayBuffer: ArrayBuffer,
-  setter: SetterOrUpdater<Study[]>
+  setter: SetterOrUpdater<Study[]>,
 ): void => {
-  const decoder = new TextDecoder("utf-8")
-  const logs = decoder.decode(arrayBuffer).split("\n")
+  const decoder = new TextDecoder("utf-8");
+  const logs = decoder.decode(arrayBuffer).split("\n");
 
-  const journalStorage = new JournalStorage()
+  const journalStorage = new JournalStorage();
 
   for (const log of logs) {
     if (log === "") {
-      continue
+      continue;
     }
-    const parsedLog: JournalOpBase = JSON.parse(log)
+    const parsedLog: JournalOpBase = JSON.parse(log);
     switch (parsedLog.op_code) {
       case JournalOperation.CREATE_STUDY:
-        journalStorage.applyCreateStudy(parsedLog as JournalOpCreateStudy)
-        break
+        journalStorage.applyCreateStudy(parsedLog as JournalOpCreateStudy);
+        break;
       case JournalOperation.DELETE_STUDY:
-        journalStorage.applyDeleteStudy(parsedLog as JournalOpDeleteStudy)
-        break
+        journalStorage.applyDeleteStudy(parsedLog as JournalOpDeleteStudy);
+        break;
       case JournalOperation.SET_STUDY_USER_ATTR:
         // Unsupported
-        break
+        break;
       case JournalOperation.SET_STUDY_SYSTEM_ATTR:
         // Unsupported
-        break
+        break;
       case JournalOperation.CREATE_TRIAL:
-        journalStorage.applyCreateTrial(parsedLog as JournalOpCreateTrial)
-        break
+        journalStorage.applyCreateTrial(parsedLog as JournalOpCreateTrial);
+        break;
       case JournalOperation.SET_TRIAL_PARAM:
-        journalStorage.applySetTrialParam(parsedLog as JournalOpSetTrialParam)
-        break
+        journalStorage.applySetTrialParam(parsedLog as JournalOpSetTrialParam);
+        break;
       case JournalOperation.SET_TRIAL_STATE_VALUES:
         journalStorage.applySetTrialStateValues(
-          parsedLog as JournalOpSetTrialStateValue
-        )
-        break
+          parsedLog as JournalOpSetTrialStateValue,
+        );
+        break;
       case JournalOperation.SET_TRIAL_INTERMEDIATE_VALUE:
         journalStorage.applySetTrialIntermediateValue(
-          parsedLog as JournalOpSetTrialIntermediateValue
-        )
-        break
+          parsedLog as JournalOpSetTrialIntermediateValue,
+        );
+        break;
       case JournalOperation.SET_TRIAL_USER_ATTR:
         journalStorage.applySetTrialUserAttr(
-          parsedLog as JournalOpSetTrialUserAttr
-        )
-        break
+          parsedLog as JournalOpSetTrialUserAttr,
+        );
+        break;
       case JournalOperation.SET_TRIAL_SYSTEM_ATTR:
         // Unsupported
-        break
+        break;
     }
   }
 
-  const studies = journalStorage.getStudies()
-  setter((prev) => [...prev, ...studies])
-}
+  const studies = journalStorage.getStudies();
+  setter((prev) => [...prev, ...studies]);
+};
