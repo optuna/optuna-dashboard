@@ -14,7 +14,7 @@
         "rootDir": "./src",
         "outDir": "./pkg",
         "allowSyntheticDefaultImports": true,
-        "target": "es5",
+        "target": "es2021",
         "sourceMap": true,
         "declaration": true,
         "strict": true
