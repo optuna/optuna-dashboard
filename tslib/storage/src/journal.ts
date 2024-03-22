@@ -73,7 +73,7 @@ interface JournalOpSetTrialUserAttr extends JournalOpBase {
   user_attr: { [key: string]: any } // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-const trialStateNumToTrialState = (state: number): TrialState => {
+const trialStateNumToTrialState = (state: number): Optuna.TrialState => {
   switch (state) {
     case 0:
       return "Running"
@@ -90,7 +90,7 @@ const trialStateNumToTrialState = (state: number): TrialState => {
   }
 }
 
-const parseDistribution = (distribution: string): Distribution => {
+const parseDistribution = (distribution: string): Optuna.Distribution => {
   const distributionJson = JSON.parse(distribution)
   if (distributionJson.name === "IntDistribution") {
     return {
@@ -114,13 +114,13 @@ const parseDistribution = (distribution: string): Distribution => {
 }
 
 class JournalStorage {
-  private studies: Study[] = []
+  private studies: Optuna.Study[] = []
   private nextStudyId = 0
   private studyIdToTrialIDs: Map<number, number[]> = new Map()
   private trialIdToStudyId: Map<number, number> = new Map()
   private trialID = 0
 
-  public getStudies(): Study[] {
+  public getStudies(): Optuna.Study[] {
     for (const study of this.studies) {
       const unionUserAttrs: Set<string> = new Set()
       const unionSearchSpace: Set<string> = new Set()
@@ -187,7 +187,7 @@ class JournalStorage {
       return
     }
 
-    const params: TrialParam[] =
+    const params: Optuna.TrialParam[] =
       log.params === undefined || log.distributions === undefined
         ? []
         : Object.entries(log.params).map(([name, value]) => {
@@ -254,7 +254,7 @@ class JournalStorage {
     this.trialID++
   }
 
-  private getStudyAndTrial(trial_id: number): [Study?, Trial?] {
+  private getStudyAndTrial(trial_id: number): [Optuna.Study?, Optuna.Trial?] {
     const study = this.studies.find(
       (item) => item.study_id === this.trialIdToStudyId.get(trial_id)
     )
