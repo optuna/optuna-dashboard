@@ -6,7 +6,7 @@
     "noUnusedLocals": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    "outDir": "./optuna_dashboard/public/",
+    "outDir": "./public/",
     "paths": {
       "plotly.js-dist-min": ["node_modules/@types/plotly.js"]
     },
@@ -21,11 +21,11 @@
     "strict": true
   },
   "files": [
-    "./optuna_dashboard/ts/index.tsx"
+    "./ts/index.tsx"
   ],
   "include": [
-    "./optuna_dashboard/ts/types/**/*",
-    "./typescript_tests/**/*"
+    "./ts/types/**/*",
+    "./ts/tests/**/*"
   ],
   "types": ["node"]
 }

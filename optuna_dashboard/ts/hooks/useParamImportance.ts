@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 import { useSnackbar } from "notistack"
-import { getParamImportances } from "../../ts/apiClient"
+import { getParamImportances } from "../apiClient"
 import { useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 

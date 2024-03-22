@@ -1,12 +1,12 @@
 FROM node:20 AS front-builder
-WORKDIR /usr/src
+WORKDIR /usr/src/optuna_dashboard
 
-ADD ./package.json /usr/src/package.json
-ADD ./package-lock.json /usr/src/package-lock.json
+ADD ./optuna_dashboard/package.json /usr/src/optuna_dashboard/package.json
+ADD ./optuna_dashboard/package-lock.json /usr/src/optuna_dashboard/package-lock.json
 RUN npm install
 
-ADD ./tsconfig.json /usr/src/tsconfig.json
-ADD ./webpack.config.js /usr/src/webpack.config.js
+ADD ./optuna_dashboard/tsconfig.json /usr/src/optuna_dashboard/tsconfig.json
+ADD ./optuna_dashboard/webpack.config.js /usr/src/optuna_dashboard/webpack.config.js
 ADD ./optuna_dashboard/ts/ /usr/src/optuna_dashboard/ts
 RUN mkdir -p /usr/src/optuna_dashboard/public
 RUN npm run build:prd
