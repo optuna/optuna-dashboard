@@ -1,12 +1,12 @@
+import * as Optuna from "@optuna/types"
 // @ts-ignore
 import sqlite3InitModule from "@sqlite.org/sqlite-wasm"
-import * as Optuna from "@optuna/types"
 import { OptunaStorage } from "./storage"
 
 type SQLite3DB = {
   exec(options: {
     sql: string
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     callback: (...args: any[]) => void
   }): void
   close(): void
@@ -258,7 +258,10 @@ const getTrialValues = (
   return values
 }
 
-const getTrialParams = (db: SQLite3DB, trialId: number): Optuna.TrialParam[] => {
+const getTrialParams = (
+  db: SQLite3DB,
+  trialId: number
+): Optuna.TrialParam[] => {
   const params: Optuna.TrialParam[] = []
   db.exec({
     sql: `SELECT param_name, param_value, distribution_json FROM trial_params WHERE trial_id = ${trialId}`,

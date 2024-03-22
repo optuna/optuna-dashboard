@@ -1,5 +1,5 @@
 {
-  "name": "@optuna/storage-loader",
+  "name": "@optuna/storage",
   "private": true,
   "version": "0.0.1",
   "description": "Loaders for Optuna storages",
