@@ -26,6 +26,7 @@ The repository is organized as follows:
 Node.js v16 is required to compile TypeScript files.
 
 ```
+$ cd optuna_dashboard/
 $ npm install
 $ npm run build:dev
 ```
@@ -34,6 +35,7 @@ $ npm run build:dev
 <summary>Watch for files changes</summary>
 
 ```
+$ cd optuna_dashboard/
 $ npm run watch
 ```
 
@@ -43,6 +45,7 @@ $ npm run watch
 <summary>Production builds</summary>
 
 ```
+$ cd optuna_dashboard/
 $ npm run build:prd
 ```
 

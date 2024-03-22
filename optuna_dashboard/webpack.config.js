@@ -28,9 +28,9 @@ const typeScriptLoader =
 
 var config = {
   mode,
-  entry: [__dirname + "/optuna_dashboard/ts/index.tsx"],
+  entry: [__dirname + "/ts/index.tsx"],
   output: {
-    path: __dirname + "/optuna_dashboard/public/",
+    path: __dirname + "/public/",
     filename: "bundle.js",
     publicPath: "/public/",
   },

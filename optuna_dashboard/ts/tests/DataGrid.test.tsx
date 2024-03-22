@@ -2,10 +2,7 @@ import React from "react"
 global.URL.createObjectURL = jest.fn()
 
 import { cleanup, render } from "@testing-library/react"
-import {
-  DataGrid,
-  DataGridColumn,
-} from "../optuna_dashboard/ts/components/DataGrid"
+import { DataGrid, DataGridColumn } from "../components/DataGrid"
 
 afterEach(cleanup)
 

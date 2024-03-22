@@ -6,9 +6,10 @@ on:
       - '.eslintrc.js'
       - '**.ts'
       - '**.tsx'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tsconfig.json'
+      - 'optuna_dashboard/package.json'
+      - 'optuna_dashboard/package-lock.json'
+      - 'optuna_dashboard/tsconfig.json'
+      - 'optuna_dashboard/webpack.config.js'
 jobs:
   lint:
     name: Lint checking on Ubuntu
@@ -37,7 +38,9 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '16'
-      - run: |
+      - name: Build bundle.js
+        working-directory: optuna_dashboard
+        run: |
           npm install
           npm run build:dev
           npm run build:prd
@@ -54,6 +57,8 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '16'
-      - run: |
+      - name: Run jest
+        working-directory: optuna_dashboard
+        run: |
           npm install
           npm run test

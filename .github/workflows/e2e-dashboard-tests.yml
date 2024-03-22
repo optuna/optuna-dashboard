@@ -8,9 +8,9 @@ on:
       - '**.py'
       - '**.ts'
       - '**.tsx'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'tsconfig.json'
+      - 'optuna_dashboard/package.json'
+      - 'optuna_dashboard/package-lock.json'
+      - 'optuna_dashboard/tsconfig.json'
 jobs:
   test:
     runs-on: ubuntu-20.04
@@ -24,8 +24,12 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '16'
-      - run: npm install
-      - run: npm run build:dev
+
+      - name: Build bundle.js
+        working-directory: optuna_dashboard
+        run: |
+          npm install
+          npm run build:dev
 
       - name: Set up Python
         uses: actions/setup-python@v2
