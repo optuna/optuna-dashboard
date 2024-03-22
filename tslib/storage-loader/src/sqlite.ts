@@ -1,17 +1,20 @@
 // @ts-ignore
 import sqlite3InitModule from "@sqlite.org/sqlite-wasm"
+import * as Optuna from "@optuna/types"
+import { OptunaStorage } from "./storage"
 
 type SQLite3DB = {
   exec(options: {
     sql: string
-    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callback: (...args: any[]) => void
   }): void
+  close(): void
 }
 
 export class SQLite3Storage implements OptunaStorage {
   db: Promise<SQLite3DB>
-  summaries_cache: StudySummary[] | null
+  summaries_cache: Optuna.StudySummary[] | null
   constructor(arrayBuffer: ArrayBuffer) {
     this.db = this.initDB(arrayBuffer)
     this.summaries_cache = null
@@ -39,13 +42,13 @@ export class SQLite3Storage implements OptunaStorage {
     })
   }
 
-  getStudies = async (): Promise<StudySummary[]> => {
+  getStudies = async (): Promise<Optuna.StudySummary[]> => {
     const db = await this.db
     this.summaries_cache = getStudySummaries(db)
     return this.summaries_cache
   }
 
-  getStudy = async (idx: number): Promise<Study | null> => {
+  getStudy = async (idx: number): Promise<Optuna.Study | null> => {
     const db = await this.db
     const schemaVersion = getSchemaVersion(db)
     if (!isSupportedSchema(schemaVersion)) {
@@ -96,8 +99,8 @@ const isGreaterSchemaVersion = (
   return left > right
 }
 
-const getStudySummaries = (db: SQLite3DB): StudySummary[] => {
-  const summaries: StudySummary[] = []
+const getStudySummaries = (db: SQLite3DB): Optuna.StudySummary[] => {
+  const summaries: Optuna.StudySummary[] = []
   db.exec({
     sql:
       "SELECT s.study_id, s.study_name, sd.direction, sd.objective" +
@@ -107,7 +110,7 @@ const getStudySummaries = (db: SQLite3DB): StudySummary[] => {
     callback: (vals: any[]) => {
       const studyId = vals[0]
       const studyName = vals[1]
-      const direction: StudyDirection =
+      const direction: Optuna.StudyDirection =
         vals[2] === "MINIMIZE" ? "minimize" : "maximize"
       const objective = vals[3]
 
@@ -129,9 +132,9 @@ const getStudySummaries = (db: SQLite3DB): StudySummary[] => {
 const getStudy = (
   db: SQLite3DB,
   schemaVersion: string,
-  summary: StudySummary
-): Study => {
-  const study: Study = {
+  summary: Optuna.StudySummary
+): Optuna.Study => {
+  const study: Optuna.Study = {
     study_id: summary.study_id,
     study_name: summary.study_name,
     directions: summary.directions,
@@ -141,7 +144,7 @@ const getStudy = (
     trials: [],
   }
 
-  let intersection_search_space: Set<SearchSpaceItem> = new Set()
+  let intersection_search_space: Set<Optuna.SearchSpaceItem> = new Set()
   study.trials = getTrials(db, summary.study_id, schemaVersion)
   for (const trial of study.trials) {
     const userAttrs = getTrialUserAttributes(db, trial.trial_id)
@@ -184,14 +187,14 @@ const getTrials = (
   db: SQLite3DB,
   studyId: number,
   schemaVersion: string
-): Trial[] => {
-  const trials: Trial[] = []
+): Optuna.Trial[] => {
+  const trials: Optuna.Trial[] = []
   db.exec({
     sql: `SELECT trial_id, number, state, datetime_start, datetime_complete FROM trials WHERE study_id = ${studyId} ORDER BY number`,
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     callback: (vals: any[]) => {
       const trialId = vals[0]
-      const state: TrialState =
+      const state: Optuna.TrialState =
         vals[2] === "COMPLETE"
           ? "Complete"
           : vals[2] === "PRUNED"
@@ -201,7 +204,7 @@ const getTrials = (
               : vals[2] === "WAITING"
                 ? "Waiting"
                 : "Fail"
-      const trial: Trial = {
+      const trial: Optuna.Trial = {
         trial_id: trialId,
         number: vals[1],
         study_id: studyId,
@@ -255,8 +258,8 @@ const getTrialValues = (
   return values
 }
 
-const getTrialParams = (db: SQLite3DB, trialId: number): TrialParam[] => {
-  const params: TrialParam[] = []
+const getTrialParams = (db: SQLite3DB, trialId: number): Optuna.TrialParam[] => {
+  const params: Optuna.TrialParam[] = []
   db.exec({
     sql: `SELECT param_name, param_value, distribution_json FROM trial_params WHERE trial_id = ${trialId}`,
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -278,9 +281,9 @@ const getTrialParams = (db: SQLite3DB, trialId: number): TrialParam[] => {
 }
 
 const paramInternalValueToExternalValue = (
-  distribution: Distribution,
+  distribution: Optuna.Distribution,
   internalValue: number
-): CategoricalChoiceType => {
+): Optuna.CategoricalChoiceType => {
   if (distribution.type === "FloatDistribution") {
     return internalValue.toString()
   }
@@ -290,7 +293,7 @@ const paramInternalValueToExternalValue = (
   return distribution.choices[internalValue]
 }
 
-const parseDistributionJSON = (t: string): Distribution => {
+const parseDistributionJSON = (t: string): Optuna.Distribution => {
   const parsed = JSON.parse(t)
   if (parsed.name === "FloatDistribution") {
     return {
@@ -364,8 +367,8 @@ const parseDistributionJSON = (t: string): Distribution => {
 const getTrialUserAttributes = (
   db: SQLite3DB,
   trialId: number
-): Attribute[] => {
-  const attrs: Attribute[] = []
+): Optuna.Attribute[] => {
+  const attrs: Optuna.Attribute[] = []
   db.exec({
     sql: `SELECT key, value_json FROM trial_user_attributes WHERE trial_id = ${trialId}`,
     // biome-ignore lint/suspicious/noExplicitAny: <explanation>
@@ -383,8 +386,8 @@ const getTrialIntermediateValues = (
   db: SQLite3DB,
   trialId: number,
   schemaVersion: string
-): TrialIntermediateValue[] => {
-  const values: TrialIntermediateValue[] = []
+): Optuna.TrialIntermediateValue[] => {
+  const values: Optuna.TrialIntermediateValue[] = []
   if (isGreaterSchemaVersion(schemaVersion, "v3.0.0.c")) {
     db.exec({
       sql: `SELECT step, intermediate_value, intermediate_value_type FROM trial_intermediate_values WHERE trial_id = ${trialId} ORDER BY step`,

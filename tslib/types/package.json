@@ -1,0 +1,23 @@
+{
+  "name": "@optuna/types",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Entites for Optuna Dashboard",
+  "main": "pkg/index.js",
+  "scripts": {
+    "build": "tsc -d"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/optuna/optuna-dashboard.git"
+  },
+  "keywords": [
+    "optuna"
+  ],
+  "author": "Optuna Development Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/optuna/optuna-dashboard/issues"
+  },
+  "homepage": "https://github.com/optuna/optuna-dashboard#readme"
+}
