@@ -15,8 +15,7 @@ import {
   useTheme,
 } from "@mui/material";
 import { styled } from "@mui/system";
-import { Fragment, useState } from "react";
-import { DataGridColumn } from "./DataGridColumn";
+import React from "react";
 
 type Order = "asc" | "desc";
 
@@ -24,6 +23,16 @@ type Order = "asc" | "desc";
 type Value = any;
 
 const defaultRowsPerPageOption = [10, 50, 100, { label: "All", value: -1 }];
+
+interface DataGridColumn<T> {
+  field: keyof T;
+  label: string;
+  sortable?: boolean;
+  less?: (a: T, b: T, ascending: boolean) => number;
+  filterable?: boolean;
+  toCellValue?: (rowIndex: number) => string | React.ReactNode;
+  padding?: "normal" | "checkbox" | "none";
+}
 
 interface RowFilter {
   columnIdx: number;
@@ -42,10 +51,10 @@ function DataGrid<T>(props: {
 }): React.ReactElement {
   const { columns, rows, keyField, dense, collapseBody, defaultFilter } = props;
   let { initialRowsPerPage, rowsPerPageOption } = props;
-  const [order, setOrder] = useState<Order>("asc");
-  const [orderBy, setOrderBy] = useState<number>(0); // index of columns
-  const [page, setPage] = useState(0);
-  const [filters, setFilters] = useState<RowFilter[]>([]);
+  const [order, setOrder] = React.useState<Order>("asc");
+  const [orderBy, setOrderBy] = React.useState<number>(0); // index of columns
+  const [page, setPage] = React.useState(0);
+  const [filters, setFilters] = React.useState<RowFilter[]>([]);
 
   const getRowIndex = (row: T): number => {
     return rows.findIndex((row2) => row[keyField] === row2[keyField]);
@@ -58,7 +67,7 @@ function DataGrid<T>(props: {
     : isNumber(rowsPerPageOption[0])
       ? rowsPerPageOption[0]
       : rowsPerPageOption[0].value;
-  const [rowsPerPage, setRowsPerPage] = useState(initialRowsPerPage);
+  const [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage);
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
@@ -247,7 +256,7 @@ function DataGridRow<T>(props: {
     collapseBody,
     handleClickFilterCell,
   } = props;
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = React.useState(false);
   const theme = useTheme();
 
   const FilterableDiv = styled("div")({
@@ -256,7 +265,7 @@ function DataGridRow<T>(props: {
     cursor: "pointer",
   });
   return (
-    <Fragment>
+    <React.Fragment>
       <TableRow hover tabIndex={-1}>
         {collapseBody ? (
           <TableCell>
@@ -308,7 +317,7 @@ function DataGridRow<T>(props: {
           </TableCell>
         </TableRow>
       ) : null}
-    </Fragment>
+    </React.Fragment>
   );
 }
 
@@ -371,3 +380,4 @@ const isNumber = (
 };
 
 export { DataGrid };
+export type { DataGridColumn };
