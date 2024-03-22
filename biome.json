@@ -4,8 +4,6 @@
 		"include": [
 			"optuna_dashboard/ts/**/*.ts",
 			"optuna_dashboard/ts/**/*.tsx",
-			"optuna_dashboard/ts/tests/**/*.ts",
-			"optuna_dashboard/ts/tests/**/*.tsx",
 			"standalone_app/src/**/*.ts",
 			"standalone_app/src/**/*.tsx",
 			"vscode/src/**/*.ts",
