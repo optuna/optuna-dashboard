@@ -10,9 +10,7 @@ export const loadSQLite3Storage = async (
   const studySummaries = await sqlite3Storage.getStudies();
   const studies = (
     await Promise.all(
-      studySummaries.map((summary) =>
-        sqlite3Storage.getStudy(summary.study_id),
-      ),
+      studySummaries.map((_summary, index) => sqlite3Storage.getStudy(index)),
     )
   ).filter((s) => s !== null) as Study[];
   setter((prev) => [...prev, ...studies]);
