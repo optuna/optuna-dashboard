@@ -75,6 +75,7 @@ package-data = { "optuna_dashboard" = ["public/*", "img/*", "index.html"] }
 
 [tool.setuptools.packages.find]
 include = ["optuna_dashboard*"]
+exclude = ["optuna_dashboard.node_modules*", "optuna_dashboard.ts*"]
 
 [project.urls]
 "Homepage" = "https://github.com/optuna/optuna-dashboard"
