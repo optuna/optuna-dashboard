@@ -9,7 +9,8 @@
 			"vscode/src/**/*.ts",
 			"vscode/src/**/*.tsx",
 			"tslib/**/*.ts",
-			"tslib/**/*.tsx"
+			"tslib/**/*.tsx",
+			"tslib/**/*.mjs"
 		],
 		"ignore": [
 			"optuna_dashboard/ts/components/PlotlyColorTemplates.ts",

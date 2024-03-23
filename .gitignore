@@ -32,8 +32,7 @@ rustlib/pkg/
 .coverage
 .coverage.*
 coverage.xml
-tslib/storage/test/asset/*.log
-tslib/storage/test/asset/*.db
+tslib/storage/test/asset/
 
 # Others
 .envrc

@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "fmt": "biome format --write . && biome check standalone_app vscode --apply",
+    "fmt": "biome format --write . && biome check standalone_app vscode tslib --apply",
     "lint": "npm run lint:eslint && npm run lint:biome",
     "lint:eslint": "eslint . --ext .ts,.tsx --max-warnings 0",
     "lint:biome": "biome format . && biome ci standalone_app vscode tslib"
