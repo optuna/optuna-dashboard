@@ -2,7 +2,10 @@ import os.path
 import shutil
 
 import optuna
-from optuna.storages import BaseStorage, JournalStorage, JournalFileStorage, RDBStorage
+from optuna.storages import BaseStorage
+from optuna.storages import JournalFileStorage
+from optuna.storages import JournalStorage
+from optuna.storages import RDBStorage
 
 
 optuna.logging.set_verbosity(optuna.logging.WARNING)
