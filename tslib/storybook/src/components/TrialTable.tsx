@@ -1,14 +1,15 @@
 import { FC } from "react";
 
+import * as Optuna from "@optuna/types";
 import { DataGrid, DataGridColumn } from "./DataGrid";
 
 export const TrialTable: FC<{
-  study: Study;
+  study: Optuna.Study;
   initialRowsPerPage?: number;
 }> = ({ study, initialRowsPerPage }) => {
-  const trials: Trial[] = study.trials;
+  const trials: Optuna.Trial[] = study.trials;
 
-  const columns: DataGridColumn<Trial>[] = [
+  const columns: DataGridColumn<Optuna.Trial>[] = [
     { field: "number", label: "Number", sortable: true, padding: "none" },
     {
       field: "state",
@@ -48,8 +49,8 @@ export const TrialTable: FC<{
       },
     });
   } else {
-    const objectiveColumns: DataGridColumn<Trial>[] = study.directions.map(
-      (_s, objectiveId) => ({
+    const objectiveColumns: DataGridColumn<Optuna.Trial>[] =
+      study.directions.map((_s, objectiveId) => ({
         field: "values",
         label: `Objective ${objectiveId}`,
         sortable: true,
@@ -74,8 +75,7 @@ export const TrialTable: FC<{
           }
           return trials[i].values?.[objectiveId];
         },
-      }),
-    );
+      }));
     columns.push(...objectiveColumns);
   }
 
@@ -142,7 +142,7 @@ export const TrialTable: FC<{
   });
 
   return (
-    <DataGrid<Trial>
+    <DataGrid<Optuna.Trial>
       columns={columns}
       rows={trials}
       keyField={"trial_id"}

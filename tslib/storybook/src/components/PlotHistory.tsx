@@ -13,6 +13,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material";
+import * as Optuna from "@optuna/types";
 import * as plotly from "plotly.js-dist-min";
 import { ChangeEvent, FC, useEffect, useState } from "react";
 import { plotlyDarkTemplate } from "./PlotlyDarkMode";
@@ -20,7 +21,7 @@ import { plotlyDarkTemplate } from "./PlotlyDarkMode";
 const plotDomId = "plot-history";
 
 export const PlotHistory: FC<{
-  study: Study | null;
+  study: Optuna.Study | null;
 }> = ({ study = null }) => {
   const theme = useTheme();
   const [xAxis, setXAxis] = useState<string>("number");
@@ -171,7 +172,7 @@ export const PlotHistory: FC<{
   );
 };
 
-const filterFunc = (trial: Trial, objectiveId: number): boolean => {
+const filterFunc = (trial: Optuna.Trial, objectiveId: number): boolean => {
   if (trial.state !== "Complete" && trial.state !== "Pruned") {
     return false;
   }
@@ -186,7 +187,7 @@ const filterFunc = (trial: Trial, objectiveId: number): boolean => {
 };
 
 const plotHistory = (
-  study: Study,
+  study: Optuna.Study,
   objectiveId: number,
   xAxis: string,
   logScale: boolean,
@@ -229,7 +230,7 @@ const plotHistory = (
     return;
   }
 
-  const getAxisX = (trial: Trial): number | Date => {
+  const getAxisX = (trial: Optuna.Trial): number | Date => {
     return xAxis === "number"
       ? trial.number
       : xAxis === "datetime_start"
@@ -237,7 +238,10 @@ const plotHistory = (
         : trial.datetime_complete ?? new Date();
   };
 
-  const getValue = (trial: Trial, objectiveId: number): number | null => {
+  const getValue = (
+    trial: Optuna.Trial,
+    objectiveId: number,
+  ): number | null => {
     if (
       objectiveId === null ||
       trial.values === undefined ||
@@ -295,7 +299,7 @@ const plotHistory = (
     {
       x: filteredTrials.map(getAxisX),
       y: filteredTrials.map(
-        (t: Trial): number => getValue(t, objectiveId) as number,
+        (t: Optuna.Trial): number => getValue(t, objectiveId) as number,
       ),
       name: "Objective Value",
       mode: "markers",

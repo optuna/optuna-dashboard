@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
+    "@optuna/types": "../types/",
     "@storybook/addon-essentials": "^7.6.15",
     "@storybook/addon-interactions": "^7.6.15",
     "@storybook/addon-links": "^7.6.15",
