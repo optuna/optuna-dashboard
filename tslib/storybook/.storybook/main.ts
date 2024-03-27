@@ -14,5 +14,16 @@ const config: StorybookConfig = {
   docs: {
     autodocs: "tag",
   },
+  async viteFinal(config) {
+    const { mergeConfig } = await import("vite");
+    return mergeConfig(config, {
+      server: {
+        fs: {
+          // Since storybook overwrites the `allow` option, here we set it for sqlite-wasm
+          allow: [...(config.server?.fs?.allow ?? []), ".."],
+        },
+      },
+    });
+  },
 };
 export default config;

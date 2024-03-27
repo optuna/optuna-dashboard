@@ -8,9 +8,6 @@ export default defineConfig({
     exclude: ["@sqlite.org/sqlite-wasm"],
   },
   server: {
-    fs: {
-      allow: [".."],
-    },
     headers: {
       "Cross-Origin-Opener-Policy": "same-origin",
       "Cross-Origin-Embedder-Policy": "require-corp",
