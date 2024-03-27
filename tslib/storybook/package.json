@@ -1,8 +1,11 @@
 {
-  "name": "tslib",
+  "name": "@optuna/storybook",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1",
   "type": "module",
+  "description": "UI Storybook for Optuna-Dashboard",
+  "main": "pkg/index.js",
+  "types": "types/index.d.ts",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -12,6 +15,16 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/optuna/optuna-dashboard.git"
+  },
+  "author": "Optuna Development Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/optuna/optuna-dashboard/issues"
+  },
+  "homepage": "https://github.com/optuna/optuna-dashboard#readme",
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
