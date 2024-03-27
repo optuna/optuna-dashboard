@@ -7,6 +7,9 @@ venv/
 dist/
 build/
 optuna_dashboard/public/
+optuna_dashboard/static/
+optuna_dashboard/index.html
+optuna_dashboard/favicon.ico
 
 # JS
 node_modules/
