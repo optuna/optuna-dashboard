@@ -198,7 +198,7 @@ function loadRhino3dm(
   handleLoadedGeometries: (geometries: THREE.BufferGeometry[]) => THREE.Box3
 ) {
   const rhino3dmLoader = new Rhino3dmLoader()
-  rhino3dmLoader.setLibraryPath("https://cdn.jsdelivr.net/npm/rhino3dm@7.15.0/")
+  rhino3dmLoader.setLibraryPath("https://cdn.jsdelivr.net/npm/rhino3dm@8.4.0/")
   rhino3dmLoader.load(props.src, (object: THREE.Object3D) => {
     const meshes = object.children as THREE.Mesh[]
     const rhinoGeometries = meshes.map((mesh) => mesh.geometry)

@@ -2,9 +2,14 @@ import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
 import { Typography, useTheme, Box, Card, CardContent } from "@mui/material"
 
-import { actionCreator } from "../action"
-import { useParamImportanceValue, useStudyDirections } from "../state"
-import { usePlotlyColorTheme } from "../state"
+import { useParamImportance } from "../hooks/useParamImportance"
+import {
+  useStudyDirections,
+  usePlotlyColorTheme,
+  useBackendRender,
+} from "../state"
+import { PlotType } from "../apiClient"
+import { usePlot } from "../hooks/usePlot"
 
 const plotDomId = "graph-hyperparameter-importances"
 
@@ -13,13 +18,66 @@ export const GraphHyperparameterImportance: FC<{
   study: StudyDetail | null
   graphHeight: string
 }> = ({ studyId, study = null, graphHeight }) => {
+  if (useBackendRender()) {
+    return (
+      <GraphHyperparameterImportanceBackend
+        studyId={studyId}
+        study={study}
+        graphHeight={graphHeight}
+      />
+    )
+  } else {
+    return (
+      <GraphHyperparameterImportanceFrontend
+        studyId={studyId}
+        study={study}
+        graphHeight={graphHeight}
+      />
+    )
+  }
+}
+
+const GraphHyperparameterImportanceBackend: FC<{
+  studyId: number
+  study: StudyDetail | null
+  graphHeight: string
+}> = ({ studyId, study = null, graphHeight }) => {
+  const numCompletedTrials =
+    study?.trials.filter((t) => t.state === "Complete").length || 0
+  const { data, layout, error } = usePlot({
+    numCompletedTrials,
+    studyId,
+    plotType: PlotType.ParamImportances,
+  })
+
+  useEffect(() => {
+    if (data && layout) {
+      plotly.react(plotDomId, data, layout)
+    }
+  }, [data, layout])
+  useEffect(() => {
+    if (error) {
+      console.error(error)
+    }
+  }, [error])
+
+  return <Box id={plotDomId} sx={{ height: graphHeight }} />
+}
+
+const GraphHyperparameterImportanceFrontend: FC<{
+  studyId: number
+  study: StudyDetail | null
+  graphHeight: string
+}> = ({ studyId, study = null, graphHeight }) => {
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
 
-  const action = actionCreator()
-  const importances = useParamImportanceValue(studyId)
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
+  const { importances } = useParamImportance({
+    numCompletedTrials,
+    studyId,
+  })
   const nObjectives = useStudyDirections(studyId)?.length
   const objectiveNames: string[] =
     study?.objective_names ||
@@ -27,11 +85,7 @@ export const GraphHyperparameterImportance: FC<{
     []
 
   useEffect(() => {
-    action.updateParamImportance(studyId)
-  }, [numCompletedTrials])
-
-  useEffect(() => {
-    if (importances !== null && nObjectives === importances.length) {
+    if (importances !== undefined && nObjectives === importances.length) {
       plotParamImportance(importances, objectiveNames, colorTheme)
     }
   }, [nObjectives, importances, colorTheme])

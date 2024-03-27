@@ -3,7 +3,6 @@ import {
   LightColorTemplates,
   DarkColorTemplates,
 } from "./components/PlotlyColorTemplates"
-import { useQuery } from "./urlQuery"
 
 export const studySummariesState = atom<StudySummary[]>({
   key: "studySummaries",
@@ -19,11 +18,6 @@ export const trialsUpdatingState = atom<{
   [trialId: string]: boolean
 }>({
   key: "trialsUpdating",
-  default: {},
-})
-
-export const paramImportanceState = atom<StudyParamImportance>({
-  key: "paramImportance",
   default: {},
 })
 
@@ -48,12 +42,17 @@ export const artifactIsAvailable = atom<boolean>({
   default: false,
 })
 
-export const plotlyColorTheme = atom<PlotlyColorTheme>({
-  key: "plotlyDarkColorScale",
+export const plotlyColorThemeState = atom<PlotlyColorTheme>({
+  key: "plotlyColorThemeState",
   default: {
     dark: "default",
     light: "default",
   },
+})
+
+export const plotBackendRenderingState = atom<boolean>({
+  key: "plotBackendRendering",
+  default: false,
 })
 
 export const plotlypyIsAvailableState = atom<boolean>({
@@ -64,6 +63,11 @@ export const plotlypyIsAvailableState = atom<boolean>({
 export const studySummariesLoadingState = atom<boolean>({
   key: "studySummariesLoadingState",
   default: false,
+})
+
+export const studyDetailLoadingState = atom<Record<number, boolean>>({
+  key: "studyDetailLoading",
+  default: {},
 })
 
 export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
@@ -79,14 +83,6 @@ export const useStudySummaryValue = (studyId: number): StudySummary | null => {
 export const useTrialUpdatingValue = (trialId: number): boolean => {
   const updating = useRecoilValue(trialsUpdatingState)
   return updating[trialId] || false
-}
-
-export const useParamImportanceValue = (
-  studyId: number
-): ParamImportance[][] | null => {
-  const studyParamImportance =
-    useRecoilValue<StudyParamImportance>(paramImportanceState)
-  return studyParamImportance[studyId] || null
 }
 
 export const useStudyDirections = (
@@ -119,7 +115,7 @@ export const useArtifacts = (studyId: number, trialId: number): Artifact[] => {
 }
 
 export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
-  const theme = useRecoilValue(plotlyColorTheme)
+  const theme = useRecoilValue(plotlyColorThemeState)
   if (mode === "dark") {
     return DarkColorTemplates[theme.dark]
   } else {
@@ -128,10 +124,10 @@ export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
 }
 
 export const useBackendRender = (): boolean => {
-  const query = useQuery()
-  const plotlypyIsAvailable = useRecoilValue<boolean>(plotlypyIsAvailableState)
+  const plotBackendRendering = useRecoilValue(plotBackendRenderingState)
+  const plotlypyIsAvailable = useRecoilValue(plotlypyIsAvailableState)
 
-  if (query.get("plotlypy_rendering") === "true") {
+  if (plotBackendRendering) {
     if (plotlypyIsAvailable) {
       return true
     }

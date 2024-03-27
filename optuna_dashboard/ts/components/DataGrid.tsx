@@ -35,7 +35,7 @@ interface DataGridColumn<T> {
   label: string
   sortable?: boolean
   less?: (a: T, b: T, ascending: boolean) => number
-  filterChoices?: string[]
+  filterChoices?: (string | null)[]
   toCellValue?: (rowIndex: number) => string | React.ReactNode
   padding?: "normal" | "checkbox" | "none"
 }
@@ -333,7 +333,7 @@ function DataGridHeaderColumn<T>(props: {
                       <CheckBoxOutlineBlankIcon color="primary" />
                     )}
                   </ListItemIcon>
-                  {choice}
+                  {choice ?? "(missing value)"}
                 </MenuItem>
               ))}
             </Menu>

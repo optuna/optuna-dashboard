@@ -1,4 +1,5 @@
-import { SetterOrUpdater } from "recoil"
+import * as Optuna from "@optuna/types"
+import { OptunaStorage } from "./storage"
 
 // JournalStorage
 enum JournalOperation {
@@ -33,9 +34,12 @@ interface JournalOpCreateTrial extends JournalOpBase {
   datetime_start?: string
   datetime_complete?: string
   distributions?: { [key: string]: string }
-  params?: { [key: string]: any } // eslint-disable-line @typescript-eslint/no-explicit-any
-  user_attrs?: { [key: string]: any } // eslint-disable-line @typescript-eslint/no-explicit-any
-  system_attrs?: { [key: string]: any } // eslint-disable-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  params?: { [key: string]: any }
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  user_attrs?: { [key: string]: any }
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+  system_attrs?: { [key: string]: any }
   state?: number
   intermediate_values?: { [key: string]: number }
   value?: number
@@ -65,10 +69,11 @@ interface JournalOpSetTrialIntermediateValue extends JournalOpBase {
 
 interface JournalOpSetTrialUserAttr extends JournalOpBase {
   trial_id: number
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   user_attr: { [key: string]: any } // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
-const trialStateNumToTrialState = (state: number): TrialState => {
+const trialStateNumToTrialState = (state: number): Optuna.TrialState => {
   switch (state) {
     case 0:
       return "Running"
@@ -85,41 +90,37 @@ const trialStateNumToTrialState = (state: number): TrialState => {
   }
 }
 
-const parseDistribution = (distribution: string): Distribution => {
+const parseDistribution = (distribution: string): Optuna.Distribution => {
   const distributionJson = JSON.parse(distribution)
-  if (distributionJson["name"] === "IntDistribution") {
+  if (distributionJson.name === "IntDistribution") {
     return {
-      ...distributionJson["attributes"],
+      ...distributionJson.attributes,
       type: "IntDistribution",
     }
-  } else if (distributionJson["name"] === "FloatDistribution") {
+  }
+  if (distributionJson.name === "FloatDistribution") {
     return {
-      ...distributionJson["attributes"],
+      ...distributionJson.attributes,
       type: "FloatDistribution",
     }
-  } else {
+  }
+  if (distributionJson.name === "CategoricalDistribution") {
     return {
-      // TODO(gen740): support other types
       type: "CategoricalDistribution",
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      choices: distributionJson["attributes"]["choices"].map((choice: any) => {
-        return {
-          pytype: "str",
-          value: choice.toString(),
-        }
-      }),
+      choices: distributionJson.attributes.choices,
     }
   }
+  throw new Error(`Unexpected distribution: ${distribution}`)
 }
 
 class JournalStorage {
-  private studies: Study[] = []
+  private studies: Optuna.Study[] = []
   private nextStudyId = 0
   private studyIdToTrialIDs: Map<number, number[]> = new Map()
   private trialIdToStudyId: Map<number, number> = new Map()
   private trialID = 0
 
-  public getStudies(): Study[] {
+  public getStudies(): Optuna.Study[] {
     for (const study of this.studies) {
       const unionUserAttrs: Set<string> = new Set()
       const unionSearchSpace: Set<string> = new Set()
@@ -186,11 +187,13 @@ class JournalStorage {
       return
     }
 
-    const params: TrialParam[] =
+    const params: Optuna.TrialParam[] =
       log.params === undefined || log.distributions === undefined
         ? []
         : Object.entries(log.params).map(([name, value]) => {
-            const distribution = parseDistribution(log.distributions![name])
+            const distribution = parseDistribution(
+              log.distributions?.[name] || ""
+            )
             return {
               name: name,
               param_internal_value: value,
@@ -198,11 +201,11 @@ class JournalStorage {
               param_external_value: (() => {
                 if (distribution.type === "FloatDistribution") {
                   return value.toString()
-                } else if (distribution.type === "IntDistribution") {
-                  return value.toString()
-                } else {
-                  return distribution.choices[value].value
                 }
+                if (distribution.type === "IntDistribution") {
+                  return value.toString()
+                }
+                return distribution.choices[value]
               })(),
               distribution: distribution,
             }
@@ -225,11 +228,11 @@ class JournalStorage {
       values: (() => {
         if (log.value !== undefined) {
           return [log.value]
-        } else if (log.values !== undefined) {
-          return log.values
-        } else {
-          return undefined
         }
+        if (log.values !== undefined) {
+          return log.values
+        }
+        return undefined
       })(),
       params: params,
       intermediate_values: [],
@@ -251,7 +254,7 @@ class JournalStorage {
     this.trialID++
   }
 
-  private getStudyAndTrial(trial_id: number): [Study?, Trial?] {
+  private getStudyAndTrial(trial_id: number): [Optuna.Study?, Optuna.Trial?] {
     const study = this.studies.find(
       (item) => item.study_id === this.trialIdToStudyId.get(trial_id)
     )
@@ -327,10 +330,7 @@ class JournalStorage {
   }
 }
 
-export const loadJournalStorage = (
-  arrayBuffer: ArrayBuffer,
-  setter: SetterOrUpdater<Study[]>
-): void => {
+const loadJournalStorage = (arrayBuffer: ArrayBuffer): Optuna.Study[] => {
   const decoder = new TextDecoder("utf-8")
   const logs = decoder.decode(arrayBuffer).split("\n")
 
@@ -381,6 +381,18 @@ export const loadJournalStorage = (
     }
   }
 
-  const studies = journalStorage.getStudies()
-  setter((prev) => [...prev, ...studies])
+  return journalStorage.getStudies()
+}
+
+export class JournalFileStorage implements OptunaStorage {
+  studies: Optuna.Study[]
+  constructor(arrayBuffer: ArrayBuffer) {
+    this.studies = loadJournalStorage(arrayBuffer)
+  }
+  getStudies = async (): Promise<Optuna.StudySummary[]> => {
+    return this.studies
+  }
+  getStudy = async (idx: number): Promise<Optuna.Study | null> => {
+    return this.studies[idx] || null
+  }
 }

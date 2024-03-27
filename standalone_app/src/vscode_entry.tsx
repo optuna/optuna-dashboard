@@ -1,22 +1,17 @@
-import React, { FC, useEffect } from "react"
+import React, { FC, useEffect, useContext } from "react"
 import ReactDOM from "react-dom/client"
-import "./index.css"
 import { App } from "./components/App"
-import { RecoilRoot, useSetRecoilState, SetterOrUpdater } from "recoil"
-import { studiesState } from "./state"
-import { loadSQLite3Storage } from "./sqlite3"
-import { loadJournalStorage } from "./journalStorage"
+import {
+  StorageContext,
+  StorageProvider,
+  getStorage,
+} from "./components/StorageProvider"
+import "./index.css"
 
 export const AppWrapper: FC = () => {
-  const setStudies = useSetRecoilState<Study[]>(studiesState)
+  const { setStorage } = useContext(StorageContext)
 
-  const onceSetStudies: SetterOrUpdater<Study[]> = (
-    setter: (currVal: Study[]) => Study[]
-  ): void => {
-    const studies = setter([])
-    setStudies(studies)
-  }
-
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     window.addEventListener("message", (event) => {
       const message = event.data
@@ -25,8 +20,6 @@ export const AppWrapper: FC = () => {
       let len: number
       let bytes: Uint8Array
       let arrayBuffer: ArrayBuffer
-      let header: Uint8Array
-      let headerString: string
 
       switch (message.type) {
         case "optunaStorage":
@@ -38,13 +31,7 @@ export const AppWrapper: FC = () => {
             bytes[i] = binaryString.charCodeAt(i)
           }
           arrayBuffer = bytes.buffer
-          header = new Uint8Array(arrayBuffer, 0, 16)
-          headerString = new TextDecoder().decode(header)
-          if (headerString === "SQLite format 3\u0000") {
-            loadSQLite3Storage(arrayBuffer, onceSetStudies)
-          } else {
-            loadJournalStorage(arrayBuffer, onceSetStudies)
-          }
+          setStorage(getStorage(arrayBuffer))
           break
       }
     })
@@ -54,8 +41,8 @@ export const AppWrapper: FC = () => {
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
-    <RecoilRoot>
+    <StorageProvider>
       <AppWrapper />
-    </RecoilRoot>
+    </StorageProvider>
   </React.StrictMode>
 )

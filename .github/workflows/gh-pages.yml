@@ -30,20 +30,20 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '18'
+      - name: Build rustlib
+        working-directory: rustlib
+        run: wasm-pack build --target web
+      - name: Build tslib
+        run: make tslib
       - name: Build standalone_app
-        env:
-          PUBLIC_PATH: /optuna-dashboard/public/
-        run: make MODE="prd" standalone_app/public/bundle.js
-      - name: Create publish directory
+        working-directory: standalone_app
         run: |
-          mkdir gh-publish
-          cp -r standalone_app/public gh-publish/public
-          cp standalone_app/favicon.ico gh-publish/favicon.ico
-          cp standalone_app/github-pages.html gh-publish/index.html
+          npm install
+          npx vite build --base=/optuna-dashboard/ --outDir ./gh-pages
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
         with:
-          path: './gh-publish'
+          path: './standalone_app/gh-pages'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2

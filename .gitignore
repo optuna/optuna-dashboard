@@ -10,7 +10,7 @@ optuna_dashboard/public/
 
 # JS
 node_modules/
-standalone_app/public/
+pkg/
 
 # VSCode
 vscode/assets/
@@ -32,6 +32,7 @@ rustlib/pkg/
 .coverage
 .coverage.*
 coverage.xml
+tslib/storage/test/asset/
 
 # Others
 .envrc

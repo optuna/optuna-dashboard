@@ -1,6 +1,6 @@
 import React, { FC } from "react"
 
-import { DataGridColumn, DataGrid } from "./DataGrid"
+import { DataGrid, DataGridColumn } from "./DataGrid"
 
 export const TrialTable: FC<{
   study: Study
@@ -34,13 +34,9 @@ export const TrialTable: FC<{
         }
         if (firstVal === undefined) {
           return ascending ? -1 : 1
-        } else if (secondVal === undefined) {
-          return ascending ? 1 : -1
         }
-        if (firstVal === "-inf" || secondVal === "inf") {
-          return 1
-        } else if (secondVal === "-inf" || firstVal === "inf") {
-          return -1
+        if (secondVal === undefined) {
+          return ascending ? 1 : -1
         }
         return firstVal < secondVal ? 1 : -1
       },
@@ -66,13 +62,9 @@ export const TrialTable: FC<{
           }
           if (firstVal === undefined) {
             return ascending ? -1 : 1
-          } else if (secondVal === undefined) {
-            return ascending ? 1 : -1
           }
-          if (firstVal === "-inf" || secondVal === "inf") {
-            return 1
-          } else if (secondVal === "-inf" || firstVal === "inf") {
-            return -1
+          if (secondVal === undefined) {
+            return ascending ? 1 : -1
           }
           return firstVal < secondVal ? 1 : -1
         },
@@ -87,6 +79,7 @@ export const TrialTable: FC<{
     columns.push(...objectiveColumns)
   }
 
+  // biome-ignore lint/complexity/noForEach: <explanation>
   study.union_search_space.forEach((s) => {
     columns.push({
       field: "params",
@@ -96,8 +89,7 @@ export const TrialTable: FC<{
         null,
       sortable: true,
       filterable: false,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      less: (firstEl, secondEl, _): number => {
+      less: (firstEl, secondEl): number => {
         const firstVal = firstEl.params.find(
           (p) => p.name === s.name
         )?.param_internal_value
@@ -107,17 +99,19 @@ export const TrialTable: FC<{
 
         if (firstVal === secondVal) {
           return 0
-        } else if (firstVal && secondVal) {
-          return firstVal < secondVal ? 1 : -1
-        } else if (firstVal) {
-          return -1
-        } else {
-          return 1
         }
+        if (firstVal && secondVal) {
+          return firstVal < secondVal ? 1 : -1
+        }
+        if (firstVal) {
+          return -1
+        }
+        return 1
       },
     })
   })
 
+  // biome-ignore lint/complexity/noForEach: <explanation>
   study.union_user_attrs.forEach((attr_spec) => {
     columns.push({
       field: "user_attrs",
@@ -127,8 +121,7 @@ export const TrialTable: FC<{
           ?.value || null,
       sortable: attr_spec.sortable,
       filterable: false,
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      less: (firstEl, secondEl, _): number => {
+      less: (firstEl, secondEl): number => {
         const firstVal = firstEl.user_attrs.find(
           (attr) => attr.key === attr_spec.key
         )?.value
@@ -138,13 +131,14 @@ export const TrialTable: FC<{
 
         if (firstVal === secondVal) {
           return 0
-        } else if (firstVal && secondVal) {
-          return firstVal < secondVal ? 1 : -1
-        } else if (firstVal) {
-          return -1
-        } else {
-          return 1
         }
+        if (firstVal && secondVal) {
+          return firstVal < secondVal ? 1 : -1
+        }
+        if (firstVal) {
+          return -1
+        }
+        return 1
       },
     })
   })

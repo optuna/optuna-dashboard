@@ -4,27 +4,28 @@ PYTHON ?= python3
 MODE ?= dev
 RST_FILES := $(shell find docs -name '*.rst')
 PYTHON_FILES := $(shell find optuna_dashboard/ -name '*.py')
-DASHBOARD_TS_IN := $(shell find ./optuna_dashboard -name '*.ts' -o -name '*.tsx')
+DASHBOARD_TS_SRC := $(shell find ./optuna_dashboard -name '*.ts' -o -name '*.tsx')
 DASHBOARD_TS_OUT = optuna_dashboard/public/bundle.js optuna_dashboard/public/favicon.ico
 RUSTLIB_OUT = rustlib/pkg/optuna_wasm.js rustlib/pkg/optuna_wasm_bg.wasm rustlib/pkg/package.json
-STANDALONE_OUT = standalone_app/public/bundle.js vscode/assets/bundle.js
+STANDALONE_SRC := $(shell find ./standalone_app/src -name '*.ts' -o -name '*.tsx')
 
 $(RUSTLIB_OUT): rustlib/src/*.rs rustlib/Cargo.toml
 	cd rustlib && wasm-pack build --target web
 
-$(STANDALONE_OUT): $(RUSTLIB_OUT)
-	cd standalone_app && npm install && npm run build:$(MODE)
+vscode/assets/bundle.js: $(RUSTLIB_OUT) $(STANDALONE_SRC) tslib
+	cd standalone_app && npm install && npm run build:vscode
 
-$(DASHBOARD_TS_OUT): $(DASHBOARD_TS_IN)
-	npm install && npm run build:$(MODE)
+$(DASHBOARD_TS_OUT): $(DASHBOARD_TS_SRC)
+	cd optuna_dashboard && npm install && npm run build:$(MODE)
 
-.PHONY: watch-standalone-app
-watch-standalone-app: standalone_app/public/bundle.js
-	cd standalone_app && npm run watch
+.PHONY: tslib
+tslib:
+	cd tslib/types && npm i && npm run build
+	cd tslib/storage && npm i && npm run build
 
 .PHONY: serve-browser-app
-serve-browser-app: standalone_app/public/bundle.js
-	$(PYTHON) -m http.server 9000 --directory ./standalone_app/
+serve-browser-app: tslib $(RUSTLIB_OUT)
+	cd standalone_app && npm run watch
 
 .PHONY: vscode-extension
 vscode-extension: vscode/assets/bundle.js
@@ -32,11 +33,11 @@ vscode-extension: vscode/assets/bundle.js
 
 .PHONY: sdist
 sdist: pyproject.toml $(DASHBOARD_TS_OUT)
-	python setup.py sdist
+	python -m build --sdist
 
 .PHONY: wheel
 wheel: pyproject.toml $(DASHBOARD_TS_OUT)
-	python setup.py bdist_wheel
+	python -m build --wheel
 
 .PHONY: docs
 docs: docs/conf.py $(RST_FILES)
@@ -50,5 +51,6 @@ fmt:
 
 .PHONY: clean
 clean:
+	rm -rf tslib/types/pkg tslib/storage/pkg
 	rm -rf optuna_dashboard/public/ doc/_build/
 	rm -rf rustlib/pkg standalone_app/public/ vscode/assets/ vscode/*.vsix

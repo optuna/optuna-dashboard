@@ -3,7 +3,6 @@ import { useSnackbar } from "notistack"
 import {
   getStudyDetailAPI,
   getStudySummariesAPI,
-  getParamImportances,
   createNewStudyAPI,
   deleteStudyAPI,
   saveStudyNoteAPI,
@@ -25,10 +24,10 @@ import {
 import {
   studyDetailsState,
   studySummariesState,
-  paramImportanceState,
   isFileUploading,
   artifactIsAvailable,
   plotlypyIsAvailableState,
+  studyDetailLoadingState,
   reloadIntervalState,
   trialsUpdatingState,
   studySummariesLoadingState,
@@ -43,8 +42,6 @@ export const actionCreator = () => {
   const [studyDetails, setStudyDetails] =
     useRecoilState<StudyDetails>(studyDetailsState)
   const setReloadInterval = useSetRecoilState<number>(reloadIntervalState)
-  const [paramImportance, setParamImportance] =
-    useRecoilState<StudyParamImportance>(paramImportanceState)
   const setUploading = useSetRecoilState<boolean>(isFileUploading)
   const setTrialsUpdating = useSetRecoilState(trialsUpdatingState)
   const setArtifactIsAvailable = useSetRecoilState<boolean>(artifactIsAvailable)
@@ -54,6 +51,9 @@ export const actionCreator = () => {
   const setStudySummariesLoading = useSetRecoilState<boolean>(
     studySummariesLoadingState
   )
+  const [studyDetailLoading, setStudyDetailLoading] = useRecoilState<
+    Record<number, boolean>
+  >(studyDetailLoadingState)
 
   const setStudyDetailState = (studyId: number, study: StudyDetail) => {
     setStudyDetails((prevVal) => {
@@ -207,15 +207,6 @@ export const actionCreator = () => {
     setStudyDetailState(studyId, newStudy)
   }
 
-  const setStudyParamImportanceState = (
-    studyId: number,
-    importance: ParamImportance[][]
-  ) => {
-    const newVal = Object.assign({}, paramImportance)
-    newVal[studyId] = importance
-    setParamImportance(newVal)
-  }
-
   const updateAPIMeta = () => {
     getMetaInfoAPI().then((r) => {
       setArtifactIsAvailable(r.artifact_is_available)
@@ -244,6 +235,10 @@ export const actionCreator = () => {
   }
 
   const updateStudyDetail = (studyId: number) => {
+    if (studyDetailLoading[studyId]) {
+      return
+    }
+    setStudyDetailLoading({ ...studyDetailLoading, [studyId]: true })
     let nLocalFixedTrials = 0
     if (studyId in studyDetails) {
       const currentTrials = studyDetails[studyId].trials
@@ -255,6 +250,7 @@ export const actionCreator = () => {
     }
     getStudyDetailAPI(studyId, nLocalFixedTrials)
       .then((study) => {
+        setStudyDetailLoading({ ...studyDetailLoading, [studyId]: false })
         const currentFixedTrials =
           studyId in studyDetails
             ? studyDetails[studyId].trials.slice(0, nLocalFixedTrials)
@@ -263,6 +259,7 @@ export const actionCreator = () => {
         setStudyDetailState(studyId, study)
       })
       .catch((err) => {
+        setStudyDetailLoading({ ...studyDetailLoading, [studyId]: false })
         const reason = err.response?.data.reason
         if (reason !== undefined) {
           enqueueSnackbar(`Failed to fetch study (reason=${reason})`, {
@@ -270,22 +267,6 @@ export const actionCreator = () => {
           })
         }
         console.log(err)
-      })
-  }
-
-  const updateParamImportance = (studyId: number) => {
-    getParamImportances(studyId)
-      .then((importance) => {
-        setStudyParamImportanceState(studyId, importance)
-      })
-      .catch((err) => {
-        const reason = err.response?.data.reason
-        enqueueSnackbar(
-          `Failed to load hyperparameter importance (reason=${reason})`,
-          {
-            variant: "error",
-          }
-        )
       })
   }
 
@@ -714,7 +695,6 @@ export const actionCreator = () => {
     updateAPIMeta,
     updateStudyDetail,
     updateStudySummaries,
-    updateParamImportance,
     createNewStudy,
     deleteStudy,
     renameStudy,

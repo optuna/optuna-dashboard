@@ -13,8 +13,9 @@ import {
 } from "@mui/material"
 import { getAxisInfo, makeHovertext } from "../graphUtil"
 import { useMergedUnionSearchSpace } from "../searchSpace"
+import { PlotType } from "../apiClient"
 import { usePlotlyColorTheme, useBackendRender } from "../state"
-import { getPlotAPI, PlotType } from "../apiClient"
+import { usePlot } from "../hooks/usePlot"
 
 const plotDomId = "graph-rank"
 
@@ -46,18 +47,24 @@ const GraphRankBackend: FC<{
   const studyId = study?.id
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
+
+  const { data, layout, error } = usePlot({
+    numCompletedTrials,
+    studyId,
+    plotType: PlotType.Rank,
+  })
+
   useEffect(() => {
-    if (studyId === undefined) {
-      return
+    if (data && layout) {
+      plotly.react(plotDomId, data, layout)
     }
-    getPlotAPI(studyId, PlotType.Rank)
-      .then(({ data, layout }) => {
-        plotly.react(plotDomId, data, layout)
-      })
-      .catch((err) => {
-        console.error(err)
-      })
-  }, [studyId, numCompletedTrials])
+  }, [data, layout])
+  useEffect(() => {
+    if (error) {
+      console.error(error)
+    }
+  }, [error])
+
   return <Box id={plotDomId} sx={{ height: "450px" }} />
 }
 

@@ -1,20 +1,20 @@
-import * as plotly from "plotly.js-dist-min"
-import React, { ChangeEvent, FC, useEffect, useState } from "react"
 import {
-  Grid,
-  FormControl,
-  FormLabel,
-  FormControlLabel,
   Checkbox,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  Grid,
   MenuItem,
-  Switch,
-  Select,
   Radio,
   RadioGroup,
-  Typography,
+  Select,
   SelectChangeEvent,
+  Switch,
+  Typography,
   useTheme,
 } from "@mui/material"
+import * as plotly from "plotly.js-dist-min"
+import React, { ChangeEvent, FC, useEffect, useState } from "react"
 import { plotlyDarkTemplate } from "../PlotlyDarkMode"
 
 const plotDomId = "plot-history"
@@ -91,6 +91,7 @@ export const PlotHistory: FC<{
             <FormLabel component="legend">Objective ID:</FormLabel>
             <Select value={objectiveId} onChange={handleObjectiveChange}>
               {study.directions.map((d, i) => (
+                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
                 <MenuItem value={i} key={i}>
                   {i}
                 </MenuItem>
@@ -178,8 +179,8 @@ const filterFunc = (trial: Trial, objectiveId: number): boolean => {
   }
   return (
     trial.values.length > objectiveId &&
-    trial.values[objectiveId] !== "inf" &&
-    trial.values[objectiveId] !== "-inf"
+    trial.values[objectiveId] !== Infinity &&
+    trial.values[objectiveId] !== -Infinity
   )
 }
 
@@ -244,7 +245,7 @@ const plotHistory = (
       return null
     }
     const value = trial.values[objectiveId]
-    if (value === "inf" || value === "-inf") {
+    if (value === Infinity || value === -Infinity) {
       return null
     }
     return value

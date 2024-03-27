@@ -5,6 +5,11 @@
 [![Read the Docs](https://readthedocs.org/projects/optuna-dashboard/badge/?version=latest)](https://optuna-dashboard.readthedocs.io/en/latest/?badge=latest)
 [![Codecov](https://codecov.io/gh/optuna/optuna-dashboard/branch/main/graph/badge.svg)](https://codecov.io/gh/optuna/optuna-dashboard)
 
+:link: [**Website**](https://optuna.org/)
+| :page_with_curl: [**Docs**](https://optuna-dashboard.readthedocs.io/en/stable/)
+| :gear: [**Install Guide**](https://optuna-dashboard.readthedocs.io/en/stable/getting-started.html#installation)
+| :pencil: [**Tutorial**](https://optuna-dashboard.readthedocs.io/en/stable/tutorials/index.html)
+| :bulb: [**Examples**](https://github.com/optuna/optuna-examples/tree/main/dashboard)
 
 Real-time dashboard for [Optuna](https://github.com/optuna/optuna).
 Code files were originally taken from [Goptuna](https://github.com/c-bata/goptuna).
@@ -111,9 +116,6 @@ or install the code-server extension via [Open VSX](https://open-vsx.org/extensi
 
 Please right-click the SQLite3 files (`*.db` or `*.sqlite3`) in the VS Code file explorer and select the "Open in Optuna Dashboard" command from the dropdown menu.
 This extension leverages the browser-only version of Optuna Dashboard, so the same limitations apply.
-
-Please note that we have confirmed the behavior of the code-server extension can be unstable.
-When opening SQLite files, the dashboard may not appear on the first attempt, but it should be displayed upon a second try.
 
 ## Submitting patches
 

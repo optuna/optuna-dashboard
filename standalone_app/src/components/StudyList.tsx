@@ -1,52 +1,72 @@
-import React, { FC, useState } from "react"
-import {
-  AppBar,
-  Typography,
-  Container,
-  Toolbar,
-  Box,
-  IconButton,
-  MenuItem,
-  useTheme,
-  Card,
-  CardContent,
-  CardActionArea,
-  TextField,
-  InputAdornment,
-  SvgIcon,
-} from "@mui/material"
-import { styled } from "@mui/system"
-import SortIcon from "@mui/icons-material/Sort"
+import { Search } from "@mui/icons-material"
 import Brightness4Icon from "@mui/icons-material/Brightness4"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
-import { useRecoilValue } from "recoil"
-import { studiesState } from "../state"
+import SortIcon from "@mui/icons-material/Sort"
+import {
+  AppBar,
+  Box,
+  Card,
+  CardActionArea,
+  CardContent,
+  Container,
+  IconButton,
+  InputAdornment,
+  MenuItem,
+  SvgIcon,
+  TextField,
+  Toolbar,
+  Typography,
+  useTheme,
+} from "@mui/material"
+import { styled } from "@mui/system"
+import React, {
+  FC,
+  useEffect,
+  useContext,
+  useState,
+  useMemo,
+  useDeferredValue,
+} from "react"
 import { Link } from "react-router-dom"
-import { DebouncedInputTextField } from "./Debounce"
-import { Search } from "@mui/icons-material"
 import { StorageLoader } from "./StorageLoader"
+import { StorageContext } from "./StorageProvider"
 
 export const StudyList: FC<{
   toggleColorMode: () => void
 }> = ({ toggleColorMode }) => {
   const theme = useTheme()
-  const studies = useRecoilValue<Study[]>(studiesState)
+  const { storage } = useContext(StorageContext)
+  const [studies, setStudies] = useState<StudySummary[]>([])
 
-  const [studyFilterText, setStudyFilterText] = useState<string>("")
+  const [_studyFilterText, setStudyFilterText] = useState<string>("")
   const [sortBy, setSortBy] = useState<"id-asc" | "id-desc">("id-asc")
-  const studyFilter = (row: Study): boolean => {
-    const keywords = studyFilterText.split(" ")
-    return !keywords.every((k) => {
-      if (k === "") {
-        return true
+  const studyFilterText = useDeferredValue(_studyFilterText)
+  useEffect(() => {
+    const fetchStudies = async () => {
+      if (storage === null) {
+        return
       }
-      return row.study_name.indexOf(k) >= 0
-    })
-  }
-  let filteredStudies: Study[] = studies.filter((s) => !studyFilter(s))
-  if (sortBy === "id-desc") {
-    filteredStudies = filteredStudies.reverse()
-  }
+      const studies = await storage.getStudies()
+      setStudies(studies)
+    }
+    fetchStudies()
+  }, [storage])
+  const filteredStudies = useMemo(() => {
+    const studyFilter = (row: StudySummary): boolean => {
+      const keywords = studyFilterText.split(" ")
+      return !keywords.every((k) => {
+        if (k === "") {
+          return true
+        }
+        return row.study_name.indexOf(k) >= 0
+      })
+    }
+    let filteredStudies: StudySummary[] = studies.filter((s) => !studyFilter(s))
+    if (sortBy === "id-desc") {
+      filteredStudies = filteredStudies.reverse()
+    }
+    return filteredStudies
+  }, [studyFilterText, studies, sortBy])
 
   const Select = styled(TextField)(({ theme }) => ({
     "& .MuiInputBase-input": {
@@ -93,7 +113,7 @@ export const StudyList: FC<{
       <AppBar position="static">
         <Container
           sx={{
-            ["@media (min-width: 1280px)"]: {
+            "@media (min-width: 1280px)": {
               maxWidth: "100%",
             },
           }}
@@ -123,7 +143,7 @@ export const StudyList: FC<{
       </AppBar>
       <Container
         sx={{
-          ["@media (min-width: 1280px)"]: {
+          "@media (min-width: 1280px)": {
             maxWidth: "100%",
           },
         }}
@@ -131,26 +151,23 @@ export const StudyList: FC<{
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
             <Box sx={{ display: "flex" }}>
-              <DebouncedInputTextField
-                onChange={(s) => {
-                  setStudyFilterText(s)
+              <TextField
+                onChange={(e) => {
+                  setStudyFilterText(e.target.value)
                 }}
-                delay={500}
-                textFieldProps={{
-                  fullWidth: true,
-                  id: "search-study",
-                  variant: "outlined",
-                  placeholder: "Search study",
-                  sx: { maxWidth: 500 },
-                  InputProps: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <SvgIcon fontSize="small" color="action">
-                          <Search />
-                        </SvgIcon>
-                      </InputAdornment>
-                    ),
-                  },
+                id="search-study"
+                variant="outlined"
+                placeholder="Search study"
+                fullWidth
+                sx={{ maxWidth: 500 }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SvgIcon fontSize="small" color="action">
+                        <Search />
+                      </SvgIcon>
+                    </InputAdornment>
+                  ),
                 }}
               />
               {sortBySelect}
@@ -166,7 +183,7 @@ export const StudyList: FC<{
             >
               <CardActionArea component={Link} to={`/${idx}`}>
                 <CardContent>
-                  <Typography variant="h5">
+                  <Typography variant="h5" sx={{ wordBreak: "break-all" }}>
                     {study.study_id}. {study.study_name}
                   </Typography>
                   <Typography
@@ -174,8 +191,9 @@ export const StudyList: FC<{
                     color="text.secondary"
                     component="div"
                   >
-                    {"Direction: " +
-                      study.directions.map((d) => d.toUpperCase()).join(", ")}
+                    {`Direction: ${study.directions
+                      .map((d) => d.toUpperCase())
+                      .join(", ")}`}
                   </Typography>
                 </CardContent>
               </CardActionArea>

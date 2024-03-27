@@ -4,16 +4,18 @@
 		"include": [
 			"optuna_dashboard/ts/**/*.ts",
 			"optuna_dashboard/ts/**/*.tsx",
-			"typescript_tests/**/*.ts",
-			"typescript_tests/**/*.tsx",
 			"standalone_app/src/**/*.ts",
 			"standalone_app/src/**/*.tsx",
 			"vscode/src/**/*.ts",
-			"vscode/src/**/*.tsx"
+			"vscode/src/**/*.tsx",
+			"tslib/**/*.ts",
+			"tslib/**/*.tsx",
+			"tslib/**/*.mjs"
 		],
 		"ignore": [
 			"optuna_dashboard/ts/components/PlotlyColorTemplates.ts",
-			"standalone_app/src/PlotlyDarkMode.ts"
+			"standalone_app/src/PlotlyDarkMode.ts",
+			"tslib/**/pkg/*"
 		]
 	},
 	"javascript": {

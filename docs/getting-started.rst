@@ -48,7 +48,7 @@ Please clone the git repository and execute following commands to build sdist pa
    # Node.js v16 is required to compile TypeScript files.
    $ npm install
    $ npm run build:prd
-   $ python setup.py sdist
+   $ python -m build --sdist
 
 Then you can install it like:
 
@@ -227,9 +227,6 @@ or install the code-server extension via `Open VSX <https://open-vsx.org/extensi
 
 To use, right-click the SQLite3 files (``*.db`` or ``*.sqlite3``) in the file explorer and select the "Open in Optuna Dashboard" from the dropdown menu.
 This extension leverages the browser-only version of Optuna Dashboard, so the same limitations apply.
-
-Please note that we have confirmed the behavior of the code-server extension can be unstable.
-When opening SQLite files, the dashboard may not appear on the first attempt, but it should be displayed upon a second try.
 
 Google Colaboratory
 -------------------

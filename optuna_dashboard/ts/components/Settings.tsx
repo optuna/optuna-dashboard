@@ -1,73 +1,147 @@
-import React, { FC, useState } from "react"
-
+import React from "react"
 import {
   Typography,
   Select,
+  Switch,
   MenuItem,
-  Grid,
   SelectChangeEvent,
+  Stack,
+  useTheme,
+  IconButton,
+  Box,
 } from "@mui/material"
+import ClearIcon from "@mui/icons-material/Clear"
+import { useRecoilState } from "recoil"
+import { plotlyColorThemeState, plotBackendRenderingState } from "../state"
 
-import { useRecoilValue, useSetRecoilState } from "recoil"
-import { plotlyColorTheme } from "../state"
+interface SettingsProps {
+  handleClose: () => void
+}
 
-export const Settings: FC = () => {
-  const colorTheme = useRecoilValue<PlotlyColorTheme>(plotlyColorTheme)
-  const setPlotlyColorTheme = useSetRecoilState(plotlyColorTheme)
-
-  const [darkModeColor, setDarkModeColor] = useState(colorTheme.dark)
-  const [lightModeColor, setLightModeColor] = useState(colorTheme.light)
+export const Settings = ({ handleClose }: SettingsProps) => {
+  const theme = useTheme()
+  const [plotlyColorTheme, setPlotlyColorTheme] = useRecoilState(
+    plotlyColorThemeState
+  )
+  const [plotBackendRendering, setPlotBackendRendering] = useRecoilState(
+    plotBackendRenderingState
+  )
 
   const handleDarkModeColorChange = (event: SelectChangeEvent) => {
-    setDarkModeColor(event.target.value)
-    setPlotlyColorTheme({ dark: event.target.value, light: lightModeColor })
+    const dark = event.target.value as PlotlyColorThemeDark
+    setPlotlyColorTheme((cur) => ({ ...cur, dark }))
   }
 
   const handleLightModeColorChange = (event: SelectChangeEvent) => {
-    setLightModeColor(event.target.value)
-    setPlotlyColorTheme({ dark: darkModeColor, light: event.target.value })
+    const light = event.target.value as PlotlyColorThemeLight
+    setPlotlyColorTheme((cur) => ({ ...cur, light }))
+  }
+
+  const togglePlotBackendRendering = () => {
+    setPlotBackendRendering((cur) => !cur)
   }
 
   return (
-    <Grid container spacing={4} sx={{ padding: "40px" }}>
-      <Grid item xs={12}>
-        <Typography variant="h3" gutterBottom color="textSecondary">
+    <Box component="div" sx={{ position: "relative" }}>
+      <Stack
+        spacing={4}
+        sx={{
+          p: "2rem",
+        }}
+      >
+        <Typography
+          variant="h4"
+          sx={{ fontWeight: theme.typography.fontWeightBold }}
+        >
           Settings
         </Typography>
-      </Grid>
-      <Grid item xs={12}>
-        <Typography variant="h5" gutterBottom color="textPrimary">
-          Plotly Color Scales
-        </Typography>
-      </Grid>
 
-      <Grid item xs={2}>
-        <Typography variant="h6" color="textSecondary">
-          Dark Mode
-        </Typography>
-      </Grid>
-      <Grid item xs={10} sx={{ display: "flex", alignItems: "center" }}>
-        <Select value={darkModeColor} onChange={handleDarkModeColorChange}>
-          <MenuItem value={"default"}>Default</MenuItem>
-          <MenuItem value={"seaborn"}>Seaborn</MenuItem>
-          <MenuItem value={"presentation"}>Presentation</MenuItem>
-          <MenuItem value={"ggplot2"}>GGPlot2</MenuItem>
-        </Select>
-      </Grid>
+        <Stack spacing={2}>
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: theme.typography.fontWeightBold }}
+          >
+            Plotly Color Scales
+          </Typography>
+          {theme.palette.mode === "dark" ? (
+            <>
+              <Stack direction="row" spacing={2} alignItems="center">
+                <Typography variant="h6">Dark Mode</Typography>
+                <Select
+                  disabled
+                  value={plotlyColorTheme.dark}
+                  onChange={handleDarkModeColorChange}
+                >
+                  {(
+                    [{ value: "default", label: "Default" }] as {
+                      value: PlotlyColorThemeDark
+                      label: string
+                    }[]
+                  ).map((v) => (
+                    <MenuItem key={v.value} value={v.value}>
+                      {v.label}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </Stack>
+              <Typography color="textSecondary">
+                Only the "Default" color scale is supported in dark mode
+              </Typography>
+            </>
+          ) : (
+            <Stack direction="row" spacing={2} alignItems="center">
+              <Typography variant="h6">Light Mode</Typography>
+              <Select
+                value={plotlyColorTheme.light}
+                onChange={handleLightModeColorChange}
+              >
+                {(
+                  [
+                    { value: "default", label: "Default" },
+                    { value: "seaborn", label: "Seaborn" },
+                    { value: "presentation", label: "Presentation" },
+                    { value: "ggplot2", label: "GGPlot2" },
+                  ] as {
+                    value: PlotlyColorThemeLight
+                    label: string
+                  }[]
+                ).map((v) => (
+                  <MenuItem key={v.value} value={v.value}>
+                    {v.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </Stack>
+          )}
+        </Stack>
 
-      <Grid item xs={2}>
-        <Typography variant="h6" color="textSecondary">
-          Light Mode
-        </Typography>
-      </Grid>
-      <Grid item xs={10} sx={{ display: "flex", alignItems: "center" }}>
-        <Select value={lightModeColor} onChange={handleLightModeColorChange}>
-          <MenuItem value={"default"}>Default</MenuItem>
-          <MenuItem value={"seaborn"}>Seaborn</MenuItem>
-          <MenuItem value={"presentation"}>Presentation</MenuItem>
-          <MenuItem value={"ggplot2"}>GGPlot2</MenuItem>
-        </Select>
-      </Grid>
-    </Grid>
+        <Stack>
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: theme.typography.fontWeightBold }}
+          >
+            Use Plotlypy
+          </Typography>
+          <Switch
+            checked={plotBackendRendering}
+            onChange={togglePlotBackendRendering}
+            value="enable"
+          />
+        </Stack>
+      </Stack>
+
+      <IconButton
+        sx={{
+          position: "absolute",
+          top: "1rem",
+          right: "1rem",
+          width: "2rem",
+          height: "2rem",
+        }}
+        onClick={handleClose}
+      >
+        <ClearIcon />
+      </IconButton>
+    </Box>
   )
 }
