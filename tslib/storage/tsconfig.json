@@ -1,0 +1,26 @@
+{
+    "compilerOptions": {
+        "isolatedModules": true,
+        "skipLibCheck": true,
+        "strictNullChecks": true,
+        "moduleResolution": "node",
+        "noUnusedLocals": true,
+        "noImplicitThis": true,
+        "alwaysStrict": true,
+        "noImplicitAny": true,
+        "lib": ["dom", "esnext"],
+        "module": "esnext",
+        "esModuleInterop": true,
+        "rootDir": "./src",
+        "outDir": "./pkg",
+        "allowSyntheticDefaultImports": true,
+        "target": "es2021",
+        "sourceMap": true,
+        "declaration": true,
+        "strict": true
+    },
+    "include": [
+        "src/**/*.ts"
+    ],
+    "types": ["node"]
+}

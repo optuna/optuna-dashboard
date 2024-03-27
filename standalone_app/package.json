@@ -25,7 +25,7 @@
     "@mui/icons-material": "^5.15.12",
     "@mui/lab": "^5.0.0-alpha.167",
     "@mui/material": "^5.15.12",
-    "@sqlite.org/sqlite-wasm": "^3.45.1-build1",
+    "@optuna/storage": "../tslib/storage",
     "module-workers-polyfill": "^0.3.2",
     "notistack": "^3.0.1",
     "optuna": "../rustlib/pkg",

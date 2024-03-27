@@ -1,0 +1,31 @@
+{
+  "name": "@optuna/storage",
+  "type": "module",
+  "private": true,
+  "version": "0.0.1",
+  "description": "Loaders for Optuna storages",
+  "main": "pkg/index.js",
+  "scripts": {
+    "build": "tsc -d",
+    "test": "node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/optuna/optuna-dashboard.git"
+  },
+  "keywords": [
+    "optuna"
+  ],
+  "author": "Optuna Development Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/optuna/optuna-dashboard/issues"
+  },
+  "homepage": "https://github.com/optuna/optuna-dashboard#readme",
+  "dependencies": {
+    "@sqlite.org/sqlite-wasm": "^3.45.1-build1"
+  },
+  "devDependencies": {
+    "@optuna/types": "../types/"
+  }
+}

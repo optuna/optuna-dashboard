@@ -1,6 +1,6 @@
+import { JournalFileStorage } from "@optuna/storage"
+import { SQLite3Storage } from "@optuna/storage"
 import React, { FC, createContext, useState } from "react"
-import { JournalFileStorage } from "../journalStorage"
-import { SQLite3Storage } from "../sqlite3"
 
 export const StorageContext = createContext<{
   storage: OptunaStorage | null

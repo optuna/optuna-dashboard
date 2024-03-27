@@ -51,6 +51,9 @@ jobs:
         working-directory: rustlib
         run: wasm-pack build --target web
 
+      - name: Build tslib
+        run: make tslib
+
       - name: Build standalone_app
         working-directory: standalone_app
         run: |

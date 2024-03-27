@@ -2,3 +2,4 @@ venv
 .venv
 standalone_app
 vscode
+tslib
