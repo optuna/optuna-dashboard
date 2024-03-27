@@ -26,6 +26,7 @@
 		"@mui/lab": "^5.0.0-alpha.167",
 		"@mui/material": "^5.15.12",
 		"@optuna/storage": "../tslib/storage",
+		"@optuna/storybook": "../tslib/storybook",
 		"module-workers-polyfill": "^0.3.2",
 		"notistack": "^3.0.1",
 		"optuna": "../rustlib/pkg",

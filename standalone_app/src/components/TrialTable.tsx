@@ -1,6 +1,6 @@
 import React, { FC } from "react"
-
-import { DataGrid, DataGridColumn } from "./DataGrid"
+import { DataGrid } from "@optuna/storybook"
+import { DataGridColumn } from "@optuna/storybook/types"
 
 export const TrialTable: FC<{
   study: Study
