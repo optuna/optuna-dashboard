@@ -1,6 +1,6 @@
+import { JournalFileStorage, SQLite3Storage } from "@optuna/storage";
+import * as Optuna from "@optuna/types";
 import { SetterOrUpdater } from "recoil";
-import { loadJournalStorage } from "./journalStorage";
-import { loadSQLite3Storage } from "./sqlite3";
 
 const readFile = async (file: File) => {
   return new Promise<ArrayBuffer>((resolve, reject) => {
@@ -17,16 +17,29 @@ const readFile = async (file: File) => {
   });
 };
 
+const loadStudiesFromStorage = async (
+  storage: SQLite3Storage | JournalFileStorage,
+  setter: SetterOrUpdater<Optuna.Study[]>,
+) => {
+  const studySummaries = await storage.getStudies();
+  const studies = (
+    await Promise.all(
+      studySummaries.map((_summary, index) => storage.getStudy(index)),
+    )
+  ).filter((s) => s !== null) as Optuna.Study[];
+  setter((prev) => [...prev, ...studies]);
+};
+
 export const loadStorageFromFile = async (
   file: File,
-  setStudies: SetterOrUpdater<Study[]>,
+  setStudies: SetterOrUpdater<Optuna.Study[]>,
 ) => {
-  const arrayBuffer = await readFile(file);
-  const header = new Uint8Array(arrayBuffer, 0, 16);
+  const arrayBuf = await readFile(file);
+  const header = new Uint8Array(arrayBuf, 0, 16);
   const headerString = new TextDecoder().decode(header);
   if (headerString === "SQLite format 3\u0000") {
-    await loadSQLite3Storage(arrayBuffer, setStudies);
+    await loadStudiesFromStorage(new SQLite3Storage(arrayBuf), setStudies);
   } else {
-    loadJournalStorage(arrayBuffer, setStudies);
+    await loadStudiesFromStorage(new JournalFileStorage(arrayBuf), setStudies);
   }
 };
