@@ -7,14 +7,16 @@
   "main": "pkg/index.js",
   "types": "types/index.d.ts",
   "scripts": {
-    "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc -d",
     "lint": "biome lint .",
-    "preview": "vite preview --port 5173",
     "fmt": "biome format --write .",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
+  "files": [
+    "pkg",
+    "types"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/optuna/optuna-dashboard.git"
