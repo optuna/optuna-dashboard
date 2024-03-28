@@ -116,11 +116,13 @@ export const StudyDetail: FC<{
             <GraphParallelCoordinate study={studyDetail} />
           </CardContent>
         </Card>
-        <Card sx={{ margin: theme.spacing(2) }}>
-          <CardContent>
-            <Contour study={studyDetail} />
-          </CardContent>
-        </Card>
+        {studyDetail !== null && studyDetail.trials.length <= 100 ? (
+          <Card sx={{ margin: theme.spacing(2) }}>
+            <CardContent>
+              <Contour study={studyDetail} />
+            </CardContent>
+          </Card>
+        ) : null}
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
             <GraphRank study={studyDetail} />
