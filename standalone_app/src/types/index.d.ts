@@ -2,7 +2,7 @@ declare const IS_VSCODE: boolean
 
 type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting"
 type TrialStateFinished = "Complete" | "Fail" | "Pruned"
-type StudyDirection = "maximize" | "minimize" | "not_set"
+type StudyDirection = "maximize" | "minimize"
 
 type OptunaStorage = {
   getStudies: () => Promise<StudySummary[]>

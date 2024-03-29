@@ -15,11 +15,10 @@ import {
 import Grid2 from "@mui/material/Unstable_Grid2"
 import React, { FC, useContext, useState, useEffect } from "react"
 import { Link, useParams } from "react-router-dom"
-import { PlotHistory } from "./PlotHistory"
 import { PlotImportance } from "./PlotImportance"
 import { PlotIntermediateValues } from "./PlotIntermediateValues"
 import { StorageContext } from "./StorageProvider"
-import { TrialTable } from "./TrialTable"
+import { PlotHistory, TrialTable } from "@optuna/storybook"
 
 export const StudyDetail: FC<{
   toggleColorMode: () => void
