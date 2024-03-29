@@ -114,7 +114,7 @@ export const useArtifacts = (studyId: number, trialId: number): Artifact[] => {
 }
 
 export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
-  const [theme, _] = usePlotlyColorThemeState()
+  const [theme] = usePlotlyColorThemeState()
   if (mode === "dark") {
     return DarkColorTemplates[theme.dark]
   } else {
@@ -123,7 +123,7 @@ export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
 }
 
 export const useBackendRender = (): boolean => {
-  const [plotBackendRendering, _] = usePlotBackendRendering()
+  const [plotBackendRendering] = usePlotBackendRendering()
   const plotlypyIsAvailable = useRecoilValue(plotlypyIsAvailableState)
 
   if (plotBackendRendering) {
