@@ -299,7 +299,7 @@ const plotHistory = (
       for (let i = 0; i < feasibleTrials.length; i++) {
         const t = feasibleTrials[i]
         const value = target.getTargetValue(t) as number
-        if (value === null) {
+        if (t.state !== "Complete") {
           continue
         } else if (currentBest === null) {
           currentBest = value
