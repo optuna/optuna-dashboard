@@ -24,7 +24,10 @@ export const PreferentialAnalytics: FC<{ studyId: number }> = ({ studyId }) => {
     { field: "value", label: "Value", sortable: true },
   ]
   return (
-    <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
+    <Box
+      component="div"
+      sx={{ display: "flex", width: "100%", flexDirection: "column" }}
+    >
       <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
         <Grid2 xs={14}>
           <Paper elevation={2} sx={{ padding: theme.spacing(2) }}>
