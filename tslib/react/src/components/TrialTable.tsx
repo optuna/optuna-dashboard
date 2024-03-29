@@ -1,13 +1,13 @@
-import { FC } from "react";
+import { FC } from "react"
 
-import * as Optuna from "@optuna/types";
-import { DataGrid, DataGridColumn } from "./DataGrid";
+import * as Optuna from "@optuna/types"
+import { DataGrid, DataGridColumn } from "./DataGrid"
 
 export const TrialTable: FC<{
-  study: Optuna.Study;
-  initialRowsPerPage?: number;
+  study: Optuna.Study
+  initialRowsPerPage?: number
 }> = ({ study, initialRowsPerPage }) => {
-  const trials: Optuna.Trial[] = study.trials;
+  const trials: Optuna.Trial[] = study.trials
 
   const columns: DataGridColumn<Optuna.Trial>[] = [
     { field: "number", label: "Number", sortable: true, padding: "none" },
@@ -19,7 +19,7 @@ export const TrialTable: FC<{
       padding: "none",
       toCellValue: (i) => trials[i].state.toString(),
     },
-  ];
+  ]
 
   if (study === null || study.directions.length === 1) {
     columns.push({
@@ -27,27 +27,27 @@ export const TrialTable: FC<{
       label: "Value",
       sortable: true,
       less: (firstEl, secondEl, ascending): number => {
-        const firstVal = firstEl.values?.[0];
-        const secondVal = secondEl.values?.[0];
+        const firstVal = firstEl.values?.[0]
+        const secondVal = secondEl.values?.[0]
 
         if (firstVal === secondVal) {
-          return 0;
+          return 0
         }
         if (firstVal === undefined) {
-          return ascending ? -1 : 1;
+          return ascending ? -1 : 1
         }
         if (secondVal === undefined) {
-          return ascending ? 1 : -1;
+          return ascending ? 1 : -1
         }
-        return firstVal < secondVal ? 1 : -1;
+        return firstVal < secondVal ? 1 : -1
       },
       toCellValue: (i) => {
         if (trials[i].values === undefined) {
-          return null;
+          return null
         }
-        return trials[i].values?.[0];
+        return trials[i].values?.[0]
       },
-    });
+    })
   } else {
     const objectiveColumns: DataGridColumn<Optuna.Trial>[] =
       study.directions.map((_s, objectiveId) => ({
@@ -55,31 +55,31 @@ export const TrialTable: FC<{
         label: `Objective ${objectiveId}`,
         sortable: true,
         less: (firstEl, secondEl, ascending): number => {
-          const firstVal = firstEl.values?.[objectiveId];
-          const secondVal = secondEl.values?.[objectiveId];
+          const firstVal = firstEl.values?.[objectiveId]
+          const secondVal = secondEl.values?.[objectiveId]
 
           if (firstVal === secondVal) {
-            return 0;
+            return 0
           }
           if (firstVal === undefined) {
-            return ascending ? -1 : 1;
+            return ascending ? -1 : 1
           }
           if (secondVal === undefined) {
-            return ascending ? 1 : -1;
+            return ascending ? 1 : -1
           }
-          return firstVal < secondVal ? 1 : -1;
+          return firstVal < secondVal ? 1 : -1
         },
         toCellValue: (i) => {
           if (trials[i].values === undefined) {
-            return null;
+            return null
           }
-          return trials[i].values?.[objectiveId];
+          return trials[i].values?.[objectiveId]
         },
-      }));
-    columns.push(...objectiveColumns);
+      }))
+    columns.push(...objectiveColumns)
   }
 
-  study.union_search_space.forEach((s) => {
+  for (const s of study.union_search_space) {
     columns.push({
       field: "params",
       label: `Param ${s.name}`,
@@ -90,27 +90,27 @@ export const TrialTable: FC<{
       filterable: false,
       less: (firstEl, secondEl): number => {
         const firstVal = firstEl.params.find(
-          (p) => p.name === s.name,
-        )?.param_internal_value;
+          (p) => p.name === s.name
+        )?.param_internal_value
         const secondVal = secondEl.params.find(
-          (p) => p.name === s.name,
-        )?.param_internal_value;
+          (p) => p.name === s.name
+        )?.param_internal_value
 
         if (firstVal === secondVal) {
-          return 0;
+          return 0
         }
         if (firstVal && secondVal) {
-          return firstVal < secondVal ? 1 : -1;
+          return firstVal < secondVal ? 1 : -1
         }
         if (firstVal) {
-          return -1;
+          return -1
         }
-        return 1;
+        return 1
       },
-    });
-  });
+    })
+  }
 
-  study.union_user_attrs.forEach((attr_spec) => {
+  for (const attr_spec of study.union_user_attrs) {
     columns.push({
       field: "user_attrs",
       label: `UserAttribute ${attr_spec.key}`,
@@ -121,25 +121,25 @@ export const TrialTable: FC<{
       filterable: false,
       less: (firstEl, secondEl): number => {
         const firstVal = firstEl.user_attrs.find(
-          (attr) => attr.key === attr_spec.key,
-        )?.value;
+          (attr) => attr.key === attr_spec.key
+        )?.value
         const secondVal = secondEl.user_attrs.find(
-          (attr) => attr.key === attr_spec.key,
-        )?.value;
+          (attr) => attr.key === attr_spec.key
+        )?.value
 
         if (firstVal === secondVal) {
-          return 0;
+          return 0
         }
         if (firstVal && secondVal) {
-          return firstVal < secondVal ? 1 : -1;
+          return firstVal < secondVal ? 1 : -1
         }
         if (firstVal) {
-          return -1;
+          return -1
         }
-        return 1;
+        return 1
       },
-    });
-  });
+    })
+  }
 
   return (
     <DataGrid<Optuna.Trial>
@@ -149,5 +149,5 @@ export const TrialTable: FC<{
       dense={false}
       initialRowsPerPage={initialRowsPerPage}
     />
-  );
-};
+  )
+}

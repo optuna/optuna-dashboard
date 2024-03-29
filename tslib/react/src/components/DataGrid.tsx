@@ -1,6 +1,6 @@
-import { Clear } from "@mui/icons-material";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
+import { Clear } from "@mui/icons-material"
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
+import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp"
 import {
   Collapse,
   IconButton,
@@ -13,128 +13,128 @@ import {
   TableRow,
   TableSortLabel,
   useTheme,
-} from "@mui/material";
-import { styled } from "@mui/system";
-import React from "react";
+} from "@mui/material"
+import { styled } from "@mui/system"
+import React from "react"
 
-type Order = "asc" | "desc";
+type Order = "asc" | "desc"
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-type Value = any;
+type Value = any
 
-const defaultRowsPerPageOption = [10, 50, 100, { label: "All", value: -1 }];
+const defaultRowsPerPageOption = [10, 50, 100, { label: "All", value: -1 }]
 
 interface DataGridColumn<T> {
-  field: keyof T;
-  label: string;
-  sortable?: boolean;
-  less?: (a: T, b: T, ascending: boolean) => number;
-  filterable?: boolean;
-  toCellValue?: (rowIndex: number) => string | React.ReactNode;
-  padding?: "normal" | "checkbox" | "none";
+  field: keyof T
+  label: string
+  sortable?: boolean
+  less?: (a: T, b: T, ascending: boolean) => number
+  filterable?: boolean
+  toCellValue?: (rowIndex: number) => string | React.ReactNode
+  padding?: "normal" | "checkbox" | "none"
 }
 
 interface RowFilter {
-  columnIdx: number;
-  value: Value;
+  columnIdx: number
+  value: Value
 }
 
 function DataGrid<T>(props: {
-  columns: DataGridColumn<T>[];
-  rows: T[];
-  keyField: keyof T;
-  dense?: boolean;
-  collapseBody?: (rowIndex: number) => React.ReactNode;
-  initialRowsPerPage?: number;
-  rowsPerPageOption?: Array<number | { value: number; label: string }>;
-  defaultFilter?: (row: T) => boolean;
+  columns: DataGridColumn<T>[]
+  rows: T[]
+  keyField: keyof T
+  dense?: boolean
+  collapseBody?: (rowIndex: number) => React.ReactNode
+  initialRowsPerPage?: number
+  rowsPerPageOption?: Array<number | { value: number; label: string }>
+  defaultFilter?: (row: T) => boolean
 }): React.ReactElement {
-  const { columns, rows, keyField, dense, collapseBody, defaultFilter } = props;
-  let { initialRowsPerPage, rowsPerPageOption } = props;
-  const [order, setOrder] = React.useState<Order>("asc");
-  const [orderBy, setOrderBy] = React.useState<number>(0); // index of columns
-  const [page, setPage] = React.useState(0);
-  const [filters, setFilters] = React.useState<RowFilter[]>([]);
+  const { columns, rows, keyField, dense, collapseBody, defaultFilter } = props
+  let { initialRowsPerPage, rowsPerPageOption } = props
+  const [order, setOrder] = React.useState<Order>("asc")
+  const [orderBy, setOrderBy] = React.useState<number>(0) // index of columns
+  const [page, setPage] = React.useState(0)
+  const [filters, setFilters] = React.useState<RowFilter[]>([])
 
   const getRowIndex = (row: T): number => {
-    return rows.findIndex((row2) => row[keyField] === row2[keyField]);
-  };
+    return rows.findIndex((row2) => row[keyField] === row2[keyField])
+  }
 
   // Pagination
-  rowsPerPageOption = rowsPerPageOption || defaultRowsPerPageOption;
+  rowsPerPageOption = rowsPerPageOption || defaultRowsPerPageOption
   initialRowsPerPage = initialRowsPerPage // use first element as default
     ? initialRowsPerPage
     : isNumber(rowsPerPageOption[0])
       ? rowsPerPageOption[0]
-      : rowsPerPageOption[0].value;
-  const [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage);
+      : rowsPerPageOption[0].value
+  const [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage)
 
   const handleChangePage = (_event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
+    setPage(newPage)
+  }
 
   const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
-  };
+    setRowsPerPage(parseInt(event.target.value, 10))
+    setPage(0)
+  }
 
   // Filtering
   const fieldAlreadyFiltered = (columnIdx: number): boolean =>
-    filters.some((f) => f.columnIdx === columnIdx);
+    filters.some((f) => f.columnIdx === columnIdx)
 
   const handleClickFilterCell = (columnIdx: number, value: Value) => {
     if (fieldAlreadyFiltered(columnIdx)) {
-      return;
+      return
     }
-    const newFilters = [...filters, { columnIdx: columnIdx, value: value }];
-    setFilters(newFilters);
-  };
+    const newFilters = [...filters, { columnIdx: columnIdx, value: value }]
+    setFilters(newFilters)
+  }
 
   const clearFilter = (columnIdx: number): void => {
-    setFilters(filters.filter((f) => f.columnIdx !== columnIdx));
-  };
+    setFilters(filters.filter((f) => f.columnIdx !== columnIdx))
+  }
 
   const filteredRows = rows.filter((row, rowIdx) => {
     if (defaultFilter?.(row)) {
-      return false;
+      return false
     }
     return filters.length === 0
       ? true
       : filters.some((f) => {
           if (columns.length <= f.columnIdx) {
             console.log(
-              `columnIdx=${f.columnIdx} must be smaller than columns.length=${columns.length}`,
-            );
-            return true;
+              `columnIdx=${f.columnIdx} must be smaller than columns.length=${columns.length}`
+            )
+            return true
           }
-          const toCellValue = columns[f.columnIdx].toCellValue;
+          const toCellValue = columns[f.columnIdx].toCellValue
           if (toCellValue !== undefined) {
-            return toCellValue(rowIdx) === f.value;
+            return toCellValue(rowIdx) === f.value
           }
-          const field = columns[f.columnIdx].field;
-          return row[field] === f.value;
-        });
-  });
+          const field = columns[f.columnIdx].field
+          return row[field] === f.value
+        })
+  })
 
   // Sorting
   const createSortHandler = (columnId: number) => () => {
-    const isAsc = orderBy === columnId && order === "asc";
-    setOrder(isAsc ? "desc" : "asc");
-    setOrderBy(columnId);
-  };
-  const sortedRows = stableSort<T>(filteredRows, order, orderBy, columns);
+    const isAsc = orderBy === columnId && order === "asc"
+    setOrder(isAsc ? "desc" : "asc")
+    setOrderBy(columnId)
+  }
+  const sortedRows = stableSort<T>(filteredRows, order, orderBy, columns)
   const currentPageRows =
     rowsPerPage > 0
       ? sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-      : sortedRows;
+      : sortedRows
   const emptyRows =
-    rowsPerPage - Math.min(rowsPerPage, sortedRows.length - page * rowsPerPage);
+    rowsPerPage - Math.min(rowsPerPage, sortedRows.length - page * rowsPerPage)
 
   const RootDiv = styled("div")({
     width: "100%",
-  });
+  })
   const HiddenSpan = styled("span")({
     border: 0,
     clip: "rect(0 0 0 0)",
@@ -145,10 +145,10 @@ function DataGrid<T>(props: {
     position: "absolute",
     top: 20,
     width: 1,
-  });
+  })
   const TableHeaderCellSpan = styled("span")({
     display: "inline-flex",
-  });
+  })
   return (
     <RootDiv>
       <TableContainer>
@@ -196,7 +196,7 @@ function DataGrid<T>(props: {
                         }
                         color="inherit"
                         onClick={() => {
-                          clearFilter(columnIdx);
+                          clearFilter(columnIdx)
                         }}
                       >
                         <Clear />
@@ -237,16 +237,16 @@ function DataGrid<T>(props: {
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
     </RootDiv>
-  );
+  )
 }
 
 function DataGridRow<T>(props: {
-  columns: DataGridColumn<T>[];
-  rowIndex: number;
-  row: T;
-  keyField: keyof T;
-  collapseBody?: (rowIndex: number) => React.ReactNode;
-  handleClickFilterCell: (columnIdx: number, value: Value) => void;
+  columns: DataGridColumn<T>[]
+  rowIndex: number
+  row: T
+  keyField: keyof T
+  collapseBody?: (rowIndex: number) => React.ReactNode
+  handleClickFilterCell: (columnIdx: number, value: Value) => void
 }) {
   const {
     columns,
@@ -255,15 +255,15 @@ function DataGridRow<T>(props: {
     keyField,
     collapseBody,
     handleClickFilterCell,
-  } = props;
-  const [open, setOpen] = React.useState(false);
-  const theme = useTheme();
+  } = props
+  const [open, setOpen] = React.useState(false)
+  const theme = useTheme()
 
   const FilterableDiv = styled("div")({
     color: theme.palette.primary.main,
     textDecoration: "underline",
     cursor: "pointer",
-  });
+  })
   return (
     <React.Fragment>
       <TableRow hover tabIndex={-1}>
@@ -282,7 +282,7 @@ function DataGridRow<T>(props: {
           const cellItem = column.toCellValue
             ? column.toCellValue(rowIndex)
             : // TODO(c-bata): Avoid this implicit type conversion.
-              (row[column.field] as number | string | null | undefined);
+              (row[column.field] as number | string | null | undefined)
 
           return column.filterable ? (
             <TableCell
@@ -292,8 +292,8 @@ function DataGridRow<T>(props: {
                 const value =
                   column.toCellValue !== undefined
                     ? column.toCellValue(rowIndex)
-                    : row[column.field];
-                handleClickFilterCell(columnIndex, value);
+                    : row[column.field]
+                handleClickFilterCell(columnIndex, value)
               }}
             >
               <FilterableDiv>{cellItem}</FilterableDiv>
@@ -305,7 +305,7 @@ function DataGridRow<T>(props: {
             >
               {cellItem}
             </TableCell>
-          );
+          )
         })}
       </TableRow>
       {collapseBody ? (
@@ -318,66 +318,66 @@ function DataGridRow<T>(props: {
         </TableRow>
       ) : null}
     </React.Fragment>
-  );
+  )
 }
 
 function getComparator<T>(
   order: Order,
   columns: DataGridColumn<T>[],
-  orderBy: number,
+  orderBy: number
 ): (a: T, b: T) => number {
   return order === "desc"
     ? (a, b) => descendingComparator<T>(a, b, columns, orderBy)
-    : (a, b) => -descendingComparator<T>(a, b, columns, orderBy);
+    : (a, b) => -descendingComparator<T>(a, b, columns, orderBy)
 }
 
 function descendingComparator<T>(
   a: T,
   b: T,
   columns: DataGridColumn<T>[],
-  orderBy: number,
+  orderBy: number
 ): number {
-  const field = columns[orderBy].field;
+  const field = columns[orderBy].field
   if (b[field] < a[field]) {
-    return -1;
+    return -1
   }
   if (b[field] > a[field]) {
-    return 1;
+    return 1
   }
-  return 0;
+  return 0
 }
 
 function stableSort<T>(
   array: T[],
   order: Order,
   orderBy: number,
-  columns: DataGridColumn<T>[],
+  columns: DataGridColumn<T>[]
 ) {
   // TODO(c-bata): Refactor here by implementing as the same comparator interface.
-  const less = columns[orderBy].less;
-  const comparator = getComparator(order, columns, orderBy);
-  const stabilizedThis = array.map((el, index) => [el, index] as [T, number]);
+  const less = columns[orderBy].less
+  const comparator = getComparator(order, columns, orderBy)
+  const stabilizedThis = array.map((el, index) => [el, index] as [T, number])
   stabilizedThis.sort((a, b) => {
     if (less) {
-      const ascending = order === "asc";
+      const ascending = order === "asc"
       const result = ascending
         ? -less(a[0], b[0], ascending)
-        : less(a[0], b[0], ascending);
-      if (result !== 0) return result;
+        : less(a[0], b[0], ascending)
+      if (result !== 0) return result
     } else {
-      const result = comparator(a[0], b[0]);
-      if (result !== 0) return result;
+      const result = comparator(a[0], b[0])
+      if (result !== 0) return result
     }
-    return a[1] - b[1];
-  });
-  return stabilizedThis.map((el) => el[0]);
+    return a[1] - b[1]
+  })
+  return stabilizedThis.map((el) => el[0])
 }
 
 const isNumber = (
-  rowsPerPage: number | { value: number; label: string },
+  rowsPerPage: number | { value: number; label: string }
 ): rowsPerPage is number => {
-  return typeof rowsPerPage === "number";
-};
+  return typeof rowsPerPage === "number"
+}
 
-export { DataGrid };
-export type { DataGridColumn };
+export { DataGrid }
+export type { DataGridColumn }

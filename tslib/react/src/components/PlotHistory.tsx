@@ -12,44 +12,43 @@ import {
   Switch,
   Typography,
   useTheme,
-} from "@mui/material";
-import * as Optuna from "@optuna/types";
-import * as plotly from "plotly.js-dist-min";
-import { ChangeEvent, FC, useEffect, useState } from "react";
-import { plotlyDarkTemplate } from "./PlotlyDarkMode";
+} from "@mui/material"
+import * as Optuna from "@optuna/types"
+import * as plotly from "plotly.js-dist-min"
+import { ChangeEvent, FC, useEffect, useState } from "react"
+import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
-const plotDomId = "plot-history";
+const plotDomId = "plot-history"
 
 export const PlotHistory: FC<{
-  study: Optuna.Study | null;
+  study: Optuna.Study | null
 }> = ({ study = null }) => {
-  const theme = useTheme();
-  const [xAxis, setXAxis] = useState<string>("number");
-  const [objectiveId, setObjectiveId] = useState<number>(0);
-  const [logScale, setLogScale] = useState<boolean>(false);
-  const [filterCompleteTrial, setFilterCompleteTrial] =
-    useState<boolean>(false);
-  const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false);
+  const theme = useTheme()
+  const [xAxis, setXAxis] = useState<string>("number")
+  const [objectiveId, setObjectiveId] = useState<number>(0)
+  const [logScale, setLogScale] = useState<boolean>(false)
+  const [filterCompleteTrial, setFilterCompleteTrial] = useState<boolean>(false)
+  const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
 
   const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
-    setObjectiveId(event.target.value as number);
-  };
+    setObjectiveId(event.target.value as number)
+  }
 
   const handleXAxisChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setXAxis(e.target.value);
-  };
+    setXAxis(e.target.value)
+  }
 
   const handleLogScaleChange = () => {
-    setLogScale(!logScale);
-  };
+    setLogScale(!logScale)
+  }
 
   const handleFilterCompleteChange = () => {
-    setFilterCompleteTrial(!filterCompleteTrial);
-  };
+    setFilterCompleteTrial(!filterCompleteTrial)
+  }
 
   const handleFilterPrunedChange = () => {
-    setFilterPrunedTrial(!filterPrunedTrial);
-  };
+    setFilterPrunedTrial(!filterPrunedTrial)
+  }
 
   useEffect(() => {
     if (study !== null) {
@@ -60,8 +59,8 @@ export const PlotHistory: FC<{
         logScale,
         filterCompleteTrial,
         filterPrunedTrial,
-        theme.palette.mode,
-      );
+        theme.palette.mode
+      )
     }
   }, [
     study,
@@ -71,7 +70,7 @@ export const PlotHistory: FC<{
     filterPrunedTrial,
     filterCompleteTrial,
     theme.palette.mode,
-  ]);
+  ])
 
   return (
     <Grid container direction="row">
@@ -169,22 +168,22 @@ export const PlotHistory: FC<{
         <div id={plotDomId} />
       </Grid>
     </Grid>
-  );
-};
+  )
+}
 
 const filterFunc = (trial: Optuna.Trial, objectiveId: number): boolean => {
   if (trial.state !== "Complete" && trial.state !== "Pruned") {
-    return false;
+    return false
   }
   if (trial.values === undefined) {
-    return false;
+    return false
   }
   return (
     trial.values.length > objectiveId &&
     trial.values[objectiveId] !== Infinity &&
     trial.values[objectiveId] !== -Infinity
-  );
-};
+  )
+}
 
 const plotHistory = (
   study: Optuna.Study,
@@ -193,10 +192,10 @@ const plotHistory = (
   logScale: boolean,
   filterCompleteTrial: boolean,
   filterPrunedTrial: boolean,
-  mode: string,
+  mode: string
 ) => {
   if (document.getElementById(plotDomId) === null) {
-    return;
+    return
   }
 
   const layout: Partial<plotly.Layout> = {
@@ -216,18 +215,18 @@ const plotHistory = (
     },
     showlegend: true,
     template: mode === "dark" ? plotlyDarkTemplate : {},
-  };
+  }
 
-  let filteredTrials = study.trials.filter((t) => filterFunc(t, objectiveId));
+  let filteredTrials = study.trials.filter((t) => filterFunc(t, objectiveId))
   if (filterCompleteTrial) {
-    filteredTrials = filteredTrials.filter((t) => t.state !== "Complete");
+    filteredTrials = filteredTrials.filter((t) => t.state !== "Complete")
   }
   if (filterPrunedTrial) {
-    filteredTrials = filteredTrials.filter((t) => t.state !== "Pruned");
+    filteredTrials = filteredTrials.filter((t) => t.state !== "Pruned")
   }
   if (filteredTrials.length === 0) {
-    plotly.react(plotDomId, [], layout);
-    return;
+    plotly.react(plotDomId, [], layout)
+    return
   }
 
   const getAxisX = (trial: Optuna.Trial): number | Date => {
@@ -235,71 +234,71 @@ const plotHistory = (
       ? trial.number
       : xAxis === "datetime_start"
         ? trial.datetime_start ?? new Date()
-        : trial.datetime_complete ?? new Date();
-  };
+        : trial.datetime_complete ?? new Date()
+  }
 
   const getValue = (
     trial: Optuna.Trial,
-    objectiveId: number,
+    objectiveId: number
   ): number | null => {
     if (
       objectiveId === null ||
       trial.values === undefined ||
       trial.values.length <= objectiveId
     ) {
-      return null;
+      return null
     }
-    const value = trial.values[objectiveId];
+    const value = trial.values[objectiveId]
     if (value === Infinity || value === -Infinity) {
-      return null;
+      return null
     }
-    return value;
-  };
+    return value
+  }
 
-  const xForLinePlot: (number | Date)[] = [];
-  const yForLinePlot: number[] = [];
-  let currentBest: number | null = null;
+  const xForLinePlot: (number | Date)[] = []
+  const yForLinePlot: number[] = []
+  let currentBest: number | null = null
   for (let i = 0; i < filteredTrials.length; i++) {
-    const t = filteredTrials[i];
-    const v = getValue(t, objectiveId) as number;
+    const t = filteredTrials[i]
+    const v = getValue(t, objectiveId) as number
     if (currentBest === null) {
-      currentBest = v;
-      xForLinePlot.push(getAxisX(t));
-      yForLinePlot.push(v);
+      currentBest = v
+      xForLinePlot.push(getAxisX(t))
+      yForLinePlot.push(v)
     } else if (
       study.directions[objectiveId] === "maximize" &&
       v > currentBest
     ) {
-      const p = filteredTrials[i - 1];
+      const p = filteredTrials[i - 1]
       if (!xForLinePlot.includes(getAxisX(p))) {
-        xForLinePlot.push(getAxisX(p));
-        yForLinePlot.push(currentBest);
+        xForLinePlot.push(getAxisX(p))
+        yForLinePlot.push(currentBest)
       }
-      currentBest = v;
-      xForLinePlot.push(getAxisX(t));
-      yForLinePlot.push(v);
+      currentBest = v
+      xForLinePlot.push(getAxisX(t))
+      yForLinePlot.push(v)
     } else if (
       study.directions[objectiveId] === "minimize" &&
       v < currentBest
     ) {
-      const p = filteredTrials[i - 1];
+      const p = filteredTrials[i - 1]
       if (!xForLinePlot.includes(getAxisX(p))) {
-        xForLinePlot.push(getAxisX(p));
-        yForLinePlot.push(currentBest);
+        xForLinePlot.push(getAxisX(p))
+        yForLinePlot.push(currentBest)
       }
-      currentBest = v;
-      xForLinePlot.push(getAxisX(t));
-      yForLinePlot.push(v);
+      currentBest = v
+      xForLinePlot.push(getAxisX(t))
+      yForLinePlot.push(v)
     }
   }
-  xForLinePlot.push(getAxisX(filteredTrials[filteredTrials.length - 1]));
-  yForLinePlot.push(yForLinePlot[yForLinePlot.length - 1]);
+  xForLinePlot.push(getAxisX(filteredTrials[filteredTrials.length - 1]))
+  yForLinePlot.push(yForLinePlot[yForLinePlot.length - 1])
 
   const plotData: Partial<plotly.PlotData>[] = [
     {
       x: filteredTrials.map(getAxisX),
       y: filteredTrials.map(
-        (t: Optuna.Trial): number => getValue(t, objectiveId) as number,
+        (t: Optuna.Trial): number => getValue(t, objectiveId) as number
       ),
       name: "Objective Value",
       mode: "markers",
@@ -312,6 +311,6 @@ const plotHistory = (
       mode: "lines",
       type: "scatter",
     },
-  ];
-  plotly.react(plotDomId, plotData, layout);
-};
+  ]
+  plotly.react(plotDomId, plotData, layout)
+}

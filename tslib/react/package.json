@@ -8,8 +8,6 @@
   "types": "types/index.d.ts",
   "scripts": {
     "build": "tsc -d",
-    "lint": "biome lint .",
-    "fmt": "biome format --write .",
     "storybook": "storybook dev -p 6006"
   },
   "files": [
@@ -39,7 +37,6 @@
     "recoil": "^0.7.7"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.5.3",
     "@optuna/types": "../types/",
     "@storybook/addon-essentials": "^8.0.4",
     "@storybook/addon-interactions": "^8.0.4",

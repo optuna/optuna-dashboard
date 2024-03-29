@@ -13,12 +13,12 @@ import {
   useTheme,
 } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2"
+import { PlotHistory, TrialTable } from "@optuna/react"
 import React, { FC, useContext, useState, useEffect } from "react"
 import { Link, useParams } from "react-router-dom"
 import { PlotImportance } from "./PlotImportance"
 import { PlotIntermediateValues } from "./PlotIntermediateValues"
 import { StorageContext } from "./StorageProvider"
-import { PlotHistory, TrialTable } from "@optuna/react"
 
 export const StudyDetail: FC<{
   toggleColorMode: () => void
