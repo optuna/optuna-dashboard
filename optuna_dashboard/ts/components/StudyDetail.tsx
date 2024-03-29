@@ -103,7 +103,14 @@ export const StudyDetail: FC<{
       <PreferentialAnalytics studyId={studyId} />
     ) : (
       <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
-        <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
+        <Typography
+          variant="h5"
+          sx={{
+            margin: theme.spacing(2),
+            marginTop: theme.spacing(4),
+            fontWeight: theme.typography.fontWeightBold,
+          }}
+        >
           Hyperparameter Relationships
         </Typography>
         <Card sx={{ margin: theme.spacing(2) }}>
@@ -126,10 +133,17 @@ export const StudyDetail: FC<{
             <GraphRank study={studyDetail} />
           </CardContent>
         </Card>
-        <Typography variant="h5" sx={{ margin: theme.spacing(2) }}>
+        <Typography
+          variant="h5"
+          sx={{
+            margin: theme.spacing(2),
+            marginTop: theme.spacing(4),
+            fontWeight: theme.typography.fontWeightBold,
+          }}
+        >
           Empirical Distribution of the Objective Value
         </Typography>
-        <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
+        <Grid2 container spacing={2} sx={{ padding: theme.spacing(2) }}>
           {studyDetail !== null
             ? studyDetail.directions.map((d, i) => (
                 <Grid2 xs={6} key={i}>
