@@ -21,3 +21,6 @@ types
 *.njsproj
 *.sln
 *.sw?
+
+# sample db
+!public/sample_db.sqlite3

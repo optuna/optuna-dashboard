@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { loadStorageFromFile } from "./utils/loadStorageFromFile";
 
 const fetchMockStudies = async () => {
-  const filePath = "db.sqlite3";
+  const filePath = "sample_db.sqlite3";
   const res = await fetch(filePath);
   const blob = await res.blob();
   const file = new File([blob], filePath);
