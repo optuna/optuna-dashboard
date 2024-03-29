@@ -1,5 +1,5 @@
 import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect, useState } from "react"
+import React, { FC, useEffect, useMemo, useState } from "react"
 import {
   Grid,
   FormControl,
@@ -10,6 +10,8 @@ import {
   SelectChangeEvent,
   useTheme,
   Box,
+  Stack,
+  Link,
 } from "@mui/material"
 import blue from "@mui/material/colors/blue"
 import { useMergedUnionSearchSpace } from "../searchSpace"
@@ -20,15 +22,62 @@ import { useBackendRender } from "../state"
 import { usePlot } from "../hooks/usePlot"
 
 const plotDomId = "graph-contour"
+const CONTOUR_DISABLED_THRESHOLD = 100
 
 export const Contour: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  if (useBackendRender()) {
-    return <ContourBackend study={study} />
-  } else {
-    return <ContourFrontend study={study} />
+  const isBackendRender = useBackendRender()
+  const [loadAnyway, setLoadAnyway] = useState(false)
+  const shouldContourDisabled = useMemo(
+    () => (study?.trials.length ?? 0) > CONTOUR_DISABLED_THRESHOLD,
+    [study]
+  )
+
+  if (shouldContourDisabled && !loadAnyway) {
+    return <DisabledContour onLoadAnywayClicked={() => setLoadAnyway(true)} />
   }
+  if (isBackendRender) {
+    return <ContourBackend study={study} />
+  }
+  return <ContourFrontend study={study} />
+}
+
+const DisabledContour: FC<{
+  onLoadAnywayClicked: () => void
+}> = ({ onLoadAnywayClicked }) => {
+  const theme = useTheme()
+  return (
+    <Box component="div" id={plotDomId}>
+      <Typography
+        variant="h6"
+        sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
+      >
+        Contour
+      </Typography>
+
+      <Stack
+        direction="column"
+        spacing={1}
+        alignItems="center"
+        sx={{
+          margin: "1em 0",
+        }}
+      >
+        <Typography variant="body1" color={theme.palette.grey[700]}>
+          High number of trials makes processing this plot slow; disabled by
+          default.
+        </Typography>
+        <Link
+          component="button"
+          sx={{ fontWeight: theme.typography.fontWeightBold }}
+          onClick={onLoadAnywayClicked}
+        >
+          Load plot anyway
+        </Link>
+      </Stack>
+    </Box>
+  )
 }
 
 const ContourBackend: FC<{
@@ -54,7 +103,7 @@ const ContourBackend: FC<{
     }
   }, [error])
 
-  return <Box id={plotDomId} sx={{ height: "450px" }} />
+  return <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
 }
 
 const ContourFrontend: FC<{
@@ -151,7 +200,7 @@ const ContourFrontend: FC<{
         ) : null}
       </Grid>
       <Grid item xs={9}>
-        <Box id={plotDomId} sx={{ height: "450px" }} />
+        <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
       </Grid>
     </Grid>
   )
