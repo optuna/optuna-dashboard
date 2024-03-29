@@ -12,7 +12,7 @@ import {
 } from "@mui/material"
 import ClearIcon from "@mui/icons-material/Clear"
 import { useRecoilState } from "recoil"
-import { plotlyColorThemeState, plotBackendRenderingState } from "../state"
+import { plotBackendRenderingState, usePlotlyColorThemeState } from "../state"
 
 interface SettingsProps {
   handleClose: () => void
@@ -20,9 +20,7 @@ interface SettingsProps {
 
 export const Settings = ({ handleClose }: SettingsProps) => {
   const theme = useTheme()
-  const [plotlyColorTheme, setPlotlyColorTheme] = useRecoilState(
-    plotlyColorThemeState
-  )
+  const [plotlyColorTheme, setPlotlyColorTheme] = usePlotlyColorThemeState()
   const [plotBackendRendering, setPlotBackendRendering] = useRecoilState(
     plotBackendRenderingState
   )
