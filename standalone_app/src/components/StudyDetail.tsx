@@ -18,7 +18,7 @@ import { Link, useParams } from "react-router-dom"
 import { PlotImportance } from "./PlotImportance"
 import { PlotIntermediateValues } from "./PlotIntermediateValues"
 import { StorageContext } from "./StorageProvider"
-import { PlotHistory, TrialTable } from "@optuna/storybook"
+import { PlotHistory, TrialTable } from "@optuna/react"
 
 export const StudyDetail: FC<{
   toggleColorMode: () => void

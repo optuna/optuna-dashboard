@@ -1,9 +1,9 @@
 {
-  "name": "@optuna/storybook",
+  "name": "@optuna/react",
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "description": "UI Storybook for Optuna-Dashboard",
+  "description": "UI packages for Optuna-Dashboard",
   "main": "pkg/index.js",
   "types": "types/index.d.ts",
   "scripts": {

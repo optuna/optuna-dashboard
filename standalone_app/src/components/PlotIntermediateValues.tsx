@@ -1,5 +1,5 @@
 import { Box, Typography, useTheme } from "@mui/material"
-import { plotlyDarkTemplate } from "@optuna/storybook"
+import { plotlyDarkTemplate } from "@optuna/react"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
 
