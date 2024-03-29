@@ -43,11 +43,6 @@ export const artifactIsAvailable = atom<boolean>({
   default: false,
 })
 
-export const plotBackendRenderingState = atom<boolean>({
-  key: "plotBackendRendering",
-  default: false,
-})
-
 export const plotlypyIsAvailableState = atom<boolean>({
   key: "plotlypyIsAvailable",
   default: true,
@@ -62,6 +57,10 @@ export const studyDetailLoadingState = atom<Record<number, boolean>>({
   key: "studyDetailLoading",
   default: {},
 })
+
+export const usePlotBackendRendering = () => {
+  return useLocalStorage<boolean>("plotBackendRendering", false)
+}
 
 export const usePlotlyColorThemeState = () => {
   return useLocalStorage<PlotlyColorTheme>("plotlyColorTheme", {
@@ -124,7 +123,7 @@ export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
 }
 
 export const useBackendRender = (): boolean => {
-  const plotBackendRendering = useRecoilValue(plotBackendRenderingState)
+  const [plotBackendRendering, _] = usePlotBackendRendering()
   const plotlypyIsAvailable = useRecoilValue(plotlypyIsAvailableState)
 
   if (plotBackendRendering) {

@@ -11,8 +11,7 @@ import {
   Box,
 } from "@mui/material"
 import ClearIcon from "@mui/icons-material/Clear"
-import { useRecoilState } from "recoil"
-import { plotBackendRenderingState, usePlotlyColorThemeState } from "../state"
+import { usePlotBackendRendering, usePlotlyColorThemeState } from "../state"
 
 interface SettingsProps {
   handleClose: () => void
@@ -21,9 +20,8 @@ interface SettingsProps {
 export const Settings = ({ handleClose }: SettingsProps) => {
   const theme = useTheme()
   const [plotlyColorTheme, setPlotlyColorTheme] = usePlotlyColorThemeState()
-  const [plotBackendRendering, setPlotBackendRendering] = useRecoilState(
-    plotBackendRenderingState
-  )
+  const [plotBackendRendering, setPlotBackendRendering] =
+    usePlotBackendRendering()
 
   const handleDarkModeColorChange = (event: SelectChangeEvent) => {
     const dark = event.target.value as PlotlyColorThemeDark
