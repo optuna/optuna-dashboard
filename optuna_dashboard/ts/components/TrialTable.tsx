@@ -1,3 +1,13 @@
+import React, { FC } from "react"
+import {
+  IconButton,
+  Button,
+  useTheme,
+  TableSortLabel,
+  Menu,
+  MenuItem,
+} from "@mui/material"
+import LinkIcon from "@mui/icons-material/Link"
 import DownloadIcon from "@mui/icons-material/Download"
 import LinkIcon from "@mui/icons-material/Link"
 import { Button, IconButton, useTheme } from "@mui/material"
@@ -21,12 +31,11 @@ import FirstPageIcon from "@mui/icons-material/FirstPage"
 import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft"
 import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight"
 import LastPageIcon from "@mui/icons-material/LastPage"
-
-import {
-  TiArrowSortedDown,
-  TiArrowSortedUp,
-  TiArrowUnsorted,
-} from "react-icons/ti"
+import { styled } from "@mui/system"
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
+import CheckBoxIcon from "@mui/icons-material/CheckBox"
+import FilterListIcon from "@mui/icons-material/FilterList"
+import ListItemIcon from "@mui/material/ListItemIcon"
 
 import {
   ColumnDef,
@@ -35,9 +44,40 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   getPaginationRowModel,
+  getFilteredRowModel,
+  getFacetedUniqueValues,
   SortingState,
+  ColumnFiltersState,
   useReactTable,
+  Row,
+  IdType,
+  FilterFn,
 } from "@tanstack/react-table"
+
+const TableHeaderCellSpan = styled("span")({
+  display: "inline-flex",
+})
+
+const HiddenSpan = styled("span")({
+  border: 0,
+  clip: "rect(0 0 0 0)",
+  height: 1,
+  margin: -1,
+  overflow: "hidden",
+  padding: 0,
+  position: "absolute",
+  top: 20,
+  width: 1,
+})
+
+const multiValueFilter: FilterFn<any> = <D extends object>(
+  row: Row<D>,
+  columnId: IdType<D>,
+  filterValue: string[]
+) => {
+  const rowValue = row.getValue(columnId) as string
+  return !filterValue.includes(rowValue)
+}
 
 const TablePaginationActions = (props: TablePaginationActionsProps) => {
   const theme = useTheme()
@@ -115,19 +155,28 @@ function BasicTable(props: {
 }): React.ReactElement {
   const { data, columns } = props
   const [sorting, setSorting] = React.useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  )
+  const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
+    React.useState<null | HTMLElement>(null)
 
   const table = useReactTable({
     data,
     columns,
     state: {
+      columnFilters,
       sorting,
     },
+    onColumnFiltersChange: setColumnFilters,
     onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     //
-    debugTable: true,
+    // debugTable: true,
   })
 
   const { pageSize, pageIndex } = table.getState().pagination
@@ -140,38 +189,97 @@ function BasicTable(props: {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
+                  const order = header.column.getIsSorted()
+                  const filterChoices = header.column.getCanFilter()
+                    ? Array.from(
+                        header.column.getFacetedUniqueValues().keys()
+                      ).sort()
+                    : []
+                  if (
+                    header.column.getCanFilter() &&
+                    !header.column.getIsFiltered()
+                  ) {
+                    header.column.setFilterValue([])
+                  }
                   return (
                     <TableCell key={header.id} colSpan={header.colSpan}>
                       {header.isPlaceholder ? null : (
-                        <div
-                          className={
-                            header.column.getCanSort()
-                              ? "cursor-pointer select-none"
-                              : ""
-                          }
-                          onClick={header.column.getToggleSortingHandler()}
-                          title={
-                            header.column.getCanSort()
-                              ? header.column.getNextSortingOrder() === "asc"
-                                ? "Sort ascending"
-                                : header.column.getNextSortingOrder() === "desc"
-                                  ? "Sort descending"
-                                  : "Clear sort"
-                              : undefined
-                          }
-                        >
-                          {flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
+                        <TableHeaderCellSpan>
+                          {header.column.getCanSort() ? (
+                            <TableSortLabel
+                              active={order !== false}
+                              direction={order || "asc"}
+                              onClick={header.column.getToggleSortingHandler()}
+                            >
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                              {order !== null ? (
+                                <HiddenSpan>
+                                  {order === "desc"
+                                    ? "sorted descending"
+                                    : "sorted ascending"}
+                                </HiddenSpan>
+                              ) : null}
+                            </TableSortLabel>
+                          ) : (
+                            flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )
                           )}
-                          {header.column.getCanSort()
-                            ? {
-                                asc: <TiArrowSortedUp />,
-                                desc: <TiArrowSortedDown />,
-                                false: <TiArrowUnsorted />,
-                              }[header.column.getIsSorted() as string]
-                            : null}
-                        </div>
+                          {header.column.getCanFilter() ? (
+                            <>
+                              <IconButton
+                                size="small"
+                                onClick={(e) => {
+                                  setFilterMenuAnchorEl(e.currentTarget)
+                                }}
+                              >
+                                <FilterListIcon fontSize="small" />
+                              </IconButton>
+                              <Menu
+                                anchorEl={filterMenuAnchorEl}
+                                open={filterMenuAnchorEl !== null}
+                                onClose={() => {
+                                  setFilterMenuAnchorEl(null)
+                                }}
+                              >
+                                {filterChoices.map((choice) => (
+                                  <MenuItem
+                                    key={choice}
+                                    onClick={() => {
+                                      const skippedValues =
+                                        header.column.getFilterValue() as string[]
+                                      const isSkipped =
+                                        skippedValues.includes(choice)
+                                      const newSkippedValues = isSkipped
+                                        ? skippedValues.filter(
+                                            (v) => v !== choice
+                                          )
+                                        : skippedValues.concat(choice)
+                                      header.column.setFilterValue(
+                                        newSkippedValues
+                                      )
+                                    }}
+                                  >
+                                    <ListItemIcon>
+                                      {(
+                                        header.column.getFilterValue() as string[]
+                                      ).includes(choice) ? (
+                                        <CheckBoxOutlineBlankIcon color="primary" />
+                                      ) : (
+                                        <CheckBoxIcon color="primary" />
+                                      )}
+                                    </ListItemIcon>
+                                    {choice ?? "(missing value)"}
+                                  </MenuItem>
+                                ))}
+                              </Menu>
+                            </>
+                          ) : null}
+                        </TableHeaderCellSpan>
                       )}
                     </TableCell>
                   )
@@ -249,11 +357,13 @@ export const TrialTable: FC<{
     columnHelper.accessor("number", {
       header: "Number",
       footer: (info) => info.column.id,
+      enableColumnFilter: false,
     }),
     columnHelper.accessor("state", {
       header: "State",
       footer: (info) => info.column.id,
       enableSorting: false,
+      filterFn: multiValueFilter,
     }),
   ]
   const valueComparator = (
@@ -294,6 +404,7 @@ export const TrialTable: FC<{
       columnHelper.accessor("values", {
         header: "Value",
         footer: (info) => info.column.id,
+        enableColumnFilter: false,
       })
     )
   } else {
@@ -326,6 +437,7 @@ export const TrialTable: FC<{
           id: `values_${objectiveId}`,
           header: `Objective ${objectiveId}`,
           footer: (info) => info.column.id,
+          enableColumnFilter: false,
         })
       )
     )
@@ -372,6 +484,7 @@ export const TrialTable: FC<{
           info.getValue().find((p) => p.name === s.name)
             ?.param_external_value || null,
         footer: (info) => info.column.id,
+        enableColumnFilter: false,
       })
     )
   })
@@ -405,6 +518,7 @@ export const TrialTable: FC<{
         cell: (info) =>
           info.getValue().find((a) => a.key === attr_spec.key)?.value || null,
         footer: (info) => info.column.id,
+        enableColumnFilter: false,
       })
     )
   })
@@ -447,6 +561,7 @@ export const TrialTable: FC<{
       ),
       footer: (info) => info.column.id,
       enableSorting: false,
+      enableColumnFilter: false,
     })
   )
 
