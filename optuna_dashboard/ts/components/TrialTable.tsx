@@ -181,6 +181,12 @@ function BasicTable(props: {
 
   const { pageSize, pageIndex } = table.getState().pagination
 
+  React.useEffect(() => {
+    return () => {
+      table.resetColumnFilters()
+    }
+  }, [])
+
   return (
     <Box sx={{ width: "100%" }}>
       <TableContainer component={Paper}>
@@ -200,6 +206,7 @@ function BasicTable(props: {
                     !header.column.getIsFiltered()
                   ) {
                     header.column.setFilterValue([])
+                    console.log(header.column.getFilterValue())
                   }
                   return (
                     <TableCell key={header.id} colSpan={header.colSpan}>
@@ -363,6 +370,8 @@ export const TrialTable: FC<{
       header: "State",
       footer: (info) => info.column.id,
       enableSorting: false,
+      // enableColumnFilter: true,
+      enableColumnFilter: false,
       filterFn: multiValueFilter,
     }),
   ]
@@ -477,15 +486,20 @@ export const TrialTable: FC<{
       },
     })
     tcolumns.push(
-      columnHelper.accessor("params", {
-        id: `params_${s.name}`,
-        header: `Param ${s.name}`,
-        cell: (info) =>
-          info.getValue().find((p) => p.name === s.name)
-            ?.param_external_value || null,
-        footer: (info) => info.column.id,
-        enableColumnFilter: false,
-      })
+      columnHelper.accessor(
+        (row) =>
+          row["params"].find((p) => p.name === s.name)?.param_external_value ||
+          null,
+        {
+          id: `params_${s.name}`,
+          header: `Param ${s.name}`,
+          footer: (info) => info.column.id,
+          enableSorting: sortable,
+          // enableColumnFilter: filterChoices !== undefined,
+          enableColumnFilter: false,
+          filterFn: multiValueFilter,
+        }
+      )
     )
   })
 
@@ -512,14 +526,17 @@ export const TrialTable: FC<{
       },
     })
     tcolumns.push(
-      columnHelper.accessor("user_attrs", {
-        id: `user_attrs_${attr_spec.key}`,
-        header: `UserAttribute ${attr_spec.key}`,
-        cell: (info) =>
-          info.getValue().find((a) => a.key === attr_spec.key)?.value || null,
-        footer: (info) => info.column.id,
-        enableColumnFilter: false,
-      })
+      columnHelper.accessor(
+        (row) =>
+          row["user_attrs"].find((a) => a.key === attr_spec.key)?.value || null,
+        {
+          id: `user_attrs_${attr_spec.key}`,
+          header: `UserAttribute ${attr_spec.key}`,
+          footer: (info) => info.column.id,
+          enableSorting: attr_spec.sortable,
+          enableColumnFilter: false,
+        }
+      )
     )
   })
   columns.push({
