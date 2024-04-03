@@ -1,9 +1,9 @@
 import { Box, Typography, useTheme } from "@mui/material"
+import { plotlyDarkTemplate } from "@optuna/react"
 import init, { wasm_fanova_calculate } from "optuna"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
 
-import { plotlyDarkTemplate } from "../PlotlyDarkMode"
 const plotDomId = "graph-hyperparameter-importances"
 
 export const PlotImportance: FC<{ study: Study }> = ({ study }) => {

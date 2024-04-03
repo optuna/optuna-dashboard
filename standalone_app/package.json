@@ -25,6 +25,7 @@
     "@mui/icons-material": "^5.15.12",
     "@mui/lab": "^5.0.0-alpha.167",
     "@mui/material": "^5.15.12",
+    "@optuna/react": "../tslib/react",
     "@optuna/storage": "../tslib/storage",
     "module-workers-polyfill": "^0.3.2",
     "notistack": "^3.0.1",
@@ -33,5 +34,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.22.3"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-linux-x64-gnu": "^4.13.2"
   }
 }

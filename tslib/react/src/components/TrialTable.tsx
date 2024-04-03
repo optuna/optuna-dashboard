@@ -1,14 +1,15 @@
-import React, { FC } from "react"
+import { FC } from "react"
 
+import * as Optuna from "@optuna/types"
 import { DataGrid, DataGridColumn } from "./DataGrid"
 
 export const TrialTable: FC<{
-  study: Study
+  study: Optuna.Study
   initialRowsPerPage?: number
 }> = ({ study, initialRowsPerPage }) => {
-  const trials: Trial[] = study.trials
+  const trials: Optuna.Trial[] = study.trials
 
-  const columns: DataGridColumn<Trial>[] = [
+  const columns: DataGridColumn<Optuna.Trial>[] = [
     { field: "number", label: "Number", sortable: true, padding: "none" },
     {
       field: "state",
@@ -48,8 +49,8 @@ export const TrialTable: FC<{
       },
     })
   } else {
-    const objectiveColumns: DataGridColumn<Trial>[] = study.directions.map(
-      (s, objectiveId) => ({
+    const objectiveColumns: DataGridColumn<Optuna.Trial>[] =
+      study.directions.map((_s, objectiveId) => ({
         field: "values",
         label: `Objective ${objectiveId}`,
         sortable: true,
@@ -74,13 +75,11 @@ export const TrialTable: FC<{
           }
           return trials[i].values?.[objectiveId]
         },
-      })
-    )
+      }))
     columns.push(...objectiveColumns)
   }
 
-  // biome-ignore lint/complexity/noForEach: <explanation>
-  study.union_search_space.forEach((s) => {
+  for (const s of study.union_search_space) {
     columns.push({
       field: "params",
       label: `Param ${s.name}`,
@@ -109,10 +108,9 @@ export const TrialTable: FC<{
         return 1
       },
     })
-  })
+  }
 
-  // biome-ignore lint/complexity/noForEach: <explanation>
-  study.union_user_attrs.forEach((attr_spec) => {
+  for (const attr_spec of study.union_user_attrs) {
     columns.push({
       field: "user_attrs",
       label: `UserAttribute ${attr_spec.key}`,
@@ -141,10 +139,10 @@ export const TrialTable: FC<{
         return 1
       },
     })
-  })
+  }
 
   return (
-    <DataGrid<Trial>
+    <DataGrid<Optuna.Trial>
       columns={columns}
       rows={trials}
       keyField={"trial_id"}

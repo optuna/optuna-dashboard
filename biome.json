@@ -14,7 +14,7 @@
 		],
 		"ignore": [
 			"optuna_dashboard/ts/components/PlotlyColorTemplates.ts",
-			"standalone_app/src/PlotlyDarkMode.ts",
+			"tslib/react/src/components/PlotlyDarkMode.ts",
 			"tslib/**/pkg/*"
 		]
 	},

@@ -22,6 +22,7 @@ $(DASHBOARD_TS_OUT): $(DASHBOARD_TS_SRC)
 tslib:
 	cd tslib/types && npm i && npm run build
 	cd tslib/storage && npm i && npm run build
+	cd tslib/react && npm i && npm run build
 
 .PHONY: serve-browser-app
 serve-browser-app: tslib $(RUSTLIB_OUT)
@@ -51,6 +52,6 @@ fmt:
 
 .PHONY: clean
 clean:
-	rm -rf tslib/types/pkg tslib/storage/pkg
+	rm -rf tslib/types/pkg tslib/storage/pkg tslib/react/pkg tslib/react/types
 	rm -rf optuna_dashboard/public/ doc/_build/
 	rm -rf rustlib/pkg standalone_app/public/ vscode/assets/ vscode/*.vsix
