@@ -340,7 +340,31 @@ const loadJournalStorage = (arrayBuffer: ArrayBuffer): Optuna.Study[] => {
     if (log === "") {
       continue
     }
-    const parsedLog: JournalOpBase = JSON.parse(log)
+
+    const parsedLog: JournalOpBase = (() => {
+      try {
+        return JSON.parse(log)
+      } catch (error) {
+        if (error instanceof SyntaxError) {
+          let escapedLog: string = log.replace(/NaN/g, '"***nan***"')
+          escapedLog = escapedLog.replace(/-Infinity/g, '"***-inf***"')
+          escapedLog = escapedLog.replace(/Infinity/g, '"***inf***"')
+          return JSON.parse(escapedLog, (_key, value) => {
+              switch (value) {
+                case "***nan***":
+                  return NaN
+                case "***-inf***":
+                  return -Infinity
+                case "***inf***":
+                  return Infinity
+                default:
+                  return value
+              }
+            })
+        }
+      }
+    })()
+    
     switch (parsedLog.op_code) {
       case JournalOperation.CREATE_STUDY:
         journalStorage.applyCreateStudy(parsedLog as JournalOpCreateStudy)
