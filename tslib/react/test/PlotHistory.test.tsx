@@ -1,8 +1,8 @@
+import * as Optuna from "@optuna/types"
 import { render, screen } from "@testing-library/react"
 import React from "react"
-import * as Optuna from "@optuna/types"
+import { describe, expect, test } from "vitest"
 import { PlotHistory } from "../src/components/PlotHistory"
-import { describe, test, expect } from "vitest"
 
 describe("PlotHistory Tests", async () => {
   const setup = ({
