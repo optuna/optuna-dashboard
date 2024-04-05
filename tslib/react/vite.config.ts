@@ -11,7 +11,7 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: "jsdom",
-    setupFiles: ["./test/setup_studies.ts"],
+    setupFiles: ["./test/vitest_setup.ts", "./test/setup_studies.ts"],
   },
   optimizeDeps: {
     exclude: ["@sqlite.org/sqlite-wasm"],

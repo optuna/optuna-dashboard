@@ -26,7 +26,9 @@ describe("TrialTable Tests", async () => {
   for (const study of window.mockStudies) {
     test(`TrialTable (studyId: ${study.study_id})`, () => {
       setup({ study, dataTestId: `trial-table-${study.study_id}` })
-      expect(screen.getByTestId(`trial-table-${study.study_id}`)).toBeTruthy()
+      expect(
+        screen.getByTestId(`trial-table-${study.study_id}`)
+      ).toBeInTheDocument()
     })
   }
 })
