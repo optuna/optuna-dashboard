@@ -289,7 +289,7 @@ class JournalStorage {
       return
     }
     thisTrial.state = trialStateNumToTrialState(log.state)
-    thisTrial.values = log.values
+    thisTrial.values = log.values === null ? undefined : log.values
     thisTrial.datetime_start = log.datetime_start
       ? new Date(log.datetime_start)
       : undefined
@@ -350,21 +350,21 @@ const loadJournalStorage = (arrayBuffer: ArrayBuffer): Optuna.Study[] => {
           escapedLog = escapedLog.replace(/-Infinity/g, '"***-inf***"')
           escapedLog = escapedLog.replace(/Infinity/g, '"***inf***"')
           return JSON.parse(escapedLog, (_key, value) => {
-              switch (value) {
-                case "***nan***":
-                  return NaN
-                case "***-inf***":
-                  return -Infinity
-                case "***inf***":
-                  return Infinity
-                default:
-                  return value
-              }
-            })
+            switch (value) {
+              case "***nan***":
+                return NaN
+              case "***-inf***":
+                return -Infinity
+              case "***inf***":
+                return Infinity
+              default:
+                return value
+            }
+          })
         }
       }
     })()
-    
+
     switch (parsedLog.op_code) {
       case JournalOperation.CREATE_STUDY:
         journalStorage.applyCreateStudy(parsedLog as JournalOpCreateStudy)
