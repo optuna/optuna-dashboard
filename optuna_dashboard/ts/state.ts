@@ -3,6 +3,7 @@ import {
   LightColorTemplates,
   DarkColorTemplates,
 } from "./components/PlotlyColorTemplates"
+import { useLocalStorage } from "usehooks-ts"
 
 export const studySummariesState = atom<StudySummary[]>({
   key: "studySummaries",
@@ -42,19 +43,6 @@ export const artifactIsAvailable = atom<boolean>({
   default: false,
 })
 
-export const plotlyColorThemeState = atom<PlotlyColorTheme>({
-  key: "plotlyColorThemeState",
-  default: {
-    dark: "default",
-    light: "default",
-  },
-})
-
-export const plotBackendRenderingState = atom<boolean>({
-  key: "plotBackendRendering",
-  default: false,
-})
-
 export const plotlypyIsAvailableState = atom<boolean>({
   key: "plotlypyIsAvailable",
   default: true,
@@ -69,6 +57,17 @@ export const studyDetailLoadingState = atom<Record<number, boolean>>({
   key: "studyDetailLoading",
   default: {},
 })
+
+export const usePlotBackendRendering = () => {
+  return useLocalStorage<boolean>("plotBackendRendering", false)
+}
+
+export const usePlotlyColorThemeState = () => {
+  return useLocalStorage<PlotlyColorTheme>("plotlyColorTheme", {
+    dark: "default",
+    light: "default",
+  })
+}
 
 export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
   const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
@@ -115,7 +114,7 @@ export const useArtifacts = (studyId: number, trialId: number): Artifact[] => {
 }
 
 export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
-  const theme = useRecoilValue(plotlyColorThemeState)
+  const [theme] = usePlotlyColorThemeState()
   if (mode === "dark") {
     return DarkColorTemplates[theme.dark]
   } else {
@@ -124,7 +123,7 @@ export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
 }
 
 export const useBackendRender = (): boolean => {
-  const plotBackendRendering = useRecoilValue(plotBackendRenderingState)
+  const [plotBackendRendering] = usePlotBackendRendering()
   const plotlypyIsAvailable = useRecoilValue(plotlypyIsAvailableState)
 
   if (plotBackendRendering) {
