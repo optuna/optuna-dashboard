@@ -1,7 +1,9 @@
 import { Meta, StoryObj } from "@storybook/react"
 import { useMockStudy } from "../MockStudies"
 import { PlotHistory } from "./PlotHistory"
+import { lightTheme } from "../styles/lightTheme"
 import React from "react"
+import { CssBaseline, ThemeProvider } from "@mui/material"
 
 const meta: Meta<typeof PlotHistory> = {
   component: PlotHistory,
@@ -12,11 +14,14 @@ const meta: Meta<typeof PlotHistory> = {
       const study = useMockStudy(storyContext.parameters?.studyId)
       if (!study) return <p>loading...</p>
       return (
-        <Story
-          args={{
-            study,
-          }}
-        />
+        <ThemeProvider theme={lightTheme}>
+          <CssBaseline />
+          <Story
+            args={{
+              study,
+            }}
+          />
+        </ThemeProvider>
       )
     },
   ],

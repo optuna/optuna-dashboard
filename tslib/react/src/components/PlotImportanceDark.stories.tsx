@@ -2,7 +2,7 @@ import { Meta, StoryObj } from "@storybook/react"
 import { useMockStudy } from "../MockStudies"
 import { PlotImportance } from "./PlotImportance"
 import React from "react"
-import { ThemeProvider } from "@mui/material"
+import { CssBaseline, ThemeProvider } from "@mui/material"
 import { darkTheme } from "../styles/darkTheme"
 
 const meta: Meta<typeof PlotImportance> = {
@@ -15,6 +15,7 @@ const meta: Meta<typeof PlotImportance> = {
       if (!study) return <p>loading...</p>
       return (
         <ThemeProvider theme={darkTheme}>
+          <CssBaseline />
           <Story
             args={{
               study,

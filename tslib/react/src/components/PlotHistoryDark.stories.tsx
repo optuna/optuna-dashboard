@@ -1,4 +1,4 @@
-import { ThemeProvider } from "@mui/material"
+import { CssBaseline, ThemeProvider } from "@mui/material"
 import { Meta, StoryObj } from "@storybook/react"
 import { useMockStudy } from "../MockStudies"
 import { darkTheme } from "../styles/darkTheme"
@@ -15,6 +15,7 @@ const meta: Meta<typeof PlotHistory> = {
       if (!study) return <p>loading...</p>
       return (
         <ThemeProvider theme={darkTheme}>
+          <CssBaseline />
           <Story
             args={{
               study,

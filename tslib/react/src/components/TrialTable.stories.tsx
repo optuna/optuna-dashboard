@@ -2,6 +2,8 @@ import { Meta, StoryObj } from "@storybook/react"
 import { useMockStudy } from "../MockStudies"
 import { TrialTable } from "./TrialTable"
 import React from "react"
+import { CssBaseline, ThemeProvider } from "@mui/material"
+import { lightTheme } from "../styles/lightTheme"
 
 const meta: Meta<typeof TrialTable> = {
   component: TrialTable,
@@ -12,11 +14,14 @@ const meta: Meta<typeof TrialTable> = {
       const study = useMockStudy(storyContext.parameters?.studyId)
       if (!study) return <p>loading...</p>
       return (
-        <Story
-          args={{
-            study,
-          }}
-        />
+        <ThemeProvider theme={lightTheme}>
+          <CssBaseline />
+          <Story
+            args={{
+              study,
+            }}
+          />
+        </ThemeProvider>
       )
     },
   ],
