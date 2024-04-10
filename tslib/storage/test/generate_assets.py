@@ -88,7 +88,9 @@ if __name__ == "__main__":
         create_optuna_storage(storage)
 
     # Make a file including a broken line to the random position to test error handling
-    shutil.copyfile(os.path.join(BASE_DIR, "journal.log"), os.path.join(BASE_DIR, "journal-broken.log"))
+    shutil.copyfile(
+        os.path.join(BASE_DIR, "journal.log"), os.path.join(BASE_DIR, "journal-broken.log")
+    )
     broken_line = (
         '{"op_code": ..., "worker_id": "0000", "study_id": 0,'
         '"datetime_start": "2024-04-01T12:00:00.000000"}\n'
