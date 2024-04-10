@@ -1,9 +1,9 @@
-import { Meta, StoryObj } from "@storybook/react"
-import { useMockStudy } from "../MockStudies"
-import { PlotImportance } from "./PlotImportance"
-import React from "react"
 import { CssBaseline, ThemeProvider } from "@mui/material"
+import { Meta, StoryObj } from "@storybook/react"
+import React from "react"
+import { useMockStudy } from "../MockStudies"
 import { darkTheme } from "../styles/darkTheme"
+import { PlotImportance } from "./PlotImportance"
 
 const meta: Meta<typeof PlotImportance> = {
   component: PlotImportance,

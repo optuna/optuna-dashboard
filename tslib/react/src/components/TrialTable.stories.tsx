@@ -1,9 +1,9 @@
-import { Meta, StoryObj } from "@storybook/react"
-import { useMockStudy } from "../MockStudies"
-import { TrialTable } from "./TrialTable"
-import React from "react"
 import { CssBaseline, ThemeProvider } from "@mui/material"
+import { Meta, StoryObj } from "@storybook/react"
+import React from "react"
+import { useMockStudy } from "../MockStudies"
 import { lightTheme } from "../styles/lightTheme"
+import { TrialTable } from "./TrialTable"
 
 const meta: Meta<typeof TrialTable> = {
   component: TrialTable,

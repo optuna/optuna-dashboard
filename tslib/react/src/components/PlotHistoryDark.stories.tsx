@@ -1,9 +1,9 @@
 import { CssBaseline, ThemeProvider } from "@mui/material"
 import { Meta, StoryObj } from "@storybook/react"
+import React from "react"
 import { useMockStudy } from "../MockStudies"
 import { darkTheme } from "../styles/darkTheme"
 import { PlotHistory } from "./PlotHistory"
-import React from "react"
 
 const meta: Meta<typeof PlotHistory> = {
   component: PlotHistory,
