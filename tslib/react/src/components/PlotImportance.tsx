@@ -1,50 +1,56 @@
 import { Box, Typography, useTheme } from "@mui/material"
-import { plotlyDarkTemplate } from "@optuna/react"
 import init, { wasm_fanova_calculate } from "optuna"
 import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect, useState } from "react"
+import { FC, useEffect, useState } from "react"
+import * as Optuna from "@optuna/types"
+import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-hyperparameter-importances"
 
-export const PlotImportance: FC<{ study: Study }> = ({ study }) => {
+export const PlotImportance: FC<{ study: Optuna.Study }> = ({ study }) => {
   const theme = useTheme()
   const objectiveNames: string[] = study.directions.map(
-    (d, i) => `Objective ${i}`
+    (_d, i) => `Objective ${i}`
   )
-  const [importance, setImportance] = useState<ParamImportance[][]>([])
+  const [importance, setImportance] = useState<Optuna.ParamImportance[][]>([])
 
   useEffect(() => {
     async function run_wasm() {
       await init()
 
-      const x: ParamImportance[][] = study.directions.map((d, objectiveId) => {
-        const filteredTrials = study.trials.filter((t) =>
-          filterFunc(t, objectiveId)
-        )
-        if (filteredTrials.length === 0) {
-          return study.union_search_space.map((s) => {
-            return {
-              name: s.name,
-              importance: 0.5,
-            }
-          })
-        }
+      const x: Optuna.ParamImportance[][] = study.directions.map(
+        (_d, objectiveId) => {
+          const filteredTrials = study.trials.filter((t) =>
+            filterFunc(t, objectiveId)
+          )
+          if (filteredTrials.length === 0) {
+            return study.union_search_space.map((s) => {
+              return {
+                name: s.name,
+                importance: 0.5,
+              }
+            })
+          }
 
-        const features = study.intersection_search_space.map((s) =>
-          filteredTrials
-            .map((t) => t.params.find((p) => p.name === s.name) as TrialParam)
-            .map((p) => p.param_internal_value)
-        )
-        const values = filteredTrials.map(
-          (t) => t.values?.[objectiveId] as number
-        )
-        // TODO: handle errors thrown by wasm_fanova_calculate
-        const importance = wasm_fanova_calculate(features, values)
-        return study.intersection_search_space.map((s, i) => ({
-          name: s.name,
-          importance: importance[i],
-        }))
-      })
+          const features = study.intersection_search_space.map((s) =>
+            filteredTrials
+              .map(
+                (t) =>
+                  t.params.find((p) => p.name === s.name) as Optuna.TrialParam
+              )
+              .map((p) => p.param_internal_value)
+          )
+          const values = filteredTrials.map(
+            (t) => t.values?.[objectiveId] as number
+          )
+          // TODO: handle errors thrown by wasm_fanova_calculate
+          const importance = wasm_fanova_calculate(features, values)
+          return study.intersection_search_space.map((s, i) => ({
+            name: s.name,
+            importance: importance[i],
+          }))
+        }
+      )
       setImportance(x)
     }
 
@@ -70,7 +76,7 @@ export const PlotImportance: FC<{ study: Study }> = ({ study }) => {
   )
 }
 
-const filterFunc = (trial: Trial, objectiveId: number): boolean => {
+const filterFunc = (trial: Optuna.Trial, objectiveId: number): boolean => {
   if (trial.state !== "Complete" && trial.state !== "Pruned") {
     return false
   }
@@ -85,7 +91,7 @@ const filterFunc = (trial: Trial, objectiveId: number): boolean => {
 }
 
 const plotParamImportancesBeta = (
-  importances: ParamImportance[][],
+  importances: Optuna.ParamImportance[][],
   objectiveNames: string[],
   mode: string
 ) => {
