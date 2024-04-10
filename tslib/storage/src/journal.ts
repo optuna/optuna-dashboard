@@ -330,11 +330,17 @@ class JournalStorage {
   }
 }
 
-const loadJournalStorage = (arrayBuffer: ArrayBuffer): Optuna.Study[] => {
+const loadJournalStorage = (
+  arrayBuffer: ArrayBuffer
+): {
+  studies: Optuna.Study[]
+  errors: { log: string; message: string }[]
+} => {
   const decoder = new TextDecoder("utf-8")
   const logs = decoder.decode(arrayBuffer).split("\n")
 
   const journalStorage = new JournalStorage()
+  const errors: { log: string; message: string }[] = []
 
   for (const log of logs) {
     if (log === "") {
@@ -343,27 +349,40 @@ const loadJournalStorage = (arrayBuffer: ArrayBuffer): Optuna.Study[] => {
 
     const parsedLog: JournalOpBase = (() => {
       try {
-        return JSON.parse(log)
+        try {
+          return JSON.parse(log)
+        } catch (error) {
+          if (error instanceof SyntaxError) {
+            let escapedLog: string = log.replace(/NaN/g, '"***nan***"')
+            escapedLog = escapedLog.replace(/-Infinity/g, '"***-inf***"')
+            escapedLog = escapedLog.replace(/Infinity/g, '"***inf***"')
+            return JSON.parse(escapedLog, (_key, value) => {
+              switch (value) {
+                case "***nan***":
+                  return NaN
+                case "***-inf***":
+                  return -Infinity
+                case "***inf***":
+                  return Infinity
+                default:
+                  return value
+              }
+            })
+          }
+          throw error
+        }
       } catch (error) {
-        if (error instanceof SyntaxError) {
-          let escapedLog: string = log.replace(/NaN/g, '"***nan***"')
-          escapedLog = escapedLog.replace(/-Infinity/g, '"***-inf***"')
-          escapedLog = escapedLog.replace(/Infinity/g, '"***inf***"')
-          return JSON.parse(escapedLog, (_key, value) => {
-            switch (value) {
-              case "***nan***":
-                return NaN
-              case "***-inf***":
-                return -Infinity
-              case "***inf***":
-                return Infinity
-              default:
-                return value
-            }
-          })
+        if (error instanceof Error) {
+          errors.push({ log: log, message: error.message })
+        } else {
+          errors.push({ log: log, message: "Unknown error" })
         }
       }
     })()
+
+    if (parsedLog === undefined) {
+      continue
+    }
 
     switch (parsedLog.op_code) {
       case JournalOperation.CREATE_STUDY:
@@ -405,18 +424,28 @@ const loadJournalStorage = (arrayBuffer: ArrayBuffer): Optuna.Study[] => {
     }
   }
 
-  return journalStorage.getStudies()
+  return {
+    studies: journalStorage.getStudies(),
+    errors,
+  }
 }
 
 export class JournalFileStorage implements OptunaStorage {
   studies: Optuna.Study[]
+  errors: { log: string; message: string }[]
   constructor(arrayBuffer: ArrayBuffer) {
-    this.studies = loadJournalStorage(arrayBuffer)
+    const { studies: studiesFromStorage, errors: errorsFromStorage } =
+      loadJournalStorage(arrayBuffer)
+    this.studies = studiesFromStorage
+    this.errors = errorsFromStorage
   }
   getStudies = async (): Promise<Optuna.StudySummary[]> => {
     return this.studies
   }
   getStudy = async (idx: number): Promise<Optuna.Study | null> => {
     return this.studies[idx] || null
+  }
+  getErrors = (): { log: string; message: string }[] => {
+    return this.errors
   }
 }
