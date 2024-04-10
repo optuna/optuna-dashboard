@@ -19,7 +19,7 @@ $(DASHBOARD_TS_OUT): $(DASHBOARD_TS_SRC)
 	cd optuna_dashboard && npm install && npm run build:$(MODE)
 
 .PHONY: tslib
-tslib:
+tslib: $(RUSTLIB_OUT)
 	cd tslib/types && npm i && npm run build
 	cd tslib/storage && npm i && npm run build
 	cd tslib/react && npm i && npm run build
