@@ -33,7 +33,7 @@ const meta: Meta<typeof TrialTable> = {
 export default meta
 type Story = StoryObj<typeof TrialTable>
 
-export const MockStudy1: Story = {
+export const MockStudyExample1: Story = {
   parameters: {
     studyId: 1,
   },

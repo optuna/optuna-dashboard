@@ -30,7 +30,7 @@ const meta: Meta<typeof PlotHistory> = {
 export default meta
 type Story = StoryObj<typeof PlotHistory>
 
-export const MockStudy1: Story = {
+export const MockStudyExample1: Story = {
   parameters: {
     studyId: 1,
   },
