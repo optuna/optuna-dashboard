@@ -1,8 +1,8 @@
 import logging
-import os.path
-from typing import Tuple
-import shutil
 import math
+import os.path
+import shutil
+from typing import Tuple
 
 import optuna
 from optuna.distributions import CategoricalDistribution
@@ -27,43 +27,47 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
     study = optuna.create_study(
         study_name="single-objective", storage=storage, sampler=optuna.samplers.RandomSampler()
     )
+
     def objective_single(trial: optuna.Trial) -> float:
         x1 = trial.suggest_float("x1", 0, 10)
         x2 = trial.suggest_float("x2", 0, 10)
-        x3 = trial.suggest_categorical("x3", ["foo", "bar"])
+        trial.suggest_categorical("x3", ["foo", "bar"])
         return (x1 - 2) ** 2 + (x2 - 5) ** 2
-    study.optimize(objective_single, n_trials=100)
 
+    study.optimize(objective_single, n_trials=100)
 
     # Single-objective study with dynamic search space
     study = optuna.create_study(
         study_name="single-objective-dynamic", storage=storage, direction="maximize"
     )
+
     def objective_single_dynamic(trial: optuna.Trial) -> float:
         category = trial.suggest_categorical("category", ["foo", "bar"])
         if category == "foo":
             return (trial.suggest_float("x1", 0, 10) - 2) ** 2
         else:
             return -((trial.suggest_float("x2", -10, 0) + 5) ** 2)
-    study.optimize(objective_single_dynamic, n_trials=50)
 
+    study.optimize(objective_single_dynamic, n_trials=50)
 
     study = optuna.create_study(
         study_name="check-rank-plot", storage=storage, sampler=optuna.samplers.RandomSampler()
     )
+
     def objective_single(trial: optuna.Trial) -> float:
         x1 = trial.suggest_float("x1", 0, 10)
         x2 = trial.suggest_float("x2", 0, 10)
-        x3 = trial.suggest_float("x3", 0, 10)
-        x4 = trial.suggest_float("x4", 0, 10)
-        x5 = trial.suggest_float("x5", 0, 10)
-        x6 = trial.suggest_float("x6", 0, 10)
+        trial.suggest_float("x3", 0, 10)
+        trial.suggest_float("x4", 0, 10)
+        trial.suggest_float("x5", 0, 10)
+        trial.suggest_float("x6", 0, 10)
         return (x1 - 2) ** 2 + (x2 - 5) ** 2
-    study.optimize(objective_single, n_trials=1000)
 
+    study.optimize(objective_single, n_trials=1000)
 
     # Single-objective study
     study = optuna.create_study(study_name="single-objective-user-attrs", storage=storage)
+
     def objective_single_user_attr(trial: optuna.Trial) -> float:
         x1 = trial.suggest_float("x1", 0, 10)
         x2 = trial.suggest_float("x2", 0, 10)
@@ -73,11 +77,12 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
             trial.set_user_attr("X", "bar")
         trial.set_user_attr("Y", x1 + x2)
         return (x1 - 2) ** 2 + (x2 - 5) ** 2
-    study.optimize(objective_single_user_attr, n_trials=100)
 
+    study.optimize(objective_single_user_attr, n_trials=100)
 
     # Single objective study with 'inf', '-inf', or 'nan' value
     study = optuna.create_study(study_name="single-inf", storage=storage)
+
     def objective_single_inf(trial: optuna.Trial) -> float:
         x = trial.suggest_float("x", -10, 10)
         if trial.number % 3 == 0:
@@ -86,11 +91,12 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
             return float("-inf")
         else:
             return x**2
-    study.optimize(objective_single_inf, n_trials=50)
 
+    study.optimize(objective_single_inf, n_trials=50)
 
     # Single objective pruned after reported 'inf', '-inf', or 'nan'
     study = optuna.create_study(study_name="single-inf-report", storage=storage)
+
     def objective_single_inf_report(trial: optuna.Trial) -> float:
         x = trial.suggest_float("x", -10, 10)
         if trial.number % 3 == 0:
@@ -104,32 +110,35 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
             raise optuna.TrialPruned()
         else:
             return x**2
-    study.optimize(objective_single_inf_report, n_trials=50)
 
+    study.optimize(objective_single_inf_report, n_trials=50)
 
     # Single objective with reported nan value
     study = optuna.create_study(study_name="single-nan-report", storage=storage)
-    def objective_single_nan_report(trial: optuna.Trial) -> float:
-       x1 = trial.suggest_float("x1", 0, 10)
-       x2 = trial.suggest_float("x2", 0, 10)
-       trial.report(0.5, step=0)
-       trial.report(math.nan, step=1)
-       return (x1 - 2) ** 2 + (x2 - 5) ** 2
-    study.optimize(objective_single_nan_report, n_trials=100)
 
+    def objective_single_nan_report(trial: optuna.Trial) -> float:
+        x1 = trial.suggest_float("x1", 0, 10)
+        x2 = trial.suggest_float("x2", 0, 10)
+        trial.report(0.5, step=0)
+        trial.report(math.nan, step=1)
+        return (x1 - 2) ** 2 + (x2 - 5) ** 2
+
+    study.optimize(objective_single_nan_report, n_trials=100)
 
     # Single-objective study with 1 parameter
     study = optuna.create_study(
         study_name="single-objective-1-param", storage=storage, direction="maximize"
     )
+
     def objective_single_with_1param(trial: optuna.Trial) -> float:
         x1 = trial.suggest_float("x1", 0, 10)
         return -((x1 - 2) ** 2)
-    study.optimize(objective_single_with_1param, n_trials=50)
 
+    study.optimize(objective_single_with_1param, n_trials=50)
 
     # Single-objective study with 1 parameter
     study = optuna.create_study(study_name="long-parameter-names", storage=storage)
+
     def objective_long_parameter_names(trial: optuna.Trial) -> float:
         x1 = trial.suggest_float(
             "x1_long_parameter_names_long_long_long_long_long_long_long_long_long_long", 0, 10
@@ -138,8 +147,8 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
             "x2_long_parameter_names_long_long_long_long_long_long_long_long_long_long", 0, 10
         )
         return (x1 - 2) ** 2 + (x2 - 5) ** 2
-    study.optimize(objective_long_parameter_names, n_trials=50)
 
+    study.optimize(objective_long_parameter_names, n_trials=50)
 
     # Multi-objective study
     study = optuna.create_study(
@@ -148,19 +157,21 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
         directions=["minimize", "minimize"],
     )
     study.set_metric_names(["v0", "v1"])
+
     def objective_multi(trial: optuna.Trial) -> Tuple[float, float]:
         x = trial.suggest_float("x", 0, 5)
         y = trial.suggest_float("y", 0, 3)
         v0 = 4 * x**2 + 4 * y**2
         v1 = (x - 5) ** 2 + (y - 5) ** 2
         return v0, v1
-    study.optimize(objective_multi, n_trials=50)
 
+    study.optimize(objective_multi, n_trials=50)
 
     # Multi-objective study with dynamic search space
     study = optuna.create_study(
         study_name="multi-dynamic", storage=storage, directions=["minimize", "minimize"]
     )
+
     def objective_multi_dynamic(trial: optuna.Trial) -> Tuple[float, float]:
         category = trial.suggest_categorical("category", ["foo", "bar"])
         if category == "foo":
@@ -175,11 +186,12 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
             v0 = 2 * x**2 + 2 * y**2
             v1 = (x - 2) ** 2 + (y - 3) ** 2
             return v0, v1
-    study.optimize(objective_multi_dynamic, n_trials=50)
 
+    study.optimize(objective_multi_dynamic, n_trials=50)
 
     # Pruning with no intermediate values
     study = optuna.create_study(study_name="binh-korn-function-with-constraints", storage=storage)
+
     def objective_prune_with_no_trials(trial: optuna.Trial) -> float:
         x = trial.suggest_float("x", -15, 30)
         y = trial.suggest_float("y", -15, 30)
@@ -187,11 +199,12 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
         if v > 100:
             raise optuna.TrialPruned()
         return v
-    study.optimize(objective_prune_with_no_trials, n_trials=100)
 
+    study.optimize(objective_prune_with_no_trials, n_trials=100)
 
     # With failed trials
     study = optuna.create_study(study_name="failed trials", storage=storage)
+
     def objective_sometimes_got_failed(trial: optuna.Trial) -> float:
         x = trial.suggest_float("x", -15, 30)
         y = trial.suggest_float("y", -15, 30)
@@ -199,19 +212,17 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
         if v > 100:
             raise ValueError("unexpected error")
         return v
-    study.optimize(objective_sometimes_got_failed, n_trials=100, catch=(Exception,))
 
+    study.optimize(objective_sometimes_got_failed, n_trials=100, catch=(Exception,))
 
     # No trials single-objective study
     study = optuna.create_study(study_name="no trials single-objective study", storage=storage)
     study.set_user_attr("foo", "bar")
 
-
     # study with waiting trials
     study = optuna.create_study(study_name="waiting-trials", storage=storage)
     study.enqueue_trial({"x": 0, "y": 10})
     study.enqueue_trial({"x": 10, "y": 20})
-
 
     # Study with Running Trials
     study = optuna.create_study(
@@ -222,23 +233,24 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
     study.ask({"x": FloatDistribution(0, 10), "y": CategoricalDistribution(["Foo", "Bar"])})
     study.ask({"x": FloatDistribution(0, 10), "y": CategoricalDistribution(["Foo", "Bar"])})
 
-
     # Single-objective study with constraints
     def constraints(trial: optuna.Trial) -> list[float]:
         return trial.user_attrs["constraint"]
+
     study = optuna.create_study(
         study_name="A single objective constraint optimization study",
         storage=storage,
         sampler=optuna.samplers.TPESampler(constraints_func=constraints),
     )
+
     def objective_constraints(trial: optuna.Trial) -> float:
         x = trial.suggest_float("x", -15, 30)
         y = trial.suggest_float("y", -15, 30)
         v0 = 4 * x**2 + 4 * y**2
         trial.set_user_attr("constraint", [1000 - v0, x - 10, y - 10])
         return v0
-    study.optimize(objective_constraints, n_trials=100)
 
+    study.optimize(objective_constraints, n_trials=100)
 
     # Study with Running Trials
     study = optuna.create_study(
@@ -256,7 +268,6 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
     study.ask({"x": FloatDistribution(0, 10), "y": CategoricalDistribution(["Foo", "Bar"])})
     trial.set_user_attr("val_loss", 0.5)
 
-
     # No trials multi-objective study
     optuna.create_study(
         study_name="no trials multi-objective study",
@@ -264,13 +275,14 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
         directions=["minimize", "maximize"],
     )
 
-
     # Single-objective study with intermediate values
     study = optuna.create_study(study_name="intermediate-values", storage=storage)
+
     def objective_intermediate_values(trial: optuna.Trial) -> float:
         trial.report(trial.number, step=0)
         trial.report(trial.number + 1, step=1)
         return 0.0
+
     study.optimize(objective_intermediate_values, n_trials=10)
     trial = study.ask(
         {"x": FloatDistribution(0, 10), "y": CategoricalDistribution(["Foo", "Bar"])}
@@ -278,21 +290,23 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
     trial.report(trial.number, step=0)
     trial.report(trial.number + 1, step=1)
 
-
     # Single-objective study with intermediate values and constraints
     def constraints(trial: optuna.Trial) -> list[float]:
         return trial.user_attrs["constraint"]
+
     study = optuna.create_study(
         study_name="intermediate-values-constraints",
         storage=storage,
         sampler=optuna.samplers.NSGAIISampler(constraints_func=constraints),
     )
+
     def objective_intermediate_values_constraints(trial: optuna.Trial) -> float:
         trial.set_user_attr("constraint", [trial.number % 2])
 
         trial.report(trial.number, step=0)
         trial.report(trial.number + 1, step=1)
         return 0.0
+
     study.optimize(objective_intermediate_values_constraints, n_trials=10)
     trial = study.ask(
         {"x": FloatDistribution(0, 10), "y": CategoricalDistribution(["Foo", "Bar"])}
