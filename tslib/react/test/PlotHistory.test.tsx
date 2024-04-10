@@ -24,7 +24,7 @@ describe("PlotHistory Tests", async () => {
   }
 
   for (const study of window.mockStudies) {
-    test(`PlotHistory (studyId: ${study.study_id})`, () => {
+    test(`PlotHistory (study name: ${study.study_name})`, () => {
       setup({ study, dataTestId: `plot-history-${study.study_id}` })
       expect(
         screen.getByTestId(`plot-history-${study.study_id}`)
