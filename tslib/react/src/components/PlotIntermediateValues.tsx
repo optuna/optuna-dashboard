@@ -1,7 +1,7 @@
 import { Box, Typography, useTheme } from "@mui/material"
+import * as Optuna from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
 import { FC, useEffect } from "react"
-import * as Optuna from "@optuna/types"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-intermediate-values"

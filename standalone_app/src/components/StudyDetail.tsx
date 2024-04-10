@@ -13,7 +13,12 @@ import {
   useTheme,
 } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2"
-import { PlotHistory, PlotImportance, PlotIntermediateValues, TrialTable } from "@optuna/react"
+import {
+  PlotHistory,
+  PlotImportance,
+  PlotIntermediateValues,
+  TrialTable,
+} from "@optuna/react"
 import React, { FC, useContext, useState, useEffect } from "react"
 import { Link, useParams } from "react-router-dom"
 import { StorageContext } from "./StorageProvider"
