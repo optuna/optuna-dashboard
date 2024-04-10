@@ -20,7 +20,7 @@ const config: StorybookConfig = {
       server: {
         fs: {
           // Since storybook overwrites the `allow` option, here we set it for sqlite-wasm
-          allow: [...(config.server?.fs?.allow ?? []), "..", "../.."],
+          allow: [...(config.server?.fs?.allow ?? []), ".."],
         },
       },
     })
