@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from "@storybook/react"
 import { useMockStudy } from "../MockStudies"
 import { PlotHistory } from "./PlotHistory"
+import React from "react"
 
 const meta: Meta<typeof PlotHistory> = {
   component: PlotHistory,

@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from "@storybook/react"
 import { useMockStudy } from "../MockStudies"
 import { TrialTable } from "./TrialTable"
+import React from "react"
 
 const meta: Meta<typeof TrialTable> = {
   component: TrialTable,
