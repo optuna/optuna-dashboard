@@ -84,7 +84,7 @@ jobs:
           pip install --progress-bar off optuna
           python generate_assets.py
       
-      - name; Generate test asset for react
+      - name: Generate test asset for react
         working-directory: tslib/react/test/
         run: |
           python generate_assets.py
