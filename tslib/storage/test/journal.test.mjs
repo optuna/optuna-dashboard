@@ -15,7 +15,6 @@ describe("Test Journal File Storage", async () => {
   const studies = await Promise.all(
     studySummaries.map((_summary, index) => storage.getStudy(index))
   )
-  const errors = storage.getErrors()
 
   it("Check the study including Infinities", () => {
     const study = studies.find((s) => s.study_name === "single-inf")
@@ -38,7 +37,14 @@ describe("Test Journal File Storage", async () => {
     }
   })
 
-  it("Check the parsing errors", () => {
+  it("Check the parsing errors", async () => {
+    const blob = await openAsBlob(
+      path.resolve(".", "test", "asset", "journal-broken.log")
+    )
+    const buf = await blob.arrayBuffer()
+    const storage = new mut.JournalFileStorage(buf)
+    const errors = storage.getErrors()
+
     assert.strictEqual(errors.length, 1)
     assert.strictEqual(
       errors[0].message,
