@@ -1,4 +1,6 @@
+import math
 import os.path
+import random
 import shutil
 
 import optuna
@@ -48,6 +50,34 @@ def create_optuna_storage(storage: BaseStorage) -> None:
 
     study.optimize(objective_single_dynamic, n_trials=50)
 
+    # Single objective study with 'inf', '-inf' value
+    study = optuna.create_study(study_name="single-inf", storage=storage)
+    print(f"Generating {study.study_name} for {type(storage).__name__}...")
+
+    def objective_single_inf(trial: optuna.Trial) -> float:
+        x = trial.suggest_float("x", -10, 10)
+        if trial.number % 3 == 0:
+            return float("inf")
+        elif trial.number % 3 == 1:
+            return float("-inf")
+        else:
+            return x**2
+
+    study.optimize(objective_single_inf, n_trials=50)
+
+    # Single objective with reported nan value
+    study = optuna.create_study(study_name="single-nan-report", storage=storage)
+    print(f"Generating {study.study_name} for {type(storage).__name__}...")
+
+    def objective_single_nan_report(trial: optuna.Trial) -> float:
+        x1 = trial.suggest_float("x1", 0, 10)
+        x2 = trial.suggest_float("x2", 0, 10)
+        trial.report(0.5, step=0)
+        trial.report(math.nan, step=1)
+        return (x1 - 2) ** 2 + (x2 - 5) ** 2
+
+    study.optimize(objective_single_nan_report, n_trials=100)
+
 
 if __name__ == "__main__":
     remove_assets()
@@ -56,3 +86,18 @@ if __name__ == "__main__":
         RDBStorage("sqlite:///" + os.path.join(BASE_DIR, "db.sqlite3")),
     ]:
         create_optuna_storage(storage)
+
+    # Make a file including a broken line to the random position to test error handling
+    shutil.copyfile(
+        os.path.join(BASE_DIR, "journal.log"), os.path.join(BASE_DIR, "journal-broken.log")
+    )
+    broken_line = (
+        '{"op_code": ..., "worker_id": "0000", "study_id": 0,'
+        '"datetime_start": "2024-04-01T12:00:00.000000"}\n'
+    )
+    with open(os.path.join(BASE_DIR, "journal-broken.log"), "r+") as f:
+        lines = f.readlines()
+        lines.insert(random.randint(0, len(lines)), broken_line)
+        f.truncate(0)
+        f.seek(0, os.SEEK_SET)
+        f.writelines(lines)
