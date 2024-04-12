@@ -271,7 +271,10 @@ export const actionCreator = () => {
       })
   }
 
-  const createNewStudy = (studyName: string, directions: Optuna.StudyDirection[]) => {
+  const createNewStudy = (
+    studyName: string,
+    directions: Optuna.StudyDirection[]
+  ) => {
     createNewStudyAPI(studyName, directions)
       .then((study_summary) => {
         const newVal = [...studySummaries, study_summary]

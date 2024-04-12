@@ -246,7 +246,9 @@ const plotCoordinate = (
       )
       if (s.distribution.type === "CategoricalDistribution") {
         // categorical
-        const vocabArr: string[] = s.distribution.choices.map((c) => c?.toString() ?? "null")
+        const vocabArr: string[] = s.distribution.choices.map(
+          (c) => c?.toString() ?? "null"
+        )
         const tickvals: number[] = vocabArr.map((v, i) => i)
         return {
           label: breakLabelIfTooLong(s.name),

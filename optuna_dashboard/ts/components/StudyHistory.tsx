@@ -52,7 +52,10 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   ]
   const trials: Trial[] = studyDetail?.trials || []
   return (
-    <Box component="div" sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
+    <Box
+      component="div"
+      sx={{ display: "flex", width: "100%", flexDirection: "column" }}
+    >
       <FormControl
         component="fieldset"
         sx={{

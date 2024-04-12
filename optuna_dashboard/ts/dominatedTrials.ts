@@ -1,6 +1,9 @@
 import * as Optuna from "@optuna/types"
 
-const filterFunc = (trial: Trial, directions: Optuna.StudyDirection[]): boolean => {
+const filterFunc = (
+  trial: Trial,
+  directions: Optuna.StudyDirection[]
+): boolean => {
   return (
     trial.state === "Complete" &&
     trial.values !== undefined &&

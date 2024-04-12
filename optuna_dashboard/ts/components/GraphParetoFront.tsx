@@ -161,7 +161,10 @@ const GraphParetoFrontFrontend: FC<{
   )
 }
 
-const filterFunc = (trial: Trial, directions: Optuna.StudyDirection[]): boolean => {
+const filterFunc = (
+  trial: Trial,
+  directions: Optuna.StudyDirection[]
+): boolean => {
   return (
     trial.state === "Complete" &&
     trial.values !== undefined &&

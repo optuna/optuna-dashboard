@@ -26,7 +26,9 @@ export const useCreateStudyDialog = (): [() => void, () => ReactNode] => {
 
   const [newStudyName, setNewStudyName] = useState("")
   const [openNewStudyDialog, setOpenNewStudyDialog] = useState(false)
-  const [directions, setDirections] = useState<Optuna.StudyDirection[]>(["minimize"])
+  const [directions, setDirections] = useState<Optuna.StudyDirection[]>([
+    "minimize",
+  ])
   const studies = useRecoilValue<StudySummary[]>(studySummariesState)
   const newStudyNameAlreadyUsed = studies.some(
     (v) => v.study_name === newStudyName
@@ -104,7 +106,10 @@ export const useCreateStudyDialog = (): [() => void, () => ReactNode] => {
             startIcon={<AddIcon />}
             sx={{ marginRight: theme.spacing(1) }}
             onClick={() => {
-              const newVal: Optuna.StudyDirection[] = [...directions, "minimize"]
+              const newVal: Optuna.StudyDirection[] = [
+                ...directions,
+                "minimize",
+              ]
               setDirections(newVal)
             }}
           >

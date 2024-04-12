@@ -291,7 +291,9 @@ const plotSlice = (
       automargin: true, // Otherwise the label is outside of the plot
     }
   } else {
-    const vocabArr = selectedParamSpace.distribution.choices.map((c) => c?.toString() ?? "null")
+    const vocabArr = selectedParamSpace.distribution.choices.map(
+      (c) => c?.toString() ?? "null"
+    )
     const tickvals: number[] = vocabArr.map((v, i) => i)
     layout["xaxis"] = {
       title: selectedParamTarget.toLabel(),

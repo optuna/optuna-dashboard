@@ -150,7 +150,7 @@ const UpdatableFormWidgets: FC<{
       >
         {widgetStates.map((ws) => ws.render())}
         <Box
-        component="div"
+          component="div"
           sx={{
             display: "flex",
             flexDirection: "row",
@@ -428,9 +428,7 @@ const ReadonlyFormWidgets: FC<{
                 </FormLabel>
                 <Box component="div" sx={{ padding: theme.spacing(0, 2) }}>
                   <Slider
-                    defaultValue={
-                      value
-                    }
+                    defaultValue={value}
                     min={widget.min}
                     max={widget.max}
                     step={widget.step}

@@ -207,10 +207,7 @@ const ContourFrontend: FC<{
 }
 
 const filterFunc = (trial: Trial, objectiveId: number): boolean => {
-  return (
-    trial.state === "Complete" &&
-    trial.values !== undefined
-  )
+  return trial.state === "Complete" && trial.values !== undefined
 }
 
 const plotContour = (

@@ -211,7 +211,10 @@ export const useObjectiveAndUserAttrTargetsFromStudies = (
   }, [studies])
 
   const intersect = (arrays: Optuna.AttributeSpec[][]) => {
-    const atrEqual = (obj1: Optuna.AttributeSpec, obj2: Optuna.AttributeSpec) => {
+    const atrEqual = (
+      obj1: Optuna.AttributeSpec,
+      obj2: Optuna.AttributeSpec
+    ) => {
       return obj1.key === obj2.key
     }
     return arrays.reduce((a, b) =>
