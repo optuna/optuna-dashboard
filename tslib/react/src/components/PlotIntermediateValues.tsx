@@ -1,12 +1,13 @@
 import { Box, Typography, useTheme } from "@mui/material"
-import { plotlyDarkTemplate } from "@optuna/react"
+import * as Optuna from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect } from "react"
+import { FC, useEffect } from "react"
+import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-intermediate-values"
 
 export const PlotIntermediateValues: FC<{
-  trials: Trial[]
+  trials: Optuna.Trial[]
   includePruned: boolean
   logScale: boolean
 }> = ({ trials, includePruned, logScale }) => {
@@ -36,7 +37,7 @@ export const PlotIntermediateValues: FC<{
 }
 
 const plotIntermediateValue = (
-  trials: Trial[],
+  trials: Optuna.Trial[],
   mode: string,
   filterCompleteTrial: boolean,
   filterPrunedTrial: boolean,

@@ -24,3 +24,6 @@ types
 
 # sample db
 !public/sample_db.sqlite3
+
+# test assets
+test/asset

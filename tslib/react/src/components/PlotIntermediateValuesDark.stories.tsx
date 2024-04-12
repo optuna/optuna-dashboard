@@ -2,33 +2,38 @@ import { CssBaseline, ThemeProvider } from "@mui/material"
 import { Meta, StoryObj } from "@storybook/react"
 import React from "react"
 import { useMockStudy } from "../MockStudies"
-import { lightTheme } from "../styles/lightTheme"
-import { PlotHistory } from "./PlotHistory"
+import { darkTheme } from "../styles/darkTheme"
+import { PlotIntermediateValues } from "./PlotIntermediateValues"
 
-const meta: Meta<typeof PlotHistory> = {
-  component: PlotHistory,
-  title: "PlotHistory",
+const meta: Meta<typeof PlotIntermediateValues> = {
+  component: PlotIntermediateValues,
+  title: "PlotIntermediateValuesDark",
   tags: ["autodocs"],
   decorators: [
     (Story, storyContext) => {
       const { study } = useMockStudy(storyContext.parameters?.studyId)
       if (!study) return <p>loading...</p>
       return (
-        <ThemeProvider theme={lightTheme}>
+        <ThemeProvider theme={darkTheme}>
           <CssBaseline />
           <Story
             args={{
-              study,
+              trials: study.trials,
+              includePruned: false,
+              logScale: false,
             }}
           />
         </ThemeProvider>
       )
     },
   ],
+  parameters: {
+    backgrounds: { default: "dark" },
+  },
 }
 
 export default meta
-type Story = StoryObj<typeof PlotHistory>
+type Story = StoryObj<typeof PlotIntermediateValues>
 
 export const MockStudyExample1: Story = {
   parameters: {

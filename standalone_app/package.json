@@ -8,6 +8,7 @@
     "build:vscode": "webpack"
   },
   "devDependencies": {
+    "@optuna/types": "../tslib/types",
     "@types/plotly.js": "^2.29.2",
     "@types/react": "^18.2.64",
     "@types/react-dom": "^18.2.21",

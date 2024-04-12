@@ -3,11 +3,11 @@ import { Meta, StoryObj } from "@storybook/react"
 import React from "react"
 import { useMockStudy } from "../MockStudies"
 import { lightTheme } from "../styles/lightTheme"
-import { PlotHistory } from "./PlotHistory"
+import { PlotIntermediateValues } from "./PlotIntermediateValues"
 
-const meta: Meta<typeof PlotHistory> = {
-  component: PlotHistory,
-  title: "PlotHistory",
+const meta: Meta<typeof PlotIntermediateValues> = {
+  component: PlotIntermediateValues,
+  title: "PlotIntermediateValues",
   tags: ["autodocs"],
   decorators: [
     (Story, storyContext) => {
@@ -18,7 +18,9 @@ const meta: Meta<typeof PlotHistory> = {
           <CssBaseline />
           <Story
             args={{
-              study,
+              trials: study.trials,
+              includePruned: false,
+              logScale: false,
             }}
           />
         </ThemeProvider>
@@ -28,7 +30,7 @@ const meta: Meta<typeof PlotHistory> = {
 }
 
 export default meta
-type Story = StoryObj<typeof PlotHistory>
+type Story = StoryObj<typeof PlotIntermediateValues>
 
 export const MockStudyExample1: Story = {
   parameters: {

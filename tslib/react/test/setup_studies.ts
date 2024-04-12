@@ -5,14 +5,15 @@ import { loadStorageFromFile } from "../src/utils/loadStorageFromFile"
 declare global {
   interface Window {
     mockStudies: Optuna.Study[]
+    mockImportances: Record<string, Optuna.ParamImportance[][]>
   }
 }
 
-const data = fs.readFileSync("./test/asset/journal.log")
-const blob = new Blob([data])
-const file = new File([blob], "journal.log")
+const journalData = fs.readFileSync("./test/asset/journal.log")
+const journalBlob = new Blob([journalData])
+const journalFile = new File([journalBlob], "journal.log")
 const mockStudies: Optuna.Study[] = []
-await loadStorageFromFile(file, (value) => {
+await loadStorageFromFile(journalFile, (value) => {
   if (Array.isArray(value)) {
     mockStudies.push(...value)
   } else {
@@ -20,6 +21,22 @@ await loadStorageFromFile(file, (value) => {
   }
 })
 window.mockStudies = mockStudies
+
+const importancesData = fs.readFileSync("./test/asset/params_importances.json")
+const importancesJson = JSON.parse(importancesData.toString())
+const mockImportances: Record<string, Optuna.ParamImportance[][]> = {}
+for (const key in importancesJson) {
+  mockImportances[key] = importancesJson[key].map(
+    (importance: Record<string, number>) => {
+      const importanceArray: Optuna.ParamImportance[] = []
+      for (const name in importance) {
+        importanceArray.push({ name, importance: importance[name] })
+      }
+      return importanceArray
+    }
+  )
+}
+window.mockImportances = mockImportances
 
 // mock window.URL.createObjectURL in JSDOM
 window.HTMLCanvasElement.prototype.getContext = () => null
