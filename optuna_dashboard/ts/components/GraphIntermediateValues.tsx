@@ -26,7 +26,7 @@ export const GraphIntermediateValues: FC<{
         >
           Intermediate values
         </Typography>
-        <Box id={plotDomId} sx={{ height: "450px" }} />
+        <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
       </CardContent>
     </Card>
   )
@@ -76,13 +76,10 @@ const plotIntermediateValue = (
       t.state === "Running"
   )
   const plotData: Partial<plotly.PlotData>[] = filteredTrials.map((trial) => {
-    const values = trial.intermediate_values.filter(
-      (iv) => iv.value !== "inf" && iv.value !== "-inf" && iv.value !== "nan"
-    )
     const isFeasible = trial.constraints.every((c) => c <= 0)
     return {
-      x: values.map((iv) => iv.step),
-      y: values.map((iv) => iv.value),
+      x: trial.intermediate_values.map((iv) => iv.step),
+      y: trial.intermediate_values.map((iv) => iv.value),
       marker: { maxdisplayed: 10 },
       mode: "lines+markers",
       type: "scatter",

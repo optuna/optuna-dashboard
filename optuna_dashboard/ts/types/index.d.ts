@@ -7,7 +7,6 @@ declare const APP_BAR_TITLE: string
 declare const API_ENDPOINT: string
 declare const URL_PREFIX: string
 
-type TrialIntermediateValueNumber = number | "inf" | "-inf" | "nan"
 type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting"
 type TrialStateFinished = "Complete" | "Fail" | "Pruned"
 type StudyDirection = "maximize" | "minimize" | "not_set"
@@ -52,7 +51,7 @@ type GraphVisibility = {
 
 type TrialIntermediateValue = {
   step: number
-  value: TrialIntermediateValueNumber
+  value: number
 }
 
 type TrialParam = {
@@ -101,7 +100,7 @@ type Trial = {
   study_id: number
   number: number
   state: TrialState
-  values?: TrialValueNumber[]
+  values?: number[]
   intermediate_values: TrialIntermediateValue[]
   datetime_start?: Date
   datetime_complete?: Date
