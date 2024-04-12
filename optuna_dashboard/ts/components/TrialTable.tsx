@@ -91,7 +91,7 @@ export const TrialTable: FC<{
     const sortable = s.distribution.type !== "CategoricalDistribution"
     const filterChoices: (string | null)[] | undefined =
       s.distribution.type === "CategoricalDistribution"
-        ? s.distribution.choices.map((c) => c.value)
+        ? s.distribution.choices.map((c) => c?.toString() ?? "null")
         : undefined
     const hasMissingValue = trials.some(
       (t) => !t.params.some((p) => p.name === s.name)

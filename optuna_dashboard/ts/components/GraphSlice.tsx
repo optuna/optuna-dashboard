@@ -66,7 +66,7 @@ const GraphSliceBackend: FC<{
     }
   }, [error])
 
-  return <Box id={plotDomId} sx={{ height: "450px" }} />
+  return <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
 }
 
 const GraphSliceFrontend: FC<{
@@ -175,7 +175,7 @@ const GraphSliceFrontend: FC<{
         </FormControl>
       </Grid>
       <Grid item xs={9}>
-        <Box id={plotDomId} sx={{ height: "450px" }} />
+        <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
       </Grid>
     </Grid>
   )
@@ -291,7 +291,7 @@ const plotSlice = (
       automargin: true, // Otherwise the label is outside of the plot
     }
   } else {
-    const vocabArr = selectedParamSpace.distribution.choices.map((c) => c.value)
+    const vocabArr = selectedParamSpace.distribution.choices.map((c) => c?.toString() ?? "null")
     const tickvals: number[] = vocabArr.map((v, i) => i)
     layout["xaxis"] = {
       title: selectedParamTarget.toLabel(),

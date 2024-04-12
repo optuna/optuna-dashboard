@@ -28,9 +28,11 @@ type IntDistribution = {
   log: boolean
 }
 
+type CategoricalChoiceType = null | boolean | number | string
+
 type CategoricalDistribution = {
   type: "CategoricalDistribution"
-  choices: { pytype: string; value: string }[]
+  choices: CategoricalChoiceType[]
 }
 
 type Distribution =
