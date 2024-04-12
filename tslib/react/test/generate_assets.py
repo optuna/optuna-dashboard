@@ -8,7 +8,8 @@ from typing import Tuple
 import optuna
 from optuna.distributions import CategoricalDistribution
 from optuna.distributions import FloatDistribution
-from optuna.importance import get_param_importances, PedAnovaImportanceEvaluator
+from optuna.importance import get_param_importances
+from optuna.importance import PedAnovaImportanceEvaluator
 from optuna.storages import BaseStorage
 from optuna.storages import JournalFileStorage
 from optuna.storages import JournalStorage
