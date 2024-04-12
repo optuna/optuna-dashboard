@@ -138,7 +138,7 @@ export const TrialListDetail: FC<{
     ["Value", trial.values?.map((v) => v.toString()).join(", ") || "None"],
     [
       "Intermediate Values",
-      <Box>
+      <Box component="div">
         {trial.intermediate_values.map((v) => (
           <Typography key={v.step}>
             {v.step} {v.value}
@@ -148,7 +148,7 @@ export const TrialListDetail: FC<{
     ],
     [
       "Parameter",
-      <Box>
+      <Box component="div">
         {params.map((p) => (
           <Typography key={p.name}>
             {p.name} {p.param_external_value}
@@ -172,7 +172,7 @@ export const TrialListDetail: FC<{
     ],
     [
       "User Attributes",
-      <Box>
+      <Box component="div">
         {trial.user_attrs.map((t) => (
           <Typography key={t.key}>
             {t.key} {t.value}
@@ -186,6 +186,7 @@ export const TrialListDetail: FC<{
     value: string | null | ReactNode
   ): ReactNode => (
     <Box
+    component="div"
       key={key}
       sx={{
         display: "flex",
@@ -203,6 +204,7 @@ export const TrialListDetail: FC<{
         {key}
       </Typography>
       <Box
+      component="div"
         sx={{
           bgcolor:
             theme.palette.mode === "dark"
@@ -223,7 +225,7 @@ export const TrialListDetail: FC<{
   )
 
   return (
-    <Box sx={{ width: "100%", padding: theme.spacing(2, 2, 0, 2) }}>
+    <Box component="div" sx={{ width: "100%", padding: theme.spacing(2, 2, 0, 2) }}>
       <Typography
         variant="h4"
         sx={{
@@ -234,6 +236,7 @@ export const TrialListDetail: FC<{
         Trial {trial.number} (trial_id={trial.trial_id})
       </Typography>
       <Box
+      component="div"
         sx={{
           marginBottom: theme.spacing(1),
           display: "flex",
@@ -249,7 +252,7 @@ export const TrialListDetail: FC<{
         {isBestTrial(trial.trial_id) ? (
           <Chip label={"Best Trial"} color="secondary" variant="outlined" />
         ) : null}
-        <Box sx={{ flexGrow: 1 }} />
+        <Box component="div" sx={{ flexGrow: 1 }} />
         {trial.state === "Running" ? (
           <Button
             variant="outlined"
@@ -286,6 +289,7 @@ export const TrialListDetail: FC<{
         formWidgets={formWidgets}
       />
       <Box
+      component="div"
         sx={{
           marginBottom: theme.spacing(2),
           display: "flex",
@@ -356,8 +360,9 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
     queried.length > 0 ? queried : trials.length > 0 ? [trials[0]] : []
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
+    <Box component="div" sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
       <Box
+      component="div"
         ref={listParentRef}
         sx={{
           minWidth: trialListWidth,
@@ -370,7 +375,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
             <Typography sx={{ p: theme.spacing(1, 0) }}>
               {trials.length} Trials
             </Typography>
-            <Box sx={{ flexGrow: 1 }} />
+            <Box component="div" sx={{ flexGrow: 1 }} />
             <IconButton
               aria-label="Filter"
               aria-controls={openFilterMenu ? "filter-trials" : undefined}
@@ -424,6 +429,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
           </ListSubheader>
           <Divider />
           <Box
+          component="div"
             sx={{
               width: "100%",
               height: `${rowVirtualizer.getTotalSize()}px`,
@@ -485,7 +491,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                     }}
                   >
                     <ListItemText primary={`Trial ${trial.number}`} />
-                    <Box>
+                    <Box component="div">
                       <Chip
                         color={getChipColor(trial.state)}
                         label={trial.state}
@@ -512,13 +518,14 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
       </Box>
       <Divider orientation="vertical" flexItem />
       <Box
+      component="div"
         sx={{
           flexGrow: 1,
           overflow: "auto",
           height: `calc(100vh - ${theme.spacing(8)})`,
         }}
       >
-        <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
+        <Box component="div" sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
           {selected.length === 0
             ? null
             : selected.map((t) => (
