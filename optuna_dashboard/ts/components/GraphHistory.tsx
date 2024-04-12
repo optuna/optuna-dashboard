@@ -210,6 +210,7 @@ export const GraphHistory: FC<{
       </Grid>
       <Grid item xs={9}>
         <Box
+          component="div"
           id={plotDomId}
           sx={{
             height: "450px",

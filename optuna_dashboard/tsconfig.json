@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
+    "skipLibCheck": true,
     "strictNullChecks": true,
     "moduleResolution": "node",
     "noUnusedLocals": true,

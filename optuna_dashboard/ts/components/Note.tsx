@@ -296,6 +296,7 @@ const MarkdownEditorModal: FC<{
         title="Markdown Editor"
       />
       <Box
+        component="div"
         sx={{
           flexGrow: 1,
           padding: theme.spacing(2),
@@ -306,6 +307,7 @@ const MarkdownEditorModal: FC<{
         <MarkdownRenderer body={previewMarkdown} />
       </Box>
       <Box
+        component="div"
         sx={{
           width: "100%",
           flexGrow: 1,
@@ -345,7 +347,10 @@ const MarkdownEditorModal: FC<{
           />
         )}
       </Box>
-      <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+      <Box
+        component="div"
+        sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}
+      >
         {notLatest && !saving && (
           <>
             <Typography
@@ -369,7 +374,7 @@ const MarkdownEditorModal: FC<{
             </Button>
           </>
         )}
-        <Box sx={{ flexGrow: 1 }} />
+        <Box component="div" sx={{ flexGrow: 1 }} />
         <Button
           variant="outlined"
           onClick={() => {
@@ -452,6 +457,7 @@ const ArtifactUploader: FC<{
 
   return (
     <Box
+      component="div"
       sx={{
         width: "300px",
         padding: theme.spacing(0, 1),
@@ -486,6 +492,7 @@ const ArtifactUploader: FC<{
         style={{ display: "none" }}
       />
       <Box
+        component="div"
         sx={{
           border: dragOver
             ? `3px dashed ${theme.palette.mode === "dark" ? "white" : "black"}`
@@ -499,6 +506,7 @@ const ArtifactUploader: FC<{
       >
         {dragOver && (
           <Box
+            component="div"
             sx={{
               width: "100%",
               height: "100%",

@@ -115,10 +115,14 @@ export const CompareStudies: FC<{
   )
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box component="div" sx={{ display: "flex" }}>
       <AppDrawer toggleColorMode={toggleColorMode} toolbar={toolbar}>
-        <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
+        <Box
+          component="div"
+          sx={{ display: "flex", flexDirection: "row", width: "100%" }}
+        >
           <Box
+            component="div"
             sx={{
               minWidth: studyListWidth,
               overflow: "auto",
@@ -130,7 +134,7 @@ export const CompareStudies: FC<{
                 <Typography sx={{ p: theme.spacing(1, 0) }}>
                   Compare studies with Shift+Click
                 </Typography>
-                <Box sx={{ flexGrow: 1 }} />
+                <Box component="div" sx={{ flexGrow: 1 }} />
               </ListSubheader>
               <Divider />
               {studies.map((study) => {
@@ -200,6 +204,7 @@ export const CompareStudies: FC<{
                         primary={`${study.study_id}. ${study.study_name}`}
                       />
                       <Box
+                        component="div"
                         sx={{
                           display: "flex",
                           flexDirection: "row",
@@ -234,13 +239,17 @@ export const CompareStudies: FC<{
           </Box>
           <Divider orientation="vertical" flexItem />
           <Box
+            component="div"
             sx={{
               flexGrow: 1,
               overflow: "auto",
               height: `calc(100vh - ${theme.spacing(8)})`,
             }}
           >
-            <Box sx={{ display: "flex", flexDirection: "row", width: "100%" }}>
+            <Box
+              component="div"
+              sx={{ display: "flex", flexDirection: "row", width: "100%" }}
+            >
               <StudiesGraph studies={selected} />
             </Box>
           </Box>
@@ -274,7 +283,10 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
   const showStudyDetails = studies.map((study) => studyDetails[study.study_id])
 
   return (
-    <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
+    <Box
+      component="div"
+      sx={{ display: "flex", width: "100%", flexDirection: "column" }}
+    >
       <FormControl
         component="fieldset"
         sx={{

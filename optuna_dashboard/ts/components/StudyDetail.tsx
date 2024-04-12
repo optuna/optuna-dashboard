@@ -35,12 +35,16 @@ import { PreferentialHistory } from "./Preferential/PreferentialHistory"
 import { PreferentialAnalytics } from "./Preferential/PreferentialAnalytics"
 import { PreferentialGraph } from "./Preferential/PreferentialGraph"
 
-interface ParamTypes {
+type ParamTypes = {
   studyId: string
 }
 
 export const useURLVars = (): number => {
   const { studyId } = useParams<ParamTypes>()
+
+  if (studyId === undefined) {
+    throw new Error("studyId is not defined")
+  }
 
   return useMemo(() => parseInt(studyId, 10), [studyId])
 }
@@ -102,7 +106,10 @@ export const StudyDetail: FC<{
     content = isPreferential ? (
       <PreferentialAnalytics studyId={studyId} />
     ) : (
-      <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
+      <Box
+        component="div"
+        sx={{ display: "flex", width: "100%", flexDirection: "column" }}
+      >
         <Typography
           variant="h5"
           sx={{
@@ -162,7 +169,10 @@ export const StudyDetail: FC<{
     content = <TrialList studyDetail={studyDetail} />
   } else if (page === "trialTable") {
     content = (
-      <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
+      <Box
+        component="div"
+        sx={{ display: "flex", width: "100%", flexDirection: "column" }}
+      >
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
             <TrialTable studyDetail={studyDetail} initialRowsPerPage={50} />
@@ -173,6 +183,7 @@ export const StudyDetail: FC<{
   } else if (page === "note" && studyDetail !== null) {
     content = (
       <Box
+        component="div"
         sx={{
           height: `calc(100vh - ${theme.spacing(8)})`,
           display: "flex",
@@ -199,6 +210,7 @@ export const StudyDetail: FC<{
   } else if (page === "graph") {
     content = (
       <Box
+        component="div"
         sx={{
           height: `calc(100vh - ${theme.spacing(8)})`,
           padding: theme.spacing(2),
@@ -234,7 +246,7 @@ export const StudyDetail: FC<{
   )
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box component="div" sx={{ display: "flex" }}>
       <AppDrawer
         studyId={studyId}
         page={page}

@@ -175,7 +175,7 @@ export const AppDrawer: FC<{
   }
 
   return (
-    <Box sx={{ display: "flex", width: "100%" }}>
+    <Box component="div" sx={{ display: "flex", width: "100%" }}>
       <AppBar position="fixed" open={open}>
         <Toolbar>
           <IconButton
@@ -316,7 +316,7 @@ export const AppDrawer: FC<{
             </ListItem>
           </List>
         )}
-        <Box sx={{ flexGrow: 1 }} />
+        <Box component="div" sx={{ flexGrow: 1 }} />
         <Divider />
         <List>
           {studyId !== undefined && (
@@ -359,6 +359,7 @@ export const AppDrawer: FC<{
               aria-describedby="modal-modal-description"
             >
               <Box
+                component="div"
                 sx={{
                   position: "absolute",
                   top: "50%",
