@@ -206,7 +206,7 @@ const ContourFrontend: FC<{
   )
 }
 
-const filterFunc = (trial: Trial, objectiveId: number): boolean => {
+const filterFunc = (trial: Trial): boolean => {
   return trial.state === "Complete" && trial.values !== undefined
 }
 
@@ -222,7 +222,7 @@ const plotContour = (
   }
 
   const trials: Trial[] = study ? study.trials : []
-  const filteredTrials = trials.filter((t) => filterFunc(t, objectiveId))
+  const filteredTrials = trials.filter((t) => filterFunc(t))
   if (filteredTrials.length < 2 || xParam === null || yParam === null) {
     plotly.react(plotDomId, [], {
       template: colorTheme,
