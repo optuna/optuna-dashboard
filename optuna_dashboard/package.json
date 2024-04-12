@@ -9,7 +9,8 @@
     "build": "webpack",
     "build:dev": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack",
     "build:prd": "NODE_ENV=production webpack",
-    "test": "jest ts/tests"
+    "test": "jest ts/tests",
+    "type-check": "tsc --noEmit"
   },
   "author": "Masashi Shibata",
   "license": "MIT",
