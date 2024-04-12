@@ -1,3 +1,4 @@
+import json
 import logging
 import math
 import os.path
@@ -7,6 +8,7 @@ from typing import Tuple
 import optuna
 from optuna.distributions import CategoricalDistribution
 from optuna.distributions import FloatDistribution
+from optuna.importance import get_param_importances, PedAnovaImportanceEvaluator
 from optuna.storages import BaseStorage
 from optuna.storages import JournalFileStorage
 from optuna.storages import JournalStorage
@@ -22,7 +24,9 @@ def remove_assets() -> None:
     os.mkdir(BASE_DIR)
 
 
-def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStorage:
+def create_optuna_storage(
+    storage: BaseStorage, params_importances: dict[str, list[dict[str, float]]]
+) -> optuna.storages.InMemoryStorage:
     # Single-objective study
     study = optuna.create_study(
         study_name="single-objective", storage=storage, sampler=optuna.samplers.RandomSampler()
@@ -35,6 +39,14 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
         return (x1 - 2) ** 2 + (x2 - 5) ** 2
 
     study.optimize(objective_single, n_trials=100)
+    params_importances[study.study_name] = [
+        get_param_importances(
+            study,
+            target=lambda trial: trial.values[objective_id],
+            evaluator=PedAnovaImportanceEvaluator(),
+        )
+        for objective_id in range(len(study.directions))
+    ]
 
     # Single-objective study with dynamic search space
     study = optuna.create_study(
@@ -49,6 +61,14 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
             return -((trial.suggest_float("x2", -10, 0) + 5) ** 2)
 
     study.optimize(objective_single_dynamic, n_trials=50)
+    params_importances[study.study_name] = [
+        get_param_importances(
+            study,
+            target=lambda trial: trial.values[objective_id],
+            evaluator=PedAnovaImportanceEvaluator(),
+        )
+        for objective_id in range(len(study.directions))
+    ]
 
     study = optuna.create_study(
         study_name="check-rank-plot", storage=storage, sampler=optuna.samplers.RandomSampler()
@@ -64,6 +84,14 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
         return (x1 - 2) ** 2 + (x2 - 5) ** 2
 
     study.optimize(objective_single, n_trials=1000)
+    params_importances[study.study_name] = [
+        get_param_importances(
+            study,
+            target=lambda trial: trial.values[objective_id],
+            evaluator=PedAnovaImportanceEvaluator(),
+        )
+        for objective_id in range(len(study.directions))
+    ]
 
     # Single-objective study
     study = optuna.create_study(study_name="single-objective-user-attrs", storage=storage)
@@ -79,6 +107,14 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
         return (x1 - 2) ** 2 + (x2 - 5) ** 2
 
     study.optimize(objective_single_user_attr, n_trials=100)
+    params_importances[study.study_name] = [
+        get_param_importances(
+            study,
+            target=lambda trial: trial.values[objective_id],
+            evaluator=PedAnovaImportanceEvaluator(),
+        )
+        for objective_id in range(len(study.directions))
+    ]
 
     # Single objective study with 'inf', '-inf', or 'nan' value
     study = optuna.create_study(study_name="single-inf", storage=storage)
@@ -93,6 +129,14 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
             return x**2
 
     study.optimize(objective_single_inf, n_trials=50)
+    params_importances[study.study_name] = [
+        get_param_importances(
+            study,
+            target=lambda trial: trial.values[objective_id],
+            evaluator=PedAnovaImportanceEvaluator(),
+        )
+        for objective_id in range(len(study.directions))
+    ]
 
     # Single objective pruned after reported 'inf', '-inf', or 'nan'
     study = optuna.create_study(study_name="single-inf-report", storage=storage)
@@ -112,6 +156,14 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
             return x**2
 
     study.optimize(objective_single_inf_report, n_trials=50)
+    params_importances[study.study_name] = [
+        get_param_importances(
+            study,
+            target=lambda trial: trial.values[objective_id],
+            evaluator=PedAnovaImportanceEvaluator(),
+        )
+        for objective_id in range(len(study.directions))
+    ]
 
     # Single objective with reported nan value
     study = optuna.create_study(study_name="single-nan-report", storage=storage)
@@ -124,6 +176,14 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
         return (x1 - 2) ** 2 + (x2 - 5) ** 2
 
     study.optimize(objective_single_nan_report, n_trials=100)
+    params_importances[study.study_name] = [
+        get_param_importances(
+            study,
+            target=lambda trial: trial.values[objective_id],
+            evaluator=PedAnovaImportanceEvaluator(),
+        )
+        for objective_id in range(len(study.directions))
+    ]
 
     # Single-objective study with 1 parameter
     study = optuna.create_study(
@@ -135,6 +195,14 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
         return -((x1 - 2) ** 2)
 
     study.optimize(objective_single_with_1param, n_trials=50)
+    params_importances[study.study_name] = [
+        get_param_importances(
+            study,
+            target=lambda trial: trial.values[objective_id],
+            evaluator=PedAnovaImportanceEvaluator(),
+        )
+        for objective_id in range(len(study.directions))
+    ]
 
     # Single-objective study with 1 parameter
     study = optuna.create_study(study_name="long-parameter-names", storage=storage)
@@ -149,6 +217,14 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
         return (x1 - 2) ** 2 + (x2 - 5) ** 2
 
     study.optimize(objective_long_parameter_names, n_trials=50)
+    params_importances[study.study_name] = [
+        get_param_importances(
+            study,
+            target=lambda trial: trial.values[objective_id],
+            evaluator=PedAnovaImportanceEvaluator(),
+        )
+        for objective_id in range(len(study.directions))
+    ]
 
     # Multi-objective study
     study = optuna.create_study(
@@ -166,6 +242,14 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
         return v0, v1
 
     study.optimize(objective_multi, n_trials=50)
+    params_importances[study.study_name] = [
+        get_param_importances(
+            study,
+            target=lambda trial: trial.values[objective_id],
+            evaluator=PedAnovaImportanceEvaluator(),
+        )
+        for objective_id in range(len(study.directions))
+    ]
 
     # Multi-objective study with dynamic search space
     study = optuna.create_study(
@@ -188,6 +272,14 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
             return v0, v1
 
     study.optimize(objective_multi_dynamic, n_trials=50)
+    params_importances[study.study_name] = [
+        get_param_importances(
+            study,
+            target=lambda trial: trial.values[objective_id],
+            evaluator=PedAnovaImportanceEvaluator(),
+        )
+        for objective_id in range(len(study.directions))
+    ]
 
     # Pruning with no intermediate values
     study = optuna.create_study(study_name="binh-korn-function-with-constraints", storage=storage)
@@ -201,6 +293,14 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
         return v
 
     study.optimize(objective_prune_with_no_trials, n_trials=100)
+    params_importances[study.study_name] = [
+        get_param_importances(
+            study,
+            target=lambda trial: trial.values[objective_id],
+            evaluator=PedAnovaImportanceEvaluator(),
+        )
+        for objective_id in range(len(study.directions))
+    ]
 
     # With failed trials
     study = optuna.create_study(study_name="failed trials", storage=storage)
@@ -214,6 +314,14 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
         return v
 
     study.optimize(objective_sometimes_got_failed, n_trials=100, catch=(Exception,))
+    params_importances[study.study_name] = [
+        get_param_importances(
+            study,
+            target=lambda trial: trial.values[objective_id],
+            evaluator=PedAnovaImportanceEvaluator(),
+        )
+        for objective_id in range(len(study.directions))
+    ]
 
     # No trials single-objective study
     study = optuna.create_study(study_name="no trials single-objective study", storage=storage)
@@ -251,6 +359,14 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
         return v0
 
     study.optimize(objective_constraints, n_trials=100)
+    params_importances[study.study_name] = [
+        get_param_importances(
+            study,
+            target=lambda trial: trial.values[objective_id],
+            evaluator=PedAnovaImportanceEvaluator(),
+        )
+        for objective_id in range(len(study.directions))
+    ]
 
     # Study with Running Trials
     study = optuna.create_study(
@@ -284,6 +400,14 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
         return 0.0
 
     study.optimize(objective_intermediate_values, n_trials=10)
+    params_importances[study.study_name] = [
+        get_param_importances(
+            study,
+            target=lambda trial: trial.values[objective_id],
+            evaluator=PedAnovaImportanceEvaluator(),
+        )
+        for objective_id in range(len(study.directions))
+    ]
     trial = study.ask(
         {"x": FloatDistribution(0, 10), "y": CategoricalDistribution(["Foo", "Bar"])}
     )  # To create a running trial
@@ -308,6 +432,14 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
         return 0.0
 
     study.optimize(objective_intermediate_values_constraints, n_trials=10)
+    params_importances[study.study_name] = [
+        get_param_importances(
+            study,
+            target=lambda trial: trial.values[objective_id],
+            evaluator=PedAnovaImportanceEvaluator(),
+        )
+        for objective_id in range(len(study.directions))
+    ]
     trial = study.ask(
         {"x": FloatDistribution(0, 10), "y": CategoricalDistribution(["Foo", "Bar"])}
     )  # To create a running trial
@@ -318,7 +450,11 @@ def create_optuna_storage(storage: BaseStorage) -> optuna.storages.InMemoryStora
 def main() -> None:
     remove_assets()
     storage = JournalStorage(JournalFileStorage(os.path.join(BASE_DIR, "journal.log")))
-    create_optuna_storage(storage)
+    params_importances: dict[str, dict[str, float]] = {}
+    create_optuna_storage(storage, params_importances)
+
+    with open(os.path.join(BASE_DIR, "params_importances.json"), "w") as f:
+        json.dump(params_importances, f, indent=2)
 
 
 if __name__ == "__main__":
