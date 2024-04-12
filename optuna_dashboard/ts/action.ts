@@ -144,7 +144,7 @@ export const actionCreator = () => {
     studyId: number,
     index: number,
     state: TrialState,
-    values?: TrialValueNumber[]
+    values?: number[]
   ) => {
     const newTrial: Trial = Object.assign(
       {},

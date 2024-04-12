@@ -209,9 +209,7 @@ const ContourFrontend: FC<{
 const filterFunc = (trial: Trial, objectiveId: number): boolean => {
   return (
     trial.state === "Complete" &&
-    trial.values !== undefined &&
-    trial.values[objectiveId] !== "inf" &&
-    trial.values[objectiveId] !== "-inf"
+    trial.values !== undefined
   )
 }
 

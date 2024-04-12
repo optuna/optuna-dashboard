@@ -67,7 +67,7 @@ export class Target {
         return null
       }
       const value = trial.values[objectiveId]
-      if (value === "inf" || value === "-inf") {
+      if (value === Infinity || value === -Infinity) {
         return null
       }
       return value

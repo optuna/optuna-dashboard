@@ -53,7 +53,7 @@ const GraphParetoFrontBackend: FC<{
     }
   }, [error])
 
-  return <Box id={plotDomId} sx={{ height: "450px" }} />
+  return <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
 }
 
 const GraphParetoFrontFrontend: FC<{
@@ -149,6 +149,7 @@ const GraphParetoFrontFrontend: FC<{
       </Grid>
       <Grid item xs={9}>
         <Box
+          component="div"
           id={plotDomId}
           sx={{
             height: "450px",
@@ -163,8 +164,7 @@ const filterFunc = (trial: Trial, directions: StudyDirection[]): boolean => {
   return (
     trial.state === "Complete" &&
     trial.values !== undefined &&
-    trial.values.length === directions.length &&
-    trial.values.every((v) => v !== "inf" && v !== "-inf")
+    trial.values.length === directions.length
   )
 }
 

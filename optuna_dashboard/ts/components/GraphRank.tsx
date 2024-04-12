@@ -65,7 +65,7 @@ const GraphRankBackend: FC<{
     }
   }, [error])
 
-  return <Box id={plotDomId} sx={{ height: "450px" }} />
+  return <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
 }
 
 const GraphRankFrontend: FC<{
@@ -163,7 +163,7 @@ const GraphRankFrontend: FC<{
         ) : null}
       </Grid>
       <Grid item xs={9}>
-        <Box id={plotDomId} sx={{ height: "450px" }} />
+        <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
       </Grid>
     </Grid>
   )
@@ -193,21 +193,13 @@ const getRankPlotInfo = (
   const zValues: number[] = []
   const isFeasible: boolean[] = []
   const hovertext: string[] = []
-  const convertTrialValueToNumber = (value: TrialValueNumber): number => {
-    // TrialValueNumber takes `number`, "inf", or "-inf".
-    return typeof value === "number"
-      ? value
-      : value.includes("-")
-        ? -Infinity
-        : Infinity
-  }
   filteredTrials.forEach((trial, i) => {
     const xValue = xAxis.values[i]
     const yValue = yAxis.values[i]
     if (xValue && yValue && trial.values) {
       xValues.push(xValue)
       yValues.push(yValue)
-      const zValue = convertTrialValueToNumber(trial.values[objectiveId])
+      const zValue = trial.values[objectiveId]
       zValues.push(zValue)
       const feasibility = trial.constraints.every((c) => c <= 0)
       isFeasible.push(feasibility)
