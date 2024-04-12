@@ -11,7 +11,7 @@ const meta: Meta<typeof TrialTable> = {
   tags: ["autodocs"],
   decorators: [
     (Story, storyContext) => {
-      const study = useMockStudy(storyContext.parameters?.studyId)
+      const { study } = useMockStudy(storyContext.parameters?.studyId)
       if (!study) return <p>loading...</p>
       return (
         <ThemeProvider theme={lightTheme}>

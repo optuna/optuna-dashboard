@@ -11,7 +11,9 @@ const meta: Meta<typeof PlotImportance> = {
   tags: ["autodocs"],
   decorators: [
     (Story, storyContext) => {
-      const study = useMockStudy(storyContext.parameters?.studyId)
+      const { study, importance } = useMockStudy(
+        storyContext.parameters?.studyId
+      )
       if (!study) return <p>loading...</p>
       return (
         <ThemeProvider theme={darkTheme}>
@@ -19,6 +21,7 @@ const meta: Meta<typeof PlotImportance> = {
           <Story
             args={{
               study,
+              importance,
             }}
           />
         </ThemeProvider>
