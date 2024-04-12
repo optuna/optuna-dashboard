@@ -16,6 +16,7 @@ import {
 import { DebouncedInputTextField } from "./Debounce"
 import { actionCreator } from "../action"
 import { useTrialUpdatingValue } from "../state"
+import * as Optuna from "@optuna/types"
 
 type WidgetState = {
   isValid: boolean
@@ -26,7 +27,7 @@ type WidgetState = {
 export const TrialFormWidgets: FC<{
   trial: Trial
   objectiveNames: string[]
-  directions: StudyDirection[]
+  directions: Optuna.StudyDirection[]
   formWidgets?: FormWidgets
 }> = ({ trial, objectiveNames, directions, formWidgets }) => {
   if (

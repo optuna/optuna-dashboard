@@ -26,6 +26,7 @@ import {
 } from "../state"
 import FormControlLabel from "@mui/material/FormControlLabel"
 import { artifactIsAvailable } from "../state"
+import * as Optuna from "@optuna/types"
 
 export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   const theme = useTheme()
@@ -45,13 +46,13 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   }
 
   const userAttrs = studySummary?.user_attrs || studyDetail?.user_attrs || []
-  const userAttrColumns: DataGridColumn<Attribute>[] = [
+  const userAttrColumns: DataGridColumn<Optuna.Attribute>[] = [
     { field: "key", label: "Key", sortable: true },
     { field: "value", label: "Value", sortable: true },
   ]
   const trials: Trial[] = studyDetail?.trials || []
   return (
-    <Box sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
+    <Box component="div" sx={{ display: "flex", width: "100%", flexDirection: "column" }}>
       <FormControl
         component="fieldset"
         sx={{
@@ -148,7 +149,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
               >
                 Study User Attributes
               </Typography>
-              <DataGrid<Attribute>
+              <DataGrid<Optuna.Attribute>
                 columns={userAttrColumns}
                 rows={userAttrs}
                 keyField={"key"}

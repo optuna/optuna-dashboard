@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom"
 import { PlotType } from "../apiClient"
 import { useBackendRender } from "../state"
 import { usePlot } from "../hooks/usePlot"
+import * as Optuna from "@optuna/types"
 
 const plotDomId = "graph-pareto-front"
 
@@ -160,7 +161,7 @@ const GraphParetoFrontFrontend: FC<{
   )
 }
 
-const filterFunc = (trial: Trial, directions: StudyDirection[]): boolean => {
+const filterFunc = (trial: Trial, directions: Optuna.StudyDirection[]): boolean => {
   return (
     trial.state === "Complete" &&
     trial.values !== undefined &&

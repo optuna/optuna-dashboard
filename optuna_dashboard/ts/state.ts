@@ -1,3 +1,4 @@
+import * as Optuna from "@optuna/types"
 import { atom, useRecoilValue } from "recoil"
 import {
   LightColorTemplates,
@@ -86,7 +87,7 @@ export const useTrialUpdatingValue = (trialId: number): boolean => {
 
 export const useStudyDirections = (
   studyId: number
-): StudyDirection[] | null => {
+): Optuna.StudyDirection[] | null => {
   const studyDetail = useStudyDetailValue(studyId)
   const studySummary = useStudySummaryValue(studyId)
   return studyDetail?.directions || studySummary?.directions || null

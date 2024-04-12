@@ -22,13 +22,14 @@ import {
 } from "../trialFilter"
 import { usePlotlyColorTheme } from "../state"
 import { useNavigate } from "react-router-dom"
+import * as Optuna from "@optuna/types"
 
 const plotDomId = "graph-history"
 
 interface HistoryPlotInfo {
   study_name: string
   trials: Trial[]
-  directions: StudyDirection[]
+  directions: Optuna.StudyDirection[]
   objective_names?: string[]
 }
 

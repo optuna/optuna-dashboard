@@ -1,4 +1,5 @@
 import React, { FC, useEffect, useMemo, useState } from "react"
+import * as Optuna from "@optuna/types"
 import { useRecoilValue } from "recoil"
 import { useSnackbar } from "notistack"
 import { Link } from "react-router-dom"
@@ -58,8 +59,8 @@ const getStudyListLink = (ids: number[]): string => {
 }
 
 const isEqualDirections = (
-  array1: StudyDirection[],
-  array2: StudyDirection[]
+  array1: Optuna.StudyDirection[],
+  array2: Optuna.StudyDirection[]
 ): boolean => {
   let i = array1.length
   if (i !== array2.length) return false

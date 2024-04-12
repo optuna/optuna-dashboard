@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react"
+import * as Optuna from "@optuna/types"
 
 type TargetKind = "objective" | "user_attr" | "params"
 
@@ -209,8 +210,8 @@ export const useObjectiveAndUserAttrTargetsFromStudies = (
     }, Number.MAX_VALUE)
   }, [studies])
 
-  const intersect = (arrays: AttributeSpec[][]) => {
-    const atrEqual = (obj1: AttributeSpec, obj2: AttributeSpec) => {
+  const intersect = (arrays: Optuna.AttributeSpec[][]) => {
+    const atrEqual = (obj1: Optuna.AttributeSpec, obj2: Optuna.AttributeSpec) => {
       return obj1.key === obj2.key
     }
     return arrays.reduce((a, b) =>

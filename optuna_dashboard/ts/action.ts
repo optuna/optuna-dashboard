@@ -1,3 +1,4 @@
+import * as Optuna from "@optuna/types"
 import { useRecoilState, useSetRecoilState } from "recoil"
 import { useSnackbar } from "notistack"
 import {
@@ -143,7 +144,7 @@ export const actionCreator = () => {
   const setTrialStateValues = (
     studyId: number,
     index: number,
-    state: TrialState,
+    state: Optuna.TrialState,
     values?: number[]
   ) => {
     const newTrial: Trial = Object.assign(
@@ -270,7 +271,7 @@ export const actionCreator = () => {
       })
   }
 
-  const createNewStudy = (studyName: string, directions: StudyDirection[]) => {
+  const createNewStudy = (studyName: string, directions: Optuna.StudyDirection[]) => {
     createNewStudyAPI(studyName, directions)
       .then((study_summary) => {
         const newVal = [...studySummaries, study_summary]

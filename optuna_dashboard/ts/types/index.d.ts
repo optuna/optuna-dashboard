@@ -7,9 +7,6 @@ declare const APP_BAR_TITLE: string
 declare const API_ENDPOINT: string
 declare const URL_PREFIX: string
 
-type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting"
-type TrialStateFinished = "Complete" | "Fail" | "Pruned"
-type StudyDirection = "maximize" | "minimize"
 type PreferenceFeedbackMode = "ChooseWorst"
 
 type FloatDistribution = {
@@ -51,11 +48,6 @@ type GraphVisibility = {
   slice: boolean
 }
 
-type TrialIntermediateValue = {
-  step: number
-  value: number
-}
-
 type TrialParam = {
   name: string
   param_internal_value: number
@@ -73,16 +65,6 @@ type ParamImportance = {
 type SearchSpaceItem = {
   name: string
   distribution: Distribution
-}
-
-type Attribute = {
-  key: string
-  value: string
-}
-
-type AttributeSpec = {
-  key: string
-  sortable: boolean
 }
 
 type Note = {

@@ -6,6 +6,7 @@ import { usePlotlyColorTheme } from "../state"
 import { PlotType } from "../apiClient"
 import { useBackendRender } from "../state"
 import { usePlot } from "../hooks/usePlot"
+import * as Optuna from "@optuna/types"
 
 const plotDomId = "graph-timeline"
 const maxBars = 100
@@ -96,7 +97,7 @@ const plotTimeline = (
     return
   }
 
-  const cm: Record<TrialState, string> = {
+  const cm: Record<Optuna.TrialState, string> = {
     Complete: "blue",
     Fail: "red",
     Pruned: "orange",

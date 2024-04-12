@@ -19,6 +19,7 @@ import FilterListIcon from "@mui/icons-material/FilterList"
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import StopCircleIcon from "@mui/icons-material/StopCircle"
+import * as Optuna from "@optuna/types"
 
 import { TrialNote } from "./Note"
 import { useNavigate } from "react-router-dom"
@@ -29,10 +30,9 @@ import { actionCreator } from "../action"
 import { TrialFormWidgets } from "./TrialFormWidgets"
 import { TrialArtifactCards } from "./Artifact/TrialArtifactCards"
 import { useQuery } from "../urlQuery"
-
 import { useVirtualizer } from "@tanstack/react-virtual"
 
-const states: TrialState[] = [
+const states: Optuna.TrialState[] = [
   "Complete",
   "Pruned",
   "Fail",
@@ -49,7 +49,7 @@ type Color =
   | "success"
   | "warning"
 
-const getChipColor = (state: TrialState): Color => {
+const getChipColor = (state: Optuna.TrialState): Color => {
   if (state === "Complete") {
     return "primary"
   } else if (state === "Running") {
@@ -64,25 +64,25 @@ const getChipColor = (state: TrialState): Color => {
   return "default"
 }
 
-const useExcludedStates = (query: URLSearchParams): TrialState[] => {
+const useExcludedStates = (query: URLSearchParams): Optuna.TrialState[] => {
   return useMemo(() => {
     const exclude = query.get("exclude")
     if (exclude === null) {
       return []
     }
-    const excluded: TrialState[] = exclude
+    const excluded: Optuna.TrialState[] = exclude
       .split(",")
-      .map((s): TrialState | undefined => {
+      .map((s): Optuna.TrialState | undefined => {
         return states.find((state) => state.toUpperCase() === s.toUpperCase())
       })
-      .filter((s): s is TrialState => s !== undefined)
+      .filter((s): s is Optuna.TrialState => s !== undefined)
     return excluded
   }, [query])
 }
 
 const useTrials = (
   studyDetail: StudyDetail | null,
-  excludedStates: TrialState[]
+  excludedStates: Optuna.TrialState[]
 ): Trial[] => {
   return useMemo(() => {
     let result = studyDetail !== null ? studyDetail.trials : []
@@ -123,7 +123,7 @@ const useIsBestTrial = (
 export const TrialListDetail: FC<{
   trial: Trial
   isBestTrial: (trialId: number) => boolean
-  directions: StudyDirection[]
+  directions: Optuna.StudyDirection[]
   objectiveNames: string[]
   formWidgets?: FormWidgets
 }> = ({ trial, isBestTrial, directions, objectiveNames, formWidgets }) => {
@@ -307,7 +307,7 @@ export const TrialListDetail: FC<{
 
 const getTrialListLink = (
   studyId: number,
-  exclude: TrialState[],
+  exclude: Optuna.TrialState[],
   numbers: number[]
 ): string => {
   const base = URL_PREFIX + `/studies/${studyId}/trials`
