@@ -19,7 +19,7 @@ import {
   FilterFn,
 } from "@tanstack/react-table"
 
-const multiValueFilter: FilterFn<any> = <D extends object>(
+const multiValueFilter: FilterFn<Trial> = <D extends object>(
   row: Row<D>,
   columnId: IdType<D>,
   filterValue: string[]
@@ -49,7 +49,7 @@ export const TrialTable: FC<{
   ]
 
   const columnHelper = createColumnHelper<Trial>()
-  const tcolumns: ColumnDef<Trial, any>[] = [
+  const tcolumns: ColumnDef<Trial>[] = [
     columnHelper.accessor("number", {
       header: "Number",
       footer: (info) => info.column.id,

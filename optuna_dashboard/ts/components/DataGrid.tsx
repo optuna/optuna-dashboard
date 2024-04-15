@@ -45,6 +45,7 @@ import {
   getFacetedUniqueValues,
   getFacetedRowModel,
   SortingState,
+  PaginationState,
   ColumnFiltersState,
   useReactTable,
 } from "@tanstack/react-table"
@@ -492,6 +493,10 @@ function DataGrid2(props: {
   )
   const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
     React.useState<null | HTMLElement>(null)
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 50,
+  })
 
   const table = useReactTable({
     data,
@@ -499,9 +504,11 @@ function DataGrid2(props: {
     state: {
       columnFilters,
       sorting,
+      pagination,
     },
     onColumnFiltersChange: setColumnFilters,
     onSortingChange: setSorting,
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
