@@ -515,17 +515,10 @@ function DataGrid2(props: {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    autoResetPageIndex: false,
     //
     // debugTable: true,
   })
-
-  const { pageSize, pageIndex } = table.getState().pagination
-
-  React.useEffect(() => {
-    return () => {
-      table.resetColumnFilters()
-    }
-  }, [])
 
   return (
     <Box sx={{ width: "100%" }}>
@@ -661,8 +654,8 @@ function DataGrid2(props: {
         rowsPerPageOptions={[10, 50, 100, { label: "All", value: data.length }]}
         component="div"
         count={table.getFilteredRowModel().rows.length}
-        rowsPerPage={pageSize}
-        page={pageIndex}
+        rowsPerPage={table.getState().pagination.pageSize}
+        page={table.getState().pagination.pageIndex}
         slotProps={{
           select: {
             inputProps: { "aria-label": "rows per page" },
