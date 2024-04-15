@@ -650,27 +650,40 @@ function DataGrid2(props: {
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 50, 100, { label: "All", value: data.length }]}
-        component="div"
-        count={table.getFilteredRowModel().rows.length}
-        rowsPerPage={table.getState().pagination.pageSize}
-        page={table.getState().pagination.pageIndex}
-        slotProps={{
-          select: {
-            inputProps: { "aria-label": "rows per page" },
-            native: true,
-          },
-        }}
-        onPageChange={(_, page) => {
-          table.setPageIndex(page)
-        }}
-        onRowsPerPageChange={(e) => {
-          const size = e.target.value ? Number(e.target.value) : 10
-          table.setPageSize(size)
-        }}
-        ActionsComponent={TablePaginationActions}
-      />
+      <Box display="flex" alignItems="center">
+        <TablePagination
+          rowsPerPageOptions={[
+            10,
+            50,
+            100,
+            { label: "All", value: data.length },
+          ]}
+          component="div"
+          count={table.getFilteredRowModel().rows.length}
+          rowsPerPage={table.getState().pagination.pageSize}
+          page={table.getState().pagination.pageIndex}
+          slotProps={{
+            select: {
+              inputProps: { "aria-label": "rows per page" },
+              native: true,
+            },
+          }}
+          onPageChange={(_, page) => {
+            table.setPageIndex(page)
+          }}
+          onRowsPerPageChange={(e) => {
+            const size = e.target.value ? Number(e.target.value) : 10
+            table.setPageSize(size)
+          }}
+          ActionsComponent={TablePaginationActions}
+        />
+        {table.getPageCount() > 2 ? (
+          <PaginationForm1
+            onPageNumberSubmit={(page) => table.setPageIndex(page)}
+            maxPageNumber={table.getPageCount()}
+          />
+        ) : null}
+      </Box>
     </Box>
   )
 }
@@ -742,6 +755,39 @@ const TablePaginationActions = (props: TablePaginationActionsProps) => {
         {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
       </IconButton>
     </Box>
+  )
+}
+
+const PaginationForm1: React.FC<{
+  onPageNumberSubmit: (value: number) => void
+  maxPageNumber: number
+}> = ({ onPageNumberSubmit, maxPageNumber }) => {
+  // This component is separated from DataGrid to prevent `DataGrid` from re-rendering the page,
+  // every time any letters are input.
+  const [specifiedPageText, setSpecifiedPageText] = React.useState("")
+
+  const handleSubmitPageNumber = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const newPageNumber = parseInt(specifiedPageText, 10)
+    // Page is 0-indexed in `TablePagination`.
+    onPageNumberSubmit(newPageNumber - 1)
+    setSpecifiedPageText("") // reset the input field
+  }
+
+  return (
+    <form onSubmit={handleSubmitPageNumber}>
+      <TextField
+        size="small"
+        label={`Go to Page: n / ${maxPageNumber}`}
+        value={specifiedPageText}
+        type="number"
+        style={{ width: 200 }}
+        inputProps={{ min: 1, max: maxPageNumber }}
+        onChange={(e) => {
+          setSpecifiedPageText(e.target.value)
+        }}
+      />
+    </form>
   )
 }
 

@@ -101,7 +101,9 @@ export const TrialTable: FC<{
       columnHelper.accessor("values", {
         header: "Value",
         footer: (info) => info.column.id,
+        enableSorting: true,
         enableColumnFilter: false,
+        sortUndefined: "last",
       })
     )
   } else {
@@ -130,11 +132,13 @@ export const TrialTable: FC<{
     columns.push(...objectiveColumns)
     tcolumns.push(
       ...studyDetail.directions.map((s, objectiveId) =>
-        columnHelper.accessor("values", {
+        columnHelper.accessor((row) => row["values"]?.[objectiveId], {
           id: `values_${objectiveId}`,
           header: `Objective ${objectiveId}`,
           footer: (info) => info.column.id,
+          enableSorting: true,
           enableColumnFilter: false,
+          sortUndefined: "last",
         })
       )
     )
@@ -183,6 +187,7 @@ export const TrialTable: FC<{
           header: `Param ${s.name}`,
           footer: (info) => info.column.id,
           enableSorting: sortable,
+          sortUndefined: "last",
           enableColumnFilter: filterChoices !== undefined,
           filterFn: multiValueFilter,
         }
@@ -222,6 +227,7 @@ export const TrialTable: FC<{
           footer: (info) => info.column.id,
           enableSorting: attr_spec.sortable,
           enableColumnFilter: false,
+          sortUndefined: "last",
         }
       )
     )
