@@ -10,8 +10,7 @@ import {
 import FormControlLabel from "@mui/material/FormControlLabel"
 import Grid2 from "@mui/material/Unstable_Grid2"
 import * as Optuna from "@optuna/types"
-import React, { FC, useState } from "react"
-import { DataGrid2 } from "./DataGrid"
+import { DataGrid } from "./DataGrid"
 import { GraphHyperparameterImportance } from "./GraphHyperparameterImportances"
 import { UserDefinedPlot } from "./UserDefinedPlot"
 import { BestTrialsCard } from "./BestTrialsCard"
@@ -169,7 +168,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
               >
                 Study User Attributes
               </Typography>
-              <DataGrid2 data={userAttrs} columns={columns} />
+              <DataGrid data={userAttrs} columns={columns} />
             </CardContent>
           </Card>
         </Grid2>

@@ -69,7 +69,7 @@ const HiddenSpan = styled("span")({
   width: 1,
 })
 
-function DataGrid2<T>(props: {
+function DataGrid<T>(props: {
   data: T[]
   columns: ColumnDef<T>[]
 }): React.ReactElement {
@@ -377,4 +377,4 @@ const PaginationForm1: React.FC<{
   )
 }
 
-export { DataGrid2 }
+export { DataGrid }

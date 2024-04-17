@@ -7,7 +7,7 @@ import {
   useTheme,
 } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2"
-import { DataGrid2 } from "../DataGrid"
+import { DataGrid } from "../DataGrid"
 import { BestTrialsCard } from "../BestTrialsCard"
 import { useStudyDetailValue, useStudySummaryValue } from "../../state"
 import { Contour } from "../GraphContour"
@@ -70,7 +70,7 @@ export const PreferentialAnalytics: FC<{ studyId: number }> = ({ studyId }) => {
               >
                 Study User Attributes
               </Typography>
-              <DataGrid2 data={userAttrs} columns={columns} />
+              <DataGrid data={userAttrs} columns={columns} />
             </CardContent>
           </Card>
         </Grid2>

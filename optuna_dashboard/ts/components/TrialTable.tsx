@@ -6,7 +6,7 @@ import LinkIcon from "@mui/icons-material/Link"
 import { Button, IconButton, useTheme } from "@mui/material"
 import React, { FC } from "react"
 
-import { DataGrid2 } from "./DataGrid"
+import { DataGrid } from "./DataGrid"
 import { Link } from "react-router-dom"
 import { StudyDetail, Trial } from "ts/types/optuna"
 import { DataGrid, DataGridColumn } from "./DataGrid"
@@ -151,7 +151,7 @@ export const TrialTable: FC<{
 
   return (
     <>
-      <DataGrid2 data={trials} columns={tcolumns} />
+      <DataGrid data={trials} columns={tcolumns} />
       <Button
         variant="outlined"
         startIcon={<DownloadIcon />}
