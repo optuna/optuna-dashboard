@@ -528,19 +528,17 @@ function DataGrid2(props: {
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
-                  const order = header.column.getIsSorted()
-                  const filterChoices = header.column.getCanFilter()
-                    ? Array.from(
-                        header.column.getFacetedUniqueValues().keys()
-                      ).sort()
-                    : []
                   if (
                     header.column.getCanFilter() &&
                     !header.column.getIsFiltered()
                   ) {
                     header.column.setFilterValue([])
-                    console.log(header.column.getFilterValue())
                   }
+                  const order = header.column.getIsSorted()
+                  const filterChoices = header.column.getCanFilter()
+                    ? Array.from(
+                        header.column.getFacetedUniqueValues().keys()
+                      ).sort() : null
                   return (
                     <TableCell key={header.id} colSpan={header.colSpan}>
                       {header.isPlaceholder ? null : (
@@ -569,7 +567,7 @@ function DataGrid2(props: {
                               header.getContext()
                             )
                           )}
-                          {header.column.getCanFilter() ? (
+                          {filterChoices !== null ? (
                             <>
                               <IconButton
                                 size="small"
