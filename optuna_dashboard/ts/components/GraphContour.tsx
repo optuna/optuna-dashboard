@@ -112,7 +112,8 @@ const ContourBackend: FC<{
 const ContourFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  const [graphComponentState, setGraphComponentState] = useState<GraphComponentState>(GRAPH_COMPONENT_STATE.COMPONENT_WILL_MOUNT)
+  const [graphComponentState, setGraphComponentState] =
+    useState<GraphComponentState>(GRAPH_COMPONENT_STATE.COMPONENT_WILL_MOUNT)
   useEffect(() => {
     setGraphComponentState(GRAPH_COMPONENT_STATE.COMPONENT_DID_MOUNT)
   }, [])
@@ -146,7 +147,10 @@ const ContourFrontend: FC<{
   }
 
   useEffect(() => {
-    if (study != null && graphComponentState !== GRAPH_COMPONENT_STATE.COMPONENT_WILL_MOUNT) {
+    if (
+      study != null &&
+      graphComponentState !== GRAPH_COMPONENT_STATE.COMPONENT_WILL_MOUNT
+    ) {
       plotContour(study, objectiveId, xParam, yParam, colorTheme)?.then(() => {
         setGraphComponentState(GRAPH_COMPONENT_STATE.GRAPH_DID_RENDER)
       })
@@ -210,22 +214,20 @@ const ContourFrontend: FC<{
         ) : null}
       </Grid>
       <Grid item xs={9}>
-        <Box component="div" id={plotDomId} sx={{ height: "450px" }} > 
-          {
-            graphComponentState !== GRAPH_COMPONENT_STATE.GRAPH_DID_RENDER && (
-              <Box
-                component="div"
-                sx={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "100%",
-                }}
-                >
-                  <CircularProgress />
-                </Box>
-            )
-          }
+        <Box component="div" id={plotDomId} sx={{ height: "450px" }}>
+          {graphComponentState !== GRAPH_COMPONENT_STATE.GRAPH_DID_RENDER && (
+            <Box
+              component="div"
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%",
+              }}
+            >
+              <CircularProgress />
+            </Box>
+          )}
         </Box>
       </Grid>
     </Grid>
