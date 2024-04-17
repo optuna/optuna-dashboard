@@ -41,7 +41,10 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
 
   return (
     <>
-      <Box component="div" sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}>
+      <Box
+        component="div"
+        sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}
+      >
         {study.artifacts.map((artifact) => {
           const urlPath = `/artifacts/${study.id}/${artifact.artifact_id}`
           return (

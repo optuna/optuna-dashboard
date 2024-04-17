@@ -5,7 +5,13 @@ import {
   DarkColorTemplates,
 } from "./components/PlotlyColorTemplates"
 import { useLocalStorage } from "usehooks-ts"
-import { Artifact, PlotlyColorTheme, StudyDetail, StudyDetails, StudySummary } from "./types"
+import {
+  Artifact,
+  PlotlyColorTheme,
+  StudyDetail,
+  StudyDetails,
+  StudySummary,
+} from "./types"
 
 export const studySummariesState = atom<StudySummary[]>({
   key: "studySummaries",

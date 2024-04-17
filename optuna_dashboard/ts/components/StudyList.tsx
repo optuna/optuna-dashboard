@@ -98,7 +98,7 @@ export const StudyList: FC<{
   }))
   const sortBySelect = (
     <Box
-    component="div"
+      component="div"
       sx={{
         position: "relative",
         borderRadius: theme.shape.borderRadius,
@@ -106,7 +106,7 @@ export const StudyList: FC<{
       }}
     >
       <Box
-      component="div"
+        component="div"
         sx={{
           padding: theme.spacing(0, 2),
           height: "100%",

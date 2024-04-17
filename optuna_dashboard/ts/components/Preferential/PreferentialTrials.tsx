@@ -34,7 +34,14 @@ import {
   useThreejsArtifactModal,
 } from "../Artifact/ThreejsArtifactViewer"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
-import { Artifact, FeedbackComponentArtifact, FeedbackComponentNote, FeedbackComponentType, StudyDetail, Trial } from "ts/types"
+import {
+  Artifact,
+  FeedbackComponentArtifact,
+  FeedbackComponentNote,
+  FeedbackComponentType,
+  StudyDetail,
+  Trial,
+} from "ts/types"
 
 const SettingsPage: FC<{
   studyDetail: StudyDetail
@@ -246,7 +253,7 @@ const PreferentialTrial: FC<{
     >
       <CardActions>
         <Box
-        component="div"
+          component="div"
           sx={{
             margin: theme.spacing(0, 2),
             maxWidth: `calc(${trialWidth}px - ${
@@ -325,7 +332,7 @@ const PreferentialTrial: FC<{
               urlPath={urlPath}
             />
             <Box
-            component="div"
+              component="div"
               sx={{
                 position: "absolute",
                 top: 0,
@@ -546,7 +553,10 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
           </Button>
         </Box>
       </Box>
-      <Box component="div" sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
+      <Box
+        component="div"
+        sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}
+      >
         {displayTrials.display.map((t, index) => {
           const trial = activeTrials.find((trial) => trial.number === t)
           const candidates = displayTrials.display.filter(
@@ -578,7 +588,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
       {detailTrial !== null && (
         <Modal open={true} onClose={() => setDetailTrial(null)}>
           <Box
-          component="div"
+            component="div"
             sx={{
               position: "absolute",
               top: 0,
@@ -594,7 +604,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
             }}
           >
             <Box
-            component="div"
+              component="div"
               sx={{
                 width: "100%",
                 height: "100%",

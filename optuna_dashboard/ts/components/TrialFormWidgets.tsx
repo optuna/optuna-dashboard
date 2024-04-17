@@ -17,7 +17,15 @@ import { DebouncedInputTextField } from "./Debounce"
 import { actionCreator } from "../action"
 import { useTrialUpdatingValue } from "../state"
 import * as Optuna from "@optuna/types"
-import { FormWidgets, ObjectiveChoiceWidget, ObjectiveSliderWidget, ObjectiveTextInputWidget, ObjectiveUserAttrRef, Trial, UserAttrFormWidget } from "ts/types"
+import {
+  FormWidgets,
+  ObjectiveChoiceWidget,
+  ObjectiveSliderWidget,
+  ObjectiveTextInputWidget,
+  ObjectiveUserAttrRef,
+  Trial,
+  UserAttrFormWidget,
+} from "ts/types"
 
 type WidgetState = {
   isValid: boolean
