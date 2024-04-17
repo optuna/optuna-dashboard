@@ -37,7 +37,7 @@ export const TrialTable: FC<{
   // TODO: const objectiveNames: string[] = studyDetail?.objective_names || []
 
   const columnHelper = createColumnHelper<Trial>()
-  const tcolumns: ColumnDef<Trial>[] = [
+  const columns: ColumnDef<Trial>[] = [
     columnHelper.accessor("number", {
       header: "Number",
       footer: (info) => info.column.id,
@@ -52,7 +52,7 @@ export const TrialTable: FC<{
     }),
   ]
   if (studyDetail === null || studyDetail.directions.length === 1) {
-    tcolumns.push(
+    columns.push(
       columnHelper.accessor("values", {
         header: "Value",
         footer: (info) => info.column.id,
@@ -62,7 +62,7 @@ export const TrialTable: FC<{
       })
     )
   } else {
-    tcolumns.push(
+    columns.push(
       ...studyDetail.directions.map((s, objectiveId) =>
         columnHelper.accessor((row) => row["values"]?.[objectiveId], {
           id: `values_${objectiveId}`,
@@ -90,7 +90,7 @@ export const TrialTable: FC<{
     if (filterChoices !== undefined && isDynamicSpace && hasMissingValue) {
       filterChoices.push(null)
     }
-    tcolumns.push(
+    columns.push(
       columnHelper.accessor(
         (row) =>
           row["params"].find((p) => p.name === s.name)?.param_external_value ||
@@ -109,7 +109,7 @@ export const TrialTable: FC<{
   })
 
   studyDetail?.union_user_attrs.forEach((attr_spec) => {
-    tcolumns.push(
+    columns.push(
       columnHelper.accessor(
         (row) =>
           row["user_attrs"].find((a) => a.key === attr_spec.key)?.value || null,
@@ -124,7 +124,7 @@ export const TrialTable: FC<{
       )
     )
   })
-  tcolumns.push(
+  columns.push(
     columnHelper.accessor((row) => row, {
       header: "Detail",
       cell: (info) => (
@@ -151,7 +151,7 @@ export const TrialTable: FC<{
 
   return (
     <>
-      <DataGrid data={trials} columns={tcolumns} />
+      <DataGrid data={trials} columns={columns} />
       <Button
         variant="outlined"
         startIcon={<DownloadIcon />}
