@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "skipLibCheck": true,
     "strictNullChecks": true,
     "moduleResolution": "node",
     "noUnusedLocals": true,
@@ -16,7 +15,7 @@
     "module": "esnext",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es5",
+    "target": "es6",
     "jsx": "react",
     "sourceMap": true,
     "strict": true
