@@ -7,6 +7,10 @@ import {
   useTheme,
 } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2"
+import { DataGrid2 } from "../DataGrid"
+import { BestTrialsCard } from "../BestTrialsCard"
+import { useStudyDetailValue, useStudySummaryValue } from "../../state"
+import { Contour } from "../GraphContour"
 import * as Optuna from "@optuna/types"
 import React, { FC } from "react"
 import { useStudyDetailValue, useStudySummaryValue } from "../../state"
@@ -14,15 +18,26 @@ import { BestTrialsCard } from "../BestTrialsCard"
 import { DataGrid, DataGridColumn } from "../DataGrid"
 import { Contour } from "../GraphContour"
 
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
+
 export const PreferentialAnalytics: FC<{ studyId: number }> = ({ studyId }) => {
   const theme = useTheme()
   const studySummary = useStudySummaryValue(studyId)
   const studyDetail = useStudyDetailValue(studyId)
 
   const userAttrs = studySummary?.user_attrs || studyDetail?.user_attrs || []
-  const userAttrColumns: DataGridColumn<Optuna.Attribute>[] = [
-    { field: "key", label: "Key", sortable: true },
-    { field: "value", label: "Value", sortable: true },
+  const columnHelper = createColumnHelper<Trial>()
+  const columns: ColumnDef<Attribute>[] = [
+    columnHelper.accessor("key", {
+      header: "Key",
+      footer: (info) => info.column.id,
+      enableSorting: true,
+    }),
+    columnHelper.accessor("value", {
+      header: "Value",
+      footer: (info) => info.column.id,
+      enableSorting: true,
+    }),
   ]
   return (
     <Box
@@ -55,14 +70,7 @@ export const PreferentialAnalytics: FC<{ studyId: number }> = ({ studyId }) => {
               >
                 Study User Attributes
               </Typography>
-              <DataGrid<Optuna.Attribute>
-                columns={userAttrColumns}
-                rows={userAttrs}
-                keyField={"key"}
-                dense={true}
-                initialRowsPerPage={5}
-                rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
-              />
+              <DataGrid2 data={userAttrs} columns={columns} />
             </CardContent>
           </Card>
         </Grid2>

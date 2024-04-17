@@ -11,6 +11,11 @@ import FormControlLabel from "@mui/material/FormControlLabel"
 import Grid2 from "@mui/material/Unstable_Grid2"
 import * as Optuna from "@optuna/types"
 import React, { FC, useState } from "react"
+import { DataGrid2 } from "./DataGrid"
+import { GraphHyperparameterImportance } from "./GraphHyperparameterImportances"
+import { UserDefinedPlot } from "./UserDefinedPlot"
+import { BestTrialsCard } from "./BestTrialsCard"
+import { StudyArtifactCards } from "./Artifact/StudyArtifactCards"
 import { useRecoilValue } from "recoil"
 import { Trial } from "ts/types/optuna"
 import {
@@ -28,6 +33,8 @@ import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphParetoFront } from "./GraphParetoFront"
 import { GraphTimeline } from "./GraphTimeline"
 import { UserDefinedPlot } from "./UserDefinedPlot"
+
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 
 export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   const theme = useTheme()
@@ -47,9 +54,18 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   }
 
   const userAttrs = studySummary?.user_attrs || studyDetail?.user_attrs || []
-  const userAttrColumns: DataGridColumn<Optuna.Attribute>[] = [
-    { field: "key", label: "Key", sortable: true },
-    { field: "value", label: "Value", sortable: true },
+  const columnHelper = createColumnHelper<Trial>()
+  const columns: ColumnDef<Attribute>[] = [
+    columnHelper.accessor("key", {
+      header: "Key",
+      footer: (info) => info.column.id,
+      enableSorting: true,
+    }),
+    columnHelper.accessor("value", {
+      header: "Value",
+      footer: (info) => info.column.id,
+      enableSorting: true,
+    }),
   ]
   const trials: Trial[] = studyDetail?.trials || []
   return (
@@ -153,14 +169,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
               >
                 Study User Attributes
               </Typography>
-              <DataGrid<Optuna.Attribute>
-                columns={userAttrColumns}
-                rows={userAttrs}
-                keyField={"key"}
-                dense={true}
-                initialRowsPerPage={5}
-                rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
-              />
+              <DataGrid2 data={userAttrs} columns={columns} />
             </CardContent>
           </Card>
         </Grid2>

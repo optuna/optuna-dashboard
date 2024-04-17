@@ -482,9 +482,9 @@ const isNumber = (
   return typeof rowsPerPage === "number"
 }
 
-function DataGrid2(props: {
-  data: Trial[]
-  columns: ColumnDef<Trial>[]
+function DataGrid2<T>(props: {
+  data: T[]
+  columns: ColumnDef<T>[]
 }): React.ReactElement {
   const { data, columns } = props
   const [sorting, setSorting] = React.useState<SortingState>([])
@@ -538,7 +538,8 @@ function DataGrid2(props: {
                   const filterChoices = header.column.getCanFilter()
                     ? Array.from(
                         header.column.getFacetedUniqueValues().keys()
-                      ).sort() : null
+                      ).sort()
+                    : null
                   return (
                     <TableCell key={header.id} colSpan={header.colSpan}>
                       {header.isPlaceholder ? null : (
