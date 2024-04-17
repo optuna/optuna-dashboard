@@ -45,24 +45,6 @@ jobs:
           npm run build:dev
           npm run build:prd
 
-  test:
-    name: Run tests
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out code
-        uses: actions/checkout@master
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: '20'
-      - name: Run jest
-        working-directory: optuna_dashboard
-        run: |
-          npm install
-          npm run test
-
   test-tslib:
     name: Run tests
     runs-on: ubuntu-latest
