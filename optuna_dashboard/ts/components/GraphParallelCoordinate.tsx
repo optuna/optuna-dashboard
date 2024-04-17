@@ -20,6 +20,7 @@ import { useMergedUnionSearchSpace } from "../searchSpace"
 import { PlotType } from "../apiClient"
 import { useBackendRender } from "../state"
 import { usePlot } from "../hooks/usePlot"
+import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 
 const plotDomId = "graph-parallel-coordinate"
 
@@ -121,7 +122,7 @@ const GraphParallelCoordinateBackend: FC<{
     }
   }, [error])
 
-  return <Box id={plotDomId} sx={{ height: "450px" }} />
+  return <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
 }
 
 const GraphParallelCoordinateFrontend: FC<{
@@ -161,7 +162,7 @@ const GraphParallelCoordinateFrontend: FC<{
         {renderCheckBoxes()}
       </Grid>
       <Grid item xs={9}>
-        <Box id={plotDomId} sx={{ height: "450px" }} />
+        <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
       </Grid>
     </Grid>
   )
@@ -246,7 +247,9 @@ const plotCoordinate = (
       )
       if (s.distribution.type === "CategoricalDistribution") {
         // categorical
-        const vocabArr: string[] = s.distribution.choices.map((c) => c.value)
+        const vocabArr: string[] = s.distribution.choices.map(
+          (c) => c?.toString() ?? "null"
+        )
         const tickvals: number[] = vocabArr.map((v, i) => i)
         return {
           label: breakLabelIfTooLong(s.name),

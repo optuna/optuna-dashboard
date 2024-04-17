@@ -21,6 +21,7 @@ import { formatDate } from "../../dateUtil"
 import { actionCreator } from "../../action"
 import { useStudyDetailValue } from "../../state"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
+import { PreferenceHistory, StudyDetail, Trial } from "ts/types/optuna"
 
 type TrialType = "worst" | "none"
 
@@ -93,6 +94,7 @@ const CandidateTrial: FC<{
       </CardActions>
       <CardContent aria-label="trial" sx={cardComponentSx}>
         <Box
+          component="div"
           sx={{
             padding: theme.spacing(2),
           }}
@@ -126,6 +128,7 @@ const CandidateTrial: FC<{
       </CardContent>
       <Modal open={detailShown} onClose={() => setDetailShown(false)}>
         <Box
+          component="div"
           sx={{
             position: "absolute",
             top: 0,
@@ -141,6 +144,7 @@ const CandidateTrial: FC<{
           }}
         >
           <Box
+            component="div"
             sx={{
               width: "100%",
               height: "100%",
@@ -182,12 +186,14 @@ const ChoiceTrials: FC<{
 
   return (
     <Box
+      component="div"
       sx={{
         marginBottom: theme.spacing(4),
         position: "relative",
       }}
     >
       <Box
+        component="div"
         sx={{
           display: "flex",
           flexDirection: "row",
@@ -232,6 +238,7 @@ const ChoiceTrials: FC<{
         )}
       </Box>
       <Box
+        component="div"
         sx={{
           display: "flex",
           flexDirection: "row",
@@ -281,6 +288,7 @@ export const PreferentialHistory: FC<{ studyDetail: StudyDetail | null }> = ({
 
   return (
     <Box
+      component="div"
       padding={theme.spacing(2)}
       sx={{ display: "flex", flexDirection: "column" }}
     >

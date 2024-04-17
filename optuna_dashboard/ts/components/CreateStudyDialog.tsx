@@ -18,6 +18,8 @@ import { useRecoilValue } from "recoil"
 import { studySummariesState } from "../state"
 import RemoveIcon from "@mui/icons-material/Remove"
 import AddIcon from "@mui/icons-material/Add"
+import * as Optuna from "@optuna/types"
+import { StudySummary } from "ts/types/optuna"
 
 export const useCreateStudyDialog = (): [() => void, () => ReactNode] => {
   const theme = useTheme()
@@ -25,7 +27,9 @@ export const useCreateStudyDialog = (): [() => void, () => ReactNode] => {
 
   const [newStudyName, setNewStudyName] = useState("")
   const [openNewStudyDialog, setOpenNewStudyDialog] = useState(false)
-  const [directions, setDirections] = useState<StudyDirection[]>(["minimize"])
+  const [directions, setDirections] = useState<Optuna.StudyDirection[]>([
+    "minimize",
+  ])
   const studies = useRecoilValue<StudySummary[]>(studySummariesState)
   const newStudyNameAlreadyUsed = studies.some(
     (v) => v.study_name === newStudyName
@@ -86,8 +90,8 @@ export const useCreateStudyDialog = (): [() => void, () => ReactNode] => {
               <Select
                 value={directions[i]}
                 onChange={(e) => {
-                  const newVal: StudyDirection[] = [...directions]
-                  newVal[i] = e.target.value as StudyDirection
+                  const newVal: Optuna.StudyDirection[] = [...directions]
+                  newVal[i] = e.target.value as Optuna.StudyDirection
                   setDirections(newVal)
                 }}
               >
@@ -103,7 +107,10 @@ export const useCreateStudyDialog = (): [() => void, () => ReactNode] => {
             startIcon={<AddIcon />}
             sx={{ marginRight: theme.spacing(1) }}
             onClick={() => {
-              const newVal: StudyDirection[] = [...directions, "minimize"]
+              const newVal: Optuna.StudyDirection[] = [
+                ...directions,
+                "minimize",
+              ]
               setDirections(newVal)
             }}
           >
@@ -115,7 +122,7 @@ export const useCreateStudyDialog = (): [() => void, () => ReactNode] => {
             sx={{ marginRight: theme.spacing(1) }}
             disabled={directions.length <= 1}
             onClick={() => {
-              const newVal: StudyDirection[] = [...directions]
+              const newVal: Optuna.StudyDirection[] = [...directions]
               newVal.pop()
               setDirections(newVal)
             }}

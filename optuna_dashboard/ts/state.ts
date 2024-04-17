@@ -1,9 +1,17 @@
+import * as Optuna from "@optuna/types"
 import { atom, useRecoilValue } from "recoil"
 import {
   LightColorTemplates,
   DarkColorTemplates,
 } from "./components/PlotlyColorTemplates"
 import { useLocalStorage } from "usehooks-ts"
+import {
+  Artifact,
+  PlotlyColorTheme,
+  StudyDetail,
+  StudyDetails,
+  StudySummary,
+} from "./types/optuna"
 
 export const studySummariesState = atom<StudySummary[]>({
   key: "studySummaries",
@@ -86,7 +94,7 @@ export const useTrialUpdatingValue = (trialId: number): boolean => {
 
 export const useStudyDirections = (
   studyId: number
-): StudyDirection[] | null => {
+): Optuna.StudyDirection[] | null => {
   const studyDetail = useStudyDetailValue(studyId)
   const studySummary = useStudySummaryValue(studyId)
   return studyDetail?.directions || studySummary?.directions || null

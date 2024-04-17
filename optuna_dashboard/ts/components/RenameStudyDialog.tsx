@@ -10,6 +10,7 @@ import {
 } from "@mui/material"
 import { actionCreator } from "../action"
 import { DebouncedInputTextField } from "./Debounce"
+import { StudySummary } from "ts/types/optuna"
 
 export const useRenameStudyDialog = (
   studies: StudySummary[]

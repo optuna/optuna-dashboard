@@ -22,13 +22,15 @@ import {
 } from "../trialFilter"
 import { usePlotlyColorTheme } from "../state"
 import { useNavigate } from "react-router-dom"
+import * as Optuna from "@optuna/types"
+import { StudyDetail, Trial } from "ts/types/optuna"
 
 const plotDomId = "graph-history"
 
 interface HistoryPlotInfo {
   study_name: string
   trials: Trial[]
-  directions: StudyDirection[]
+  directions: Optuna.StudyDirection[]
   objective_names?: string[]
 }
 
@@ -210,6 +212,7 @@ export const GraphHistory: FC<{
       </Grid>
       <Grid item xs={9}>
         <Box
+          component="div"
           id={plotDomId}
           sx={{
             height: "450px",

@@ -8,7 +8,8 @@
     "watch": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack --watch",
     "build": "webpack",
     "build:dev": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack",
-    "build:prd": "NODE_ENV=production webpack"
+    "build:prd": "NODE_ENV=production webpack",
+    "type-check": "tsc --noEmit"
   },
   "author": "Masashi Shibata",
   "license": "MIT",
@@ -45,6 +46,7 @@
   "devDependencies": {
     "@babel/core": "^7.23.9",
     "@babel/preset-env": "^7.23.9",
+    "@optuna/types": "../tslib/types/",
     "@types/plotly.js": "^2.12.32",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",

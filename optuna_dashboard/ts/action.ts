@@ -1,3 +1,4 @@
+import * as Optuna from "@optuna/types"
 import { useRecoilState, useSetRecoilState } from "recoil"
 import { useSnackbar } from "notistack"
 import {
@@ -33,6 +34,15 @@ import {
   studySummariesLoadingState,
 } from "./state"
 import { getDominatedTrials } from "./dominatedTrials"
+import {
+  Artifact,
+  FeedbackComponentType,
+  Note,
+  StudyDetail,
+  StudyDetails,
+  StudySummary,
+  Trial,
+} from "./types/optuna"
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const actionCreator = () => {
@@ -143,8 +153,8 @@ export const actionCreator = () => {
   const setTrialStateValues = (
     studyId: number,
     index: number,
-    state: TrialState,
-    values?: TrialValueNumber[]
+    state: Optuna.TrialState,
+    values?: number[]
   ) => {
     const newTrial: Trial = Object.assign(
       {},
@@ -270,7 +280,10 @@ export const actionCreator = () => {
       })
   }
 
-  const createNewStudy = (studyName: string, directions: StudyDirection[]) => {
+  const createNewStudy = (
+    studyName: string,
+    directions: Optuna.StudyDirection[]
+  ) => {
     createNewStudyAPI(studyName, directions)
       .then((study_summary) => {
         const newVal = [...studySummaries, study_summary]

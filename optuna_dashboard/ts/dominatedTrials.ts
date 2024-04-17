@@ -1,15 +1,20 @@
-const filterFunc = (trial: Trial, directions: StudyDirection[]): boolean => {
+import * as Optuna from "@optuna/types"
+import { Trial } from "./types/optuna"
+
+const filterFunc = (
+  trial: Trial,
+  directions: Optuna.StudyDirection[]
+): boolean => {
   return (
     trial.state === "Complete" &&
     trial.values !== undefined &&
-    trial.values.length === directions.length &&
-    trial.values.every((v) => v !== "inf" && v !== "-inf")
+    trial.values.length === directions.length
   )
 }
 
 export const getDominatedTrials = (
   trials: Trial[],
-  directions: StudyDirection[]
+  directions: Optuna.StudyDirection[]
 ): Trial[] => {
   // TODO(c-bata): Use log-linear algorithm like Optuna.
   // TODO(c-bata): Use this function at GraphParetoFront.

@@ -1,9 +1,11 @@
 import { useMemo } from "react"
+import { SearchSpaceItem } from "./types/optuna"
+import * as Optuna from "@optuna/types"
 
 export const mergeUnionSearchSpace = (
   unionSearchSpace: SearchSpaceItem[]
 ): SearchSpaceItem[] => {
-  const knownElements = new Map<string, Distribution>()
+  const knownElements = new Map<string, Optuna.Distribution>()
   unionSearchSpace.forEach((s) => {
     const d = knownElements.get(s.name)
     if (d === undefined) {
@@ -17,7 +19,7 @@ export const mergeUnionSearchSpace = (
       // CategoricalDistribution.choices will never be changed
       return
     }
-    const updated: Distribution = {
+    const updated: Optuna.Distribution = {
       ...d,
       low: Math.min(d.low, s.distribution.low),
       high: Math.max(d.high, s.distribution.high),
@@ -28,7 +30,7 @@ export const mergeUnionSearchSpace = (
     .sort((a, b) => (a > b ? 1 : a < b ? -1 : 0))
     .map((name) => ({
       name: name,
-      distribution: knownElements.get(name) as Distribution,
+      distribution: knownElements.get(name) as Optuna.Distribution,
     }))
 }
 

@@ -12,6 +12,7 @@ import { DataGrid, DataGridColumn } from "../DataGrid"
 import { BestTrialsCard } from "../BestTrialsCard"
 import { useStudyDetailValue, useStudySummaryValue } from "../../state"
 import { Contour } from "../GraphContour"
+import * as Optuna from "@optuna/types"
 
 export const PreferentialAnalytics: FC<{ studyId: number }> = ({ studyId }) => {
   const theme = useTheme()
@@ -19,7 +20,7 @@ export const PreferentialAnalytics: FC<{ studyId: number }> = ({ studyId }) => {
   const studyDetail = useStudyDetailValue(studyId)
 
   const userAttrs = studySummary?.user_attrs || studyDetail?.user_attrs || []
-  const userAttrColumns: DataGridColumn<Attribute>[] = [
+  const userAttrColumns: DataGridColumn<Optuna.Attribute>[] = [
     { field: "key", label: "Key", sortable: true },
     { field: "value", label: "Value", sortable: true },
   ]
@@ -54,7 +55,7 @@ export const PreferentialAnalytics: FC<{ studyId: number }> = ({ studyId }) => {
               >
                 Study User Attributes
               </Typography>
-              <DataGrid<Attribute>
+              <DataGrid<Optuna.Attribute>
                 columns={userAttrColumns}
                 rows={userAttrs}
                 keyField={"key"}

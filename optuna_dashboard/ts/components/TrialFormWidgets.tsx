@@ -16,6 +16,16 @@ import {
 import { DebouncedInputTextField } from "./Debounce"
 import { actionCreator } from "../action"
 import { useTrialUpdatingValue } from "../state"
+import * as Optuna from "@optuna/types"
+import {
+  FormWidgets,
+  ObjectiveChoiceWidget,
+  ObjectiveSliderWidget,
+  ObjectiveTextInputWidget,
+  ObjectiveUserAttrRef,
+  Trial,
+  UserAttrFormWidget,
+} from "ts/types/optuna"
 
 type WidgetState = {
   isValid: boolean
@@ -26,7 +36,7 @@ type WidgetState = {
 export const TrialFormWidgets: FC<{
   trial: Trial
   objectiveNames: string[]
-  directions: StudyDirection[]
+  directions: Optuna.StudyDirection[]
   formWidgets?: FormWidgets
 }> = ({ trial, objectiveNames, directions, formWidgets }) => {
   if (
@@ -136,7 +146,7 @@ const UpdatableFormWidgets: FC<{
   }
 
   return (
-    <Box sx={{ p: theme.spacing(1, 0) }}>
+    <Box component="div" sx={{ p: theme.spacing(1, 0) }}>
       <Card
         sx={{
           display: "flex",
@@ -149,6 +159,7 @@ const UpdatableFormWidgets: FC<{
       >
         {widgetStates.map((ws) => ws.render())}
         <Box
+          component="div"
           sx={{
             display: "flex",
             flexDirection: "row",
@@ -283,7 +294,7 @@ export const useSliderWidget = (
       <FormLabel>
         {metricName} - {widget.description}
       </FormLabel>
-      <Box sx={{ padding: theme.spacing(0, 2) }}>
+      <Box component="div" sx={{ padding: theme.spacing(0, 2) }}>
         <Slider
           onChange={(e) => {
             // @ts-ignore
@@ -348,7 +359,7 @@ const ReadonlyFormWidgets: FC<{
   formWidgets: FormWidgets
 }> = ({ trial, widgetNames, formWidgets }) => {
   const theme = useTheme()
-  const getValue = (i: number): string | TrialValueNumber => {
+  const getValue = (i: number): string | number => {
     if (formWidgets.output_type === "user_attr") {
       const widget = formWidgets.widgets[i] as UserAttrFormWidget
       return (
@@ -369,7 +380,7 @@ const ReadonlyFormWidgets: FC<{
   }
 
   return (
-    <Box sx={{ p: theme.spacing(1, 0) }}>
+    <Box component="div" sx={{ p: theme.spacing(1, 0) }}>
       <Card
         sx={{
           display: "flex",
@@ -424,11 +435,9 @@ const ReadonlyFormWidgets: FC<{
                 <FormLabel>
                   {widgetName} - {widget.description}
                 </FormLabel>
-                <Box sx={{ padding: theme.spacing(0, 2) }}>
+                <Box component="div" sx={{ padding: theme.spacing(0, 2) }}>
                   <Slider
-                    defaultValue={
-                      value === "inf" || value === "-inf" ? undefined : value
-                    }
+                    defaultValue={value}
                     min={widget.min}
                     max={widget.max}
                     step={widget.step}

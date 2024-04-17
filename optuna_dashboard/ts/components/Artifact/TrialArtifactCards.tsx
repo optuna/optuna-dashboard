@@ -27,6 +27,7 @@ import {
   isThreejsArtifact,
 } from "./ThreejsArtifactViewer"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
+import { Trial } from "ts/types/optuna"
 
 export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
   const theme = useTheme()
@@ -49,7 +50,10 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
       >
         Artifacts
       </Typography>
-      <Box sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}>
+      <Box
+        component="div"
+        sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}
+      >
         {trial.artifacts.map((artifact) => {
           const urlPath = `/artifacts/${trial.study_id}/${trial.trial_id}/${artifact.artifact_id}`
           return (

@@ -20,6 +20,7 @@ import { getAxisInfo } from "../graphUtil"
 import { PlotType } from "../apiClient"
 import { useBackendRender } from "../state"
 import { usePlot } from "../hooks/usePlot"
+import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 
 const plotDomId = "graph-contour"
 const CONTOUR_DISABLED_THRESHOLD = 100
@@ -206,13 +207,8 @@ const ContourFrontend: FC<{
   )
 }
 
-const filterFunc = (trial: Trial, objectiveId: number): boolean => {
-  return (
-    trial.state === "Complete" &&
-    trial.values !== undefined &&
-    trial.values[objectiveId] !== "inf" &&
-    trial.values[objectiveId] !== "-inf"
-  )
+const filterFunc = (trial: Trial): boolean => {
+  return trial.state === "Complete" && trial.values !== undefined
 }
 
 const plotContour = (
@@ -227,7 +223,7 @@ const plotContour = (
   }
 
   const trials: Trial[] = study ? study.trials : []
-  const filteredTrials = trials.filter((t) => filterFunc(t, objectiveId))
+  const filteredTrials = trials.filter((t) => filterFunc(t))
   if (filteredTrials.length < 2 || xParam === null || yParam === null) {
     plotly.react(plotDomId, [], {
       template: colorTheme,

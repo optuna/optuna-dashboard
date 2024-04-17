@@ -39,6 +39,7 @@ import { useCreateStudyDialog } from "./CreateStudyDialog"
 import { useDeleteStudyDialog } from "./DeleteStudyDialog"
 import { useRenameStudyDialog } from "./RenameStudyDialog"
 import { useQuery } from "../urlQuery"
+import { StudySummary } from "ts/types/optuna"
 
 export const StudyList: FC<{
   toggleColorMode: () => void
@@ -97,6 +98,7 @@ export const StudyList: FC<{
   }))
   const sortBySelect = (
     <Box
+      component="div"
       sx={{
         position: "relative",
         borderRadius: theme.shape.borderRadius,
@@ -104,6 +106,7 @@ export const StudyList: FC<{
       }}
     >
       <Box
+        component="div"
         sx={{
           padding: theme.spacing(0, 2),
           height: "100%",
@@ -134,7 +137,7 @@ export const StudyList: FC<{
   let studyListContent
   if (isLoading) {
     studyListContent = (
-      <Box sx={{ margin: theme.spacing(2) }}>
+      <Box component="div" sx={{ margin: theme.spacing(2) }}>
         <SvgIcon fontSize="small" color="action">
           <HourglassTop />
         </SvgIcon>
@@ -170,7 +173,7 @@ export const StudyList: FC<{
           </CardContent>
         </CardActionArea>
         <CardActions disableSpacing sx={{ paddingTop: 0 }}>
-          <Box sx={{ flexGrow: 1 }} />
+          <Box component="div" sx={{ flexGrow: 1 }} />
           <IconButton
             aria-label="rename study"
             size="small"
@@ -197,7 +200,7 @@ export const StudyList: FC<{
   }
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box component="div" sx={{ display: "flex" }}>
       <AppDrawer toggleColorMode={toggleColorMode} toolbar={toolbar}>
         <Container
           sx={{
@@ -208,7 +211,7 @@ export const StudyList: FC<{
         >
           <Card sx={{ margin: theme.spacing(2) }}>
             <CardContent>
-              <Box sx={{ display: "flex" }}>
+              <Box component="div" sx={{ display: "flex" }}>
                 <TextField
                   onChange={(e) => {
                     setStudyFilterText(e.target.value)
@@ -229,7 +232,7 @@ export const StudyList: FC<{
                   }}
                 />
                 {sortBySelect}
-                <Box sx={{ flexGrow: 1 }} />
+                <Box component="div" sx={{ flexGrow: 1 }} />
                 <Button
                   variant="outlined"
                   startIcon={<Refresh />}
@@ -262,7 +265,7 @@ export const StudyList: FC<{
               </Box>
             </CardContent>
           </Card>
-          <Box sx={{ display: "flex", flexWrap: "wrap" }}>
+          <Box component="div" sx={{ display: "flex", flexWrap: "wrap" }}>
             {studyListContent}
           </Box>
         </Container>

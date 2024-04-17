@@ -23,8 +23,31 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '20'
+      
       - run: npm install
       - run: npm run lint
+
+  type-check:
+    name: Type checking on optuna-dashboard
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@master
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+      
+      - name: Setup tslib
+        run: make tslib
+      
+      - name: Type Check
+        working-directory: optuna_dashboard
+        run: |
+          npm install
+          npm run type-check
 
   build:
     name: JS build check

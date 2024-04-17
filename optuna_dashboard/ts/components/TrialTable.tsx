@@ -5,6 +5,7 @@ import DownloadIcon from "@mui/icons-material/Download"
 
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { Link } from "react-router-dom"
+import { StudyDetail, Trial } from "ts/types/optuna"
 
 export const TrialTable: FC<{
   studyDetail: StudyDetail | null
@@ -26,8 +27,8 @@ export const TrialTable: FC<{
     },
   ]
   const valueComparator = (
-    firstVal?: TrialValueNumber,
-    secondVal?: TrialValueNumber,
+    firstVal?: number,
+    secondVal?: number,
     ascending: boolean = true
   ): number => {
     if (firstVal === secondVal) {
@@ -37,11 +38,6 @@ export const TrialTable: FC<{
       return ascending ? -1 : 1
     } else if (secondVal === undefined) {
       return ascending ? 1 : -1
-    }
-    if (firstVal === "-inf" || secondVal === "inf") {
-      return 1
-    } else if (secondVal === "-inf" || firstVal === "inf") {
-      return -1
     }
     return firstVal < secondVal ? 1 : -1
   }
@@ -96,7 +92,7 @@ export const TrialTable: FC<{
     const sortable = s.distribution.type !== "CategoricalDistribution"
     const filterChoices: (string | null)[] | undefined =
       s.distribution.type === "CategoricalDistribution"
-        ? s.distribution.choices.map((c) => c.value)
+        ? s.distribution.choices.map((c) => c?.toString() ?? "null")
         : undefined
     const hasMissingValue = trials.some(
       (t) => !t.params.some((p) => p.name === s.name)

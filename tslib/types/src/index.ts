@@ -14,7 +14,7 @@ export type IntDistribution = {
   type: "IntDistribution"
   low: number
   high: number
-  step: number | null
+  step: number
   log: boolean
 }
 

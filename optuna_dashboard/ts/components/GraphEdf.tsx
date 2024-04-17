@@ -4,6 +4,7 @@ import { Typography, useTheme, Box } from "@mui/material"
 import { Target, useFilteredTrialsFromStudies } from "../trialFilter"
 import { getCompareStudiesPlotAPI, CompareStudiesPlotType } from "../apiClient"
 import { usePlotlyColorTheme, useBackendRender } from "../state"
+import { StudyDetail, Trial } from "ts/types/optuna"
 
 const getPlotDomId = (objectiveId: number) => `graph-edf-${objectiveId}`
 
@@ -45,7 +46,7 @@ const GraphEdfBackend: FC<{
         console.error(err)
       })
   }, [studyIds, numCompletedTrials])
-  return <Box id={domId} sx={{ height: "450px" }} />
+  return <Box component="div" id={domId} sx={{ height: "450px" }} />
 }
 
 const GraphEdfFrontend: FC<{
@@ -74,14 +75,14 @@ const GraphEdfFrontend: FC<{
   }, [studies, target, colorTheme])
 
   return (
-    <Box>
+    <Box component="div">
       <Typography
         variant="h6"
         sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
       >
         {`EDF for ${target.toLabel(studies[0].objective_names)}`}
       </Typography>
-      <Box id={domId} sx={{ height: "450px" }} />
+      <Box component="div" id={domId} sx={{ height: "450px" }} />
     </Box>
   )
 }

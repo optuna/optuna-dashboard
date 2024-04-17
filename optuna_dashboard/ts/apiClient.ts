@@ -1,5 +1,21 @@
 import * as plotly from "plotly.js-dist-min"
 import axios from "axios"
+import * as Optuna from "@optuna/types"
+import {
+  Artifact,
+  FeedbackComponentType,
+  FormWidgets,
+  Note,
+  ParamImportance,
+  PlotlyGraphObject,
+  PreferenceFeedbackMode,
+  PreferenceHistory,
+  SearchSpaceItem,
+  StudyDetail,
+  StudySummary,
+  Trial,
+  TrialParam,
+} from "./types/optuna"
 
 const axiosInstance = axios.create({ baseURL: API_ENDPOINT })
 
@@ -18,9 +34,9 @@ interface TrialResponse {
   trial_id: number
   study_id: number
   number: number
-  state: TrialState
-  values?: TrialValueNumber[]
-  intermediate_values: TrialIntermediateValue[]
+  state: Optuna.TrialState
+  values?: number[]
+  intermediate_values: Optuna.TrialIntermediateValue[]
   datetime_start?: string
   datetime_complete?: string
   params: TrialParam[]
@@ -28,7 +44,7 @@ interface TrialResponse {
     name: string
     param_external_value: string
   }[]
-  user_attrs: Attribute[]
+  user_attrs: Optuna.Attribute[]
   note: Note
   artifacts: Artifact[]
   constraints: number[]
@@ -86,13 +102,13 @@ const convertPreferenceHistory = (
 interface StudyDetailResponse {
   name: string
   datetime_start: string
-  directions: StudyDirection[]
-  user_attrs: Attribute[]
+  directions: Optuna.StudyDirection[]
+  user_attrs: Optuna.Attribute[]
   trials: TrialResponse[]
   best_trials: TrialResponse[]
   intersection_search_space: SearchSpaceItem[]
   union_search_space: SearchSpaceItem[]
-  union_user_attrs: AttributeSpec[]
+  union_user_attrs: Optuna.AttributeSpec[]
   has_intermediate_values: boolean
   note: Note
   is_preferential: boolean
@@ -155,8 +171,8 @@ interface StudySummariesResponse {
   study_summaries: {
     study_id: number
     study_name: string
-    directions: StudyDirection[]
-    user_attrs: Attribute[]
+    directions: Optuna.StudyDirection[]
+    user_attrs: Optuna.Attribute[]
     is_preferential: boolean
     datetime_start?: string
   }[]
@@ -185,8 +201,8 @@ interface CreateNewStudyResponse {
   study_summary: {
     study_id: number
     study_name: string
-    directions: StudyDirection[]
-    user_attrs: Attribute[]
+    directions: Optuna.StudyDirection[]
+    user_attrs: Optuna.Attribute[]
     is_preferential: boolean
     datetime_start?: string
   }
@@ -194,7 +210,7 @@ interface CreateNewStudyResponse {
 
 export const createNewStudyAPI = (
   studyName: string,
-  directions: StudyDirection[]
+  directions: Optuna.StudyDirection[]
 ): Promise<StudySummary> => {
   return axiosInstance
     .post<CreateNewStudyResponse>(`/api/studies`, {
@@ -226,8 +242,8 @@ export const deleteStudyAPI = (studyId: number): Promise<void> => {
 type RenameStudyResponse = {
   study_id: number
   study_name: string
-  directions: StudyDirection[]
-  user_attrs: Attribute[]
+  directions: Optuna.StudyDirection[]
+  user_attrs: Optuna.Attribute[]
   is_prefential: boolean
   datetime_start?: string
 }
@@ -338,10 +354,10 @@ export const deleteStudyArtifactAPI = (
 
 export const tellTrialAPI = (
   trialId: number,
-  state: TrialStateFinished,
+  state: Optuna.TrialStateFinished,
   values?: number[]
 ): Promise<void> => {
-  const req: { state: TrialState; values?: number[] } = {
+  const req: { state: Optuna.TrialState; values?: number[] } = {
     state: state,
     values: values,
   }

@@ -17,6 +17,8 @@ import { useNavigate } from "react-router-dom"
 import { PlotType } from "../apiClient"
 import { useBackendRender } from "../state"
 import { usePlot } from "../hooks/usePlot"
+import * as Optuna from "@optuna/types"
+import { StudyDetail, Trial } from "ts/types/optuna"
 
 const plotDomId = "graph-pareto-front"
 
@@ -53,7 +55,7 @@ const GraphParetoFrontBackend: FC<{
     }
   }, [error])
 
-  return <Box id={plotDomId} sx={{ height: "450px" }} />
+  return <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
 }
 
 const GraphParetoFrontFrontend: FC<{
@@ -149,6 +151,7 @@ const GraphParetoFrontFrontend: FC<{
       </Grid>
       <Grid item xs={9}>
         <Box
+          component="div"
           id={plotDomId}
           sx={{
             height: "450px",
@@ -159,12 +162,14 @@ const GraphParetoFrontFrontend: FC<{
   )
 }
 
-const filterFunc = (trial: Trial, directions: StudyDirection[]): boolean => {
+const filterFunc = (
+  trial: Trial,
+  directions: Optuna.StudyDirection[]
+): boolean => {
   return (
     trial.state === "Complete" &&
     trial.values !== undefined &&
-    trial.values.length === directions.length &&
-    trial.values.every((v) => v !== "inf" && v !== "-inf")
+    trial.values.length === directions.length
   )
 }
 

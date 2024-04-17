@@ -9,6 +9,7 @@ import { PerspectiveCamera } from "three"
 import { Modal, Box, useTheme } from "@mui/material"
 import ClearIcon from "@mui/icons-material/Clear"
 import IconButton from "@mui/material/IconButton"
+import { Artifact } from "ts/types/optuna"
 
 export const isThreejsArtifact = (artifact: Artifact): boolean => {
   return (
@@ -145,6 +146,7 @@ export const useThreejsArtifactModal = (): [
         }}
       >
         <Box
+          component="div"
           sx={{
             position: "absolute",
             top: "50%",

@@ -62,7 +62,7 @@ if TYPE_CHECKING:
             "type": Literal["FloatDistribution"],
             "low": float,
             "high": float,
-            "step": float,
+            "step": Union[float, None],
             "log": bool,
         },
     )
