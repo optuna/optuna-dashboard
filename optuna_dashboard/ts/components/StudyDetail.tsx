@@ -35,12 +35,8 @@ import { PreferentialHistory } from "./Preferential/PreferentialHistory"
 import { PreferentialAnalytics } from "./Preferential/PreferentialAnalytics"
 import { PreferentialGraph } from "./Preferential/PreferentialGraph"
 
-type ParamTypes = {
-  studyId: string
-}
-
 export const useURLVars = (): number => {
-  const { studyId } = useParams<ParamTypes>()
+  const { studyId } = useParams<{ studyId: string }>()
 
   if (studyId === undefined) {
     throw new Error("studyId is not defined")
