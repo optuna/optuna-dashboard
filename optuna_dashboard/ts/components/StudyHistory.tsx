@@ -53,8 +53,8 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   }
 
   const userAttrs = studySummary?.user_attrs || studyDetail?.user_attrs || []
-  const columnHelper = createColumnHelper<Trial>()
-  const columns: ColumnDef<Attribute>[] = [
+  const columnHelper = createColumnHelper<Optuna.Attribute>()
+  const columns: ColumnDef<Optuna.Attribute>[] = [
     columnHelper.accessor("key", {
       header: "Key",
       footer: (info) => info.column.id,

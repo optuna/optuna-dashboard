@@ -30,8 +30,7 @@ const multiValueFilter: FilterFn<Trial> = <D extends object>(
 
 export const TrialTable: FC<{
   studyDetail: StudyDetail | null
-  initialRowsPerPage?: number
-}> = ({ studyDetail, initialRowsPerPage }) => {
+}> = ({ studyDetail }) => {
   const theme = useTheme()
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
   // TODO: const objectiveNames: string[] = studyDetail?.objective_names || []
