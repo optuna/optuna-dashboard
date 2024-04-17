@@ -19,6 +19,7 @@ import { studySummariesState } from "../state"
 import RemoveIcon from "@mui/icons-material/Remove"
 import AddIcon from "@mui/icons-material/Add"
 import * as Optuna from "@optuna/types"
+import { StudySummary } from "ts/types"
 
 export const useCreateStudyDialog = (): [() => void, () => ReactNode] => {
   const theme = useTheme()

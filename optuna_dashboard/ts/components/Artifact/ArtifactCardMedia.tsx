@@ -6,6 +6,7 @@ import {
 import { WaveSurferArtifactViewer } from "./WaveSurferArtifactViewer"
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 import { CardMedia, Box } from "@mui/material"
+import { Artifact } from "ts/types"
 
 export const ArtifactCardMedia: FC<{
   artifact: Artifact
@@ -37,6 +38,7 @@ export const ArtifactCardMedia: FC<{
   } else if (artifact.mimetype.startsWith("audio")) {
     return (
       <Box
+        component="div"
         style={{
           width: "100%",
           height: height,

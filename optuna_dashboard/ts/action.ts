@@ -34,6 +34,7 @@ import {
   studySummariesLoadingState,
 } from "./state"
 import { getDominatedTrials } from "./dominatedTrials"
+import { Artifact, FeedbackComponentType, Note, StudyDetail, StudyDetails, StudySummary, Trial } from "./types"
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const actionCreator = () => {

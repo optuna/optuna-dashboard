@@ -1,3 +1,6 @@
+import { SearchSpaceItem, Trial } from "./types"
+import * as Optuna from "@optuna/types"
+
 const PADDING_RATIO = 0.05
 
 export type AxisInfo = {
@@ -33,7 +36,7 @@ export const getAxisInfo = (
 const getAxisInfoForCategoricalParams = (
   trials: Trial[],
   paramName: string,
-  distribution: CategoricalDistribution
+  distribution: Optuna.CategoricalDistribution
 ): AxisInfo => {
   const values = trials.map(
     (trial) =>
@@ -62,7 +65,7 @@ const getAxisInfoForCategoricalParams = (
 const getAxisInfoForNumericalParams = (
   trials: Trial[],
   paramName: string,
-  distribution: FloatDistribution | IntDistribution
+  distribution: Optuna.FloatDistribution | Optuna.IntDistribution
 ): AxisInfo => {
   let min = 0
   let max = 0

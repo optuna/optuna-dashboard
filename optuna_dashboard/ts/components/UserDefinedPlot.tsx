@@ -1,6 +1,7 @@
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
 import { Box } from "@mui/material"
+import { PlotlyGraphObject } from "ts/types"
 
 export const UserDefinedPlot: FC<{
   graphObject: PlotlyGraphObject
@@ -17,5 +18,5 @@ export const UserDefinedPlot: FC<{
     }
   }, [graphObject])
 
-  return <Box id={plotDomId} sx={{ height: "450px" }} />
+  return <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
 }

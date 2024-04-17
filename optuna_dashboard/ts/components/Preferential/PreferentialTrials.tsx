@@ -34,6 +34,7 @@ import {
   useThreejsArtifactModal,
 } from "../Artifact/ThreejsArtifactViewer"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
+import { Artifact, FeedbackComponentArtifact, FeedbackComponentNote, FeedbackComponentType, StudyDetail, Trial } from "ts/types"
 
 const SettingsPage: FC<{
   studyDetail: StudyDetail
@@ -216,6 +217,7 @@ const PreferentialTrial: FC<{
   if (trial === undefined) {
     return (
       <Box
+        component="div"
         sx={{
           width: trialWidth,
           minHeight: trialHeight,
@@ -244,6 +246,7 @@ const PreferentialTrial: FC<{
     >
       <CardActions>
         <Box
+        component="div"
           sx={{
             margin: theme.spacing(0, 2),
             maxWidth: `calc(${trialWidth}px - ${
@@ -322,6 +325,7 @@ const PreferentialTrial: FC<{
               urlPath={urlPath}
             />
             <Box
+            component="div"
               sx={{
                 position: "absolute",
                 top: 0,
@@ -491,8 +495,8 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
     null
 
   return (
-    <Box padding={theme.spacing(2)}>
-      <Box display="flex">
+    <Box component="div" padding={theme.spacing(2)}>
+      <Box component="div" display="flex">
         <Typography
           variant="h4"
           sx={{
@@ -502,6 +506,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
           Which trial is the worst?
         </Typography>
         <Box
+          component="div"
           display="flex"
           sx={{
             marginLeft: "auto",
@@ -541,7 +546,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
           </Button>
         </Box>
       </Box>
-      <Box sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
+      <Box component="div" sx={{ display: "flex", flexDirection: "row", flexWrap: "wrap" }}>
         {displayTrials.display.map((t, index) => {
           const trial = activeTrials.find((trial) => trial.number === t)
           const candidates = displayTrials.display.filter(
@@ -573,6 +578,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
       {detailTrial !== null && (
         <Modal open={true} onClose={() => setDetailTrial(null)}>
           <Box
+          component="div"
             sx={{
               position: "absolute",
               top: 0,
@@ -588,6 +594,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
             }}
           >
             <Box
+            component="div"
               sx={{
                 width: "100%",
                 height: "100%",

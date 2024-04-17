@@ -10,6 +10,7 @@ import {
 } from "../state"
 import { PlotType } from "../apiClient"
 import { usePlot } from "../hooks/usePlot"
+import { ParamImportance, StudyDetail } from "ts/types"
 
 const plotDomId = "graph-hyperparameter-importances"
 
@@ -61,7 +62,7 @@ const GraphHyperparameterImportanceBackend: FC<{
     }
   }, [error])
 
-  return <Box id={plotDomId} sx={{ height: graphHeight }} />
+  return <Box component="div" id={plotDomId} sx={{ height: graphHeight }} />
 }
 
 const GraphHyperparameterImportanceFrontend: FC<{
@@ -99,7 +100,7 @@ const GraphHyperparameterImportanceFrontend: FC<{
         >
           Hyperparameter Importance
         </Typography>
-        <Box id={plotDomId} sx={{ height: graphHeight }} />
+        <Box component="div" id={plotDomId} sx={{ height: graphHeight }} />
       </CardContent>
     </Card>
   )

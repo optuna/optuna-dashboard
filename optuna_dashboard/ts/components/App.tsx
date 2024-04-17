@@ -16,6 +16,7 @@ import { CompareStudies } from "./CompareStudies"
 import { StudyDetail } from "./StudyDetail"
 import { StudyList } from "./StudyList"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { URL_PREFIX } from "ts/types"
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -55,6 +56,7 @@ export const App: FC = () => {
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Box
+            component="div"
             sx={{
               backgroundColor: colorMode === "dark" ? "#121212" : "#ffffff",
               width: "100%",

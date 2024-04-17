@@ -4,6 +4,7 @@ import { Typography, useTheme, Box } from "@mui/material"
 import { Target, useFilteredTrialsFromStudies } from "../trialFilter"
 import { getCompareStudiesPlotAPI, CompareStudiesPlotType } from "../apiClient"
 import { usePlotlyColorTheme, useBackendRender } from "../state"
+import { StudyDetail, Trial } from "ts/types"
 
 const getPlotDomId = (objectiveId: number) => `graph-edf-${objectiveId}`
 

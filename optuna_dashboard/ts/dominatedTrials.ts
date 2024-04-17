@@ -1,4 +1,5 @@
 import * as Optuna from "@optuna/types"
+import { Trial } from "./types"
 
 const filterFunc = (
   trial: Trial,

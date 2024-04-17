@@ -18,6 +18,7 @@ import { PlotType } from "../apiClient"
 import { useBackendRender } from "../state"
 import { usePlot } from "../hooks/usePlot"
 import * as Optuna from "@optuna/types"
+import { StudyDetail, Trial, URL_PREFIX } from "ts/types"
 
 const plotDomId = "graph-pareto-front"
 

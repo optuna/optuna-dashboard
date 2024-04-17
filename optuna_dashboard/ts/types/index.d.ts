@@ -7,35 +7,9 @@ declare const APP_BAR_TITLE: string
 declare const API_ENDPOINT: string
 declare const URL_PREFIX: string
 
+import * as Optuna from "@optuna/types"
+
 type PreferenceFeedbackMode = "ChooseWorst"
-
-type FloatDistribution = {
-  type: "FloatDistribution"
-  low: number
-  high: number
-  step: number
-  log: boolean
-}
-
-type IntDistribution = {
-  type: "IntDistribution"
-  low: number
-  high: number
-  step: number
-  log: boolean
-}
-
-type CategoricalChoiceType = null | boolean | number | string
-
-type CategoricalDistribution = {
-  type: "CategoricalDistribution"
-  choices: CategoricalChoiceType[]
-}
-
-type Distribution =
-  | FloatDistribution
-  | IntDistribution
-  | CategoricalDistribution
 
 type GraphVisibility = {
   history: boolean
@@ -53,18 +27,18 @@ type TrialParam = {
   param_internal_value: number
   param_external_value: string
   param_external_type: string
-  distribution: Distribution
+  distribution: Optuna.Distribution
 }
 
 type ParamImportance = {
   name: string
   importance: number
-  distribution: Distribution
+  distribution: Optuna.Distribution
 }
 
 type SearchSpaceItem = {
   name: string
-  distribution: Distribution
+  distribution: Optuna.Distribution
 }
 
 type Note = {
@@ -83,9 +57,9 @@ type Trial = {
   trial_id: number
   study_id: number
   number: number
-  state: TrialState
+  state: Optuna.TrialState
   values?: number[]
-  intermediate_values: TrialIntermediateValue[]
+  intermediate_values: Optuna.TrialIntermediateValue[]
   datetime_start?: Date
   datetime_complete?: Date
   params: TrialParam[]
@@ -93,7 +67,7 @@ type Trial = {
     name: string
     param_external_value: string
   }[]
-  user_attrs: Attribute[]
+  user_attrs: Optuna.Attribute[]
   constraints: number[]
   note: Note
   artifacts: Artifact[]
@@ -102,8 +76,8 @@ type Trial = {
 type StudySummary = {
   study_id: number
   study_name: string
-  directions: StudyDirection[]
-  user_attrs: Attribute[]
+  directions: Optuna.StudyDirection[]
+  user_attrs: Optuna.Attribute[]
   is_preferential: boolean
   datetime_start?: Date
 }
@@ -183,14 +157,14 @@ type FeedbackComponentType = FeedbackComponentArtifact | FeedbackComponentNote
 type StudyDetail = {
   id: number
   name: string
-  directions: StudyDirection[]
-  user_attrs: Attribute[]
+  directions: Optuna.StudyDirection[]
+  user_attrs: Optuna.Attribute[]
   datetime_start: Date
   best_trials: Trial[]
   trials: Trial[]
   intersection_search_space: SearchSpaceItem[]
   union_search_space: SearchSpaceItem[]
-  union_user_attrs: AttributeSpec[]
+  union_user_attrs: Optuna.AttributeSpec[]
   has_intermediate_values: boolean
   note: Note
   is_preferential: boolean

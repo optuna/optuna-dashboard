@@ -3,6 +3,7 @@ import { useSnackbar } from "notistack"
 import { getParamImportances } from "../apiClient"
 import { useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
+import { ParamImportance } from "ts/types"
 
 export const useParamImportance = ({
   numCompletedTrials,

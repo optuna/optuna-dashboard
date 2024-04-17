@@ -14,6 +14,7 @@ import {
 } from "@mui/material"
 import { Link } from "react-router-dom"
 import LinkIcon from "@mui/icons-material/Link"
+import { StudyDetail, Trial, URL_PREFIX } from "ts/types"
 
 const useBestTrials = (studyDetail: StudyDetail | null): Trial[] => {
   return useMemo(() => studyDetail?.best_trials || [], [studyDetail])
@@ -75,6 +76,7 @@ export const BestTrialsCard: FC<{
           orientation="horizontal"
         />
         <Box
+          component="div"
           sx={{
             overflow: "auto",
             height: "450px",

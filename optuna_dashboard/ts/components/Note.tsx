@@ -31,6 +31,7 @@ import React, {
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import remarkMath from "remark-math"
+// @ts-ignore
 import rehypeMathjax from "rehype-mathjax"
 import rehypeRaw from "rehype-raw"
 import LoadingButton from "@mui/lab/LoadingButton"
@@ -41,6 +42,7 @@ import { Theme } from "@mui/material/styles"
 import {
   CodeComponent,
   ReactMarkdownNames,
+  // @ts-ignore
 } from "react-markdown/lib/ast-to-react"
 import HtmlIcon from "@mui/icons-material/Html"
 import ModeEditIcon from "@mui/icons-material/ModeEdit"
@@ -51,6 +53,7 @@ import { darcula } from "react-syntax-highlighter/dist/esm/styles/prism"
 import { actionCreator } from "../action"
 import { useRecoilValue } from "recoil"
 import { artifactIsAvailable, isFileUploading, useArtifacts } from "../state"
+import { Note } from "ts/types"
 
 const placeholder = `## What is this feature for?
 
@@ -74,8 +77,11 @@ $$
 `
 
 const CodeBlock: CodeComponent | ReactMarkdownNames = ({
+  // @ts-ignore
   inline,
+  // @ts-ignore
   className,
+  // @ts-ignore
   children,
   ...props
 }) => {
