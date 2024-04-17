@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "watch": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack --watch",
+    "lint": "npm run type-check",
     "build": "webpack",
     "build:dev": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack",
     "build:prd": "NODE_ENV=production webpack",
