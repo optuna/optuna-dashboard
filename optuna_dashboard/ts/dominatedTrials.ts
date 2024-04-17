@@ -1,5 +1,5 @@
 import * as Optuna from "@optuna/types"
-import { Trial } from "./types"
+import { Trial } from "./types/optuna"
 
 const filterFunc = (
   trial: Trial,

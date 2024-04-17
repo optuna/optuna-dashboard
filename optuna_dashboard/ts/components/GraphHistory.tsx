@@ -23,7 +23,7 @@ import {
 import { usePlotlyColorTheme } from "../state"
 import { useNavigate } from "react-router-dom"
 import * as Optuna from "@optuna/types"
-import { StudyDetail, Trial, URL_PREFIX } from "ts/types"
+import { StudyDetail, Trial } from "ts/types/optuna"
 
 const plotDomId = "graph-history"
 

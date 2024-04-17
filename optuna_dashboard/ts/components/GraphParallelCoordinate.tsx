@@ -20,7 +20,7 @@ import { useMergedUnionSearchSpace } from "../searchSpace"
 import { PlotType } from "../apiClient"
 import { useBackendRender } from "../state"
 import { usePlot } from "../hooks/usePlot"
-import { SearchSpaceItem, StudyDetail, Trial } from "ts/types"
+import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 
 const plotDomId = "graph-parallel-coordinate"
 

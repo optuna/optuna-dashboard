@@ -39,7 +39,7 @@ import { useCreateStudyDialog } from "./CreateStudyDialog"
 import { useDeleteStudyDialog } from "./DeleteStudyDialog"
 import { useRenameStudyDialog } from "./RenameStudyDialog"
 import { useQuery } from "../urlQuery"
-import { StudySummary, URL_PREFIX } from "ts/types"
+import { StudySummary } from "ts/types/optuna"
 
 export const StudyList: FC<{
   toggleColorMode: () => void

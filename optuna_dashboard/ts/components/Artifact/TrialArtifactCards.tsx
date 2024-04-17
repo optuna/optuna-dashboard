@@ -27,7 +27,7 @@ import {
   isThreejsArtifact,
 } from "./ThreejsArtifactViewer"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
-import { Trial } from "ts/types"
+import { Trial } from "ts/types/optuna"
 
 export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
   const theme = useTheme()

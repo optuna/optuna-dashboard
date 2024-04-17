@@ -32,7 +32,7 @@ import { GraphEdf } from "./GraphEdf"
 import { GraphHistory } from "./GraphHistory"
 import { useNavigate } from "react-router-dom"
 import { useQuery } from "../urlQuery"
-import { StudyDetails, StudySummary, URL_PREFIX } from "ts/types"
+import { StudyDetails, StudySummary } from "ts/types/optuna"
 
 const useQueriedStudies = (
   studies: StudySummary[],

@@ -1,7 +1,7 @@
 import React, { FC, useMemo } from "react"
 import { ArtifactCardMedia } from "../Artifact/ArtifactCardMedia"
 import { MarkdownRenderer } from "../Note"
-import { Artifact, FeedbackComponentType, Trial } from "ts/types"
+import { Artifact, FeedbackComponentType, Trial } from "ts/types/optuna"
 
 export const PreferentialOutputComponent: FC<{
   trial: Trial

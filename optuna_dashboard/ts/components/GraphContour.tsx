@@ -20,7 +20,7 @@ import { getAxisInfo } from "../graphUtil"
 import { PlotType } from "../apiClient"
 import { useBackendRender } from "../state"
 import { usePlot } from "../hooks/usePlot"
-import { SearchSpaceItem, StudyDetail, Trial } from "ts/types"
+import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 
 const plotDomId = "graph-contour"
 const CONTOUR_DISABLED_THRESHOLD = 100

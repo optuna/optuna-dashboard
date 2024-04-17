@@ -11,7 +11,7 @@ import {
   StudyDetail,
   StudyDetails,
   StudySummary,
-} from "./types"
+} from "./types/optuna"
 
 export const studySummariesState = atom<StudySummary[]>({
   key: "studySummaries",

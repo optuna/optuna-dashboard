@@ -27,7 +27,7 @@ import {
 import FormControlLabel from "@mui/material/FormControlLabel"
 import { artifactIsAvailable } from "../state"
 import * as Optuna from "@optuna/types"
-import { Trial } from "ts/types"
+import { Trial } from "ts/types/optuna"
 
 export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   const theme = useTheme()

@@ -1,4 +1,4 @@
-import { SearchSpaceItem, Trial } from "./types"
+import { SearchSpaceItem, Trial } from "./types/optuna"
 import * as Optuna from "@optuna/types"
 
 const PADDING_RATIO = 0.05

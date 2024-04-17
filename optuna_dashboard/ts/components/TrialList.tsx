@@ -31,7 +31,7 @@ import { TrialFormWidgets } from "./TrialFormWidgets"
 import { TrialArtifactCards } from "./Artifact/TrialArtifactCards"
 import { useQuery } from "../urlQuery"
 import { useVirtualizer } from "@tanstack/react-virtual"
-import { FormWidgets, StudyDetail, Trial, URL_PREFIX } from "ts/types"
+import { FormWidgets, StudyDetail, Trial } from "ts/types/optuna"
 
 const states: Optuna.TrialState[] = [
   "Complete",

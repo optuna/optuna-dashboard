@@ -1,7 +1,7 @@
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
 import { Box } from "@mui/material"
-import { PlotlyGraphObject } from "ts/types"
+import { PlotlyGraphObject } from "ts/types/optuna"
 
 export const UserDefinedPlot: FC<{
   graphObject: PlotlyGraphObject

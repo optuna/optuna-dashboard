@@ -53,7 +53,7 @@ import { darcula } from "react-syntax-highlighter/dist/esm/styles/prism"
 import { actionCreator } from "../action"
 import { useRecoilValue } from "recoil"
 import { artifactIsAvailable, isFileUploading, useArtifacts } from "../state"
-import { Note } from "ts/types"
+import { Note } from "ts/types/optuna"
 
 const placeholder = `## What is this feature for?
 

@@ -10,7 +10,7 @@ import {
 } from "../state"
 import { PlotType } from "../apiClient"
 import { usePlot } from "../hooks/usePlot"
-import { ParamImportance, StudyDetail } from "ts/types"
+import { ParamImportance, StudyDetail } from "ts/types/optuna"
 
 const plotDomId = "graph-hyperparameter-importances"
 

@@ -6,7 +6,7 @@ import {
 import { WaveSurferArtifactViewer } from "./WaveSurferArtifactViewer"
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 import { CardMedia, Box } from "@mui/material"
-import { Artifact } from "ts/types"
+import { Artifact } from "ts/types/optuna"
 
 export const ArtifactCardMedia: FC<{
   artifact: Artifact

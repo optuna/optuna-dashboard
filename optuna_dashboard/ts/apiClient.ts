@@ -2,7 +2,6 @@ import * as plotly from "plotly.js-dist-min"
 import axios from "axios"
 import * as Optuna from "@optuna/types"
 import {
-  API_ENDPOINT,
   Artifact,
   FeedbackComponentType,
   FormWidgets,
@@ -16,7 +15,7 @@ import {
   StudySummary,
   Trial,
   TrialParam,
-} from "./types"
+} from "./types/optuna"
 
 const axiosInstance = axios.create({ baseURL: API_ENDPOINT })
 

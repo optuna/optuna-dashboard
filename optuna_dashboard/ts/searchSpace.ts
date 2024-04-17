@@ -1,5 +1,5 @@
 import { useMemo } from "react"
-import { SearchSpaceItem } from "./types"
+import { SearchSpaceItem } from "./types/optuna"
 import * as Optuna from "@optuna/types"
 
 export const mergeUnionSearchSpace = (

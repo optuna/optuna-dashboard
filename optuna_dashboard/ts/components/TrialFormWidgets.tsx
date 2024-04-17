@@ -25,7 +25,7 @@ import {
   ObjectiveUserAttrRef,
   Trial,
   UserAttrFormWidget,
-} from "ts/types"
+} from "ts/types/optuna"
 
 type WidgetState = {
   isValid: boolean

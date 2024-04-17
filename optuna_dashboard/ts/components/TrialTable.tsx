@@ -5,7 +5,7 @@ import DownloadIcon from "@mui/icons-material/Download"
 
 import { DataGridColumn, DataGrid } from "./DataGrid"
 import { Link } from "react-router-dom"
-import { StudyDetail, Trial, URL_PREFIX } from "ts/types"
+import { StudyDetail, Trial } from "ts/types/optuna"
 
 export const TrialTable: FC<{
   studyDetail: StudyDetail | null

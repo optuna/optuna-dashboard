@@ -34,7 +34,6 @@ import { PreferentialTrials } from "./Preferential/PreferentialTrials"
 import { PreferentialHistory } from "./Preferential/PreferentialHistory"
 import { PreferentialAnalytics } from "./Preferential/PreferentialAnalytics"
 import { PreferentialGraph } from "./Preferential/PreferentialGraph"
-import { URL_PREFIX } from "ts/types"
 
 type ParamTypes = {
   studyId: string

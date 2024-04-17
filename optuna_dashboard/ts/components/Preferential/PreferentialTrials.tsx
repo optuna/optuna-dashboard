@@ -41,7 +41,7 @@ import {
   FeedbackComponentType,
   StudyDetail,
   Trial,
-} from "ts/types"
+} from "ts/types/optuna"
 
 const SettingsPage: FC<{
   studyDetail: StudyDetail

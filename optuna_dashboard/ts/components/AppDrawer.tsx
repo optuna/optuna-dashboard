@@ -41,7 +41,6 @@ import HistoryIcon from "@mui/icons-material/History"
 import LanIcon from "@mui/icons-material/Lan"
 import { Switch } from "@mui/material"
 import { actionCreator } from "../action"
-import { URL_PREFIX } from "ts/types"
 
 const drawerWidth = 240
 

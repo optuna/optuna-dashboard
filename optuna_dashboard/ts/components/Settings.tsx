@@ -12,7 +12,7 @@ import {
 } from "@mui/material"
 import ClearIcon from "@mui/icons-material/Clear"
 import { usePlotBackendRendering, usePlotlyColorThemeState } from "../state"
-import { PlotlyColorThemeDark, PlotlyColorThemeLight } from "ts/types"
+import { PlotlyColorThemeDark, PlotlyColorThemeLight } from "ts/types/optuna"
 
 interface SettingsProps {
   handleClose: () => void

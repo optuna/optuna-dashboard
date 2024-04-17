@@ -2,7 +2,7 @@ import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
 import { Box, Typography, useTheme, CardContent, Card } from "@mui/material"
 import { usePlotlyColorTheme } from "../state"
-import { Trial } from "ts/types"
+import { Trial } from "ts/types/optuna"
 
 const plotDomId = "graph-intermediate-values"
 

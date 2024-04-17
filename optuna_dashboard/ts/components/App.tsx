@@ -16,7 +16,6 @@ import { CompareStudies } from "./CompareStudies"
 import { StudyDetail } from "./StudyDetail"
 import { StudyList } from "./StudyList"
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
-import { URL_PREFIX } from "ts/types"
 
 const queryClient = new QueryClient({
   defaultOptions: {

@@ -21,7 +21,7 @@ import { formatDate } from "../../dateUtil"
 import { actionCreator } from "../../action"
 import { useStudyDetailValue } from "../../state"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
-import { PreferenceHistory, StudyDetail, Trial } from "ts/types"
+import { PreferenceHistory, StudyDetail, Trial } from "ts/types/optuna"
 
 type TrialType = "worst" | "none"
 

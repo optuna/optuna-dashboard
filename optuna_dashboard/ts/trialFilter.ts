@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react"
 import * as Optuna from "@optuna/types"
-import { SearchSpaceItem, StudyDetail, Trial } from "./types"
+import { SearchSpaceItem, StudyDetail, Trial } from "./types/optuna"
 
 type TargetKind = "objective" | "user_attr" | "params"
 

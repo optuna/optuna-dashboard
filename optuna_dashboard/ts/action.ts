@@ -42,7 +42,7 @@ import {
   StudyDetails,
   StudySummary,
   Trial,
-} from "./types"
+} from "./types/optuna"
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const actionCreator = () => {

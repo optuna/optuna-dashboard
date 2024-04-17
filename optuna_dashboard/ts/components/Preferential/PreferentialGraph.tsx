@@ -26,7 +26,7 @@ import { ElkNode } from "elkjs/lib/elk-api.js"
 import { useStudyDetailValue } from "../../state"
 import { getArtifactUrlPath } from "./PreferentialTrials"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
-import { StudyDetail, Trial } from "ts/types"
+import { StudyDetail, Trial } from "ts/types/optuna"
 
 const elk = new ELK()
 const nodeWidth = 400

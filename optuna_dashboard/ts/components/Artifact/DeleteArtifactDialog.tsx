@@ -8,7 +8,7 @@ import {
   DialogActions,
 } from "@mui/material"
 import { actionCreator } from "../../action"
-import { Artifact } from "ts/types"
+import { Artifact } from "ts/types/optuna"
 
 export const useDeleteTrialArtifactDialog = (): [
   (studyId: number, trialId: number, artifact: Artifact) => void,
