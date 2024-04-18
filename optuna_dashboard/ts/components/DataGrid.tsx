@@ -47,6 +47,7 @@ import {
   getFilteredRowModel,
   getFacetedUniqueValues,
   getFacetedRowModel,
+  Header,
   SortingState,
   PaginationState,
   ColumnFiltersState,
@@ -69,6 +70,61 @@ const HiddenSpan = styled("span")({
   width: 1,
 })
 
+function FilterMenu<T>(props: {
+  header: Header<T, unknown>
+  filterChoices: string[]
+}): React.ReactElement {
+  const { header, filterChoices } = props
+  const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
+    React.useState<null | HTMLElement>(null)
+  return (
+    <>
+      <IconButton
+        size="small"
+        onClick={(e) => {
+          setFilterMenuAnchorEl(e.currentTarget)
+        }}
+      >
+        <FilterListIcon fontSize="small" />
+      </IconButton>
+      <Menu
+        anchorEl={filterMenuAnchorEl}
+        open={filterMenuAnchorEl !== null}
+        onClose={() => {
+          setFilterMenuAnchorEl(null)
+        }}
+      >
+        {filterChoices.map((choice) => (
+          <MenuItem
+            key={choice}
+            onClick={() => {
+              const skippedValues = header.column.getFilterValue() as string[]
+              const isSkipped = skippedValues.includes(choice)
+              const newSkippedValues = isSkipped
+                ? skippedValues.filter((v) => v !== choice)
+                : skippedValues.concat(choice)
+              header.column.setFilterValue(newSkippedValues)
+            }}
+          >
+            <ListItemIcon>
+              {header.column.getFilterValue() !== undefined ? (
+                (header.column.getFilterValue() as string[]).includes(
+                  choice
+                ) ? (
+                  <CheckBoxOutlineBlankIcon color="primary" />
+                ) : (
+                  <CheckBoxIcon color="primary" />
+                )
+              ) : null}
+            </ListItemIcon>
+            {choice ?? "(missing value)"}
+          </MenuItem>
+        ))}
+      </Menu>
+    </>
+  )
+}
+
 function DataGrid<T>(props: {
   data: T[]
   columns: ColumnDef<T>[]
@@ -78,8 +134,6 @@ function DataGrid<T>(props: {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
-  const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
-    React.useState<null | HTMLElement>(null)
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize: 50,
@@ -154,57 +208,10 @@ function DataGrid<T>(props: {
                             )
                           )}
                           {filterChoices !== null ? (
-                            <>
-                              <IconButton
-                                size="small"
-                                onClick={(e) => {
-                                  setFilterMenuAnchorEl(e.currentTarget)
-                                }}
-                              >
-                                <FilterListIcon fontSize="small" />
-                              </IconButton>
-                              <Menu
-                                anchorEl={filterMenuAnchorEl}
-                                open={filterMenuAnchorEl !== null}
-                                onClose={() => {
-                                  setFilterMenuAnchorEl(null)
-                                }}
-                              >
-                                {filterChoices.map((choice) => (
-                                  <MenuItem
-                                    key={choice}
-                                    onClick={() => {
-                                      const skippedValues =
-                                        header.column.getFilterValue() as string[]
-                                      const isSkipped =
-                                        skippedValues.includes(choice)
-                                      const newSkippedValues = isSkipped
-                                        ? skippedValues.filter(
-                                            (v) => v !== choice
-                                          )
-                                        : skippedValues.concat(choice)
-                                      header.column.setFilterValue(
-                                        newSkippedValues
-                                      )
-                                    }}
-                                  >
-                                    <ListItemIcon>
-                                      {header.column.getFilterValue() !==
-                                      undefined ? (
-                                        (
-                                          header.column.getFilterValue() as string[]
-                                        ).includes(choice) ? (
-                                          <CheckBoxOutlineBlankIcon color="primary" />
-                                        ) : (
-                                          <CheckBoxIcon color="primary" />
-                                        )
-                                      ) : null}
-                                    </ListItemIcon>
-                                    {choice ?? "(missing value)"}
-                                  </MenuItem>
-                                ))}
-                              </Menu>
-                            </>
+                            <FilterMenu
+                              header={header}
+                              filterChoices={filterChoices}
+                            />
                           ) : null}
                         </TableHeaderCellSpan>
                       )}
