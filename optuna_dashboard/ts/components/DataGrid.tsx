@@ -103,8 +103,6 @@ function DataGrid<T>(props: {
     getPaginationRowModel: getPaginationRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     autoResetPageIndex: false,
-    //
-    // debugTable: true,
   })
 
   return (
