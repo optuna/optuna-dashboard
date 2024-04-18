@@ -33,11 +33,13 @@ export const PreferentialAnalytics: FC<{ studyId: number }> = ({ studyId }) => {
       header: "Key",
       footer: (info) => info.column.id,
       enableSorting: true,
+      enableColumnFilter: false,
     }),
     columnHelper.accessor("value", {
       header: "Value",
       footer: (info) => info.column.id,
       enableSorting: true,
+      enableColumnFilter: false,
     }),
   ]
   return (
