@@ -33,7 +33,7 @@ export const TrialTable: FC<{
 }> = ({ studyDetail }) => {
   const theme = useTheme()
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
-  // TODO: const objectiveNames: string[] = studyDetail?.objective_names || []
+  const objectiveNames: string[] = studyDetail?.objective_names || []
 
   const columnHelper = createColumnHelper<Trial>()
   const columns: ColumnDef<Trial>[] = [
@@ -65,7 +65,10 @@ export const TrialTable: FC<{
       ...studyDetail.directions.map((s, objectiveId) =>
         columnHelper.accessor((row) => row["values"]?.[objectiveId], {
           id: `values_${objectiveId}`,
-          header: `Objective ${objectiveId}`,
+          header:
+            objectiveNames.length === studyDetail?.directions.length
+              ? objectiveNames[objectiveId]
+              : `Objective ${objectiveId}`,
           footer: (info) => info.column.id,
           enableSorting: true,
           enableColumnFilter: false,
