@@ -61,7 +61,10 @@ export const WaveSurferArtifactViewer: React.FC<WaveSurferArtifactViewerProps> =
     }, [wavesurfer])
 
     return (
-      <Box style={{ width: "100%", display: "flex", flexDirection: "column" }}>
+      <Box
+        component="div"
+        style={{ width: "100%", display: "flex", flexDirection: "column" }}
+      >
         <div ref={containerRef} style={{ minHeight: "120px", width: "100%" }} />
         <button onClick={onPlayClick} style={{ marginTop: "1em" }}>
           {isPlaying ? "Pause" : "Play"}

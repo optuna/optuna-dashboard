@@ -27,7 +27,8 @@ export const PreferentialAnalytics: FC<{ studyId: number }> = ({ studyId }) => {
 
   const userAttrs = studySummary?.user_attrs || studyDetail?.user_attrs || []
   const columnHelper = createColumnHelper<Optuna.Attribute>()
-  const columns: ColumnDef<Optuna.Attribute>[] = [
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const columns: ColumnDef<Optuna.Attribute, any>[] = [
     columnHelper.accessor("key", {
       header: "Key",
       footer: (info) => info.column.id,

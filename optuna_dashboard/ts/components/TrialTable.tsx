@@ -15,13 +15,12 @@ import {
   ColumnDef,
   createColumnHelper,
   Row,
-  IdType,
   FilterFn,
 } from "@tanstack/react-table"
 
 const multiValueFilter: FilterFn<Trial> = <D extends object>(
   row: Row<D>,
-  columnId: IdType<D>,
+  columnId: string,
   filterValue: string[]
 ) => {
   const rowValue = row.getValue(columnId) as string
@@ -36,7 +35,8 @@ export const TrialTable: FC<{
   const objectiveNames: string[] = studyDetail?.objective_names || []
 
   const columnHelper = createColumnHelper<Trial>()
-  const columns: ColumnDef<Trial>[] = [
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const columns: ColumnDef<Trial, any>[] = [
     columnHelper.accessor("number", {
       header: "Number",
       footer: (info) => info.column.id,

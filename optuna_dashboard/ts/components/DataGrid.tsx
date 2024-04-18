@@ -108,7 +108,7 @@ function DataGrid<T>(props: {
   })
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box component="div" sx={{ width: "100%" }}>
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
@@ -236,7 +236,7 @@ function DataGrid<T>(props: {
           </TableBody>
         </Table>
       </TableContainer>
-      <Box display="flex" alignItems="center">
+      <Box component="div" display="flex" alignItems="center">
         <TablePagination
           rowsPerPageOptions={[
             10,
@@ -303,7 +303,7 @@ const TablePaginationActions = (props: TablePaginationActionsProps) => {
   }
 
   return (
-    <Box sx={{ flexShrink: 0, ml: 2.5 }}>
+    <Box component="div" sx={{ flexShrink: 0, ml: 2.5 }}>
       <IconButton
         onClick={handleFirstPageButtonClick}
         disabled={page === 0}
