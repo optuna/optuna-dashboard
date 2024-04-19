@@ -26,6 +26,7 @@
     "@sqlite.org/sqlite-wasm": "^3.45.1-build1"
   },
   "devDependencies": {
-    "@optuna/types": "../types/"
+    "@optuna/types": "../types/",
+    "typescript": "^5.4.5"
   }
 }

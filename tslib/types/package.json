@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/optuna/optuna-dashboard/issues"
   },
-  "homepage": "https://github.com/optuna/optuna-dashboard#readme"
+  "homepage": "https://github.com/optuna/optuna-dashboard#readme",
+  "devDependencies": {
+    "typescript": "^5.4.5"
+  }
 }
