@@ -26,6 +26,7 @@ import { usePlot } from "../hooks/usePlot"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { usePlotlyColorTheme } from "../state"
 import { useBackendRender } from "../state"
+import GraphContainer from "./GraphContainer"
 
 const plotDomId = "graph-contour"
 const CONTOUR_DISABLED_THRESHOLD = 100
@@ -117,7 +118,12 @@ const ContourBackend: FC<{
     }
   }, [error])
 
-  return <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
+  return (
+    <GraphContainer
+      plotDomId={plotDomId}
+      graphComponentState={graphComponentState}
+    />
+  )
 }
 
 const ContourFrontend: FC<{
@@ -222,7 +228,10 @@ const ContourFrontend: FC<{
         ) : null}
       </Grid>
       <Grid item xs={9}>
-        <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
+        <GraphContainer
+          plotDomId={plotDomId}
+          graphComponentState={graphComponentState}
+        />
       </Grid>
     </Grid>
   )
