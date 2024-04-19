@@ -10,7 +10,12 @@ import {
 } from "@mui/material"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
-import { GraphComponentState, SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
+import {
+  GraphComponentState,
+  SearchSpaceItem,
+  StudyDetail,
+  Trial,
+} from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { getAxisInfo, makeHovertext } from "../graphUtil"
 import { usePlot } from "../hooks/usePlot"
@@ -50,7 +55,7 @@ const GraphRankBackend: FC<{
   useEffect(() => {
     setGraphComponentState("componentDidMount")
   }, [])
-  
+
   const studyId = study?.id
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
@@ -74,7 +79,12 @@ const GraphRankBackend: FC<{
     }
   }, [error])
 
-  return <GraphContainer plotDomId={plotDomId} graphComponentState={graphComponentState} />
+  return (
+    <GraphContainer
+      plotDomId={plotDomId}
+      graphComponentState={graphComponentState}
+    />
+  )
 }
 
 const GraphRankFrontend: FC<{
@@ -121,7 +131,15 @@ const GraphRankFrontend: FC<{
         setGraphComponentState("graphDidRender")
       })
     }
-  }, [study, objectiveId, xParam, yParam, theme.palette.mode, colorTheme, graphComponentState])
+  }, [
+    study,
+    objectiveId,
+    xParam,
+    yParam,
+    theme.palette.mode,
+    colorTheme,
+    graphComponentState,
+  ])
 
   const space: SearchSpaceItem[] = study ? study.union_search_space : []
 
@@ -180,7 +198,10 @@ const GraphRankFrontend: FC<{
         ) : null}
       </Grid>
       <Grid item xs={9}>
-        <GraphContainer plotDomId={plotDomId} graphComponentState={graphComponentState} />
+        <GraphContainer
+          plotDomId={plotDomId}
+          graphComponentState={graphComponentState}
+        />
       </Grid>
     </Grid>
   )

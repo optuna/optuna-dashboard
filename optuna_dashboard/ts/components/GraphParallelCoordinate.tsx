@@ -8,7 +8,12 @@ import {
 } from "@mui/material"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, ReactNode, useEffect, useState } from "react"
-import { GraphComponentState, SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
+import {
+  GraphComponentState,
+  SearchSpaceItem,
+  StudyDetail,
+  Trial,
+} from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { usePlot } from "../hooks/usePlot"
 import { useMergedUnionSearchSpace } from "../searchSpace"
@@ -106,7 +111,7 @@ const GraphParallelCoordinateBackend: FC<{
   useEffect(() => {
     setGraphComponentState("componentDidMount")
   }, [])
-  
+
   const studyId = study?.id
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
@@ -130,7 +135,12 @@ const GraphParallelCoordinateBackend: FC<{
     }
   }, [error])
 
-  return <GraphContainer plotDomId={plotDomId} graphComponentState={graphComponentState} />
+  return (
+    <GraphContainer
+      plotDomId={plotDomId}
+      graphComponentState={graphComponentState}
+    />
+  )
 }
 
 const GraphParallelCoordinateFrontend: FC<{
@@ -150,9 +160,11 @@ const GraphParallelCoordinateFrontend: FC<{
   const trials = useFilteredTrials(study, targets, false)
   useEffect(() => {
     if (study !== null && graphComponentState !== "componentWillMount") {
-      plotCoordinate(study, trials, targets, searchSpace, colorTheme)?.then(() => {
-        setGraphComponentState("graphDidRender")
-      })
+      plotCoordinate(study, trials, targets, searchSpace, colorTheme)?.then(
+        () => {
+          setGraphComponentState("graphDidRender")
+        }
+      )
     }
   }, [study, trials, targets, searchSpace, colorTheme, graphComponentState])
 
@@ -178,7 +190,10 @@ const GraphParallelCoordinateFrontend: FC<{
         {renderCheckBoxes()}
       </Grid>
       <Grid item xs={9}>
-        <GraphContainer plotDomId={plotDomId} graphComponentState={graphComponentState} />
+        <GraphContainer
+          plotDomId={plotDomId}
+          graphComponentState={graphComponentState}
+        />
       </Grid>
     </Grid>
   )
