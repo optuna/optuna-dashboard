@@ -3,7 +3,7 @@
     "fmt": "biome check . --apply",
     "lint": "npm run lint:eslint && npm run lint:biome",
     "lint:eslint": "eslint . --ext .ts,.tsx --max-warnings 0",
-    "lint:biome": "biome format . && biome ci ."
+    "lint:biome": "biome ci ."
   },
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
