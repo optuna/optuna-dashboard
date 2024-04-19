@@ -1,18 +1,18 @@
-import React from "react"
+import ClearIcon from "@mui/icons-material/Clear"
 import {
-  Typography,
-  Select,
-  Switch,
+  Box,
+  IconButton,
   MenuItem,
+  Select,
   SelectChangeEvent,
   Stack,
+  Switch,
+  Typography,
   useTheme,
-  IconButton,
-  Box,
 } from "@mui/material"
-import ClearIcon from "@mui/icons-material/Clear"
-import { usePlotBackendRendering, usePlotlyColorThemeState } from "../state"
+import React from "react"
 import { PlotlyColorThemeDark, PlotlyColorThemeLight } from "ts/types/optuna"
+import { usePlotBackendRendering, usePlotlyColorThemeState } from "../state"
 
 interface SettingsProps {
   handleClose: () => void

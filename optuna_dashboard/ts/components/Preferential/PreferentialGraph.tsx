@@ -1,12 +1,14 @@
-import React, { FC, useState, useCallback, useEffect } from "react"
 import {
+  Box,
   Card,
   CardContent,
-  useTheme,
-  Typography,
-  Box,
   Chip,
+  Typography,
+  useTheme,
 } from "@mui/material"
+import { ElkNode } from "elkjs/lib/elk-api.js"
+import ELK from "elkjs/lib/elk.bundled.js"
+import React, { FC, useState, useCallback, useEffect } from "react"
 import ReactFlow, {
   Node,
   NodeProps,
@@ -20,13 +22,11 @@ import ReactFlow, {
   Handle,
 } from "reactflow"
 import "reactflow/dist/style.css"
-import ELK from "elkjs/lib/elk.bundled.js"
-import { ElkNode } from "elkjs/lib/elk-api.js"
 
-import { useStudyDetailValue } from "../../state"
-import { getArtifactUrlPath } from "./PreferentialTrials"
-import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
 import { StudyDetail, Trial } from "ts/types/optuna"
+import { useStudyDetailValue } from "../../state"
+import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
+import { getArtifactUrlPath } from "./PreferentialTrials"
 
 const elk = new ELK()
 const nodeWidth = 400

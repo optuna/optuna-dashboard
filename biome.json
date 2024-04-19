@@ -19,6 +19,9 @@
 			"tslib/react/types/*"
 		]
 	},
+	"linter": {
+		"ignore": ["optuna_dashboard/ts/**/*.ts", "optuna_dashboard/ts/**/*.tsx"]
+	},
 	"javascript": {
 		"formatter": {
 			"trailingComma": "es5",

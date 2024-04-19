@@ -1,6 +1,6 @@
+import * as Optuna from "@optuna/types"
 import { useMemo } from "react"
 import { SearchSpaceItem } from "./types/optuna"
-import * as Optuna from "@optuna/types"
 
 export const mergeUnionSearchSpace = (
   unionSearchSpace: SearchSpaceItem[]

@@ -1,25 +1,25 @@
-import React, { ReactNode, useState } from "react"
+import AddIcon from "@mui/icons-material/Add"
+import RemoveIcon from "@mui/icons-material/Remove"
 import {
+  Button,
   Dialog,
-  useTheme,
-  FormLabel,
-  DialogTitle,
+  DialogActions,
   DialogContent,
   DialogContentText,
+  DialogTitle,
   FormControl,
-  Button,
-  DialogActions,
+  FormLabel,
   MenuItem,
   Select,
+  useTheme,
 } from "@mui/material"
-import { actionCreator } from "../action"
-import { DebouncedInputTextField } from "./Debounce"
-import { useRecoilValue } from "recoil"
-import { studySummariesState } from "../state"
-import RemoveIcon from "@mui/icons-material/Remove"
-import AddIcon from "@mui/icons-material/Add"
 import * as Optuna from "@optuna/types"
+import React, { ReactNode, useState } from "react"
+import { useRecoilValue } from "recoil"
 import { StudySummary } from "ts/types/optuna"
+import { actionCreator } from "../action"
+import { studySummariesState } from "../state"
+import { DebouncedInputTextField } from "./Debounce"
 
 export const useCreateStudyDialog = (): [() => void, () => ReactNode] => {
   const theme = useTheme()

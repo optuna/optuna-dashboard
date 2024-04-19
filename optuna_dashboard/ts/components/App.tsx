@@ -1,21 +1,21 @@
-import React, { FC, useMemo, useState, useEffect } from "react"
-import { RecoilRoot } from "recoil"
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import { SnackbarProvider } from "notistack"
-import blue from "@mui/material/colors/blue"
-import pink from "@mui/material/colors/pink"
 import {
-  createTheme,
-  useMediaQuery,
-  ThemeProvider,
   Box,
   CssBaseline,
+  ThemeProvider,
+  createTheme,
+  useMediaQuery,
 } from "@mui/material"
+import blue from "@mui/material/colors/blue"
+import pink from "@mui/material/colors/pink"
+import { SnackbarProvider } from "notistack"
+import React, { FC, useMemo, useState, useEffect } from "react"
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
+import { RecoilRoot } from "recoil"
 
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { CompareStudies } from "./CompareStudies"
 import { StudyDetail } from "./StudyDetail"
 import { StudyList } from "./StudyList"
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 
 const queryClient = new QueryClient({
   defaultOptions: {

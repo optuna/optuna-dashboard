@@ -1,3 +1,10 @@
+import CloseIcon from "@mui/icons-material/Close"
+import EditIcon from "@mui/icons-material/Edit"
+import HtmlIcon from "@mui/icons-material/Html"
+import ModeEditIcon from "@mui/icons-material/ModeEdit"
+import SaveIcon from "@mui/icons-material/Save"
+import UploadFileIcon from "@mui/icons-material/UploadFile"
+import LoadingButton from "@mui/lab/LoadingButton"
 import {
   Box,
   Button,
@@ -18,6 +25,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
+import { Theme } from "@mui/material/styles"
 import React, {
   FC,
   createRef,
@@ -29,31 +37,23 @@ import React, {
   ChangeEventHandler,
 } from "react"
 import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
-import remarkMath from "remark-math"
-// @ts-ignore
-import rehypeMathjax from "rehype-mathjax"
-import rehypeRaw from "rehype-raw"
-import LoadingButton from "@mui/lab/LoadingButton"
-import SaveIcon from "@mui/icons-material/Save"
-import CloseIcon from "@mui/icons-material/Close"
-import EditIcon from "@mui/icons-material/Edit"
-import { Theme } from "@mui/material/styles"
 import {
   CodeComponent,
   ReactMarkdownNames,
   // @ts-ignore
 } from "react-markdown/lib/ast-to-react"
-import HtmlIcon from "@mui/icons-material/Html"
-import ModeEditIcon from "@mui/icons-material/ModeEdit"
-import UploadFileIcon from "@mui/icons-material/UploadFile"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { darcula } from "react-syntax-highlighter/dist/esm/styles/prism"
+// @ts-ignore
+import rehypeMathjax from "rehype-mathjax"
+import rehypeRaw from "rehype-raw"
+import remarkGfm from "remark-gfm"
+import remarkMath from "remark-math"
 
-import { actionCreator } from "../action"
 import { useRecoilValue } from "recoil"
-import { artifactIsAvailable, isFileUploading, useArtifacts } from "../state"
 import { Note } from "ts/types/optuna"
+import { actionCreator } from "../action"
+import { artifactIsAvailable, isFileUploading, useArtifacts } from "../state"
 
 const placeholder = `## What is this feature for?
 

@@ -1,28 +1,28 @@
-import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect, useState } from "react"
 import {
-  Grid,
+  Box,
   FormControl,
   FormLabel,
+  Grid,
   MenuItem,
-  Switch,
   Select,
-  Typography,
   SelectChangeEvent,
+  Switch,
+  Typography,
   useTheme,
-  Box,
 } from "@mui/material"
+import * as plotly from "plotly.js-dist-min"
+import React, { FC, useEffect, useState } from "react"
+import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
+import { PlotType } from "../apiClient"
+import { usePlot } from "../hooks/usePlot"
+import { useMergedUnionSearchSpace } from "../searchSpace"
+import { useBackendRender, usePlotlyColorTheme } from "../state"
 import {
   Target,
   useFilteredTrials,
   useObjectiveAndUserAttrTargets,
   useParamTargets,
 } from "../trialFilter"
-import { useMergedUnionSearchSpace } from "../searchSpace"
-import { PlotType } from "../apiClient"
-import { usePlotlyColorTheme, useBackendRender } from "../state"
-import { usePlot } from "../hooks/usePlot"
-import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 
 const plotDomId = "graph-slice"
 

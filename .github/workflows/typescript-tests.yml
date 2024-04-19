@@ -4,6 +4,7 @@ on:
     paths:
       - '.github/workflows/typescript-tests.yml'
       - '.eslintrc.js'
+      - 'biome.json'
       - '**.ts'
       - '**.tsx'
       - 'optuna_dashboard/package.json'

@@ -1,11 +1,11 @@
-import React, { FC } from "react"
-import { IconButton, Button, useTheme } from "@mui/material"
-import LinkIcon from "@mui/icons-material/Link"
 import DownloadIcon from "@mui/icons-material/Download"
+import LinkIcon from "@mui/icons-material/Link"
+import { Button, IconButton, useTheme } from "@mui/material"
+import React, { FC } from "react"
 
-import { DataGridColumn, DataGrid } from "./DataGrid"
 import { Link } from "react-router-dom"
 import { StudyDetail, Trial } from "ts/types/optuna"
+import { DataGrid, DataGridColumn } from "./DataGrid"
 
 export const TrialTable: FC<{
   studyDetail: StudyDetail | null
@@ -29,7 +29,7 @@ export const TrialTable: FC<{
   const valueComparator = (
     firstVal?: number,
     secondVal?: number,
-    ascending: boolean = true
+    ascending = true
   ): number => {
     if (firstVal === secondVal) {
       return 0

@@ -1,29 +1,29 @@
-import * as plotly from "plotly.js-dist-min"
-import React, { ChangeEvent, FC, useEffect, useState } from "react"
 import {
   Box,
-  Grid,
   FormControl,
-  FormLabel,
   FormControlLabel,
+  FormLabel,
+  Grid,
   MenuItem,
-  Select,
   Radio,
   RadioGroup,
-  Typography,
+  Select,
   SelectChangeEvent,
-  useTheme,
   Slider,
+  Typography,
+  useTheme,
 } from "@mui/material"
+import * as Optuna from "@optuna/types"
+import * as plotly from "plotly.js-dist-min"
+import React, { ChangeEvent, FC, useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { StudyDetail, Trial } from "ts/types/optuna"
+import { usePlotlyColorTheme } from "../state"
 import {
-  useFilteredTrialsFromStudies,
   Target,
+  useFilteredTrialsFromStudies,
   useObjectiveAndUserAttrTargetsFromStudies,
 } from "../trialFilter"
-import { usePlotlyColorTheme } from "../state"
-import { useNavigate } from "react-router-dom"
-import * as Optuna from "@optuna/types"
-import { StudyDetail, Trial } from "ts/types/optuna"
 
 const plotDomId = "graph-history"
 

@@ -1,4 +1,3 @@
-import React, { FC } from "react"
 import {
   Box,
   Card,
@@ -8,11 +7,12 @@ import {
   useTheme,
 } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2"
-import { DataGrid, DataGridColumn } from "../DataGrid"
-import { BestTrialsCard } from "../BestTrialsCard"
-import { useStudyDetailValue, useStudySummaryValue } from "../../state"
-import { Contour } from "../GraphContour"
 import * as Optuna from "@optuna/types"
+import React, { FC } from "react"
+import { useStudyDetailValue, useStudySummaryValue } from "../../state"
+import { BestTrialsCard } from "../BestTrialsCard"
+import { DataGrid, DataGridColumn } from "../DataGrid"
+import { Contour } from "../GraphContour"
 
 export const PreferentialAnalytics: FC<{ studyId: number }> = ({ studyId }) => {
   const theme = useTheme()

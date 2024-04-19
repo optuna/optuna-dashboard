@@ -1,4 +1,4 @@
-import React, { FC, ReactNode, useMemo } from "react"
+import LinkIcon from "@mui/icons-material/Link"
 import {
   Box,
   Button,
@@ -12,8 +12,8 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
+import React, { FC, ReactNode, useMemo } from "react"
 import { Link } from "react-router-dom"
-import LinkIcon from "@mui/icons-material/Link"
 import { StudyDetail, Trial } from "ts/types/optuna"
 
 const useBestTrials = (studyDetail: StudyDetail | null): Trial[] => {
