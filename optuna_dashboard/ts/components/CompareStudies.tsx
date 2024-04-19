@@ -1,38 +1,38 @@
-import React, { FC, useEffect, useMemo, useState } from "react"
-import * as Optuna from "@optuna/types"
-import { useRecoilValue } from "recoil"
-import { useSnackbar } from "notistack"
-import { Link } from "react-router-dom"
+import ChevronRightIcon from "@mui/icons-material/ChevronRight"
+import HomeIcon from "@mui/icons-material/Home"
 import {
+  Box,
   Card,
   CardContent,
   FormControl,
+  IconButton,
   Switch,
   Typography,
-  Box,
   useTheme,
-  IconButton,
 } from "@mui/material"
-import Grid2 from "@mui/material/Unstable_Grid2"
-import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import Chip from "@mui/material/Chip"
-import FormControlLabel from "@mui/material/FormControlLabel"
 import Divider from "@mui/material/Divider"
+import FormControlLabel from "@mui/material/FormControlLabel"
 import List from "@mui/material/List"
 import ListItem from "@mui/material/ListItem"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
-import HomeIcon from "@mui/icons-material/Home"
+import Grid2 from "@mui/material/Unstable_Grid2"
+import * as Optuna from "@optuna/types"
+import { useSnackbar } from "notistack"
+import React, { FC, useEffect, useMemo, useState } from "react"
+import { Link } from "react-router-dom"
+import { useRecoilValue } from "recoil"
 
+import { useNavigate } from "react-router-dom"
+import { StudyDetails, StudySummary } from "ts/types/optuna"
 import { actionCreator } from "../action"
-import { studySummariesState, studyDetailsState } from "../state"
+import { studyDetailsState, studySummariesState } from "../state"
+import { useQuery } from "../urlQuery"
 import { AppDrawer } from "./AppDrawer"
 import { GraphEdf } from "./GraphEdf"
 import { GraphHistory } from "./GraphHistory"
-import { useNavigate } from "react-router-dom"
-import { useQuery } from "../urlQuery"
-import { StudyDetails, StudySummary } from "ts/types/optuna"
 
 const useQueriedStudies = (
   studies: StudySummary[],

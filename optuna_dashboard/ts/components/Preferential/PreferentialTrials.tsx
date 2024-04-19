@@ -1,39 +1,32 @@
-import React, { FC, useEffect, useState } from "react"
-import {
-  Typography,
-  Box,
-  useTheme,
-  Card,
-  CardContent,
-  CardActions,
-  Button,
-  MenuItem,
-  Select,
-  FormControl,
-  FormLabel,
-  Modal,
-  CircularProgress,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-} from "@mui/material"
-import IconButton from "@mui/material/IconButton"
+import ClearIcon from "@mui/icons-material/Clear"
+import FullscreenIcon from "@mui/icons-material/Fullscreen"
 import OpenInFullIcon from "@mui/icons-material/OpenInFull"
 import ReplayIcon from "@mui/icons-material/Replay"
-import { red } from "@mui/material/colors"
-import UndoIcon from "@mui/icons-material/Undo"
-import ClearIcon from "@mui/icons-material/Clear"
 import SettingsIcon from "@mui/icons-material/Settings"
-import FullscreenIcon from "@mui/icons-material/Fullscreen"
-
-import { actionCreator } from "../../action"
-import { TrialListDetail } from "../TrialList"
+import UndoIcon from "@mui/icons-material/Undo"
 import {
-  isThreejsArtifact,
-  useThreejsArtifactModal,
-} from "../Artifact/ThreejsArtifactViewer"
-import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  FormControl,
+  FormLabel,
+  MenuItem,
+  Modal,
+  Select,
+  Typography,
+  useTheme,
+} from "@mui/material"
+import IconButton from "@mui/material/IconButton"
+import { red } from "@mui/material/colors"
+import React, { FC, useEffect, useState } from "react"
+
 import {
   Artifact,
   FeedbackComponentArtifact,
@@ -42,6 +35,13 @@ import {
   StudyDetail,
   Trial,
 } from "ts/types/optuna"
+import { actionCreator } from "../../action"
+import {
+  isThreejsArtifact,
+  useThreejsArtifactModal,
+} from "../Artifact/ThreejsArtifactViewer"
+import { TrialListDetail } from "../TrialList"
+import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
 
 const SettingsPage: FC<{
   studyDetail: StudyDetail

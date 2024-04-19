@@ -1,19 +1,18 @@
-import React, { FC, useEffect, useMemo } from "react"
-import { useRecoilValue } from "recoil"
-import { Link, useParams } from "react-router-dom"
+import ChevronRightIcon from "@mui/icons-material/ChevronRight"
+import HomeIcon from "@mui/icons-material/Home"
 import {
   Box,
   Card,
   CardContent,
+  IconButton,
   Typography,
   useTheme,
-  IconButton,
 } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2"
-import ChevronRightIcon from "@mui/icons-material/ChevronRight"
-import HomeIcon from "@mui/icons-material/Home"
+import React, { FC, useEffect, useMemo } from "react"
+import { Link, useParams } from "react-router-dom"
+import { useRecoilValue } from "recoil"
 
-import { StudyNote } from "./Note"
 import { actionCreator } from "../action"
 import {
   reloadIntervalState,
@@ -21,19 +20,20 @@ import {
   useStudyIsPreferential,
   useStudyName,
 } from "../state"
-import { TrialTable } from "./TrialTable"
 import { AppDrawer, PageId } from "./AppDrawer"
-import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { Contour } from "./GraphContour"
-import { GraphSlice } from "./GraphSlice"
 import { GraphEdf } from "./GraphEdf"
+import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { GraphRank } from "./GraphRank"
-import { TrialList } from "./TrialList"
-import { StudyHistory } from "./StudyHistory"
-import { PreferentialTrials } from "./Preferential/PreferentialTrials"
-import { PreferentialHistory } from "./Preferential/PreferentialHistory"
+import { GraphSlice } from "./GraphSlice"
+import { StudyNote } from "./Note"
 import { PreferentialAnalytics } from "./Preferential/PreferentialAnalytics"
 import { PreferentialGraph } from "./Preferential/PreferentialGraph"
+import { PreferentialHistory } from "./Preferential/PreferentialHistory"
+import { PreferentialTrials } from "./Preferential/PreferentialTrials"
+import { StudyHistory } from "./StudyHistory"
+import { TrialList } from "./TrialList"
+import { TrialTable } from "./TrialTable"
 
 export const useURLVars = (): number => {
   const { studyId } = useParams<{ studyId: string }>()
@@ -85,7 +85,7 @@ export const StudyDetail: FC<{
       }
     }
 
-    const intervalId = setInterval(function () {
+    const intervalId = setInterval(() => {
       action.updateStudyDetail(studyId)
     }, interval)
     return () => clearInterval(intervalId)

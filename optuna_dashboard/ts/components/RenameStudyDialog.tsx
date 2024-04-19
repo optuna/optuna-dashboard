@@ -1,16 +1,16 @@
-import React, { ReactNode, useState } from "react"
 import {
+  Button,
   Dialog,
-  DialogTitle,
+  DialogActions,
   DialogContent,
   DialogContentText,
-  Button,
-  DialogActions,
+  DialogTitle,
   useTheme,
 } from "@mui/material"
+import React, { ReactNode, useState } from "react"
+import { StudySummary } from "ts/types/optuna"
 import { actionCreator } from "../action"
 import { DebouncedInputTextField } from "./Debounce"
-import { StudySummary } from "ts/types/optuna"
 
 export const useRenameStudyDialog = (
   studies: StudySummary[]

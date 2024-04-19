@@ -15,11 +15,21 @@ The repository is organized as follows:
 │   ├── browser_app_entry.tsx   # Entry point for browser app, hosted on GitHub pages.
 │   └── vscode_entry.tsx        # Entry point for VS Code app, output placed under `vscode/assets`.
 ├── vscode/             # The VS Code extension.
-└── rustlib/            # Rust library exporting Wasm functions.
-    └── pkg/            # Output directory for rustlib, installed from package.json via `"./rustlib/pkg"`.
+├── rustlib/            # Rust library exporting Wasm functions.
+│   └── pkg/            # Output directory for rustlib, installed from package.json via `"./rustlib/pkg"`.
+└── tslib/              # TypeScript library shared for common use.
+    ├── react/                  # Common React components.
+    ├── storage/                # Common code for handling storage.
+    └── types/                  # Common TypeScript types.
 ```
 
 ## Python package
+
+#### Building TypeScript packages
+
+```
+$ make tslib
+```
 
 #### Compiling TypeScript files
 

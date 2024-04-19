@@ -1,3 +1,16 @@
+import DeleteIcon from "@mui/icons-material/Delete"
+import DownloadIcon from "@mui/icons-material/Download"
+import FullscreenIcon from "@mui/icons-material/Fullscreen"
+import UploadFileIcon from "@mui/icons-material/UploadFile"
+import {
+  Box,
+  Card,
+  CardActionArea,
+  CardContent,
+  IconButton,
+  Typography,
+  useTheme,
+} from "@mui/material"
 import React, {
   ChangeEventHandler,
   DragEventHandler,
@@ -6,28 +19,15 @@ import React, {
   useRef,
   useState,
 } from "react"
-import {
-  Typography,
-  Box,
-  useTheme,
-  IconButton,
-  Card,
-  CardContent,
-  CardActionArea,
-} from "@mui/material"
-import UploadFileIcon from "@mui/icons-material/UploadFile"
-import DownloadIcon from "@mui/icons-material/Download"
-import DeleteIcon from "@mui/icons-material/Delete"
-import FullscreenIcon from "@mui/icons-material/Fullscreen"
 
+import { StudyDetail } from "ts/types/optuna"
 import { actionCreator } from "../../action"
+import { ArtifactCardMedia } from "./ArtifactCardMedia"
 import { useDeleteStudyArtifactDialog } from "./DeleteArtifactDialog"
 import {
-  useThreejsArtifactModal,
   isThreejsArtifact,
+  useThreejsArtifactModal,
 } from "./ThreejsArtifactViewer"
-import { ArtifactCardMedia } from "./ArtifactCardMedia"
-import { StudyDetail } from "ts/types/optuna"
 
 export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
   const theme = useTheme()

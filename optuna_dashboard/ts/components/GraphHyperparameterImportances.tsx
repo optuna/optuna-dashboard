@@ -1,16 +1,16 @@
+import { Box, Card, CardContent, Typography, useTheme } from "@mui/material"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
-import { Typography, useTheme, Box, Card, CardContent } from "@mui/material"
 
-import { useParamImportance } from "../hooks/useParamImportance"
-import {
-  useStudyDirections,
-  usePlotlyColorTheme,
-  useBackendRender,
-} from "../state"
-import { PlotType } from "../apiClient"
-import { usePlot } from "../hooks/usePlot"
 import { ParamImportance, StudyDetail } from "ts/types/optuna"
+import { PlotType } from "../apiClient"
+import { useParamImportance } from "../hooks/useParamImportance"
+import { usePlot } from "../hooks/usePlot"
+import {
+  useBackendRender,
+  usePlotlyColorTheme,
+  useStudyDirections,
+} from "../state"
 
 const plotDomId = "graph-hyperparameter-importances"
 

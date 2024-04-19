@@ -1,24 +1,24 @@
-import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect, useState } from "react"
 import {
-  Grid,
+  Box,
   FormControl,
   FormLabel,
+  Grid,
   MenuItem,
   Select,
-  Typography,
   SelectChangeEvent,
+  Typography,
   useTheme,
-  Box,
 } from "@mui/material"
-import { makeHovertext } from "../graphUtil"
-import { usePlotlyColorTheme } from "../state"
-import { useNavigate } from "react-router-dom"
-import { PlotType } from "../apiClient"
-import { useBackendRender } from "../state"
-import { usePlot } from "../hooks/usePlot"
 import * as Optuna from "@optuna/types"
+import * as plotly from "plotly.js-dist-min"
+import React, { FC, useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { StudyDetail, Trial } from "ts/types/optuna"
+import { PlotType } from "../apiClient"
+import { makeHovertext } from "../graphUtil"
+import { usePlot } from "../hooks/usePlot"
+import { usePlotlyColorTheme } from "../state"
+import { useBackendRender } from "../state"
 
 const plotDomId = "graph-pareto-front"
 

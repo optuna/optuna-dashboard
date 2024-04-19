@@ -1,6 +1,6 @@
+import { Box } from "@mui/material"
 import React, { useCallback, useEffect, useState, useRef } from "react"
 import WaveSurfer from "wavesurfer.js"
-import { Box } from "@mui/material"
 
 interface WaveSurferArtifactViewerProps {
   height: number

@@ -1,14 +1,14 @@
-import React, { ReactNode, useState, FC } from "react"
 import {
+  Button,
   Dialog,
-  DialogTitle,
+  DialogActions,
   DialogContent,
   DialogContentText,
-  Button,
-  DialogActions,
+  DialogTitle,
 } from "@mui/material"
-import { actionCreator } from "../../action"
+import React, { ReactNode, useState, FC } from "react"
 import { Artifact } from "ts/types/optuna"
+import { actionCreator } from "../../action"
 
 export const useDeleteTrialArtifactDialog = (): [
   (studyId: number, trialId: number, artifact: Artifact) => void,

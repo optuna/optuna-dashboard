@@ -1,12 +1,15 @@
-import React, { FC, ReactNode, useMemo } from "react"
+import CheckBoxIcon from "@mui/icons-material/CheckBox"
+import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
+import FilterListIcon from "@mui/icons-material/FilterList"
+import StopCircleIcon from "@mui/icons-material/StopCircle"
 import {
-  Typography,
   Box,
   Button,
-  useTheme,
   IconButton,
   Menu,
   MenuItem,
+  Typography,
+  useTheme,
 } from "@mui/material"
 import Chip from "@mui/material/Chip"
 import Divider from "@mui/material/Divider"
@@ -15,23 +18,20 @@ import ListItem from "@mui/material/ListItem"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
-import FilterListIcon from "@mui/icons-material/FilterList"
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
-import CheckBoxIcon from "@mui/icons-material/CheckBox"
-import StopCircleIcon from "@mui/icons-material/StopCircle"
 import * as Optuna from "@optuna/types"
+import React, { FC, ReactNode, useMemo } from "react"
 
-import { TrialNote } from "./Note"
-import { useNavigate } from "react-router-dom"
 import ListItemIcon from "@mui/material/ListItemIcon"
-import { useRecoilValue } from "recoil"
-import { artifactIsAvailable } from "../state"
-import { actionCreator } from "../action"
-import { TrialFormWidgets } from "./TrialFormWidgets"
-import { TrialArtifactCards } from "./Artifact/TrialArtifactCards"
-import { useQuery } from "../urlQuery"
 import { useVirtualizer } from "@tanstack/react-virtual"
+import { useNavigate } from "react-router-dom"
+import { useRecoilValue } from "recoil"
 import { FormWidgets, StudyDetail, Trial } from "ts/types/optuna"
+import { actionCreator } from "../action"
+import { artifactIsAvailable } from "../state"
+import { useQuery } from "../urlQuery"
+import { TrialArtifactCards } from "./Artifact/TrialArtifactCards"
+import { TrialNote } from "./Note"
+import { TrialFormWidgets } from "./TrialFormWidgets"
 
 const states: Optuna.TrialState[] = [
   "Complete",

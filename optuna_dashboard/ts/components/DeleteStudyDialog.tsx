@@ -1,12 +1,12 @@
-import React, { ReactNode, useState } from "react"
 import {
+  Button,
   Dialog,
-  DialogTitle,
+  DialogActions,
   DialogContent,
   DialogContentText,
-  Button,
-  DialogActions,
+  DialogTitle,
 } from "@mui/material"
+import React, { ReactNode, useState } from "react"
 import { actionCreator } from "../action"
 
 export const useDeleteStudyDialog = (): [

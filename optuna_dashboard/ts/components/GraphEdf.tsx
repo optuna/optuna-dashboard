@@ -1,10 +1,10 @@
+import { Box, Typography, useTheme } from "@mui/material"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useMemo } from "react"
-import { Typography, useTheme, Box } from "@mui/material"
-import { Target, useFilteredTrialsFromStudies } from "../trialFilter"
-import { getCompareStudiesPlotAPI, CompareStudiesPlotType } from "../apiClient"
-import { usePlotlyColorTheme, useBackendRender } from "../state"
 import { StudyDetail, Trial } from "ts/types/optuna"
+import { CompareStudiesPlotType, getCompareStudiesPlotAPI } from "../apiClient"
+import { useBackendRender, usePlotlyColorTheme } from "../state"
+import { Target, useFilteredTrialsFromStudies } from "../trialFilter"
 
 const getPlotDomId = (objectiveId: number) => `graph-edf-${objectiveId}`
 
