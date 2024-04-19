@@ -15,14 +15,13 @@ import {
 import blue from "@mui/material/colors/blue"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useMemo, useState } from "react"
-import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
+import { GraphComponentState, SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { getAxisInfo } from "../graphUtil"
 import { usePlot } from "../hooks/usePlot"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { usePlotlyColorTheme } from "../state"
 import { useBackendRender } from "../state"
-import { GRAPH_COMPONENT_STATE, GraphComponentState } from "../constants/graph"
 
 const plotDomId = "graph-contour"
 const CONTOUR_DISABLED_THRESHOLD = 100
@@ -113,9 +112,9 @@ const ContourFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
   const [graphComponentState, setGraphComponentState] =
-    useState<GraphComponentState>(GRAPH_COMPONENT_STATE.COMPONENT_WILL_MOUNT)
+    useState<GraphComponentState>("componentWillMount")
   useEffect(() => {
-    setGraphComponentState(GRAPH_COMPONENT_STATE.COMPONENT_DID_MOUNT)
+    setGraphComponentState("componentDidMount")
   }, [])
 
   const theme = useTheme()
@@ -149,10 +148,10 @@ const ContourFrontend: FC<{
   useEffect(() => {
     if (
       study != null &&
-      graphComponentState !== GRAPH_COMPONENT_STATE.COMPONENT_WILL_MOUNT
+      graphComponentState !== "componentWillMount"
     ) {
       plotContour(study, objectiveId, xParam, yParam, colorTheme)?.then(() => {
-        setGraphComponentState(GRAPH_COMPONENT_STATE.GRAPH_DID_RENDER)
+        setGraphComponentState("graphDidRender")
       })
     }
   }, [study, objectiveId, xParam, yParam, colorTheme, graphComponentState])
@@ -215,7 +214,7 @@ const ContourFrontend: FC<{
       </Grid>
       <Grid item xs={9}>
         <Box component="div" id={plotDomId} sx={{ height: "450px" }}>
-          {graphComponentState !== GRAPH_COMPONENT_STATE.GRAPH_DID_RENDER && (
+          {graphComponentState !== "graphDidRender" && (
             <Box
               component="div"
               sx={{
