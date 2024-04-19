@@ -197,4 +197,7 @@ export type PlotlyColorTheme = {
   light: PlotlyColorThemeLight
 }
 
-export type GraphComponentState = "componentWillMount" | "componentDidMount" | "graphDidRender"
+export type GraphComponentState =
+  | "componentWillMount"
+  | "componentDidMount"
+  | "graphDidRender"

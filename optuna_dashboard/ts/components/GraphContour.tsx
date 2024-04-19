@@ -8,14 +8,18 @@ import {
   Select,
   SelectChangeEvent,
   Stack,
-  CircularProgress,
   Typography,
   useTheme,
 } from "@mui/material"
 import blue from "@mui/material/colors/blue"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useMemo, useState } from "react"
-import { GraphComponentState, SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
+import {
+  GraphComponentState,
+  SearchSpaceItem,
+  StudyDetail,
+  Trial,
+} from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { getAxisInfo } from "../graphUtil"
 import { usePlot } from "../hooks/usePlot"
@@ -85,6 +89,12 @@ const DisabledContour: FC<{
 const ContourBackend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  const [graphComponentState, setGraphComponentState] =
+    useState<GraphComponentState>("componentWillMount")
+  useEffect(() => {
+    setGraphComponentState("componentDidMount")
+  }, [])
+
   const studyId = study?.id
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
@@ -95,10 +105,12 @@ const ContourBackend: FC<{
   })
 
   useEffect(() => {
-    if (data && layout) {
-      plotly.react(plotDomId, data, layout)
+    if (data && layout && graphComponentState !== "componentWillMount") {
+      plotly.react(plotDomId, data, layout).then(() => {
+        setGraphComponentState("graphDidRender")
+      })
     }
-  }, [data, layout])
+  }, [data, layout, graphComponentState])
   useEffect(() => {
     if (error) {
       console.error(error)
@@ -146,10 +158,7 @@ const ContourFrontend: FC<{
   }
 
   useEffect(() => {
-    if (
-      study != null &&
-      graphComponentState !== "componentWillMount"
-    ) {
+    if (study != null && graphComponentState !== "componentWillMount") {
       plotContour(study, objectiveId, xParam, yParam, colorTheme)?.then(() => {
         setGraphComponentState("graphDidRender")
       })
@@ -213,21 +222,7 @@ const ContourFrontend: FC<{
         ) : null}
       </Grid>
       <Grid item xs={9}>
-        <Box component="div" id={plotDomId} sx={{ height: "450px" }}>
-          {graphComponentState !== "graphDidRender" && (
-            <Box
-              component="div"
-              sx={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                height: "100%",
-              }}
-            >
-              <CircularProgress />
-            </Box>
-          )}
-        </Box>
+        <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
       </Grid>
     </Grid>
   )
