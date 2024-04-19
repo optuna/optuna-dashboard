@@ -1,6 +1,6 @@
-import * as plotly from "plotly.js-dist-min"
-import axios from "axios"
 import * as Optuna from "@optuna/types"
+import axios from "axios"
+import * as plotly from "plotly.js-dist-min"
 import {
   Artifact,
   FeedbackComponentType,

@@ -1,22 +1,19 @@
-import React, { FC, ReactNode, useMemo, useState } from "react"
 import {
-  Typography,
   Box,
-  useTheme,
-  Card,
-  FormControlLabel,
-  FormControl,
-  FormLabel,
   Button,
-  RadioGroup,
+  Card,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
   Radio,
+  RadioGroup,
   Slider,
   TextField,
+  Typography,
+  useTheme,
 } from "@mui/material"
-import { DebouncedInputTextField } from "./Debounce"
-import { actionCreator } from "../action"
-import { useTrialUpdatingValue } from "../state"
 import * as Optuna from "@optuna/types"
+import React, { FC, ReactNode, useMemo, useState } from "react"
 import {
   FormWidgets,
   ObjectiveChoiceWidget,
@@ -26,6 +23,9 @@ import {
   Trial,
   UserAttrFormWidget,
 } from "ts/types/optuna"
+import { actionCreator } from "../action"
+import { useTrialUpdatingValue } from "../state"
+import { DebouncedInputTextField } from "./Debounce"
 
 type WidgetState = {
   isValid: boolean

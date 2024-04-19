@@ -1,4 +1,3 @@
-import React, { FC, useState } from "react"
 import {
   Box,
   Card,
@@ -8,26 +7,27 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import { GraphParetoFront } from "./GraphParetoFront"
-import { GraphHistory } from "./GraphHistory"
-import { GraphTimeline } from "./GraphTimeline"
-import { GraphIntermediateValues } from "./GraphIntermediateValues"
+import FormControlLabel from "@mui/material/FormControlLabel"
 import Grid2 from "@mui/material/Unstable_Grid2"
-import { DataGrid, DataGridColumn } from "./DataGrid"
-import { GraphHyperparameterImportance } from "./GraphHyperparameterImportances"
-import { UserDefinedPlot } from "./UserDefinedPlot"
-import { BestTrialsCard } from "./BestTrialsCard"
-import { StudyArtifactCards } from "./Artifact/StudyArtifactCards"
+import * as Optuna from "@optuna/types"
+import React, { FC, useState } from "react"
 import { useRecoilValue } from "recoil"
+import { Trial } from "ts/types/optuna"
 import {
   useStudyDetailValue,
   useStudyDirections,
   useStudySummaryValue,
 } from "../state"
-import FormControlLabel from "@mui/material/FormControlLabel"
 import { artifactIsAvailable } from "../state"
-import * as Optuna from "@optuna/types"
-import { Trial } from "ts/types/optuna"
+import { StudyArtifactCards } from "./Artifact/StudyArtifactCards"
+import { BestTrialsCard } from "./BestTrialsCard"
+import { DataGrid, DataGridColumn } from "./DataGrid"
+import { GraphHistory } from "./GraphHistory"
+import { GraphHyperparameterImportance } from "./GraphHyperparameterImportances"
+import { GraphIntermediateValues } from "./GraphIntermediateValues"
+import { GraphParetoFront } from "./GraphParetoFront"
+import { GraphTimeline } from "./GraphTimeline"
+import { UserDefinedPlot } from "./UserDefinedPlot"
 
 export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   const theme = useTheme()

@@ -1,9 +1,9 @@
-import { useEffect } from "react"
-import { useSnackbar } from "notistack"
-import { getParamImportances } from "../apiClient"
 import { useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
+import { useSnackbar } from "notistack"
+import { useEffect } from "react"
 import { ParamImportance } from "ts/types/optuna"
+import { getParamImportances } from "../apiClient"
 
 export const useParamImportance = ({
   numCompletedTrials,

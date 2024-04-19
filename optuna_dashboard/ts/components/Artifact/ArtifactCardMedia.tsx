@@ -1,12 +1,12 @@
+import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
+import { Box, CardMedia } from "@mui/material"
 import React, { FC } from "react"
+import { Artifact } from "ts/types/optuna"
 import {
   ThreejsArtifactViewer,
   isThreejsArtifact,
 } from "./ThreejsArtifactViewer"
 import { WaveSurferArtifactViewer } from "./WaveSurferArtifactViewer"
-import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
-import { CardMedia, Box } from "@mui/material"
-import { Artifact } from "ts/types/optuna"
 
 export const ArtifactCardMedia: FC<{
   artifact: Artifact

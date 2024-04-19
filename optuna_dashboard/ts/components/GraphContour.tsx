@@ -1,26 +1,26 @@
-import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect, useMemo, useState } from "react"
 import {
-  Grid,
+  Box,
   FormControl,
   FormLabel,
+  Grid,
+  Link,
   MenuItem,
   Select,
-  Typography,
   SelectChangeEvent,
-  useTheme,
-  Box,
   Stack,
-  Link,
+  Typography,
+  useTheme,
 } from "@mui/material"
 import blue from "@mui/material/colors/blue"
+import * as plotly from "plotly.js-dist-min"
+import React, { FC, useEffect, useMemo, useState } from "react"
+import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
+import { PlotType } from "../apiClient"
+import { getAxisInfo } from "../graphUtil"
+import { usePlot } from "../hooks/usePlot"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { usePlotlyColorTheme } from "../state"
-import { getAxisInfo } from "../graphUtil"
-import { PlotType } from "../apiClient"
 import { useBackendRender } from "../state"
-import { usePlot } from "../hooks/usePlot"
-import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 
 const plotDomId = "graph-contour"
 const CONTOUR_DISABLED_THRESHOLD = 100

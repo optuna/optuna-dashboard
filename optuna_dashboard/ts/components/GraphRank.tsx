@@ -1,22 +1,22 @@
-import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect, useState } from "react"
 import {
-  Grid,
+  Box,
   FormControl,
   FormLabel,
+  Grid,
   MenuItem,
   Select,
-  Typography,
   SelectChangeEvent,
+  Typography,
   useTheme,
-  Box,
 } from "@mui/material"
-import { getAxisInfo, makeHovertext } from "../graphUtil"
-import { useMergedUnionSearchSpace } from "../searchSpace"
-import { PlotType } from "../apiClient"
-import { usePlotlyColorTheme, useBackendRender } from "../state"
-import { usePlot } from "../hooks/usePlot"
+import * as plotly from "plotly.js-dist-min"
+import React, { FC, useEffect, useState } from "react"
 import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
+import { PlotType } from "../apiClient"
+import { getAxisInfo, makeHovertext } from "../graphUtil"
+import { usePlot } from "../hooks/usePlot"
+import { useMergedUnionSearchSpace } from "../searchSpace"
+import { useBackendRender, usePlotlyColorTheme } from "../state"
 
 const plotDomId = "graph-rank"
 

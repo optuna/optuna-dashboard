@@ -1,27 +1,27 @@
-import React, { FC, useState } from "react"
-import {
-  Typography,
-  Box,
-  useTheme,
-  Card,
-  CardContent,
-  CardActions,
-} from "@mui/material"
 import ClearIcon from "@mui/icons-material/Clear"
-import IconButton from "@mui/material/IconButton"
+import DeleteIcon from "@mui/icons-material/Delete"
 import OpenInFullIcon from "@mui/icons-material/OpenInFull"
 import RestoreFromTrashIcon from "@mui/icons-material/RestoreFromTrash"
-import DeleteIcon from "@mui/icons-material/Delete"
+import {
+  Box,
+  Card,
+  CardActions,
+  CardContent,
+  Typography,
+  useTheme,
+} from "@mui/material"
+import IconButton from "@mui/material/IconButton"
 import Modal from "@mui/material/Modal"
 import { red } from "@mui/material/colors"
+import React, { FC, useState } from "react"
 
-import { TrialListDetail } from "../TrialList"
-import { getArtifactUrlPath } from "./PreferentialTrials"
-import { formatDate } from "../../dateUtil"
-import { actionCreator } from "../../action"
-import { useStudyDetailValue } from "../../state"
-import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
 import { PreferenceHistory, StudyDetail, Trial } from "ts/types/optuna"
+import { actionCreator } from "../../action"
+import { formatDate } from "../../dateUtil"
+import { useStudyDetailValue } from "../../state"
+import { TrialListDetail } from "../TrialList"
+import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
+import { getArtifactUrlPath } from "./PreferentialTrials"
 
 type TrialType = "worst" | "none"
 

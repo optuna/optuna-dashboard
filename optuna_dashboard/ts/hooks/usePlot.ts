@@ -1,6 +1,6 @@
-import * as plotly from "plotly.js-dist-min"
 import { useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
+import * as plotly from "plotly.js-dist-min"
 import { PlotType, getPlotAPI } from "../apiClient"
 
 export const usePlot = ({
