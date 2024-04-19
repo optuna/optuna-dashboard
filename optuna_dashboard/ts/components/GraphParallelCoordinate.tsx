@@ -1,5 +1,4 @@
 import {
-  Box,
   Checkbox,
   FormControlLabel,
   FormGroup,
@@ -9,7 +8,7 @@ import {
 } from "@mui/material"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, ReactNode, useEffect, useState } from "react"
-import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
+import { GraphComponentState, SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { usePlot } from "../hooks/usePlot"
 import { useMergedUnionSearchSpace } from "../searchSpace"
@@ -21,6 +20,7 @@ import {
   useObjectiveAndUserAttrTargets,
   useParamTargets,
 } from "../trialFilter"
+import GraphContainer from "./GraphContainer"
 
 const plotDomId = "graph-parallel-coordinate"
 
@@ -101,6 +101,12 @@ export const GraphParallelCoordinate: FC<{
 const GraphParallelCoordinateBackend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  const [graphComponentState, setGraphComponentState] =
+    useState<GraphComponentState>("componentWillMount")
+  useEffect(() => {
+    setGraphComponentState("componentDidMount")
+  }, [])
+  
   const studyId = study?.id
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
@@ -112,22 +118,30 @@ const GraphParallelCoordinateBackend: FC<{
   })
 
   useEffect(() => {
-    if (data && layout) {
-      plotly.react(plotDomId, data, layout)
+    if (data && layout && graphComponentState !== "componentWillMount") {
+      plotly.react(plotDomId, data, layout).then(() => {
+        setGraphComponentState("graphDidRender")
+      })
     }
-  }, [data, layout])
+  }, [data, layout, graphComponentState])
   useEffect(() => {
     if (error) {
       console.error(error)
     }
   }, [error])
 
-  return <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
+  return <GraphContainer plotDomId={plotDomId} graphComponentState={graphComponentState} />
 }
 
 const GraphParallelCoordinateFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  const [graphComponentState, setGraphComponentState] =
+    useState<GraphComponentState>("componentWillMount")
+  useEffect(() => {
+    setGraphComponentState("componentDidMount")
+  }, [])
+
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
 
@@ -135,10 +149,12 @@ const GraphParallelCoordinateFrontend: FC<{
 
   const trials = useFilteredTrials(study, targets, false)
   useEffect(() => {
-    if (study !== null) {
-      plotCoordinate(study, trials, targets, searchSpace, colorTheme)
+    if (study !== null && graphComponentState !== "componentWillMount") {
+      plotCoordinate(study, trials, targets, searchSpace, colorTheme)?.then(() => {
+        setGraphComponentState("graphDidRender")
+      })
     }
-  }, [study, trials, targets, searchSpace, colorTheme])
+  }, [study, trials, targets, searchSpace, colorTheme, graphComponentState])
 
   return (
     <Grid container direction="row">
@@ -162,7 +178,7 @@ const GraphParallelCoordinateFrontend: FC<{
         {renderCheckBoxes()}
       </Grid>
       <Grid item xs={9}>
-        <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
+        <GraphContainer plotDomId={plotDomId} graphComponentState={graphComponentState} />
       </Grid>
     </Grid>
   )
@@ -190,8 +206,7 @@ const plotCoordinate = (
     uirevision: "true",
   }
   if (trials.length === 0 || targets.length === 0) {
-    plotly.react(plotDomId, [], layout)
-    return
+    return plotly.react(plotDomId, [], layout)
   }
 
   const maxLabelLength = 40
@@ -282,8 +297,7 @@ const plotCoordinate = (
   })
   if (dimensions.length === 0) {
     console.log("Must not reach here.")
-    plotly.react(plotDomId, [], layout)
-    return
+    return plotly.react(plotDomId, [], layout)
   }
   let reversescale = false
   if (
@@ -312,5 +326,5 @@ const plotCoordinate = (
     },
   ]
 
-  plotly.react(plotDomId, plotData, layout)
+  return plotly.react(plotDomId, plotData, layout)
 }
