@@ -20,10 +20,7 @@
 		]
 	},
 	"linter": {
-		"ignore": [
-			"optuna_dashboard/ts/**/*.ts",
-			"optuna_dashboard/ts/**/*.tsx"
-		]
+		"ignore": ["optuna_dashboard/ts/**/*.ts", "optuna_dashboard/ts/**/*.tsx"]
 	},
 	"javascript": {
 		"formatter": {
