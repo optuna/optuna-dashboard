@@ -1,5 +1,4 @@
 import {
-  Box,
   FormControl,
   FormLabel,
   Grid,
@@ -11,12 +10,13 @@ import {
 } from "@mui/material"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
-import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
+import { GraphComponentState, SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { getAxisInfo, makeHovertext } from "../graphUtil"
 import { usePlot } from "../hooks/usePlot"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { useBackendRender, usePlotlyColorTheme } from "../state"
+import GraphContainer from "./GraphContainer"
 
 const plotDomId = "graph-rank"
 
@@ -45,6 +45,12 @@ export const GraphRank: FC<{
 const GraphRankBackend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  const [graphComponentState, setGraphComponentState] =
+    useState<GraphComponentState>("componentWillMount")
+  useEffect(() => {
+    setGraphComponentState("componentDidMount")
+  }, [])
+  
   const studyId = study?.id
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
@@ -56,22 +62,30 @@ const GraphRankBackend: FC<{
   })
 
   useEffect(() => {
-    if (data && layout) {
-      plotly.react(plotDomId, data, layout)
+    if (data && layout && graphComponentState !== "componentWillMount") {
+      plotly.react(plotDomId, data, layout).then(() => {
+        setGraphComponentState("graphDidRender")
+      })
     }
-  }, [data, layout])
+  }, [data, layout, graphComponentState])
   useEffect(() => {
     if (error) {
       console.error(error)
     }
   }, [error])
 
-  return <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
+  return <GraphContainer plotDomId={plotDomId} graphComponentState={graphComponentState} />
 }
 
 const GraphRankFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  const [graphComponentState, setGraphComponentState] =
+    useState<GraphComponentState>("componentWillMount")
+  useEffect(() => {
+    setGraphComponentState("componentDidMount")
+  }, [])
+
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
 
@@ -101,11 +115,13 @@ const GraphRankFrontend: FC<{
   }
 
   useEffect(() => {
-    if (study != null) {
+    if (study != null && graphComponentState !== "componentWillMount") {
       const rankPlotInfo = getRankPlotInfo(study, objectiveId, xParam, yParam)
-      plotRank(rankPlotInfo, colorTheme)
+      plotRank(rankPlotInfo, colorTheme)?.then(() => {
+        setGraphComponentState("graphDidRender")
+      })
     }
-  }, [study, objectiveId, xParam, yParam, theme.palette.mode, colorTheme])
+  }, [study, objectiveId, xParam, yParam, theme.palette.mode, colorTheme, graphComponentState])
 
   const space: SearchSpaceItem[] = study ? study.union_search_space : []
 
@@ -164,7 +180,7 @@ const GraphRankFrontend: FC<{
         ) : null}
       </Grid>
       <Grid item xs={9}>
-        <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
+        <GraphContainer plotDomId={plotDomId} graphComponentState={graphComponentState} />
       </Grid>
     </Grid>
   )
@@ -301,10 +317,9 @@ const plotRank = (
   }
 
   if (rankPlotInfo === null) {
-    plotly.react(plotDomId, [], {
+    return plotly.react(plotDomId, [], {
       template: colorTheme,
     })
-    return
   }
 
   const layout: Partial<plotly.Layout> = {
@@ -375,5 +390,5 @@ const plotRank = (
       ),
     },
   ]
-  plotly.react(plotDomId, plotData, layout)
+  return plotly.react(plotDomId, plotData, layout)
 }
