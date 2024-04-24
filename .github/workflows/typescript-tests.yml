@@ -50,6 +50,33 @@ jobs:
           npm install
           npm run type-check
 
+  check-package-lock-json:
+    name: Check package-lock.json
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@master
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
+      
+      - working-directory: optuna_dashboard
+        run: npm install
+      - working-directory: tslib/types
+        run: npm install
+      - working-directory: tslib/storage
+        run: npm install
+      - working-directory: tslib/react
+        run: npm install
+      - working-directory: standalone_app
+        run: npm install
+      - working-directory: vscode
+        run: npm install
+      - run: git diff --exit-code
+
   build:
     name: JS build check
     runs-on: ubuntu-latest
