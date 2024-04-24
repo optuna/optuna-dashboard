@@ -1,27 +1,7 @@
 import * as Optuna from "@optuna/types"
 import { useSnackbar } from "notistack"
 import { useRecoilState, useSetRecoilState } from "recoil"
-import {
-  createNewStudyAPI,
-  deleteStudyAPI,
-  deleteStudyArtifactAPI,
-  deleteTrialArtifactAPI,
-  getMetaInfoAPI,
-  getStudyDetailAPI,
-  getStudySummariesAPI,
-  removePreferentialHistoryAPI,
-  renameStudyAPI,
-  reportFeedbackComponentAPI,
-  reportPreferenceAPI,
-  restorePreferentialHistoryAPI,
-  saveStudyNoteAPI,
-  saveTrialNoteAPI,
-  saveTrialUserAttrsAPI,
-  skipPreferentialTrialAPI,
-  tellTrialAPI,
-  uploadStudyArtifactAPI,
-  uploadTrialArtifactAPI,
-} from "./apiClient"
+import { useAPIClient } from "./apiClientProvider"
 import { getDominatedTrials } from "./dominatedTrials"
 import {
   artifactIsAvailable,
@@ -46,6 +26,7 @@ import {
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const actionCreator = () => {
+  const { apiClient } = useAPIClient()
   const { enqueueSnackbar } = useSnackbar()
   const [studySummaries, setStudySummaries] =
     useRecoilState<StudySummary[]>(studySummariesState)
@@ -218,7 +199,7 @@ export const actionCreator = () => {
   }
 
   const updateAPIMeta = () => {
-    getMetaInfoAPI().then((r) => {
+    apiClient.getMetaInfo().then((r) => {
       setArtifactIsAvailable(r.artifact_is_available)
       setPlotlypyIsAvailable(r.plotlypy_is_available)
     })
@@ -226,7 +207,8 @@ export const actionCreator = () => {
 
   const updateStudySummaries = (successMsg?: string) => {
     setStudySummariesLoading(true)
-    getStudySummariesAPI()
+    apiClient
+      .getStudySummaries()
       .then((studySummaries: StudySummary[]) => {
         setStudySummariesLoading(false)
         setStudySummaries(studySummaries)
@@ -258,7 +240,8 @@ export const actionCreator = () => {
       nLocalFixedTrials =
         firstUpdatable === -1 ? currentTrials.length : firstUpdatable
     }
-    getStudyDetailAPI(studyId, nLocalFixedTrials)
+    apiClient
+      .getStudyDetail(studyId, nLocalFixedTrials)
       .then((study) => {
         setStudyDetailLoading({ ...studyDetailLoading, [studyId]: false })
         const currentFixedTrials =
@@ -284,7 +267,8 @@ export const actionCreator = () => {
     studyName: string,
     directions: Optuna.StudyDirection[]
   ) => {
-    createNewStudyAPI(studyName, directions)
+    apiClient
+      .createNewStudy(studyName, directions)
       .then((study_summary) => {
         const newVal = [...studySummaries, study_summary]
         setStudySummaries(newVal)
@@ -301,7 +285,8 @@ export const actionCreator = () => {
   }
 
   const deleteStudy = (studyId: number) => {
-    deleteStudyAPI(studyId)
+    apiClient
+      .deleteStudy(studyId)
       .then(() => {
         setStudySummaries(studySummaries.filter((s) => s.study_id !== studyId))
         enqueueSnackbar(`Success to delete a study (id=${studyId})`, {
@@ -317,7 +302,8 @@ export const actionCreator = () => {
   }
 
   const renameStudy = (studyId: number, studyName: string) => {
-    renameStudyAPI(studyId, studyName)
+    apiClient
+      .renameStudy(studyId, studyName)
       .then((study) => {
         const newStudySummaries = [
           ...studySummaries.filter((s) => s.study_id !== studyId),
@@ -341,7 +327,8 @@ export const actionCreator = () => {
   }
 
   const saveStudyNote = (studyId: number, note: Note): Promise<void> => {
-    return saveStudyNoteAPI(studyId, note)
+    return apiClient
+      .saveStudyNote(studyId, note)
       .then(() => {
         const newStudy = Object.assign({}, studyDetails[studyId])
         newStudy.note = note
@@ -371,7 +358,8 @@ export const actionCreator = () => {
     trialId: number,
     note: Note
   ): Promise<void> => {
-    return saveTrialNoteAPI(studyId, trialId, note)
+    return apiClient
+      .saveTrialNote(studyId, trialId, note)
       .then(() => {
         const index = studyDetails[studyId].trials.findIndex(
           (t) => t.trial_id === trialId
@@ -422,12 +410,13 @@ export const actionCreator = () => {
     setUploading(true)
     reader.readAsDataURL(file)
     reader.onload = (upload: ProgressEvent<FileReader>) => {
-      uploadTrialArtifactAPI(
-        studyId,
-        trialId,
-        file.name,
-        upload.target?.result as string
-      )
+      apiClient
+        .uploadTrialArtifact(
+          studyId,
+          trialId,
+          file.name,
+          upload.target?.result as string
+        )
         .then((res) => {
           setUploading(false)
           const index = studyDetails[studyId].trials.findIndex(
@@ -455,11 +444,12 @@ export const actionCreator = () => {
     setUploading(true)
     reader.readAsDataURL(file)
     reader.onload = (upload: ProgressEvent<FileReader>) => {
-      uploadStudyArtifactAPI(
-        studyId,
-        file.name,
-        upload.target?.result as string
-      )
+      apiClient
+        .uploadStudyArtifact(
+          studyId,
+          file.name,
+          upload.target?.result as string
+        )
         .then((res) => {
           setUploading(false)
           setStudyArtifacts(studyId, res.artifacts)
@@ -481,7 +471,8 @@ export const actionCreator = () => {
     trialId: number,
     artifactId: string
   ): void => {
-    deleteTrialArtifactAPI(studyId, trialId, artifactId)
+    apiClient
+      .deleteTrialArtifact(studyId, trialId, artifactId)
       .then(() => {
         deleteTrialArtifactState(studyId, trialId, artifactId)
         enqueueSnackbar(`Success to delete an artifact.`, {
@@ -497,7 +488,8 @@ export const actionCreator = () => {
   }
 
   const deleteStudyArtifact = (studyId: number, artifactId: string): void => {
-    deleteStudyArtifactAPI(studyId, artifactId)
+    apiClient
+      .deleteStudyArtifact(studyId, artifactId)
       .then(() => {
         deleteStudyArtifactState(studyId, artifactId)
         enqueueSnackbar(`Success to delete an artifact.`, {
@@ -515,7 +507,8 @@ export const actionCreator = () => {
   const makeTrialFail = (studyId: number, trialId: number): void => {
     const message = `id=${trialId}, state=Fail`
     setTrialUpdating(trialId, true)
-    tellTrialAPI(trialId, "Fail")
+    apiClient
+      .tellTrial(trialId, "Fail")
       .then(() => {
         const index = studyDetails[studyId].trials.findIndex(
           (t) => t.trial_id === trialId
@@ -551,7 +544,8 @@ export const actionCreator = () => {
   ): void => {
     const message = `id=${trialId}, state=Complete, values=${values}`
     setTrialUpdating(trialId, true)
-    tellTrialAPI(trialId, "Complete", values)
+    apiClient
+      .tellTrial(trialId, "Complete", values)
       .then(() => {
         const index = studyDetails[studyId].trials.findIndex(
           (t) => t.trial_id === trialId
@@ -584,7 +578,8 @@ export const actionCreator = () => {
   ): void => {
     const message = `id=${trialId}, user_attrs=${JSON.stringify(user_attrs)}`
     setTrialUpdating(trialId, true)
-    saveTrialUserAttrsAPI(trialId, user_attrs)
+    apiClient
+      .saveTrialUserAttrs(trialId, user_attrs)
       .then(() => {
         const index = studyDetails[studyId].trials.findIndex(
           (t) => t.trial_id === trialId
@@ -618,7 +613,7 @@ export const actionCreator = () => {
     candidates: number[],
     clicked: number
   ) => {
-    reportPreferenceAPI(studyId, candidates, clicked).catch((err) => {
+    apiClient.reportPreference(studyId, candidates, clicked).catch((err) => {
       const reason = err.response?.data.reason
       enqueueSnackbar(`Failed to report preference. Reason: ${reason}`, {
         variant: "error",
@@ -628,7 +623,7 @@ export const actionCreator = () => {
   }
 
   const skipPreferentialTrial = (studyId: number, trialId: number) => {
-    skipPreferentialTrialAPI(studyId, trialId).catch((err) => {
+    apiClient.skipPreferentialTrial(studyId, trialId).catch((err) => {
       const reason = err.response?.data.reason
       enqueueSnackbar(`Failed to skip trial. Reason: ${reason}`, {
         variant: "error",
@@ -640,7 +635,8 @@ export const actionCreator = () => {
     studyId: number,
     compoennt_type: FeedbackComponentType
   ) => {
-    reportFeedbackComponentAPI(studyId, compoennt_type)
+    apiClient
+      .reportFeedbackComponent(studyId, compoennt_type)
       .then(() => {
         const newStudy = Object.assign({}, studyDetails[studyId])
         newStudy.feedback_component_type = compoennt_type
@@ -659,7 +655,8 @@ export const actionCreator = () => {
   }
 
   const removePreferentialHistory = (studyId: number, historyId: string) => {
-    removePreferentialHistoryAPI(studyId, historyId)
+    apiClient
+      .removePreferentialHistory(studyId, historyId)
       .then(() => {
         const newStudy = Object.assign({}, studyDetails[studyId])
         newStudy.preference_history = newStudy.preference_history?.map((h) =>
@@ -683,7 +680,8 @@ export const actionCreator = () => {
       })
   }
   const restorePreferentialHistory = (studyId: number, historyId: string) => {
-    restorePreferentialHistoryAPI(studyId, historyId)
+    apiClient
+      .restorePreferentialHistory(studyId, historyId)
       .then(() => {
         const newStudy = Object.assign({}, studyDetails[studyId])
         newStudy.preference_history = newStudy.preference_history?.map((h) =>

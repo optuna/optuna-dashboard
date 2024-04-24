@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import * as plotly from "plotly.js-dist-min"
-import { PlotType, getPlotAPI } from "../apiClient"
+import { PlotType } from "../apiClient"
+import { useAPIClient } from "../apiClientProvider"
 
 export const usePlot = ({
   numCompletedTrials,
@@ -12,6 +13,7 @@ export const usePlot = ({
   studyId: number | undefined
   plotType: PlotType
 }) => {
+  const { apiClient } = useAPIClient()
   const { data, isLoading, error } = useQuery<
     { data: plotly.Data[]; layout: plotly.Layout },
     AxiosError
@@ -22,7 +24,7 @@ export const usePlot = ({
       if (studyId === undefined) {
         return Promise.reject(new Error("Invalid studyId"))
       }
-      return getPlotAPI(studyId, plotType)
+      return apiClient.getPlot(studyId, plotType)
     },
     staleTime: Infinity,
     gcTime: 30 * 60 * 1000, // 30 minutes

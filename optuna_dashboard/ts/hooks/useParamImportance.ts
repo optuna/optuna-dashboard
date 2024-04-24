@@ -3,12 +3,13 @@ import { AxiosError } from "axios"
 import { useSnackbar } from "notistack"
 import { useEffect } from "react"
 import { ParamImportance } from "ts/types/optuna"
-import { getParamImportances } from "../apiClient"
+import { useAPIClient } from "../apiClientProvider"
 
 export const useParamImportance = ({
   numCompletedTrials,
   studyId,
 }: { numCompletedTrials: number; studyId: number }) => {
+  const { apiClient } = useAPIClient()
   const { enqueueSnackbar } = useSnackbar()
 
   const { data, isLoading, error } = useQuery<
@@ -16,7 +17,7 @@ export const useParamImportance = ({
     AxiosError<{ reason: string }>
   >({
     queryKey: ["paramImportance", studyId, numCompletedTrials],
-    queryFn: () => getParamImportances(studyId),
+    queryFn: () => apiClient.getParamImportances(studyId),
     staleTime: Infinity,
     gcTime: 30 * 60 * 1000, // 30 minutes
   })
