@@ -2,7 +2,8 @@ import { Box, Typography, useTheme } from "@mui/material"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useMemo } from "react"
 import { StudyDetail, Trial } from "ts/types/optuna"
-import { CompareStudiesPlotType, getCompareStudiesPlotAPI } from "../apiClient"
+import { CompareStudiesPlotType } from "../apiClient"
+import { useAPIClient } from "../apiClientProvider"
 import { useGraphComponentState } from "../hooks/useGraphComponentState"
 import { useBackendRender, usePlotlyColorTheme } from "../state"
 import { Target, useFilteredTrialsFromStudies } from "../trialFilter"
@@ -29,6 +30,7 @@ export const GraphEdf: FC<{
 const GraphEdfBackend: FC<{
   studies: StudyDetail[]
 }> = ({ studies }) => {
+  const { apiClient } = useAPIClient()
   const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const studyIds = studies.map((s) => s.id)
@@ -43,7 +45,8 @@ const GraphEdfBackend: FC<{
       return
     }
     if (graphComponentState !== "componentWillMount") {
-      getCompareStudiesPlotAPI(studyIds, CompareStudiesPlotType.EDF)
+      apiClient
+        .getCompareStudiesPlot(studyIds, CompareStudiesPlotType.EDF)
         .then(({ data, layout }) => {
           plotly.react(domId, data, layout).then(notifyGraphDidRender)
         })
