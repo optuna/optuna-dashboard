@@ -11,12 +11,7 @@ import {
 } from "@mui/material"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
-import {
-  GraphComponentState,
-  SearchSpaceItem,
-  StudyDetail,
-  Trial,
-} from "ts/types/optuna"
+import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { useGraphComponentState } from "../hooks/useGraphComponentState"
 import { usePlot } from "../hooks/usePlot"
@@ -86,11 +81,7 @@ const GraphSliceBackend: FC<{
 const GraphSliceFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  const [graphComponentState, setGraphComponentState] =
-    useState<GraphComponentState>("componentWillMount")
-  useEffect(() => {
-    setGraphComponentState("componentDidMount")
-  }, [])
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
@@ -119,9 +110,7 @@ const GraphSliceFrontend: FC<{
         searchSpace.find((s) => s.name === selectedParamTarget?.key) || null,
         logYScale,
         colorTheme
-      )?.then(() => {
-        setGraphComponentState("graphDidRender")
-      })
+      )?.then(notifyGraphDidRender)
     }
   }, [
     trials,

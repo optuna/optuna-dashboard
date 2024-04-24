@@ -8,12 +8,8 @@ import {
 } from "@mui/material"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, ReactNode, useEffect, useState } from "react"
-import {
-  GraphComponentState,
-  SearchSpaceItem,
-  StudyDetail,
-  Trial,
-} from "ts/types/optuna"
+import { useGraphComponentState } from "ts/hooks/useGraphComponentState"
+import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { usePlot } from "../hooks/usePlot"
 import { useMergedUnionSearchSpace } from "../searchSpace"
@@ -106,11 +102,7 @@ export const GraphParallelCoordinate: FC<{
 const GraphParallelCoordinateBackend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  const [graphComponentState, setGraphComponentState] =
-    useState<GraphComponentState>("componentWillMount")
-  useEffect(() => {
-    setGraphComponentState("componentDidMount")
-  }, [])
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const studyId = study?.id
   const numCompletedTrials =
@@ -124,9 +116,7 @@ const GraphParallelCoordinateBackend: FC<{
 
   useEffect(() => {
     if (data && layout && graphComponentState !== "componentWillMount") {
-      plotly.react(plotDomId, data, layout).then(() => {
-        setGraphComponentState("graphDidRender")
-      })
+      plotly.react(plotDomId, data, layout).then(notifyGraphDidRender)
     }
   }, [data, layout, graphComponentState])
   useEffect(() => {
@@ -146,11 +136,7 @@ const GraphParallelCoordinateBackend: FC<{
 const GraphParallelCoordinateFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  const [graphComponentState, setGraphComponentState] =
-    useState<GraphComponentState>("componentWillMount")
-  useEffect(() => {
-    setGraphComponentState("componentDidMount")
-  }, [])
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
@@ -161,9 +147,7 @@ const GraphParallelCoordinateFrontend: FC<{
   useEffect(() => {
     if (study !== null && graphComponentState !== "componentWillMount") {
       plotCoordinate(study, trials, targets, searchSpace, colorTheme)?.then(
-        () => {
-          setGraphComponentState("graphDidRender")
-        }
+        notifyGraphDidRender
       )
     }
   }, [study, trials, targets, searchSpace, colorTheme, graphComponentState])

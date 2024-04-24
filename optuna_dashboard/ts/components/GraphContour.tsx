@@ -14,12 +14,8 @@ import {
 import blue from "@mui/material/colors/blue"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useMemo, useState } from "react"
-import {
-  GraphComponentState,
-  SearchSpaceItem,
-  StudyDetail,
-  Trial,
-} from "ts/types/optuna"
+import { useGraphComponentState } from "ts/hooks/useGraphComponentState"
+import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { getAxisInfo } from "../graphUtil"
 import { usePlot } from "../hooks/usePlot"
@@ -90,11 +86,7 @@ const DisabledContour: FC<{
 const ContourBackend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  const [graphComponentState, setGraphComponentState] =
-    useState<GraphComponentState>("componentWillMount")
-  useEffect(() => {
-    setGraphComponentState("componentDidMount")
-  }, [])
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const studyId = study?.id
   const numCompletedTrials =
@@ -107,9 +99,7 @@ const ContourBackend: FC<{
 
   useEffect(() => {
     if (data && layout && graphComponentState !== "componentWillMount") {
-      plotly.react(plotDomId, data, layout).then(() => {
-        setGraphComponentState("graphDidRender")
-      })
+      plotly.react(plotDomId, data, layout).then(notifyGraphDidRender)
     }
   }, [data, layout, graphComponentState])
   useEffect(() => {
@@ -129,11 +119,7 @@ const ContourBackend: FC<{
 const ContourFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  const [graphComponentState, setGraphComponentState] =
-    useState<GraphComponentState>("componentWillMount")
-  useEffect(() => {
-    setGraphComponentState("componentDidMount")
-  }, [])
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
@@ -165,9 +151,9 @@ const ContourFrontend: FC<{
 
   useEffect(() => {
     if (study != null && graphComponentState !== "componentWillMount") {
-      plotContour(study, objectiveId, xParam, yParam, colorTheme)?.then(() => {
-        setGraphComponentState("graphDidRender")
-      })
+      plotContour(study, objectiveId, xParam, yParam, colorTheme)?.then(
+        notifyGraphDidRender
+      )
     }
   }, [study, objectiveId, xParam, yParam, colorTheme, graphComponentState])
 

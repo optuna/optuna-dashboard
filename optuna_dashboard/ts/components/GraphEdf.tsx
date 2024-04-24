@@ -1,7 +1,8 @@
 import { Box, Typography, useTheme } from "@mui/material"
 import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect, useMemo, useState } from "react"
-import { GraphComponentState, StudyDetail, Trial } from "ts/types/optuna"
+import React, { FC, useEffect, useMemo } from "react"
+import { useGraphComponentState } from "ts/hooks/useGraphComponentState"
+import { StudyDetail, Trial } from "ts/types/optuna"
 import { CompareStudiesPlotType, getCompareStudiesPlotAPI } from "../apiClient"
 import { useBackendRender, usePlotlyColorTheme } from "../state"
 import { Target, useFilteredTrialsFromStudies } from "../trialFilter"
@@ -28,11 +29,7 @@ export const GraphEdf: FC<{
 const GraphEdfBackend: FC<{
   studies: StudyDetail[]
 }> = ({ studies }) => {
-  const [graphComponentState, setGraphComponentState] =
-    useState<GraphComponentState>("componentWillMount")
-  useEffect(() => {
-    setGraphComponentState("componentDidMount")
-  }, [])
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const studyIds = studies.map((s) => s.id)
   const domId = getPlotDomId(-1)
@@ -48,9 +45,7 @@ const GraphEdfBackend: FC<{
     if (graphComponentState !== "componentWillMount") {
       getCompareStudiesPlotAPI(studyIds, CompareStudiesPlotType.EDF)
         .then(({ data, layout }) => {
-          plotly.react(domId, data, layout).then(() => {
-            setGraphComponentState("graphDidRender")
-          })
+          plotly.react(domId, data, layout).then(notifyGraphDidRender)
         })
         .catch((err) => {
           console.error(err)
@@ -69,11 +64,7 @@ const GraphEdfFrontend: FC<{
   studies: StudyDetail[]
   objectiveId: number
 }> = ({ studies, objectiveId }) => {
-  const [graphComponentState, setGraphComponentState] =
-    useState<GraphComponentState>("componentWillMount")
-  useEffect(() => {
-    setGraphComponentState("componentDidMount")
-  }, [])
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
@@ -94,9 +85,9 @@ const GraphEdfFrontend: FC<{
 
   useEffect(() => {
     if (graphComponentState !== "componentWillMount") {
-      plotEdf(edfPlotInfos, target, domId, colorTheme)?.then(() => {
-        setGraphComponentState("graphDidRender")
-      })
+      plotEdf(edfPlotInfos, target, domId, colorTheme)?.then(
+        notifyGraphDidRender
+      )
     }
   }, [studies, target, colorTheme, graphComponentState])
 

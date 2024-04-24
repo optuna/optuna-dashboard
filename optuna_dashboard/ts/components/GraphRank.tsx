@@ -10,12 +10,8 @@ import {
 } from "@mui/material"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
-import {
-  GraphComponentState,
-  SearchSpaceItem,
-  StudyDetail,
-  Trial,
-} from "ts/types/optuna"
+import { useGraphComponentState } from "ts/hooks/useGraphComponentState"
+import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { getAxisInfo, makeHovertext } from "../graphUtil"
 import { usePlot } from "../hooks/usePlot"
@@ -50,11 +46,7 @@ export const GraphRank: FC<{
 const GraphRankBackend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  const [graphComponentState, setGraphComponentState] =
-    useState<GraphComponentState>("componentWillMount")
-  useEffect(() => {
-    setGraphComponentState("componentDidMount")
-  }, [])
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const studyId = study?.id
   const numCompletedTrials =
@@ -68,9 +60,7 @@ const GraphRankBackend: FC<{
 
   useEffect(() => {
     if (data && layout && graphComponentState !== "componentWillMount") {
-      plotly.react(plotDomId, data, layout).then(() => {
-        setGraphComponentState("graphDidRender")
-      })
+      plotly.react(plotDomId, data, layout).then(notifyGraphDidRender)
     }
   }, [data, layout, graphComponentState])
   useEffect(() => {
@@ -90,11 +80,7 @@ const GraphRankBackend: FC<{
 const GraphRankFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  const [graphComponentState, setGraphComponentState] =
-    useState<GraphComponentState>("componentWillMount")
-  useEffect(() => {
-    setGraphComponentState("componentDidMount")
-  }, [])
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
@@ -127,9 +113,7 @@ const GraphRankFrontend: FC<{
   useEffect(() => {
     if (study != null && graphComponentState !== "componentWillMount") {
       const rankPlotInfo = getRankPlotInfo(study, objectiveId, xParam, yParam)
-      plotRank(rankPlotInfo, colorTheme)?.then(() => {
-        setGraphComponentState("graphDidRender")
-      })
+      plotRank(rankPlotInfo, colorTheme)?.then(notifyGraphDidRender)
     }
   }, [
     study,
