@@ -259,6 +259,10 @@ const plotHistory = (
     },
     showlegend: historyPlotInfos.length === 1 ? false : true,
     template: colorTheme,
+    legend: {
+      x: 1.0,
+      y: 0.95,
+    },
   }
 
   const getAxisX = (trial: Trial): number | Date => {

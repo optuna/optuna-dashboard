@@ -118,6 +118,10 @@ const plotEdf = (
       b: 50,
     },
     template: colorTheme,
+    legend: {
+      x: 1.0,
+      y: 0.95,
+    },
   }
 
   const plotData: Partial<plotly.PlotData>[] = edfPlotInfos.map((h) => {

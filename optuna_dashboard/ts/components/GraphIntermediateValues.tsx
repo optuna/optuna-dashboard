@@ -61,6 +61,10 @@ const plotIntermediateValue = (
     },
     uirevision: "true",
     template: colorTheme,
+    legend: {
+      x: 1.0,
+      y: 0.95,
+    },
   }
   if (trials.length === 0) {
     plotly.react(plotDomId, [], layout)

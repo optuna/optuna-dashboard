@@ -165,6 +165,10 @@ const plotTimeline = (
     },
     uirevision: "true",
     template: colorTheme,
+    legend: {
+      x: 1.0,
+      y: 0.95,
+    },
   }
 
   const makeTrace = (bars: Trial[], state: string, color: string) => {
