@@ -8,7 +8,7 @@ import {
 } from "@mui/material"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, ReactNode, useEffect, useState } from "react"
-import { useGraphComponentState } from "ts/hooks/useGraphComponentState"
+import { useGraphComponentState } from "../hooks/useGraphComponentState"
 import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { usePlot } from "../hooks/usePlot"

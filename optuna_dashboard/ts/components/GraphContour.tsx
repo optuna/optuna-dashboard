@@ -14,7 +14,7 @@ import {
 import blue from "@mui/material/colors/blue"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useMemo, useState } from "react"
-import { useGraphComponentState } from "ts/hooks/useGraphComponentState"
+import { useGraphComponentState } from "../hooks/useGraphComponentState"
 import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { getAxisInfo } from "../graphUtil"
