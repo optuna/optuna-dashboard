@@ -18,6 +18,7 @@ import {
   Trial,
 } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
+import { useGraphComponentState } from "../hooks/useGraphComponentState"
 import { usePlot } from "../hooks/usePlot"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { useBackendRender, usePlotlyColorTheme } from "../state"
@@ -51,11 +52,7 @@ export const GraphSlice: FC<{
 const GraphSliceBackend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  const [graphComponentState, setGraphComponentState] =
-    useState<GraphComponentState>("componentWillMount")
-  useEffect(() => {
-    setGraphComponentState("componentDidMount")
-  }, [])
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const studyId = study?.id
   const numCompletedTrials =
@@ -69,9 +66,7 @@ const GraphSliceBackend: FC<{
 
   useEffect(() => {
     if (data && layout && graphComponentState !== "componentWillMount") {
-      plotly.react(plotDomId, data, layout).then(() => {
-        setGraphComponentState("graphDidRender")
-      })
+      plotly.react(plotDomId, data, layout).then(notifyGraphDidRender)
     }
   }, [data, layout, graphComponentState])
   useEffect(() => {
