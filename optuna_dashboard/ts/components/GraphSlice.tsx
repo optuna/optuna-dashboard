@@ -1,5 +1,4 @@
 import {
-  Box,
   FormControl,
   FormLabel,
   Grid,
@@ -14,6 +13,7 @@ import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
 import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
+import { useGraphComponentState } from "../hooks/useGraphComponentState"
 import { usePlot } from "../hooks/usePlot"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { useBackendRender, usePlotlyColorTheme } from "../state"
@@ -23,6 +23,7 @@ import {
   useObjectiveAndUserAttrTargets,
   useParamTargets,
 } from "../trialFilter"
+import GraphContainer from "./GraphContainer"
 
 const plotDomId = "graph-slice"
 
@@ -46,6 +47,8 @@ export const GraphSlice: FC<{
 const GraphSliceBackend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
+
   const studyId = study?.id
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
@@ -57,22 +60,29 @@ const GraphSliceBackend: FC<{
   })
 
   useEffect(() => {
-    if (data && layout) {
-      plotly.react(plotDomId, data, layout)
+    if (data && layout && graphComponentState !== "componentWillMount") {
+      plotly.react(plotDomId, data, layout).then(notifyGraphDidRender)
     }
-  }, [data, layout])
+  }, [data, layout, graphComponentState])
   useEffect(() => {
     if (error) {
       console.error(error)
     }
   }, [error])
 
-  return <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
+  return (
+    <GraphContainer
+      plotDomId={plotDomId}
+      graphComponentState={graphComponentState}
+    />
+  )
 }
 
 const GraphSliceFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
+
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
 
@@ -92,14 +102,16 @@ const GraphSliceFrontend: FC<{
   )
 
   useEffect(() => {
-    plotSlice(
-      trials,
-      selectedObjective,
-      selectedParamTarget,
-      searchSpace.find((s) => s.name === selectedParamTarget?.key) || null,
-      logYScale,
-      colorTheme
-    )
+    if (graphComponentState !== "componentWillMount") {
+      plotSlice(
+        trials,
+        selectedObjective,
+        selectedParamTarget,
+        searchSpace.find((s) => s.name === selectedParamTarget?.key) || null,
+        logYScale,
+        colorTheme
+      )?.then(notifyGraphDidRender)
+    }
   }, [
     trials,
     selectedObjective,
@@ -107,6 +119,7 @@ const GraphSliceFrontend: FC<{
     selectedParamTarget,
     logYScale,
     colorTheme,
+    graphComponentState,
   ])
 
   const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
@@ -176,7 +189,10 @@ const GraphSliceFrontend: FC<{
         </FormControl>
       </Grid>
       <Grid item xs={9}>
-        <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
+        <GraphContainer
+          plotDomId={plotDomId}
+          graphComponentState={graphComponentState}
+        />
       </Grid>
     </Grid>
   )
@@ -225,8 +241,7 @@ const plotSlice = (
     selectedParamTarget === null ||
     trials.length === 0
   ) {
-    plotly.react(plotDomId, [], layout)
-    return
+    return plotly.react(plotDomId, [], layout)
   }
 
   const feasibleTrials: Trial[] = []
@@ -305,5 +320,5 @@ const plotSlice = (
       automargin: true, // Otherwise the label is outside of the plot
     }
   }
-  plotly.react(plotDomId, trace, layout)
+  return plotly.react(plotDomId, trace, layout)
 }

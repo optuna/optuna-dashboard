@@ -17,10 +17,12 @@ import React, { FC, useEffect, useMemo, useState } from "react"
 import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { getAxisInfo } from "../graphUtil"
+import { useGraphComponentState } from "../hooks/useGraphComponentState"
 import { usePlot } from "../hooks/usePlot"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { usePlotlyColorTheme } from "../state"
 import { useBackendRender } from "../state"
+import GraphContainer from "./GraphContainer"
 
 const plotDomId = "graph-contour"
 const CONTOUR_DISABLED_THRESHOLD = 100
@@ -84,6 +86,8 @@ const DisabledContour: FC<{
 const ContourBackend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
+
   const studyId = study?.id
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
@@ -94,22 +98,29 @@ const ContourBackend: FC<{
   })
 
   useEffect(() => {
-    if (data && layout) {
-      plotly.react(plotDomId, data, layout)
+    if (data && layout && graphComponentState !== "componentWillMount") {
+      plotly.react(plotDomId, data, layout).then(notifyGraphDidRender)
     }
-  }, [data, layout])
+  }, [data, layout, graphComponentState])
   useEffect(() => {
     if (error) {
       console.error(error)
     }
   }, [error])
 
-  return <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
+  return (
+    <GraphContainer
+      plotDomId={plotDomId}
+      graphComponentState={graphComponentState}
+    />
+  )
 }
 
 const ContourFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
+
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
 
@@ -139,10 +150,12 @@ const ContourFrontend: FC<{
   }
 
   useEffect(() => {
-    if (study != null) {
-      plotContour(study, objectiveId, xParam, yParam, colorTheme)
+    if (study != null && graphComponentState !== "componentWillMount") {
+      plotContour(study, objectiveId, xParam, yParam, colorTheme)?.then(
+        notifyGraphDidRender
+      )
     }
-  }, [study, objectiveId, xParam, yParam, colorTheme])
+  }, [study, objectiveId, xParam, yParam, colorTheme, graphComponentState])
 
   const space: SearchSpaceItem[] = study ? study.union_search_space : []
 
@@ -201,7 +214,10 @@ const ContourFrontend: FC<{
         ) : null}
       </Grid>
       <Grid item xs={9}>
-        <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
+        <GraphContainer
+          plotDomId={plotDomId}
+          graphComponentState={graphComponentState}
+        />
       </Grid>
     </Grid>
   )
@@ -225,10 +241,9 @@ const plotContour = (
   const trials: Trial[] = study ? study.trials : []
   const filteredTrials = trials.filter((t) => filterFunc(t))
   if (filteredTrials.length < 2 || xParam === null || yParam === null) {
-    plotly.react(plotDomId, [], {
+    return plotly.react(plotDomId, [], {
       template: colorTheme,
     })
-    return
   }
 
   const xAxis = getAxisInfo(trials, xParam)
@@ -257,8 +272,7 @@ const plotContour = (
 
   // TODO(c-bata): Support parameters that only have the single value
   if (xIndices.length <= 1 || yIndices.length <= 1) {
-    plotly.react(plotDomId, [], layout)
-    return
+    return plotly.react(plotDomId, [], layout)
   }
 
   const xValues: plotly.Datum[] = []
@@ -322,8 +336,7 @@ const plotContour = (
         showlegend: false,
       },
     ]
-    plotly.react(plotDomId, plotData, layout)
-    return
+    return plotly.react(plotDomId, plotData, layout)
   }
 
   layout.legend = {
@@ -351,5 +364,5 @@ const plotContour = (
       mode: "markers",
     },
   ]
-  plotly.react(plotDomId, plotData, layout)
+  return plotly.react(plotDomId, plotData, layout)
 }

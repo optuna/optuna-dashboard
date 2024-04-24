@@ -3,8 +3,10 @@ import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useMemo } from "react"
 import { StudyDetail, Trial } from "ts/types/optuna"
 import { CompareStudiesPlotType, getCompareStudiesPlotAPI } from "../apiClient"
+import { useGraphComponentState } from "../hooks/useGraphComponentState"
 import { useBackendRender, usePlotlyColorTheme } from "../state"
 import { Target, useFilteredTrialsFromStudies } from "../trialFilter"
+import GraphContainer from "./GraphContainer"
 
 const getPlotDomId = (objectiveId: number) => `graph-edf-${objectiveId}`
 
@@ -27,6 +29,8 @@ export const GraphEdf: FC<{
 const GraphEdfBackend: FC<{
   studies: StudyDetail[]
 }> = ({ studies }) => {
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
+
   const studyIds = studies.map((s) => s.id)
   const domId = getPlotDomId(-1)
   const numCompletedTrials = studies.reduce(
@@ -38,21 +42,30 @@ const GraphEdfBackend: FC<{
     if (studyIds.length === 0) {
       return
     }
-    getCompareStudiesPlotAPI(studyIds, CompareStudiesPlotType.EDF)
-      .then(({ data, layout }) => {
-        plotly.react(domId, data, layout)
-      })
-      .catch((err) => {
-        console.error(err)
-      })
-  }, [studyIds, numCompletedTrials])
-  return <Box component="div" id={domId} sx={{ height: "450px" }} />
+    if (graphComponentState !== "componentWillMount") {
+      getCompareStudiesPlotAPI(studyIds, CompareStudiesPlotType.EDF)
+        .then(({ data, layout }) => {
+          plotly.react(domId, data, layout).then(notifyGraphDidRender)
+        })
+        .catch((err) => {
+          console.error(err)
+        })
+    }
+  }, [studyIds, numCompletedTrials, graphComponentState])
+  return (
+    <GraphContainer
+      plotDomId={domId}
+      graphComponentState={graphComponentState}
+    />
+  )
 }
 
 const GraphEdfFrontend: FC<{
   studies: StudyDetail[]
   objectiveId: number
 }> = ({ studies, objectiveId }) => {
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
+
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
 
@@ -71,8 +84,12 @@ const GraphEdfFrontend: FC<{
   })
 
   useEffect(() => {
-    plotEdf(edfPlotInfos, target, domId, colorTheme)
-  }, [studies, target, colorTheme])
+    if (graphComponentState !== "componentWillMount") {
+      plotEdf(edfPlotInfos, target, domId, colorTheme)?.then(
+        notifyGraphDidRender
+      )
+    }
+  }, [studies, target, colorTheme, graphComponentState])
 
   return (
     <Box component="div">
@@ -82,7 +99,10 @@ const GraphEdfFrontend: FC<{
       >
         {`EDF for ${target.toLabel(studies[0].objective_names)}`}
       </Typography>
-      <Box component="div" id={domId} sx={{ height: "450px" }} />
+      <GraphContainer
+        plotDomId={domId}
+        graphComponentState={graphComponentState}
+      />
     </Box>
   )
 }
@@ -97,10 +117,9 @@ const plotEdf = (
     return
   }
   if (edfPlotInfos.length === 0) {
-    plotly.react(domId, [], {
+    return plotly.react(domId, [], {
       template: colorTheme,
     })
-    return
   }
 
   const target_name = "Objective Value"
@@ -147,5 +166,5 @@ const plotEdf = (
       y: yValues,
     }
   })
-  plotly.react(domId, plotData, layout)
+  return plotly.react(domId, plotData, layout)
 }
