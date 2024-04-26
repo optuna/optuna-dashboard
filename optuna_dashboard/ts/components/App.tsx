@@ -28,6 +28,20 @@ const queryClient = new QueryClient({
   },
 })
 
+const URL_PREFIX = "/dashboard"
+
+export const Ex: FC = () => {
+  const [ex, setEx] = useState<string>("loading...")
+
+  useEffect(() => {
+    setTimeout(() => {
+      setEx("Hello, World!")
+    }, 1000)
+  }, [])
+
+  return <div>{ex}</div>
+}
+
 export const App: FC = () => {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)")
   const [colorMode, setColorMode] = useState<"light" | "dark">("light")
