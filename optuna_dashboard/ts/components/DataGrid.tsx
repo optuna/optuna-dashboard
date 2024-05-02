@@ -1,11 +1,12 @@
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
 import FilterListIcon from "@mui/icons-material/FilterList"
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp"
+import FirstPageIcon from "@mui/icons-material/FirstPage"
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft"
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight"
+import LastPageIcon from "@mui/icons-material/LastPage"
 import {
   Box,
-  Collapse,
   IconButton,
   Menu,
   MenuItem,
@@ -18,39 +19,27 @@ import {
   TableRow,
   TableSortLabel,
   TextField,
-  IconButton,
-  Menu,
-  MenuItem,
-  Box,
   useTheme,
 } from "@mui/material"
-import { styled } from "@mui/system"
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
-import CheckBoxIcon from "@mui/icons-material/CheckBox"
-import FilterListIcon from "@mui/icons-material/FilterList"
 import ListItemIcon from "@mui/material/ListItemIcon"
-import { styled } from "@mui/system"
-import React from "react"
 import Paper from "@mui/material/Paper"
 import { TablePaginationActionsProps } from "@mui/material/TablePagination/TablePaginationActions"
-import FirstPageIcon from "@mui/icons-material/FirstPage"
-import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft"
-import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight"
-import LastPageIcon from "@mui/icons-material/LastPage"
+import { styled } from "@mui/system"
+import React from "react"
 
 import {
   ColumnDef,
+  ColumnFiltersState,
+  Header,
+  PaginationState,
+  SortingState,
   flexRender,
   getCoreRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  getFilteredRowModel,
-  getFacetedUniqueValues,
   getFacetedRowModel,
-  Header,
-  SortingState,
-  PaginationState,
-  ColumnFiltersState,
+  getFacetedUniqueValues,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
 

@@ -7,15 +7,11 @@ import {
   useTheme,
 } from "@mui/material"
 import Grid2 from "@mui/material/Unstable_Grid2"
-import { DataGrid } from "../DataGrid"
-import { BestTrialsCard } from "../BestTrialsCard"
-import { useStudyDetailValue, useStudySummaryValue } from "../../state"
-import { Contour } from "../GraphContour"
 import * as Optuna from "@optuna/types"
 import React, { FC } from "react"
 import { useStudyDetailValue, useStudySummaryValue } from "../../state"
 import { BestTrialsCard } from "../BestTrialsCard"
-import { DataGrid, DataGridColumn } from "../DataGrid"
+import { DataGrid } from "../DataGrid"
 import { Contour } from "../GraphContour"
 
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
