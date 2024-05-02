@@ -70,11 +70,13 @@ const HiddenSpan = styled("span")({
   width: 1,
 })
 
-function FilterMenu<T>(props: {
+function FilterMenu<T>({
+  header,
+  filterChoices,
+}: {
   header: Header<T, unknown>
   filterChoices: string[]
 }): React.ReactElement {
-  const { header, filterChoices } = props
   const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
     React.useState<null | HTMLElement>(null)
   return (
@@ -125,11 +127,13 @@ function FilterMenu<T>(props: {
   )
 }
 
-function DataGrid<T>(props: {
+function DataGrid<T>({
+  data,
+  columns,
+}: {
   data: T[]
   columns: ColumnDef<T>[]
 }): React.ReactElement {
-  const { data, columns } = props
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -279,10 +283,13 @@ function DataGrid<T>(props: {
   )
 }
 
-const TablePaginationActions = (props: TablePaginationActionsProps) => {
+const TablePaginationActions = ({
+  count,
+  page,
+  rowsPerPage,
+  onPageChange,
+}: TablePaginationActionsProps) => {
   const theme = useTheme()
-  const { count, page, rowsPerPage, onPageChange } = props
-
   const handleFirstPageButtonClick = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
