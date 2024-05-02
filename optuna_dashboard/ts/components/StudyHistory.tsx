@@ -10,7 +10,7 @@ import {
 import FormControlLabel from "@mui/material/FormControlLabel"
 import Grid2 from "@mui/material/Unstable_Grid2"
 import * as Optuna from "@optuna/types"
-import { FC, useState } from "react"
+import React, { FC, useState } from "react"
 import { useRecoilValue } from "recoil"
 import { Trial } from "ts/types/optuna"
 import {
