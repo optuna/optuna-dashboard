@@ -54,13 +54,11 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   const columns: ColumnDef<Optuna.Attribute, any>[] = [
     columnHelper.accessor("key", {
       header: "Key",
-      footer: (info) => info.column.id,
       enableSorting: true,
       enableColumnFilter: false,
     }),
     columnHelper.accessor("value", {
       header: "Value",
-      footer: (info) => info.column.id,
       enableSorting: true,
       enableColumnFilter: false,
     }),
