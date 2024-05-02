@@ -39,12 +39,10 @@ export const TrialTable: FC<{
   const columns: ColumnDef<Trial, any>[] = [
     columnHelper.accessor("number", {
       header: "Number",
-      footer: (info) => info.column.id,
       enableColumnFilter: false,
     }),
     columnHelper.accessor("state", {
       header: "State",
-      footer: (info) => info.column.id,
       enableSorting: false,
       enableColumnFilter: true,
       filterFn: multiValueFilter,
@@ -54,7 +52,6 @@ export const TrialTable: FC<{
     columns.push(
       columnHelper.accessor("values", {
         header: "Value",
-        footer: (info) => info.column.id,
         enableSorting: true,
         enableColumnFilter: false,
         sortUndefined: "last",
@@ -69,7 +66,6 @@ export const TrialTable: FC<{
             objectiveNames.length === studyDetail?.directions.length
               ? objectiveNames[objectiveId]
               : `Objective ${objectiveId}`,
-          footer: (info) => info.column.id,
           enableSorting: true,
           enableColumnFilter: false,
           sortUndefined: "last",
@@ -100,7 +96,6 @@ export const TrialTable: FC<{
         {
           id: `params_${s.name}`,
           header: `Param ${s.name}`,
-          footer: (info) => info.column.id,
           enableSorting: sortable,
           sortUndefined: "last",
           enableColumnFilter: filterChoices !== undefined,
@@ -118,7 +113,6 @@ export const TrialTable: FC<{
         {
           id: `user_attrs_${attr_spec.key}`,
           header: `UserAttribute ${attr_spec.key}`,
-          footer: (info) => info.column.id,
           enableSorting: attr_spec.sortable,
           enableColumnFilter: false,
           sortUndefined: "last",
@@ -145,7 +139,6 @@ export const TrialTable: FC<{
           <LinkIcon />
         </IconButton>
       ),
-      footer: (info) => info.column.id,
       enableSorting: false,
       enableColumnFilter: false,
     })
