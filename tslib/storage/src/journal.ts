@@ -180,9 +180,7 @@ class JournalStorage {
   }
 
   public applyCreateTrial(log: JournalOpCreateTrial): void {
-    const thisStudy = this.studies.find(
-      (item) => item.id === log.study_id
-    )
+    const thisStudy = this.studies.find((item) => item.id === log.study_id)
     if (thisStudy === undefined) {
       return
     }
