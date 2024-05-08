@@ -17,7 +17,7 @@ describe("Test Journal File Storage", async () => {
   )
 
   it("Check the study including Infinities", () => {
-    const study = studies.find((s) => s.study_name === "single-inf")
+    const study = studies.find((s) => s.name === "single-inf")
     study.trials.forEach((trial, index) => {
       if (index % 3 === 0) {
         assert.strictEqual(trial.values[0], Infinity)
@@ -28,7 +28,7 @@ describe("Test Journal File Storage", async () => {
   })
 
   it("Check the study including NaNs", () => {
-    const study = studies.find((s) => s.study_name === "single-nan-report")
+    const study = studies.find((s) => s.name === "single-nan-report")
     for (const trial of study.trials) {
       assert.strictEqual(
         trial.intermediate_values.find((v) => v.step === 1).value,
