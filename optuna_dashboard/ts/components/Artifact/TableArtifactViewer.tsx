@@ -32,12 +32,14 @@ export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
 
   const columns = React.useMemo(() => {
     const keys = data[0] ? Object.keys(data[0]) : []
-    console.log(keys)
     return keys.map((key) => ({
-      accessorKey: key,
       header: key,
+      accessorKey: key,
+      enableSorting: true,
+      enableColumnFilter: false,
     }))
   }, [data])
+  console.log(columns)
 
   return <DataGrid data={data} columns={columns} />
 }
