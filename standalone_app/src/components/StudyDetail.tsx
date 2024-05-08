@@ -169,7 +169,7 @@ export const StudyDetail: FC<{
               }),
             }}
           >
-            {study?.study_name || "Not Found"}
+            {study?.name || "Not Found"}
           </Typography>
           <Card sx={{ margin: theme.spacing(2) }}>
             <CardContent>

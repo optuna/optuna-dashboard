@@ -28,10 +28,10 @@ describe("PlotIntermediateValues Tests", async () => {
   }
 
   for (const study of window.mockStudies) {
-    test(`PlotIntermediateValues (study name: ${study.study_name})`, () => {
-      setup({ study, dataTestId: `plot-intermediatevalues-${study.study_id}` })
+    test(`PlotIntermediateValues (study name: ${study.name})`, () => {
+      setup({ study, dataTestId: `plot-intermediatevalues-${study.id}` })
       expect(
-        screen.getByTestId(`plot-intermediatevalues-${study.study_id}`)
+        screen.getByTestId(`plot-intermediatevalues-${study.id}`)
       ).toBeInTheDocument()
     })
   }

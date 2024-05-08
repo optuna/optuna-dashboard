@@ -59,7 +59,7 @@ export const StudyList: FC<{
         if (k === "") {
           return true
         }
-        return row.study_name.indexOf(k) >= 0
+        return row.name.indexOf(k) >= 0
       })
     }
     let filteredStudies: Optuna.StudySummary[] = studies.filter(
@@ -181,13 +181,13 @@ export const StudyList: FC<{
         <Box sx={{ display: "flex", flexWrap: "wrap" }}>
           {filteredStudies.map((study, idx) => (
             <Card
-              key={study.study_id}
+              key={study.id}
               sx={{ margin: theme.spacing(2), width: "500px" }}
             >
               <CardActionArea component={Link} to={`/${idx}`}>
                 <CardContent>
                   <Typography variant="h5" sx={{ wordBreak: "break-all" }}>
-                    {study.study_id}. {study.study_name}
+                    {study.id}. {study.name}
                   </Typography>
                   <Typography
                     variant="subtitle1"

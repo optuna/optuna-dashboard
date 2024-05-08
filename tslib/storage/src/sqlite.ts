@@ -116,13 +116,13 @@ const getStudySummaries = (db: SQLite3DB): Optuna.StudySummary[] => {
 
       if (objective === 0) {
         summaries.push({
-          study_id: studyId,
-          study_name: studyName,
+          id: studyId,
+          name: studyName,
           directions: [direction],
         })
         return
       }
-      const index = summaries.findIndex((s) => s.study_id === studyId)
+      const index = summaries.findIndex((s) => s.id === studyId)
       summaries[index].directions.push(direction)
     },
   })
@@ -135,8 +135,8 @@ const getStudy = (
   summary: Optuna.StudySummary
 ): Optuna.Study => {
   const study: Optuna.Study = {
-    study_id: summary.study_id,
-    study_name: summary.study_name,
+    id: summary.id,
+    name: summary.name,
     directions: summary.directions,
     union_search_space: [],
     intersection_search_space: [],
@@ -145,7 +145,7 @@ const getStudy = (
   }
 
   let intersection_search_space: Set<Optuna.SearchSpaceItem> = new Set()
-  study.trials = getTrials(db, summary.study_id, schemaVersion)
+  study.trials = getTrials(db, summary.id, schemaVersion)
   for (const trial of study.trials) {
     const userAttrs = getTrialUserAttributes(db, trial.trial_id)
     for (const attr of userAttrs) {

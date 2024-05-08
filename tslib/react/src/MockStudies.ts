@@ -28,7 +28,7 @@ const useMockStudies = () => {
 
 export const useMockStudy = (studyId: number | undefined) => {
   const mockStudies = useMockStudies()
-  const mockStudy = mockStudies.find((study) => study.study_id === studyId)
+  const mockStudy = mockStudies.find((study) => study.id === studyId)
   const mockImportance: Optuna.ParamImportance[][] = [
     [
       { name: "dropout_l0", importance: 0.07990265450296263 },

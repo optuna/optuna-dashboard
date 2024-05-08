@@ -164,8 +164,8 @@ class JournalStorage {
 
   public applyCreateStudy(log: JournalOpCreateStudy): void {
     this.studies.push({
-      study_id: this.nextStudyId,
-      study_name: log.study_name,
+      id: this.nextStudyId,
+      name: log.study_name,
       directions: [log.directions[0] === 1 ? "minimize" : "maximize"],
       union_search_space: [],
       intersection_search_space: [],
@@ -176,13 +176,11 @@ class JournalStorage {
   }
 
   public applyDeleteStudy(log: JournalOpDeleteStudy): void {
-    this.studies = this.studies.filter((item) => item.study_id !== log.study_id)
+    this.studies = this.studies.filter((item) => item.id !== log.study_id)
   }
 
   public applyCreateTrial(log: JournalOpCreateTrial): void {
-    const thisStudy = this.studies.find(
-      (item) => item.study_id === log.study_id
-    )
+    const thisStudy = this.studies.find((item) => item.id === log.study_id)
     if (thisStudy === undefined) {
       return
     }
@@ -256,7 +254,7 @@ class JournalStorage {
 
   private getStudyAndTrial(trial_id: number): [Optuna.Study?, Optuna.Trial?] {
     const study = this.studies.find(
-      (item) => item.study_id === this.trialIdToStudyId.get(trial_id)
+      (item) => item.id === this.trialIdToStudyId.get(trial_id)
     )
     if (study === undefined) {
       return [undefined, undefined]

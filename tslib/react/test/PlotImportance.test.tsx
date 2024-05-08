@@ -29,15 +29,15 @@ describe("PlotImportance Tests", async () => {
   }
 
   for (const study of window.mockStudies) {
-    test(`PlotImportance (study name: ${study.study_name})`, () => {
-      const importance = window.mockImportances[study.study_name] ?? []
+    test(`PlotImportance (study name: ${study.name})`, () => {
+      const importance = window.mockImportances[study.name] ?? []
       setup({
         study,
         importance,
-        dataTestId: `plot-importance-${study.study_id}`,
+        dataTestId: `plot-importance-${study.id}`,
       })
       expect(
-        screen.getByTestId(`plot-importance-${study.study_id}`)
+        screen.getByTestId(`plot-importance-${study.id}`)
       ).toBeInTheDocument()
     })
   }
