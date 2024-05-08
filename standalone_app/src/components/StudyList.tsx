@@ -19,6 +19,7 @@ import {
   useTheme,
 } from "@mui/material"
 import { styled } from "@mui/system"
+import * as Optuna from "@optuna/types"
 import React, {
   FC,
   useEffect,
@@ -36,7 +37,7 @@ export const StudyList: FC<{
 }> = ({ toggleColorMode }) => {
   const theme = useTheme()
   const { storage } = useContext(StorageContext)
-  const [studies, setStudies] = useState<StudySummary[]>([])
+  const [studies, setStudies] = useState<Optuna.StudySummary[]>([])
 
   const [_studyFilterText, setStudyFilterText] = useState<string>("")
   const [sortBy, setSortBy] = useState<"id-asc" | "id-desc">("id-asc")
@@ -52,7 +53,7 @@ export const StudyList: FC<{
     fetchStudies()
   }, [storage])
   const filteredStudies = useMemo(() => {
-    const studyFilter = (row: StudySummary): boolean => {
+    const studyFilter = (row: Optuna.StudySummary): boolean => {
       const keywords = studyFilterText.split(" ")
       return !keywords.every((k) => {
         if (k === "") {
@@ -61,7 +62,9 @@ export const StudyList: FC<{
         return row.study_name.indexOf(k) >= 0
       })
     }
-    let filteredStudies: StudySummary[] = studies.filter((s) => !studyFilter(s))
+    let filteredStudies: Optuna.StudySummary[] = studies.filter(
+      (s) => !studyFilter(s)
+    )
     if (sortBy === "id-desc") {
       filteredStudies = filteredStudies.reverse()
     }
