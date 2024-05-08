@@ -1,11 +1,12 @@
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
 import FilterListIcon from "@mui/icons-material/FilterList"
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown"
-import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp"
+import FirstPageIcon from "@mui/icons-material/FirstPage"
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft"
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight"
+import LastPageIcon from "@mui/icons-material/LastPage"
 import {
   Box,
-  Collapse,
   IconButton,
   Menu,
   MenuItem,
@@ -18,228 +19,29 @@ import {
   TableRow,
   TableSortLabel,
   TextField,
+  useTheme,
 } from "@mui/material"
 import ListItemIcon from "@mui/material/ListItemIcon"
+import Paper from "@mui/material/Paper"
+import { TablePaginationActionsProps } from "@mui/material/TablePagination/TablePaginationActions"
 import { styled } from "@mui/system"
 import React from "react"
 
-type Order = "asc" | "desc"
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type Value = any
-
-const defaultRowsPerPageOption = [10, 50, 100, { label: "All", value: -1 }]
-
-interface DataGridColumn<T> {
-  field: keyof T
-  label: string
-  sortable?: boolean
-  less?: (a: T, b: T, ascending: boolean) => number
-  filterChoices?: (string | null)[]
-  toCellValue?: (rowIndex: number) => string | React.ReactNode
-  padding?: "normal" | "checkbox" | "none"
-}
-
-interface RowFilter {
-  columnIdx: number
-  values: Value[]
-}
-
-function DataGrid<T>(props: {
-  columns: DataGridColumn<T>[]
-  rows: T[]
-  keyField: keyof T
-  dense?: boolean
-  collapseBody?: (rowIndex: number) => React.ReactNode
-  initialRowsPerPage?: number
-  rowsPerPageOption?: Array<number | { value: number; label: string }>
-  defaultFilter?: (row: T) => boolean
-}): React.ReactElement {
-  const { columns, rows, keyField, dense, collapseBody, defaultFilter } = props
-  let { initialRowsPerPage, rowsPerPageOption } = props
-  const [order, setOrder] = React.useState<Order>("asc")
-  const [orderBy, setOrderBy] = React.useState<number>(0) // index of columns
-  const [page, setPage] = React.useState(0)
-  const [filters, setFilters] = React.useState<RowFilter[]>([])
-
-  const getRowIndex = (row: T): number => {
-    return rows.findIndex((row2) => row[keyField] === row2[keyField])
-  }
-
-  // Pagination
-  rowsPerPageOption = rowsPerPageOption || defaultRowsPerPageOption
-  initialRowsPerPage = initialRowsPerPage // use first element as default
-    ? initialRowsPerPage
-    : isNumber(rowsPerPageOption[0])
-      ? rowsPerPageOption[0]
-      : rowsPerPageOption[0].value
-  const [rowsPerPage, setRowsPerPage] = React.useState(initialRowsPerPage)
-
-  const handleChangePage = (event: unknown, newPage: number) => {
-    setPage(newPage)
-  }
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setRowsPerPage(parseInt(event.target.value, 10))
-    setPage(0)
-  }
-
-  const PaginationForm: React.FC<{
-    onPageNumberSubmit: (value: number) => void
-    maxPageNumber: number
-  }> = ({ onPageNumberSubmit, maxPageNumber }) => {
-    // This component is separated from DataGrid to prevent `DataGrid` from re-rendering the page,
-    // every time any letters are input.
-    const [specifiedPageText, setSpecifiedPageText] = React.useState("")
-
-    const handleSubmitPageNumber = (
-      event: React.FormEvent<HTMLFormElement>
-    ) => {
-      event.preventDefault()
-      const newPageNumber = parseInt(specifiedPageText, 10)
-      // Page is 0-indexed in `TablePagination`.
-      onPageNumberSubmit(newPageNumber - 1)
-      setSpecifiedPageText("") // reset the input field
-    }
-
-    return (
-      <form onSubmit={handleSubmitPageNumber}>
-        <TextField
-          size="small"
-          label={`Go to Page: n / ${maxPageNumber}`}
-          value={specifiedPageText}
-          type="number"
-          style={{ width: 200 }}
-          inputProps={{ min: 1, max: maxPageNumber }}
-          onChange={(e) => {
-            setSpecifiedPageText(e.target.value)
-          }}
-        />
-      </form>
-    )
-  }
-
-  // Filtering
-  const filteredRows = rows.filter((row, rowIdx) => {
-    if (defaultFilter !== undefined && defaultFilter(row)) {
-      return false
-    }
-    return filters.length === 0
-      ? true
-      : filters.every((f) => {
-          if (columns.length <= f.columnIdx) {
-            console.log(
-              `columnIdx=${f.columnIdx} must be smaller than columns.length=${columns.length}`
-            )
-            return true
-          }
-          const toCellValue = columns[f.columnIdx].toCellValue
-          const cellValue =
-            toCellValue !== undefined
-              ? toCellValue(rowIdx)
-              : row[columns[f.columnIdx].field]
-          return f.values.some((v) => v === cellValue)
-        })
-  })
-
-  // Sorting
-  const sortedRows = stableSort<T>(filteredRows, order, orderBy, columns)
-  const currentPageRows =
-    rowsPerPage > 0
-      ? sortedRows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-      : sortedRows
-  const emptyRows =
-    rowsPerPage - Math.min(rowsPerPage, sortedRows.length - page * rowsPerPage)
-
-  const RootDiv = styled("div")({
-    width: "100%",
-  })
-  const maxPageNumber = Math.ceil(filteredRows.length / rowsPerPage)
-  return (
-    <RootDiv>
-      <TableContainer>
-        <Table
-          aria-labelledby="tableTitle"
-          size={dense ? "small" : "medium"}
-          aria-label="data grid"
-        >
-          <TableHead>
-            <TableRow>
-              {collapseBody ? <TableCell /> : null}
-              {columns.map((column, columnIdx) => {
-                return (
-                  <DataGridHeaderColumn<T>
-                    key={columnIdx}
-                    column={column}
-                    order={orderBy === columnIdx ? order : null}
-                    filter={
-                      filters.find((f) => f.columnIdx === columnIdx) || null
-                    }
-                    onOrderByChange={(direction: Order) => {
-                      setOrder(direction)
-                      setOrderBy(columnIdx)
-                    }}
-                    onFilterChange={(values: Value[]) => {
-                      const newFilters = filters.filter(
-                        (f) => f.columnIdx !== columnIdx
-                      )
-                      newFilters.push({
-                        columnIdx: columnIdx,
-                        values: values,
-                      })
-                      setFilters(newFilters)
-                    }}
-                  />
-                )
-              })}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {currentPageRows.map((row) => (
-              <DataGridRow<T>
-                columns={columns}
-                rowIndex={getRowIndex(row)}
-                row={row}
-                keyField={keyField}
-                collapseBody={collapseBody}
-                key={`${row[keyField]}`}
-              />
-            ))}
-            {emptyRows > 0 && (
-              <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
-                <TableCell colSpan={6} />
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      {filteredRows.length > 0 ? (
-        <>
-          {/* @ts-ignore */}
-          <Box display="flex" alignItems="center">
-            <TablePagination
-              rowsPerPageOptions={rowsPerPageOption}
-              component="div"
-              count={filteredRows.length}
-              rowsPerPage={rowsPerPage}
-              page={page}
-              onPageChange={handleChangePage}
-              onRowsPerPageChange={handleChangeRowsPerPage}
-            />
-            {maxPageNumber > 2 ? (
-              <PaginationForm
-                onPageNumberSubmit={(page) => setPage(page)}
-                maxPageNumber={maxPageNumber}
-              />
-            ) : null}
-          </Box>
-        </>
-      ) : null}
-    </RootDiv>
-  )
-}
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  Header,
+  PaginationState,
+  SortingState,
+  flexRender,
+  getCoreRowModel,
+  getFacetedRowModel,
+  getFacetedUniqueValues,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from "@tanstack/react-table"
 
 const TableHeaderCellSpan = styled("span")({
   display: "inline-flex",
@@ -257,202 +59,323 @@ const HiddenSpan = styled("span")({
   width: 1,
 })
 
-function DataGridHeaderColumn<T>(props: {
-  column: DataGridColumn<T>
-  order: Order | null
-  onOrderByChange: (order: Order) => void
-  filter: RowFilter | null
-  onFilterChange: (values: Value[]) => void
-  dense?: boolean
-}) {
-  const { column, order, onOrderByChange, filter, onFilterChange, dense } =
-    props
+function FilterMenu<T>({
+  header,
+  filterChoices,
+}: {
+  header: Header<T, unknown>
+  filterChoices: string[]
+}): React.ReactElement {
   const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
     React.useState<null | HTMLElement>(null)
-
-  const filterChoices = column.filterChoices
-
   return (
-    <TableCell
-      padding={column.padding || "normal"}
-      sortDirection={order !== null ? order : false}
-    >
-      <TableHeaderCellSpan>
-        {column.sortable ? (
-          <TableSortLabel
-            active={order !== null}
-            direction={order || "asc"}
+    <>
+      <IconButton
+        size="small"
+        onClick={(e) => {
+          setFilterMenuAnchorEl(e.currentTarget)
+        }}
+      >
+        <FilterListIcon fontSize="small" />
+      </IconButton>
+      <Menu
+        anchorEl={filterMenuAnchorEl}
+        open={filterMenuAnchorEl !== null}
+        onClose={() => {
+          setFilterMenuAnchorEl(null)
+        }}
+      >
+        {filterChoices.map((choice) => (
+          <MenuItem
+            key={choice}
             onClick={() => {
-              onOrderByChange(order === "asc" ? "desc" : "asc")
+              const skippedValues = header.column.getFilterValue() as string[]
+              const isSkipped = skippedValues.includes(choice)
+              const newSkippedValues = isSkipped
+                ? skippedValues.filter((v) => v !== choice)
+                : skippedValues.concat(choice)
+              header.column.setFilterValue(newSkippedValues)
             }}
           >
-            {column.label}
-            {order !== null ? (
-              <HiddenSpan>
-                {order === "desc" ? "sorted descending" : "sorted ascending"}
-              </HiddenSpan>
-            ) : null}
-          </TableSortLabel>
-        ) : (
-          column.label
-        )}
-        {filterChoices !== undefined ? (
-          <>
-            <IconButton
-              size={dense ? "small" : "medium"}
-              onClick={(e) => {
-                setFilterMenuAnchorEl(e.currentTarget)
-              }}
-            >
-              <FilterListIcon fontSize="small" />
-            </IconButton>
-            <Menu
-              anchorEl={filterMenuAnchorEl}
-              open={filterMenuAnchorEl !== null}
-              onClose={() => {
-                setFilterMenuAnchorEl(null)
-              }}
-            >
-              {filterChoices.map((choice) => (
-                <MenuItem
-                  key={choice}
-                  onClick={() => {
-                    const newTickedValues =
-                      filter === null
-                        ? filterChoices.filter((v) => v !== choice) // By default, every choice is ticked, so the chosen option will be unticked.
-                        : filter.values.some((v) => v === choice)
-                          ? filter.values.filter((v) => v !== choice)
-                          : [...filter.values, choice]
-                    onFilterChange(newTickedValues)
-                  }}
-                >
-                  <ListItemIcon>
-                    {!filter || filter.values.some((v) => v === choice) ? (
-                      <CheckBoxIcon color="primary" />
-                    ) : (
-                      <CheckBoxOutlineBlankIcon color="primary" />
-                    )}
-                  </ListItemIcon>
-                  {choice ?? "(missing value)"}
-                </MenuItem>
-              ))}
-            </Menu>
-          </>
-        ) : null}
-      </TableHeaderCellSpan>
-    </TableCell>
+            <ListItemIcon>
+              {header.column.getFilterValue() !== undefined ? (
+                (header.column.getFilterValue() as string[]).includes(
+                  choice
+                ) ? (
+                  <CheckBoxOutlineBlankIcon color="primary" />
+                ) : (
+                  <CheckBoxIcon color="primary" />
+                )
+              ) : null}
+            </ListItemIcon>
+            {choice ?? "(missing value)"}
+          </MenuItem>
+        ))}
+      </Menu>
+    </>
   )
 }
 
-function DataGridRow<T>(props: {
-  columns: DataGridColumn<T>[]
-  rowIndex: number
-  row: T
-  keyField: keyof T
-  collapseBody?: (rowIndex: number) => React.ReactNode
-}) {
-  const { columns, rowIndex, row, keyField, collapseBody } = props
-  const [open, setOpen] = React.useState(false)
+function DataGrid<T>({
+  data,
+  columns,
+}: {
+  data: T[]
+  columns: ColumnDef<T>[]
+}): React.ReactElement {
+  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  )
+  const [pagination, setPagination] = React.useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 50,
+  })
+
+  const table = useReactTable({
+    data,
+    columns,
+    state: {
+      columnFilters,
+      sorting,
+      pagination,
+    },
+    onColumnFiltersChange: setColumnFilters,
+    onSortingChange: setSorting,
+    onPaginationChange: setPagination,
+    getCoreRowModel: getCoreRowModel(),
+    getFacetedRowModel: getFacetedRowModel(),
+    getFacetedUniqueValues: getFacetedUniqueValues(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    autoResetPageIndex: false,
+  })
 
   return (
-    <React.Fragment>
-      <TableRow hover tabIndex={-1}>
-        {collapseBody ? (
-          <TableCell>
-            <IconButton
-              aria-label="expand row"
-              size="small"
-              onClick={() => setOpen(!open)}
-            >
-              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-            </IconButton>
-          </TableCell>
+    <Box component="div" sx={{ width: "100%" }}>
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  if (
+                    header.column.getCanFilter() &&
+                    !header.column.getIsFiltered()
+                  ) {
+                    header.column.setFilterValue([])
+                  }
+                  const order = header.column.getIsSorted()
+                  const filterChoices = header.column.getCanFilter()
+                    ? Array.from(
+                        header.column.getFacetedUniqueValues().keys()
+                      ).sort()
+                    : null
+                  return (
+                    <TableCell key={header.id} colSpan={header.colSpan}>
+                      {header.isPlaceholder ? null : (
+                        <TableHeaderCellSpan>
+                          {header.column.getCanSort() ? (
+                            <TableSortLabel
+                              active={order !== false}
+                              direction={order || "asc"}
+                              onClick={header.column.getToggleSortingHandler()}
+                            >
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                              {order !== null ? (
+                                <HiddenSpan>
+                                  {order === "desc"
+                                    ? "sorted descending"
+                                    : "sorted ascending"}
+                                </HiddenSpan>
+                              ) : null}
+                            </TableSortLabel>
+                          ) : (
+                            flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )
+                          )}
+                          {filterChoices !== null ? (
+                            <FilterMenu
+                              header={header}
+                              filterChoices={filterChoices}
+                            />
+                          ) : null}
+                        </TableHeaderCellSpan>
+                      )}
+                    </TableCell>
+                  )
+                })}
+              </TableRow>
+            ))}
+          </TableHead>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => {
+              return (
+                <TableRow key={row.id}>
+                  {row.getVisibleCells().map((cell) => {
+                    return (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    )
+                  })}
+                </TableRow>
+              )
+            })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+      <Box component="div" display="flex" alignItems="center">
+        <TablePagination
+          rowsPerPageOptions={[
+            10,
+            50,
+            100,
+            { label: "All", value: data.length },
+          ]}
+          component="div"
+          count={table.getFilteredRowModel().rows.length}
+          rowsPerPage={table.getState().pagination.pageSize}
+          page={table.getState().pagination.pageIndex}
+          slotProps={{
+            select: {
+              inputProps: { "aria-label": "rows per page" },
+              native: true,
+            },
+          }}
+          onPageChange={(_, page) => {
+            table.setPageIndex(page)
+          }}
+          onRowsPerPageChange={(e) => {
+            const size = e.target.value ? Number(e.target.value) : 10
+            table.setPageSize(size)
+          }}
+          ActionsComponent={TablePaginationActions}
+        />
+        {table.getPageCount() > 2 ? (
+          <PaginationForm1
+            onPageNumberSubmit={(page) => table.setPageIndex(page)}
+            maxPageNumber={table.getPageCount()}
+          />
         ) : null}
-        {columns.map((column, columnIndex) => {
-          const cellItem = column.toCellValue
-            ? column.toCellValue(rowIndex)
-            : // TODO(c-bata): Avoid this implicit type conversion.
-              (row[column.field] as number | string | null | undefined)
-
-          return (
-            <TableCell
-              key={`${row[keyField]}:${column.field.toString()}:${columnIndex}`}
-              padding={column.padding || "normal"}
-            >
-              {cellItem}
-            </TableCell>
-          )
-        })}
-      </TableRow>
-      {collapseBody ? (
-        <TableRow>
-          <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
-            <Collapse in={open} timeout="auto" unmountOnExit>
-              {collapseBody(rowIndex)}
-            </Collapse>
-          </TableCell>
-        </TableRow>
-      ) : null}
-    </React.Fragment>
+      </Box>
+    </Box>
   )
 }
 
-function getComparator<T>(
-  order: Order,
-  columns: DataGridColumn<T>[],
-  orderBy: number
-): (a: T, b: T) => number {
-  return order === "desc"
-    ? (a, b) => descendingComparator<T>(a, b, columns, orderBy)
-    : (a, b) => -descendingComparator<T>(a, b, columns, orderBy)
-}
-
-function descendingComparator<T>(
-  a: T,
-  b: T,
-  columns: DataGridColumn<T>[],
-  orderBy: number
-): number {
-  const field = columns[orderBy].field
-  if (b[field] < a[field]) {
-    return -1
+const TablePaginationActions = ({
+  count,
+  page,
+  rowsPerPage,
+  onPageChange,
+}: TablePaginationActionsProps) => {
+  const theme = useTheme()
+  const handleFirstPageButtonClick = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    onPageChange(event, 0)
   }
-  if (b[field] > a[field]) {
-    return 1
+
+  const handleBackButtonClick = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    onPageChange(event, page - 1)
   }
-  return 0
+
+  const handleNextButtonClick = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    onPageChange(event, page + 1)
+  }
+
+  const handleLastPageButtonClick = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    onPageChange(event, Math.max(0, Math.ceil(count / rowsPerPage) - 1))
+  }
+
+  return (
+    <Box component="div" sx={{ flexShrink: 0, ml: 2.5 }}>
+      <IconButton
+        onClick={handleFirstPageButtonClick}
+        disabled={page === 0}
+        aria-label="first page"
+      >
+        {theme.direction === "rtl" ? <LastPageIcon /> : <FirstPageIcon />}
+      </IconButton>
+      <IconButton
+        onClick={handleBackButtonClick}
+        disabled={page === 0}
+        aria-label="previous page"
+      >
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowRight />
+        ) : (
+          <KeyboardArrowLeft />
+        )}
+      </IconButton>
+      <IconButton
+        onClick={handleNextButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="next page"
+      >
+        {theme.direction === "rtl" ? (
+          <KeyboardArrowLeft />
+        ) : (
+          <KeyboardArrowRight />
+        )}
+      </IconButton>
+      <IconButton
+        onClick={handleLastPageButtonClick}
+        disabled={page >= Math.ceil(count / rowsPerPage) - 1}
+        aria-label="last page"
+      >
+        {theme.direction === "rtl" ? <FirstPageIcon /> : <LastPageIcon />}
+      </IconButton>
+    </Box>
+  )
 }
 
-function stableSort<T>(
-  array: T[],
-  order: Order,
-  orderBy: number,
-  columns: DataGridColumn<T>[]
-) {
-  // TODO(c-bata): Refactor here by implementing as the same comparator interface.
-  const less = columns[orderBy].less
-  const comparator = getComparator(order, columns, orderBy)
-  const stabilizedThis = array.map((el, index) => [el, index] as [T, number])
-  stabilizedThis.sort((a, b) => {
-    if (less) {
-      const ascending = order === "asc"
-      const result = ascending
-        ? -less(a[0], b[0], ascending)
-        : less(a[0], b[0], ascending)
-      if (result !== 0) return result
-    } else {
-      const result = comparator(a[0], b[0])
-      if (result !== 0) return result
-    }
-    return a[1] - b[1]
-  })
-  return stabilizedThis.map((el) => el[0])
+const PaginationForm1: React.FC<{
+  onPageNumberSubmit: (value: number) => void
+  maxPageNumber: number
+}> = ({ onPageNumberSubmit, maxPageNumber }) => {
+  // This component is separated from DataGrid to prevent `DataGrid` from re-rendering the page,
+  // every time any letters are input.
+  const [specifiedPageText, setSpecifiedPageText] = React.useState("")
+
+  const handleSubmitPageNumber = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const newPageNumber = parseInt(specifiedPageText, 10)
+    // Page is 0-indexed in `TablePagination`.
+    onPageNumberSubmit(newPageNumber - 1)
+    setSpecifiedPageText("") // reset the input field
+  }
+
+  return (
+    <form onSubmit={handleSubmitPageNumber}>
+      <TextField
+        size="small"
+        label={`Go to Page: n / ${maxPageNumber}`}
+        value={specifiedPageText}
+        type="number"
+        style={{ width: 200 }}
+        inputProps={{ min: 1, max: maxPageNumber }}
+        onChange={(e) => {
+          setSpecifiedPageText(e.target.value)
+        }}
+      />
+    </form>
+  )
 }
 
-const isNumber = (
-  rowsPerPage: number | { value: number; label: string }
-): rowsPerPage is number => {
-  return typeof rowsPerPage === "number"
-}
-
-export { DataGrid, DataGridColumn }
+export { DataGrid }
