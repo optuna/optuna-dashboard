@@ -46,8 +46,8 @@ export type AttributeSpec = {
 }
 
 export type StudySummary = {
-  study_id: number
-  study_name: string
+  id: number
+  name: string
   directions: StudyDirection[]
 }
 
