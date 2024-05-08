@@ -52,8 +52,8 @@ export type StudySummary = {
 }
 
 export type Study = {
-  study_id: number
-  study_name: string
+  id: number
+  name: string
   directions: StudyDirection[]
   union_search_space: SearchSpaceItem[]
   intersection_search_space: SearchSpaceItem[]
@@ -64,8 +64,8 @@ export type Study = {
 
 export type Trial = {
   trial_id: number
-  number: number
   study_id: number
+  number: number
   state: TrialState
   values?: number[]
   params: TrialParam[]
