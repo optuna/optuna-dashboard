@@ -372,10 +372,7 @@ const parseDistributionJSON = (t: string): Optuna.Distribution => {
   }
 }
 
-const getStudySystemAttributes = (
-  db: SQLite3DB,
-  studyId: number
-) => {
+const getStudySystemAttributes = (db: SQLite3DB, studyId: number) => {
   let attrs: { metric_names: string[] } | undefined
   db.exec({
     sql: `SELECT key, value_json FROM study_system_attributes WHERE study_id = ${studyId} AND key = 'dashboard:objective_names'`,

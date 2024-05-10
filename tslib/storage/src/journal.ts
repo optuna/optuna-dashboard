@@ -31,9 +31,9 @@ interface JournalOpDeleteStudy extends JournalOpBase {
 
 interface JournalOpSetStudySystemAttr extends JournalOpBase {
   study_id: number
-  system_attr: { 
+  system_attr: {
     "study:metric_names": string[]
-   }
+  }
 }
 
 interface JournalOpCreateTrial extends JournalOpBase {
