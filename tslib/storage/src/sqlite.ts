@@ -159,6 +159,11 @@ const getStudy = (
       }
     }
 
+    const systemAttrs = getTrialSystemAttributes(db, trial.trial_id)
+    if (systemAttrs !== undefined) {
+      trial.constraints = systemAttrs.constraints
+    }
+
     const params = getTrialParams(db, trial.trial_id)
     const param_names = new Set<string>()
     for (const param of params) {
@@ -222,6 +227,7 @@ const getTrials = (
         ),
         params: [], // Set this column later
         user_attrs: [], // Set this column later
+        constraints: [],
         datetime_start: vals[3],
         datetime_complete: vals[4],
       }
@@ -399,6 +405,20 @@ const getTrialUserAttributes = (
         key: vals[0],
         value: vals[1],
       })
+    },
+  })
+  return attrs
+}
+
+const getTrialSystemAttributes = (db: SQLite3DB, trialId: number) => {
+  let attrs: { constraints: number[] } | undefined
+  db.exec({
+    sql: `SELECT key, value_json FROM trial_system_attributes WHERE trial_id = ${trialId} AND key = 'constraints'`,
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    callback: (vals: any[]) => {
+      attrs = {
+        constraints: JSON.parse(vals[1]),
+      }
     },
   })
   return attrs

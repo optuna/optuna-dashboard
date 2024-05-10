@@ -32,7 +32,7 @@ interface JournalOpDeleteStudy extends JournalOpBase {
 interface JournalOpSetStudySystemAttr extends JournalOpBase {
   study_id: number
   system_attr: {
-    "study:metric_names": string[]
+    "study:metric_names"?: string[]
   }
 }
 
@@ -78,6 +78,13 @@ interface JournalOpSetTrialUserAttr extends JournalOpBase {
   trial_id: number
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   user_attr: { [key: string]: any } // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
+interface JournalOpSetTrialSystemAttr extends JournalOpBase {
+  trial_id: number
+  system_attr: {
+    constraints?: number[]
+  }
 }
 
 const trialStateNumToTrialState = (state: number): Optuna.TrialState => {
@@ -224,7 +231,7 @@ class JournalStorage {
             }
           })
 
-    const userAtter = log.user_attrs
+    const userAttrs = log.user_attrs
       ? Object.entries(log.user_attrs).map(([key, value]) => {
           return {
             key: key,
@@ -249,7 +256,8 @@ class JournalStorage {
       })(),
       params: params,
       intermediate_values: [],
-      user_attrs: userAtter,
+      user_attrs: userAttrs,
+      constraints: [],
       datetime_start: log.datetime_start
         ? new Date(log.datetime_start)
         : undefined,
@@ -339,6 +347,16 @@ class JournalStorage {
           value: value.toString(),
         })
       }
+    }
+  }
+
+  public applySetTrialSystemAttr(log: JournalOpSetTrialSystemAttr) {
+    const [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
+    if (thisStudy === undefined || thisTrial === undefined) {
+      return
+    }
+    if (log.system_attr.constraints) {
+      thisTrial.constraints = log.system_attr.constraints
     }
   }
 }
@@ -434,7 +452,9 @@ const loadJournalStorage = (
         )
         break
       case JournalOperation.SET_TRIAL_SYSTEM_ATTR:
-        // Unsupported
+        journalStorage.applySetTrialSystemAttr(
+          parsedLog as JournalOpSetTrialSystemAttr
+        )
         break
     }
   }

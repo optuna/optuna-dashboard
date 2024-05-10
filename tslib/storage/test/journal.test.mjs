@@ -57,8 +57,15 @@ describe("Test Journal File Storage", async () => {
     assert.deepStrictEqual(study.metric_names, ["value1", "value2"])
   })
 
+  it("Check the study with constraints", () => {
+    const study = studies.find((s) => s.name === "multi-objective-constraints")
+    for (const trial of study.trials) {
+      assert.strictEqual(trial.constraints.length, 2)
+    }
+  })
+
   it("Check the number of studies", () => {
-    const N_STUDIES = 5
+    const N_STUDIES = 6
     assert.strictEqual(studies.length, N_STUDIES)
   })
 })
