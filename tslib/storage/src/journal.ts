@@ -29,6 +29,13 @@ interface JournalOpDeleteStudy extends JournalOpBase {
   study_id: number
 }
 
+interface JournalOpSetStudySystemAttr extends JournalOpBase {
+  study_id: number
+  system_attr: { 
+    "study:metric_names": string[]
+   }
+}
+
 interface JournalOpCreateTrial extends JournalOpBase {
   study_id: number
   datetime_start?: string
@@ -177,6 +184,14 @@ class JournalStorage {
 
   public applyDeleteStudy(log: JournalOpDeleteStudy): void {
     this.studies = this.studies.filter((item) => item.id !== log.study_id)
+  }
+
+  public applyStudySystemAttr(log: JournalOpSetStudySystemAttr): void {
+    const thisStudy = this.studies.find((item) => item.id === log.study_id)
+    if (thisStudy === undefined) {
+      return
+    }
+    thisStudy.metric_names = log.system_attr["study:metric_names"]
   }
 
   public applyCreateTrial(log: JournalOpCreateTrial): void {
@@ -393,7 +408,9 @@ const loadJournalStorage = (
         // Unsupported
         break
       case JournalOperation.SET_STUDY_SYSTEM_ATTR:
-        // Unsupported
+        journalStorage.applyStudySystemAttr(
+          parsedLog as JournalOpSetStudySystemAttr
+        )
         break
       case JournalOperation.CREATE_TRIAL:
         journalStorage.applyCreateTrial(parsedLog as JournalOpCreateTrial)

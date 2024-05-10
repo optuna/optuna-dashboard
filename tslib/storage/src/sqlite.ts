@@ -144,6 +144,11 @@ const getStudy = (
     trials: [],
   }
 
+  const studySystemAttrs = getStudySystemAttributes(db, summary.id)
+  if (studySystemAttrs !== undefined) {
+    study.metric_names = studySystemAttrs.metric_names
+  }
+
   let intersection_search_space: Set<Optuna.SearchSpaceItem> = new Set()
   study.trials = getTrials(db, summary.id, schemaVersion)
   for (const trial of study.trials) {
@@ -365,6 +370,23 @@ const parseDistributionJSON = (t: string): Optuna.Distribution => {
     type: "CategoricalDistribution",
     choices: parsed.attributes.choices,
   }
+}
+
+const getStudySystemAttributes = (
+  db: SQLite3DB,
+  studyId: number
+) => {
+  let attrs: { metric_names: string[] } | undefined
+  db.exec({
+    sql: `SELECT key, value_json FROM study_system_attributes WHERE study_id = ${studyId} AND key = 'dashboard:objective_names'`,
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    callback: (vals: any[]) => {
+      attrs = {
+        metric_names: JSON.parse(vals[1]),
+      }
+    },
+  })
+  return attrs
 }
 
 const getTrialUserAttributes = (
