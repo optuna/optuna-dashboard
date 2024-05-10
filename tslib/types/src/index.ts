@@ -74,6 +74,7 @@ export type Trial = {
   user_attrs: Attribute[]
   datetime_start?: Date
   datetime_complete?: Date
+  constraints: number[]
 }
 
 export type TrialParam = {
