@@ -93,3 +93,8 @@ export type ParamImportance = {
   name: string
   importance: number
 }
+
+export type GraphComponentState =
+  | "componentWillMount"
+  | "componentDidMount"
+  | "graphDidRender"
