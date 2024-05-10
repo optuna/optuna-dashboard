@@ -32,7 +32,7 @@ interface JournalOpDeleteStudy extends JournalOpBase {
 interface JournalOpSetStudySystemAttr extends JournalOpBase {
   study_id: number
   system_attr: {
-    "study:metric_names": string[]
+    "study:metric_names"?: string[]
   }
 }
 
@@ -83,7 +83,7 @@ interface JournalOpSetTrialUserAttr extends JournalOpBase {
 interface JournalOpSetTrialSystemAttr extends JournalOpBase {
   trial_id: number
   system_attr: {
-    constraints: number[]
+    constraints?: number[]
   }
 }
 
@@ -355,7 +355,9 @@ class JournalStorage {
     if (thisStudy === undefined || thisTrial === undefined) {
       return
     }
-    thisTrial.constraints = log.system_attr.constraints
+    if (log.system_attr.constraints) {
+      thisTrial.constraints = log.system_attr.constraints
+    }
   }
 }
 
