@@ -78,6 +78,24 @@ def create_optuna_storage(storage: BaseStorage) -> None:
 
     study.optimize(objective_single_nan_report, n_trials=100)
 
+    # Multi-objective study with metric names
+    study = optuna.create_study(
+        study_name="multi-objective-metric-names",
+        storage=storage,
+        directions=["minimize", "minimize"],
+    )
+    print(f"Generating {study.study_name} for {type(storage).__name__}...")
+    study.set_metric_names(["value1", "value2"])
+
+    def objective_multi(trial: optuna.Trial) -> tuple[float, float]:
+        x = trial.suggest_float("x", 0, 5)
+        y = trial.suggest_float("y", 0, 3)
+        v0 = 4 * x**2 + 4 * y**2
+        v1 = (x - 5) ** 2 + (y - 5) ** 2
+        return v0, v1
+
+    study.optimize(objective_multi, n_trials=50)
+
 
 if __name__ == "__main__":
     remove_assets()
