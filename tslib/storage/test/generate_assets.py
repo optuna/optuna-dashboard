@@ -100,13 +100,13 @@ def create_optuna_storage(storage: BaseStorage) -> None:
     def objective_constraints(trial: optuna.Trial) -> tuple[float, float]:
         x = trial.suggest_float("x", -15, 30)
         y = trial.suggest_float("y", -15, 30)
-        c0 = (x - 5) ** 2 + y ** 2 - 25
+        c0 = (x - 5) ** 2 + y**2 - 25
         c1 = -((x - 8) ** 2) - (y + 3) ** 2 + 7.7
         trial.set_user_attr("constraint", (c0, c1))
-        v0 = 4 * x ** 2 + 4 * y ** 2
+        v0 = 4 * x**2 + 4 * y**2
         v1 = (x - 5) ** 2 + (y - 5) ** 2
         return v0, v1
-    
+
     def constraints(trial: optuna.Trial):
         return trial.user_attrs["constraint"]
 
