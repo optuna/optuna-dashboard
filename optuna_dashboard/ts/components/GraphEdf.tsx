@@ -4,10 +4,9 @@ import React, { FC, useEffect, useMemo } from "react"
 import { StudyDetail, Trial } from "ts/types/optuna"
 import { CompareStudiesPlotType } from "../apiClient"
 import { useAPIClient } from "../apiClientProvider"
-import { useGraphComponentState } from "../hooks/useGraphComponentState"
+import { useGraphComponentState, GraphContainer } from "@optuna/react"
 import { useBackendRender, usePlotlyColorTheme } from "../state"
 import { Target, useFilteredTrialsFromStudies } from "../trialFilter"
-import GraphContainer from "./GraphContainer"
 
 const getPlotDomId = (objectiveId: number) => `graph-edf-${objectiveId}`
 

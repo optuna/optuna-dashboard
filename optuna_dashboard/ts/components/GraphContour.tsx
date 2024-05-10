@@ -17,12 +17,11 @@ import React, { FC, useEffect, useMemo, useState } from "react"
 import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { getAxisInfo } from "../graphUtil"
-import { useGraphComponentState } from "../hooks/useGraphComponentState"
+import { useGraphComponentState, GraphContainer } from "@optuna/react"
 import { usePlot } from "../hooks/usePlot"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { usePlotlyColorTheme } from "../state"
 import { useBackendRender } from "../state"
-import GraphContainer from "./GraphContainer"
 
 const plotDomId = "graph-contour"
 const CONTOUR_DISABLED_THRESHOLD = 100

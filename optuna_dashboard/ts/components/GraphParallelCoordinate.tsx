@@ -10,7 +10,7 @@ import * as plotly from "plotly.js-dist-min"
 import React, { FC, ReactNode, useEffect, useState } from "react"
 import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
-import { useGraphComponentState } from "../hooks/useGraphComponentState"
+import { useGraphComponentState, GraphContainer } from "@optuna/react"
 import { usePlot } from "../hooks/usePlot"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { usePlotlyColorTheme } from "../state"
@@ -21,7 +21,6 @@ import {
   useObjectiveAndUserAttrTargets,
   useParamTargets,
 } from "../trialFilter"
-import GraphContainer from "./GraphContainer"
 
 const plotDomId = "graph-parallel-coordinate"
 
