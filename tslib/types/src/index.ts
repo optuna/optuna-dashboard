@@ -60,6 +60,7 @@ export type Study = {
   union_user_attrs: AttributeSpec[]
   datetime_start?: Date
   trials: Trial[]
+  metric_names?: string[]
 }
 
 export type Trial = {
