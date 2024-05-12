@@ -17,7 +17,7 @@ interface TableArtifactViewerProps {
 }
 
 type Data = {
-  [key: string]: any
+  [key: string]: string | number
 }
 
 export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
@@ -103,12 +103,12 @@ export const useTableArtifactModal = (): [
   return [openModal, renderDeleteStudyDialog]
 }
 
-const loadCSV = (props: TableArtifactViewerProps): any => {
+const loadCSV = (props: TableArtifactViewerProps): Promise<Data[]> => {
   return new Promise((resolve, reject) => {
     Papa.parse(props.src, {
       header: true,
       download: true,
-      complete: (results: any) => {
+      complete: (results: Papa.ParseResult<Data>) => {
         resolve(results?.data)
       },
       error: () => {
