@@ -1,5 +1,5 @@
 import Papa from "papaparse"
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { DataGrid } from "../DataGrid"
 
 import { Artifact } from "ts/types/optuna"
@@ -23,12 +23,14 @@ export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
   props
 ) => {
   const [data, setData] = useState<Data[]>([])
-  const handleFileChange = async () => {
-    const loadedData = await loadCSV(props)
-    setData(loadedData)
-  }
-  handleFileChange()
-  console.log(data)
+
+  useEffect(() => {
+    const handleFileChange = async () => {
+      const loadedData = await loadCSV(props)
+      setData(loadedData)
+    }
+    handleFileChange()
+  }, [props])
 
   const columns = React.useMemo(() => {
     const keys = data[0] ? Object.keys(data[0]) : []
@@ -39,7 +41,6 @@ export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
       enableColumnFilter: false,
     }))
   }, [data])
-  console.log(columns)
 
   return <DataGrid data={data} columns={columns} />
 }
