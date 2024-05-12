@@ -24,6 +24,7 @@ import { StudyDetail } from "ts/types/optuna"
 import { actionCreator } from "../../action"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
 import { useDeleteStudyArtifactDialog } from "./DeleteArtifactDialog"
+import { isTableArtifact, useTableArtifactModal } from "./TableArtifactViewer"
 import {
   isThreejsArtifact,
   useThreejsArtifactModal,
@@ -35,6 +36,8 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
     useDeleteStudyArtifactDialog()
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
     useThreejsArtifactModal()
+  const [openTableArtifactModal, renderTableArtifactModal] =
+    useTableArtifactModal()
 
   const width = "200px"
   const height = "150px"
@@ -96,6 +99,19 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
                     <FullscreenIcon />
                   </IconButton>
                 ) : null}
+                {isTableArtifact(artifact) ? (
+                  <IconButton
+                    aria-label="show artifact table"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    onClick={() => {
+                      openTableArtifactModal(urlPath, artifact)
+                    }}
+                  >
+                    <FullscreenIcon />
+                  </IconButton>
+                ) : null}
                 <IconButton
                   aria-label="delete artifact"
                   size="small"
@@ -125,6 +141,7 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
       </Box>
       {renderDeleteArtifactDialog()}
       {renderThreejsArtifactModal()}
+      {renderTableArtifactModal()}
     </>
   )
 }

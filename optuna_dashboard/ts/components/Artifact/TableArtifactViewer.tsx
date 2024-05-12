@@ -1,13 +1,14 @@
+import ClearIcon from "@mui/icons-material/Clear"
+import { Box, Modal, useTheme } from "@mui/material"
+import IconButton from "@mui/material/IconButton"
 import Papa from "papaparse"
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, ReactNode } from "react"
 import { DataGrid } from "../DataGrid"
 
 import { Artifact } from "ts/types/optuna"
 
 export const isTableArtifact = (artifact: Artifact): boolean => {
-  return (
-    artifact.filename.endsWith(".csv") || artifact.filename.endsWith(".jsonl")
-  )
+  return artifact.filename.endsWith(".csv")
 }
 
 interface TableArtifactViewerProps {
@@ -43,6 +44,63 @@ export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
   }, [data])
 
   return <DataGrid data={data} columns={columns} />
+}
+
+export const useTableArtifactModal = (): [
+  (path: string, artifact: Artifact) => void,
+  () => ReactNode,
+] => {
+  const [open, setOpen] = useState(false)
+  const [target, setTarget] = useState<[string, Artifact | null]>(["", null])
+  const theme = useTheme()
+
+  const openModal = (artifactUrlPath: string, artifact: Artifact) => {
+    setTarget([artifactUrlPath, artifact])
+    setOpen(true)
+  }
+
+  const renderDeleteStudyDialog = () => {
+    return (
+      <Modal
+        open={open}
+        onClose={() => {
+          setOpen(false)
+          setTarget(["", null])
+        }}
+      >
+        <Box
+          component="div"
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "background.paper",
+            borderRadius: "15px",
+          }}
+        >
+          <IconButton
+            sx={{
+              position: "absolute",
+              top: theme.spacing(2),
+              right: theme.spacing(2),
+            }}
+            onClick={() => {
+              setOpen(false)
+              setTarget(["", null])
+            }}
+          >
+            <ClearIcon />
+          </IconButton>
+          <TableArtifactViewer
+            src={target[0]}
+            filetype={target[1]?.filename.split(".").pop()}
+          />
+        </Box>
+      </Modal>
+    )
+  }
+  return [openModal, renderDeleteStudyDialog]
 }
 
 const loadCSV = (props: TableArtifactViewerProps): any => {
