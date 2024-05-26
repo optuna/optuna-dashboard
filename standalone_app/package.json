@@ -29,7 +29,6 @@
     "@mui/material": "^5.15.12",
     "@optuna/react": "../tslib/react",
     "@optuna/storage": "../tslib/storage",
-    "@tanstack/react-table": "^8.17.3",
     "module-workers-polyfill": "^0.3.2",
     "notistack": "^3.0.1",
     "optuna": "../rustlib/pkg",
