@@ -18,16 +18,16 @@ vscode/assets/bundle.js: $(RUSTLIB_OUT) $(STANDALONE_SRC) tslib
 $(DASHBOARD_TS_OUT): $(DASHBOARD_TS_SRC)
 	cd optuna_dashboard && npm install && npm run build:$(MODE)
 
-.PHONY: tstest
-tstest: tslib
-	cd tslib/react/test && python generate_assets.py && npm run test
-	cd tslib/storage/test && python generate_assets.py && npm run test
-
 .PHONY: tslib
 tslib:
 	cd tslib/types && npm i && npm run build
 	cd tslib/storage && npm i && npm run build
 	cd tslib/react && npm i && npm run build
+
+.PHONY: tslib-test
+tslib-test: tslib
+	cd tslib/react/test && python generate_assets.py && npm run test
+	cd tslib/storage/test && python generate_assets.py && npm run test
 
 .PHONY: serve-browser-app
 serve-browser-app: tslib $(RUSTLIB_OUT)

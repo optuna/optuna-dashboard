@@ -86,13 +86,13 @@ Note that `OPTUNA_DASHBOARD_DEBUG=1` makes the server will automatically restart
 
 ### Running tests, lint checks and formatters
 
-#### Running typescript unit tests
+#### Running unit tests for `tslib/`
 
 ```
-$ make tstest
+$ make tslib-test
 ```
 
-#### Running Python unit tests
+#### Running unit tests for `python_tests/`
 
 ```
 $ pytest python_tests/
