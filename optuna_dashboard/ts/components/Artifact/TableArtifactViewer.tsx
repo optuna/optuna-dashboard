@@ -43,7 +43,7 @@ export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
     }))
   }, [data])
 
-  return <DataGrid data={data} columns={columns} />
+  return <DataGrid data={data} columns={columns} initialRowsPerPage={10} />
 }
 
 export const useTableArtifactModal = (): [
@@ -77,6 +77,10 @@ export const useTableArtifactModal = (): [
             transform: "translate(-50%, -50%)",
             bgcolor: "background.paper",
             borderRadius: "15px",
+            width: "80%",
+            maxHeight: "80%",
+            overflowY: "auto",
+            p: 2,
           }}
         >
           <IconButton

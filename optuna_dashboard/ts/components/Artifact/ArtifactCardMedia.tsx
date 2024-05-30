@@ -2,7 +2,6 @@ import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 import { Box, CardMedia } from "@mui/material"
 import React, { FC } from "react"
 import { Artifact } from "ts/types/optuna"
-import { TableArtifactViewer, isTableArtifact } from "./TableArtifactViewer"
 import {
   ThreejsArtifactViewer,
   isThreejsArtifact,
@@ -14,14 +13,7 @@ export const ArtifactCardMedia: FC<{
   urlPath: string
   height: string
 }> = ({ artifact, urlPath, height }) => {
-  if (isTableArtifact(artifact)) {
-    return (
-      <TableArtifactViewer
-        src={urlPath}
-        filetype={artifact.filename.split(".").pop()}
-      />
-    )
-  } else if (isThreejsArtifact(artifact)) {
+  if (isThreejsArtifact(artifact)) {
     return (
       <ThreejsArtifactViewer
         src={urlPath}
