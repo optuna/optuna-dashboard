@@ -5,7 +5,8 @@
   "description": "",
   "scripts": {
     "watch": "vite",
-    "build:vscode": "webpack"
+    "build:vscode": "webpack",
+    "type-check": "tsc --noEmit"
   },
   "devDependencies": {
     "@optuna/types": "../tslib/types",
