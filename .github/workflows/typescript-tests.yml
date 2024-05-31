@@ -29,7 +29,7 @@ jobs:
       - run: npm run lint
 
   type-check:
-    name: Type checking on optuna-dashboard
+    name: Type checking on optuna-dashboard & standalone_app
     runs-on: ubuntu-latest
 
     steps:
@@ -44,8 +44,14 @@ jobs:
       - name: Setup tslib
         run: make tslib
       
-      - name: Type Check
+      - name: Type Check optuna_dashboard
         working-directory: optuna_dashboard
+        run: |
+          npm install
+          npm run type-check
+      
+      - name: Type Check standalone_app
+        working-directory: standalone_app
         run: |
           npm install
           npm run type-check
