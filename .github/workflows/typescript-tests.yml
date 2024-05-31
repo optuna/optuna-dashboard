@@ -52,7 +52,9 @@ jobs:
 
       - name: Build rustlib for standalone_app
         working-directory: rustlib
-        run: wasm-pack build --target web
+        run: |
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+          wasm-pack build --target web
 
       - name: Type Check standalone_app
         working-directory: standalone_app
