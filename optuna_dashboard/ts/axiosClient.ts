@@ -116,10 +116,17 @@ export class AxiosClient extends APIClient {
             : undefined,
         }
       })
-  deleteStudy = (studyId: number): Promise<void> =>
-    this.axiosInstance.delete(`/api/studies/${studyId}`).then(() => {
-      return
-    })
+  deleteStudy = (
+    studyId: number,
+    removeAssociatedArtifacts: boolean
+  ): Promise<void> =>
+    this.axiosInstance
+      .delete(
+        `/api/studies/${studyId}?remove_associated_artifacts=${removeAssociatedArtifacts}`
+      )
+      .then(() => {
+        return
+      })
   renameStudy = (studyId: number, studyName: string): Promise<StudySummary> =>
     this.axiosInstance
       .post<RenameStudyResponse>(`/api/studies/${studyId}/rename`, {

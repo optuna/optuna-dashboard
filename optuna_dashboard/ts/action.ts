@@ -284,9 +284,9 @@ export const actionCreator = () => {
       })
   }
 
-  const deleteStudy = (studyId: number) => {
+  const deleteStudy = (studyId: number, removeAssociatedArtifacts: boolean) => {
     apiClient
-      .deleteStudy(studyId)
+      .deleteStudy(studyId, removeAssociatedArtifacts)
       .then(() => {
         setStudySummaries(studySummaries.filter((s) => s.study_id !== studyId))
         enqueueSnackbar(`Success to delete a study (id=${studyId})`, {

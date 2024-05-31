@@ -185,7 +185,10 @@ export abstract class APIClient {
     studyName: string,
     directions: Optuna.StudyDirection[]
   ): Promise<StudySummary>
-  abstract deleteStudy(studyId: number): Promise<void>
+  abstract deleteStudy(
+    studyId: number,
+    removeAssociatedArtifacts: boolean
+  ): Promise<void>
   abstract renameStudy(
     studyId: number,
     studyName: string
