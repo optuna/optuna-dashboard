@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import json
 import sys
+import tempfile
 from unittest import TestCase
 
 import optuna
 from optuna import get_all_study_summaries
+from optuna.artifacts import upload_artifact
+from optuna.artifacts.exceptions import ArtifactNotFound
 from optuna.study import StudyDirection
 from optuna_dashboard._app import create_app
 from optuna_dashboard._app import create_new_study
@@ -522,6 +525,65 @@ class APITestCase(TestCase):
         )
         self.assertEqual(status, 204)
         self.assertEqual(len(get_all_study_summaries(storage)), 1)
+
+    def test_delete_study_with_removing_artifacts(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = optuna.create_study(storage=storage)
+        with tempfile.TemporaryDirectory() as tmpdir_name:
+            artifact_store = optuna.artifacts.FileSystemArtifactStore(base_path=tmpdir_name)
+            with tempfile.NamedTemporaryFile() as f:
+                f.write(b"dummy")
+                f.flush()
+                artifact_id = upload_artifact(study, f.name, artifact_store)
+
+            app = create_app(storage, artifact_store)
+
+            with artifact_store.open_reader(artifact_id) as reader:
+                self.assertEqual(reader.read(), b"dummy")
+
+            status, _, _ = send_request(
+                app,
+                f"/api/studies/{study._study_id}",
+                "DELETE",
+                queries={"remove_associated_artifacts": "true"},
+                content_type="application/json",
+            )
+            self.assertEqual(status, 204)
+
+            with self.assertRaises(ArtifactNotFound):
+                with artifact_store.open_reader(artifact_id) as reader:
+                    reader.read()
+
+        self.assertEqual(len(get_all_study_summaries(storage)), 0)
+
+    def test_delete_study_without_removing_artifacts(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = optuna.create_study(storage=storage)
+        with tempfile.TemporaryDirectory() as tmpdir_name:
+            artifact_store = optuna.artifacts.FileSystemArtifactStore(base_path=tmpdir_name)
+            with tempfile.NamedTemporaryFile() as f:
+                f.write(b"dummy")
+                f.flush()
+                artifact_id = upload_artifact(study, f.name, artifact_store)
+
+            app = create_app(storage, artifact_store)
+
+            with artifact_store.open_reader(artifact_id) as reader:
+                self.assertEqual(reader.read(), b"dummy")
+
+            status, _, _ = send_request(
+                app,
+                f"/api/studies/{study._study_id}",
+                "DELETE",
+                queries={"remove_associated_artifacts": "false"},
+                content_type="application/json",
+            )
+            self.assertEqual(status, 204)
+
+            with artifact_store.open_reader(artifact_id) as reader:
+                self.assertEqual(reader.read(), b"dummy")
+
+        self.assertEqual(len(get_all_study_summaries(storage)), 0)
 
     def test_delete_study_not_found(self) -> None:
         storage = optuna.storages.InMemoryStorage()
