@@ -66,7 +66,7 @@ export const useDeleteStudyDialog = (): [
           />
           {removeAssociatedArtifacts && (
             <Alert severity="warning">
-              If articles are linked to another study or trial, they will no
+              If artifacts are linked to another study or trial, they will no
               longer be accessible from that study or trial as well.
             </Alert>
           )}
