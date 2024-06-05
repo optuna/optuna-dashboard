@@ -11,8 +11,8 @@ import {
 } from "@mui/material"
 import React, { ReactNode, useState } from "react"
 import { useRecoilValue } from "recoil"
-import { artifactIsAvailable as artifactIsAvailableState } from "../state"
 import { actionCreator } from "../action"
+import { artifactIsAvailable as artifactIsAvailableState } from "../state"
 
 export const useDeleteStudyDialog = (): [
   (studyId: number) => void,
