@@ -7,8 +7,6 @@ from unittest import TestCase
 
 import optuna
 from optuna import get_all_study_summaries
-from optuna.artifacts import upload_artifact
-from optuna.artifacts.exceptions import ArtifactNotFound
 from optuna.study import StudyDirection
 from optuna_dashboard._app import create_app
 from optuna_dashboard._app import create_new_study
@@ -526,7 +524,14 @@ class APITestCase(TestCase):
         self.assertEqual(status, 204)
         self.assertEqual(len(get_all_study_summaries(storage)), 1)
 
+    @pytest.mark.skipif(
+        version.parse(optuna.__version__) < version.parse("3.4.0"),
+        reason="Needs optuna.artifacts",
+    )
     def test_delete_study_with_removing_artifacts(self) -> None:
+        from optuna.artifacts import upload_artifact
+        from optuna.artifacts.exceptions import ArtifactNotFound
+
         storage = optuna.storages.InMemoryStorage()
         study = optuna.create_study(storage=storage)
         with tempfile.TemporaryDirectory() as tmpdir_name:
@@ -556,7 +561,13 @@ class APITestCase(TestCase):
 
         self.assertEqual(len(get_all_study_summaries(storage)), 0)
 
+    @pytest.mark.skipif(
+        version.parse(optuna.__version__) < version.parse("3.4.0"),
+        reason="Needs optuna.artifacts",
+    )
     def test_delete_study_without_removing_artifacts(self) -> None:
+        from optuna.artifacts import upload_artifact
+
         storage = optuna.storages.InMemoryStorage()
         study = optuna.create_study(storage=storage)
         with tempfile.TemporaryDirectory() as tmpdir_name:
