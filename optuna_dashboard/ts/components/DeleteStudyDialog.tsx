@@ -10,6 +10,8 @@ import {
   FormControlLabel,
 } from "@mui/material"
 import React, { ReactNode, useState } from "react"
+import { useRecoilValue } from "recoil"
+import { artifactIsAvailable as artifactIsAvailableState } from "../state"
 import { actionCreator } from "../action"
 
 export const useDeleteStudyDialog = (): [
@@ -17,6 +19,7 @@ export const useDeleteStudyDialog = (): [
   () => ReactNode,
 ] => {
   const action = actionCreator()
+  const artifactIsAvailable = useRecoilValue(artifactIsAvailableState)
 
   const [openDeleteStudyDialog, setOpenDeleteStudyDialog] = useState(false)
   const [deleteStudyID, setDeleteStudyID] = useState(-1)
@@ -55,20 +58,24 @@ export const useDeleteStudyDialog = (): [
           <DialogContentText>
             Are you sure you want to delete a study (id={deleteStudyID})?
           </DialogContentText>
-          <FormControlLabel
-            label="Remove associated trial/study artifacts."
-            control={
-              <Checkbox
-                checked={removeAssociatedArtifacts}
-                onChange={() => setRemoveAssociatedArtifacts((cur) => !cur)}
+          {artifactIsAvailable && (
+            <>
+              <FormControlLabel
+                label="Remove associated trial/study artifacts."
+                control={
+                  <Checkbox
+                    checked={removeAssociatedArtifacts}
+                    onChange={() => setRemoveAssociatedArtifacts((cur) => !cur)}
+                  />
+                }
               />
-            }
-          />
-          {removeAssociatedArtifacts && (
-            <Alert severity="warning">
-              If artifacts are linked to another study or trial, they will no
-              longer be accessible from that study or trial as well.
-            </Alert>
+              {removeAssociatedArtifacts && (
+                <Alert severity="warning">
+                  If artifacts are linked to another study or trial, they will
+                  no longer be accessible from that study or trial as well.
+                </Alert>
+              )}
+            </>
           )}
         </DialogContent>
         <DialogActions>
