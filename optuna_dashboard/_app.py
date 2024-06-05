@@ -180,7 +180,10 @@ def create_app(
     @app.delete("/api/studies/<study_id:int>")
     @json_api_view
     def delete_study(study_id: int) -> dict[str, Any]:
-        if artifact_store is not None:
+        data = request.json or {}
+        remove_associated_artifacts = data.get("remove_associated_artifacts", True)
+
+        if artifact_store is not None and remove_associated_artifacts:
             delete_all_artifacts(artifact_store, storage, study_id)
 
         try:
