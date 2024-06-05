@@ -550,7 +550,7 @@ class APITestCase(TestCase):
                 app,
                 f"/api/studies/{study._study_id}",
                 "DELETE",
-                queries={"remove_associated_artifacts": "true"},
+                body=json.dumps({"remove_associated_artifacts": True}),
                 content_type="application/json",
             )
             self.assertEqual(status, 204)
@@ -586,7 +586,7 @@ class APITestCase(TestCase):
                 app,
                 f"/api/studies/{study._study_id}",
                 "DELETE",
-                queries={"remove_associated_artifacts": "false"},
+                body=json.dumps({"remove_associated_artifacts": False}),
                 content_type="application/json",
             )
             self.assertEqual(status, 204)

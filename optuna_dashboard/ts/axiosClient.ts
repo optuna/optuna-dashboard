@@ -121,9 +121,11 @@ export class AxiosClient extends APIClient {
     removeAssociatedArtifacts: boolean
   ): Promise<void> =>
     this.axiosInstance
-      .delete(
-        `/api/studies/${studyId}?remove_associated_artifacts=${removeAssociatedArtifacts}`
-      )
+      .delete(`/api/studies/${studyId}`, {
+        data: {
+          remove_associated_artifacts: removeAssociatedArtifacts,
+        },
+      })
       .then(() => {
         return
       })
