@@ -1,6 +1,7 @@
 import ClearIcon from "@mui/icons-material/Clear"
 import { Box, Modal, useTheme } from "@mui/material"
 import IconButton from "@mui/material/IconButton"
+import { useSnackbar } from "notistack"
 import Papa from "papaparse"
 import React, { useState, useEffect, ReactNode } from "react"
 import { DataGrid } from "../DataGrid"
@@ -24,11 +25,18 @@ export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
   props
 ) => {
   const [data, setData] = useState<Data[]>([])
+  const { enqueueSnackbar } = useSnackbar()
 
   useEffect(() => {
     const handleFileChange = async () => {
-      const loadedData = await loadCSV(props)
-      setData(loadedData)
+      try {
+        const loadedData = await loadCSV(props)
+        setData(loadedData)
+      } catch (error: unknown) {
+        enqueueSnackbar("Failed to load the csv file.", {
+          variant: "error",
+        })
+      }
     }
     handleFileChange()
   }, [props])
