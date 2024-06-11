@@ -119,17 +119,23 @@ function FilterMenu<T>({
 function DataGrid<T>({
   data,
   columns,
+  initialRowsPerPage,
 }: {
   data: T[]
   columns: ColumnDef<T>[]
+  initialRowsPerPage?: number
 }): React.ReactElement {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
+  const rowsPerPageOptions = [10, 50, 100, { label: "All", value: data.length }]
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 50,
+    pageSize:
+      initialRowsPerPage && rowsPerPageOptions.includes(initialRowsPerPage)
+        ? initialRowsPerPage
+        : 50,
   })
 
   const table = useReactTable({
@@ -236,12 +242,7 @@ function DataGrid<T>({
       </TableContainer>
       <Box component="div" display="flex" alignItems="center">
         <TablePagination
-          rowsPerPageOptions={[
-            10,
-            50,
-            100,
-            { label: "All", value: data.length },
-          ]}
+          rowsPerPageOptions={rowsPerPageOptions}
           component="div"
           count={table.getFilteredRowModel().rows.length}
           rowsPerPage={table.getState().pagination.pageSize}

@@ -21,7 +21,8 @@ const multiValueFilter: FilterFn<Optuna.Trial> = <D extends object>(
 
 export const TrialTable: FC<{
   study: Optuna.Study
-}> = ({ study }) => {
+  initialRowsPerPage?: number
+}> = ({ study, initialRowsPerPage }) => {
   const trials: Optuna.Trial[] = study.trials
 
   const columnHelper = createColumnHelper<Optuna.Trial>()
@@ -99,5 +100,11 @@ export const TrialTable: FC<{
     }
   }
 
-  return <DataGrid data={trials} columns={columns} />
+  return (
+    <DataGrid
+      data={trials}
+      columns={columns}
+      initialRowsPerPage={initialRowsPerPage}
+    />
+  )
 }
