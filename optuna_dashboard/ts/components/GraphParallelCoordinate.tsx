@@ -6,21 +6,22 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import * as plotly from "plotly.js-dist-min"
-import React, { FC, ReactNode, useEffect, useState } from "react"
-import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
-import { PlotType } from "../apiClient"
-import { useGraphComponentState, GraphContainer } from "@optuna/react"
-import { usePlot } from "../hooks/usePlot"
-import { useMergedUnionSearchSpace } from "../searchSpace"
-import { usePlotlyColorTheme } from "../state"
-import { useBackendRender } from "../state"
+import { GraphContainer, useGraphComponentState } from "@optuna/react"
 import {
   Target,
   useFilteredTrials,
   useObjectiveAndUserAttrTargets,
   useParamTargets,
-} from "../trialFilter"
+} from "@optuna/react"
+import * as Optuna from "@optuna/types"
+import * as plotly from "plotly.js-dist-min"
+import React, { FC, ReactNode, useEffect, useState } from "react"
+import { SearchSpaceItem, StudyDetail } from "ts/types/optuna"
+import { PlotType } from "../apiClient"
+import { usePlot } from "../hooks/usePlot"
+import { useMergedUnionSearchSpace } from "../searchSpace"
+import { usePlotlyColorTheme } from "../state"
+import { useBackendRender } from "../state"
 
 const plotDomId = "graph-parallel-coordinate"
 
@@ -184,7 +185,7 @@ const GraphParallelCoordinateFrontend: FC<{
 
 const plotCoordinate = (
   study: StudyDetail,
-  trials: Trial[],
+  trials: Optuna.Trial[],
   targets: Target[],
   searchSpace: SearchSpaceItem[],
   colorTheme: Partial<Plotly.Template>
