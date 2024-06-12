@@ -25,6 +25,9 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Setup tslib
+        run: make tslib
+
       - name: Build bundle.js
         working-directory: optuna_dashboard
         run: |
