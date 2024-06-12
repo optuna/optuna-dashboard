@@ -14,7 +14,7 @@
   "author": "Masashi Shibata",
   "license": "MIT",
   "dependencies": {
-    "@emotion/react": "^11.11.3",
+    "@emotion/react": "file:../tslib/react/node_modules/@emotion/react",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.15.6",
     "@mui/lab": "^5.0.0-alpha.162",
@@ -30,7 +30,7 @@
     "elkjs": "^0.9.1",
     "notistack": "^3.0.1",
     "plotly.js-dist-min": "^2.28.0",
-    "react": "^18.2.0",
+    "react": "file:../tslib/react/node_modules/react",
     "react-dom": "^18.2.0",
     "react-markdown": "^9.0.1",
     "react-router-dom": "^6.21.3",
