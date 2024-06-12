@@ -1,10 +1,12 @@
 import {
+  Alert,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogContentText,
   DialogTitle,
+  useTheme,
 } from "@mui/material"
 import React, { ReactNode, useState, FC } from "react"
 import { Artifact } from "ts/types/optuna"
@@ -111,6 +113,7 @@ const DeleteDialog: FC<{
   filename,
   handleDeleteArtifact,
 }) => {
+  const theme = useTheme()
   return (
     <Dialog
       open={openDeleteArtifactDialog}
@@ -123,10 +126,18 @@ const DeleteDialog: FC<{
         Delete artifact
       </DialogTitle>
       <DialogContent>
-        <DialogContentText>
+        <DialogContentText
+          sx={{
+            marginBottom: theme.spacing(2),
+          }}
+        >
           Are you sure you want to delete an artifact ("
           {filename}")?
         </DialogContentText>
+        <Alert severity="warning">
+          If this artifact is linked to another study or trial, it will no
+          longer be accessible from that study or trial as well.
+        </Alert>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleCloseDeleteArtifactDialog} color="primary">

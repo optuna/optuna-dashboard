@@ -86,7 +86,13 @@ Note that `OPTUNA_DASHBOARD_DEBUG=1` makes the server will automatically restart
 
 ### Running tests, lint checks and formatters
 
-#### Running Python unit tests
+#### Running unit tests for `tslib/`
+
+```
+$ make tslib-test
+```
+
+#### Running unit tests for `python_tests/`
 
 ```
 $ pytest python_tests/
@@ -147,7 +153,7 @@ Please install [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/) and 
 $ make serve-browser-app
 ```
 
-Open http://127.0.0.1:9000/
+Open http://localhost:5173/
 
 
 ## VS Code Extension
