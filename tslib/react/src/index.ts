@@ -1,5 +1,4 @@
 export { DataGrid } from "./components/DataGrid"
-export type { DataGridColumn } from "./components/DataGrid"
 export { plotlyDarkTemplate } from "./components/PlotlyDarkMode"
 export { PlotHistory } from "./components/PlotHistory"
 export { PlotImportance } from "./components/PlotImportance"
