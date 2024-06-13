@@ -8,8 +8,12 @@ import { DataGrid } from "../DataGrid"
 
 import { Artifact } from "ts/types/optuna"
 
+import axios from "axios"
+
 export const isTableArtifact = (artifact: Artifact): boolean => {
-  return artifact.filename.endsWith(".csv")
+  return (
+    artifact.filename.endsWith(".csv") || artifact.filename.endsWith(".jsonl")
+  )
 }
 
 interface TableArtifactViewerProps {
@@ -30,10 +34,12 @@ export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
   useEffect(() => {
     const handleFileChange = async () => {
       try {
-        const loadedData = await loadCSV(props)
+        const loadedData = await loadData(props)
+        console.log("data")
+        console.log(loadedData)
         setData(loadedData)
       } catch (error: unknown) {
-        enqueueSnackbar("Failed to load the csv file.", {
+        enqueueSnackbar("Failed to load the file.", {
           variant: "error",
         })
       }
@@ -42,7 +48,7 @@ export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
   }, [props])
 
   const columns = React.useMemo(() => {
-    const keys = data[0] ? Object.keys(data[0]) : []
+    const keys = data.length > 0 ? Object.keys(data[0]) : []
     return keys.map((key) => ({
       header: key,
       accessorKey: key,
@@ -115,6 +121,16 @@ export const useTableArtifactModal = (): [
   return [openModal, renderDeleteStudyDialog]
 }
 
+const loadData = (props: TableArtifactViewerProps): Promise<Data[]> => {
+  if (props.filetype === "csv") {
+    return loadCSV(props)
+  } else if (props.filetype === "jsonl") {
+    return loadJsonl(props)
+  } else {
+    return Promise.reject(new Error("Unsupported file type"))
+  }
+}
+
 const loadCSV = (props: TableArtifactViewerProps): Promise<Data[]> => {
   return new Promise((resolve, reject) => {
     Papa.parse(props.src, {
@@ -123,9 +139,32 @@ const loadCSV = (props: TableArtifactViewerProps): Promise<Data[]> => {
       complete: (results: Papa.ParseResult<Data>) => {
         resolve(results?.data)
       },
-      error: () => {
-        reject(new Error("csv parse err"))
+      error: (error) => {
+        reject(new Error("CSV parse error: " + error))
       },
     })
   })
+}
+
+const loadJsonl = async (props: TableArtifactViewerProps): Promise<Data[]> => {
+  try {
+    const response = await axios.get(props.src, { responseType: "text" })
+    const data = response.data
+    const lines = data.split("\n")
+    const jsonObjects = lines
+      .filter((line) => line.trim().length > 0)
+      .map((line) => {
+        try {
+          return JSON.parse(line)
+        } catch (e) {
+          console.error("JSON parse error on line:", line, e)
+          return null
+        }
+      })
+      .filter(Boolean) as Data[]
+
+    return jsonObjects
+  } catch (error) {
+    throw new Error("JSONL parse error: " + error)
+  }
 }
