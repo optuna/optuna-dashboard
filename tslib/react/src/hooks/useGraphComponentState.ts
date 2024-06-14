@@ -1,9 +1,9 @@
-import * as Optuna from "@optuna/types"
 import { useEffect, useState } from "react"
+import { GraphComponentState } from "../types"
 
 export const useGraphComponentState = () => {
   const [graphComponentState, setGraphComponentState] =
-    useState<Optuna.GraphComponentState>("componentWillMount")
+    useState<GraphComponentState>("componentWillMount")
   useEffect(() => {
     setGraphComponentState("componentDidMount")
   }, [])

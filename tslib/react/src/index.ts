@@ -17,3 +17,4 @@ export {
   useObjectiveAndUserAttrTargets,
   useObjectiveAndUserAttrTargetsFromStudies,
 } from "./utils/trialFilter"
+export type { GraphComponentState } from "./types"

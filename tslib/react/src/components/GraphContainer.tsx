@@ -1,10 +1,10 @@
 import { Box, Typography, useTheme } from "@mui/material"
-import * as Optuna from "@optuna/types"
 import { FC } from "react"
+import { GraphComponentState } from "../types"
 
 export const GraphContainer: FC<{
   plotDomId: string
-  graphComponentState: Optuna.GraphComponentState
+  graphComponentState: GraphComponentState
 }> = ({ plotDomId, graphComponentState }) => {
   const theme = useTheme()
   return (
