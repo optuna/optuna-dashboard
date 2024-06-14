@@ -1,6 +1,5 @@
 import * as Optuna from "@optuna/types"
 import { useMemo, useState } from "react"
-import { SearchSpaceItem, StudyDetail, Trial } from "./types/optuna"
 
 type TargetKind = "objective" | "user_attr" | "params"
 
@@ -41,11 +40,11 @@ export class Target {
         return objectiveNames[objectiveId]
       }
       return `Objective ${objectiveId}`
-    } else if (this.kind === "user_attr") {
-      return `User Attribute ${this.key}`
-    } else {
-      return `Param ${this.key}`
     }
+    if (this.kind === "user_attr") {
+      return `User Attribute ${this.key}`
+    }
+    return `Param ${this.key}`
   }
 
   getObjectiveId(): number | null {
@@ -55,7 +54,7 @@ export class Target {
     return this.key as number
   }
 
-  getTargetValue(trial: Trial): number | null {
+  getTargetValue(trial: Optuna.Trial): number | null {
     if (!this.validate()) {
       return null
     }
@@ -73,7 +72,8 @@ export class Target {
         return null
       }
       return value
-    } else if (this.kind === "user_attr") {
+    }
+    if (this.kind === "user_attr") {
       const attr = trial.user_attrs.find((attr) => attr.key === this.key)
       if (attr === undefined) {
         return null
@@ -83,7 +83,8 @@ export class Target {
         return null
       }
       return value
-    } else if (this.kind === "params") {
+    }
+    if (this.kind === "params") {
       const param = trial.params.find((p) => p.name === this.key)
       if (param === undefined) {
         return null
@@ -95,10 +96,10 @@ export class Target {
 }
 
 const filterTrials = (
-  study: StudyDetail | null,
+  study: Optuna.Study | null,
   targets: Target[],
   filterPruned: boolean
-): Trial[] => {
+): Optuna.Trial[] => {
   if (study === null) {
     return []
   }
@@ -114,37 +115,39 @@ const filterTrials = (
 }
 
 export const useFilteredTrials = (
-  study: StudyDetail | null,
+  study: Optuna.Study | null,
   targets: Target[],
   filterPruned: boolean
-): Trial[] =>
-  useMemo<Trial[]>(() => {
+): Optuna.Trial[] =>
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useMemo<Optuna.Trial[]>(() => {
     return filterTrials(study, targets, filterPruned)
   }, [study?.trials, targets, filterPruned])
 
 export const useFilteredTrialsFromStudies = (
-  studies: StudyDetail[],
+  studies: Optuna.Study[],
   targets: Target[],
   filterPruned: boolean
-): Trial[][] =>
-  useMemo<Trial[][]>(() => {
+): Optuna.Trial[][] =>
+  useMemo<Optuna.Trial[][]>(() => {
     return studies.map((s) => filterTrials(s, targets, filterPruned))
   }, [studies, targets, filterPruned])
 
 export const useObjectiveTargets = (
-  study: StudyDetail | null
+  study: Optuna.Study | null
 ): [Target[], Target, (ident: string) => void] => {
   const defaultTarget = new Target("objective", 0)
   const [selected, setTargetIdent] = useState<string>(
     defaultTarget.identifier()
   )
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const targetList = useMemo<Target[]>(() => {
     if (study !== null) {
-      return study.directions.map((v, i) => new Target("objective", i))
-    } else {
-      return [defaultTarget]
+      return study.directions.map((_v, i) => new Target("objective", i))
     }
+    return [defaultTarget]
   }, [study?.directions])
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const selectedTarget = useMemo<Target>(
     () => targetList.find((t) => t.identifier() === selected) || defaultTarget,
     [targetList, selected]
@@ -153,9 +156,10 @@ export const useObjectiveTargets = (
 }
 
 export const useParamTargets = (
-  searchSpace: SearchSpaceItem[]
+  searchSpace: Optuna.SearchSpaceItem[]
 ): [Target[], Target | null, (ident: string) => void] => {
   const [selected, setTargetIdent] = useState<string>("")
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const targetList = useMemo<Target[]>(() => {
     const targets = searchSpace.map((s) => new Target("params", s.name))
     if (selected === "" && targets.length > 0)
@@ -170,24 +174,25 @@ export const useParamTargets = (
 }
 
 export const useObjectiveAndUserAttrTargets = (
-  study: StudyDetail | null
+  study: Optuna.Study | null
 ): [Target[], Target, (ident: string) => void] => {
   const defaultTarget = new Target("objective", 0)
   const [selected, setTargetIdent] = useState<string>(
     defaultTarget.identifier()
   )
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const targetList = useMemo<Target[]>(() => {
     if (study !== null) {
       return [
-        ...study.directions.map((v, i) => new Target("objective", i)),
+        ...study.directions.map((_v, i) => new Target("objective", i)),
         ...study.union_user_attrs
           .filter((attr) => attr.sortable)
           .map((attr) => new Target("user_attr", attr.key)),
       ]
-    } else {
-      return [defaultTarget]
     }
+    return [defaultTarget]
   }, [study?.directions, study?.union_user_attrs])
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const selectedTarget = useMemo<Target>(
     () => targetList.find((t) => t.identifier() === selected) || defaultTarget,
     [targetList, selected]
@@ -196,7 +201,7 @@ export const useObjectiveAndUserAttrTargets = (
 }
 
 export const useObjectiveAndUserAttrTargetsFromStudies = (
-  studies: StudyDetail[]
+  studies: Optuna.Study[]
 ): [Target[], Target, (ident: string) => void] => {
   const defaultTarget = new Target("objective", 0)
   const [selected, setTargetIdent] = useState<string>(
@@ -223,6 +228,7 @@ export const useObjectiveAndUserAttrTargetsFromStudies = (
     )
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const attrTargets = useMemo<Target[]>(() => {
     if (studies.length === 0) {
       return []
@@ -235,6 +241,7 @@ export const useObjectiveAndUserAttrTargetsFromStudies = (
       .map((attr) => new Target("user_attr", attr.key))
   }, [studies])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const targetList = useMemo<Target[]>(() => {
     if (studies !== null) {
       return [
@@ -244,11 +251,11 @@ export const useObjectiveAndUserAttrTargetsFromStudies = (
         ),
         ...attrTargets,
       ]
-    } else {
-      return [defaultTarget]
     }
+    return [defaultTarget]
   }, [minDirections, attrTargets])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const selectedTarget = useMemo<Target>(
     () => targetList.find((t) => t.identifier() === selected) || defaultTarget,
     [targetList, selected]

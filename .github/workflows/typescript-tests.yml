@@ -75,13 +75,13 @@ jobs:
         with:
           node-version: '20'
       
-      - working-directory: optuna_dashboard
-        run: npm install
       - working-directory: tslib/types
         run: npm install
       - working-directory: tslib/storage
         run: npm install
       - working-directory: tslib/react
+        run: npm install
+      - working-directory: optuna_dashboard
         run: npm install
       - working-directory: standalone_app
         run: npm install
@@ -100,7 +100,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '20'
+
+      - name: Setup tslib
+        run: make tslib
+
       - name: Build bundle.js
         working-directory: optuna_dashboard
         run: |

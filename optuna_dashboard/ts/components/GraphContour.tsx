@@ -12,17 +12,16 @@ import {
   useTheme,
 } from "@mui/material"
 import blue from "@mui/material/colors/blue"
+import { GraphContainer, useGraphComponentState } from "@optuna/react"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useMemo, useState } from "react"
 import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { getAxisInfo } from "../graphUtil"
-import { useGraphComponentState } from "../hooks/useGraphComponentState"
 import { usePlot } from "../hooks/usePlot"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { usePlotlyColorTheme } from "../state"
 import { useBackendRender } from "../state"
-import GraphContainer from "./GraphContainer"
 
 const plotDomId = "graph-contour"
 const CONTOUR_DISABLED_THRESHOLD = 100

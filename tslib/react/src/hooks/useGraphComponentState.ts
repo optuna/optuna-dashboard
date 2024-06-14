@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { GraphComponentState } from "ts/types/optuna"
+import { GraphComponentState } from "../types"
 
 export const useGraphComponentState = () => {
   const [graphComponentState, setGraphComponentState] =

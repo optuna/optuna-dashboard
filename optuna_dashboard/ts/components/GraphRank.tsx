@@ -8,16 +8,15 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
+import { GraphContainer, useGraphComponentState } from "@optuna/react"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
 import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { getAxisInfo, makeHovertext } from "../graphUtil"
-import { useGraphComponentState } from "../hooks/useGraphComponentState"
 import { usePlot } from "../hooks/usePlot"
 import { useMergedUnionSearchSpace } from "../searchSpace"
 import { useBackendRender, usePlotlyColorTheme } from "../state"
-import GraphContainer from "./GraphContainer"
 
 const plotDomId = "graph-rank"
 

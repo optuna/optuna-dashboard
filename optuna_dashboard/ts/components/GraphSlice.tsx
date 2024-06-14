@@ -9,21 +9,21 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect, useState } from "react"
-import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
-import { PlotType } from "../apiClient"
-import { useGraphComponentState } from "../hooks/useGraphComponentState"
-import { usePlot } from "../hooks/usePlot"
-import { useMergedUnionSearchSpace } from "../searchSpace"
-import { useBackendRender, usePlotlyColorTheme } from "../state"
+import { GraphContainer, useGraphComponentState } from "@optuna/react"
 import {
   Target,
   useFilteredTrials,
   useObjectiveAndUserAttrTargets,
   useParamTargets,
-} from "../trialFilter"
-import GraphContainer from "./GraphContainer"
+} from "@optuna/react"
+import * as Optuna from "@optuna/types"
+import * as plotly from "plotly.js-dist-min"
+import React, { FC, useEffect, useState } from "react"
+import { SearchSpaceItem, StudyDetail } from "ts/types/optuna"
+import { PlotType } from "../apiClient"
+import { usePlot } from "../hooks/usePlot"
+import { useMergedUnionSearchSpace } from "../searchSpace"
+import { useBackendRender, usePlotlyColorTheme } from "../state"
 
 const plotDomId = "graph-slice"
 
@@ -199,7 +199,7 @@ const GraphSliceFrontend: FC<{
 }
 
 const plotSlice = (
-  trials: Trial[],
+  trials: Optuna.Trial[],
   objectiveTarget: Target,
   selectedParamTarget: Target | null,
   selectedParamSpace: SearchSpaceItem | null,
@@ -244,8 +244,8 @@ const plotSlice = (
     return plotly.react(plotDomId, [], layout)
   }
 
-  const feasibleTrials: Trial[] = []
-  const infeasibleTrials: Trial[] = []
+  const feasibleTrials: Optuna.Trial[] = []
+  const infeasibleTrials: Optuna.Trial[] = []
   trials.forEach((t) => {
     if (t.constraints.every((c) => c <= 0)) {
       feasibleTrials.push(t)
