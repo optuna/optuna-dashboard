@@ -137,22 +137,29 @@ class JournalStorage {
   public getStudies(): Optuna.Study[] {
     for (const study of this.studies) {
       const unionUserAttrs: Set<string> = new Set()
-      const unionSearchSpace: Set<string> = new Set()
-      let intersectionSearchSpace: string[] = []
+      const unionSearchSpace: Set<Optuna.SearchSpaceItem> = new Set()
+      let intersectionSearchSpace: Optuna.SearchSpaceItem[] = []
 
       study.trials.forEach((trial, index) => {
         for (const userAttr of trial.user_attrs) {
           unionUserAttrs.add(userAttr.key)
         }
         for (const param of trial.params) {
-          unionSearchSpace.add(param.name)
+          unionSearchSpace.add({
+            name: param.name,
+            distribution: param.distribution,
+          })
         }
         if (index === 0) {
           intersectionSearchSpace = Array.from(unionSearchSpace)
         } else {
-          intersectionSearchSpace = intersectionSearchSpace.filter((name) => {
-            return trial.params.some((param) => param.name === name)
-          })
+          intersectionSearchSpace = intersectionSearchSpace.filter(
+            (searchSpaceItem) => {
+              return trial.params.some(
+                (param) => param.name === searchSpaceItem.name
+              )
+            }
+          )
         }
       })
       study.union_user_attrs = Array.from(unionUserAttrs).map((key) => {
@@ -161,16 +168,8 @@ class JournalStorage {
           sortable: false,
         }
       })
-      study.union_search_space = Array.from(unionSearchSpace).map((name) => {
-        return {
-          name: name,
-        }
-      })
-      study.intersection_search_space = intersectionSearchSpace.map((name) => {
-        return {
-          name: name,
-        }
-      })
+      study.union_search_space = Array.from(unionSearchSpace)
+      study.intersection_search_space = intersectionSearchSpace
     }
 
     return this.studies

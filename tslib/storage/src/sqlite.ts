@@ -165,24 +165,33 @@ const getStudy = (
     }
 
     const params = getTrialParams(db, trial.trial_id)
-    const param_names = new Set<string>()
+    const paramNames = new Set<string>()
+    const paramNameToSearchSpaceItem = new Map<string, Optuna.SearchSpaceItem>()
     for (const param of params) {
-      param_names.add(param.name)
+      paramNames.add(param.name)
+      paramNameToSearchSpaceItem.set(param.name, {
+        name: param.name,
+        distribution: param.distribution,
+      })
       if (
         study.union_search_space.findIndex((s) => s.name === param.name) === -1
       ) {
-        study.union_search_space.push({ name: param.name })
+        study.union_search_space.push({
+          name: param.name,
+          distribution: param.distribution,
+        })
       }
     }
     if (intersection_search_space.size === 0) {
-      // biome-ignore lint/complexity/noForEach: <explanation>
-      param_names.forEach((s) => {
-        intersection_search_space.add({ name: s })
-      })
+      for (const s of paramNames) {
+        intersection_search_space.add(
+          paramNameToSearchSpaceItem.get(s) as Optuna.SearchSpaceItem
+        )
+      }
     } else {
       intersection_search_space = new Set(
         Array.from(intersection_search_space).filter((s) =>
-          param_names.has(s.name)
+          paramNames.has(s.name)
         )
       )
     }
