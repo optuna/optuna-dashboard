@@ -19,7 +19,7 @@ const meta: Meta<typeof PlotEdf> = {
           <Story
             args={{
               studies: [study],
-              objectiveId: 1,
+              objectiveId: 0,
             }}
           />
         </ThemeProvider>
