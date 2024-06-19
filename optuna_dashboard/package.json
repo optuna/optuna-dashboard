@@ -16,9 +16,10 @@
   "dependencies": {
     "@emotion/react": "file:../tslib/react/node_modules/@emotion/react",
     "@emotion/styled": "^11.11.0",
-    "@mui/icons-material": "^5.15.6",
+    "@mui/icons-material": "file:../tslib/react/node_modules/@mui/icons-material",
     "@mui/lab": "^5.0.0-alpha.162",
-    "@mui/material": "^5.15.6",
+    "@mui/material": "file:../tslib/react/node_modules/@mui/material",
+    "@mui/system": "file:../tslib/react/node_modules/@mui/system",
     "@optuna/react": "../tslib/react",
     "@react-three/drei": "^9.96.4",
     "@react-three/fiber": "^8.15.15",
