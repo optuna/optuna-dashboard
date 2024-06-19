@@ -29,6 +29,7 @@
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.15.10",
+    "@mui/lab": "^5.0.0-alpha.170",
     "@mui/material": "^5.15.10",
     "@mui/system": "^5.15.9",
     "@optuna/storage": "file:../storage",
