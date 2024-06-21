@@ -12,7 +12,7 @@ export type EdfPlotInfo = {
   trials: Optuna.Trial[]
 }
 
-export const getPlotDomId = (objectiveId: number) => `graph-edf-${objectiveId}`
+export const getPlotEdfDomId = (objectiveId: number) => `graph-edf-${objectiveId}`
 
 export const PlotEdf: FC<{
   studies: Optuna.Study[]
@@ -22,7 +22,7 @@ export const PlotEdf: FC<{
 
   const theme = useTheme()
 
-  const domId = getPlotDomId(objectiveId)
+  const domId = getPlotEdfDomId(objectiveId)
   const target = useMemo<Target>(
     () => new Target("objective", objectiveId),
     [objectiveId]
