@@ -17,4 +17,5 @@ export {
   useObjectiveAndUserAttrTargets,
   useObjectiveAndUserAttrTargetsFromStudies,
 } from "./utils/trialFilter"
+export { useMergedUnionSearchSpace } from "./utils/searchSpace"
 export type { GraphComponentState } from "./types"
