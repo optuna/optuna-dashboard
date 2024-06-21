@@ -12,7 +12,8 @@ export type EdfPlotInfo = {
   trials: Optuna.Trial[]
 }
 
-export const getPlotEdfDomId = (objectiveId: number) => `graph-edf-${objectiveId}`
+export const getPlotEdfDomId = (objectiveId: number) =>
+  `graph-edf-${objectiveId}`
 
 export const PlotEdf: FC<{
   studies: Optuna.Study[]
