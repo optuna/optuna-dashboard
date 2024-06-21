@@ -139,6 +139,8 @@ class JournalStorage {
       const unionUserAttrs: Set<string> = new Set()
       const unionSearchSpace: Set<string> = new Set()
       let intersectionSearchSpace: string[] = []
+      const nameToSearchSpaceItem: Map<string, Optuna.SearchSpaceItem> =
+        new Map()
 
       study.trials.forEach((trial, index) => {
         for (const userAttr of trial.user_attrs) {
@@ -146,6 +148,12 @@ class JournalStorage {
         }
         for (const param of trial.params) {
           unionSearchSpace.add(param.name)
+          if (!nameToSearchSpaceItem.has(param.name)) {
+            nameToSearchSpaceItem.set(param.name, {
+              name: param.name,
+              distribution: param.distribution,
+            })
+          }
         }
         if (index === 0) {
           intersectionSearchSpace = Array.from(unionSearchSpace)
@@ -162,14 +170,10 @@ class JournalStorage {
         }
       })
       study.union_search_space = Array.from(unionSearchSpace).map((name) => {
-        return {
-          name: name,
-        }
+        return nameToSearchSpaceItem.get(name) as Optuna.SearchSpaceItem
       })
       study.intersection_search_space = intersectionSearchSpace.map((name) => {
-        return {
-          name: name,
-        }
+        return nameToSearchSpaceItem.get(name) as Optuna.SearchSpaceItem
       })
     }
 
