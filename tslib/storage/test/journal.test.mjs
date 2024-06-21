@@ -16,6 +16,18 @@ describe("Test Journal File Storage", async () => {
     studySummaries.map((_summary, index) => storage.getStudy(index))
   )
 
+  it("Check the study with dynamic search space", () => {
+    const study = studies.find((s) => s.name === "single-objective-dynamic")
+    assert.deepStrictEqual(
+      study.union_search_space.map((item) => item.name).sort(),
+      ["x", "x", "category"].sort()
+    )
+    assert.deepStrictEqual(
+      study.intersection_search_space.map((item) => item.name).sort(),
+      ["category"].sort()
+    )
+  })
+
   it("Check the study including Infinities", () => {
     const study = studies.find((s) => s.name === "single-inf")
     study.trials.forEach((trial, index) => {
