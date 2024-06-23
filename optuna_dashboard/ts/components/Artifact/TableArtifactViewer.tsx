@@ -22,7 +22,8 @@ interface TableArtifactViewerProps {
 }
 
 type Data = {
-  [key: string]: Object
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any
 }
 
 export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
@@ -49,7 +50,7 @@ export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
     const keys = data.length > 0 ? Object.keys(data[0]) : []
     return keys.map((key) => ({
       header: key,
-      accessorFn: (info) =>
+      accessorFn: (info: Data) =>
         typeof info[key] === "object" ? JSON.stringify(info[key]) : info[key],
       enableSorting: true,
       enableColumnFilter: false,
@@ -151,8 +152,8 @@ const loadJsonl = async (props: TableArtifactViewerProps): Promise<Data[]> => {
   try {
     const jsons = data
       .split("\n")
-      .filter((line) => line.trim().length > 0)
-      .map((line) => {
+      .filter((line: string) => line.trim().length > 0)
+      .map((line: string) => {
         return JSON.parse(line)
       })
       .filter(Boolean) as Data[]
