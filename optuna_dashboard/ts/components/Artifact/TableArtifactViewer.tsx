@@ -22,7 +22,7 @@ interface TableArtifactViewerProps {
 }
 
 type Data = {
-  [key: string]: string | number
+  [key: string]: Object
 }
 
 export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
@@ -35,11 +35,9 @@ export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
     const handleFileChange = async () => {
       try {
         const loadedData = await loadData(props)
-        console.log("data")
-        console.log(loadedData)
         setData(loadedData)
       } catch (error: unknown) {
-        enqueueSnackbar("Failed to load the file.", {
+        enqueueSnackbar("Failed to load the file. " + error, {
           variant: "error",
         })
       }
@@ -51,7 +49,8 @@ export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
     const keys = data.length > 0 ? Object.keys(data[0]) : []
     return keys.map((key) => ({
       header: key,
-      accessorKey: key,
+      accessorFn: (info) =>
+        typeof info[key] === "object" ? JSON.stringify(info[key]) : info[key],
       enableSorting: true,
       enableColumnFilter: false,
     }))
@@ -139,32 +138,26 @@ const loadCSV = (props: TableArtifactViewerProps): Promise<Data[]> => {
       complete: (results: Papa.ParseResult<Data>) => {
         resolve(results?.data)
       },
-      error: (error) => {
-        reject(new Error("CSV parse error: " + error))
+      error: () => {
+        reject(new Error("CSV parse error"))
       },
     })
   })
 }
 
 const loadJsonl = async (props: TableArtifactViewerProps): Promise<Data[]> => {
+  const response = await axios.get(props.src, { responseType: "text" })
+  const data = response.data
   try {
-    const response = await axios.get(props.src, { responseType: "text" })
-    const data = response.data
-    const lines = data.split("\n")
-    const jsonObjects = lines
+    const jsons = data
+      .split("\n")
       .filter((line) => line.trim().length > 0)
       .map((line) => {
-        try {
-          return JSON.parse(line)
-        } catch (e) {
-          console.error("JSON parse error on line:", line, e)
-          return null
-        }
+        return JSON.parse(line)
       })
       .filter(Boolean) as Data[]
-
-    return jsonObjects
+    return jsons
   } catch (error) {
-    throw new Error("JSONL parse error: " + error)
+    throw new Error("JSONL parse error")
   }
 }
