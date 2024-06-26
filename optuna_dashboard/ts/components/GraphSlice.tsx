@@ -9,7 +9,11 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import { GraphContainer, useGraphComponentState } from "@optuna/react"
+import {
+  GraphContainer,
+  useGraphComponentState,
+  useMergedUnionSearchSpace,
+} from "@optuna/react"
 import {
   Target,
   useFilteredTrials,
@@ -22,7 +26,6 @@ import React, { FC, useEffect, useState } from "react"
 import { SearchSpaceItem, StudyDetail } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { usePlot } from "../hooks/usePlot"
-import { useMergedUnionSearchSpace } from "../searchSpace"
 import { useBackendRender, usePlotlyColorTheme } from "../state"
 
 const plotDomId = "graph-slice"

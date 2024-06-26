@@ -87,6 +87,7 @@ export type TrialParam = {
 
 export type SearchSpaceItem = {
   name: string
+  distribution: Distribution
 }
 
 export type ParamImportance = {

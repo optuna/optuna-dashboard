@@ -3,6 +3,36 @@ import * as Optuna from "@optuna/types"
 import sqlite3InitModule from "@sqlite.org/sqlite-wasm"
 import { OptunaStorage } from "./storage"
 
+// TODO(porink0424): Refactor to common function with journal.ts (current workaround duplicates code due to missing file extensions in tsc build output).
+const isDistributionEqual = (
+  a: Optuna.Distribution,
+  b: Optuna.Distribution
+) => {
+  if (a.type !== b.type) {
+    return false
+  }
+
+  if (a.type === "IntDistribution" || a.type === "FloatDistribution") {
+    if (b.type !== "IntDistribution" && b.type !== "FloatDistribution") {
+      throw new Error("Invalid distribution type")
+    }
+    return (
+      a.low === b.low &&
+      a.high === b.high &&
+      a.step === b.step &&
+      a.log === b.log
+    )
+  }
+  if (a.type === "CategoricalDistribution") {
+    if (b.type !== "CategoricalDistribution") {
+      throw new Error("Invalid distribution type")
+    }
+    return JSON.stringify(a.choices) === JSON.stringify(b.choices)
+  }
+
+  throw new Error("Invalid distribution type")
+}
+
 type SQLite3DB = {
   exec(options: {
     sql: string
@@ -149,7 +179,7 @@ const getStudy = (
     study.metric_names = studySystemAttrs.metric_names
   }
 
-  let intersection_search_space: Set<Optuna.SearchSpaceItem> = new Set()
+  let intersectionSearchSpace: Optuna.SearchSpaceItem[] = []
   study.trials = getTrials(db, summary.id, schemaVersion)
   for (const trial of study.trials) {
     const userAttrs = getTrialUserAttributes(db, trial.trial_id)
@@ -165,31 +195,34 @@ const getStudy = (
     }
 
     const params = getTrialParams(db, trial.trial_id)
-    const param_names = new Set<string>()
     for (const param of params) {
-      param_names.add(param.name)
       if (
         study.union_search_space.findIndex((s) => s.name === param.name) === -1
       ) {
-        study.union_search_space.push({ name: param.name })
+        study.union_search_space.push({
+          name: param.name,
+          distribution: param.distribution,
+        })
       }
     }
-    if (intersection_search_space.size === 0) {
-      // biome-ignore lint/complexity/noForEach: <explanation>
-      param_names.forEach((s) => {
-        intersection_search_space.add({ name: s })
-      })
+    if (intersectionSearchSpace.length === 0) {
+      intersectionSearchSpace = params.map((param) => ({
+        name: param.name,
+        distribution: param.distribution,
+      }))
     } else {
-      intersection_search_space = new Set(
-        Array.from(intersection_search_space).filter((s) =>
-          param_names.has(s.name)
+      intersectionSearchSpace = intersectionSearchSpace.filter((item) => {
+        return params.some(
+          (param) =>
+            item.name === param.name &&
+            isDistributionEqual(item.distribution, param.distribution)
         )
-      )
+      })
     }
     trial.params = params
     trial.user_attrs = userAttrs
   }
-  study.intersection_search_space = Array.from(intersection_search_space)
+  study.intersection_search_space = intersectionSearchSpace
   return study
 }
 
