@@ -1,6 +1,36 @@
 import * as Optuna from "@optuna/types"
 import { OptunaStorage } from "./storage"
 
+// TODO(porink0424): Refactor to common function with sqlite.ts (current workaround duplicates code due to missing file extensions in tsc build output).
+const isDistributionEqual = (
+  a: Optuna.Distribution,
+  b: Optuna.Distribution
+) => {
+  if (a.type !== b.type) {
+    return false
+  }
+
+  if (a.type === "IntDistribution" || a.type === "FloatDistribution") {
+    if (b.type !== "IntDistribution" && b.type !== "FloatDistribution") {
+      throw new Error("Invalid distribution type")
+    }
+    return (
+      a.low === b.low &&
+      a.high === b.high &&
+      a.step === b.step &&
+      a.log === b.log
+    )
+  }
+  if (a.type === "CategoricalDistribution") {
+    if (b.type !== "CategoricalDistribution") {
+      throw new Error("Invalid distribution type")
+    }
+    return JSON.stringify(a.choices) === JSON.stringify(b.choices)
+  }
+
+  throw new Error("Invalid distribution type")
+}
+
 // JournalStorage
 enum JournalOperation {
   CREATE_STUDY = 0,
@@ -137,30 +167,42 @@ class JournalStorage {
   public getStudies(): Optuna.Study[] {
     for (const study of this.studies) {
       const unionUserAttrs: Set<string> = new Set()
-      const unionSearchSpace: Set<string> = new Set()
-      let intersectionSearchSpace: string[] = []
-      const nameToSearchSpaceItem: Map<string, Optuna.SearchSpaceItem> =
-        new Map()
+      const unionSearchSpace: Optuna.SearchSpaceItem[] = []
+      let intersectionSearchSpace: Optuna.SearchSpaceItem[] = []
 
       study.trials.forEach((trial, index) => {
         for (const userAttr of trial.user_attrs) {
           unionUserAttrs.add(userAttr.key)
         }
         for (const param of trial.params) {
-          unionSearchSpace.add(param.name)
-          if (!nameToSearchSpaceItem.has(param.name)) {
-            nameToSearchSpaceItem.set(param.name, {
+          if (
+            !unionSearchSpace.some(
+              (item) =>
+                item.name === param.name &&
+                isDistributionEqual(item.distribution, param.distribution)
+            )
+          ) {
+            unionSearchSpace.push({
               name: param.name,
               distribution: param.distribution,
             })
           }
         }
         if (index === 0) {
-          intersectionSearchSpace = Array.from(unionSearchSpace)
+          intersectionSearchSpace = [...unionSearchSpace]
         } else {
-          intersectionSearchSpace = intersectionSearchSpace.filter((name) => {
-            return trial.params.some((param) => param.name === name)
-          })
+          intersectionSearchSpace = intersectionSearchSpace.filter(
+            (searchSpaceItem) => {
+              return trial.params.some(
+                (param) =>
+                  param.name === searchSpaceItem.name &&
+                  isDistributionEqual(
+                    param.distribution,
+                    searchSpaceItem.distribution
+                  )
+              )
+            }
+          )
         }
       })
       study.union_user_attrs = Array.from(unionUserAttrs).map((key) => {
@@ -169,12 +211,8 @@ class JournalStorage {
           sortable: false,
         }
       })
-      study.union_search_space = Array.from(unionSearchSpace).map((name) => {
-        return nameToSearchSpaceItem.get(name) as Optuna.SearchSpaceItem
-      })
-      study.intersection_search_space = intersectionSearchSpace.map((name) => {
-        return nameToSearchSpaceItem.get(name) as Optuna.SearchSpaceItem
-      })
+      study.union_search_space = unionSearchSpace
+      study.intersection_search_space = intersectionSearchSpace
     }
 
     return this.studies

@@ -44,9 +44,9 @@ def create_optuna_storage(storage: BaseStorage) -> None:
     def objective_single_dynamic(trial: optuna.Trial) -> float:
         category = trial.suggest_categorical("category", ["foo", "bar"])
         if category == "foo":
-            return (trial.suggest_float("x1", 0, 10) - 2) ** 2
+            return (trial.suggest_float("x", 0, 10) - 2) ** 2
         else:
-            return -((trial.suggest_float("x2", -10, 0) + 5) ** 2)
+            return -((trial.suggest_float("x", -10, 0) + 5) ** 2)
 
     study.optimize(objective_single_dynamic, n_trials=50)
 
