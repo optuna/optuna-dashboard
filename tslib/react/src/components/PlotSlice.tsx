@@ -23,14 +23,14 @@ import {
 import { GraphContainer } from "./GraphContainer"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
-export const getPlotSliceDomId = () => "graph-slice"
-
 const isLogScale = (s: Optuna.SearchSpaceItem): boolean => {
   if (s.distribution.type === "CategoricalDistribution") {
     return false
   }
   return s.distribution.log
 }
+
+const domId = "plot-slice"
 
 export const PlotSlice: FC<{
   study: Optuna.Study | null
@@ -146,7 +146,7 @@ export const PlotSlice: FC<{
       </Grid>
       <Grid item xs={9}>
         <GraphContainer
-          plotDomId={getPlotSliceDomId()}
+          plotDomId={domId}
           graphComponentState={graphComponentState}
         />
       </Grid>
@@ -162,7 +162,7 @@ const plotSlice = (
   logYScale: boolean,
   mode: string
 ) => {
-  if (document.getElementById(getPlotSliceDomId()) === null) {
+  if (document.getElementById(domId) === null) {
     return
   }
 
@@ -197,7 +197,7 @@ const plotSlice = (
     selectedParamTarget === null ||
     trials.length === 0
   ) {
-    return plotly.react(getPlotSliceDomId(), [], layout)
+    return plotly.react(domId, [], layout)
   }
 
   const feasibleTrials: Optuna.Trial[] = []
@@ -277,5 +277,5 @@ const plotSlice = (
       automargin: true, // Otherwise the label is outside of the plot
     }
   }
-  return plotly.react(getPlotSliceDomId(), trace, layout)
+  return plotly.react(domId, trace, layout)
 }

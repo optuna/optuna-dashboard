@@ -1,7 +1,6 @@
 import {
   GraphContainer,
   PlotSlice,
-  getPlotSliceDomId,
   useGraphComponentState,
 } from "@optuna/react"
 import * as plotly from "plotly.js-dist-min"
@@ -21,6 +20,8 @@ export const GraphSlice: FC<{
   }
 }
 
+const domId = "graph-slice"
+
 const GraphSliceBackend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
@@ -38,7 +39,7 @@ const GraphSliceBackend: FC<{
 
   useEffect(() => {
     if (data && layout && graphComponentState !== "componentWillMount") {
-      plotly.react(getPlotSliceDomId(), data, layout).then(notifyGraphDidRender)
+      plotly.react(domId, data, layout).then(notifyGraphDidRender)
     }
   }, [data, layout, graphComponentState])
   useEffect(() => {
@@ -49,7 +50,7 @@ const GraphSliceBackend: FC<{
 
   return (
     <GraphContainer
-      plotDomId={getPlotSliceDomId()}
+      plotDomId={domId}
       graphComponentState={graphComponentState}
     />
   )

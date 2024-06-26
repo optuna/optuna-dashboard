@@ -1,9 +1,4 @@
-import {
-  GraphContainer,
-  PlotEdf,
-  getPlotEdfDomId,
-  useGraphComponentState,
-} from "@optuna/react"
+import { GraphContainer, PlotEdf, useGraphComponentState } from "@optuna/react"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
 import { StudyDetail } from "ts/types/optuna"
@@ -22,6 +17,8 @@ export const GraphEdf: FC<{
   }
 }
 
+const domId = "graph-edf"
+
 const GraphEdfBackend: FC<{
   studies: StudyDetail[]
 }> = ({ studies }) => {
@@ -29,7 +26,6 @@ const GraphEdfBackend: FC<{
   const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const studyIds = studies.map((s) => s.id)
-  const domId = getPlotEdfDomId(-1)
   const numCompletedTrials = studies.reduce(
     (acc, study) =>
       acc + study?.trials.filter((t) => t.state === "Complete").length,
