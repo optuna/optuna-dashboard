@@ -22,9 +22,51 @@ describe("Test Journal File Storage", async () => {
       study.union_search_space.map((item) => item.name).sort(),
       ["x", "x", "category"].sort()
     )
+    assert.strictEqual(
+      study.union_search_space.some(
+        (item) =>
+          item.name === "category" &&
+          item.distribution.type === "CategoricalDistribution" &&
+          item.distribution.choices.length === 2
+      ),
+      true
+    )
+    assert.strictEqual(
+      study.union_search_space.some(
+        (item) =>
+          item.name === "x" &&
+          item.distribution.type === "FloatDistribution" &&
+          item.distribution.low === 0 &&
+          item.distribution.high === 10 &&
+          item.distribution.step === null &&
+          item.distribution.log === false
+      ),
+      true
+    )
+    assert.strictEqual(
+      study.union_search_space.some(
+        (item) =>
+          item.name === "x" &&
+          item.distribution.type === "FloatDistribution" &&
+          item.distribution.low === -10 &&
+          item.distribution.high === 0 &&
+          item.distribution.step === null &&
+          item.distribution.log === false
+      ),
+      true
+    )
     assert.deepStrictEqual(
       study.intersection_search_space.map((item) => item.name).sort(),
       ["category"].sort()
+    )
+    assert.strictEqual(
+      study.intersection_search_space.some(
+        (item) =>
+          item.name === "category" &&
+          item.distribution.type === "CategoricalDistribution" &&
+          item.distribution.choices.length === 2
+      ),
+      true
     )
   })
 
