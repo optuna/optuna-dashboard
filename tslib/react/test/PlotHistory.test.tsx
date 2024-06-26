@@ -24,11 +24,9 @@ describe("PlotHistory Tests", async () => {
   }
 
   for (const study of window.mockStudies) {
-    test(`PlotHistory (study name: ${study.study_name})`, () => {
-      setup({ study, dataTestId: `plot-history-${study.study_id}` })
-      expect(
-        screen.getByTestId(`plot-history-${study.study_id}`)
-      ).toBeInTheDocument()
+    test(`PlotHistory (study name: ${study.name})`, () => {
+      setup({ study, dataTestId: `plot-history-${study.id}` })
+      expect(screen.getByTestId(`plot-history-${study.id}`)).toBeInTheDocument()
     })
   }
 })

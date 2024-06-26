@@ -24,6 +24,11 @@ tslib:
 	cd tslib/storage && npm i && npm run build
 	cd tslib/react && npm i && npm run build
 
+.PHONY: tslib-test
+tslib-test: tslib
+	cd tslib/react/test && python generate_assets.py && npm run test
+	cd tslib/storage/test && python generate_assets.py && npm run test
+
 .PHONY: serve-browser-app
 serve-browser-app: tslib $(RUSTLIB_OUT)
 	cd standalone_app && npm run watch

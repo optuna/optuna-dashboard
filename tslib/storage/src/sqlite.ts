@@ -3,6 +3,36 @@ import * as Optuna from "@optuna/types"
 import sqlite3InitModule from "@sqlite.org/sqlite-wasm"
 import { OptunaStorage } from "./storage"
 
+// TODO(porink0424): Refactor to common function with journal.ts (current workaround duplicates code due to missing file extensions in tsc build output).
+const isDistributionEqual = (
+  a: Optuna.Distribution,
+  b: Optuna.Distribution
+) => {
+  if (a.type !== b.type) {
+    return false
+  }
+
+  if (a.type === "IntDistribution" || a.type === "FloatDistribution") {
+    if (b.type !== "IntDistribution" && b.type !== "FloatDistribution") {
+      throw new Error("Invalid distribution type")
+    }
+    return (
+      a.low === b.low &&
+      a.high === b.high &&
+      a.step === b.step &&
+      a.log === b.log
+    )
+  }
+  if (a.type === "CategoricalDistribution") {
+    if (b.type !== "CategoricalDistribution") {
+      throw new Error("Invalid distribution type")
+    }
+    return JSON.stringify(a.choices) === JSON.stringify(b.choices)
+  }
+
+  throw new Error("Invalid distribution type")
+}
+
 type SQLite3DB = {
   exec(options: {
     sql: string
@@ -116,13 +146,13 @@ const getStudySummaries = (db: SQLite3DB): Optuna.StudySummary[] => {
 
       if (objective === 0) {
         summaries.push({
-          study_id: studyId,
-          study_name: studyName,
+          id: studyId,
+          name: studyName,
           directions: [direction],
         })
         return
       }
-      const index = summaries.findIndex((s) => s.study_id === studyId)
+      const index = summaries.findIndex((s) => s.id === studyId)
       summaries[index].directions.push(direction)
     },
   })
@@ -135,8 +165,8 @@ const getStudy = (
   summary: Optuna.StudySummary
 ): Optuna.Study => {
   const study: Optuna.Study = {
-    study_id: summary.study_id,
-    study_name: summary.study_name,
+    id: summary.id,
+    name: summary.name,
     directions: summary.directions,
     union_search_space: [],
     intersection_search_space: [],
@@ -144,8 +174,13 @@ const getStudy = (
     trials: [],
   }
 
-  let intersection_search_space: Set<Optuna.SearchSpaceItem> = new Set()
-  study.trials = getTrials(db, summary.study_id, schemaVersion)
+  const studySystemAttrs = getStudySystemAttributes(db, summary.id)
+  if (studySystemAttrs !== undefined) {
+    study.metric_names = studySystemAttrs.metric_names
+  }
+
+  let intersectionSearchSpace: Optuna.SearchSpaceItem[] = []
+  study.trials = getTrials(db, summary.id, schemaVersion)
   for (const trial of study.trials) {
     const userAttrs = getTrialUserAttributes(db, trial.trial_id)
     for (const attr of userAttrs) {
@@ -154,32 +189,40 @@ const getStudy = (
       }
     }
 
+    const systemAttrs = getTrialSystemAttributes(db, trial.trial_id)
+    if (systemAttrs !== undefined) {
+      trial.constraints = systemAttrs.constraints
+    }
+
     const params = getTrialParams(db, trial.trial_id)
-    const param_names = new Set<string>()
     for (const param of params) {
-      param_names.add(param.name)
       if (
         study.union_search_space.findIndex((s) => s.name === param.name) === -1
       ) {
-        study.union_search_space.push({ name: param.name })
+        study.union_search_space.push({
+          name: param.name,
+          distribution: param.distribution,
+        })
       }
     }
-    if (intersection_search_space.size === 0) {
-      // biome-ignore lint/complexity/noForEach: <explanation>
-      param_names.forEach((s) => {
-        intersection_search_space.add({ name: s })
-      })
+    if (intersectionSearchSpace.length === 0) {
+      intersectionSearchSpace = params.map((param) => ({
+        name: param.name,
+        distribution: param.distribution,
+      }))
     } else {
-      intersection_search_space = new Set(
-        Array.from(intersection_search_space).filter((s) =>
-          param_names.has(s.name)
+      intersectionSearchSpace = intersectionSearchSpace.filter((item) => {
+        return params.some(
+          (param) =>
+            item.name === param.name &&
+            isDistributionEqual(item.distribution, param.distribution)
         )
-      )
+      })
     }
     trial.params = params
     trial.user_attrs = userAttrs
   }
-  study.intersection_search_space = Array.from(intersection_search_space)
+  study.intersection_search_space = intersectionSearchSpace
   return study
 }
 
@@ -217,6 +260,7 @@ const getTrials = (
         ),
         params: [], // Set this column later
         user_attrs: [], // Set this column later
+        constraints: [],
         datetime_start: vals[3],
         datetime_complete: vals[4],
       }
@@ -367,6 +411,20 @@ const parseDistributionJSON = (t: string): Optuna.Distribution => {
   }
 }
 
+const getStudySystemAttributes = (db: SQLite3DB, studyId: number) => {
+  let attrs: { metric_names: string[] } | undefined
+  db.exec({
+    sql: `SELECT key, value_json FROM study_system_attributes WHERE study_id = ${studyId} AND key = 'dashboard:objective_names'`,
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    callback: (vals: any[]) => {
+      attrs = {
+        metric_names: JSON.parse(vals[1]),
+      }
+    },
+  })
+  return attrs
+}
+
 const getTrialUserAttributes = (
   db: SQLite3DB,
   trialId: number
@@ -380,6 +438,20 @@ const getTrialUserAttributes = (
         key: vals[0],
         value: vals[1],
       })
+    },
+  })
+  return attrs
+}
+
+const getTrialSystemAttributes = (db: SQLite3DB, trialId: number) => {
+  let attrs: { constraints: number[] } | undefined
+  db.exec({
+    sql: `SELECT key, value_json FROM trial_system_attributes WHERE trial_id = ${trialId} AND key = 'constraints'`,
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    callback: (vals: any[]) => {
+      attrs = {
+        constraints: JSON.parse(vals[1]),
+      }
     },
   })
   return attrs

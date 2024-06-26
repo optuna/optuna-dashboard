@@ -13,23 +13,23 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import * as Optuna from "@optuna/types"
-import * as plotly from "plotly.js-dist-min"
-import React, { ChangeEvent, FC, useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
-import { StudyDetail, Trial } from "ts/types/optuna"
-import { usePlotlyColorTheme } from "../state"
 import {
   Target,
   useFilteredTrialsFromStudies,
   useObjectiveAndUserAttrTargetsFromStudies,
-} from "../trialFilter"
+} from "@optuna/react"
+import * as Optuna from "@optuna/types"
+import * as plotly from "plotly.js-dist-min"
+import React, { ChangeEvent, FC, useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
+import { StudyDetail } from "ts/types/optuna"
+import { usePlotlyColorTheme } from "../state"
 
 const plotDomId = "graph-history"
 
 interface HistoryPlotInfo {
   study_name: string
-  trials: Trial[]
+  trials: Optuna.Trial[]
   directions: Optuna.StudyDirection[]
   objective_names?: string[]
 }
@@ -265,7 +265,7 @@ const plotHistory = (
     },
   }
 
-  const getAxisX = (trial: Trial): number | Date => {
+  const getAxisX = (trial: Optuna.Trial): number | Date => {
     return xAxis === "number"
       ? trial.number
       : xAxis === "datetime_start"
@@ -276,8 +276,8 @@ const plotHistory = (
   const plotData: Partial<plotly.PlotData>[] = []
   const infeasiblePlotData: Partial<plotly.PlotData>[] = []
   historyPlotInfos.forEach((h) => {
-    const feasibleTrials: Trial[] = []
-    const infeasibleTrials: Trial[] = []
+    const feasibleTrials: Optuna.Trial[] = []
+    const infeasibleTrials: Optuna.Trial[] = []
     h.trials.forEach((t) => {
       if (t.constraints.every((c) => c <= 0)) {
         feasibleTrials.push(t)
@@ -288,7 +288,7 @@ const plotHistory = (
     plotData.push({
       x: feasibleTrials.map(getAxisX),
       y: feasibleTrials.map(
-        (t: Trial): number => target.getTargetValue(t) as number
+        (t: Optuna.Trial): number => target.getTargetValue(t) as number
       ),
       name: `${target.toLabel(h.objective_names)} of ${h.study_name}`,
       marker: {
@@ -353,7 +353,7 @@ const plotHistory = (
     infeasiblePlotData.push({
       x: infeasibleTrials.map(getAxisX),
       y: infeasibleTrials.map(
-        (t: Trial): number => target.getTargetValue(t) as number
+        (t: Optuna.Trial): number => target.getTargetValue(t) as number
       ),
       name: `Infeasible Trial of ${h.study_name}`,
       marker: {

@@ -1,14 +1,11 @@
 import { Box, Typography, useTheme } from "@mui/material"
-import React from "react"
-import { GraphComponentState } from "ts/types/optuna"
+import { FC } from "react"
+import { GraphComponentState } from "../types"
 
-function GraphContainer({
-  plotDomId,
-  graphComponentState,
-}: {
+export const GraphContainer: FC<{
   plotDomId: string
   graphComponentState: GraphComponentState
-}) {
+}> = ({ plotDomId, graphComponentState }) => {
   const theme = useTheme()
   return (
     <Box component="div" id={plotDomId} sx={{ height: "450px" }}>
@@ -28,5 +25,3 @@ function GraphContainer({
     </Box>
   )
 }
-
-export default GraphContainer

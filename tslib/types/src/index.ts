@@ -46,26 +46,27 @@ export type AttributeSpec = {
 }
 
 export type StudySummary = {
-  study_id: number
-  study_name: string
+  id: number
+  name: string
   directions: StudyDirection[]
 }
 
 export type Study = {
-  study_id: number
-  study_name: string
+  id: number
+  name: string
   directions: StudyDirection[]
   union_search_space: SearchSpaceItem[]
   intersection_search_space: SearchSpaceItem[]
   union_user_attrs: AttributeSpec[]
   datetime_start?: Date
   trials: Trial[]
+  metric_names?: string[]
 }
 
 export type Trial = {
   trial_id: number
-  number: number
   study_id: number
+  number: number
   state: TrialState
   values?: number[]
   params: TrialParam[]
@@ -73,6 +74,7 @@ export type Trial = {
   user_attrs: Attribute[]
   datetime_start?: Date
   datetime_complete?: Date
+  constraints: number[]
 }
 
 export type TrialParam = {
@@ -85,6 +87,7 @@ export type TrialParam = {
 
 export type SearchSpaceItem = {
   name: string
+  distribution: Distribution
 }
 
 export type ParamImportance = {

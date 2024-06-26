@@ -29,7 +29,7 @@ jobs:
       - run: npm run lint
 
   type-check:
-    name: Type checking on optuna-dashboard
+    name: Type checking on optuna-dashboard & standalone_app
     runs-on: ubuntu-latest
 
     steps:
@@ -44,8 +44,20 @@ jobs:
       - name: Setup tslib
         run: make tslib
       
-      - name: Type Check
+      - name: Type Check optuna_dashboard
         working-directory: optuna_dashboard
+        run: |
+          npm install
+          npm run type-check
+
+      - name: Build rustlib for standalone_app
+        working-directory: rustlib
+        run: |
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+          wasm-pack build --target web
+
+      - name: Type Check standalone_app
+        working-directory: standalone_app
         run: |
           npm install
           npm run type-check
@@ -63,13 +75,13 @@ jobs:
         with:
           node-version: '20'
       
-      - working-directory: optuna_dashboard
-        run: npm install
       - working-directory: tslib/types
         run: npm install
       - working-directory: tslib/storage
         run: npm install
       - working-directory: tslib/react
+        run: npm install
+      - working-directory: optuna_dashboard
         run: npm install
       - working-directory: standalone_app
         run: npm install
@@ -88,7 +100,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '20'
+
+      - name: Setup tslib
+        run: make tslib
+
       - name: Build bundle.js
         working-directory: optuna_dashboard
         run: |

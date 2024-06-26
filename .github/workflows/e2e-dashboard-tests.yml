@@ -23,7 +23,10 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '20'
+
+      - name: Setup tslib
+        run: make tslib
 
       - name: Build bundle.js
         working-directory: optuna_dashboard

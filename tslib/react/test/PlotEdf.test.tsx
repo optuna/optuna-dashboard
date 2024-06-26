@@ -2,9 +2,9 @@ import * as Optuna from "@optuna/types"
 import { render, screen } from "@testing-library/react"
 import React from "react"
 import { describe, expect, test } from "vitest"
-import { PlotIntermediateValues } from "../src/components/PlotIntermediateValues"
+import { PlotEdf } from "../src/components/PlotEdf"
 
-describe("PlotIntermediateValues Tests", async () => {
+describe("PlotEdf Tests", async () => {
   const setup = ({
     study,
     dataTestId,
@@ -18,21 +18,15 @@ describe("PlotIntermediateValues Tests", async () => {
     }) => <div data-testid={dataTestId}>{children}</div>
     return render(
       <Wrapper dataTestId={dataTestId}>
-        <PlotIntermediateValues
-          trials={study.trials}
-          includePruned={false}
-          logScale={false}
-        />
+        <PlotEdf studies={[study]} objectiveId={0} />
       </Wrapper>
     )
   }
 
   for (const study of window.mockStudies) {
-    test(`PlotIntermediateValues (study name: ${study.name})`, () => {
-      setup({ study, dataTestId: `plot-intermediatevalues-${study.id}` })
-      expect(
-        screen.getByTestId(`plot-intermediatevalues-${study.id}`)
-      ).toBeInTheDocument()
+    test(`PlotEdf (study name: ${study.name})`, () => {
+      setup({ study, dataTestId: `plot-edf-${study.id}` })
+      expect(screen.getByTestId(`plot-edf-${study.id}`)).toBeInTheDocument()
     })
   }
 })

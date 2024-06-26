@@ -19,6 +19,7 @@ import {
   useTheme,
 } from "@mui/material"
 import { styled } from "@mui/system"
+import * as Optuna from "@optuna/types"
 import React, {
   FC,
   useEffect,
@@ -36,7 +37,7 @@ export const StudyList: FC<{
 }> = ({ toggleColorMode }) => {
   const theme = useTheme()
   const { storage } = useContext(StorageContext)
-  const [studies, setStudies] = useState<StudySummary[]>([])
+  const [studies, setStudies] = useState<Optuna.StudySummary[]>([])
 
   const [_studyFilterText, setStudyFilterText] = useState<string>("")
   const [sortBy, setSortBy] = useState<"id-asc" | "id-desc">("id-asc")
@@ -52,16 +53,18 @@ export const StudyList: FC<{
     fetchStudies()
   }, [storage])
   const filteredStudies = useMemo(() => {
-    const studyFilter = (row: StudySummary): boolean => {
+    const studyFilter = (row: Optuna.StudySummary): boolean => {
       const keywords = studyFilterText.split(" ")
       return !keywords.every((k) => {
         if (k === "") {
           return true
         }
-        return row.study_name.indexOf(k) >= 0
+        return row.name.indexOf(k) >= 0
       })
     }
-    let filteredStudies: StudySummary[] = studies.filter((s) => !studyFilter(s))
+    let filteredStudies: Optuna.StudySummary[] = studies.filter(
+      (s) => !studyFilter(s)
+    )
     if (sortBy === "id-desc") {
       filteredStudies = filteredStudies.reverse()
     }
@@ -178,13 +181,13 @@ export const StudyList: FC<{
         <Box sx={{ display: "flex", flexWrap: "wrap" }}>
           {filteredStudies.map((study, idx) => (
             <Card
-              key={study.study_id}
+              key={study.id}
               sx={{ margin: theme.spacing(2), width: "500px" }}
             >
               <CardActionArea component={Link} to={`/${idx}`}>
                 <CardContent>
                   <Typography variant="h5" sx={{ wordBreak: "break-all" }}>
-                    {study.study_id}. {study.study_name}
+                    {study.id}. {study.name}
                   </Typography>
                   <Typography
                     variant="subtitle1"

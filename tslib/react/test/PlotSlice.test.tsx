@@ -2,9 +2,9 @@ import * as Optuna from "@optuna/types"
 import { render, screen } from "@testing-library/react"
 import React from "react"
 import { describe, expect, test } from "vitest"
-import { PlotIntermediateValues } from "../src/components/PlotIntermediateValues"
+import { PlotSlice } from "../src/components/PlotSlice"
 
-describe("PlotIntermediateValues Tests", async () => {
+describe("PlotSlice Tests", async () => {
   const setup = ({
     study,
     dataTestId,
@@ -18,21 +18,15 @@ describe("PlotIntermediateValues Tests", async () => {
     }) => <div data-testid={dataTestId}>{children}</div>
     return render(
       <Wrapper dataTestId={dataTestId}>
-        <PlotIntermediateValues
-          trials={study.trials}
-          includePruned={false}
-          logScale={false}
-        />
+        <PlotSlice study={study} />
       </Wrapper>
     )
   }
 
   for (const study of window.mockStudies) {
-    test(`PlotIntermediateValues (study name: ${study.name})`, () => {
-      setup({ study, dataTestId: `plot-intermediatevalues-${study.id}` })
-      expect(
-        screen.getByTestId(`plot-intermediatevalues-${study.id}`)
-      ).toBeInTheDocument()
+    test(`PlotSlice (study name: ${study.name})`, () => {
+      setup({ study, dataTestId: `plot-slice-${study.id}` })
+      expect(screen.getByTestId(`plot-slice-${study.id}`)).toBeInTheDocument()
     })
   }
 })

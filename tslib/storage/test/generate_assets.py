@@ -44,9 +44,9 @@ def create_optuna_storage(storage: BaseStorage) -> None:
     def objective_single_dynamic(trial: optuna.Trial) -> float:
         category = trial.suggest_categorical("category", ["foo", "bar"])
         if category == "foo":
-            return (trial.suggest_float("x1", 0, 10) - 2) ** 2
+            return (trial.suggest_float("x", 0, 10) - 2) ** 2
         else:
-            return -((trial.suggest_float("x2", -10, 0) + 5) ** 2)
+            return -((trial.suggest_float("x", -10, 0) + 5) ** 2)
 
     study.optimize(objective_single_dynamic, n_trials=50)
 
@@ -77,6 +77,48 @@ def create_optuna_storage(storage: BaseStorage) -> None:
         return (x1 - 2) ** 2 + (x2 - 5) ** 2
 
     study.optimize(objective_single_nan_report, n_trials=100)
+
+    # Multi-objective study with metric names
+    study = optuna.create_study(
+        study_name="multi-objective-metric-names",
+        storage=storage,
+        directions=["minimize", "minimize"],
+    )
+    print(f"Generating {study.study_name} for {type(storage).__name__}...")
+    study.set_metric_names(["value1", "value2"])
+
+    def objective_multi(trial: optuna.Trial) -> tuple[float, float]:
+        x = trial.suggest_float("x", 0, 5)
+        y = trial.suggest_float("y", 0, 3)
+        v0 = 4 * x**2 + 4 * y**2
+        v1 = (x - 5) ** 2 + (y - 5) ** 2
+        return v0, v1
+
+    study.optimize(objective_multi, n_trials=50)
+
+    # Multi-objective study with constraints
+    def objective_constraints(trial: optuna.Trial) -> tuple[float, float]:
+        x = trial.suggest_float("x", -15, 30)
+        y = trial.suggest_float("y", -15, 30)
+        c0 = (x - 5) ** 2 + y**2 - 25
+        c1 = -((x - 8) ** 2) - (y + 3) ** 2 + 7.7
+        trial.set_user_attr("constraint", (c0, c1))
+        v0 = 4 * x**2 + 4 * y**2
+        v1 = (x - 5) ** 2 + (y - 5) ** 2
+        return v0, v1
+
+    def constraints(trial: optuna.Trial):
+        return trial.user_attrs["constraint"]
+
+    sampler = optuna.samplers.NSGAIISampler(constraints_func=constraints)
+    study = optuna.create_study(
+        study_name="multi-objective-constraints",
+        storage=storage,
+        sampler=sampler,
+        directions=["minimize", "minimize"],
+    )
+    print(f"Generating {study.study_name} for {type(storage).__name__}...")
+    study.optimize(objective_constraints, n_trials=32, timeout=600)
 
 
 if __name__ == "__main__":

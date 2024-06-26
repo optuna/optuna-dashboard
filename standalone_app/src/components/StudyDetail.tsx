@@ -33,7 +33,7 @@ export const StudyDetail: FC<{
   const idxNumber = parseInt(idx || "", 10)
 
   const { storage } = useContext(StorageContext)
-  const [study, setStudy] = useState<Study | null>(null)
+  const [study, setStudy] = useState<Optuna.Study | null>(null)
   useEffect(() => {
     const fetchStudy = async () => {
       if (storage === null) {
@@ -169,7 +169,7 @@ export const StudyDetail: FC<{
               }),
             }}
           >
-            {study?.study_name || "Not Found"}
+            {study?.name || "Not Found"}
           </Typography>
           <Card sx={{ margin: theme.spacing(2) }}>
             <CardContent>

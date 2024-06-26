@@ -1,6 +1,36 @@
 import * as Optuna from "@optuna/types"
 import { OptunaStorage } from "./storage"
 
+// TODO(porink0424): Refactor to common function with sqlite.ts (current workaround duplicates code due to missing file extensions in tsc build output).
+const isDistributionEqual = (
+  a: Optuna.Distribution,
+  b: Optuna.Distribution
+) => {
+  if (a.type !== b.type) {
+    return false
+  }
+
+  if (a.type === "IntDistribution" || a.type === "FloatDistribution") {
+    if (b.type !== "IntDistribution" && b.type !== "FloatDistribution") {
+      throw new Error("Invalid distribution type")
+    }
+    return (
+      a.low === b.low &&
+      a.high === b.high &&
+      a.step === b.step &&
+      a.log === b.log
+    )
+  }
+  if (a.type === "CategoricalDistribution") {
+    if (b.type !== "CategoricalDistribution") {
+      throw new Error("Invalid distribution type")
+    }
+    return JSON.stringify(a.choices) === JSON.stringify(b.choices)
+  }
+
+  throw new Error("Invalid distribution type")
+}
+
 // JournalStorage
 enum JournalOperation {
   CREATE_STUDY = 0,
@@ -27,6 +57,13 @@ interface JournalOpCreateStudy extends JournalOpBase {
 
 interface JournalOpDeleteStudy extends JournalOpBase {
   study_id: number
+}
+
+interface JournalOpSetStudySystemAttr extends JournalOpBase {
+  study_id: number
+  system_attr: {
+    "study:metric_names"?: string[]
+  }
 }
 
 interface JournalOpCreateTrial extends JournalOpBase {
@@ -71,6 +108,13 @@ interface JournalOpSetTrialUserAttr extends JournalOpBase {
   trial_id: number
   // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   user_attr: { [key: string]: any } // eslint-disable-line @typescript-eslint/no-explicit-any
+}
+
+interface JournalOpSetTrialSystemAttr extends JournalOpBase {
+  trial_id: number
+  system_attr: {
+    constraints?: number[]
+  }
 }
 
 const trialStateNumToTrialState = (state: number): Optuna.TrialState => {
@@ -123,22 +167,42 @@ class JournalStorage {
   public getStudies(): Optuna.Study[] {
     for (const study of this.studies) {
       const unionUserAttrs: Set<string> = new Set()
-      const unionSearchSpace: Set<string> = new Set()
-      let intersectionSearchSpace: string[] = []
+      const unionSearchSpace: Optuna.SearchSpaceItem[] = []
+      let intersectionSearchSpace: Optuna.SearchSpaceItem[] = []
 
       study.trials.forEach((trial, index) => {
         for (const userAttr of trial.user_attrs) {
           unionUserAttrs.add(userAttr.key)
         }
         for (const param of trial.params) {
-          unionSearchSpace.add(param.name)
+          if (
+            !unionSearchSpace.some(
+              (item) =>
+                item.name === param.name &&
+                isDistributionEqual(item.distribution, param.distribution)
+            )
+          ) {
+            unionSearchSpace.push({
+              name: param.name,
+              distribution: param.distribution,
+            })
+          }
         }
         if (index === 0) {
-          intersectionSearchSpace = Array.from(unionSearchSpace)
+          intersectionSearchSpace = [...unionSearchSpace]
         } else {
-          intersectionSearchSpace = intersectionSearchSpace.filter((name) => {
-            return trial.params.some((param) => param.name === name)
-          })
+          intersectionSearchSpace = intersectionSearchSpace.filter(
+            (searchSpaceItem) => {
+              return trial.params.some(
+                (param) =>
+                  param.name === searchSpaceItem.name &&
+                  isDistributionEqual(
+                    param.distribution,
+                    searchSpaceItem.distribution
+                  )
+              )
+            }
+          )
         }
       })
       study.union_user_attrs = Array.from(unionUserAttrs).map((key) => {
@@ -147,16 +211,8 @@ class JournalStorage {
           sortable: false,
         }
       })
-      study.union_search_space = Array.from(unionSearchSpace).map((name) => {
-        return {
-          name: name,
-        }
-      })
-      study.intersection_search_space = intersectionSearchSpace.map((name) => {
-        return {
-          name: name,
-        }
-      })
+      study.union_search_space = unionSearchSpace
+      study.intersection_search_space = intersectionSearchSpace
     }
 
     return this.studies
@@ -164,8 +220,8 @@ class JournalStorage {
 
   public applyCreateStudy(log: JournalOpCreateStudy): void {
     this.studies.push({
-      study_id: this.nextStudyId,
-      study_name: log.study_name,
+      id: this.nextStudyId,
+      name: log.study_name,
       directions: [log.directions[0] === 1 ? "minimize" : "maximize"],
       union_search_space: [],
       intersection_search_space: [],
@@ -176,13 +232,19 @@ class JournalStorage {
   }
 
   public applyDeleteStudy(log: JournalOpDeleteStudy): void {
-    this.studies = this.studies.filter((item) => item.study_id !== log.study_id)
+    this.studies = this.studies.filter((item) => item.id !== log.study_id)
+  }
+
+  public applyStudySystemAttr(log: JournalOpSetStudySystemAttr): void {
+    const thisStudy = this.studies.find((item) => item.id === log.study_id)
+    if (thisStudy === undefined) {
+      return
+    }
+    thisStudy.metric_names = log.system_attr["study:metric_names"]
   }
 
   public applyCreateTrial(log: JournalOpCreateTrial): void {
-    const thisStudy = this.studies.find(
-      (item) => item.study_id === log.study_id
-    )
+    const thisStudy = this.studies.find((item) => item.id === log.study_id)
     if (thisStudy === undefined) {
       return
     }
@@ -211,7 +273,7 @@ class JournalStorage {
             }
           })
 
-    const userAtter = log.user_attrs
+    const userAttrs = log.user_attrs
       ? Object.entries(log.user_attrs).map(([key, value]) => {
           return {
             key: key,
@@ -236,7 +298,8 @@ class JournalStorage {
       })(),
       params: params,
       intermediate_values: [],
-      user_attrs: userAtter,
+      user_attrs: userAttrs,
+      constraints: [],
       datetime_start: log.datetime_start
         ? new Date(log.datetime_start)
         : undefined,
@@ -256,7 +319,7 @@ class JournalStorage {
 
   private getStudyAndTrial(trial_id: number): [Optuna.Study?, Optuna.Trial?] {
     const study = this.studies.find(
-      (item) => item.study_id === this.trialIdToStudyId.get(trial_id)
+      (item) => item.id === this.trialIdToStudyId.get(trial_id)
     )
     if (study === undefined) {
       return [undefined, undefined]
@@ -328,6 +391,16 @@ class JournalStorage {
       }
     }
   }
+
+  public applySetTrialSystemAttr(log: JournalOpSetTrialSystemAttr) {
+    const [thisStudy, thisTrial] = this.getStudyAndTrial(log.trial_id)
+    if (thisStudy === undefined || thisTrial === undefined) {
+      return
+    }
+    if (log.system_attr.constraints) {
+      thisTrial.constraints = log.system_attr.constraints
+    }
+  }
 }
 
 const loadJournalStorage = (
@@ -395,7 +468,9 @@ const loadJournalStorage = (
         // Unsupported
         break
       case JournalOperation.SET_STUDY_SYSTEM_ATTR:
-        // Unsupported
+        journalStorage.applyStudySystemAttr(
+          parsedLog as JournalOpSetStudySystemAttr
+        )
         break
       case JournalOperation.CREATE_TRIAL:
         journalStorage.applyCreateTrial(parsedLog as JournalOpCreateTrial)
@@ -419,7 +494,9 @@ const loadJournalStorage = (
         )
         break
       case JournalOperation.SET_TRIAL_SYSTEM_ATTR:
-        // Unsupported
+        journalStorage.applySetTrialSystemAttr(
+          parsedLog as JournalOpSetTrialSystemAttr
+        )
         break
     }
   }

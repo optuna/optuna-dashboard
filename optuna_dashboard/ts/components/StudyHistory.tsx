@@ -21,13 +21,15 @@ import {
 import { artifactIsAvailable } from "../state"
 import { StudyArtifactCards } from "./Artifact/StudyArtifactCards"
 import { BestTrialsCard } from "./BestTrialsCard"
-import { DataGrid, DataGridColumn } from "./DataGrid"
+import { DataGrid } from "./DataGrid"
 import { GraphHistory } from "./GraphHistory"
 import { GraphHyperparameterImportance } from "./GraphHyperparameterImportances"
 import { GraphIntermediateValues } from "./GraphIntermediateValues"
 import { GraphParetoFront } from "./GraphParetoFront"
 import { GraphTimeline } from "./GraphTimeline"
 import { UserDefinedPlot } from "./UserDefinedPlot"
+
+import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
 
 export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   const theme = useTheme()
@@ -47,9 +49,19 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   }
 
   const userAttrs = studySummary?.user_attrs || studyDetail?.user_attrs || []
-  const userAttrColumns: DataGridColumn<Optuna.Attribute>[] = [
-    { field: "key", label: "Key", sortable: true },
-    { field: "value", label: "Value", sortable: true },
+  const columnHelper = createColumnHelper<Optuna.Attribute>()
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const columns: ColumnDef<Optuna.Attribute, any>[] = [
+    columnHelper.accessor("key", {
+      header: "Key",
+      enableSorting: true,
+      enableColumnFilter: false,
+    }),
+    columnHelper.accessor("value", {
+      header: "Value",
+      enableSorting: true,
+      enableColumnFilter: false,
+    }),
   ]
   const trials: Trial[] = studyDetail?.trials || []
   return (
@@ -153,14 +165,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
               >
                 Study User Attributes
               </Typography>
-              <DataGrid<Optuna.Attribute>
-                columns={userAttrColumns}
-                rows={userAttrs}
-                keyField={"key"}
-                dense={true}
-                initialRowsPerPage={5}
-                rowsPerPageOption={[5, 10, { label: "All", value: -1 }]}
-              />
+              <DataGrid data={userAttrs} columns={columns} />
             </CardContent>
           </Card>
         </Grid2>
