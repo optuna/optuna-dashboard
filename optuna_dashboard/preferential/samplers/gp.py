@@ -317,7 +317,7 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
 
         self._rng = np.random.RandomState(seed)
         self.independent_sampler = independent_sampler or optuna.samplers.RandomSampler(
-            seed=self._rng.randint(2**32, dtype=np.int64)
+            seed=self._rng.randint(2**32, dtype=np.int64)  # type: ignore
         )
 
         self._search_space = optuna.search_space.IntersectionSearchSpace()
