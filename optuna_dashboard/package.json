@@ -1,14 +1,16 @@
 {
-  "name": "optuna-dashboard",
+  "name": "@optuna/optuna-dashboard",
   "private": true,
   "version": "0.0.1",
   "description": "Dashboard for Optuna",
-  "main": "index.js",
+  "main": "pkg/pkg_index.js",
+  "types": "types/pkg_index.d.ts",
   "scripts": {
     "watch": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack --watch",
     "build": "webpack",
     "build:dev": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack",
     "build:prd": "NODE_ENV=production webpack",
+    "build:pkg": "tsc -d --project tsconfig.pkg.json",
     "type-check": "tsc --noEmit"
   },
   "author": "Masashi Shibata",
