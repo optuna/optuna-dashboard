@@ -1,24 +1,31 @@
-{ 
+{
   "compilerOptions": {
     "isolatedModules": true,
     "skipLibCheck": true,
-    "strictNullChecks": true,
-    "moduleResolution": "Node",
+    "baseUrl": ".",
+    "moduleResolution": "node",
     "noImplicitThis": true,
     "alwaysStrict": true,
-    "noImplicitAny": true,
-    "lib": ["ES2020", "DOM", "DOM.Iterable"],
-    "module": "ESNext",
-    "esModuleInterop": true,
     "rootDir": "./ts",
     "outDir": "./pkg",
+    "paths": {
+      "plotly.js-dist-min": ["node_modules/@types/plotly.js"]
+    },
+    "lib": ["dom", "esnext"],
+    "module": "esnext",
+    "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "target": "ES2020",
+    "target": "es6",
+    "jsx": "react",
     "sourceMap": true,
+    "strict": true,
     "declaration": true,
     "declarationDir": "./types",
-    "strict": true,
-    "jsx": "react-jsx"
   },
-  "include": ["ts/components/App.tsx"],
+  "files": [
+    "./ts/pkg_index.tsx",
+  ],
+  "include": [
+    "./ts/types/**/*",
+  ],
 }
