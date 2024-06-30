@@ -1,10 +1,10 @@
 import ClearIcon from "@mui/icons-material/Clear"
 import { Box, Modal, useTheme } from "@mui/material"
 import IconButton from "@mui/material/IconButton"
+import { DataGrid } from "@optuna/react"
 import { useSnackbar } from "notistack"
 import Papa from "papaparse"
 import React, { useState, useEffect, ReactNode } from "react"
-import { DataGrid } from "../DataGrid"
 
 import { Artifact } from "ts/types/optuna"
 

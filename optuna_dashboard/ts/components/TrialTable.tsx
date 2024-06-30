@@ -3,9 +3,10 @@ import LinkIcon from "@mui/icons-material/Link"
 import { Button, IconButton, useTheme } from "@mui/material"
 import React, { FC } from "react"
 
+import { DataGrid } from "@optuna/react"
+
 import { Link } from "react-router-dom"
 import { StudyDetail, Trial } from "ts/types/optuna"
-import { DataGrid } from "./DataGrid"
 
 import {
   ColumnDef,
