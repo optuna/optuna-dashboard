@@ -38,7 +38,7 @@ export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
         const loadedData = await loadData(props)
         setData(loadedData)
       } catch (error: unknown) {
-        enqueueSnackbar("Failed to load the file. " + error, {
+        enqueueSnackbar(`Failed to load the file. ${error}`, {
           variant: "error",
         })
       }
@@ -47,7 +47,13 @@ export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
   }, [props])
 
   const columns = React.useMemo(() => {
-    const keys = data.length > 0 ? Object.keys(data[0]) : []
+    const unionSet: Set<string> = new Set()
+    data.forEach((d) => {
+      Object.keys(d).forEach((key) => {
+        unionSet.add(key)
+      })
+    })
+    const keys = Array.from(unionSet)
     return keys.map((key) => ({
       header: key,
       accessorFn: (info: Data) =>
