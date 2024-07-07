@@ -1,15 +1,19 @@
-import CheckBoxIcon from "@mui/icons-material/CheckBox"
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
-import FilterListIcon from "@mui/icons-material/FilterList"
-import FirstPageIcon from "@mui/icons-material/FirstPage"
-import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft"
-import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight"
-import LastPageIcon from "@mui/icons-material/LastPage"
+import {
+  CheckBox as CheckBoxIcon,
+  CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
+  FilterList as FilterListIcon,
+  FirstPage as FirstPageIcon,
+  KeyboardArrowLeft,
+  KeyboardArrowRight,
+  LastPage as LastPageIcon,
+} from "@mui/icons-material"
 import {
   Box,
   IconButton,
+  ListItem as ListItemIcon,
   Menu,
   MenuItem,
+  Paper,
   Table,
   TableBody,
   TableCell,
@@ -21,8 +25,6 @@ import {
   TextField,
   useTheme,
 } from "@mui/material"
-import ListItemIcon from "@mui/material/ListItemIcon"
-import Paper from "@mui/material/Paper"
 import { TablePaginationActionsProps } from "@mui/material/TablePagination/TablePaginationActions"
 import { styled } from "@mui/system"
 import React from "react"
