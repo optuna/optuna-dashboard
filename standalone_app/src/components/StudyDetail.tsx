@@ -180,9 +180,7 @@ export const StudyDetail: FC<{
             <Grid2 xs={6}>
               <Card sx={{ margin: theme.spacing(2) }}>
                 <CardContent>
-                  {!!study && (
-                    <PlotImportance study={study} importance={importance} />
-                  )}
+                  <PlotImportance study={study} importance={importance} />
                 </CardContent>
               </Card>
             </Grid2>
