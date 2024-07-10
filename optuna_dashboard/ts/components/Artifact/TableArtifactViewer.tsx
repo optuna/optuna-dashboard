@@ -8,8 +8,12 @@ import React, { useState, useEffect, ReactNode } from "react"
 
 import { Artifact } from "ts/types/optuna"
 
+import axios from "axios"
+
 export const isTableArtifact = (artifact: Artifact): boolean => {
-  return artifact.filename.endsWith(".csv")
+  return (
+    artifact.filename.endsWith(".csv") || artifact.filename.endsWith(".jsonl")
+  )
 }
 
 interface TableArtifactViewerProps {
@@ -18,7 +22,8 @@ interface TableArtifactViewerProps {
 }
 
 type Data = {
-  [key: string]: string | number
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: any
 }
 
 export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
@@ -30,10 +35,10 @@ export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
   useEffect(() => {
     const handleFileChange = async () => {
       try {
-        const loadedData = await loadCSV(props)
+        const loadedData = await loadData(props)
         setData(loadedData)
       } catch (error: unknown) {
-        enqueueSnackbar("Failed to load the csv file.", {
+        enqueueSnackbar(`Failed to load the file. ${error}`, {
           variant: "error",
         })
       }
@@ -42,10 +47,17 @@ export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
   }, [props])
 
   const columns = React.useMemo(() => {
-    const keys = data[0] ? Object.keys(data[0]) : []
+    const unionSet: Set<string> = new Set()
+    data.forEach((d) => {
+      Object.keys(d).forEach((key) => {
+        unionSet.add(key)
+      })
+    })
+    const keys = Array.from(unionSet)
     return keys.map((key) => ({
       header: key,
-      accessorKey: key,
+      accessorFn: (info: Data) =>
+        typeof info[key] === "object" ? JSON.stringify(info[key]) : info[key],
       enableSorting: true,
       enableColumnFilter: false,
     }))
@@ -115,6 +127,16 @@ export const useTableArtifactModal = (): [
   return [openModal, renderDeleteStudyDialog]
 }
 
+const loadData = (props: TableArtifactViewerProps): Promise<Data[]> => {
+  if (props.filetype === "csv") {
+    return loadCSV(props)
+  } else if (props.filetype === "jsonl") {
+    return loadJsonl(props)
+  } else {
+    return Promise.reject(new Error("Unsupported file type"))
+  }
+}
+
 const loadCSV = (props: TableArtifactViewerProps): Promise<Data[]> => {
   return new Promise((resolve, reject) => {
     Papa.parse(props.src, {
@@ -124,8 +146,25 @@ const loadCSV = (props: TableArtifactViewerProps): Promise<Data[]> => {
         resolve(results?.data)
       },
       error: () => {
-        reject(new Error("csv parse err"))
+        reject(new Error("CSV parse error"))
       },
     })
   })
+}
+
+const loadJsonl = async (props: TableArtifactViewerProps): Promise<Data[]> => {
+  const response = await axios.get(props.src, { responseType: "text" })
+  const data = response.data
+  try {
+    const jsons = data
+      .split("\n")
+      .filter((line: string) => line.trim().length > 0)
+      .map((line: string) => {
+        return JSON.parse(line)
+      })
+      .filter(Boolean) as Data[]
+    return jsons
+  } catch (error) {
+    throw new Error("JSONL parse error")
+  }
 }
