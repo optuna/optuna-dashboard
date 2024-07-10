@@ -5,7 +5,6 @@ build-backend = "hatchling.build"
 [project]
 name = "jupyterlab-optuna"
 readme = "README.md"
-license = { file = "LICENSE" }
 requires-python = ">=3.8"
 classifiers = [
     "Framework :: Jupyter",
