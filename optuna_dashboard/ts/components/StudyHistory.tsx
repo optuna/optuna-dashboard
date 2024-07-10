@@ -145,7 +145,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
               </Card>
             </Grid>
           ))}
-        <Grid item container xs={6} spacing={2}>
+        <Grid item xs={6}>
           <BestTrialsCard studyDetail={studyDetail} />
         </Grid>
         <Grid item xs={6}>
@@ -172,7 +172,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
         {studyDetail !== null &&
         studyDetail.directions.length === 1 &&
         studyDetail.has_intermediate_values ? (
-          <Grid xs={6}>
+          <Grid item xs={6}>
             <GraphIntermediateValues
               trials={trials}
               includePruned={includePruned}
@@ -183,7 +183,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
       </Grid>
 
       {artifactEnabled && studyDetail !== null && (
-        <Grid container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
+        <Grid container spacing={2} sx={{ padding: theme.spacing(2) }}>
           <Grid item xs={6}>
             <Card>
               <CardContent
