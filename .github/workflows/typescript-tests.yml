@@ -9,7 +9,14 @@ on:
       - '**.tsx'
       - 'optuna_dashboard/package.json'
       - 'optuna_dashboard/package-lock.json'
+      - 'vscode/package.json'
+      - 'vscode/package-lock.json'
+      - 'tslib/react/package.json'
+      - 'tslib/react/package-lock.json'
+      - 'tslib/storage/package.json'
+      - 'tslib/storage/package-lock.json'
       - 'optuna_dashboard/tsconfig.json'
+      - 'optuna_dashboard/tsconfig.pkg.json'
       - 'optuna_dashboard/webpack.config.js'
 jobs:
   lint:
@@ -111,6 +118,11 @@ jobs:
           npm install
           npm run build:dev
           npm run build:prd
+
+      - name: Build optuna_dashboard package (for Jupyter Lab extension)
+        working-directory: optuna_dashboard
+        run: |
+          npm run build:pkg
 
   test-tslib:
     name: Run tests
