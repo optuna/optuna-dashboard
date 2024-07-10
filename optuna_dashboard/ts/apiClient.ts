@@ -21,7 +21,7 @@ export type APIMeta = {
   plotlypy_is_available: boolean
 }
 
-interface TrialResponse {
+export interface TrialResponse {
   trial_id: number
   study_id: number
   number: number
@@ -41,7 +41,7 @@ interface TrialResponse {
   constraints: number[]
 }
 
-interface PreferenceHistoryResponse {
+export interface PreferenceHistoryResponse {
   history: {
     id: string
     candidates: number[]
@@ -103,7 +103,7 @@ export type RenameStudyResponse = {
   study_name: string
   directions: Optuna.StudyDirection[]
   user_attrs: Optuna.Attribute[]
-  is_prefential: boolean
+  is_prefential: boolean // TODO: Fix typo
   datetime_start?: string
 }
 
