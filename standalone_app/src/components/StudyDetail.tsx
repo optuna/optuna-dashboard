@@ -12,7 +12,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import Grid2 from "@mui/material/Unstable_Grid2"
+import Grid from "@mui/material/Grid"
 import {
   PlotHistory,
   PlotImportance,
@@ -176,8 +176,8 @@ export const StudyDetail: FC<{
               <PlotHistory study={study} />
             </CardContent>
           </Card>
-          <Grid2 container spacing={0}>
-            <Grid2 xs={6}>
+          <Grid container spacing={0}>
+            <Grid item xs={6}>
               <Card sx={{ margin: theme.spacing(2) }}>
                 <CardContent>
                   {!!study && (
@@ -185,8 +185,8 @@ export const StudyDetail: FC<{
                   )}
                 </CardContent>
               </Card>
-            </Grid2>
-            <Grid2 xs={6}>
+            </Grid>
+            <Grid item xs={6}>
               <Card sx={{ margin: theme.spacing(2) }}>
                 <CardContent>
                   {!!study && (
@@ -198,8 +198,8 @@ export const StudyDetail: FC<{
                   )}
                 </CardContent>
               </Card>
-            </Grid2>
-          </Grid2>
+            </Grid>
+          </Grid>
           <Card sx={{ margin: theme.spacing(2) }}>
             <CardContent>
               {!!study && <TrialTable study={study} initialRowsPerPage={10} />}

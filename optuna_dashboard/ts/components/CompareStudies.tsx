@@ -13,12 +13,12 @@ import {
 import Chip from "@mui/material/Chip"
 import Divider from "@mui/material/Divider"
 import FormControlLabel from "@mui/material/FormControlLabel"
+import Grid from "@mui/material/Grid"
 import List from "@mui/material/List"
 import ListItem from "@mui/material/ListItem"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
-import Grid2 from "@mui/material/Unstable_Grid2"
 import * as Optuna from "@optuna/types"
 import { useSnackbar } from "notistack"
 import React, { FC, useEffect, useMemo, useState } from "react"
@@ -336,21 +336,21 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
           </CardContent>
         </Card>
       ) : null}
-      <Grid2 container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
+      <Grid container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
         {showStudyDetails !== null &&
         showStudyDetails.length > 0 &&
         showStudyDetails.every((s) => s)
           ? showStudyDetails[0].directions.map((d, i) => (
-              <Grid2 xs={6} key={i}>
+              <Grid item xs={6} key={i}>
                 <Card>
                   <CardContent>
                     <GraphEdf studies={showStudyDetails} objectiveId={i} />
                   </CardContent>
                 </Card>
-              </Grid2>
+              </Grid>
             ))
           : null}
-      </Grid2>
+      </Grid>
     </Box>
   )
 }

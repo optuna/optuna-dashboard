@@ -1,14 +1,16 @@
 {
-  "name": "optuna-dashboard",
+  "name": "@optuna/optuna-dashboard",
   "private": true,
   "version": "0.0.1",
   "description": "Dashboard for Optuna",
-  "main": "index.js",
+  "main": "pkg/pkg_index.js",
+  "types": "types/pkg_index.d.ts",
   "scripts": {
     "watch": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack --watch",
     "build": "webpack",
     "build:dev": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack",
     "build:prd": "NODE_ENV=production webpack",
+    "build:pkg": "tsc -d --project tsconfig.pkg.json",
     "type-check": "tsc --noEmit"
   },
   "author": "Masashi Shibata",
@@ -24,7 +26,7 @@
     "@react-three/drei": "^9.96.4",
     "@react-three/fiber": "^8.15.15",
     "@tanstack/react-query": "^5.18.1",
-    "@tanstack/react-table": "^8.16.0",
+    "@tanstack/react-table": "file:../tslib/react/node_modules/@tanstack/react-table",
     "@tanstack/react-virtual": "^3.1.2",
     "@types/papaparse": "^5.3.14",
     "@types/three": "^0.160.0",
