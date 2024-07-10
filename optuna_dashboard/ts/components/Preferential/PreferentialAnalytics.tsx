@@ -7,11 +7,11 @@ import {
   useTheme,
 } from "@mui/material"
 import Grid from "@mui/material/Grid"
+import { DataGrid } from "@optuna/react"
 import * as Optuna from "@optuna/types"
 import React, { FC } from "react"
 import { useStudyDetailValue, useStudySummaryValue } from "../../state"
 import { BestTrialsCard } from "../BestTrialsCard"
-import { DataGrid } from "../DataGrid"
 import { Contour } from "../GraphContour"
 
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
