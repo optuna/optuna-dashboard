@@ -8,7 +8,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import Grid2 from "@mui/material/Unstable_Grid2"
+import Grid from "@mui/material/Grid"
 import React, { FC, useEffect, useMemo } from "react"
 import { Link, useParams } from "react-router-dom"
 import { useRecoilValue } from "recoil"
@@ -146,19 +146,19 @@ export const StudyDetail: FC<{
         >
           Empirical Distribution of the Objective Value
         </Typography>
-        <Grid2 container spacing={2} sx={{ padding: theme.spacing(2) }}>
+        <Grid container spacing={2} sx={{ padding: theme.spacing(2) }}>
           {studyDetail !== null
             ? studyDetail.directions.map((d, i) => (
-                <Grid2 xs={6} key={i}>
+                <Grid item xs={6} key={i}>
                   <Card>
                     <CardContent>
                       <GraphEdf studies={[studyDetail]} objectiveId={i} />
                     </CardContent>
                   </Card>
-                </Grid2>
+                </Grid>
               ))
             : null}
-        </Grid2>
+        </Grid>
       </Box>
     )
   } else if (page === "trialList") {
