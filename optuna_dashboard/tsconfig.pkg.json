@@ -1,24 +1,8 @@
 {
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "isolatedModules": true,
-    "skipLibCheck": true,
-    "baseUrl": ".",
-    "moduleResolution": "node",
-    "noImplicitThis": true,
-    "alwaysStrict": true,
     "rootDir": "./ts",
     "outDir": "./pkg",
-    "paths": {
-      "plotly.js-dist-min": ["node_modules/@types/plotly.js"]
-    },
-    "lib": ["dom", "esnext"],
-    "module": "esnext",
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "target": "es6",
-    "jsx": "react",
-    "sourceMap": true,
-    "strict": true,
     "declaration": true,
     "declarationDir": "./types",
   },
