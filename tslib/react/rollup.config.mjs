@@ -13,7 +13,5 @@ export default {
     ...Object.keys(packageJson.dependencies || {}),
     "react/jsx-runtime",
   ],
-  plugins: [
-    typescript(),
-  ],
+  plugins: [typescript()],
 }
