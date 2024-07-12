@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "description": "Dashboard for Optuna",
   "main": "pkg/pkg_index.js",
-  "types": "types/pkg_index.d.ts",
+  "types": "pkg/pkg_index.d.ts",
   "scripts": {
     "watch": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack --watch",
     "build": "webpack",

@@ -16,7 +16,7 @@ import React, {
   useEffect,
   useState
 } from 'react';
-import { App } from './App';
+import { App } from '@optuna/optuna-dashboard';
 import { DebouncedInputTextField } from './Debounce';
 import { requestAPI } from '../handler';
 
