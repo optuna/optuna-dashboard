@@ -67,6 +67,7 @@ export const PreferentialAnalytics: FC<{ studyId: number }> = ({ studyId }) => {
               >
                 Study User Attributes
               </Typography>
+              {/* @ts-ignore */}
               <DataGrid data={userAttrs} columns={columns} />
             </CardContent>
           </Card>

@@ -143,6 +143,7 @@ export const TrialTable: FC<{
 
   return (
     <>
+      {/* @ts-ignore */}
       <DataGrid data={trials} columns={columns} />
       <Button
         variant="outlined"
