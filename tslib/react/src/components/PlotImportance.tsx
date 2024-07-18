@@ -59,6 +59,10 @@ const plotParamImportancesBeta = (
     bargroupgap: 0.1,
     uirevision: "true",
     template: mode === "dark" ? plotlyDarkTemplate : {},
+    legend: {
+      x: 1.0,
+      y: 0.95,
+    },
   }
 
   if (document.getElementById(plotDomId) === null) {
