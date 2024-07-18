@@ -93,4 +93,5 @@ export type SearchSpaceItem = {
 export type ParamImportance = {
   name: string
   importance: number
+  distribution: Distribution
 }
