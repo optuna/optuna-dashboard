@@ -3,12 +3,12 @@ import {
   Card,
   CardContent,
   FormControl,
+  FormControlLabel,
+  Grid,
   Switch,
   Typography,
   useTheme,
 } from "@mui/material"
-import FormControlLabel from "@mui/material/FormControlLabel"
-import Grid from "@mui/material/Grid"
 import { DataGrid } from "@optuna/react"
 import * as Optuna from "@optuna/types"
 import React, { FC, useState } from "react"
@@ -165,6 +165,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
               >
                 Study User Attributes
               </Typography>
+              {/* @ts-ignore */}
               <DataGrid data={userAttrs} columns={columns} />
             </CardContent>
           </Card>

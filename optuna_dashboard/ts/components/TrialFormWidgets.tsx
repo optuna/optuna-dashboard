@@ -296,7 +296,7 @@ export const useSliderWidget = (
       </FormLabel>
       <Box component="div" sx={{ padding: theme.spacing(0, 2) }}>
         <Slider
-          onChange={(e) => {
+          onChange={(e: Event) => {
             // @ts-ignore
             setValue(e.target.value as number)
           }}

@@ -1,7 +1,9 @@
-import DeleteIcon from "@mui/icons-material/Delete"
-import DownloadIcon from "@mui/icons-material/Download"
-import FullscreenIcon from "@mui/icons-material/Fullscreen"
-import UploadFileIcon from "@mui/icons-material/UploadFile"
+import {
+  Delete as DeleteIcon,
+  Download as DownloadIcon,
+  Fullscreen as FullscreenIcon,
+  UploadFile as UploadFileIcon,
+} from "@mui/icons-material"
 import {
   Box,
   Card,

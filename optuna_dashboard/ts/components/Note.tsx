@@ -1,10 +1,12 @@
-import CloseIcon from "@mui/icons-material/Close"
-import EditIcon from "@mui/icons-material/Edit"
-import HtmlIcon from "@mui/icons-material/Html"
-import ModeEditIcon from "@mui/icons-material/ModeEdit"
-import SaveIcon from "@mui/icons-material/Save"
-import UploadFileIcon from "@mui/icons-material/UploadFile"
-import LoadingButton from "@mui/lab/LoadingButton"
+import {
+  Close as CloseIcon,
+  Edit as EditIcon,
+  Html as HtmlIcon,
+  ModeEdit as ModeEditIcon,
+  Save as SaveIcon,
+  UploadFile as UploadFileIcon,
+} from "@mui/icons-material"
+import { LoadingButton } from "@mui/lab"
 import {
   Box,
   Button,

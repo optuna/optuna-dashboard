@@ -1,6 +1,5 @@
-import ClearIcon from "@mui/icons-material/Clear"
-import { Box, Modal, useTheme } from "@mui/material"
-import IconButton from "@mui/material/IconButton"
+import { Clear as ClearIcon } from "@mui/icons-material"
+import { Box, IconButton, Modal, useTheme } from "@mui/material"
 import { DataGrid } from "@optuna/react"
 import { useSnackbar } from "notistack"
 import Papa from "papaparse"

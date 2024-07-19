@@ -1,14 +1,16 @@
-import ChevronRightIcon from "@mui/icons-material/ChevronRight"
-import HomeIcon from "@mui/icons-material/Home"
+import {
+  ChevronRight as ChevronRightIcon,
+  Home as HomeIcon,
+} from "@mui/icons-material"
 import {
   Box,
   Card,
   CardContent,
+  Grid,
   IconButton,
   Typography,
   useTheme,
 } from "@mui/material"
-import Grid from "@mui/material/Grid"
 import React, { FC, useEffect, useMemo } from "react"
 import { Link, useParams } from "react-router-dom"
 import { useRecoilValue } from "recoil"

@@ -1,4 +1,4 @@
-import ClearIcon from "@mui/icons-material/Clear"
+import { Clear as ClearIcon } from "@mui/icons-material"
 import {
   Box,
   IconButton,

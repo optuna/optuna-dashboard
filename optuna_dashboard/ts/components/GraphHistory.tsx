@@ -203,7 +203,7 @@ export const GraphHistory: FC<{
             min={1}
             max={10}
             step={1}
-            onChange={(e) => {
+            onChange={(e: Event) => {
               // @ts-ignore
               setMarkerSize(e.target.value as number)
             }}
