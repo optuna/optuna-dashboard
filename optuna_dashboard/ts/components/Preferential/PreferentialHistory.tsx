@@ -1,17 +1,19 @@
-import ClearIcon from "@mui/icons-material/Clear"
-import DeleteIcon from "@mui/icons-material/Delete"
-import OpenInFullIcon from "@mui/icons-material/OpenInFull"
-import RestoreFromTrashIcon from "@mui/icons-material/RestoreFromTrash"
+import {
+  Clear as ClearIcon,
+  Delete as DeleteIcon,
+  OpenInFull as OpenInFullIcon,
+  RestoreFromTrash as RestoreFromTrashIcon,
+} from "@mui/icons-material"
 import {
   Box,
   Card,
   CardActions,
   CardContent,
+  IconButton,
+  Modal,
   Typography,
   useTheme,
 } from "@mui/material"
-import IconButton from "@mui/material/IconButton"
-import Modal from "@mui/material/Modal"
 import { red } from "@mui/material/colors"
 import React, { FC, useState } from "react"
 

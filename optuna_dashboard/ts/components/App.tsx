@@ -5,8 +5,7 @@ import {
   createTheme,
   useMediaQuery,
 } from "@mui/material"
-import blue from "@mui/material/colors/blue"
-import pink from "@mui/material/colors/pink"
+import { blue, pink } from "@mui/material/colors"
 import { SnackbarProvider } from "notistack"
 import React, { FC, useMemo, useState, useEffect } from "react"
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom"

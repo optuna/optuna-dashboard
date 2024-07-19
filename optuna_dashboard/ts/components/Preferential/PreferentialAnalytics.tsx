@@ -2,11 +2,11 @@ import {
   Box,
   Card,
   CardContent,
+  Grid,
   Paper,
   Typography,
   useTheme,
 } from "@mui/material"
-import Grid from "@mui/material/Grid"
 import { DataGrid } from "@optuna/react"
 import * as Optuna from "@optuna/types"
 import React, { FC } from "react"

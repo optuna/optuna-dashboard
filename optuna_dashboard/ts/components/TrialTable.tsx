@@ -1,5 +1,4 @@
-import DownloadIcon from "@mui/icons-material/Download"
-import LinkIcon from "@mui/icons-material/Link"
+import { Download as DownloadIcon, Link as LinkIcon } from "@mui/icons-material"
 import { Button, IconButton, useTheme } from "@mui/material"
 import React, { FC } from "react"
 

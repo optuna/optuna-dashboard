@@ -1,9 +1,11 @@
-import ClearIcon from "@mui/icons-material/Clear"
-import FullscreenIcon from "@mui/icons-material/Fullscreen"
-import OpenInFullIcon from "@mui/icons-material/OpenInFull"
-import ReplayIcon from "@mui/icons-material/Replay"
-import SettingsIcon from "@mui/icons-material/Settings"
-import UndoIcon from "@mui/icons-material/Undo"
+import {
+  Clear as ClearIcon,
+  Fullscreen as FullscreenIcon,
+  OpenInFull as OpenInFullIcon,
+  Replay as ReplayIcon,
+  Settings as SettingsIcon,
+  Undo as UndoIcon,
+} from "@mui/icons-material"
 import {
   Box,
   Button,
@@ -17,13 +19,13 @@ import {
   DialogTitle,
   FormControl,
   FormLabel,
+  IconButton,
   MenuItem,
   Modal,
   Select,
   Typography,
   useTheme,
 } from "@mui/material"
-import IconButton from "@mui/material/IconButton"
 import { red } from "@mui/material/colors"
 import React, { FC, useEffect, useState } from "react"
 
@@ -313,7 +315,7 @@ const PreferentialTrial: FC<{
       </CardActions>
       <CardContent
         aria-label="trial-button"
-        onClick={(e) => {
+        onClick={(e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
           if (e.shiftKey) onFeedback()
         }}
         sx={{

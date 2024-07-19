@@ -1,4 +1,4 @@
-import LinkIcon from "@mui/icons-material/Link"
+import { Link as LinkIcon } from "@mui/icons-material"
 import {
   Box,
   Button,

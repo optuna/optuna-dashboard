@@ -1,26 +1,32 @@
-import AutoGraphIcon from "@mui/icons-material/AutoGraph"
-import Brightness4Icon from "@mui/icons-material/Brightness4"
-import Brightness7Icon from "@mui/icons-material/Brightness7"
-import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
-import ChevronRightIcon from "@mui/icons-material/ChevronRight"
-import RateReviewIcon from "@mui/icons-material/RateReview"
-import SettingsIcon from "@mui/icons-material/Settings"
-import SyncIcon from "@mui/icons-material/Sync"
-import SyncDisabledIcon from "@mui/icons-material/SyncDisabled"
-import TableViewIcon from "@mui/icons-material/TableView"
-import ViewListIcon from "@mui/icons-material/ViewList"
-import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar"
-import Box from "@mui/material/Box"
-import Divider from "@mui/material/Divider"
-import MuiDrawer from "@mui/material/Drawer"
-import IconButton from "@mui/material/IconButton"
-import List from "@mui/material/List"
-import ListItem from "@mui/material/ListItem"
-import ListItemButton from "@mui/material/ListItemButton"
-import ListItemIcon from "@mui/material/ListItemIcon"
-import ListItemText from "@mui/material/ListItemText"
-import Modal from "@mui/material/Modal"
-import Toolbar from "@mui/material/Toolbar"
+import {
+  AutoGraph as AutoGraphIcon,
+  Brightness4 as Brightness4Icon,
+  Brightness7 as Brightness7Icon,
+  ChevronLeft as ChevronLeftIcon,
+  ChevronRight as ChevronRightIcon,
+  RateReview as RateReviewIcon,
+  Settings as SettingsIcon,
+  Sync as SyncIcon,
+  SyncDisabled as SyncDisabledIcon,
+  TableView as TableViewIcon,
+  ViewList as ViewListIcon,
+} from "@mui/icons-material"
+import {
+  AppBarProps as MuiAppBarProps,
+  Box,
+  Divider,
+  Drawer as MuiDrawer,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Modal,
+  Switch,
+  Toolbar,
+} from "@mui/material"
+import MuiAppBar from "@mui/material/AppBar"
 import { CSSObject, Theme, styled, useTheme } from "@mui/material/styles"
 import React, { FC } from "react"
 import { Link } from "react-router-dom"
@@ -32,14 +38,15 @@ import {
 } from "../state"
 import { Settings } from "./Settings"
 
-import GitHubIcon from "@mui/icons-material/GitHub"
-import HistoryIcon from "@mui/icons-material/History"
-import LanIcon from "@mui/icons-material/Lan"
-import MenuIcon from "@mui/icons-material/Menu"
-import OpenInNewIcon from "@mui/icons-material/OpenInNew"
-import QueryStatsIcon from "@mui/icons-material/QueryStats"
-import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt"
-import { Switch } from "@mui/material"
+import {
+  GitHub as GitHubIcon,
+  History as HistoryIcon,
+  Lan as LanIcon,
+  Menu as MenuIcon,
+  OpenInNew as OpenInNewIcon,
+  QueryStats as QueryStatsIcon,
+  ThumbUpAlt as ThumbUpAltIcon,
+} from "@mui/icons-material"
 import { actionCreator } from "../action"
 
 const drawerWidth = 240

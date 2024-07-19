@@ -1,27 +1,29 @@
-import CheckBoxIcon from "@mui/icons-material/CheckBox"
-import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
-import FilterListIcon from "@mui/icons-material/FilterList"
-import StopCircleIcon from "@mui/icons-material/StopCircle"
+import {
+  CheckBox as CheckBoxIcon,
+  CheckBoxOutlineBlank as CheckBoxOutlineBlankIcon,
+  FilterList as FilterListIcon,
+  StopCircle as StopCircleIcon,
+} from "@mui/icons-material"
 import {
   Box,
   Button,
+  Chip,
+  Divider,
   IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  ListSubheader,
   Menu,
   MenuItem,
   Typography,
   useTheme,
 } from "@mui/material"
-import Chip from "@mui/material/Chip"
-import Divider from "@mui/material/Divider"
-import List from "@mui/material/List"
-import ListItem from "@mui/material/ListItem"
-import ListItemButton from "@mui/material/ListItemButton"
-import ListItemText from "@mui/material/ListItemText"
-import ListSubheader from "@mui/material/ListSubheader"
 import * as Optuna from "@optuna/types"
 import React, { FC, ReactNode, useMemo } from "react"
 
-import ListItemIcon from "@mui/material/ListItemIcon"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { useNavigate } from "react-router-dom"
 import { useRecoilValue } from "recoil"
@@ -388,7 +390,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
               aria-controls={openFilterMenu ? "filter-trials" : undefined}
               aria-haspopup="true"
               aria-expanded={openFilterMenu ? "true" : undefined}
-              onClick={(e) => {
+              onClick={(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                 setFilterMenuAnchorEl(e.currentTarget)
               }}
             >
@@ -460,7 +462,9 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                   disablePadding
                 >
                   <ListItemButton
-                    onClick={(e) => {
+                    onClick={(
+                      e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                    ) => {
                       if (e.shiftKey) {
                         let next: number[]
                         const selectedNumbers = selected.map((t) => t.number)

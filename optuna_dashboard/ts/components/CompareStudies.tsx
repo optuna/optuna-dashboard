@@ -1,24 +1,26 @@
-import ChevronRightIcon from "@mui/icons-material/ChevronRight"
-import HomeIcon from "@mui/icons-material/Home"
+import {
+  ChevronRight as ChevronRightIcon,
+  Home as HomeIcon,
+} from "@mui/icons-material"
 import {
   Box,
   Card,
   CardContent,
+  Chip,
+  Divider,
   FormControl,
+  FormControlLabel,
+  Grid,
   IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemText,
+  ListSubheader,
   Switch,
   Typography,
   useTheme,
 } from "@mui/material"
-import Chip from "@mui/material/Chip"
-import Divider from "@mui/material/Divider"
-import FormControlLabel from "@mui/material/FormControlLabel"
-import Grid from "@mui/material/Grid"
-import List from "@mui/material/List"
-import ListItem from "@mui/material/ListItem"
-import ListItemButton from "@mui/material/ListItemButton"
-import ListItemText from "@mui/material/ListItemText"
-import ListSubheader from "@mui/material/ListSubheader"
 import * as Optuna from "@optuna/types"
 import { useSnackbar } from "notistack"
 import React, { FC, useEffect, useMemo, useState } from "react"
@@ -143,7 +145,9 @@ export const CompareStudies: FC<{
                 return (
                   <ListItem key={study.study_id} disablePadding>
                     <ListItemButton
-                      onClick={(e) => {
+                      onClick={(
+                        e: React.MouseEvent<HTMLDivElement, MouseEvent>
+                      ) => {
                         if (e.shiftKey) {
                           let next: number[]
                           const selectedIds = selected.map((s) => s.study_id)

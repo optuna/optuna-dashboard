@@ -1,9 +1,14 @@
-import { Delete, HourglassTop, Refresh, Search } from "@mui/icons-material"
-import AddBoxIcon from "@mui/icons-material/AddBox"
-import CompareIcon from "@mui/icons-material/Compare"
-import DriveFileRenameOutlineIcon from "@mui/icons-material/DriveFileRenameOutline"
-import HomeIcon from "@mui/icons-material/Home"
-import SortIcon from "@mui/icons-material/Sort"
+import {
+  AddBox as AddBoxIcon,
+  Compare as CompareIcon,
+  Delete,
+  DriveFileRenameOutline as DriveFileRenameOutlineIcon,
+  Home as HomeIcon,
+  HourglassTop,
+  Refresh,
+  Search,
+  Sort as SortIcon,
+} from "@mui/icons-material"
 import {
   Box,
   Button,
