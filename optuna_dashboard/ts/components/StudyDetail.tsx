@@ -13,6 +13,7 @@ import React, { FC, useEffect, useMemo } from "react"
 import { Link, useParams } from "react-router-dom"
 import { useRecoilValue } from "recoil"
 
+import { TrialTable } from "@optuna/react"
 import { actionCreator } from "../action"
 import { useConstants } from "../constantsProvider"
 import {
@@ -34,7 +35,6 @@ import { PreferentialHistory } from "./Preferential/PreferentialHistory"
 import { PreferentialTrials } from "./Preferential/PreferentialTrials"
 import { StudyHistory } from "./StudyHistory"
 import { TrialList } from "./TrialList"
-import { TrialTable } from "./TrialTable"
 
 export const useURLVars = (): number => {
   const { studyId } = useParams<{ studyId: string }>()
