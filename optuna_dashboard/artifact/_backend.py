@@ -74,7 +74,7 @@ def get_artifact_path(
 
 
 def register_artifact_route(
-    app: Bottle, storage: BaseStorage, artifact_store: Optional[ArtifactStore]
+    app: Bottle, storage: BaseStorage, artifact_store: ArtifactStore | None
 ) -> None:
     @app.get("/artifacts/<study_id:int>/<artifact_id:re:[0-9a-fA-F-]+>")
     def proxy_study_artifact(study_id: int, artifact_id: str) -> HTTPResponse | bytes:
@@ -243,8 +243,8 @@ def upload_artifact(
     trial: optuna.Trial,
     file_path: str,
     *,
-    mimetype: Optional[str] = None,
-    encoding: Optional[str] = None,
+    mimetype: str | None = None,
+    encoding: str | None = None,
 ) -> str:
     """Upload an artifact (files), which is associated with the trial.
 
@@ -300,7 +300,7 @@ def _dashboard_artifact_prefix(trial_id: int) -> str:
 
 def get_study_artifact_meta(
     storage: BaseStorage, study_id: int, artifact_id: str
-) -> Optional[ArtifactMeta]:
+) -> ArtifactMeta | None:
     study_system_attrs = storage.get_study_system_attrs(study_id)
     attr_key = ARTIFACTS_ATTR_PREFIX + artifact_id
     artifact_meta = study_system_attrs.get(attr_key)
@@ -311,7 +311,7 @@ def get_study_artifact_meta(
 
 def get_trial_artifact_meta(
     storage: BaseStorage, study_id: int, trial_id: int, artifact_id: str
-) -> Optional[ArtifactMeta]:
+) -> ArtifactMeta | None:
     # Search study_system_attrs due to backward compatibility.
     study_system_attrs = storage.get_study_system_attrs(study_id)
     attr_key = _dashboard_artifact_prefix(trial_id=trial_id) + artifact_id
