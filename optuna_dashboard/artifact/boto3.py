@@ -12,7 +12,6 @@ from optuna_dashboard.artifact.exceptions import ArtifactNotFound
 
 if TYPE_CHECKING:
     from typing import BinaryIO
-    from typing import Optional
 
     from mypy_boto3_s3 import S3Client
 
@@ -43,7 +42,7 @@ class Boto3Backend:
     """
 
     def __init__(
-        self, bucket_name: str, client: Optional[S3Client] = None, *, avoid_buf_copy: bool = False
+        self, bucket_name: str, client: S3Client | None = None, *, avoid_buf_copy: bool = False
     ) -> None:
         self.bucket = bucket_name
         self.client = client or boto3.client("s3")

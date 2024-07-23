@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 class ArtifactNotFound(Exception):
     """Exception raised when an artifact is not found.
 
