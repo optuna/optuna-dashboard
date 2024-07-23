@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import io
 from unittest import TestCase
 

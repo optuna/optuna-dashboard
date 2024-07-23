@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import io
 import typing
-from typing import Optional
-from typing import Union
 
 from bottle import Bottle
 from optuna_dashboard._storage import trials_cache
@@ -58,9 +56,9 @@ def send_request(
     app: Bottle,
     path: str,
     method: str,
-    body: Union[str, bytes] = b"",
-    queries: Optional[dict[str, str]] = None,
-    headers: Optional[dict[str, str]] = None,
+    body: str | bytes = b"",
+    queries: dict[str, str] | None = None,
+    headers: dict[str, str] | None = None,
     content_type: str = "text/plain; charset=utf-8",
 ) -> tuple[int, list[tuple[str, str]], bytes]:
     status: str = ""
