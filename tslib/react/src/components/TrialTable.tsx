@@ -22,7 +22,8 @@ const multiValueFilter: FilterFn<Optuna.Trial> = <D extends object>(
 export const TrialTable: FC<{
   study: Optuna.Study
   initialRowsPerPage?: number
-}> = ({ study, initialRowsPerPage }) => {
+  detailButtonGenerator?: (studyId: number, trialNumber: number) => JSX.Element
+}> = ({ study, initialRowsPerPage, detailButtonGenerator }) => {
   const trials: Optuna.Trial[] = study.trials
   const metricNames: string[] = study.metric_names || []
 
@@ -124,6 +125,20 @@ export const TrialTable: FC<{
         )
       )
     }
+  }
+  if (detailButtonGenerator) {
+    columns.push(
+      columnHelper.accessor((row) => row, {
+        header: "Detail",
+        cell: (info) =>
+          detailButtonGenerator(
+            info.getValue().study_id,
+            info.getValue().number
+          ),
+        enableSorting: false,
+        enableColumnFilter: false,
+      })
+    )
   }
 
   return (
