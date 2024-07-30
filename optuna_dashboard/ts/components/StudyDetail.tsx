@@ -1,7 +1,9 @@
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
+import DownloadIcon from "@mui/icons-material/Download"
 import HomeIcon from "@mui/icons-material/Home"
 import {
   Box,
+  Button,
   Card,
   CardContent,
   IconButton,
@@ -175,6 +177,15 @@ export const StudyDetail: FC<{
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
             <TrialTable studyDetail={studyDetail} />
+            <Button
+              variant="outlined"
+              startIcon={<DownloadIcon />}
+              download
+              href={`/csv/${studyDetail?.id}`}
+              sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
+            >
+              Download CSV File
+            </Button>
           </CardContent>
         </Card>
       </Box>
