@@ -68,7 +68,7 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
                 margin: theme.spacing(0, 1, 1, 0),
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "center"
+                alignItems: "center",
               }}
             >
               <ArtifactCardMedia
