@@ -66,6 +66,9 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
                 marginBottom: theme.spacing(2),
                 width: width,
                 margin: theme.spacing(0, 1, 1, 0),
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center"
               }}
             >
               <ArtifactCardMedia
@@ -84,7 +87,7 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
                   sx={{
                     p: theme.spacing(0.5, 0),
                     flexGrow: 1,
-                    wordWrap: "break-word",
+                    wordBreak: "break-all",
                     maxWidth: `calc(100% - ${theme.spacing(
                       4 +
                         (isThreejsArtifact(artifact) ? 4 : 0) +
