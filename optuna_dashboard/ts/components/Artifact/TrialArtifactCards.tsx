@@ -24,6 +24,7 @@ import { Trial } from "ts/types/optuna"
 import { actionCreator } from "../../action"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
 import { useDeleteTrialArtifactDialog } from "./DeleteArtifactDialog"
+import { isTableArtifact, useTableArtifactModal } from "./TableArtifactViewer"
 import {
   isThreejsArtifact,
   useThreejsArtifactModal,
@@ -35,6 +36,8 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
     useDeleteTrialArtifactDialog()
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
     useThreejsArtifactModal()
+  const [openTableArtifactModal, renderTableArtifactModal] =
+    useTableArtifactModal()
   const isArtifactModifiable = (trial: Trial) => {
     return trial.state === "Running" || trial.state === "Waiting"
   }
@@ -104,6 +107,19 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
                     <FullscreenIcon />
                   </IconButton>
                 ) : null}
+                {isTableArtifact(artifact) ? (
+                  <IconButton
+                    aria-label="show artifact table"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    onClick={() => {
+                      openTableArtifactModal(urlPath, artifact)
+                    }}
+                  >
+                    <FullscreenIcon />
+                  </IconButton>
+                ) : null}
                 {isArtifactModifiable(trial) ? (
                   <IconButton
                     aria-label="delete artifact"
@@ -141,6 +157,7 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
       </Box>
       {renderDeleteArtifactDialog()}
       {renderThreejsArtifactModal()}
+      {renderTableArtifactModal()}
     </>
   )
 }
