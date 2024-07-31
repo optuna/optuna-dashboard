@@ -67,5 +67,5 @@ export const ArtifactCardMedia: FC<{
       />
     )
   }
-  return <InsertDriveFileIcon sx={{ fontSize: 80 }} />
+  return <InsertDriveFileIcon sx={{ fontSize: 80, flexGrow: 1 }} />
 }
