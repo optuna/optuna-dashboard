@@ -55,7 +55,8 @@ export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
     })
     const keys = Array.from(unionSet)
     return keys.map((key) => ({
-      header: key,
+      // ``header`` cannot be a falsy value, so replace key with a string looking like an empty string.
+      header: key || " ",
       accessorFn: (info: Data) =>
         typeof info[key] === "object" ? JSON.stringify(info[key]) : info[key],
       enableSorting: true,
