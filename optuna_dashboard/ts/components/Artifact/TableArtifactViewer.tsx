@@ -143,6 +143,7 @@ const loadCSV = (props: TableArtifactViewerProps): Promise<Data[]> => {
     Papa.parse(props.src, {
       header: true,
       download: true,
+      skipEmptyLines: true,
       complete: (results: Papa.ParseResult<Data>) => {
         resolve(results?.data)
       },
