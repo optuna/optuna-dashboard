@@ -15,35 +15,71 @@ import {
 } from "@mui/material"
 import * as Optuna from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
-import { ChangeEvent, FC, useEffect, useState } from "react"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import { ChangeEvent, FC, useEffect, useState, useMemo } from "react"
+
+import { useGraphComponentState } from "../hooks/useGraphComponentState"
+import { Target, useFilteredTrialsFromStudies } from "../utils/trialFilter"
 
 const plotDomId = "plot-history"
 
+interface HistoryPlotInfo {
+  study_name: string
+  trials: Optuna.Trial[]
+  directions: Optuna.StudyDirection[]
+  metric_names?: string[]
+}
+
 export const PlotHistory: FC<{
-  study: Optuna.Study | null
-}> = ({ study = null }) => {
+  studies: Optuna.Study[]
+}> = ({ studies }) => {
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
+
   const theme = useTheme()
-  const [xAxis, setXAxis] = useState<string>("number")
+
+  const [xAxis, setXAxis] = useState<
+    "number" | "datetime_start" | "datetime_complete"
+  >("number")
+  
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const [logScale, setLogScale] = useState<boolean>(false)
-  const [filterCompleteTrial, setFilterCompleteTrial] = useState<boolean>(false)
   const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
+  const [markerSize, setMarkerSize] = useState<number>(5)
+
+  const target = useMemo<Target>(
+    () => new Target("objective", objectiveId),
+    [objectiveId]
+  )
+  const trials = useFilteredTrialsFromStudies(
+    studies,
+    [target],
+    filterPrunedTrial,
+  )
+  const historyPlotInfos = studies.map((study, index) => {
+    const h: HistoryPlotInfo = {
+      study_name: study.name,
+      trials: trials[index],
+      directions: study.directions,
+      metric_names: study.metric_names,
+    }
+    return h
+  })
 
   const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
     setObjectiveId(event.target.value as number)
   }
 
   const handleXAxisChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setXAxis(e.target.value)
+    if (e.target.value === "number") {
+      setXAxis("number")
+    } else if (e.target.value === "datetime_start") {
+      setXAxis("datetime_start")
+    } else if (e.target.value === "datetime_complete") {
+      setXAxis("datetime_complete")
+    }
   }
 
   const handleLogScaleChange = () => {
     setLogScale(!logScale)
-  }
-
-  const handleFilterCompleteChange = () => {
-    setFilterCompleteTrial(!filterCompleteTrial)
   }
 
   const handleFilterPrunedChange = () => {
@@ -51,24 +87,22 @@ export const PlotHistory: FC<{
   }
 
   useEffect(() => {
-    if (study !== null) {
+    if (graphComponentState !== "componentWillMount") {
       plotHistory(
-        study,
-        objectiveId,
+        historyPlotInfos,
+        target,
         xAxis,
         logScale,
-        filterCompleteTrial,
-        filterPrunedTrial,
-        theme.palette.mode
+        theme.palette.mode,
+        colorTheme,
+
       )
     }
   }, [
-    study,
-    objectiveId,
+    studies,
+    target,
     logScale,
     xAxis,
-    filterPrunedTrial,
-    filterCompleteTrial,
     theme.palette.mode,
   ])
 
@@ -171,30 +205,22 @@ export const PlotHistory: FC<{
   )
 }
 
-const filterFunc = (trial: Optuna.Trial, objectiveId: number): boolean => {
-  if (trial.state !== "Complete" && trial.state !== "Pruned") {
-    return false
-  }
-  if (trial.values === undefined) {
-    return false
-  }
-  return (
-    trial.values.length > objectiveId &&
-    trial.values[objectiveId] !== Infinity &&
-    trial.values[objectiveId] !== -Infinity
-  )
-}
-
 const plotHistory = (
-  study: Optuna.Study,
-  objectiveId: number,
-  xAxis: string,
+  historyPlotInfos: HistoryPlotInfo[],
+  target: Target,
+  xAxis: "number" | "datetime_start" | "datetime_complete",
   logScale: boolean,
-  filterCompleteTrial: boolean,
-  filterPrunedTrial: boolean,
-  mode: string
+  mode: string,
+  colorTheme: Partial<Plotly.Template>,
+  markerSize: number
 ) => {
   if (document.getElementById(plotDomId) === null) {
+    return
+  }
+  if (historyPlotInfos.length === 0) {
+    plotly.react(plotDomId, [], {
+      template: colorTheme,
+    })
     return
   }
 
@@ -206,27 +232,19 @@ const plotHistory = (
       b: 0,
     },
     yaxis: {
-      title: "Objective Value",
+      title: target.toLabel(historyPlotInfos[0].objective_names),
       type: logScale ? "log" : "linear",
     },
     xaxis: {
       title: xAxis === "number" ? "Trial" : "Time",
       type: xAxis === "number" ? "linear" : "date",
     },
-    showlegend: true,
-    template: mode === "dark" ? plotlyDarkTemplate : {},
-  }
-
-  let filteredTrials = study.trials.filter((t) => filterFunc(t, objectiveId))
-  if (filterCompleteTrial) {
-    filteredTrials = filteredTrials.filter((t) => t.state !== "Complete")
-  }
-  if (filterPrunedTrial) {
-    filteredTrials = filteredTrials.filter((t) => t.state !== "Pruned")
-  }
-  if (filteredTrials.length === 0) {
-    plotly.react(plotDomId, [], layout)
-    return
+    showlegend: historyPlotInfos.length === 1 ? false : true,
+    template: colorTheme,
+    legend: {
+      x: 1.0,
+      y: 0.95,
+    },
   }
 
   const getAxisX = (trial: Optuna.Trial): number | Date => {
@@ -237,80 +255,98 @@ const plotHistory = (
         : trial.datetime_complete ?? new Date()
   }
 
-  const getValue = (
-    trial: Optuna.Trial,
-    objectiveId: number
-  ): number | null => {
-    if (
-      objectiveId === null ||
-      trial.values === undefined ||
-      trial.values.length <= objectiveId
-    ) {
-      return null
-    }
-    const value = trial.values[objectiveId]
-    if (value === Infinity || value === -Infinity) {
-      return null
-    }
-    return value
-  }
-
-  const xForLinePlot: (number | Date)[] = []
-  const yForLinePlot: number[] = []
-  let currentBest: number | null = null
-  for (let i = 0; i < filteredTrials.length; i++) {
-    const t = filteredTrials[i]
-    const v = getValue(t, objectiveId) as number
-    if (currentBest === null) {
-      currentBest = v
-      xForLinePlot.push(getAxisX(t))
-      yForLinePlot.push(v)
-    } else if (
-      study.directions[objectiveId] === "maximize" &&
-      v > currentBest
-    ) {
-      const p = filteredTrials[i - 1]
-      if (!xForLinePlot.includes(getAxisX(p))) {
-        xForLinePlot.push(getAxisX(p))
-        yForLinePlot.push(currentBest)
+  const plotData: Partial<plotly.PlotData>[] = []
+  const infeasiblePlotData: Partial<plotly.PlotData>[] = []
+  historyPlotInfos.forEach((h) => {
+    const feasibleTrials: Optuna.Trial[] = []
+    const infeasibleTrials: Optuna.Trial[] = []
+    h.trials.forEach((t) => {
+      if (t.constraints.every((c) => c <= 0)) {
+        feasibleTrials.push(t)
+      } else {
+        infeasibleTrials.push(t)
       }
-      currentBest = v
-      xForLinePlot.push(getAxisX(t))
-      yForLinePlot.push(v)
-    } else if (
-      study.directions[objectiveId] === "minimize" &&
-      v < currentBest
-    ) {
-      const p = filteredTrials[i - 1]
-      if (!xForLinePlot.includes(getAxisX(p))) {
-        xForLinePlot.push(getAxisX(p))
-        yForLinePlot.push(currentBest)
-      }
-      currentBest = v
-      xForLinePlot.push(getAxisX(t))
-      yForLinePlot.push(v)
-    }
-  }
-  xForLinePlot.push(getAxisX(filteredTrials[filteredTrials.length - 1]))
-  yForLinePlot.push(yForLinePlot[yForLinePlot.length - 1])
-
-  const plotData: Partial<plotly.PlotData>[] = [
-    {
-      x: filteredTrials.map(getAxisX),
-      y: filteredTrials.map(
-        (t: Optuna.Trial): number => getValue(t, objectiveId) as number
+    })
+    plotData.push({
+      x: feasibleTrials.map(getAxisX),
+      y: feasibleTrials.map(
+        (t: Optuna.Trial): number => target.getTargetValue(t) as number
       ),
-      name: "Objective Value",
+      name: `${target.toLabel(h.objective_names)} of ${h.study_name}`,
+      marker: {
+        size: markerSize,
+      },
       mode: "markers",
       type: "scatter",
-    },
-    {
-      x: xForLinePlot,
-      y: yForLinePlot,
-      name: "Best Value",
-      mode: "lines",
+    })
+
+    const objectiveId = target.getObjectiveId()
+    if (objectiveId !== null) {
+      const xForLinePlot: (number | Date)[] = []
+      const yForLinePlot: number[] = []
+      let currentBest: number | null = null
+      for (let i = 0; i < feasibleTrials.length; i++) {
+        const t = feasibleTrials[i]
+        const value = target.getTargetValue(t) as number
+        if (t.state !== "Complete") {
+          continue
+        } else if (currentBest === null) {
+          currentBest = value
+          xForLinePlot.push(getAxisX(t))
+          yForLinePlot.push(value)
+        } else if (
+          h.directions[objectiveId] === "maximize" &&
+          value > currentBest
+        ) {
+          const p = feasibleTrials[i - 1]
+          if (!xForLinePlot.includes(getAxisX(p))) {
+            xForLinePlot.push(getAxisX(p))
+            yForLinePlot.push(currentBest)
+          }
+          currentBest = value
+          xForLinePlot.push(getAxisX(t))
+          yForLinePlot.push(value)
+        } else if (
+          h.directions[objectiveId] === "minimize" &&
+          value < currentBest
+        ) {
+          const p = feasibleTrials[i - 1]
+          if (!xForLinePlot.includes(getAxisX(p))) {
+            xForLinePlot.push(getAxisX(p))
+            yForLinePlot.push(currentBest)
+          }
+          currentBest = value
+          xForLinePlot.push(getAxisX(t))
+          yForLinePlot.push(value)
+        }
+      }
+      if (h.trials.length !== 0) {
+        xForLinePlot.push(getAxisX(h.trials[h.trials.length - 1]))
+        yForLinePlot.push(yForLinePlot[yForLinePlot.length - 1])
+      }
+      plotData.push({
+        x: xForLinePlot,
+        y: yForLinePlot,
+        name: `Best Value of ${h.study_name}`,
+        mode: "lines",
+        type: "scatter",
+      })
+    }
+    infeasiblePlotData.push({
+      x: infeasibleTrials.map(getAxisX),
+      y: infeasibleTrials.map(
+        (t: Optuna.Trial): number => target.getTargetValue(t) as number
+      ),
+      name: `Infeasible Trial of ${h.study_name}`,
+      marker: {
+        size: markerSize,
+        color: mode === "dark" ? "#666666" : "#cccccc",
+      },
+      mode: "markers",
       type: "scatter",
-    },
-  ]
+      showlegend: false,
+    })
+  })
+  plotData.push(...infeasiblePlotData)
   plotly.react(plotDomId, plotData, layout)
 }
