@@ -44,6 +44,15 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
 
   const width = "200px"
   const height = "150px"
+  const artifacts = [...trial.artifacts].sort((a, b) => {
+    if (a.filename < b.filename) {
+      return -1
+    } else if (a.filename > b.filename) {
+      return 1
+    } else {
+      return 0
+    }
+  })
 
   return (
     <>
@@ -57,7 +66,7 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
         component="div"
         sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}
       >
-        {trial.artifacts.map((artifact) => {
+        {artifacts.map((artifact) => {
           const urlPath = `/artifacts/${trial.study_id}/${trial.trial_id}/${artifact.artifact_id}`
           return (
             <Card
