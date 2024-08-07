@@ -41,6 +41,15 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
 
   const width = "200px"
   const height = "150px"
+  const artifacts = [...study.artifacts].sort((a, b) => {
+    if (a.filename < b.filename) {
+      return -1
+    } else if (a.filename > b.filename) {
+      return 1
+    } else {
+      return 0
+    }
+  })
 
   return (
     <>
@@ -48,7 +57,7 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
         component="div"
         sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}
       >
-        {study.artifacts.map((artifact) => {
+        {artifacts.map((artifact) => {
           const urlPath = `/artifacts/${study.id}/${artifact.artifact_id}`
           return (
             <Card
