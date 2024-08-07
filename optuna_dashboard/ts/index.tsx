@@ -1,24 +1,30 @@
-import React from "react"
+import React, { FC, ReactNode } from "react"
 import ReactDOM from "react-dom/client"
 import { APIClientProvider } from "./apiClientProvider"
 import { AxiosClient } from "./axiosClient"
 import { App } from "./components/App"
-import { ConstantsProvider } from "./constantsProvider"
+import { ConstantsContext } from "./constantsProvider"
 
-declare const APP_BAR_TITLE: string
 declare const API_ENDPOINT: string
 declare const URL_PREFIX: string
 
 const axiosAPIClient = new AxiosClient(API_ENDPOINT)
 
+const ConstantsProvider: FC<{ children: ReactNode }> = ({ children }) => (
+  <ConstantsContext.Provider
+    value={{
+      environment: "optuna-dashboard",
+      url_prefix: URL_PREFIX,
+    }}
+  >
+    {children}
+  </ConstantsContext.Provider>
+)
+
 ReactDOM.createRoot(document.getElementById("dashboard") as HTMLElement).render(
   <React.StrictMode>
     <APIClientProvider apiClient={axiosAPIClient}>
-      <ConstantsProvider
-        APP_BAR_TITLE={APP_BAR_TITLE}
-        API_ENDPOINT={API_ENDPOINT}
-        URL_PREFIX={URL_PREFIX}
-      >
+      <ConstantsProvider>
         <App />
       </ConstantsProvider>
     </APIClientProvider>

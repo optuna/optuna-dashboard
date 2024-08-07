@@ -11,7 +11,7 @@ import CircularProgress from "@mui/material/CircularProgress"
 import {
   APIClientProvider,
   App,
-  ConstantsProvider,
+  ConstantsContext,
 } from "@optuna/optuna-dashboard"
 import { SnackbarProvider, enqueueSnackbar } from "notistack"
 import React, { Dispatch, FC, SetStateAction, useEffect, useState } from "react"
@@ -54,14 +54,16 @@ export const JupyterLabEntrypoint: FC = () => {
     )
   }
   return (
-    <ConstantsProvider
-      APP_BAR_TITLE="Optuna Dashboard JupyterLab"
-      URL_PREFIX={pathName}
+    <ConstantsContext.Provider
+      value={{
+        environment: "jupyterlab",
+        url_prefix: pathName,
+      }}
     >
       <APIClientProvider apiClient={jupyterlabAPIClient}>
         <App />
       </APIClientProvider>
-    </ConstantsProvider>
+    </ConstantsContext.Provider>
   )
 }
 

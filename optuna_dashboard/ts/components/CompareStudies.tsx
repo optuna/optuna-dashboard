@@ -76,7 +76,7 @@ const isEqualDirections = (
 export const CompareStudies: FC<{
   toggleColorMode: () => void
 }> = ({ toggleColorMode }) => {
-  const { URL_PREFIX } = useConstants()
+  const { url_prefix } = useConstants()
 
   const { enqueueSnackbar } = useSnackbar()
   const theme = useTheme()
@@ -101,7 +101,7 @@ export const CompareStudies: FC<{
     <>
       <IconButton
         component={Link}
-        to={URL_PREFIX + "/"}
+        to={url_prefix + "/"}
         sx={{ marginRight: theme.spacing(1) }}
         color="inherit"
         title="Return to the top page"
@@ -189,10 +189,10 @@ export const CompareStudies: FC<{
                               next = [...selectedIds, study.study_id]
                             }
                           }
-                          navigate(getStudyListLink(next, URL_PREFIX))
+                          navigate(getStudyListLink(next, url_prefix))
                         } else {
                           navigate(
-                            getStudyListLink([study.study_id], URL_PREFIX)
+                            getStudyListLink([study.study_id], url_prefix)
                           )
                         }
                       }}

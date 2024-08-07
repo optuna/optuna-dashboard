@@ -62,7 +62,7 @@ const GraphParetoFrontBackend: FC<{
 const GraphParetoFrontFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
-  const { URL_PREFIX } = useConstants()
+  const { url_prefix } = useConstants()
 
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
@@ -96,7 +96,7 @@ const GraphParetoFrontFrontend: FC<{
             data.points[0].text.replace(/<br>/g, "")
           )
           navigate(
-            URL_PREFIX +
+            url_prefix +
               `/studies/${study.id}/trials?numbers=${plotTextInfo.number}`
           )
         })

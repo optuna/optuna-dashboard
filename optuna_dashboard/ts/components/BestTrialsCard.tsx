@@ -24,7 +24,7 @@ const useBestTrials = (studyDetail: StudyDetail | null): Trial[] => {
 export const BestTrialsCard: FC<{
   studyDetail: StudyDetail | null
 }> = ({ studyDetail }) => {
-  const { URL_PREFIX } = useConstants()
+  const { url_prefix } = useConstants()
 
   const theme = useTheme()
   const bestTrials = useBestTrials(studyDetail)
@@ -64,7 +64,7 @@ export const BestTrialsCard: FC<{
           variant="outlined"
           startIcon={<LinkIcon />}
           component={Link}
-          to={`${URL_PREFIX}/studies/${bestTrial.study_id}/trials?numbers=${bestTrial.number}`}
+          to={`${url_prefix}/studies/${bestTrial.study_id}/trials?numbers=${bestTrial.number}`}
           sx={{ margin: theme.spacing(1) }}
         >
           Details
@@ -92,7 +92,7 @@ export const BestTrialsCard: FC<{
                 <ListItemButton
                   component={Link}
                   to={
-                    URL_PREFIX +
+                    url_prefix +
                     `/studies/${trial.study_id}/trials?numbers=${trial.number}`
                   }
                   sx={{ flexDirection: "column", alignItems: "flex-start" }}

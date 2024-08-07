@@ -16,7 +16,7 @@ import {
 import { APIClientProvider } from "./apiClientProvider"
 import { AxiosClient } from "./axiosClient"
 import { App } from "./components/App"
-import { ConstantsProvider } from "./constantsProvider"
+import { ConstantsContext } from "./constantsProvider"
 import {
   Artifact,
   FeedbackComponentType,
@@ -37,7 +37,7 @@ export {
   APIClientProvider,
   App,
   APIClient,
-  ConstantsProvider,
+  ConstantsContext,
   Artifact,
   FeedbackComponentType,
   FormWidgets,

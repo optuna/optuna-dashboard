@@ -54,9 +54,6 @@ var config = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      APP_BAR_TITLE: JSON.stringify(
-        process.env.APP_BAR_TITLE || "Optuna Dashboard"
-      ),
       API_ENDPOINT: JSON.stringify(process.env.API_ENDPOINT),
       URL_PREFIX: JSON.stringify(process.env.URL_PREFIX || "/dashboard"),
     }),

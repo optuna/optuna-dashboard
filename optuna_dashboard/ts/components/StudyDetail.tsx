@@ -50,7 +50,7 @@ export const StudyDetail: FC<{
   toggleColorMode: () => void
   page: PageId
 }> = ({ toggleColorMode, page }) => {
-  const { URL_PREFIX } = useConstants()
+  const { url_prefix } = useConstants()
 
   const theme = useTheme()
   const action = actionCreator()
@@ -226,7 +226,7 @@ export const StudyDetail: FC<{
     <>
       <IconButton
         component={Link}
-        to={URL_PREFIX + "/"}
+        to={url_prefix + "/"}
         sx={{ marginRight: theme.spacing(1) }}
         color="inherit"
         title="Return to the top page"

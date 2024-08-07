@@ -28,7 +28,7 @@ const multiValueFilter: FilterFn<Trial> = <D extends object>(
 export const TrialTable: FC<{
   studyDetail: StudyDetail | null
 }> = ({ studyDetail }) => {
-  const { URL_PREFIX } = useConstants()
+  const { url_prefix } = useConstants()
 
   const theme = useTheme()
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
@@ -127,7 +127,7 @@ export const TrialTable: FC<{
         <IconButton
           component={Link}
           to={
-            URL_PREFIX +
+            url_prefix +
             `/studies/${info.getValue().study_id}/trials?numbers=${
               info.getValue().number
             }`

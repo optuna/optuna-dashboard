@@ -40,7 +40,7 @@ export const GraphHistory: FC<{
   logScale: boolean
   includePruned: boolean
 }> = ({ studies, logScale, includePruned }) => {
-  const { URL_PREFIX } = useConstants()
+  const { url_prefix } = useConstants()
 
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
@@ -103,7 +103,7 @@ export const GraphHistory: FC<{
             studyId = studies[Math.floor(data.points[0].curveNumber / 2)].id
           }
           navigate(
-            URL_PREFIX +
+            url_prefix +
               `/studies/${studyId}/trials?numbers=${data.points[0].x}`
           )
         }

@@ -335,7 +335,7 @@ const getTrialListLink = (
 export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   studyDetail,
 }) => {
-  const { URL_PREFIX } = useConstants()
+  const { url_prefix } = useConstants()
 
   const theme = useTheme()
   const query = useQuery()
@@ -425,7 +425,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                         studyDetail.id,
                         excludedStates,
                         numbers,
-                        URL_PREFIX
+                        url_prefix
                       )
                     )
                   }}
@@ -489,7 +489,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                             trial.study_id,
                             excludedStates,
                             next,
-                            URL_PREFIX
+                            url_prefix
                           )
                         )
                       } else {
@@ -498,7 +498,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                             trial.study_id,
                             excludedStates,
                             [trial.number],
-                            URL_PREFIX
+                            url_prefix
                           )
                         )
                       }
