@@ -1,6 +1,6 @@
 import fs from "node:fs"
 import * as Optuna from "@optuna/types"
-import { loadStorageFromFile } from "../src/utils/loadStorageFromFile"
+import { loadStorageFromFile } from "./loadStorageFromFile"
 
 declare global {
   interface Window {
