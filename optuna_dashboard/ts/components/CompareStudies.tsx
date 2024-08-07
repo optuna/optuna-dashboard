@@ -28,6 +28,7 @@ import { useRecoilValue } from "recoil"
 import { useNavigate } from "react-router-dom"
 import { StudyDetails, StudySummary } from "ts/types/optuna"
 import { actionCreator } from "../action"
+import { useConstants } from "../constantsProvider"
 import { studyDetailsState, studySummariesState } from "../state"
 import { useQuery } from "../urlQuery"
 import { AppDrawer } from "./AppDrawer"
@@ -51,7 +52,7 @@ const useQueriedStudies = (
   }, [studies, query])
 }
 
-const getStudyListLink = (ids: number[]): string => {
+const getStudyListLink = (ids: number[], URL_PREFIX: string): string => {
   const base = URL_PREFIX + "/compare-studies"
   if (ids.length > 0) {
     return base + "?ids=" + ids.map((n) => n.toString()).join(",")
@@ -75,6 +76,8 @@ const isEqualDirections = (
 export const CompareStudies: FC<{
   toggleColorMode: () => void
 }> = ({ toggleColorMode }) => {
+  const { URL_PREFIX } = useConstants()
+
   const { enqueueSnackbar } = useSnackbar()
   const theme = useTheme()
   const query = useQuery()
@@ -186,9 +189,11 @@ export const CompareStudies: FC<{
                               next = [...selectedIds, study.study_id]
                             }
                           }
-                          navigate(getStudyListLink(next))
+                          navigate(getStudyListLink(next, URL_PREFIX))
                         } else {
-                          navigate(getStudyListLink([study.study_id]))
+                          navigate(
+                            getStudyListLink([study.study_id], URL_PREFIX)
+                          )
                         }
                       }}
                       selected={

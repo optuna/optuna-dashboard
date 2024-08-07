@@ -15,6 +15,7 @@ import {
 import React, { FC, ReactNode, useMemo } from "react"
 import { Link } from "react-router-dom"
 import { StudyDetail, Trial } from "ts/types/optuna"
+import { useConstants } from "../constantsProvider"
 
 const useBestTrials = (studyDetail: StudyDetail | null): Trial[] => {
   return useMemo(() => studyDetail?.best_trials || [], [studyDetail])
@@ -23,6 +24,8 @@ const useBestTrials = (studyDetail: StudyDetail | null): Trial[] => {
 export const BestTrialsCard: FC<{
   studyDetail: StudyDetail | null
 }> = ({ studyDetail }) => {
+  const { URL_PREFIX } = useConstants()
+
   const theme = useTheme()
   const bestTrials = useBestTrials(studyDetail)
 

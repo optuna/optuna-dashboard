@@ -14,6 +14,7 @@ import {
   Row,
   createColumnHelper,
 } from "@tanstack/react-table"
+import { useConstants } from "../constantsProvider"
 
 const multiValueFilter: FilterFn<Trial> = <D extends object>(
   row: Row<D>,
@@ -27,6 +28,8 @@ const multiValueFilter: FilterFn<Trial> = <D extends object>(
 export const TrialTable: FC<{
   studyDetail: StudyDetail | null
 }> = ({ studyDetail }) => {
+  const { URL_PREFIX } = useConstants()
+
   const theme = useTheme()
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
   const objectiveNames: string[] = studyDetail?.objective_names || []

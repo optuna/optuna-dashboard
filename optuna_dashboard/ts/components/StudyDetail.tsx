@@ -14,6 +14,7 @@ import { Link, useParams } from "react-router-dom"
 import { useRecoilValue } from "recoil"
 
 import { actionCreator } from "../action"
+import { useConstants } from "../constantsProvider"
 import {
   reloadIntervalState,
   useStudyDetailValue,
@@ -49,6 +50,8 @@ export const StudyDetail: FC<{
   toggleColorMode: () => void
   page: PageId
 }> = ({ toggleColorMode, page }) => {
+  const { URL_PREFIX } = useConstants()
+
   const theme = useTheme()
   const action = actionCreator()
   const studyId = useURLVars()

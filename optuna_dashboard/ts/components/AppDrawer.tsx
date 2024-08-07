@@ -41,6 +41,7 @@ import QueryStatsIcon from "@mui/icons-material/QueryStats"
 import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt"
 import { Switch } from "@mui/material"
 import { actionCreator } from "../action"
+import { useConstants } from "../constantsProvider"
 
 const drawerWidth = 240
 
@@ -129,6 +130,8 @@ export const AppDrawer: FC<{
   toolbar: React.ReactNode
   children?: React.ReactNode
 }> = ({ studyId, toggleColorMode, page, toolbar, children }) => {
+  const { URL_PREFIX } = useConstants()
+
   const theme = useTheme()
   const action = actionCreator()
   const [open, setOpen] = useRecoilState<boolean>(drawerOpenState)

@@ -15,6 +15,7 @@ import React, { FC, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
+import { useConstants } from "../constantsProvider"
 import { makeHovertext } from "../graphUtil"
 import { usePlot } from "../hooks/usePlot"
 import { usePlotlyColorTheme } from "../state"
@@ -61,6 +62,8 @@ const GraphParetoFrontBackend: FC<{
 const GraphParetoFrontFrontend: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  const { URL_PREFIX } = useConstants()
+
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
   const navigate = useNavigate()

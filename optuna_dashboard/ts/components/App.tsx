@@ -8,11 +8,12 @@ import {
 import blue from "@mui/material/colors/blue"
 import pink from "@mui/material/colors/pink"
 import { SnackbarProvider } from "notistack"
-import React, { FC, useMemo, useState, useEffect } from "react"
+import React, { useMemo, useState, useEffect, FC } from "react"
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
 import { RecoilRoot } from "recoil"
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
+import { useConstants } from "../constantsProvider"
 import { CompareStudies } from "./CompareStudies"
 import { StudyDetail } from "./StudyDetail"
 import { StudyList } from "./StudyList"
@@ -48,6 +49,8 @@ export const App: FC = () => {
   const toggleColorMode = () => {
     setColorMode(colorMode === "dark" ? "light" : "dark")
   }
+
+  const { URL_PREFIX } = useConstants()
 
   return (
     <QueryClientProvider client={queryClient}>
