@@ -109,17 +109,25 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Build rustlib for standalone_app
+        working-directory: rustlib
+        run: |
+          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+          wasm-pack build --target web
+
       - name: Setup tslib
         run: make tslib
 
       - name: Build standalone_app for vscode extension
         working-directory: standalone_app
         run: |
+          npm install
           npm run build:vscode
 
       - name: Build standalone_app for GitHub pages
         working-directory: standalone_app
         run: |
+          npm install
           npx vite build --out-dir ./gh-pages
 
       - name: Build bundle.js
