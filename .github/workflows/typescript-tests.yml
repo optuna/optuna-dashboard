@@ -112,6 +112,16 @@ jobs:
       - name: Setup tslib
         run: make tslib
 
+      - name: Build standalone_app for vscode extension
+        working-directory: standalone_app
+        run: |
+          npm run build:vscode
+
+      - name: Build standalone_app for GitHub pages
+        working-directory: standalone_app
+        run: |
+          npx vite build --out-dir ./gh-pages
+
       - name: Build bundle.js
         working-directory: optuna_dashboard
         run: |

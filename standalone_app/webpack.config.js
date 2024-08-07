@@ -36,6 +36,12 @@ module.exports = {
                 test: /\.wasm$/,
                 type: "asset/inline",
             },
+            {
+                test: /\.m?js/,
+                resolve: {
+                    fullySpecified: false
+                }
+            }
         ]
     },
     resolve: {
