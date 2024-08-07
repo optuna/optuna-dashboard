@@ -103,7 +103,7 @@ export type RenameStudyResponse = {
   study_name: string
   directions: Optuna.StudyDirection[]
   user_attrs: Optuna.Attribute[]
-  is_prefential: boolean // TODO: Fix typo
+  is_prefential: boolean // TODO(porink0424): Fix typo
   datetime_start?: string
 }
 

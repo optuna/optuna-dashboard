@@ -64,8 +64,8 @@ export class JupyterlabAPIClient extends APIClient {
         preference_history: res.preference_history?.map(
           this.convertPreferenceHistory
         ),
-        plotly_graph_objects: res.plotly_graph_objects, // TODO: Support this
-        artifacts: res.artifacts, // TODO: Support this
+        plotly_graph_objects: res.plotly_graph_objects,
+        artifacts: res.artifacts,
         skipped_trial_numbers: res.skipped_trial_numbers ?? [],
       }
     })
@@ -127,7 +127,7 @@ export class JupyterlabAPIClient extends APIClient {
         study_name: res.study_name,
         directions: res.directions,
         user_attrs: res.user_attrs,
-        is_preferential: res.is_prefential, // TODO: Fix typo
+        is_preferential: res.is_prefential,
         datetime_start: res.datetime_start
           ? new Date(res.datetime_start)
           : undefined,
@@ -161,7 +161,7 @@ export class JupyterlabAPIClient extends APIClient {
     dataUrl: string
   ): Promise<UploadArtifactAPIResponse> =>
     requestAPI<UploadArtifactAPIResponse>(
-      `/api/artifacts/${studyId}/${trialId}`, // TODO: Make API
+      `/api/artifacts/${studyId}/${trialId}`,
       {
         body: JSON.stringify({
           file: dataUrl,
@@ -178,7 +178,7 @@ export class JupyterlabAPIClient extends APIClient {
     dataUrl: string
   ): Promise<UploadArtifactAPIResponse> =>
     requestAPI<UploadArtifactAPIResponse>(
-      `/api/artifacts/${studyId}`, // TODO: Make API
+      `/api/artifacts/${studyId}`,
       {
         body: JSON.stringify({
           file: dataUrl,
@@ -195,7 +195,7 @@ export class JupyterlabAPIClient extends APIClient {
     artifactId: string
   ): Promise<void> =>
     requestAPI<void>(
-      `/api/artifacts/${studyId}/${trialId}/${artifactId}`, // TODO: Make API
+      `/api/artifacts/${studyId}/${trialId}/${artifactId}`,
       {
         method: "DELETE",
       }
@@ -204,7 +204,7 @@ export class JupyterlabAPIClient extends APIClient {
     })
   deleteStudyArtifact = (studyId: number, artifactId: string): Promise<void> =>
     requestAPI<void>(
-      `/api/artifacts/${studyId}/${artifactId}`, // TODO: Make API
+      `/api/artifacts/${studyId}/${artifactId}`,
       {
         method: "DELETE",
       }
@@ -293,13 +293,17 @@ export class JupyterlabAPIClient extends APIClient {
     }).then(() => {
       return
     })
-  getPlot = (studyId: number, plotType: PlotType): Promise<PlotResponse> => {
-    throw new Error("Method not implemented.") // TODO: Implement
-  }
+  getPlot = (studyId: number, plotType: PlotType): Promise<PlotResponse> => 
+    requestAPI<PlotResponse>(`/api/studies/${studyId}/plot/${plotType}`)
+  .then<PlotResponse>((res) => (res))
   getCompareStudiesPlot = (
     studyIds: number[],
     plotType: CompareStudiesPlotType
   ): Promise<PlotResponse> => {
-    throw new Error("Method not implemented.") // TODO: Implement
+    return requestAPI<PlotResponse>(
+      `/api/compare-studies/plot/${plotType}`, {
+        body: JSON.stringify({ study_ids: studyIds }),
+      }
+    ).then<PlotResponse>((res) => (res))
   }
 }
