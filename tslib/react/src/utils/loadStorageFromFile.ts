@@ -1,6 +1,7 @@
 import { JournalFileStorage, SQLite3Storage } from "@optuna/storage"
 import * as Optuna from "@optuna/types"
-import { SetterOrUpdater } from "recoil"
+
+type SetterOrUpdater<T> = (valOrUpdater: ((currVal: T) => T) | T) => void
 
 const readFile = async (file: File) => {
   return new Promise<ArrayBuffer>((resolve, reject) => {
