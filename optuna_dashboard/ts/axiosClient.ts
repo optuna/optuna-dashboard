@@ -24,7 +24,7 @@ import {
 export class AxiosClient extends APIClient {
   private axiosInstance: AxiosInstance
 
-  constructor() {
+  constructor(API_ENDPOINT: string | undefined) {
     super()
     this.axiosInstance = axios.create({ baseURL: API_ENDPOINT })
   }
