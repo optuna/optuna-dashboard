@@ -1,10 +1,11 @@
+import { useTheme } from "@mui/material"
 import { GraphContainer, PlotEdf, useGraphComponentState } from "@optuna/react"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
 import { StudyDetail } from "ts/types/optuna"
 import { CompareStudiesPlotType } from "../apiClient"
 import { useAPIClient } from "../apiClientProvider"
-import { useBackendRender } from "../state"
+import { useBackendRender, usePlotlyColorTheme } from "../state"
 
 export const GraphEdf: FC<{
   studies: StudyDetail[]
@@ -13,7 +14,15 @@ export const GraphEdf: FC<{
   if (useBackendRender()) {
     return <GraphEdfBackend studies={studies} />
   } else {
-    return <PlotEdf studies={studies} objectiveId={objectiveId} />
+    const theme = useTheme()
+    const colorTheme = usePlotlyColorTheme(theme.palette.mode)
+    return (
+      <PlotEdf
+        studies={studies}
+        objectiveId={objectiveId}
+        colorTheme={colorTheme}
+      />
+    )
   }
 }
 
