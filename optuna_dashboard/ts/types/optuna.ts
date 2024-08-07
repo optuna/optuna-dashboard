@@ -21,12 +21,6 @@ export type TrialParam = {
   distribution: Optuna.Distribution
 }
 
-export type ParamImportance = {
-  name: string
-  importance: number
-  distribution: Optuna.Distribution
-}
-
 export type SearchSpaceItem = {
   name: string
   distribution: Optuna.Distribution

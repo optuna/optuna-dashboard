@@ -5,7 +5,6 @@ import {
   FeedbackComponentType,
   FormWidgets,
   Note,
-  ParamImportance,
   PlotlyGraphObject,
   PreferenceFeedbackMode,
   PreferenceHistory,
@@ -113,7 +112,7 @@ export type UploadArtifactAPIResponse = {
 }
 
 export interface ParamImportancesResponse {
-  param_importances: ParamImportance[][]
+  param_importances: Optuna.ParamImportance[][]
 }
 
 export type PlotResponse = {
@@ -228,7 +227,9 @@ export abstract class APIClient {
     trialId: number,
     user_attrs: { [key: string]: number | string }
   ): Promise<void>
-  abstract getParamImportances(studyId: number): Promise<ParamImportance[][]>
+  abstract getParamImportances(
+    studyId: number
+  ): Promise<Optuna.ParamImportance[][]>
   abstract reportPreference(
     studyId: number,
     candidates: number[],

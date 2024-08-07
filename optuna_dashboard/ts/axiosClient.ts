@@ -15,7 +15,6 @@ import {
 } from "./apiClient"
 import {
   FeedbackComponentType,
-  ParamImportance,
   StudyDetail,
   StudySummary,
   Trial,
@@ -230,7 +229,9 @@ export class AxiosClient extends APIClient {
       .then(() => {
         return
       })
-  getParamImportances = (studyId: number): Promise<ParamImportance[][]> =>
+  getParamImportances = (
+    studyId: number
+  ): Promise<Optuna.ParamImportance[][]> =>
     this.axiosInstance
       .get<ParamImportancesResponse>(
         `/api/studies/${studyId}/param_importances`

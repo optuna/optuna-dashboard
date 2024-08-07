@@ -1,8 +1,8 @@
+import * as Optuna from "@optuna/types"
 import { useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import { useSnackbar } from "notistack"
 import { useEffect } from "react"
-import { ParamImportance } from "ts/types/optuna"
 import { useAPIClient } from "../apiClientProvider"
 
 export const useParamImportance = ({
@@ -13,7 +13,7 @@ export const useParamImportance = ({
   const { enqueueSnackbar } = useSnackbar()
 
   const { data, isLoading, error } = useQuery<
-    ParamImportance[][],
+    Optuna.ParamImportance[][],
     AxiosError<{ reason: string }>
   >({
     queryKey: ["paramImportance", studyId, numCompletedTrials],

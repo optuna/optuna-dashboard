@@ -7,19 +7,20 @@ import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 const plotDomId = "graph-hyperparameter-importances"
 
 export const PlotImportance: FC<{
-  study: Optuna.Study
-  importance: Optuna.ParamImportance[][]
-}> = ({ study, importance }) => {
+  study: Optuna.Study | null
+  importance?: Optuna.ParamImportance[][]
+  graphHeight?: string
+}> = ({ study = null, importance, graphHeight = "450px" }) => {
   const theme = useTheme()
-  const objectiveNames: string[] = study.directions.map(
-    (_d, i) => `Objective ${i}`
-  )
+  const objectiveNames: string[] = study
+    ? study.directions.map((_d, i) => `Objective ${i}`)
+    : []
 
   useEffect(() => {
-    if (importance.length > 0) {
+    if (study !== null && importance !== undefined && importance.length > 0) {
       plotParamImportancesBeta(importance, objectiveNames, theme.palette.mode)
     }
-  }, [objectiveNames, importance, theme.palette.mode])
+  }, [study, objectiveNames, importance, theme.palette.mode])
 
   return (
     <>
@@ -29,7 +30,7 @@ export const PlotImportance: FC<{
       >
         Hyperparameter Importance
       </Typography>
-      <Box id={plotDomId} sx={{ height: "450px" }} />
+      <Box id={plotDomId} sx={{ height: graphHeight }} />
     </>
   )
 }
@@ -58,6 +59,10 @@ const plotParamImportancesBeta = (
     bargroupgap: 0.1,
     uirevision: "true",
     template: mode === "dark" ? plotlyDarkTemplate : {},
+    legend: {
+      x: 1.0,
+      y: 0.95,
+    },
   }
 
   if (document.getElementById(plotDomId) === null) {

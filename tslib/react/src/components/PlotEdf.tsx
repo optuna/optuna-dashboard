@@ -17,10 +17,13 @@ const getPlotDomId = (objectiveId: number) => `plot-edf-${objectiveId}`
 export const PlotEdf: FC<{
   studies: Optuna.Study[]
   objectiveId: number
-}> = ({ studies, objectiveId }) => {
+  colorTheme?: Partial<Plotly.Template>
+}> = ({ studies, objectiveId, colorTheme }) => {
   const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const theme = useTheme()
+  const colorThemeUsed =
+    colorTheme ?? (theme.palette.mode === "dark" ? plotlyDarkTemplate : {})
 
   const domId = getPlotDomId(objectiveId)
   const target = useMemo<Target>(
@@ -39,11 +42,11 @@ export const PlotEdf: FC<{
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (graphComponentState !== "componentWillMount") {
-      plotEdf(edfPlotInfos, target, domId, theme.palette.mode)?.then(
+      plotEdf(edfPlotInfos, target, domId, colorThemeUsed)?.then(
         notifyGraphDidRender
       )
     }
-  }, [studies, target, theme.palette.mode, graphComponentState])
+  }, [studies, target, colorThemeUsed, graphComponentState])
 
   return (
     <Box component="div">
@@ -65,14 +68,14 @@ const plotEdf = (
   edfPlotInfos: EdfPlotInfo[],
   target: Target,
   domId: string,
-  mode: string
+  colorTheme: Partial<Plotly.Template>
 ) => {
   if (document.getElementById(domId) === null) {
     return
   }
   if (edfPlotInfos.length === 0) {
     return plotly.react(domId, [], {
-      template: mode === "dark" ? plotlyDarkTemplate : {},
+      template: colorTheme,
     })
   }
 
@@ -90,7 +93,7 @@ const plotEdf = (
       r: 50,
       b: 50,
     },
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: colorTheme,
     legend: {
       x: 1.0,
       y: 0.95,

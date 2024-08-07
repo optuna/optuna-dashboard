@@ -157,7 +157,7 @@ const plotTimeline = (
     xaxis: {
       title: "Datetime",
       type: "date",
-      range: [minDatetime.toISOString(), maxDatetime.toISOString()],
+      range: [minDatetime, maxDatetime],
     },
     yaxis: {
       title: "Trial",
@@ -188,7 +188,7 @@ const plotTimeline = (
       x: runDurations,
       y: bars.map((b) => b.number),
       // @ts-ignore: To suppress ts(2322)
-      base: starts.map((s) => s.toISOString()),
+      base: starts,
       name: state,
       text: bars.map((b) => makeHovertext(b)),
       hovertemplate: "%{text}<extra>" + state + "</extra>",

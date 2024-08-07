@@ -64,6 +64,10 @@ const plotIntermediateValue = (
     },
     uirevision: "true",
     template: mode === "dark" ? plotlyDarkTemplate : {},
+    legend: {
+      x: 1.0,
+      y: 0.95,
+    },
   }
   if (trials.length === 0) {
     plotly.react(plotDomId, [], layout)
@@ -79,23 +83,23 @@ const plotIntermediateValue = (
         t.values.length > 0) ||
       t.state === "Running"
   )
+
   const plotData: Partial<plotly.PlotData>[] = filteredTrials.map((trial) => {
-    const values = trial.intermediate_values.filter(
-      (iv) =>
-        iv.value !== Infinity &&
-        iv.value !== -Infinity &&
-        !Number.isNaN(iv.value)
-    )
+    const isFeasible = trial.constraints.every((c) => c <= 0)
     return {
-      x: values.map((iv) => iv.step),
-      y: values.map((iv) => iv.value),
+      x: trial.intermediate_values.map((iv) => iv.step),
+      y: trial.intermediate_values.map((iv) => iv.value),
       marker: { maxdisplayed: 10 },
       mode: "lines+markers",
       type: "scatter",
-      name:
-        trial.state !== "Running"
-          ? `trial #${trial.number}`
-          : `trial #${trial.number} (running)`,
+      name: `trial #${trial.number} ${
+        trial.state === "Running"
+          ? "(running)"
+          : !isFeasible
+            ? "(infeasible)"
+            : ""
+      }`,
+      ...(!isFeasible && { line: { color: "#CCCCCC" } }),
     }
   })
   plotly.react(plotDomId, plotData, layout)

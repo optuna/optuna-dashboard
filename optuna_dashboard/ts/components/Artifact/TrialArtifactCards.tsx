@@ -24,6 +24,7 @@ import { Trial } from "ts/types/optuna"
 import { actionCreator } from "../../action"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
 import { useDeleteTrialArtifactDialog } from "./DeleteArtifactDialog"
+import { isTableArtifact, useTableArtifactModal } from "./TableArtifactViewer"
 import {
   isThreejsArtifact,
   useThreejsArtifactModal,
@@ -35,12 +36,23 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
     useDeleteTrialArtifactDialog()
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
     useThreejsArtifactModal()
+  const [openTableArtifactModal, renderTableArtifactModal] =
+    useTableArtifactModal()
   const isArtifactModifiable = (trial: Trial) => {
     return trial.state === "Running" || trial.state === "Waiting"
   }
 
   const width = "200px"
   const height = "150px"
+  const artifacts = [...trial.artifacts].sort((a, b) => {
+    if (a.filename < b.filename) {
+      return -1
+    } else if (a.filename > b.filename) {
+      return 1
+    } else {
+      return 0
+    }
+  })
 
   return (
     <>
@@ -54,7 +66,7 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
         component="div"
         sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}
       >
-        {trial.artifacts.map((artifact) => {
+        {artifacts.map((artifact) => {
           const urlPath = `/artifacts/${trial.study_id}/${trial.trial_id}/${artifact.artifact_id}`
           return (
             <Card
@@ -63,6 +75,9 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
                 marginBottom: theme.spacing(2),
                 width: width,
                 margin: theme.spacing(0, 1, 1, 0),
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
               }}
             >
               <ArtifactCardMedia
@@ -81,7 +96,7 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
                   sx={{
                     p: theme.spacing(0.5, 0),
                     flexGrow: 1,
-                    wordWrap: "break-word",
+                    wordBreak: "break-all",
                     maxWidth: `calc(100% - ${theme.spacing(
                       4 +
                         (isThreejsArtifact(artifact) ? 4 : 0) +
@@ -99,6 +114,19 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
                     sx={{ margin: "auto 0" }}
                     onClick={() => {
                       openThreejsArtifactModal(urlPath, artifact)
+                    }}
+                  >
+                    <FullscreenIcon />
+                  </IconButton>
+                ) : null}
+                {isTableArtifact(artifact) ? (
+                  <IconButton
+                    aria-label="show artifact table"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    onClick={() => {
+                      openTableArtifactModal(urlPath, artifact)
                     }}
                   >
                     <FullscreenIcon />
@@ -141,6 +169,7 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
       </Box>
       {renderDeleteArtifactDialog()}
       {renderThreejsArtifactModal()}
+      {renderTableArtifactModal()}
     </>
   )
 }
