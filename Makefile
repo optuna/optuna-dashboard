@@ -52,7 +52,7 @@ docs: docs/conf.py $(RST_FILES)
 .PHONY: fmt
 fmt:
 	npm run fmt
-	black ./optuna_dashboard/ ./python_tests/ ./e2e_tests/
+	black ./optuna_dashboard/ ./python_tests/ ./e2e_tests/ ./jupyterlab/
 	isort .
 
 .PHONY: clean

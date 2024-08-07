@@ -13,8 +13,7 @@ import tornado
 try:
     from optuna.artifacts import FileSystemArtifactStore
 except ImportError:
-    from optuna_dashboard.artifact.file_system import \
-         FileSystemBackend as FileSystemArtifactStore
+    from optuna_dashboard.artifact.file_system import FileSystemBackend as FileSystemArtifactStore
 
 from optuna_dashboard import wsgi
 from tornado.web import FallbackHandler
