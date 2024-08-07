@@ -182,7 +182,7 @@ const StartDashboardForm: FC<{
         artifact_path: artifactPath,
       }),
     })
-      .then((res) => {
+      .then((_res) => {
         setLoading(false)
         showOptunaDashboard()
       })

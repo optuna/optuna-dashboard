@@ -114,6 +114,9 @@ export class JupyterlabAPIClient extends APIClient {
   ): Promise<void> =>
     requestAPI<void>(`/api/studies/${studyId}`, {
       method: "DELETE",
+      body: JSON.stringify({
+        remove_associated_artifacts: removeAssociatedArtifacts,
+      }),
     }).then(() => {
       return
     })
@@ -177,16 +180,13 @@ export class JupyterlabAPIClient extends APIClient {
     fileName: string,
     dataUrl: string
   ): Promise<UploadArtifactAPIResponse> =>
-    requestAPI<UploadArtifactAPIResponse>(
-      `/api/artifacts/${studyId}`,
-      {
-        body: JSON.stringify({
-          file: dataUrl,
-          filename: fileName,
-        }),
-        method: "POST",
-      }
-    ).then((res) => {
+    requestAPI<UploadArtifactAPIResponse>(`/api/artifacts/${studyId}`, {
+      body: JSON.stringify({
+        file: dataUrl,
+        filename: fileName,
+      }),
+      method: "POST",
+    }).then((res) => {
       return res
     })
   deleteTrialArtifact = (
@@ -194,21 +194,15 @@ export class JupyterlabAPIClient extends APIClient {
     trialId: number,
     artifactId: string
   ): Promise<void> =>
-    requestAPI<void>(
-      `/api/artifacts/${studyId}/${trialId}/${artifactId}`,
-      {
-        method: "DELETE",
-      }
-    ).then(() => {
+    requestAPI<void>(`/api/artifacts/${studyId}/${trialId}/${artifactId}`, {
+      method: "DELETE",
+    }).then(() => {
       return
     })
   deleteStudyArtifact = (studyId: number, artifactId: string): Promise<void> =>
-    requestAPI<void>(
-      `/api/artifacts/${studyId}/${artifactId}`,
-      {
-        method: "DELETE",
-      }
-    ).then(() => {
+    requestAPI<void>(`/api/artifacts/${studyId}/${artifactId}`, {
+      method: "DELETE",
+    }).then(() => {
       return
     })
   tellTrial = async (
@@ -293,17 +287,16 @@ export class JupyterlabAPIClient extends APIClient {
     }).then(() => {
       return
     })
-  getPlot = (studyId: number, plotType: PlotType): Promise<PlotResponse> => 
-    requestAPI<PlotResponse>(`/api/studies/${studyId}/plot/${plotType}`)
-  .then<PlotResponse>((res) => (res))
+  getPlot = (studyId: number, plotType: PlotType): Promise<PlotResponse> =>
+    requestAPI<PlotResponse>(
+      `/api/studies/${studyId}/plot/${plotType}`
+    ).then<PlotResponse>((res) => res)
   getCompareStudiesPlot = (
     studyIds: number[],
     plotType: CompareStudiesPlotType
   ): Promise<PlotResponse> => {
-    return requestAPI<PlotResponse>(
-      `/api/compare-studies/plot/${plotType}`, {
-        body: JSON.stringify({ study_ids: studyIds }),
-      }
-    ).then<PlotResponse>((res) => (res))
+    return requestAPI<PlotResponse>(`/api/compare-studies/plot/${plotType}`, {
+      body: JSON.stringify({ study_ids: studyIds }),
+    }).then<PlotResponse>((res) => res)
   }
 }

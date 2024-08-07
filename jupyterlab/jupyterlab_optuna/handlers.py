@@ -4,10 +4,11 @@ import json
 import threading
 from typing import TYPE_CHECKING
 
-import tornado
 from jupyter_server.base.handlers import APIHandler
 from jupyter_server.utils import url_path_join
 from optuna_dashboard.artifact._backend_to_store import to_artifact_store
+import tornado
+
 
 try:
     from optuna.artifacts import FileSystemArtifactStore
@@ -18,6 +19,7 @@ except ImportError:
 from optuna_dashboard import wsgi
 from tornado.web import FallbackHandler
 from tornado.wsgi import WSGIContainer
+
 
 if TYPE_CHECKING:
     from _typeshed.wsgi import WSGIApplication

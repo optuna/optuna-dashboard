@@ -3,3 +3,5 @@ venv
 standalone_app
 vscode
 tslib
+jupyterlab
+pkg
