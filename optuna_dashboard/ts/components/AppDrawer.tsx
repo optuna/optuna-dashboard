@@ -21,7 +21,13 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import Modal from "@mui/material/Modal"
 import Toolbar from "@mui/material/Toolbar"
-import { CSSObject, Theme, styled, useTheme } from "@mui/material/styles"
+import {
+  CSSObject,
+  SxProps,
+  Theme,
+  styled,
+  useTheme,
+} from "@mui/material/styles"
 import React, { FC } from "react"
 import { Link } from "react-router-dom"
 import { useRecoilState, useRecoilValue } from "recoil"
@@ -41,6 +47,7 @@ import QueryStatsIcon from "@mui/icons-material/QueryStats"
 import ThumbUpAltIcon from "@mui/icons-material/ThumbUpAlt"
 import { Switch } from "@mui/material"
 import { actionCreator } from "../action"
+import { useConstants } from "../constantsProvider"
 
 const drawerWidth = 240
 
@@ -129,7 +136,10 @@ export const AppDrawer: FC<{
   toolbar: React.ReactNode
   children?: React.ReactNode
 }> = ({ studyId, toggleColorMode, page, toolbar, children }) => {
+  const { url_prefix } = useConstants()
+
   const theme = useTheme()
+  const constants = useConstants()
   const action = actionCreator()
   const [open, setOpen] = useRecoilState<boolean>(drawerOpenState)
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
@@ -154,6 +164,14 @@ export const AppDrawer: FC<{
   }
   const styleSwitch = {
     display: open ? "inherit" : "none",
+  }
+  const mainSx: SxProps = {
+    flexGrow: 1,
+  }
+  if (constants.environment === "jupyterlab") {
+    // 100vh - (the height of Optuna Dashboard toolbar) - (the height of JupyterLab toolbar)
+    mainSx.height = `calc(100vh - ${theme.mixins.toolbar.minHeight}px - 29px)`
+    mainSx.overflow = "auto"
   }
 
   const handleDrawerOpen = () => {
@@ -209,7 +227,7 @@ export const AppDrawer: FC<{
             <ListItem key="Top" disablePadding sx={styleListItem}>
               <ListItemButton
                 component={Link}
-                to={`${URL_PREFIX}/studies/${studyId}`}
+                to={`${url_prefix}/studies/${studyId}`}
                 sx={styleListItemButton}
                 selected={page === "top"}
               >
@@ -230,7 +248,7 @@ export const AppDrawer: FC<{
               >
                 <ListItemButton
                   component={Link}
-                  to={`${URL_PREFIX}/studies/${studyId}/preference-history`}
+                  to={`${url_prefix}/studies/${studyId}/preference-history`}
                   sx={styleListItemButton}
                   selected={page === "preferenceHistory"}
                 >
@@ -247,7 +265,7 @@ export const AppDrawer: FC<{
             <ListItem key="Analytics" disablePadding sx={styleListItem}>
               <ListItemButton
                 component={Link}
-                to={`${URL_PREFIX}/studies/${studyId}/analytics`}
+                to={`${url_prefix}/studies/${studyId}/analytics`}
                 sx={styleListItemButton}
                 selected={page === "analytics"}
               >
@@ -261,7 +279,7 @@ export const AppDrawer: FC<{
               <ListItem key="PreferenceGraph" disablePadding sx={styleListItem}>
                 <ListItemButton
                   component={Link}
-                  to={`${URL_PREFIX}/studies/${studyId}/graph`}
+                  to={`${url_prefix}/studies/${studyId}/graph`}
                   sx={styleListItemButton}
                   selected={page === "graph"}
                 >
@@ -278,7 +296,7 @@ export const AppDrawer: FC<{
             <ListItem key="TableList" disablePadding sx={styleListItem}>
               <ListItemButton
                 component={Link}
-                to={`${URL_PREFIX}/studies/${studyId}/trials`}
+                to={`${url_prefix}/studies/${studyId}/trials`}
                 sx={styleListItemButton}
                 selected={page === "trialList"}
               >
@@ -291,7 +309,7 @@ export const AppDrawer: FC<{
             <ListItem key="TrialTable" disablePadding sx={styleListItem}>
               <ListItemButton
                 component={Link}
-                to={`${URL_PREFIX}/studies/${studyId}/trialTable`}
+                to={`${url_prefix}/studies/${studyId}/trialTable`}
                 sx={styleListItemButton}
                 selected={page === "trialTable"}
               >
@@ -304,7 +322,7 @@ export const AppDrawer: FC<{
             <ListItem key="Note" disablePadding sx={styleListItem}>
               <ListItemButton
                 component={Link}
-                to={`${URL_PREFIX}/studies/${studyId}/note`}
+                to={`${url_prefix}/studies/${studyId}/note`}
                 sx={styleListItemButton}
                 selected={page === "note"}
               >
@@ -416,7 +434,7 @@ export const AppDrawer: FC<{
           </ListItem>
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1 }}>
+      <Box component="main" sx={mainSx}>
         <DrawerHeader />
         {children || null}
       </Box>

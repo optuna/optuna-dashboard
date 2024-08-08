@@ -28,6 +28,7 @@ import { useRecoilValue } from "recoil"
 import { useNavigate } from "react-router-dom"
 import { StudyDetails, StudySummary } from "ts/types/optuna"
 import { actionCreator } from "../action"
+import { useConstants } from "../constantsProvider"
 import { studyDetailsState, studySummariesState } from "../state"
 import { useQuery } from "../urlQuery"
 import { AppDrawer } from "./AppDrawer"
@@ -51,8 +52,8 @@ const useQueriedStudies = (
   }, [studies, query])
 }
 
-const getStudyListLink = (ids: number[]): string => {
-  const base = URL_PREFIX + "/compare-studies"
+const getStudyListLink = (ids: number[], url_prefix: string): string => {
+  const base = url_prefix + "/compare-studies"
   if (ids.length > 0) {
     return base + "?ids=" + ids.map((n) => n.toString()).join(",")
   }
@@ -75,6 +76,8 @@ const isEqualDirections = (
 export const CompareStudies: FC<{
   toggleColorMode: () => void
 }> = ({ toggleColorMode }) => {
+  const { url_prefix } = useConstants()
+
   const { enqueueSnackbar } = useSnackbar()
   const theme = useTheme()
   const query = useQuery()
@@ -98,7 +101,7 @@ export const CompareStudies: FC<{
     <>
       <IconButton
         component={Link}
-        to={URL_PREFIX + "/"}
+        to={url_prefix + "/"}
         sx={{ marginRight: theme.spacing(1) }}
         color="inherit"
         title="Return to the top page"
@@ -186,9 +189,11 @@ export const CompareStudies: FC<{
                               next = [...selectedIds, study.study_id]
                             }
                           }
-                          navigate(getStudyListLink(next))
+                          navigate(getStudyListLink(next, url_prefix))
                         } else {
-                          navigate(getStudyListLink([study.study_id]))
+                          navigate(
+                            getStudyListLink([study.study_id], url_prefix)
+                          )
                         }
                       }}
                       selected={

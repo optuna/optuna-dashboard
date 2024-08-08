@@ -1,0 +1,132 @@
+{
+    "name": "jupyterlab-optuna",
+    "version": "0.1.0",
+    "description": "A JupyterLab extension for Optuna",
+    "keywords": [
+        "jupyter",
+        "jupyterlab",
+        "jupyterlab-extension",
+        "optuna"
+    ],
+    "homepage": "https://github.com/optuna/optuna-dashboard",
+    "bugs": {
+        "url": "https://github.com/optuna/optuna-dashboard/issues"
+    },
+    "license": "MIT",
+    "author": "Optuna Development Team",
+    "files": [
+        "lib/**/*.{d.ts,eot,gif,html,jpg,js,js.map,json,png,svg,woff2,ttf}",
+        "style/**/*.{css,js,eot,gif,html,jpg,json,png,svg,woff2,ttf}"
+    ],
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts",
+    "style": "style/index.css",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/optuna/optuna-dashboard.git"
+    },
+    "scripts": {
+        "build": "jlpm build:lib && jlpm build:labextension:dev",
+        "build:prod": "jlpm clean && jlpm build:lib:prod && jlpm build:labextension",
+        "build:labextension": "jupyter labextension build .",
+        "build:labextension:dev": "jupyter labextension build --development True .",
+        "build:lib": "tsc --sourceMap",
+        "build:lib:prod": "tsc",
+        "clean": "jlpm clean:lib",
+        "clean:lib": "rimraf lib tsconfig.tsbuildinfo",
+        "clean:labextension": "rimraf jupyterlab_optuna/labextension jupyterlab_optuna/_version.py",
+        "clean:all": "jlpm clean:lib && jlpm clean:labextension",
+        "install:extension": "jlpm build",
+        "lint": "jlpm prettier",
+        "lint:check": "jlpm prettier:check",
+        "prettier": "jlpm prettier:base --write --list-different",
+        "prettier:base": "prettier \"**/*{.ts,.tsx,.js,.jsx,.css,.json,.md}\"",
+        "prettier:check": "jlpm prettier:base --check",
+        "watch": "run-p watch:src watch:labextension",
+        "watch:src": "tsc -w --sourceMap",
+        "watch:labextension": "jupyter labextension watch ."
+    },
+    "dependencies": {
+        "@emotion/react": "^11.10.8",
+        "@emotion/styled": "^11.10.8",
+        "@jupyterlab/application": "^4.0.0",
+        "@jupyterlab/apputils": "^4.0.0",
+        "@jupyterlab/coreutils": "^6.0.0",
+        "@jupyterlab/launcher": "^4.0.0",
+        "@jupyterlab/services": "^7.0.0",
+        "@mui/icons-material": "^5.11.6",
+        "@mui/lab": "^5.0.0-alpha.128",
+        "@mui/material": "^5.12.1",
+        "@optuna/optuna-dashboard": "link:../optuna_dashboard",
+        "@types/chroma-js": "^2.4.1",
+        "@types/signals": "^1.0.2",
+        "elkjs": "^0.8.2",
+        "ngl": "^2.1.1",
+        "notistack": "^3.0.1",
+        "plotly.js-dist-min": "^2.22.0",
+        "react": "link:../tslib/react/node_modules/react",
+        "react-dom": "^18.2.0",
+        "react-markdown": "^8.0.4",
+        "react-router-dom": "6.11.0",
+        "react-syntax-highlighter": "^15.5.0",
+        "reactflow": "^11.8.3",
+        "recoil": "^0.7.7",
+        "rehype-mathjax": "^4.0.2",
+        "remark-gfm": "^3.0.1",
+        "remark-math": "^5.1.1"
+    },
+    "devDependencies": {
+        "@jupyterlab/builder": "^4.0.0",
+        "@optuna/types": "link:../tslib/types",
+        "@types/json-schema": "^7.0.11",
+        "@types/plotly.js": "^2.12.11",
+        "@types/react": "link:../tslib/react/node_modules/@types/react",
+        "@types/react-dom": "^18.0.10",
+        "@types/react-syntax-highlighter": "^15.5.5",
+        "css-loader": "^6.8.1",
+        "mkdirp": "^1.0.3",
+        "npm-run-all": "^4.1.5",
+        "prettier": "^2.8.7",
+        "rimraf": "^4.4.1",
+        "source-map-loader": "^1.0.2",
+        "style-loader": "^3.3.3",
+        "typescript": "~5.0.2",
+        "yjs": "^13.5.0"
+    },
+    "sideEffects": [
+        "style/*.css",
+        "style/index.js"
+    ],
+    "styleModule": "style/index.js",
+    "publishConfig": {
+        "access": "public"
+    },
+    "jupyterlab": {
+        "discovery": {
+            "server": {
+                "managers": [
+                    "pip"
+                ],
+                "base": {
+                    "name": "jupyterlab_optuna"
+                }
+            }
+        },
+        "extension": true,
+        "outputDir": "jupyterlab_optuna/labextension"
+    },
+    "prettier": {
+        "singleQuote": true,
+        "trailingComma": "none",
+        "arrowParens": "avoid",
+        "endOfLine": "auto",
+        "overrides": [
+            {
+                "files": "package.json",
+                "options": {
+                    "tabWidth": 4
+                }
+            }
+        ]
+    }
+}

@@ -34,6 +34,7 @@ import { useRecoilValue } from "recoil"
 import { styled } from "@mui/system"
 import { StudySummary } from "ts/types/optuna"
 import { actionCreator } from "../action"
+import { useConstants } from "../constantsProvider"
 import { studySummariesLoadingState, studySummariesState } from "../state"
 import { useQuery } from "../urlQuery"
 import { AppDrawer } from "./AppDrawer"
@@ -44,6 +45,8 @@ import { useRenameStudyDialog } from "./RenameStudyDialog"
 export const StudyList: FC<{
   toggleColorMode: () => void
 }> = ({ toggleColorMode }) => {
+  const { url_prefix } = useConstants()
+
   const theme = useTheme()
   const action = actionCreator()
 
@@ -152,7 +155,7 @@ export const StudyList: FC<{
       >
         <CardActionArea
           component={Link}
-          to={`${URL_PREFIX}/studies/${study.study_id}`}
+          to={`${url_prefix}/studies/${study.study_id}`}
         >
           <CardContent>
             <Typography variant="h5" sx={{ wordBreak: "break-all" }}>
@@ -257,7 +260,7 @@ export const StudyList: FC<{
                   variant="outlined"
                   startIcon={<CompareIcon />}
                   component={Link}
-                  to={`${URL_PREFIX}/compare-studies`}
+                  to={`${url_prefix}/compare-studies`}
                   sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
                 >
                   Compare

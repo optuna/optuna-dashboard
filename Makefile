@@ -37,6 +37,11 @@ serve-browser-app: tslib $(RUSTLIB_OUT)
 vscode-extension: vscode/assets/bundle.js
 	cd vscode && npm install && npm run vscode:prepublish && vsce package
 
+.PHONY: jupyterlab-extension
+jupyterlab-extension: tslib
+	cd optuna_dashboard && npm install && npm run build:pkg
+	cd jupyterlab && python -m build --sdist
+
 .PHONY: sdist
 sdist: pyproject.toml $(DASHBOARD_TS_OUT)
 	python -m build --sdist
@@ -52,7 +57,7 @@ docs: docs/conf.py $(RST_FILES)
 .PHONY: fmt
 fmt:
 	npm run fmt
-	black ./optuna_dashboard/ ./python_tests/ ./e2e_tests/
+	black ./optuna_dashboard/ ./python_tests/ ./e2e_tests/ ./jupyterlab/
 	isort .
 
 .PHONY: clean

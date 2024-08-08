@@ -4,7 +4,7 @@
     "rootDir": "./ts",
     "outDir": "./pkg",
     "declaration": true,
-    "declarationDir": "./types",
+    "declarationDir": "./pkg",
   },
   "files": [
     "./ts/pkg_index.tsx",

@@ -27,6 +27,7 @@ import { useNavigate } from "react-router-dom"
 import { useRecoilValue } from "recoil"
 import { FormWidgets, StudyDetail, Trial } from "ts/types/optuna"
 import { actionCreator } from "../action"
+import { useConstants } from "../constantsProvider"
 import { artifactIsAvailable } from "../state"
 import { useQuery } from "../urlQuery"
 import { TrialArtifactCards } from "./Artifact/TrialArtifactCards"
@@ -312,7 +313,8 @@ export const TrialListDetail: FC<{
 const getTrialListLink = (
   studyId: number,
   exclude: Optuna.TrialState[],
-  numbers: number[]
+  numbers: number[],
+  URL_PREFIX: string
 ): string => {
   const base = URL_PREFIX + `/studies/${studyId}/trials`
   if (exclude.length > 0 && numbers.length > 0) {
@@ -333,6 +335,8 @@ const getTrialListLink = (
 export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   studyDetail,
 }) => {
+  const { url_prefix } = useConstants()
+
   const theme = useTheme()
   const query = useQuery()
   const navigate = useNavigate()
@@ -417,7 +421,12 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                     }
                     const numbers = selected.map((t) => t.number)
                     navigate(
-                      getTrialListLink(studyDetail.id, excludedStates, numbers)
+                      getTrialListLink(
+                        studyDetail.id,
+                        excludedStates,
+                        numbers,
+                        url_prefix
+                      )
                     )
                   }}
                   disabled={trialCounts[i] === 0}
@@ -476,13 +485,21 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                           next = [...selectedNumbers, trial.number]
                         }
                         navigate(
-                          getTrialListLink(trial.study_id, excludedStates, next)
+                          getTrialListLink(
+                            trial.study_id,
+                            excludedStates,
+                            next,
+                            url_prefix
+                          )
                         )
                       } else {
                         navigate(
-                          getTrialListLink(trial.study_id, excludedStates, [
-                            trial.number,
-                          ])
+                          getTrialListLink(
+                            trial.study_id,
+                            excludedStates,
+                            [trial.number],
+                            url_prefix
+                          )
                         )
                       }
                     }}

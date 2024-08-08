@@ -23,6 +23,7 @@ import * as plotly from "plotly.js-dist-min"
 import React, { ChangeEvent, FC, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { StudyDetail } from "ts/types/optuna"
+import { useConstants } from "../constantsProvider"
 import { usePlotlyColorTheme } from "../state"
 
 const plotDomId = "graph-history"
@@ -39,6 +40,8 @@ export const GraphHistory: FC<{
   logScale: boolean
   includePruned: boolean
 }> = ({ studies, logScale, includePruned }) => {
+  const { url_prefix } = useConstants()
+
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
   const navigate = useNavigate()
@@ -100,7 +103,7 @@ export const GraphHistory: FC<{
             studyId = studies[Math.floor(data.points[0].curveNumber / 2)].id
           }
           navigate(
-            URL_PREFIX +
+            url_prefix +
               `/studies/${studyId}/trials?numbers=${data.points[0].x}`
           )
         }

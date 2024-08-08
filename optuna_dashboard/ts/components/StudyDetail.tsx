@@ -14,6 +14,7 @@ import { Link, useParams } from "react-router-dom"
 import { useRecoilValue } from "recoil"
 
 import { actionCreator } from "../action"
+import { useConstants } from "../constantsProvider"
 import {
   reloadIntervalState,
   useStudyDetailValue,
@@ -49,6 +50,8 @@ export const StudyDetail: FC<{
   toggleColorMode: () => void
   page: PageId
 }> = ({ toggleColorMode, page }) => {
+  const { url_prefix } = useConstants()
+
   const theme = useTheme()
   const action = actionCreator()
   const studyId = useURLVars()
@@ -223,7 +226,7 @@ export const StudyDetail: FC<{
     <>
       <IconButton
         component={Link}
-        to={URL_PREFIX + "/"}
+        to={url_prefix + "/"}
         sx={{ marginRight: theme.spacing(1) }}
         color="inherit"
         title="Return to the top page"

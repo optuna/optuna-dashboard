@@ -10,7 +10,9 @@
 			"vscode/src/**/*.tsx",
 			"tslib/**/*.ts",
 			"tslib/**/*.tsx",
-			"tslib/**/*.mjs"
+			"tslib/**/*.mjs",
+			"jupyterlab/src/**/*.ts",
+			"jupyterlab/src/**/*.tsx"
 		],
 		"ignore": [
 			"optuna_dashboard/ts/components/PlotlyColorTemplates.ts",
