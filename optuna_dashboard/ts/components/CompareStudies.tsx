@@ -52,8 +52,8 @@ const useQueriedStudies = (
   }, [studies, query])
 }
 
-const getStudyListLink = (ids: number[], URL_PREFIX: string): string => {
-  const base = URL_PREFIX + "/compare-studies"
+const getStudyListLink = (ids: number[], url_prefix: string): string => {
+  const base = url_prefix + "/compare-studies"
   if (ids.length > 0) {
     return base + "?ids=" + ids.map((n) => n.toString()).join(",")
   }

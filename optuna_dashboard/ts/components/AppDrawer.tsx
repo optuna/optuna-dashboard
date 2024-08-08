@@ -21,7 +21,13 @@ import ListItemIcon from "@mui/material/ListItemIcon"
 import ListItemText from "@mui/material/ListItemText"
 import Modal from "@mui/material/Modal"
 import Toolbar from "@mui/material/Toolbar"
-import { CSSObject, SxProps, Theme, styled, useTheme } from "@mui/material/styles"
+import {
+  CSSObject,
+  SxProps,
+  Theme,
+  styled,
+  useTheme,
+} from "@mui/material/styles"
 import React, { FC } from "react"
 import { Link } from "react-router-dom"
 import { useRecoilState, useRecoilValue } from "recoil"
@@ -428,7 +434,7 @@ export const AppDrawer: FC<{
           </ListItem>
         </List>
       </Drawer>
-      <Box component="main" sx={ mainSx }>
+      <Box component="main" sx={mainSx}>
         <DrawerHeader />
         {children || null}
       </Box>
