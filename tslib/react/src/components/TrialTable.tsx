@@ -66,9 +66,14 @@ export const TrialTable: FC<{
     for (const s of study.union_search_space) {
       columns.push(
         columnHelper.accessor(
-          (row) =>
-            row.params.find((p) => p.name === s.name)?.param_external_value ||
-            null,
+          (row) => {
+            const param_external_value = row.params.find(
+              (p) => p.name === s.name
+            )?.param_external_value
+            return param_external_value === undefined
+              ? null
+              : param_external_value
+          },
           {
             id: `params_${s.name}`,
             header: `Param ${s.name}`,
@@ -86,8 +91,12 @@ export const TrialTable: FC<{
     for (const attr_spec of study.union_user_attrs) {
       columns.push(
         columnHelper.accessor(
-          (row) =>
-            row.user_attrs.find((a) => a.key === attr_spec.key)?.value || null,
+          (row) => {
+            const value = row.user_attrs.find(
+              (a) => a.key === attr_spec.key
+            )?.value
+            return value === undefined ? null : value
+          },
           {
             id: `user_attrs_${attr_spec.key}`,
             header: `UserAttribute ${attr_spec.key}`,
