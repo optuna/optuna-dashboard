@@ -117,5 +117,5 @@ jobs:
       - name: Build package
         run: |
           npm install -g yarn
-          yarn install
+          cd jupyterlab && yarn install
           make jupyterlab-extension
