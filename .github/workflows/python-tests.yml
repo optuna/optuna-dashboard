@@ -116,6 +116,7 @@ jobs:
       
       - name: Build package
         run: |
+          make tslib
+          cd optuna_dashboard && npm install && npm run build:pkg && cd ..
           npm install -g yarn
-          cd jupyterlab && yarn install
-          make jupyterlab-extension
+          cd jupyterlab && yarn install && python -m build --sdist
