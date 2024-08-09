@@ -31,7 +31,7 @@ tslib-test: tslib
 
 .PHONY: serve-browser-app
 serve-browser-app: tslib $(RUSTLIB_OUT)
-	cd standalone_app && npm run watch
+	cd standalone_app && npm install && npm run watch
 
 .PHONY: vscode-extension
 vscode-extension: vscode/assets/bundle.js
