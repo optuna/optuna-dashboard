@@ -726,6 +726,28 @@ class APITestCase(TestCase):
                 )
                 self.assertEqual(status, 400)
 
+    def test_rename_study(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = optuna.create_study(study_name="foo", storage=storage)
+        study.set_user_attr("key1", "value1")
+        study.optimize(objective, n_trials=2)
+
+        app = create_app(storage)
+        status, _, _ = send_request(
+            app,
+            f"/api/studies/{study._study_id}/rename",
+            "POST",
+            body=json.dumps({"study_name": "bar"}),
+            content_type="application/json",
+        )
+        self.assertEqual(status, 201)
+
+        renamed_study = optuna.load_study(study_name="bar", storage=storage)
+        self.assertNotEqual(study._study_id, renamed_study._study_id)
+        self.assertEqual(len(renamed_study.trials), 2)
+        self.assertEqual(renamed_study.user_attrs, {"key1": "value1"})
+        self.assertEqual(len(get_all_study_summaries(storage)), 1)
+
 
 class BottleRequestHookTestCase(TestCase):
     def test_ignore_trailing_slashes(self) -> None:
