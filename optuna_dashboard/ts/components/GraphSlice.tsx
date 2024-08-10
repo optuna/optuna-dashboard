@@ -1,3 +1,4 @@
+import { useTheme } from "@mui/material"
 import {
   GraphContainer,
   PlotSlice,
@@ -8,7 +9,7 @@ import React, { FC, useEffect } from "react"
 import { StudyDetail } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { usePlot } from "../hooks/usePlot"
-import { useBackendRender } from "../state"
+import { useBackendRender, usePlotlyColorTheme } from "../state"
 
 export const GraphSlice: FC<{
   study: StudyDetail | null
@@ -16,7 +17,9 @@ export const GraphSlice: FC<{
   if (useBackendRender()) {
     return <GraphSliceBackend study={study} />
   } else {
-    return <PlotSlice study={study} />
+    const theme = useTheme()
+    const colorTheme = usePlotlyColorTheme(theme.palette.mode)
+    return <PlotSlice study={study} colorTheme={colorTheme} />
   }
 }
 
