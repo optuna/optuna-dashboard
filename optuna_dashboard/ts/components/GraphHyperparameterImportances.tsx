@@ -1,4 +1,4 @@
-import { Box, Card, CardContent } from "@mui/material"
+import { Box, Card, CardContent, useTheme } from "@mui/material"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
 
@@ -7,7 +7,7 @@ import { StudyDetail } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { useParamImportance } from "../hooks/useParamImportance"
 import { usePlot } from "../hooks/usePlot"
-import { useBackendRender } from "../state"
+import { useBackendRender, usePlotlyColorTheme } from "../state"
 
 const plotDomId = "graph-hyperparameter-importances"
 
@@ -32,6 +32,8 @@ export const GraphHyperparameterImportance: FC<{
       />
     )
   } else {
+    const theme = useTheme()
+    const colorTheme = usePlotlyColorTheme(theme.palette.mode)
     return (
       <Card>
         <CardContent>
@@ -39,6 +41,7 @@ export const GraphHyperparameterImportance: FC<{
             study={study}
             importance={importances}
             graphHeight={graphHeight}
+            colorTheme={colorTheme}
           />
         </CardContent>
       </Card>
