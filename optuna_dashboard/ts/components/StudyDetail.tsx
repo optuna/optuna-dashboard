@@ -1,7 +1,6 @@
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import DownloadIcon from "@mui/icons-material/Download"
 import HomeIcon from "@mui/icons-material/Home"
-import LinkIcon from "@mui/icons-material/Link"
 import {
   Box,
   Button,
@@ -184,18 +183,8 @@ export const StudyDetail: FC<{
   } else if (page === "trialList") {
     content = <TrialList studyDetail={studyDetail} />
   } else if (page === "trialTable" && study !== null) {
-    const detailButtonGenerator = (studyId: number, trialNumber: number) => {
-      return (
-        <IconButton
-          component={Link}
-          to={url_prefix + `/studies/${studyId}/trials?numbers=${trialNumber}`}
-          color="inherit"
-          title="Go to the trial's detail page"
-          size="small"
-        >
-          <LinkIcon />
-        </IconButton>
-      )
+    const linkURL = (studyId: number, trialNumber: number) => {
+      return url_prefix + `/studies/${studyId}/trials?numbers=${trialNumber}`
     }
     content = (
       <Box
@@ -204,10 +193,7 @@ export const StudyDetail: FC<{
       >
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
-            <TrialTable
-              study={study}
-              detailButtonGenerator={detailButtonGenerator}
-            />
+            <TrialTable study={study} linkComponent={Link} linkURL={linkURL} />
             <Button
               variant="outlined"
               startIcon={<DownloadIcon />}

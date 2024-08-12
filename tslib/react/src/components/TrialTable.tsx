@@ -1,3 +1,5 @@
+import { Link as LinkIcon } from "@mui/icons-material"
+import { IconButton } from "@mui/material"
 import { FC } from "react"
 
 import * as Optuna from "@optuna/types"
@@ -22,8 +24,10 @@ const multiValueFilter: FilterFn<Optuna.Trial> = <D extends object>(
 export const TrialTable: FC<{
   study: Optuna.Study
   initialRowsPerPage?: number
-  detailButtonGenerator?: (studyId: number, trialNumber: number) => JSX.Element
-}> = ({ study, initialRowsPerPage, detailButtonGenerator }) => {
+  // biome-ignore lint/suspicious/noExplicitAny: Any react component.
+  linkComponent?: React.ComponentType<any>
+  linkURL?: (studyId: number, trialNumber: number) => string
+}> = ({ study, initialRowsPerPage, linkComponent, linkURL }) => {
   const trials: Optuna.Trial[] = study.trials
   const metricNames: string[] = study.metric_names || []
 
@@ -126,15 +130,21 @@ export const TrialTable: FC<{
       )
     }
   }
-  if (detailButtonGenerator) {
+  if (linkComponent !== undefined && linkURL !== undefined) {
     columns.push(
       columnHelper.accessor((row) => row, {
         header: "Detail",
-        cell: (info) =>
-          detailButtonGenerator(
-            info.getValue().study_id,
-            info.getValue().number
-          ),
+        cell: (info) => (
+          <IconButton
+            component={linkComponent}
+            to={linkURL(info.getValue().study_id, info.getValue().number)}
+            color="inherit"
+            title="Go to the trial's detail page"
+            size="small"
+          >
+            <LinkIcon />
+          </IconButton>
+        ),
         enableSorting: false,
         enableColumnFilter: false,
       })
