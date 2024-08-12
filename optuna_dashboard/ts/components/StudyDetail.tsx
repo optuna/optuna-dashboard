@@ -188,7 +188,7 @@ export const StudyDetail: FC<{
       return (
         <IconButton
           component={Link}
-          to={URL_PREFIX + `/studies/${studyId}/trials?numbers=${trialNumber}`}
+          to={url_prefix + `/studies/${studyId}/trials?numbers=${trialNumber}`}
           color="inherit"
           title="Go to the trial's detail page"
           size="small"
