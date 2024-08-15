@@ -4,7 +4,7 @@ import * as plotly from "plotly.js-dist-min"
 import { FC, useEffect, useMemo } from "react"
 import { useGraphComponentState } from "../hooks/useGraphComponentState"
 import { Target, useFilteredTrialsFromStudies } from "../utils/trialFilter"
-import { GraphContainer } from"./GraphContainer"
+import { GraphContainer } from "./GraphContainer"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 export type EdfPlotInfo = {
