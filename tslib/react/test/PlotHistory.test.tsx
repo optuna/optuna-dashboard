@@ -18,7 +18,7 @@ describe("PlotHistory Tests", async () => {
     }) => <div data-testid={dataTestId}>{children}</div>
     return render(
       <Wrapper dataTestId={dataTestId}>
-        <PlotHistory study={study} />
+        <PlotHistory studies={[study]} />
       </Wrapper>
     )
   }

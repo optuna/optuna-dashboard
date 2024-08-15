@@ -84,6 +84,7 @@ export const PlotHistory: FC<{
     }
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (graphComponentState !== "componentWillMount") {
       plotHistory(
@@ -93,9 +94,16 @@ export const PlotHistory: FC<{
         logScale,
         colorThemeUsed,
         markerSize
-      )
+      )?.then(notifyGraphDidRender)
     }
-  }, [graphComponentState, studies, selected, logScale, xAxis, colorThemeUsed, markerSize])
+  }, [
+    historyPlotInfos,
+    selected,
+    xAxis,
+    colorThemeUsed,
+    markerSize,
+    graphComponentState,
+  ])
 
   return (
     <Grid container direction="row">
@@ -122,8 +130,8 @@ export const PlotHistory: FC<{
               value={selected.identifier()}
               onChange={handleObjectiveChange}
             >
-              {targets.map((t, i) => (
-                <MenuItem value={t.identifier()} key={i}>
+              {targets.map((t) => (
+                <MenuItem value={t.identifier()} key={t.identifier()}>
                   {t.toLabel(studies[0].metric_names)}
                 </MenuItem>
               ))}
@@ -324,5 +332,5 @@ const plotHistory = (
     })
   }
   plotData.push(...infeasiblePlotData)
-  plotly.react(plotDomId, plotData, layout)
+  return plotly.react(plotDomId, plotData, layout)
 }

@@ -173,7 +173,7 @@ export const StudyDetail: FC<{
           </Typography>
           <Card sx={{ margin: theme.spacing(2) }}>
             <CardContent>
-              <PlotHistory study={study} />
+              {!!study && <PlotHistory studies={[study]} />}
             </CardContent>
           </Card>
           <Grid container spacing={0}>
