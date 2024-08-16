@@ -16,22 +16,16 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: '20'
-    
-      - name: Build bundle.js
-        working-directory: optuna_dashboard
-        run: |
-          npm install
-          npm run build:prd
-
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
+          python-version: '3.11'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools
           pip install --progress-bar off wheel twine build
-      - run: python -m build --sdist --wheel
+
+      - run: make python-package
       - run: twine check dist/*
 
       - name: Create GitHub release
