@@ -6,6 +6,10 @@ Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how 
 
 ## [Unreleased]
 
+## 0.3.1
+
+* [bug] Fix the bug of boolean parameters are not displayed ([issue #912](https://github.com/optuna/optuna-dashboard/issues/912))
+
 ## 0.3.0
 
 * [bug] Fix a bug that the extension cannot show studies on the first attempt.
