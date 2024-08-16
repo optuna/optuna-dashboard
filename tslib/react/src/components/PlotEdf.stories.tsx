@@ -3,6 +3,7 @@ import { Meta, StoryObj } from "@storybook/react"
 import React from "react"
 import { useMockStudy } from "../MockStudies"
 import { lightTheme } from "../styles/lightTheme"
+import { darkTheme } from "../styles/darkTheme"
 import { PlotEdf } from "./PlotEdf"
 
 const meta: Meta<typeof PlotEdf> = {
@@ -11,10 +12,14 @@ const meta: Meta<typeof PlotEdf> = {
   tags: ["autodocs"],
   decorators: [
     (Story, storyContext) => {
-      const { study } = useMockStudy(storyContext.parameters?.studyId)
+      const studyId = storyContext.parameters?.studyId;
+      const theme = storyContext.parameters?.theme;
+
+      const { study } = useMockStudy(studyId)
       if (!study) return <p>loading...</p>
+
       return (
-        <ThemeProvider theme={lightTheme}>
+        <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
           <CssBaseline />
           <Story
             args={{
@@ -31,8 +36,16 @@ const meta: Meta<typeof PlotEdf> = {
 export default meta
 type Story = StoryObj<typeof PlotEdf>
 
-export const MockStudyExample1: Story = {
+export const LightTheme: Story = {
   parameters: {
     studyId: 1,
+    theme: "light",
+  },
+}
+
+export const DarkTheme: Story = {
+  parameters: {
+    studyId: 1,
+    theme: "dark",
   },
 }
