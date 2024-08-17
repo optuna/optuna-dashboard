@@ -55,3 +55,10 @@ export const DarkTheme: Story = {
 //     ...
 //   },
 // }
+
+// TODO(c-bata): Add a story for multi objective study.
+// export const MultiObjective: Story = {
+//   parameters: {
+//     ...
+//   },
+// }
