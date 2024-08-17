@@ -2,24 +2,22 @@ import { CssBaseline, ThemeProvider } from "@mui/material"
 import { Meta, StoryObj } from "@storybook/react"
 import React from "react"
 import { useMockStudy } from "../MockStudies"
-import { lightTheme } from "../styles/lightTheme"
 import { darkTheme } from "../styles/darkTheme"
+import { lightTheme } from "../styles/lightTheme"
 import { PlotEdf } from "./PlotEdf"
 
 const meta: Meta<typeof PlotEdf> = {
   component: PlotEdf,
-  title: "PlotEdf",
+  title: "Plot/EDF",
   tags: ["autodocs"],
   decorators: [
     (Story, storyContext) => {
-      const studyId = storyContext.parameters?.studyId;
-      const theme = storyContext.parameters?.theme;
-
+      const studyId = storyContext.parameters?.studyId
       const { study } = useMockStudy(studyId)
       if (!study) return <p>loading...</p>
 
       return (
-        <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
+        <ThemeProvider theme={storyContext.parameters?.theme}>
           <CssBaseline />
           <Story
             args={{
@@ -34,18 +32,26 @@ const meta: Meta<typeof PlotEdf> = {
 }
 
 export default meta
+
 type Story = StoryObj<typeof PlotEdf>
 
 export const LightTheme: Story = {
   parameters: {
     studyId: 1,
-    theme: "light",
+    theme: lightTheme,
   },
 }
 
 export const DarkTheme: Story = {
   parameters: {
     studyId: 1,
-    theme: "dark",
+    theme: darkTheme,
   },
 }
+
+// TODO(c-bata): Add a story for the case where two studies are compared.
+// export const CompareStudy: Story = {
+//   parameters: {
+//     ...
+//   },
+// }
