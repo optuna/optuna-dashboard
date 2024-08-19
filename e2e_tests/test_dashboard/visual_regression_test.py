@@ -294,9 +294,10 @@ def test_study_analytics(
     study_name = study.study_name
     url = f"{server_url}/studies/{study_id}"
 
+    page.on("console", lambda msg: print(f"error: {msg.text}") if msg.type == "error" else None)
     page.goto(url)
     page.click(f"a[href='/dashboard/studies/{study_id}/analytics']")
-
+    page.wait_for_selector(".MuiTypography-body1", timeout=20 * 1000)
     element = page.query_selector(".MuiTypography-body1")
     assert element is not None
 

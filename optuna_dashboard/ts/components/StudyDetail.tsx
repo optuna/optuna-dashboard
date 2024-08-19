@@ -24,7 +24,6 @@ import {
 import { AppDrawer, PageId } from "./AppDrawer"
 import { Contour } from "./GraphContour"
 import { GraphEdf } from "./GraphEdf"
-import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { GraphRank } from "./GraphRank"
 import { GraphSlice } from "./GraphSlice"
 import { StudyNote } from "./Note"
@@ -122,11 +121,6 @@ export const StudyDetail: FC<{
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
             <GraphSlice study={studyDetail} />
-          </CardContent>
-        </Card>
-        <Card sx={{ margin: theme.spacing(2) }}>
-          <CardContent>
-            <GraphParallelCoordinate study={studyDetail} />
           </CardContent>
         </Card>
         <Card sx={{ margin: theme.spacing(2) }}>
