@@ -37,9 +37,17 @@ export const PlotParallelCoordinate: FC<{
   const trials = useFilteredTrials(study, targets, false)
   useEffect(() => {
     if (study !== null && graphComponentState !== "componentWillMount") {
-      plotCoordinate(study, trials, targets, searchSpace, colorThemeUsed)?.then(
-        notifyGraphDidRender
-      )
+      try {
+        plotCoordinate(
+          study,
+          trials,
+          targets,
+          searchSpace,
+          colorThemeUsed
+        )?.then(notifyGraphDidRender)
+      } catch (e) {
+        console.error(e)
+      }
     }
   }, [
     study,
