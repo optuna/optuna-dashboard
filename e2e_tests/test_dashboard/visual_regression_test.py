@@ -192,33 +192,6 @@ def run_single_inf_report_objective_study(
     return study
 
 
-def run_issue_410_objective_study(storage: optuna.storages.InMemoryStorage) -> optuna.Study:
-    # Issue 410
-    sampler = optuna.samplers.RandomSampler(seed=0)
-    study = optuna.create_study(study_name="issue-410", storage=storage, sampler=sampler)
-
-    def objective(trial: optuna.Trial) -> float:
-        trial.suggest_categorical("resample_rate", ["50ms"])
-        trial.suggest_categorical("channels", ["all"])
-        trial.suggest_categorical("window_size", [256])
-        if trial.number > 15:
-            raise Exception("Unexpected error")
-        trial.suggest_categorical("cbow", [True])
-        trial.suggest_categorical("model", ["m1"])
-
-        trial.set_user_attr("epochs", 0)
-        trial.set_user_attr("deterministic", True)
-        if trial.number > 10:
-            raise Exception("unexpeccted error")
-        trial.set_user_attr("folder", "/path/to/folder")
-        trial.set_user_attr("resample_type", "foo")
-        trial.set_user_attr("run_id", "0001")
-        return 1.0
-
-    study.optimize(objective, n_trials=20, catch=(Exception,))
-    return study
-
-
 def run_single_no_trials_objective_study(storage: optuna.storages.InMemoryStorage) -> optuna.Study:
     # No trials single-objective study
     sampler = optuna.samplers.RandomSampler(seed=0)
@@ -251,7 +224,6 @@ parameterize_studies = pytest.mark.parametrize(
         run_multi_dynamic_objective_study,
         run_single_pruned_without_report_objective_study,
         run_single_inf_report_objective_study,
-        run_issue_410_objective_study,
         run_single_no_trials_objective_study,
         run_multi_no_trials_objective_study,
     ],

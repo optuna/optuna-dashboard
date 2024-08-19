@@ -5,6 +5,10 @@ on:
       - main
     paths:
       - '.github/workflows/e2e-standalone-tests.yml'
+      - 'tslib/**.ts'
+      - 'tslib/**.tsx'
+      - 'tslib/**/package.json'
+      - 'tslib/**/package-lock.json'
       - 'standalone_app/**.ts'
       - 'standalone_app/**.tsx'
       - 'standalone_app/package.json'
@@ -34,7 +38,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.10'
+          python-version: '3.11'
           architecture: x64
 
       - name: Setup Optuna ${{ matrix.optuna-version }}
