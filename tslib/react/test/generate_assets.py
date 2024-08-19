@@ -449,7 +449,11 @@ def create_optuna_storage(
 
     # optuna-dashboard issue 410
     # https://github.com/optuna/optuna-dashboard/issues/410
-    study = optuna.create_study(study_name="optuna-dashboard-issue-410", storage=storage, sampler=optuna.samplers.RandomSampler())
+    study = optuna.create_study(
+        study_name="optuna-dashboard-issue-410",
+        storage=storage,
+        sampler=optuna.samplers.RandomSampler(),
+    )
 
     def objective_issue_410(trial: optuna.Trial) -> float:
         trial.suggest_categorical("resample_rate", ["50ms"])
