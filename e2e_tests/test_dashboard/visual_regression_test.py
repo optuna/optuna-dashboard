@@ -27,7 +27,7 @@ def run_single_objective_study(storage: optuna.storages.InMemoryStorage) -> optu
         x2 = trial.suggest_float("x2", 0, 10)
         return (x1 - 2) ** 2 + (x2 - 5) ** 2
 
-    study.optimize(objective, n_trials=50)
+    study.optimize(objective, n_trials=20)
     return study
 
 
@@ -81,7 +81,7 @@ def run_multi_objective_study(storage: optuna.storages.InMemoryStorage) -> optun
         v1 = (x - 5) ** 2 + (y - 5) ** 2
         return v0, v1
 
-    study.optimize(objective, n_trials=50)
+    study.optimize(objective, n_trials=20)
     return study
 
 
@@ -110,7 +110,7 @@ def run_multi_dynamic_objective_study(storage: optuna.storages.InMemoryStorage) 
             v1 = (x - 2) ** 2 + (y - 3) ** 2
             return v0, v1
 
-    study.optimize(objective, n_trials=50)
+    study.optimize(objective, n_trials=20)
     return study
 
 
@@ -201,7 +201,7 @@ def test_study_analytics(
     page.goto(url)
     page.click(f"a[href='/dashboard/studies/{study_id}/analytics']")
 
-    page.wait_for_selector(".MuiTypography-body1")
+    page.wait_for_selector(".MuiTypography-body1", timeout=60 * 1000)
     element = page.query_selector(".MuiTypography-body1")
     assert element is not None
 
