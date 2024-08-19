@@ -193,11 +193,11 @@ def test_study_analytics(
     run_study: Callable[[optuna.storages.InMemoryStorage], optuna.Study],
 ) -> None:
     study = run_study(storage)
-
     study_id = study._study_id
     study_name = study.study_name
     url = f"{server_url}/studies/{study_id}"
 
+    page.on("console", lambda msg: print(f"error: {msg.text}") if msg.type == "error" else None)
     page.goto(url)
     page.click(f"a[href='/dashboard/studies/{study_id}/analytics']")
 
