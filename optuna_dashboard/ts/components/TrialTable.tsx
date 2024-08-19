@@ -32,7 +32,7 @@ export const TrialTable: FC<{
 
   const theme = useTheme()
   const trials: Trial[] = studyDetail !== null ? studyDetail.trials : []
-  const objectiveNames: string[] = studyDetail?.objective_names || []
+  const metricNames: string[] = studyDetail?.metric_names || []
 
   const columnHelper = createColumnHelper<Trial>()
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -63,8 +63,8 @@ export const TrialTable: FC<{
         columnHelper.accessor((row) => row["values"]?.[objectiveId], {
           id: `values_${objectiveId}`,
           header:
-            objectiveNames.length === studyDetail?.directions.length
-              ? objectiveNames[objectiveId]
+            metricNames.length === studyDetail?.directions.length
+              ? metricNames[objectiveId]
               : `Objective ${objectiveId}`,
           enableSorting: true,
           enableColumnFilter: false,

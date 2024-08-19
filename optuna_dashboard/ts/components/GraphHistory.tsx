@@ -32,7 +32,7 @@ interface HistoryPlotInfo {
   study_name: string
   trials: Optuna.Trial[]
   directions: Optuna.StudyDirection[]
-  objective_names?: string[]
+  metric_names?: string[]
 }
 
 export const GraphHistory: FC<{
@@ -63,7 +63,7 @@ export const GraphHistory: FC<{
       study_name: study?.name,
       trials: trials[index],
       directions: study?.directions,
-      objective_names: study?.objective_names,
+      metric_names: study?.metric_names,
     }
     return h
   })
@@ -164,7 +164,7 @@ export const GraphHistory: FC<{
             >
               {targets.map((t, i) => (
                 <MenuItem value={t.identifier()} key={i}>
-                  {t.toLabel(studies[0].objective_names)}
+                  {t.toLabel(studies[0].metric_names)}
                 </MenuItem>
               ))}
             </Select>
@@ -253,7 +253,7 @@ const plotHistory = (
       b: 0,
     },
     yaxis: {
-      title: target.toLabel(historyPlotInfos[0].objective_names),
+      title: target.toLabel(historyPlotInfos[0].metric_names),
       type: logScale ? "log" : "linear",
     },
     xaxis: {
@@ -293,7 +293,7 @@ const plotHistory = (
       y: feasibleTrials.map(
         (t: Optuna.Trial): number => target.getTargetValue(t) as number
       ),
-      name: `${target.toLabel(h.objective_names)} of ${h.study_name}`,
+      name: `${target.toLabel(h.metric_names)} of ${h.study_name}`,
       marker: {
         size: markerSize,
       },
