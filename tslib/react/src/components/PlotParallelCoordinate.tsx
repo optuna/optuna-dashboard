@@ -37,6 +37,9 @@ export const PlotParallelCoordinate: FC<{
   const trials = useFilteredTrials(study, targets, false)
   useEffect(() => {
     if (study !== null && graphComponentState !== "componentWillMount") {
+      // TODO(c-bata): Fix the broken E2E tests.
+      // https://github.com/optuna/optuna-dashboard/pull/929#issuecomment-2296632106
+      // https://github.com/optuna/optuna-dashboard/actions/runs/10451985071/job/28939493755?pr=937
       try {
         plotCoordinate(
           study,
