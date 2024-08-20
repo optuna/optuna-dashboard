@@ -9,6 +9,7 @@ import {
   Select,
   SelectChangeEvent,
   Slider,
+  Switch,
   Typography,
   useTheme,
 } from "@mui/material"
@@ -35,9 +36,9 @@ interface HistoryPlotInfo {
 
 export const PlotHistory: FC<{
   studies: Optuna.Study[]
+  logScale?: boolean
   colorTheme?: Partial<Plotly.Template>
-}> = ({ studies, colorTheme }) => {
-  const logScale = false
+}> = ({ studies, logScale, colorTheme }) => {
   const filterPrunedTrial = false
 
   const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
@@ -49,6 +50,9 @@ export const PlotHistory: FC<{
   const [xAxis, setXAxis] = useState<
     "number" | "datetime_start" | "datetime_complete"
   >("number")
+
+  const [logScaleInternal, setLogScaleInternal] = useState<boolean>(false)
+
   const [markerSize, setMarkerSize] = useState<number>(5)
 
   const [targets, selected, setTarget] =
@@ -74,6 +78,10 @@ export const PlotHistory: FC<{
     setTarget(event.target.value)
   }
 
+  const handleLogScaleChange = () => {
+    setLogScaleInternal(!logScaleInternal)
+  }
+
   const handleXAxisChange = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.value === "number") {
       setXAxis("number")
@@ -91,7 +99,7 @@ export const PlotHistory: FC<{
         historyPlotInfos,
         selected,
         xAxis,
-        logScale,
+        logScale === undefined ? logScaleInternal : logScale,
         colorThemeUsed,
         markerSize
       )?.then(notifyGraphDidRender)
@@ -100,6 +108,8 @@ export const PlotHistory: FC<{
     historyPlotInfos,
     selected,
     xAxis,
+    logScale,
+    logScaleInternal,
     colorThemeUsed,
     markerSize,
     graphComponentState,
@@ -166,6 +176,19 @@ export const PlotHistory: FC<{
             />
           </RadioGroup>
         </FormControl>
+        {logScale === undefined ? (
+          <FormControl
+            component="fieldset"
+            sx={{ marginBottom: theme.spacing(2) }}
+          >
+            <FormLabel component="legend">Log y scale:</FormLabel>
+            <Switch
+              checked={logScaleInternal}
+              onChange={handleLogScaleChange}
+              value="enable"
+            />
+          </FormControl>
+        ) : null}
         <FormControl>
           <FormLabel component="legend">Marker size:</FormLabel>
           <Slider
