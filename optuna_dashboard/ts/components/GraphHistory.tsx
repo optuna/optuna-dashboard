@@ -8,13 +8,14 @@ export const GraphHistory: FC<{
   studies: StudyDetail[]
   logScale: boolean
   includePruned: boolean
-}> = ({ studies, logScale }) => {
+}> = ({ studies, logScale, includePruned }) => {
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
   return (
     <PlotHistory
       studies={studies}
       logScale={logScale}
+      includePruned={includePruned}
       colorTheme={colorTheme}
     />
   )

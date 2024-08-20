@@ -37,10 +37,9 @@ interface HistoryPlotInfo {
 export const PlotHistory: FC<{
   studies: Optuna.Study[]
   logScale?: boolean
+  includePruned?: boolean
   colorTheme?: Partial<Plotly.Template>
-}> = ({ studies, logScale, colorTheme }) => {
-  const filterPrunedTrial = false
-
+}> = ({ studies, logScale, includePruned, colorTheme }) => {
   const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const theme = useTheme()
@@ -52,6 +51,8 @@ export const PlotHistory: FC<{
   >("number")
 
   const [logScaleInternal, setLogScaleInternal] = useState<boolean>(false)
+  const [includePrunedInternal, setIncludePrunedInternal] =
+    useState<boolean>(true)
 
   const [markerSize, setMarkerSize] = useState<number>(5)
 
@@ -61,7 +62,7 @@ export const PlotHistory: FC<{
   const trials = useFilteredTrialsFromStudies(
     studies,
     [selected],
-    filterPrunedTrial
+    includePruned === undefined ? !includePrunedInternal : !includePruned
   )
 
   const historyPlotInfos = studies.map((study, index) => {
@@ -80,6 +81,10 @@ export const PlotHistory: FC<{
 
   const handleLogScaleChange = () => {
     setLogScaleInternal(!logScaleInternal)
+  }
+
+  const handleIncludePrunedChange = () => {
+    setIncludePrunedInternal(!includePrunedInternal)
   }
 
   const handleXAxisChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -185,6 +190,19 @@ export const PlotHistory: FC<{
             <Switch
               checked={logScaleInternal}
               onChange={handleLogScaleChange}
+              value="enable"
+            />
+          </FormControl>
+        ) : null}
+        {includePruned === undefined ? (
+          <FormControl
+            component="fieldset"
+            sx={{ marginBottom: theme.spacing(2) }}
+          >
+            <FormLabel component="legend"> Include PRUNED trials:</FormLabel>
+            <Switch
+              checked={includePrunedInternal}
+              onChange={handleIncludePrunedChange}
               value="enable"
             />
           </FormControl>
