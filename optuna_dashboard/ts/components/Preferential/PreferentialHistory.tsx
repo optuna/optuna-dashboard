@@ -165,7 +165,7 @@ const CandidateTrial: FC<{
               trial={trial}
               isBestTrial={() => false}
               directions={[]}
-              objectiveNames={[]}
+              metricNames={[]}
             />
           </Box>
         </Box>
