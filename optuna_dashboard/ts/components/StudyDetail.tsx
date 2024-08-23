@@ -72,7 +72,7 @@ export const StudyDetail: FC<{
         union_user_attrs: studyDetail.union_user_attrs,
         datetime_start: studyDetail.datetime_start,
         trials: studyDetail.trials,
-        metric_names: studyDetail.objective_names,
+        metric_names: studyDetail.metric_names,
       }
     : null
 
