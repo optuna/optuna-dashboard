@@ -1,7 +1,9 @@
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
+import DownloadIcon from "@mui/icons-material/Download"
 import HomeIcon from "@mui/icons-material/Home"
 import {
   Box,
+  Button,
   Card,
   CardContent,
   IconButton,
@@ -13,6 +15,8 @@ import React, { FC, useEffect, useMemo } from "react"
 import { Link, useParams } from "react-router-dom"
 import { useRecoilValue } from "recoil"
 
+import { TrialTable } from "@optuna/react"
+import * as Optuna from "@optuna/types"
 import { actionCreator } from "../action"
 import { useConstants } from "../constantsProvider"
 import {
@@ -34,7 +38,6 @@ import { PreferentialHistory } from "./Preferential/PreferentialHistory"
 import { PreferentialTrials } from "./Preferential/PreferentialTrials"
 import { StudyHistory } from "./StudyHistory"
 import { TrialList } from "./TrialList"
-import { TrialTable } from "./TrialTable"
 
 export const useURLVars = (): number => {
   const { studyId } = useParams<{ studyId: string }>()
@@ -59,6 +62,19 @@ export const StudyDetail: FC<{
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const studyName = useStudyName(studyId)
   const isPreferential = useStudyIsPreferential(studyId)
+  const study: Optuna.Study | null = studyDetail
+    ? {
+        id: studyDetail.id,
+        name: studyDetail.name,
+        directions: studyDetail.directions,
+        union_search_space: studyDetail.union_search_space,
+        intersection_search_space: studyDetail.intersection_search_space,
+        union_user_attrs: studyDetail.union_user_attrs,
+        datetime_start: studyDetail.datetime_start,
+        trials: studyDetail.trials,
+        metric_names: studyDetail.metric_names,
+      }
+    : null
 
   const title =
     studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
@@ -166,7 +182,10 @@ export const StudyDetail: FC<{
     )
   } else if (page === "trialList") {
     content = <TrialList studyDetail={studyDetail} />
-  } else if (page === "trialTable") {
+  } else if (page === "trialTable" && study !== null) {
+    const linkURL = (studyId: number, trialNumber: number) => {
+      return url_prefix + `/studies/${studyId}/trials?numbers=${trialNumber}`
+    }
     content = (
       <Box
         component="div"
@@ -174,7 +193,16 @@ export const StudyDetail: FC<{
       >
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
-            <TrialTable studyDetail={studyDetail} />
+            <TrialTable study={study} linkComponent={Link} linkURL={linkURL} />
+            <Button
+              variant="outlined"
+              startIcon={<DownloadIcon />}
+              download
+              href={`/csv/${studyDetail?.id}`}
+              sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
+            >
+              Download CSV File
+            </Button>
           </CardContent>
         </Card>
       </Box>

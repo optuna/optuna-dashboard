@@ -1,3 +1,5 @@
+import { Link as LinkIcon } from "@mui/icons-material"
+import { IconButton } from "@mui/material"
 import { FC } from "react"
 
 import * as Optuna from "@optuna/types"
@@ -22,8 +24,12 @@ const multiValueFilter: FilterFn<Optuna.Trial> = <D extends object>(
 export const TrialTable: FC<{
   study: Optuna.Study
   initialRowsPerPage?: number
-}> = ({ study, initialRowsPerPage }) => {
+  // biome-ignore lint/suspicious/noExplicitAny: Any react component.
+  linkComponent?: React.ComponentType<any>
+  linkURL?: (studyId: number, trialNumber: number) => string
+}> = ({ study, initialRowsPerPage, linkComponent, linkURL }) => {
   const trials: Optuna.Trial[] = study.trials
+  const metricNames: string[] = study.metric_names || []
 
   const columnHelper = createColumnHelper<Optuna.Trial>()
   // biome-ignore lint/suspicious/noExplicitAny: It is difficult to specify this type.
@@ -53,7 +59,10 @@ export const TrialTable: FC<{
       ...study.directions.map((_s, objectiveId) =>
         columnHelper.accessor((row) => row.values?.[objectiveId], {
           id: `values_${objectiveId}`,
-          header: `Objective ${objectiveId}`,
+          header:
+            metricNames.length === study.directions.length
+              ? metricNames[objectiveId]
+              : `Objective ${objectiveId}`,
           enableSorting: true,
           enableColumnFilter: false,
           sortUndefined: "last",
@@ -61,9 +70,22 @@ export const TrialTable: FC<{
       )
     )
   }
+  const isDynamicSpace =
+    study.union_search_space.length !== study.intersection_search_space.length
 
-  if (study?.union_search_space != null) {
+  if (study.union_search_space != null) {
     for (const s of study.union_search_space) {
+      const sortable = s.distribution.type !== "CategoricalDistribution"
+      const filterChoices: (string | null)[] | undefined =
+        s.distribution.type === "CategoricalDistribution"
+          ? s.distribution.choices.map((c) => c?.toString() ?? "null")
+          : undefined
+      const hasMissingValue = trials.some(
+        (t) => !t.params.some((p) => p.name === s.name)
+      )
+      if (filterChoices !== undefined && isDynamicSpace && hasMissingValue) {
+        filterChoices.push(null)
+      }
       columns.push(
         columnHelper.accessor(
           (row) => {
@@ -77,9 +99,9 @@ export const TrialTable: FC<{
           {
             id: `params_${s.name}`,
             header: `Param ${s.name}`,
-            enableSorting: true,
+            enableSorting: sortable,
             sortUndefined: "last",
-            enableColumnFilter: false,
+            enableColumnFilter: filterChoices !== undefined,
             filterFn: multiValueFilter,
           }
         )
@@ -87,7 +109,7 @@ export const TrialTable: FC<{
     }
   }
 
-  if (study?.union_search_space != null) {
+  if (study.union_search_space != null) {
     for (const attr_spec of study.union_user_attrs) {
       columns.push(
         columnHelper.accessor(
@@ -107,6 +129,26 @@ export const TrialTable: FC<{
         )
       )
     }
+  }
+  if (linkComponent !== undefined && linkURL !== undefined) {
+    columns.push(
+      columnHelper.accessor((row) => row, {
+        header: "Detail",
+        cell: (info) => (
+          <IconButton
+            component={linkComponent}
+            to={linkURL(info.getValue().study_id, info.getValue().number)}
+            color="inherit"
+            title="Go to the trial's detail page"
+            size="small"
+          >
+            <LinkIcon />
+          </IconButton>
+        ),
+        enableSorting: false,
+        enableColumnFilter: false,
+      })
+    )
   }
 
   return (
