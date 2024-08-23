@@ -69,7 +69,7 @@ const GraphParetoFrontFrontend: FC<{
   const navigate = useNavigate()
   const [objectiveXId, setObjectiveXId] = useState<number>(0)
   const [objectiveYId, setObjectiveYId] = useState<number>(1)
-  const objectiveNames: string[] = study?.objective_names || []
+  const metricNames: string[] = study?.metric_names || []
 
   const handleObjectiveXChange = (event: SelectChangeEvent<number>) => {
     setObjectiveXId(event.target.value as number)
@@ -130,8 +130,8 @@ const GraphParetoFrontFrontend: FC<{
               <Select value={objectiveXId} onChange={handleObjectiveXChange}>
                 {study.directions.map((d, i) => (
                   <MenuItem value={i} key={i}>
-                    {objectiveNames.length === study?.directions.length
-                      ? objectiveNames[i]
+                    {metricNames.length === study?.directions.length
+                      ? metricNames[i]
                       : `${i}`}
                   </MenuItem>
                 ))}
@@ -142,8 +142,8 @@ const GraphParetoFrontFrontend: FC<{
               <Select value={objectiveYId} onChange={handleObjectiveYChange}>
                 {study.directions.map((d, i) => (
                   <MenuItem value={i} key={i}>
-                    {objectiveNames.length === study?.directions.length
-                      ? objectiveNames[i]
+                    {metricNames.length === study?.directions.length
+                      ? metricNames[i]
                       : `${i}`}
                   </MenuItem>
                 ))}

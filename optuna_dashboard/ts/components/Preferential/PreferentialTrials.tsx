@@ -629,7 +629,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
                     ?.state === "Complete" ?? false
                 }
                 directions={[]}
-                objectiveNames={[]}
+                metricNames={[]}
               />
             </Box>
           </Box>

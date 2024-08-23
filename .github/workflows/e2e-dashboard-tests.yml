@@ -6,8 +6,12 @@ on:
     paths:
       - '.github/workflows/e2e-dashboard-tests.yml'
       - '**.py'
-      - '**.ts'
-      - '**.tsx'
+      - 'tslib/**.ts'
+      - 'tslib/**.tsx'
+      - 'tslib/**/package.json'
+      - 'tslib/**/package-lock.json'
+      - 'optuna_dashboard/**.ts'
+      - 'optuna_dashboard/**.tsx'
       - 'optuna_dashboard/package.json'
       - 'optuna_dashboard/package-lock.json'
       - 'optuna_dashboard/tsconfig.json'
@@ -37,7 +41,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.10'
+          python-version: '3.11'
           architecture: x64
 
       - name: Setup Optuna ${{ matrix.optuna-version }}

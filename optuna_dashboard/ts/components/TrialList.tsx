@@ -126,9 +126,9 @@ export const TrialListDetail: FC<{
   trial: Trial
   isBestTrial: (trialId: number) => boolean
   directions: Optuna.StudyDirection[]
-  objectiveNames: string[]
+  metricNames: string[]
   formWidgets?: FormWidgets
-}> = ({ trial, isBestTrial, directions, objectiveNames, formWidgets }) => {
+}> = ({ trial, isBestTrial, directions, metricNames, formWidgets }) => {
   const theme = useTheme()
   const action = actionCreator()
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
@@ -290,7 +290,7 @@ export const TrialListDetail: FC<{
       <TrialFormWidgets
         trial={trial}
         directions={directions}
-        objectiveNames={objectiveNames}
+        metricNames={metricNames}
         formWidgets={formWidgets}
       />
       <Box
@@ -561,7 +561,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                   trial={t}
                   isBestTrial={isBestTrial}
                   directions={studyDetail?.directions || []}
-                  objectiveNames={studyDetail?.objective_names || []}
+                  metricNames={studyDetail?.metric_names || []}
                   formWidgets={studyDetail?.form_widgets}
                 />
               ))}
