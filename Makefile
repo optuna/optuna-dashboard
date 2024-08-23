@@ -1,4 +1,4 @@
-.DEFAULT_GOAL := sdist
+.DEFAULT_GOAL := python-package
 
 PYTHON ?= python3
 MODE ?= dev
@@ -15,7 +15,7 @@ $(RUSTLIB_OUT): rustlib/src/*.rs rustlib/Cargo.toml
 vscode/assets/bundle.js: $(RUSTLIB_OUT) $(STANDALONE_SRC) tslib
 	cd standalone_app && npm install && npm run build:vscode
 
-$(DASHBOARD_TS_OUT): $(DASHBOARD_TS_SRC)
+$(DASHBOARD_TS_OUT): $(DASHBOARD_TS_SRC) tslib
 	cd optuna_dashboard && npm install && npm run build:$(MODE)
 
 .PHONY: tslib
@@ -31,24 +31,21 @@ tslib-test: tslib
 
 .PHONY: serve-browser-app
 serve-browser-app: tslib $(RUSTLIB_OUT)
-	cd standalone_app && npm install && npm run watch
+	cd standalone_app && npm i && npm run watch
 
 .PHONY: vscode-extension
 vscode-extension: vscode/assets/bundle.js
-	cd vscode && npm install && npm run vscode:prepublish && vsce package
+	cd vscode && npm i && npm run vscode:prepublish && vsce package
 
 .PHONY: jupyterlab-extension
 jupyterlab-extension: tslib
 	cd optuna_dashboard && npm install && npm run build:pkg
 	cd jupyterlab && python -m build --sdist
 
-.PHONY: sdist
-sdist: pyproject.toml $(DASHBOARD_TS_OUT)
-	python -m build --sdist
-
-.PHONY: wheel
-wheel: pyproject.toml $(DASHBOARD_TS_OUT)
-	python -m build --wheel
+.PHONY: python-package
+python-package: pyproject.toml tslib
+	cd optuna_dashboard && npm i && npm run build:prd
+	python -m build --sdist --wheel
 
 .PHONY: docs
 docs: docs/conf.py $(RST_FILES)
@@ -64,4 +61,4 @@ fmt:
 clean:
 	rm -rf tslib/types/pkg tslib/storage/pkg tslib/react/pkg tslib/react/types
 	rm -rf optuna_dashboard/public/ doc/_build/
-	rm -rf rustlib/pkg standalone_app/public/ vscode/assets/ vscode/*.vsix
+	rm -rf rustlib/pkg vscode/assets/ vscode/*.vsix

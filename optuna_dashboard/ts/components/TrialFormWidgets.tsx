@@ -35,10 +35,10 @@ type WidgetState = {
 
 export const TrialFormWidgets: FC<{
   trial: Trial
-  objectiveNames: string[]
+  metricNames: string[]
   directions: Optuna.StudyDirection[]
   formWidgets?: FormWidgets
-}> = ({ trial, objectiveNames, directions, formWidgets }) => {
+}> = ({ trial, metricNames, directions, formWidgets }) => {
   if (
     formWidgets === undefined ||
     trial.state === "Pruned" ||
@@ -56,8 +56,8 @@ export const TrialFormWidgets: FC<{
         : "Set Objective Value Form"
   const widgetNames = formWidgets.widgets.map((widget, i) => {
     if (formWidgets.output_type === "objective") {
-      if (objectiveNames.at(i) !== undefined) {
-        return objectiveNames[i]
+      if (metricNames.at(i) !== undefined) {
+        return metricNames[i]
       }
       return directions.length === 1 ? "Objective" : `Objective ${i}`
     } else if (formWidgets.output_type === "user_attr") {
