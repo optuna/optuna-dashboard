@@ -22,6 +22,7 @@ import { useStudyDetailValue } from "../../state"
 import { TrialListDetail } from "../TrialList"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
 import { getArtifactUrlPath } from "./PreferentialTrials"
+import { useConstants } from "../../constantsProvider"
 
 type TrialType = "worst" | "none"
 
@@ -30,6 +31,7 @@ const CandidateTrial: FC<{
   type: TrialType
 }> = ({ trial, type }) => {
   const theme = useTheme()
+  const {environment} = useConstants()
   const trialWidth = 300
   const trialHeight = 300
   const studyDetail = useStudyDetailValue(trial.study_id)
@@ -47,7 +49,7 @@ const CandidateTrial: FC<{
   const artifact = trial.artifacts.find((a) => a.artifact_id === artifactId)
   const urlPath =
     artifactId !== undefined
-      ? getArtifactUrlPath(trial.study_id, trial.trial_id, artifactId)
+      ? getArtifactUrlPath(environment, trial.study_id, trial.trial_id, artifactId)
       : ""
 
   const cardComponentSx = {

@@ -42,6 +42,7 @@ import {
 } from "../Artifact/ThreejsArtifactViewer"
 import { TrialListDetail } from "../TrialList"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
+import { useConstants } from "../../constantsProvider"
 
 const SettingsPage: FC<{
   studyDetail: StudyDetail
@@ -178,11 +179,13 @@ const isComparisonReady = (
 }
 
 export const getArtifactUrlPath = (
+  environment: "jupyterlab" | "optuna-dashboard",
   studyId: number,
   trialId: number,
   artifactId: string
 ): string => {
-  return `/artifacts/${studyId}/${trialId}/${artifactId}`
+  const apiNamespace = environment === "jupyterlab" ? "/jupyterlab-optuna": ""
+  return `${apiNamespace}/artifacts/${studyId}/${trialId}/${artifactId}`
 }
 
 const PreferentialTrial: FC<{
@@ -201,6 +204,7 @@ const PreferentialTrial: FC<{
   openThreejsArtifactModal,
 }) => {
   const theme = useTheme()
+  const {environment} = useConstants()
   const action = actionCreator()
   const [buttonHover, setButtonHover] = useState(false)
   const trialWidth = 400
@@ -214,7 +218,7 @@ const PreferentialTrial: FC<{
   const artifact = trial?.artifacts.find((a) => a.artifact_id === artifactId)
   const urlPath =
     trial !== undefined && artifactId !== undefined
-      ? getArtifactUrlPath(studyDetail.id, trial?.trial_id, artifactId)
+      ? getArtifactUrlPath(environment, studyDetail.id, trial?.trial_id, artifactId)
       : ""
   const is3dModel =
     componentType.output_type === "artifact" &&
