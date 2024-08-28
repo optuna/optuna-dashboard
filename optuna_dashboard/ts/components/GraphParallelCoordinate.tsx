@@ -39,7 +39,11 @@ const GraphParallelCoordinateBackend: FC<{
 
   useEffect(() => {
     if (data && layout && graphComponentState !== "componentWillMount") {
-      plotly.react(plotDomId, data, layout).then(notifyGraphDidRender)
+      try {
+        plotly.react(plotDomId, data, layout).then(notifyGraphDidRender)
+      } catch (err) {
+        console.error(err)
+      }
     }
   }, [data, layout, graphComponentState])
   useEffect(() => {
