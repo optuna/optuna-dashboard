@@ -53,7 +53,7 @@ export const artifactIsAvailable = atom<boolean>({
 
 export const plotlypyIsAvailableState = atom<boolean>({
   key: "plotlypyIsAvailable",
-  default: true,
+  default: false,
 })
 
 export const studySummariesLoadingState = atom<boolean>({
@@ -138,9 +138,6 @@ export const useBackendRender = (): boolean => {
     if (plotlypyIsAvailable) {
       return true
     }
-    console.warn(
-      "Use frontend rendering because plotlypy is specified but not available."
-    )
   }
   return false
 }
