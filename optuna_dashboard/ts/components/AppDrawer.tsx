@@ -384,8 +384,8 @@ export const AppDrawer: FC<{
                   left: "50%",
                   transform: "translate(-50%, -50%)",
                   overflow: "scroll",
-                  width: "500px",
-                  height: "400px",
+                  width: "600px",
+                  height: "600px",
                   bgcolor: "background.paper",
                 }}
               >
