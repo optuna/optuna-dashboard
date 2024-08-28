@@ -23,6 +23,9 @@ export const GraphHyperparameterImportance: FC<{
     studyId,
   })
 
+  const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
+
   if (useBackendRender()) {
     return (
       <GraphHyperparameterImportanceBackend
@@ -32,8 +35,6 @@ export const GraphHyperparameterImportance: FC<{
       />
     )
   } else {
-    const theme = useTheme()
-    const colorTheme = usePlotlyColorTheme(theme.palette.mode)
     return (
       <Card>
         <CardContent>

@@ -14,11 +14,12 @@ import { useBackendRender, usePlotlyColorTheme } from "../state"
 export const GraphSlice: FC<{
   study: StudyDetail | null
 }> = ({ study = null }) => {
+  const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
+
   if (useBackendRender()) {
     return <GraphSliceBackend study={study} />
   } else {
-    const theme = useTheme()
-    const colorTheme = usePlotlyColorTheme(theme.palette.mode)
     return <PlotSlice study={study} colorTheme={colorTheme} />
   }
 }
