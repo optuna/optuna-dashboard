@@ -11,8 +11,13 @@ import {
   useTheme,
 } from "@mui/material"
 import React from "react"
+import { useRecoilValue } from "recoil"
 import { PlotlyColorThemeDark, PlotlyColorThemeLight } from "ts/types/optuna"
-import { usePlotBackendRendering, usePlotlyColorThemeState } from "../state"
+import {
+  plotlypyIsAvailableState,
+  usePlotBackendRendering,
+  usePlotlyColorThemeState,
+} from "../state"
 
 interface SettingsProps {
   handleClose: () => void
@@ -23,6 +28,7 @@ export const Settings = ({ handleClose }: SettingsProps) => {
   const [plotlyColorTheme, setPlotlyColorTheme] = usePlotlyColorThemeState()
   const [plotBackendRendering, setPlotBackendRendering] =
     usePlotBackendRendering()
+  const plotlypyIsAvailable = useRecoilValue(plotlypyIsAvailableState)
 
   const handleDarkModeColorChange = (event: SelectChangeEvent) => {
     const dark = event.target.value as PlotlyColorThemeDark
@@ -123,6 +129,7 @@ export const Settings = ({ handleClose }: SettingsProps) => {
             checked={plotBackendRendering}
             onChange={togglePlotBackendRendering}
             value="enable"
+            disabled={!plotlypyIsAvailable}
           />
         </Stack>
       </Stack>
