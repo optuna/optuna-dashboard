@@ -36,13 +36,13 @@ import {
   Trial,
 } from "ts/types/optuna"
 import { actionCreator } from "../../action"
+import { useConstants } from "../../constantsProvider"
 import {
   isThreejsArtifact,
   useThreejsArtifactModal,
 } from "../Artifact/ThreejsArtifactViewer"
 import { TrialListDetail } from "../TrialList"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
-import { useConstants } from "../../constantsProvider"
 
 const SettingsPage: FC<{
   studyDetail: StudyDetail
@@ -184,7 +184,7 @@ export const getArtifactUrlPath = (
   trialId: number,
   artifactId: string
 ): string => {
-  const apiNamespace = environment === "jupyterlab" ? "/jupyterlab-optuna": ""
+  const apiNamespace = environment === "jupyterlab" ? "/jupyterlab-optuna" : ""
   return `${apiNamespace}/artifacts/${studyId}/${trialId}/${artifactId}`
 }
 
@@ -204,7 +204,7 @@ const PreferentialTrial: FC<{
   openThreejsArtifactModal,
 }) => {
   const theme = useTheme()
-  const {environment} = useConstants()
+  const { environment } = useConstants()
   const action = actionCreator()
   const [buttonHover, setButtonHover] = useState(false)
   const trialWidth = 400
@@ -218,7 +218,12 @@ const PreferentialTrial: FC<{
   const artifact = trial?.artifacts.find((a) => a.artifact_id === artifactId)
   const urlPath =
     trial !== undefined && artifactId !== undefined
-      ? getArtifactUrlPath(environment, studyDetail.id, trial?.trial_id, artifactId)
+      ? getArtifactUrlPath(
+          environment,
+          studyDetail.id,
+          trial?.trial_id,
+          artifactId
+        )
       : ""
   const is3dModel =
     componentType.output_type === "artifact" &&

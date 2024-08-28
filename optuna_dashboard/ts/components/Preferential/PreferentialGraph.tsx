@@ -24,10 +24,10 @@ import ReactFlow, {
 import "reactflow/dist/style.css"
 
 import { StudyDetail, Trial } from "ts/types/optuna"
+import { useConstants } from "../../constantsProvider"
 import { useStudyDetailValue } from "../../state"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
 import { getArtifactUrlPath } from "./PreferentialTrials"
-import { useConstants } from "../../constantsProvider"
 
 const elk = new ELK()
 const nodeWidth = 400
@@ -40,7 +40,7 @@ type NodeData = {
 }
 const GraphNode: FC<NodeProps<NodeData>> = ({ data, isConnectable }) => {
   const theme = useTheme()
-  const {environment} = useConstants()
+  const { environment } = useConstants()
   const trial = data.trial
   if (trial === undefined) {
     return null
@@ -58,7 +58,12 @@ const GraphNode: FC<NodeProps<NodeData>> = ({ data, isConnectable }) => {
   const artifact = trial.artifacts.find((a) => a.artifact_id === artifactId)
   const urlPath =
     artifactId !== undefined
-      ? getArtifactUrlPath(environment, trial.study_id, trial.trial_id, artifactId)
+      ? getArtifactUrlPath(
+          environment,
+          trial.study_id,
+          trial.trial_id,
+          artifactId
+        )
       : ""
 
   return (
