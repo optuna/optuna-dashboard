@@ -41,13 +41,16 @@ Please clone the git repository and execute following commands to build sdist pa
 .. code-block:: console
 
    $ git clone git@github.com:optuna/optuna-dashboard.git
-   $ cd optuna
+   $ cd optuna-dashboard
 
 .. code-block:: console
 
-   # Node.js v16 is required to compile TypeScript files.
+   # Node.js v20 is required to compile TypeScript files.
+   $ make tslib
+   $ cd optuna_dashboard
    $ npm install
    $ npm run build:prd
+   $ cd ..
    $ python -m build --sdist
 
 Then you can install it like:
@@ -56,7 +59,7 @@ Then you can install it like:
 
    $ pip install dist/optuna-dashboard-x.y.z.tar.gz
 
-See `CONTRIBUTING.md <https://github.com/optuna/optuna/blob/master/CONTRIBUTING.md>`_ for more details.
+See `CONTRIBUTING.md <https://github.com/optuna/optuna-dashboard/blob/main/CONTRIBUTING.md>`_ for more details.
 
 
 Command-line Interface
