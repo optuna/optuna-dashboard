@@ -39,7 +39,10 @@ export const PlotHistory: FC<{
   logScale?: boolean
   includePruned?: boolean
   colorTheme?: Partial<Plotly.Template>
-}> = ({ studies, logScale, includePruned, colorTheme }) => {
+  linkURL?: (studyId: number, trialNumber: number) => string
+  // biome-ignore lint/suspicious/noExplicitAny: It will accept any routers of each library.
+  router?: any
+}> = ({ studies, logScale, includePruned, colorTheme, linkURL, router }) => {
   const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const theme = useTheme()
@@ -108,6 +111,45 @@ export const PlotHistory: FC<{
         colorThemeUsed,
         markerSize
       )?.then(notifyGraphDidRender)
+
+      const element = document.getElementById(plotDomId)
+      if (
+        element !== null &&
+        studies.length >= 1 &&
+        linkURL !== undefined &&
+        router !== undefined
+      ) {
+        // @ts-ignore
+        element.on("plotly_click", (data) => {
+          if (data.points[0].data.mode !== "lines") {
+            let studyId = 1
+            if (data.points[0].data.name.includes("Infeasible Trial of")) {
+              const studyInfo: { id: number; name: string }[] = []
+              for (const study of studies) {
+                studyInfo.push({ id: study.id, name: study.name })
+              }
+              const dataPointStudyName = data.points[0].data.name.replace(
+                "Infeasible Trial of ",
+                ""
+              )
+              const targetId = studyInfo.find(
+                (s) => s.name === dataPointStudyName
+              )?.id
+              if (targetId !== undefined) {
+                studyId = targetId
+              }
+            } else {
+              studyId = studies[Math.floor(data.points[0].curveNumber / 2)].id
+            }
+            const trialNumber = data.points[0].x
+            router(linkURL(studyId, trialNumber))
+          }
+        })
+        return () => {
+          // @ts-ignore
+          element.removeAllListeners("plotly_click")
+        }
+      }
     }
   }, [
     historyPlotInfos,
