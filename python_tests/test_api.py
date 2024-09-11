@@ -539,7 +539,9 @@ class APITestCase(TestCase):
             with tempfile.NamedTemporaryFile() as f:
                 f.write(b"dummy")
                 f.flush()
-                artifact_id = upload_artifact(study, f.name, artifact_store)
+                artifact_id = upload_artifact(
+                    study_or_trial=study, file_path=f.name, artifact_store=artifact_store
+                )
 
             app = create_app(storage, artifact_store)
 
@@ -575,7 +577,9 @@ class APITestCase(TestCase):
             with tempfile.NamedTemporaryFile() as f:
                 f.write(b"dummy")
                 f.flush()
-                artifact_id = upload_artifact(study, f.name, artifact_store)
+                artifact_id = upload_artifact(
+                    study_or_trial=study, file_path=f.name, artifact_store=artifact_store
+                )
 
             app = create_app(storage, artifact_store)
 
