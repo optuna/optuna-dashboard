@@ -142,7 +142,9 @@ def test_successful_study_artifact_retrieval() -> None:
         with tempfile.NamedTemporaryFile() as f:
             f.write(b"dummy_content")
             f.flush()
-            artifact_id = upload_artifact(study, f.name, artifact_store=artifact_store)
+            artifact_id = upload_artifact(
+                study_or_trial=study, file_path=f.name, artifact_store=artifact_store
+            )
         app = create_app(storage, artifact_store)
         status, _, body = send_request(
             app,
@@ -188,7 +190,9 @@ def test_successful_trial_artifact_retrieval() -> None:
         with tempfile.NamedTemporaryFile() as f:
             f.write(b"dummy_content")
             f.flush()
-            artifact_id = upload_artifact(trial, f.name, artifact_store=artifact_store)
+            artifact_id = upload_artifact(
+                study_or_trial=trial, file_path=f.name, artifact_store=artifact_store
+            )
         app = create_app(storage, artifact_store)
         status, _, body = send_request(
             app,
@@ -281,7 +285,9 @@ def test_delete_study_artifact() -> None:
         with tempfile.NamedTemporaryFile() as f:
             f.write(b"dummy_content")
             f.flush()
-            artifact_id = upload_artifact(study, f.name, artifact_store=artifact_store)
+            artifact_id = upload_artifact(
+                study_or_trial=study, file_path=f.name, artifact_store=artifact_store
+            )
         app = create_app(storage, artifact_store)
         status, _, _ = send_request(
             app,
@@ -306,7 +312,9 @@ def test_delete_trial_artifact() -> None:
         with tempfile.NamedTemporaryFile() as f:
             f.write(b"dummy_content")
             f.flush()
-            artifact_id = upload_artifact(trial, f.name, artifact_store=artifact_store)
+            artifact_id = upload_artifact(
+                study_or_trial=trial, file_path=f.name, artifact_store=artifact_store
+            )
         app = create_app(storage, artifact_store)
         status, _, _ = send_request(
             app,
