@@ -6,12 +6,10 @@ import importlib
 import io
 from itertools import chain
 import logging
+import mimetypes
 import os
 import re
 import typing
-from typing import Any
-from typing import Optional
-from typing import Union
 import warnings
 
 from bottle import Bottle
@@ -57,6 +55,11 @@ from .preferential._system_attrs import report_skip
 
 
 if typing.TYPE_CHECKING:
+    from typing import Any
+    from typing import Literal
+    from typing import Optional
+    from typing import Union
+
     from _typeshed.wsgi import WSGIApplication
     from optuna.artifacts._protocol import ArtifactStore
     from optuna_dashboard.artifact.protocol import ArtifactBackend
@@ -557,11 +560,18 @@ def create_app(
 
     @app.get("/static/<filename:path>")
     def send_static(filename: str) -> BottleViewReturn:
+        mimetype: str | Literal[True] = True
+        headers: dict[str, str] | None = None
         if not debug and "gzip" in request.headers["Accept-Encoding"]:
             gz_filename = filename.strip("/\\") + ".gz"
             if cached_path_exists(os.path.join(STATIC_DIR, gz_filename)):
                 filename = gz_filename
-        return static_file(filename, root=STATIC_DIR)
+                headers = {"Content-Encoding": "gzip"}
+
+            mimetype_, _ = mimetypes.guess_type(filename)
+            if mimetype_ is not None:
+                mimetype = mimetype_
+        return static_file(filename, root=STATIC_DIR, mimetype=mimetype, headers=headers)
 
     register_rdb_migration_route(app, storage)
     register_artifact_route(app, storage, artifact_store)
