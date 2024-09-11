@@ -1,5 +1,4 @@
 import {
-  Checkbox,
   FormControl,
   FormControlLabel,
   FormLabel,
@@ -9,6 +8,7 @@ import {
   RadioGroup,
   Select,
   SelectChangeEvent,
+  Slider,
   Switch,
   Typography,
   useTheme,
@@ -16,60 +16,150 @@ import {
 import * as Optuna from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
 import { ChangeEvent, FC, useEffect, useState } from "react"
+
+import { useGraphComponentState } from "../hooks/useGraphComponentState"
+import {
+  Target,
+  useFilteredTrialsFromStudies,
+  useObjectiveAndUserAttrTargetsFromStudies,
+} from "../utils/trialFilter"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "plot-history"
 
+interface HistoryPlotInfo {
+  study_name: string
+  trials: Optuna.Trial[]
+  directions: Optuna.StudyDirection[]
+  metric_names?: string[]
+}
+
 export const PlotHistory: FC<{
-  study: Optuna.Study | null
-}> = ({ study = null }) => {
+  studies: Optuna.Study[]
+  logScale?: boolean
+  includePruned?: boolean
+  colorTheme?: Partial<Plotly.Template>
+  linkURL?: (studyId: number, trialNumber: number) => string
+  // biome-ignore lint/suspicious/noExplicitAny: It will accept any routers of each library.
+  router?: any
+}> = ({ studies, logScale, includePruned, colorTheme, linkURL, router }) => {
+  const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
+
   const theme = useTheme()
-  const [xAxis, setXAxis] = useState<string>("number")
-  const [objectiveId, setObjectiveId] = useState<number>(0)
-  const [logScale, setLogScale] = useState<boolean>(false)
-  const [filterCompleteTrial, setFilterCompleteTrial] = useState<boolean>(false)
-  const [filterPrunedTrial, setFilterPrunedTrial] = useState<boolean>(false)
+  const colorThemeUsed =
+    colorTheme ?? (theme.palette.mode === "dark" ? plotlyDarkTemplate : {})
 
-  const handleObjectiveChange = (event: SelectChangeEvent<number>) => {
-    setObjectiveId(event.target.value as number)
-  }
+  const [xAxis, setXAxis] = useState<
+    "number" | "datetime_start" | "datetime_complete"
+  >("number")
 
-  const handleXAxisChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setXAxis(e.target.value)
+  const [logScaleInternal, setLogScaleInternal] = useState<boolean>(false)
+  const [includePrunedInternal, setIncludePrunedInternal] =
+    useState<boolean>(true)
+
+  const [markerSize, setMarkerSize] = useState<number>(5)
+
+  const [targets, selected, setTarget] =
+    useObjectiveAndUserAttrTargetsFromStudies(studies)
+
+  const trials = useFilteredTrialsFromStudies(
+    studies,
+    [selected],
+    includePruned === undefined ? !includePrunedInternal : !includePruned
+  )
+
+  const historyPlotInfos = studies.map((study, index) => {
+    const h: HistoryPlotInfo = {
+      study_name: study.name,
+      trials: trials[index],
+      directions: study.directions,
+      metric_names: study.metric_names,
+    }
+    return h
+  })
+
+  const handleObjectiveChange = (event: SelectChangeEvent<string>) => {
+    setTarget(event.target.value)
   }
 
   const handleLogScaleChange = () => {
-    setLogScale(!logScale)
+    setLogScaleInternal(!logScaleInternal)
   }
 
-  const handleFilterCompleteChange = () => {
-    setFilterCompleteTrial(!filterCompleteTrial)
+  const handleIncludePrunedChange = () => {
+    setIncludePrunedInternal(!includePrunedInternal)
   }
 
-  const handleFilterPrunedChange = () => {
-    setFilterPrunedTrial(!filterPrunedTrial)
+  const handleXAxisChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.value === "number") {
+      setXAxis("number")
+    } else if (e.target.value === "datetime_start") {
+      setXAxis("datetime_start")
+    } else if (e.target.value === "datetime_complete") {
+      setXAxis("datetime_complete")
+    }
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    if (study !== null) {
+    if (graphComponentState !== "componentWillMount") {
       plotHistory(
-        study,
-        objectiveId,
+        historyPlotInfos,
+        selected,
         xAxis,
-        logScale,
-        filterCompleteTrial,
-        filterPrunedTrial,
-        theme.palette.mode
-      )
+        logScale === undefined ? logScaleInternal : logScale,
+        colorThemeUsed,
+        markerSize
+      )?.then(notifyGraphDidRender)
+
+      const element = document.getElementById(plotDomId)
+      if (
+        element !== null &&
+        studies.length >= 1 &&
+        linkURL !== undefined &&
+        router !== undefined
+      ) {
+        // @ts-ignore
+        element.on("plotly_click", (data) => {
+          if (data.points[0].data.mode !== "lines") {
+            let studyId = 1
+            if (data.points[0].data.name.includes("Infeasible Trial of")) {
+              const studyInfo: { id: number; name: string }[] = []
+              for (const study of studies) {
+                studyInfo.push({ id: study.id, name: study.name })
+              }
+              const dataPointStudyName = data.points[0].data.name.replace(
+                "Infeasible Trial of ",
+                ""
+              )
+              const targetId = studyInfo.find(
+                (s) => s.name === dataPointStudyName
+              )?.id
+              if (targetId !== undefined) {
+                studyId = targetId
+              }
+            } else {
+              studyId = studies[Math.floor(data.points[0].curveNumber / 2)].id
+            }
+            const trialNumber = data.points[0].x
+            router(linkURL(studyId, trialNumber))
+          }
+        })
+        return () => {
+          // @ts-ignore
+          element.removeAllListeners("plotly_click")
+        }
+      }
     }
   }, [
-    study,
-    objectiveId,
-    logScale,
+    historyPlotInfos,
+    selected,
     xAxis,
-    filterPrunedTrial,
-    filterCompleteTrial,
-    theme.palette.mode,
+    logScale,
+    logScaleInternal,
+    colorThemeUsed,
+    markerSize,
+    graphComponentState,
   ])
 
   return (
@@ -81,60 +171,30 @@ export const PlotHistory: FC<{
         direction="column"
         sx={{ paddingRight: theme.spacing(2) }}
       >
-        <Typography variant="h6" sx={{ margin: "1em 0", fontWeight: 600 }}>
+        <Typography
+          variant="h6"
+          sx={{ margin: "1em 0", fontWeight: theme.typography.fontWeightBold }}
+        >
           History
         </Typography>
-        {study !== null && study.directions.length !== 1 ? (
+        {studies[0] !== null && targets.length >= 2 ? (
           <FormControl
             component="fieldset"
             sx={{ marginBottom: theme.spacing(2) }}
           >
-            <FormLabel component="legend">Objective ID:</FormLabel>
-            <Select value={objectiveId} onChange={handleObjectiveChange}>
-              {study.directions.map((_d, i) => (
-                // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                <MenuItem value={i} key={i}>
-                  {i}
+            <FormLabel component="legend">y Axis</FormLabel>
+            <Select
+              value={selected.identifier()}
+              onChange={handleObjectiveChange}
+            >
+              {targets.map((t) => (
+                <MenuItem value={t.identifier()} key={t.identifier()}>
+                  {t.toLabel(studies[0].metric_names)}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
         ) : null}
-        <FormControl
-          component="fieldset"
-          sx={{ marginBottom: theme.spacing(2) }}
-        >
-          <FormLabel component="legend">Log y scale:</FormLabel>
-          <Switch
-            checked={logScale}
-            onChange={handleLogScaleChange}
-            value="enable"
-          />
-        </FormControl>
-        <FormControl
-          component="fieldset"
-          sx={{ marginBottom: theme.spacing(2) }}
-        >
-          <FormLabel component="legend">Filter state:</FormLabel>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={!filterCompleteTrial}
-                onChange={handleFilterCompleteChange}
-              />
-            }
-            label="Complete"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={!filterPrunedTrial}
-                onChange={handleFilterPrunedChange}
-              />
-            }
-            label="Pruned"
-          />
-        </FormControl>
         <FormControl
           component="fieldset"
           sx={{ marginBottom: theme.spacing(2) }}
@@ -163,6 +223,46 @@ export const PlotHistory: FC<{
             />
           </RadioGroup>
         </FormControl>
+        {logScale === undefined ? (
+          <FormControl
+            component="fieldset"
+            sx={{ marginBottom: theme.spacing(2) }}
+          >
+            <FormLabel component="legend">Log y scale:</FormLabel>
+            <Switch
+              checked={logScaleInternal}
+              onChange={handleLogScaleChange}
+              value="enable"
+            />
+          </FormControl>
+        ) : null}
+        {includePruned === undefined ? (
+          <FormControl
+            component="fieldset"
+            sx={{ marginBottom: theme.spacing(2) }}
+          >
+            <FormLabel component="legend"> Include PRUNED trials:</FormLabel>
+            <Switch
+              checked={includePrunedInternal}
+              onChange={handleIncludePrunedChange}
+              value="enable"
+            />
+          </FormControl>
+        ) : null}
+        <FormControl>
+          <FormLabel component="legend">Marker size:</FormLabel>
+          <Slider
+            defaultValue={5}
+            marks={true}
+            min={1}
+            max={10}
+            step={1}
+            onChange={(e) => {
+              // @ts-ignore
+              setMarkerSize(e.target.value as number)
+            }}
+          />
+        </FormControl>
       </Grid>
       <Grid item xs={9}>
         <div id={plotDomId} />
@@ -171,30 +271,21 @@ export const PlotHistory: FC<{
   )
 }
 
-const filterFunc = (trial: Optuna.Trial, objectiveId: number): boolean => {
-  if (trial.state !== "Complete" && trial.state !== "Pruned") {
-    return false
-  }
-  if (trial.values === undefined) {
-    return false
-  }
-  return (
-    trial.values.length > objectiveId &&
-    trial.values[objectiveId] !== Infinity &&
-    trial.values[objectiveId] !== -Infinity
-  )
-}
-
 const plotHistory = (
-  study: Optuna.Study,
-  objectiveId: number,
-  xAxis: string,
+  historyPlotInfos: HistoryPlotInfo[],
+  target: Target,
+  xAxis: "number" | "datetime_start" | "datetime_complete",
   logScale: boolean,
-  filterCompleteTrial: boolean,
-  filterPrunedTrial: boolean,
-  mode: string
+  colorTheme: Partial<Plotly.Template>,
+  markerSize: number
 ) => {
   if (document.getElementById(plotDomId) === null) {
+    return
+  }
+  if (historyPlotInfos.length === 0) {
+    plotly.react(plotDomId, [], {
+      template: colorTheme,
+    })
     return
   }
 
@@ -206,27 +297,19 @@ const plotHistory = (
       b: 0,
     },
     yaxis: {
-      title: "Objective Value",
+      title: target.toLabel(historyPlotInfos[0].metric_names),
       type: logScale ? "log" : "linear",
     },
     xaxis: {
       title: xAxis === "number" ? "Trial" : "Time",
       type: xAxis === "number" ? "linear" : "date",
     },
-    showlegend: true,
-    template: mode === "dark" ? plotlyDarkTemplate : {},
-  }
-
-  let filteredTrials = study.trials.filter((t) => filterFunc(t, objectiveId))
-  if (filterCompleteTrial) {
-    filteredTrials = filteredTrials.filter((t) => t.state !== "Complete")
-  }
-  if (filterPrunedTrial) {
-    filteredTrials = filteredTrials.filter((t) => t.state !== "Pruned")
-  }
-  if (filteredTrials.length === 0) {
-    plotly.react(plotDomId, [], layout)
-    return
+    showlegend: historyPlotInfos.length === 1 ? false : true,
+    template: colorTheme,
+    legend: {
+      x: 1.0,
+      y: 0.95,
+    },
   }
 
   const getAxisX = (trial: Optuna.Trial): number | Date => {
@@ -237,80 +320,100 @@ const plotHistory = (
         : trial.datetime_complete ?? new Date()
   }
 
-  const getValue = (
-    trial: Optuna.Trial,
-    objectiveId: number
-  ): number | null => {
-    if (
-      objectiveId === null ||
-      trial.values === undefined ||
-      trial.values.length <= objectiveId
-    ) {
-      return null
-    }
-    const value = trial.values[objectiveId]
-    if (value === Infinity || value === -Infinity) {
-      return null
-    }
-    return value
-  }
-
-  const xForLinePlot: (number | Date)[] = []
-  const yForLinePlot: number[] = []
-  let currentBest: number | null = null
-  for (let i = 0; i < filteredTrials.length; i++) {
-    const t = filteredTrials[i]
-    const v = getValue(t, objectiveId) as number
-    if (currentBest === null) {
-      currentBest = v
-      xForLinePlot.push(getAxisX(t))
-      yForLinePlot.push(v)
-    } else if (
-      study.directions[objectiveId] === "maximize" &&
-      v > currentBest
-    ) {
-      const p = filteredTrials[i - 1]
-      if (!xForLinePlot.includes(getAxisX(p))) {
-        xForLinePlot.push(getAxisX(p))
-        yForLinePlot.push(currentBest)
+  const plotData: Partial<plotly.PlotData>[] = []
+  const infeasiblePlotData: Partial<plotly.PlotData>[] = []
+  for (const h of historyPlotInfos) {
+    const feasibleTrials: Optuna.Trial[] = []
+    const infeasibleTrials: Optuna.Trial[] = []
+    for (const t of h.trials) {
+      if (t.constraints.every((c) => c <= 0)) {
+        feasibleTrials.push(t)
+      } else {
+        infeasibleTrials.push(t)
       }
-      currentBest = v
-      xForLinePlot.push(getAxisX(t))
-      yForLinePlot.push(v)
-    } else if (
-      study.directions[objectiveId] === "minimize" &&
-      v < currentBest
-    ) {
-      const p = filteredTrials[i - 1]
-      if (!xForLinePlot.includes(getAxisX(p))) {
-        xForLinePlot.push(getAxisX(p))
-        yForLinePlot.push(currentBest)
-      }
-      currentBest = v
-      xForLinePlot.push(getAxisX(t))
-      yForLinePlot.push(v)
     }
-  }
-  xForLinePlot.push(getAxisX(filteredTrials[filteredTrials.length - 1]))
-  yForLinePlot.push(yForLinePlot[yForLinePlot.length - 1])
-
-  const plotData: Partial<plotly.PlotData>[] = [
-    {
-      x: filteredTrials.map(getAxisX),
-      y: filteredTrials.map(
-        (t: Optuna.Trial): number => getValue(t, objectiveId) as number
+    plotData.push({
+      x: feasibleTrials.map(getAxisX),
+      y: feasibleTrials.map(
+        (t: Optuna.Trial): number => target.getTargetValue(t) as number
       ),
-      name: "Objective Value",
+      name: `${target.toLabel(h.metric_names)} of ${h.study_name}`,
+      marker: {
+        size: markerSize,
+      },
       mode: "markers",
       type: "scatter",
-    },
-    {
-      x: xForLinePlot,
-      y: yForLinePlot,
-      name: "Best Value",
-      mode: "lines",
+    })
+
+    const objectiveId = target.getObjectiveId()
+    if (objectiveId !== null) {
+      const xForLinePlot: (number | Date)[] = []
+      const yForLinePlot: number[] = []
+      let currentBest: number | null = null
+      for (let i = 0; i < feasibleTrials.length; i++) {
+        const t = feasibleTrials[i]
+        const value = target.getTargetValue(t) as number
+        if (t.state !== "Complete") {
+          continue
+        }
+
+        if (currentBest === null) {
+          currentBest = value
+          xForLinePlot.push(getAxisX(t))
+          yForLinePlot.push(value)
+        } else if (
+          h.directions[objectiveId] === "maximize" &&
+          value > currentBest
+        ) {
+          const p = feasibleTrials[i - 1]
+          if (!xForLinePlot.includes(getAxisX(p))) {
+            xForLinePlot.push(getAxisX(p))
+            yForLinePlot.push(currentBest)
+          }
+          currentBest = value
+          xForLinePlot.push(getAxisX(t))
+          yForLinePlot.push(value)
+        } else if (
+          h.directions[objectiveId] === "minimize" &&
+          value < currentBest
+        ) {
+          const p = feasibleTrials[i - 1]
+          if (!xForLinePlot.includes(getAxisX(p))) {
+            xForLinePlot.push(getAxisX(p))
+            yForLinePlot.push(currentBest)
+          }
+          currentBest = value
+          xForLinePlot.push(getAxisX(t))
+          yForLinePlot.push(value)
+        }
+      }
+      if (h.trials.length !== 0) {
+        xForLinePlot.push(getAxisX(h.trials[h.trials.length - 1]))
+        yForLinePlot.push(yForLinePlot[yForLinePlot.length - 1])
+      }
+      plotData.push({
+        x: xForLinePlot,
+        y: yForLinePlot,
+        name: `Best Value of ${h.study_name}`,
+        mode: "lines",
+        type: "scatter",
+      })
+    }
+    infeasiblePlotData.push({
+      x: infeasibleTrials.map(getAxisX),
+      y: infeasibleTrials.map(
+        (t: Optuna.Trial): number => target.getTargetValue(t) as number
+      ),
+      name: `Infeasible Trial of ${h.study_name}`,
+      marker: {
+        size: markerSize,
+        color: colorTheme === plotlyDarkTemplate ? "#666666" : "#cccccc",
+      },
+      mode: "markers",
       type: "scatter",
-    },
-  ]
-  plotly.react(plotDomId, plotData, layout)
+      showlegend: false,
+    })
+  }
+  plotData.push(...infeasiblePlotData)
+  return plotly.react(plotDomId, plotData, layout)
 }

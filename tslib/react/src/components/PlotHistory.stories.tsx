@@ -14,12 +14,13 @@ const meta: Meta<typeof PlotHistory> = {
     (Story, storyContext) => {
       const { study } = useMockStudy(storyContext.parameters?.studyId)
       if (!study) return <p>loading...</p>
+      const studies = [study]
       return (
         <ThemeProvider theme={storyContext.parameters?.theme}>
           <CssBaseline />
           <Story
             args={{
-              study,
+              studies,
             }}
           />
         </ThemeProvider>
