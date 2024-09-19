@@ -62,7 +62,7 @@ export class AxiosClient extends APIClient {
           union_user_attrs: res.data.union_user_attrs,
           has_intermediate_values: res.data.has_intermediate_values,
           note: res.data.note,
-          objective_names: res.data.objective_names,
+          metric_names: res.data.objective_names,
           form_widgets: res.data.form_widgets,
           is_preferential: res.data.is_preferential,
           feedback_component_type: res.data.feedback_component_type,

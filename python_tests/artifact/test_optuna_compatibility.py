@@ -31,7 +31,7 @@ def test_list_optuna_trial_artifacts() -> None:
         with tempfile.NamedTemporaryFile() as f:
             f.write(dummy_content)
             f.flush()
-            upload_artifact(trial, f.name, artifact_store=artifact_store)
+            upload_artifact(study_or_trial=trial, file_path=f.name, artifact_store=artifact_store)
 
         study.tell(trial, 0.0)
 
@@ -76,7 +76,9 @@ def test_delete_optuna_study_artifacts() -> None:
         artifact_store = FileSystemArtifactStore(tmpdir)
 
         def objective(trial: optuna.Trial) -> float:
-            upload_artifact(trial, dummy_file_path, artifact_store=artifact_store)
+            upload_artifact(
+                study_or_trial=trial, file_path=dummy_file_path, artifact_store=artifact_store
+            )
             return 0.0
 
         study.optimize(objective, n_trials=10)

@@ -26,7 +26,7 @@ classifiers = [
     "Intended Audience :: Science/Research",
 ]
 dependencies = [
-    "bottle",
+    "bottle>=0.13.0",
     "optuna>=3.1.0",
     "packaging",
     "scikit-learn",

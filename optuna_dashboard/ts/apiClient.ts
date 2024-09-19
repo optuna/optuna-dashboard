@@ -65,6 +65,7 @@ export interface StudyDetailResponse {
   has_intermediate_values: boolean
   note: Note
   is_preferential: boolean
+  // TODO(c-bata): Rename this to metric_names after releasing the new Jupyter Lab extension.
   objective_names?: string[]
   form_widgets?: FormWidgets
   preferences?: [number, number][]

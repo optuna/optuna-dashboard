@@ -11,11 +11,12 @@ export const GraphEdf: FC<{
   studies: StudyDetail[]
   objectiveId: number
 }> = ({ studies, objectiveId }) => {
+  const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
+
   if (useBackendRender()) {
     return <GraphEdfBackend studies={studies} />
   } else {
-    const theme = useTheme()
-    const colorTheme = usePlotlyColorTheme(theme.palette.mode)
     return (
       <PlotEdf
         studies={studies}

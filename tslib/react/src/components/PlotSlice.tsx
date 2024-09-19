@@ -34,10 +34,13 @@ const domId = "plot-slice"
 
 export const PlotSlice: FC<{
   study: Optuna.Study | null
-}> = ({ study = null }) => {
+  colorTheme?: Partial<Plotly.Template>
+}> = ({ study = null, colorTheme }) => {
   const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const theme = useTheme()
+  const colorThemeUsed =
+    colorTheme ?? (theme.palette.mode === "dark" ? plotlyDarkTemplate : {})
 
   const [objectiveTargets, selectedObjective, setObjectiveTarget] =
     useObjectiveAndUserAttrTargets(study)
@@ -63,7 +66,7 @@ export const PlotSlice: FC<{
         selectedParamTarget,
         searchSpace.find((s) => s.name === selectedParamTarget?.key) || null,
         logYScale,
-        theme.palette.mode
+        colorThemeUsed
       )?.then(notifyGraphDidRender)
     }
   }, [
@@ -72,7 +75,7 @@ export const PlotSlice: FC<{
     searchSpace,
     selectedParamTarget,
     logYScale,
-    theme.palette.mode,
+    colorThemeUsed,
     graphComponentState,
   ])
 
@@ -160,7 +163,7 @@ const plotSlice = (
   selectedParamTarget: Target | null,
   selectedParamSpace: Optuna.SearchSpaceItem | null,
   logYScale: boolean,
-  mode: string
+  colorTheme: Partial<Plotly.Template>
 ) => {
   if (document.getElementById(domId) === null) {
     return
@@ -190,7 +193,7 @@ const plotSlice = (
     },
     showlegend: false,
     uirevision: "true",
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: colorTheme,
   }
   if (
     selectedParamSpace === null ||

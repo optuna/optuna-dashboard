@@ -10,17 +10,19 @@ export const PlotImportance: FC<{
   study: Optuna.Study | null
   importance?: Optuna.ParamImportance[][]
   graphHeight?: string
-}> = ({ study = null, importance, graphHeight = "450px" }) => {
+  colorTheme?: Partial<Plotly.Template>
+}> = ({ study = null, importance, graphHeight = "450px", colorTheme }) => {
   const theme = useTheme()
+  const colorThemeUsed =
+    colorTheme ?? (theme.palette.mode === "dark" ? plotlyDarkTemplate : {})
   const objectiveNames: string[] = study
     ? study.directions.map((_d, i) => `Objective ${i}`)
     : []
-
   useEffect(() => {
     if (study !== null && importance !== undefined && importance.length > 0) {
-      plotParamImportancesBeta(importance, objectiveNames, theme.palette.mode)
+      plotParamImportancesBeta(importance, objectiveNames, colorThemeUsed)
     }
-  }, [study, objectiveNames, importance, theme.palette.mode])
+  }, [study, objectiveNames, importance, colorThemeUsed])
 
   return (
     <>
@@ -38,7 +40,7 @@ export const PlotImportance: FC<{
 const plotParamImportancesBeta = (
   importances: Optuna.ParamImportance[][],
   objectiveNames: string[],
-  mode: string
+  colorTheme: Partial<Plotly.Template>
 ) => {
   const layout: Partial<plotly.Layout> = {
     xaxis: {
@@ -58,7 +60,7 @@ const plotParamImportancesBeta = (
     bargap: 0.15,
     bargroupgap: 0.1,
     uirevision: "true",
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: colorTheme,
     legend: {
       x: 1.0,
       y: 0.95,

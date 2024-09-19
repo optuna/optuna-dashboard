@@ -10,18 +10,21 @@ export const PlotIntermediateValues: FC<{
   trials: Optuna.Trial[]
   includePruned: boolean
   logScale: boolean
-}> = ({ trials, includePruned, logScale }) => {
+  colorTheme?: Partial<Plotly.Template>
+}> = ({ trials, includePruned, logScale, colorTheme }) => {
   const theme = useTheme()
+  const colorThemeUsed =
+    colorTheme ?? (theme.palette.mode === "dark" ? plotlyDarkTemplate : {})
 
   useEffect(() => {
     plotIntermediateValue(
       trials,
-      theme.palette.mode,
+      colorThemeUsed,
       false,
       !includePruned,
       logScale
     )
-  }, [trials, theme.palette.mode, includePruned, logScale])
+  }, [trials, colorThemeUsed, includePruned, logScale])
 
   return (
     <>
@@ -38,7 +41,7 @@ export const PlotIntermediateValues: FC<{
 
 const plotIntermediateValue = (
   trials: Optuna.Trial[],
-  mode: string,
+  colorTheme: Partial<Plotly.Template>,
   filterCompleteTrial: boolean,
   filterPrunedTrial: boolean,
   logScale: boolean
@@ -63,7 +66,7 @@ const plotIntermediateValue = (
       type: "linear",
     },
     uirevision: "true",
-    template: mode === "dark" ? plotlyDarkTemplate : {},
+    template: colorTheme,
     legend: {
       x: 1.0,
       y: 0.95,

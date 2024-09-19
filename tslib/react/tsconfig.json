@@ -28,7 +28,6 @@
     "src/**/*.stories.tsx",
     "src/**/*.stories.ts",
     "src/MockStudies.ts",
-    "src/utils/loadStorageFromFile.ts"
   ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

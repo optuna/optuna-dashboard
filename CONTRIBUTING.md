@@ -9,18 +9,21 @@ The repository is organized as follows:
 
 ```
 .
-├── optuna_dashboard/   # The Python package.
-│   └── ts/             # TypeScript code for the Python package.
-├── standalone_app/     # Standalone application that can be run in browser or within the WebView of the VS Code extension.
-│   ├── browser_app_entry.tsx   # Entry point for browser app, hosted on GitHub pages.
-│   └── vscode_entry.tsx        # Entry point for VS Code app, output placed under `vscode/assets`.
-├── vscode/             # The VS Code extension.
-├── rustlib/            # Rust library exporting Wasm functions.
-│   └── pkg/            # Output directory for rustlib, installed from package.json via `"./rustlib/pkg"`.
-└── tslib/              # TypeScript library shared for common use.
-    ├── react/                  # Common React components.
-    ├── storage/                # Common code for handling storage.
-    └── types/                  # Common TypeScript types.
+├── optuna_dashboard/         # The Python package.
+│   └── ts/                   # TypeScript code for the Python package.
+│      ├── index.tsx          # Entry point for the Python package.
+│      └── pkg_index.tsx      # Entry point for Jupyter Lab extension, output placed under `optuna_dashboard/pkg/`.
+├── standalone_app/           # Standalone application that can be run in browser or within the WebView of the VS Code extension.
+│   ├── browser_app_entry.tsx # Entry point for browser app, hosted on GitHub pages.
+│   └── vscode_entry.tsx      # Entry point for VS Code extension, output placed under `vscode/assets`.
+├── vscode/                   # The VS Code extension.
+├── jupyterlab/               # The Jupyter Lab extension.
+├── rustlib/                  # Rust library exporting Wasm functions.
+│   └── pkg/                  # Output directory for rustlib, installed from package.json via `"./rustlib/pkg"`.
+└── tslib/                    # TypeScript library shared for common use.
+    ├── react/                # Common React components.
+    ├── storage/              # Common code for handling storage.
+    └── types/                # Common TypeScript types.
 ```
 
 ## Python package
@@ -145,8 +148,6 @@ The release process(compiling TypeScript files, packaging Python distributions a
 
 ## Standalone Single-page Application
 
-### Compiling Rust library and TypeScript files
-
 Please install [wasm-pack](https://rustwasm.github.io/wasm-pack/installer/) and execute the following command.
 
 ```
@@ -155,10 +156,15 @@ $ make serve-browser-app
 
 Open http://localhost:5173/
 
-
 ## VS Code Extension
 
 ```
 $ npm i -g vsce
 $ make vscode-extension
+```
+
+## Jupyter Lab Extension
+
+```
+$ make jupyterlab-extension
 ```

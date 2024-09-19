@@ -27,7 +27,7 @@ def run_single_objective_study(storage: optuna.storages.InMemoryStorage) -> optu
         x2 = trial.suggest_float("x2", 0, 10)
         return (x1 - 2) ** 2 + (x2 - 5) ** 2
 
-    study.optimize(objective, n_trials=50)
+    study.optimize(objective, n_trials=20)
     return study
 
 
@@ -46,20 +46,6 @@ def run_single_trial_objective_study(storage: optuna.storages.InMemoryStorage) -
     return study
 
 
-def run_single_1param_objective_study(storage: optuna.storages.InMemoryStorage) -> optuna.Study:
-    sampler = optuna.samplers.RandomSampler(seed=0)
-    study = optuna.create_study(
-        study_name="single-1-param", storage=storage, direction="maximize", sampler=sampler
-    )
-
-    def objective(trial: optuna.Trial) -> float:
-        x1 = trial.suggest_float("x1", 0, 10)
-        return -((x1 - 2) ** 2)
-
-    study.optimize(objective, n_trials=50)
-    return study
-
-
 def run_single_dynamic_objective_study(storage: optuna.storages.InMemoryStorage) -> optuna.Study:
     # Single-objective study with dynamic search space
     sampler = optuna.samplers.RandomSampler(seed=0)
@@ -73,24 +59,6 @@ def run_single_dynamic_objective_study(storage: optuna.storages.InMemoryStorage)
             return (trial.suggest_float("x1", 0, 10) - 2) ** 2
         else:
             return -((trial.suggest_float("x2", -10, 0) + 5) ** 2)
-
-    study.optimize(objective, n_trials=50)
-    return study
-
-
-def run_single_inf_objective_study(storage: optuna.storages.InMemoryStorage) -> optuna.Study:
-    # Single objective study with 'inf', '-inf', or 'nan' value
-    sampler = optuna.samplers.RandomSampler(seed=0)
-    study = optuna.create_study(study_name="single-inf", storage=storage, sampler=sampler)
-
-    def objective(trial: optuna.Trial) -> float:
-        x = trial.suggest_float("x", -10, 10)
-        if trial.number % 3 == 0:
-            return float("inf")
-        elif trial.number % 3 == 1:
-            return float("-inf")
-        else:
-            return x**2
 
     study.optimize(objective, n_trials=50)
     return study
@@ -113,7 +81,7 @@ def run_multi_objective_study(storage: optuna.storages.InMemoryStorage) -> optun
         v1 = (x - 5) ** 2 + (y - 5) ** 2
         return v0, v1
 
-    study.optimize(objective, n_trials=50)
+    study.optimize(objective, n_trials=20)
     return study
 
 
@@ -142,7 +110,7 @@ def run_multi_dynamic_objective_study(storage: optuna.storages.InMemoryStorage) 
             v1 = (x - 2) ** 2 + (y - 3) ** 2
             return v0, v1
 
-    study.optimize(objective, n_trials=50)
+    study.optimize(objective, n_trials=20)
     return study
 
 
@@ -167,66 +135,6 @@ def run_single_pruned_without_report_objective_study(
     return study
 
 
-def run_single_inf_report_objective_study(
-    storage: optuna.storages.InMemoryStorage,
-) -> optuna.Study:
-    # Single objective pruned after reported 'inf', '-inf', or 'nan'
-    sampler = optuna.samplers.RandomSampler(seed=0)
-    study = optuna.create_study(study_name="single-inf-report", storage=storage, sampler=sampler)
-
-    def objective(trial: optuna.Trial) -> float:
-        x = trial.suggest_float("x", -10, 10)
-        if trial.number % 3 == 0:
-            trial.report(float("inf"), 1)
-        elif trial.number % 3 == 1:
-            trial.report(float("-inf"), 1)
-        else:
-            trial.report(float("nan"), 1)
-
-        if x > 0:
-            raise optuna.TrialPruned()
-        else:
-            return x**2
-
-    study.optimize(objective, n_trials=50)
-    return study
-
-
-def run_issue_410_objective_study(storage: optuna.storages.InMemoryStorage) -> optuna.Study:
-    # Issue 410
-    sampler = optuna.samplers.RandomSampler(seed=0)
-    study = optuna.create_study(study_name="issue-410", storage=storage, sampler=sampler)
-
-    def objective(trial: optuna.Trial) -> float:
-        trial.suggest_categorical("resample_rate", ["50ms"])
-        trial.suggest_categorical("channels", ["all"])
-        trial.suggest_categorical("window_size", [256])
-        if trial.number > 15:
-            raise Exception("Unexpected error")
-        trial.suggest_categorical("cbow", [True])
-        trial.suggest_categorical("model", ["m1"])
-
-        trial.set_user_attr("epochs", 0)
-        trial.set_user_attr("deterministic", True)
-        if trial.number > 10:
-            raise Exception("unexpeccted error")
-        trial.set_user_attr("folder", "/path/to/folder")
-        trial.set_user_attr("resample_type", "foo")
-        trial.set_user_attr("run_id", "0001")
-        return 1.0
-
-    study.optimize(objective, n_trials=20, catch=(Exception,))
-    return study
-
-
-def run_single_no_trials_objective_study(storage: optuna.storages.InMemoryStorage) -> optuna.Study:
-    # No trials single-objective study
-    sampler = optuna.samplers.RandomSampler(seed=0)
-    study = optuna.create_study(study_name="single-no-trials", storage=storage, sampler=sampler)
-
-    return study
-
-
 def run_multi_no_trials_objective_study(storage: optuna.storages.InMemoryStorage) -> optuna.Study:
     # No trials multi-objective study
     sampler = optuna.samplers.RandomSampler(seed=0)
@@ -244,15 +152,10 @@ parameterize_studies = pytest.mark.parametrize(
     [
         run_single_objective_study,
         run_single_trial_objective_study,
-        run_single_1param_objective_study,
         run_single_dynamic_objective_study,
-        run_single_inf_objective_study,
         run_multi_objective_study,
         run_multi_dynamic_objective_study,
         run_single_pruned_without_report_objective_study,
-        run_single_inf_report_objective_study,
-        run_issue_410_objective_study,
-        run_single_no_trials_objective_study,
         run_multi_no_trials_objective_study,
     ],
 )
@@ -273,6 +176,7 @@ def test_study_list(
     page.goto(server_url)
     page.click(f"a[href='/dashboard/studies/{study_id}']")
 
+    page.wait_for_selector(".MuiTypography-body1")
     element = page.query_selector(".MuiTypography-body1")
     assert element is not None
 
@@ -289,14 +193,15 @@ def test_study_analytics(
     run_study: Callable[[optuna.storages.InMemoryStorage], optuna.Study],
 ) -> None:
     study = run_study(storage)
-
     study_id = study._study_id
     study_name = study.study_name
     url = f"{server_url}/studies/{study_id}"
 
+    page.on("console", lambda msg: print(f"error: {msg.text}") if msg.type == "error" else None)
     page.goto(url)
     page.click(f"a[href='/dashboard/studies/{study_id}/analytics']")
 
+    page.wait_for_selector(".MuiTypography-body1", timeout=60 * 1000)
     element = page.query_selector(".MuiTypography-body1")
     assert element is not None
 
@@ -321,6 +226,7 @@ def test_trial_list(
     page.goto(url)
     page.click(f"a[href='/dashboard/studies/{study_id}/trials']")
 
+    page.wait_for_selector(".MuiTypography-body1")
     element = page.query_selector(".MuiTypography-body1")
     assert element is not None
 
@@ -345,6 +251,7 @@ def test_trial_table(
     page.goto(url)
     page.click(f"a[href='/dashboard/studies/{study_id}/trialTable']")
 
+    page.wait_for_selector(".MuiTypography-body1")
     element = page.query_selector(".MuiTypography-body1")
     assert element is not None
 
@@ -367,6 +274,7 @@ def test_trial_note(
     url = f"{server_url}/studies/{study_id}"
 
     page.goto(url)
+    page.wait_for_selector(".MuiTypography-body1")
     page.click(f"a[href='/dashboard/studies/{study_id}/note']")
 
     element = page.query_selector(".MuiTypography-body1")

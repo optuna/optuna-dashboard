@@ -30,7 +30,7 @@
     "@tanstack/react-virtual": "^3.1.2",
     "@types/papaparse": "^5.3.14",
     "@types/three": "^0.160.0",
-    "axios": "^1.6.7",
+    "axios": "^1.7.4",
     "elkjs": "^0.9.1",
     "notistack": "^3.0.1",
     "papaparse": "^5.4.1",

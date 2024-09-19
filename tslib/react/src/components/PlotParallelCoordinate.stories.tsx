@@ -4,25 +4,22 @@ import React from "react"
 import { useMockStudy } from "../MockStudies"
 import { darkTheme } from "../styles/darkTheme"
 import { lightTheme } from "../styles/lightTheme"
-import { PlotEdf } from "./PlotEdf"
+import { PlotParallelCoordinate } from "./PlotParallelCoordinate"
 
-const meta: Meta<typeof PlotEdf> = {
-  component: PlotEdf,
-  title: "Plot/EDF",
+const meta: Meta<typeof PlotParallelCoordinate> = {
+  component: PlotParallelCoordinate,
+  title: "Plot/ParallelCoordinate",
   tags: ["autodocs"],
   decorators: [
     (Story, storyContext) => {
-      const studyId = storyContext.parameters?.studyId
-      const { study } = useMockStudy(studyId)
+      const { study } = useMockStudy(storyContext.parameters?.studyId)
       if (!study) return <p>loading...</p>
-
       return (
         <ThemeProvider theme={storyContext.parameters?.theme}>
           <CssBaseline />
           <Story
             args={{
-              studies: [study],
-              objectiveId: 0,
+              study,
             }}
           />
         </ThemeProvider>
@@ -32,8 +29,7 @@ const meta: Meta<typeof PlotEdf> = {
 }
 
 export default meta
-
-type Story = StoryObj<typeof PlotEdf>
+type Story = StoryObj<typeof PlotParallelCoordinate>
 
 export const LightTheme: Story = {
   parameters: {
@@ -48,13 +44,6 @@ export const DarkTheme: Story = {
     theme: darkTheme,
   },
 }
-
-// TODO(c-bata): Add a story for the case where two studies are compared.
-// export const CompareStudy: Story = {
-//   parameters: {
-//     ...
-//   },
-// }
 
 // TODO(c-bata): Add a story for multi objective study.
 // export const MultiObjective: Story = {

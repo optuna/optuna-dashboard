@@ -91,7 +91,7 @@ const GraphRankFrontend: FC<{
   const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
   const [xParam, setXParam] = useState<SearchSpaceItem | null>(null)
   const [yParam, setYParam] = useState<SearchSpaceItem | null>(null)
-  const objectiveNames: string[] = study?.objective_names || []
+  const metricNames: string[] = study?.metric_names || []
 
   if (xParam === null && searchSpace.length > 0) {
     setXParam(searchSpace[0])
@@ -150,8 +150,8 @@ const GraphRankFrontend: FC<{
             <Select value={objectiveId} onChange={handleObjectiveChange}>
               {study.directions.map((d, i) => (
                 <MenuItem value={i} key={i}>
-                  {objectiveNames.length === study?.directions.length
-                    ? objectiveNames[i]
+                  {metricNames.length === study?.directions.length
+                    ? metricNames[i]
                     : `${i}`}
                 </MenuItem>
               ))}

@@ -1,6 +1,6 @@
 import * as Optuna from "@optuna/types"
 import { useEffect, useState } from "react"
-import { loadStorageFromFile } from "./utils/loadStorageFromFile"
+import { loadStorageFromFile } from "../test/loadStorageFromFile"
 
 const fetchMockStudies = async () => {
   const filePath = "sample_db.sqlite3"

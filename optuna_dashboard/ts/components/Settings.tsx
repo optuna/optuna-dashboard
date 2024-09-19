@@ -2,6 +2,7 @@ import ClearIcon from "@mui/icons-material/Clear"
 import {
   Box,
   IconButton,
+  Link,
   MenuItem,
   Select,
   SelectChangeEvent,
@@ -11,8 +12,13 @@ import {
   useTheme,
 } from "@mui/material"
 import React from "react"
+import { useRecoilValue } from "recoil"
 import { PlotlyColorThemeDark, PlotlyColorThemeLight } from "ts/types/optuna"
-import { usePlotBackendRendering, usePlotlyColorThemeState } from "../state"
+import {
+  plotlypyIsAvailableState,
+  usePlotBackendRendering,
+  usePlotlyColorThemeState,
+} from "../state"
 
 interface SettingsProps {
   handleClose: () => void
@@ -23,6 +29,7 @@ export const Settings = ({ handleClose }: SettingsProps) => {
   const [plotlyColorTheme, setPlotlyColorTheme] = usePlotlyColorThemeState()
   const [plotBackendRendering, setPlotBackendRendering] =
     usePlotBackendRendering()
+  const plotlypyIsAvailable = useRecoilValue(plotlypyIsAvailableState)
 
   const handleDarkModeColorChange = (event: SelectChangeEvent) => {
     const dark = event.target.value as PlotlyColorThemeDark
@@ -62,31 +69,29 @@ export const Settings = ({ handleClose }: SettingsProps) => {
           </Typography>
           {theme.palette.mode === "dark" ? (
             <>
-              <Stack direction="row" spacing={2} alignItems="center">
-                <Typography variant="h6">Dark Mode</Typography>
-                <Select
-                  disabled
-                  value={plotlyColorTheme.dark}
-                  onChange={handleDarkModeColorChange}
-                >
-                  {(
-                    [{ value: "default", label: "Default" }] as {
-                      value: PlotlyColorThemeDark
-                      label: string
-                    }[]
-                  ).map((v) => (
-                    <MenuItem key={v.value} value={v.value}>
-                      {v.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </Stack>
+              <Typography variant="h6">Dark Mode</Typography>
               <Typography color="textSecondary">
                 Only the "Default" color scale is supported in dark mode
               </Typography>
+              <Select
+                disabled
+                value={plotlyColorTheme.dark}
+                onChange={handleDarkModeColorChange}
+              >
+                {(
+                  [{ value: "default", label: "Default" }] as {
+                    value: PlotlyColorThemeDark
+                    label: string
+                  }[]
+                ).map((v) => (
+                  <MenuItem key={v.value} value={v.value}>
+                    {v.label}
+                  </MenuItem>
+                ))}
+              </Select>
             </>
           ) : (
-            <Stack direction="row" spacing={2} alignItems="center">
+            <>
               <Typography variant="h6">Light Mode</Typography>
               <Select
                 value={plotlyColorTheme.light}
@@ -108,7 +113,7 @@ export const Settings = ({ handleClose }: SettingsProps) => {
                   </MenuItem>
                 ))}
               </Select>
-            </Stack>
+            </>
           )}
         </Stack>
 
@@ -117,12 +122,20 @@ export const Settings = ({ handleClose }: SettingsProps) => {
             variant="h5"
             sx={{ fontWeight: theme.typography.fontWeightBold }}
           >
-            Use Plotlypy
+            Use Plotly Python library
+          </Typography>
+          <Typography color="textSecondary">
+            {"If enabled, the plots will be rendered using the "}
+            <Link href="https://optuna.readthedocs.io/en/stable/reference/visualization/index.html">
+              optuna.visualization module
+            </Link>
+            .
           </Typography>
           <Switch
             checked={plotBackendRendering}
             onChange={togglePlotBackendRendering}
             value="enable"
+            disabled={!plotlypyIsAvailable}
           />
         </Stack>
       </Stack>

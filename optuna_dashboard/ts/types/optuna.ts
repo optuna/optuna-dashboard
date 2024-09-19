@@ -155,7 +155,7 @@ export type StudyDetail = {
   has_intermediate_values: boolean
   note: Note
   is_preferential: boolean
-  objective_names?: string[]
+  metric_names?: string[]
   form_widgets?: FormWidgets
   feedback_component_type: FeedbackComponentType
   preferences?: [number, number][]

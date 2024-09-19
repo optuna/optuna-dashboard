@@ -2,19 +2,20 @@ import { CssBaseline, ThemeProvider } from "@mui/material"
 import { Meta, StoryObj } from "@storybook/react"
 import React from "react"
 import { useMockStudy } from "../MockStudies"
+import { darkTheme } from "../styles/darkTheme"
 import { lightTheme } from "../styles/lightTheme"
 import { TrialTable } from "./TrialTable"
 
 const meta: Meta<typeof TrialTable> = {
   component: TrialTable,
-  title: "TrialTable",
+  title: "Table/TrialTable",
   tags: ["autodocs"],
   decorators: [
     (Story, storyContext) => {
       const { study } = useMockStudy(storyContext.parameters?.studyId)
       if (!study) return <p>loading...</p>
       return (
-        <ThemeProvider theme={lightTheme}>
+        <ThemeProvider theme={storyContext.parameters?.theme}>
           <CssBaseline />
           <Story
             args={{
@@ -30,8 +31,16 @@ const meta: Meta<typeof TrialTable> = {
 export default meta
 type Story = StoryObj<typeof TrialTable>
 
-export const MockStudyExample1: Story = {
+export const LightTheme: Story = {
   parameters: {
     studyId: 1,
+    theme: lightTheme,
+  },
+}
+
+export const DarkTheme: Story = {
+  parameters: {
+    studyId: 1,
+    theme: darkTheme,
   },
 }
