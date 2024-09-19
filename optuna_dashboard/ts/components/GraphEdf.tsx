@@ -32,6 +32,8 @@ const domId = "graph-edf"
 const GraphEdfBackend: FC<{
   studies: StudyDetail[]
 }> = ({ studies }) => {
+  const theme = useTheme()
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
   const { apiClient } = useAPIClient()
   const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
@@ -49,7 +51,9 @@ const GraphEdfBackend: FC<{
       apiClient
         .getCompareStudiesPlot(studyIds, CompareStudiesPlotType.EDF)
         .then(({ data, layout }) => {
-          plotly.react(domId, data, layout).then(notifyGraphDidRender)
+          plotly
+            .react(domId, data, { ...layout, template: colorTheme })
+            .then(notifyGraphDidRender)
         })
         .catch((err) => {
           console.error(err)
