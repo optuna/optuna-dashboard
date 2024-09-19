@@ -123,6 +123,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --progress-bar off --upgrade pip setuptools build
+          pip install --progress-bar off jupyterlab
           pip install --progress-bar off .
       
       - name: Set up Node
