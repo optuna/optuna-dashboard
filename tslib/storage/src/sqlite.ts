@@ -261,8 +261,8 @@ const getTrials = (
         params: [], // Set this column later
         user_attrs: [], // Set this column later
         constraints: [],
-        datetime_start: vals[3],
-        datetime_complete: vals[4],
+        datetime_start: new Date(vals[3]),
+        datetime_complete: new Date(vals[4]),
       }
       trials.push(trial)
     },
