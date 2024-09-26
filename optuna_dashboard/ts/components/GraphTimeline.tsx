@@ -210,7 +210,7 @@ const plotTimeline = (
         (t) => t.constraints === null || t.constraints.every((c) => c <= 0)
       )
       const infeasibleTrials = bars.filter(
-        (t) => t.constraints === null || t.constraints.some((c) => c > 0)
+        (t) => t.constraints !== null && t.constraints.some((c) => c > 0)
       )
       if (feasibleTrials.length > 0) {
         traces.push(makeTrace(feasibleTrials, "Complete", color))
