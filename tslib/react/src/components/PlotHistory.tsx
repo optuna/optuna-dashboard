@@ -18,6 +18,7 @@ import * as plotly from "plotly.js-dist-min"
 import { ChangeEvent, FC, useEffect, useState } from "react"
 
 import { useGraphComponentState } from "../hooks/useGraphComponentState"
+import { makeHovertext } from "../utils/graph"
 import {
   Target,
   useFilteredTrialsFromStudies,
@@ -332,6 +333,10 @@ const plotHistory = (
         infeasibleTrials.push(t)
       }
     }
+    const hovertemplate =
+      infeasibleTrials.length === 0
+        ? "%{text}<extra>Trial</extra>"
+        : "%{text}<extra>Feasible Trial</extra>"
     plotData.push({
       x: feasibleTrials.map(getAxisX),
       y: feasibleTrials.map(
@@ -343,6 +348,8 @@ const plotHistory = (
       },
       mode: "markers",
       type: "scatter",
+      text: feasibleTrials.map((t) => makeHovertext(t)),
+      hovertemplate: hovertemplate,
     })
 
     const objectiveId = target.getObjectiveId()
@@ -411,6 +418,8 @@ const plotHistory = (
       },
       mode: "markers",
       type: "scatter",
+      text: infeasibleTrials.map((t) => makeHovertext(t)),
+      hovertemplate: "%{text}<extra>Infeasible Trial</extra>",
       showlegend: false,
     })
   }
