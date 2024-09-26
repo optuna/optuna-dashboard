@@ -207,7 +207,7 @@ const plotSlice = (
   const infeasibleTrials: Optuna.Trial[] = []
   // biome-ignore lint/complexity/noForEach: <explanation>
   trials.forEach((t) => {
-    if (t.constraints.every((c) => c <= 0)) {
+    if (t.constraints === null || t.constraints.every((c) => c <= 0)) {
       feasibleTrials.push(t)
     } else {
       infeasibleTrials.push(t)

@@ -326,7 +326,7 @@ const plotHistory = (
     const feasibleTrials: Optuna.Trial[] = []
     const infeasibleTrials: Optuna.Trial[] = []
     for (const t of h.trials) {
-      if (t.constraints.every((c) => c <= 0)) {
+      if (t.constraints === null || t.constraints.every((c) => c <= 0)) {
         feasibleTrials.push(t)
       } else {
         infeasibleTrials.push(t)

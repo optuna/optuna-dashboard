@@ -225,7 +225,8 @@ const getRankPlotInfo = (
       yValues.push(yValue)
       const zValue = trial.values[objectiveId]
       zValues.push(zValue)
-      const feasibility = trial.constraints.every((c) => c <= 0)
+      const feasibility =
+        trial.constraints === null || trial.constraints.every((c) => c <= 0)
       isFeasible.push(feasibility)
       hovertext.push(makeHovertext(trial))
     }

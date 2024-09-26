@@ -287,7 +287,10 @@ const plotContour = (
 
   filteredTrials.forEach((trial, i) => {
     if (xAxis.values[i] && yAxis.values[i] && trial.values) {
-      if (trial.constraints.every((c) => c <= 0)) {
+      if (
+        trial.constraints === null ||
+        trial.constraints.every((c) => c <= 0)
+      ) {
         feasibleXY.add(xValues.length)
       }
       const xValue = xAxis.values[i] as string | number

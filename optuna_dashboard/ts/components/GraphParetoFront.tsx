@@ -339,7 +339,7 @@ const plotParetoFront = (
   const feasibleTrials: Trial[] = []
   const infeasibleTrials: Trial[] = []
   filteredTrials.forEach((t) => {
-    if (t.constraints.every((c) => c <= 0)) {
+    if (t.constraints === null || t.constraints.every((c) => c <= 0)) {
       feasibleTrials.push(t)
     } else {
       infeasibleTrials.push(t)
