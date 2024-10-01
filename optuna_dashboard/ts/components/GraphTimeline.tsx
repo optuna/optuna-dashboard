@@ -20,8 +20,7 @@ export const GraphTimeline: FC<{
   if (useBackendRender()) {
     return <GraphTimelineBackend study={study} />
   } else {
-    const _study = studyDetailToStudy(study)
-    return <PlotTimeline study={_study} colorTheme={colorTheme} />
+    return <PlotTimeline study={studyDetailToStudy(study)} colorTheme={colorTheme} />
   }
 }
 
