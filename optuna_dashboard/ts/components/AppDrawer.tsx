@@ -224,7 +224,12 @@ export const AppDrawer: FC<{
         <Divider />
         {studyId !== undefined && page && (
           <List>
-            <ListItem key="Top" disablePadding sx={styleListItem}>
+            <ListItem
+              key="Top"
+              disablePadding
+              sx={styleListItem}
+              title={isPreferential ? "Feedback Preference" : "History"}
+            >
               <ListItemButton
                 component={Link}
                 to={`${url_prefix}/studies/${studyId}`}
@@ -245,6 +250,7 @@ export const AppDrawer: FC<{
                 key="PreferenceHistory"
                 disablePadding
                 sx={styleListItem}
+                title="Preference (History)"
               >
                 <ListItemButton
                   component={Link}
@@ -262,7 +268,12 @@ export const AppDrawer: FC<{
                 </ListItemButton>
               </ListItem>
             )}
-            <ListItem key="Analytics" disablePadding sx={styleListItem}>
+            <ListItem
+              key="Analytics"
+              disablePadding
+              sx={styleListItem}
+              title="Analytics"
+            >
               <ListItemButton
                 component={Link}
                 to={`${url_prefix}/studies/${studyId}/analytics`}
@@ -276,7 +287,12 @@ export const AppDrawer: FC<{
               </ListItemButton>
             </ListItem>
             {isPreferential && (
-              <ListItem key="PreferenceGraph" disablePadding sx={styleListItem}>
+              <ListItem
+                key="PreferenceGraph"
+                disablePadding
+                sx={styleListItem}
+                title="Preference (Graph)"
+              >
                 <ListItemButton
                   component={Link}
                   to={`${url_prefix}/studies/${studyId}/graph`}
@@ -293,7 +309,12 @@ export const AppDrawer: FC<{
                 </ListItemButton>
               </ListItem>
             )}
-            <ListItem key="TableList" disablePadding sx={styleListItem}>
+            <ListItem
+              key="TableList"
+              disablePadding
+              sx={styleListItem}
+              title="Trials (List)"
+            >
               <ListItemButton
                 component={Link}
                 to={`${url_prefix}/studies/${studyId}/trials`}
@@ -306,7 +327,12 @@ export const AppDrawer: FC<{
                 <ListItemText primary="Trials (List)" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
-            <ListItem key="TrialTable" disablePadding sx={styleListItem}>
+            <ListItem
+              key="TrialTable"
+              disablePadding
+              sx={styleListItem}
+              title="Trials (Table)"
+            >
               <ListItemButton
                 component={Link}
                 to={`${url_prefix}/studies/${studyId}/trialTable`}
@@ -319,7 +345,7 @@ export const AppDrawer: FC<{
                 <ListItemText primary="Trials (Table)" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
-            <ListItem key="Note" disablePadding sx={styleListItem}>
+            <ListItem key="Note" disablePadding sx={styleListItem} title="Note">
               <ListItemButton
                 component={Link}
                 to={`${url_prefix}/studies/${studyId}/note`}
@@ -338,7 +364,12 @@ export const AppDrawer: FC<{
         <Divider />
         <List>
           {studyId !== undefined && (
-            <ListItem key="LiveUpdate" disablePadding sx={styleListItem}>
+            <ListItem
+              key="LiveUpdate"
+              disablePadding
+              sx={styleListItem}
+              title="Live Update"
+            >
               <ListItemButton
                 sx={styleListItemButton}
                 onClick={() => {
@@ -360,7 +391,12 @@ export const AppDrawer: FC<{
               </ListItemButton>
             </ListItem>
           )}
-          <ListItem key="Settings" disablePadding sx={styleListItem}>
+          <ListItem
+            key="Settings"
+            disablePadding
+            sx={styleListItem}
+            title="Settings"
+          >
             <ListItemButton
               sx={styleListItemButton}
               onClick={handleSettingOpen}
@@ -393,7 +429,12 @@ export const AppDrawer: FC<{
               </Box>
             </Modal>
           </ListItem>
-          <ListItem key="DarkMode" disablePadding sx={styleListItem}>
+          <ListItem
+            key="DarkMode"
+            disablePadding
+            sx={styleListItem}
+            title="Dark Mode"
+          >
             <ListItemButton
               sx={styleListItemButton}
               onClick={() => {
@@ -419,7 +460,12 @@ export const AppDrawer: FC<{
             </ListItemButton>
           </ListItem>
           <Divider />
-          <ListItem key="Feedback" disablePadding sx={styleListItem}>
+          <ListItem
+            key="Feedback"
+            disablePadding
+            sx={styleListItem}
+            title="Send Feedback"
+          >
             <ListItemButton
               target="_blank"
               href="https://github.com/optuna/optuna-dashboard/discussions/new/choose"
