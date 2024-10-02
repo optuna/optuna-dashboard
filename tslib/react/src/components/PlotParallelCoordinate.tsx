@@ -1,5 +1,6 @@
 import {
   Checkbox,
+  Divider,
   FormControlLabel,
   FormGroup,
   Grid,
@@ -243,6 +244,16 @@ const useTargets = (
   const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
   const [targets2] = useParamTargets(searchSpace)
   const [checked, setChecked] = useState<boolean[]>([true])
+  const [checkedAll, setCheckedAll] = useState<boolean>(true)
+
+  const toggleCheckedAll = () => {
+    if (checkedAll) {
+      setChecked(checked.map(() => false))
+    } else {
+      setChecked(checked.map(() => true))
+    }
+    setCheckedAll((prevCheckedAll) => !prevCheckedAll)
+  }
 
   const allTargets = [...targets1, ...targets2]
   useEffect(() => {
@@ -276,6 +287,17 @@ const useTargets = (
 
   const renderCheckBoxes = (): ReactNode => (
     <FormGroup>
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={checkedAll}
+            onChange={toggleCheckedAll}
+            name="checkedAll"
+          />
+        }
+        label="Check All"
+      />
+      <Divider />
       {allTargets.map((t, i) => {
         const key = t.toLabel(study?.metric_names)
         return (
