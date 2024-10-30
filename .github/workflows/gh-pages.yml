@@ -20,6 +20,10 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+
+    # Not intended for forks
+    if: github.repository == 'optuna/optuna-dashboard'
+
     steps:
       - uses: actions/checkout@v3
       - name: Install Rust toolchains
