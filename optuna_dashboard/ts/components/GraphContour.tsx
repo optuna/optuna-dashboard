@@ -14,6 +14,7 @@ import {
 import blue from "@mui/material/colors/blue"
 import {
   GraphContainer,
+  getAxisInfo,
   useGraphComponentState,
   useMergedUnionSearchSpace,
 } from "@optuna/react"
