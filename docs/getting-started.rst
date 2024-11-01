@@ -14,7 +14,7 @@ Installation
 Prerequisite
 ~~~~~~~~~~~~
 
-Optuna Dashboard supports Python 3.7 or newer.
+Optuna Dashboard supports Python 3.8 or newer.
 
 
 Installing from PyPI

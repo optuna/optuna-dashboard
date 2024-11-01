@@ -11,7 +11,7 @@ ADD ./optuna_dashboard/ts/ /usr/src/optuna_dashboard/ts
 RUN mkdir -p /usr/src/optuna_dashboard/public
 RUN npm run build:prd
 
-FROM python:3.11-buster AS python-builder
+FROM python:3.12-buster AS python-builder
 
 WORKDIR /usr/src
 RUN pip install --upgrade pip setuptools

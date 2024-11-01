@@ -39,9 +39,9 @@ jobs:
           npm run build:dev
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: '3.12'
           architecture: x64
 
       - name: Setup Optuna ${{ matrix.optuna-version }}
