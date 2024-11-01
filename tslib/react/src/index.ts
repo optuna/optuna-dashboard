@@ -21,4 +21,6 @@ export {
   useObjectiveAndUserAttrTargetsFromStudies,
 } from "./utils/trialFilter"
 export { useMergedUnionSearchSpace } from "./utils/searchSpace"
+export { makeHovertext, getAxisInfo } from "./utils/graphUtil"
+export type { AxisInfo } from "./utils/graphUtil"
 export type { GraphComponentState } from "./types"
