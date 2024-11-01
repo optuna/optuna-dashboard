@@ -7,7 +7,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - run: echo "REPO=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
       - run: echo "TAG=${GITHUB_REF##*/}" >> $GITHUB_ENV
       - name: Enable buildx
