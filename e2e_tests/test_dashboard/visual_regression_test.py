@@ -38,11 +38,11 @@ def run_single_trial_objective_study(storage: optuna.storages.InMemoryStorage) -
     study = optuna.create_study(study_name="single-trial", storage=storage, sampler=sampler)
 
     def objective(trial: optuna.Trial) -> float:
-        x1 = trial.suggest_float("x1", 0, 10)
-        x2 = trial.suggest_float("x2", 0, 10)
-        return (x1 - 2) ** 2 + (x2 - 5) ** 2
+        x = trial.suggest_float("x", -100, 100)
+        y = trial.suggest_categorical("y", [-1, 0, 1])
+        return x**2 + y
 
-    study.optimize(objective, n_trials=1)
+    study.optimize(objective, n_trials=20)
     return study
 
 
