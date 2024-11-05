@@ -17,4 +17,4 @@ from ._note import save_note  # noqa
 from ._preference_setting import register_preference_feedback_component  # noqa
 
 
-__version__ = "0.16.2"
+__version__ = "0.17.0"
