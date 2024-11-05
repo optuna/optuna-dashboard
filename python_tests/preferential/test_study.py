@@ -59,6 +59,9 @@ def test_report_and_get_preferences(storage_supplier: Callable[[], StorageSuppli
         assert actual_worse.number == worse.number
 
 
+# TODO(c-bata): Add support for Python 3.13.
+# https://github.com/optuna/optuna-dashboard/pull/985
+@pytest.mark.skipif(sys.version_info > (3, 13), reason="With Python 3.13, this test is broken")
 def test_study_pickle() -> None:
     study_1 = create_study(
         n_generate=4,
