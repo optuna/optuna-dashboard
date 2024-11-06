@@ -5,15 +5,12 @@ export const makeHovertext = (trial: Optuna.Trial): string => {
     {
       number: trial.number,
       values: trial.values,
-      params: trial.params
-        .map((p) => [p.name, p.param_external_value])
-        .reduce(
-          (obj, [key, value]) => {
-            obj[key as string] = value
-            return obj
-          },
-          {} as Record<string, Optuna.CategoricalChoiceType>
-        ),
+      params: trial.params.reduce<{
+        [key: string]: string
+      }>((obj, p) => {
+        obj[p.name] = p.param_external_value
+        return obj
+      }, {}),
     },
     undefined,
     "  "

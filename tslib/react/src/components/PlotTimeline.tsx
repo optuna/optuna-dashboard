@@ -2,7 +2,7 @@ import { Card, CardContent, Grid, Typography, useTheme } from "@mui/material"
 import * as Optuna from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
 import { FC, useEffect } from "react"
-import { makeHovertext } from "../utils/graphUtil"
+import { makeHovertext } from "../utils/graph"
 import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "graph-timeline"

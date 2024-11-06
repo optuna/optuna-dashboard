@@ -18,7 +18,10 @@ export type IntDistribution = {
   log: boolean
 }
 
-export type CategoricalChoiceType = null | boolean | number | string
+export type CategoricalChoiceType = {
+  pytype: string
+  value: string
+}
 
 export type CategoricalDistribution = {
   type: "CategoricalDistribution"
@@ -80,7 +83,7 @@ export type Trial = {
 export type TrialParam = {
   name: string
   param_internal_value: number
-  param_external_value: CategoricalChoiceType
+  param_external_value: string
   param_external_type: string
   distribution: Distribution
 }
