@@ -197,17 +197,21 @@ def test_study_analytics(
     study_name = study.study_name
     url = f"{server_url}/studies/{study_id}"
 
-    page.on("console", lambda msg: print(f"error: {msg.text}") if msg.type == "error" else None)
+    errors = []
+
+    def catch_error_log(msg):
+        if msg.type == "error":
+            print(f"error: {msg.text}")
+            errors.append(msg)
+
+    page.on("console", catch_error_log)
     page.goto(url)
     page.click(f"a[href='/dashboard/studies/{study_id}/analytics']")
 
-    page.wait_for_selector(".MuiTypography-body1", timeout=60 * 1000)
-    element = page.query_selector(".MuiTypography-body1")
-    assert element is not None
+    import time
 
-    title = element.text_content()
-    assert title is not None
-    assert study_name in title
+    time.sleep(10)
+    assert len(errors) == 0
 
 
 @parameterize_studies
