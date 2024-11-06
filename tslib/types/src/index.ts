@@ -19,7 +19,7 @@ export type IntDistribution = {
 }
 
 export type CategoricalChoiceType = {
-  pytype: string,
+  pytype: string
   value: string
 }
 
