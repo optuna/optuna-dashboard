@@ -169,20 +169,22 @@ def test_study_list(
     run_study: Callable[[optuna.storages.InMemoryStorage], optuna.Study],
 ) -> None:
     study = run_study(storage)
-
     study_id = study._study_id
-    study_name = study.study_name
-
+    errors = []
+    page.on(
+        "console", lambda message: errors.append(message.text) if message.type == "error" else None
+    )
     page.goto(server_url)
     page.click(f"a[href='/dashboard/studies/{study_id}']")
 
-    page.wait_for_selector(".MuiTypography-body1")
-    element = page.query_selector(".MuiTypography-body1")
-    assert element is not None
+    # TODO(porink0424): Temporary sleep to wait for the page to load.
+    # This should be replaced with a more robust solution,
+    # such as capturing logs when rendering graphs.
+    import time
 
-    title = element.text_content()
-    assert title is not None
-    assert study_name in title
+    time.sleep(10)
+
+    assert len(errors) == 0
 
 
 @parameterize_studies
@@ -194,20 +196,20 @@ def test_study_analytics(
 ) -> None:
     study = run_study(storage)
     study_id = study._study_id
-    study_name = study.study_name
     url = f"{server_url}/studies/{study_id}"
-
-    page.on("console", lambda msg: print(f"error: {msg.text}") if msg.type == "error" else None)
+    errors = []
+    page.on(
+        "console", lambda message: errors.append(message.text) if message.type == "error" else None
+    )
     page.goto(url)
     page.click(f"a[href='/dashboard/studies/{study_id}/analytics']")
 
-    page.wait_for_selector(".MuiTypography-body1", timeout=60 * 1000)
-    element = page.query_selector(".MuiTypography-body1")
-    assert element is not None
+    # TODO(porink0424): Same as above.
+    import time
 
-    title = element.text_content()
-    assert title is not None
-    assert study_name in title
+    time.sleep(10)
+
+    assert len(errors) == 0
 
 
 @parameterize_studies
@@ -218,21 +220,21 @@ def test_trial_list(
     run_study: Callable[[optuna.storages.InMemoryStorage], optuna.Study],
 ) -> None:
     study = run_study(storage)
-
     study_id = study._study_id
-    study_name = study.study_name
     url = f"{server_url}/studies/{study_id}"
-
+    errors = []
+    page.on(
+        "console", lambda message: errors.append(message.text) if message.type == "error" else None
+    )
     page.goto(url)
     page.click(f"a[href='/dashboard/studies/{study_id}/trials']")
 
-    page.wait_for_selector(".MuiTypography-body1")
-    element = page.query_selector(".MuiTypography-body1")
-    assert element is not None
+    # TODO(porink0424): Same as above.
+    import time
 
-    title = element.text_content()
-    assert title is not None
-    assert study_name in title
+    time.sleep(10)
+
+    assert len(errors) == 0
 
 
 @parameterize_studies
@@ -243,21 +245,21 @@ def test_trial_table(
     run_study: Callable[[optuna.storages.InMemoryStorage], optuna.Study],
 ) -> None:
     study = run_study(storage)
-
     study_id = study._study_id
-    study_name = study.study_name
     url = f"{server_url}/studies/{study_id}"
-
+    errors = []
+    page.on(
+        "console", lambda message: errors.append(message.text) if message.type == "error" else None
+    )
     page.goto(url)
     page.click(f"a[href='/dashboard/studies/{study_id}/trialTable']")
 
-    page.wait_for_selector(".MuiTypography-body1")
-    element = page.query_selector(".MuiTypography-body1")
-    assert element is not None
+    # TODO(porink0424): Same as above.
+    import time
 
-    title = element.text_content()
-    assert title is not None
-    assert study_name in title
+    time.sleep(10)
+
+    assert len(errors) == 0
 
 
 @parameterize_studies
@@ -268,18 +270,18 @@ def test_trial_note(
     run_study: Callable[[optuna.storages.InMemoryStorage], optuna.Study],
 ) -> None:
     study = run_study(storage)
-
     study_id = study._study_id
-    study_name = study.study_name
     url = f"{server_url}/studies/{study_id}"
-
+    errors = []
+    page.on(
+        "console", lambda message: errors.append(message.text) if message.type == "error" else None
+    )
     page.goto(url)
-    page.wait_for_selector(".MuiTypography-body1")
     page.click(f"a[href='/dashboard/studies/{study_id}/note']")
 
-    element = page.query_selector(".MuiTypography-body1")
-    assert element is not None
+    # TODO(porink0424): Same as above.
+    import time
 
-    title = element.text_content()
-    assert title is not None
-    assert study_name in title
+    time.sleep(10)
+
+    assert len(errors) == 0
