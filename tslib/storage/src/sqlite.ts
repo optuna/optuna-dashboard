@@ -330,14 +330,14 @@ const getTrialParams = (
 const paramInternalValueToExternalValue = (
   distribution: Optuna.Distribution,
   internalValue: number
-): Optuna.CategoricalChoiceType => {
+) => {
   if (distribution.type === "FloatDistribution") {
     return internalValue.toString()
   }
   if (distribution.type === "IntDistribution") {
     return internalValue.toString()
   }
-  return distribution.choices[internalValue]
+  return distribution.choices[internalValue].value
 }
 
 const parseDistributionJSON = (t: string): Optuna.Distribution => {
