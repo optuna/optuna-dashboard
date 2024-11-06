@@ -1,7 +1,7 @@
-from optuna_dashboard._storage import trials_cache
-from optuna_dashboard._storage import trials_cache_lock
 from optuna_dashboard._cached_extra_study_property import cached_extra_study_property_cache
 from optuna_dashboard._cached_extra_study_property import cached_extra_study_property_cache_lock
+from optuna_dashboard._storage import trials_cache
+from optuna_dashboard._storage import trials_cache_lock
 from optuna_dashboard._storage import trials_last_fetched_at
 from playwright.sync_api import Page
 
