@@ -7,13 +7,13 @@ export type AxisInfo = {
   isLog: boolean
   isCat: boolean
   indices: (string | number)[]
-  values: (string | number | boolean | null)[]
+  values: (string | number | null)[]
 }
 
 // biome-ignore lint/suspicious/noExplicitAny: Accept any array.
 const unique = (array: any[]) => {
   const knownElements = new Map()
-  for (const e of someArray) {
+  for (const e of array) {
     knownElements.set(e, true)
   }
   return Array.from(knownElements.keys())

@@ -29,8 +29,8 @@ interface RankPlotInfo {
   ytitle: string
   xtype: plotly.AxisType
   ytype: plotly.AxisType
-  xvalues: (string | number | boolean)[]
-  yvalues: (string | number | boolean)[]
+  xvalues: (string | number)[]
+  yvalues: (string | number)[]
   colors: number[]
   is_feasible: boolean[]
   hovertext: string[]
@@ -213,8 +213,8 @@ const getRankPlotInfo = (
   const xAxis = getAxisInfo(filteredTrials, xParam)
   const yAxis = getAxisInfo(filteredTrials, yParam)
 
-  let xValues: (string | number | boolean)[] = []
-  let yValues: (string | number | boolean)[] = []
+  let xValues: (string | number)[] = []
+  let yValues: (string | number)[] = []
   const zValues: number[] = []
   const isFeasible: boolean[] = []
   const hovertext: string[] = []
