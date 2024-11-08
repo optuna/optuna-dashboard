@@ -10,10 +10,12 @@ export type AxisInfo = {
   values: (string | number | boolean | null)[]
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// biome-ignore lint/suspicious/noExplicitAny: Accept any array.
 const unique = (array: any[]) => {
   const knownElements = new Map()
-  array.forEach((elem) => knownElements.set(elem, true))
+  for (const e of someArray) {
+    knownElements.set(e, true)
+  }
   return Array.from(knownElements.keys())
 }
 
@@ -44,9 +46,9 @@ export const getAxisInfo = (
       param.name,
       param.distribution
     )
-  } else {
-    return getAxisInfoForNumericalParams(trials, param.name, param.distribution)
   }
+
+  return getAxisInfoForNumericalParams(trials, param.name, param.distribution)
 }
 
 const getAxisInfoForCategoricalParams = (
@@ -89,8 +91,8 @@ const getAxisInfoForNumericalParams = (
     const padding =
       (Math.log10(distribution.high) - Math.log10(distribution.low)) *
       PADDING_RATIO
-    min = Math.pow(10, Math.log10(distribution.low) - padding)
-    max = Math.pow(10, Math.log10(distribution.high) + padding)
+    min = 10 ** (Math.log10(distribution.low) - padding)
+    max = 10 ** (Math.log10(distribution.high) + padding)
   } else {
     const padding = (distribution.high - distribution.low) * PADDING_RATIO
     min = distribution.low - padding
