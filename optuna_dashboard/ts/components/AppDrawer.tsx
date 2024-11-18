@@ -9,6 +9,7 @@ import SyncIcon from "@mui/icons-material/Sync"
 import SyncDisabledIcon from "@mui/icons-material/SyncDisabled"
 import TableViewIcon from "@mui/icons-material/TableView"
 import ViewListIcon from "@mui/icons-material/ViewList"
+import CompareIcon from '@mui/icons-material/Compare';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar"
 import Box from "@mui/material/Box"
 import Divider from "@mui/material/Divider"
@@ -56,6 +57,7 @@ export type PageId =
   | "analytics"
   | "trialTable"
   | "trialList"
+  | "trialCompare"
   | "note"
   | "preferenceHistory"
   | "graph"
@@ -343,6 +345,24 @@ export const AppDrawer: FC<{
                   <TableViewIcon />
                 </ListItemIcon>
                 <ListItemText primary="Trials (Table)" sx={styleListItemText} />
+              </ListItemButton>
+            </ListItem>
+            <ListItem
+              key="TrialCompare"
+              disablePadding
+              sx={styleListItem}
+              title="Trials (Compare)"
+            >
+              <ListItemButton
+                component={Link}
+                to={`${url_prefix}/studies/${studyId}/trialCompare`}
+                sx={styleListItemButton}
+                selected={page === "trialTable"}
+              >
+                <ListItemIcon sx={styleListItemIcon}>
+                  <CompareIcon />
+                </ListItemIcon>
+                <ListItemText primary="Trials (Compare)" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
             <ListItem key="Note" disablePadding sx={styleListItem} title="Note">
