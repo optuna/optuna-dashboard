@@ -173,7 +173,7 @@ const plotCoordinate = (
     if (s.distribution.type === "CategoricalDistribution") {
       // categorical
       const vocabArr: string[] = s.distribution.choices.map(
-        (c) => c?.toString() ?? "null"
+        (c) => c?.value ?? "null"
       )
       const tickvals: number[] = vocabArr.map((_, i) => i)
       return {
