@@ -7,6 +7,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
+import { Box } from "@mui/system"
 import * as Optuna from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, ReactNode, useEffect, useState } from "react"
@@ -298,22 +299,25 @@ const useTargets = (
         label="Check All"
       />
       <Divider />
-      {allTargets.map((t, i) => {
-        const key = t.toLabel(study?.metric_names)
-        return (
-          <FormControlLabel
-            key={key}
-            control={
-              <Checkbox
-                checked={checked.length > i ? checked[i] : true}
-                onChange={handleOnChange}
-                name={i.toString()}
-              />
-            }
-            label={t.toLabel(study?.metric_names)}
-          />
-        )
-      })}
+      <Box sx={{ maxHeight: "300px", overflowX: "hidden", overflowY: "auto" }}>
+        {allTargets.map((t, i) => {
+          const key = t.toLabel(study?.metric_names)
+          return (
+            <FormControlLabel
+              sx={{ width: "100%" }}
+              key={key}
+              control={
+                <Checkbox
+                  checked={checked.length > i ? checked[i] : true}
+                  onChange={handleOnChange}
+                  name={i.toString()}
+                />
+              }
+              label={t.toLabel(study?.metric_names)}
+            />
+          )
+        })}
+      </Box>
     </FormGroup>
   )
 
