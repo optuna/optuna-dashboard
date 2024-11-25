@@ -3,13 +3,13 @@ import Brightness4Icon from "@mui/icons-material/Brightness4"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
+import CompareIcon from "@mui/icons-material/Compare"
 import RateReviewIcon from "@mui/icons-material/RateReview"
 import SettingsIcon from "@mui/icons-material/Settings"
 import SyncIcon from "@mui/icons-material/Sync"
 import SyncDisabledIcon from "@mui/icons-material/SyncDisabled"
 import TableViewIcon from "@mui/icons-material/TableView"
 import ViewListIcon from "@mui/icons-material/ViewList"
-import CompareIcon from '@mui/icons-material/Compare';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar"
 import Box from "@mui/material/Box"
 import Divider from "@mui/material/Divider"
@@ -362,7 +362,10 @@ export const AppDrawer: FC<{
                 <ListItemIcon sx={styleListItemIcon}>
                   <CompareIcon />
                 </ListItemIcon>
-                <ListItemText primary="Trials (Compare)" sx={styleListItemText} />
+                <ListItemText
+                  primary="Trials (Compare)"
+                  sx={styleListItemText}
+                />
               </ListItemButton>
             </ListItem>
             <ListItem key="Note" disablePadding sx={styleListItem} title="Note">
