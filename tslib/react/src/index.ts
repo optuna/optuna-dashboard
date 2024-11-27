@@ -10,6 +10,7 @@ export { PlotTimeline } from "./components/PlotTimeline"
 export { PlotTCParallelCoordinate } from "./components/PlotTCParallelCoordinate"
 export { PlotParallelCoordinate } from "./components/PlotParallelCoordinate"
 export { TrialTable } from "./components/TrialTable"
+export { TrialTableTC } from "./components/TrialTableTC"
 export { GraphContainer } from "./components/GraphContainer"
 export { useGraphComponentState } from "./hooks/useGraphComponentState"
 export {

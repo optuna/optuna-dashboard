@@ -377,7 +377,7 @@ const useTargets = (
         label="Check All"
       />
       <Divider />
-      <Box sx={{ maxHeight: "300px", overflow: "auto" }}>
+      <Box sx={{ maxHeight: "300px", overflowX: "hidden", overflowY: "auto" }}>
         {allTargets.map((t, i) => {
           const key = t.toLabel(study?.metric_names)
           return (

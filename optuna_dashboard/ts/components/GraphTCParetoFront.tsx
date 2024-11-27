@@ -288,6 +288,19 @@ const plotParetoFront = (
     return
   }
 
+  const xmin = Math.min(
+    ...study.trials.map((t) => t.values?.[objectiveXId] as number)
+  )
+  const xmax = Math.max(
+    ...study.trials.map((t) => t.values?.[objectiveXId] as number)
+  )
+  const ymin = Math.min(
+    ...study.trials.map((t) => t.values?.[objectiveYId] as number)
+  )
+  const ymax = Math.max(
+    ...study.trials.map((t) => t.values?.[objectiveYId] as number)
+  )
+
   const layout: Partial<plotly.Layout> = {
     margin: {
       l: 50,
@@ -297,6 +310,12 @@ const plotParetoFront = (
     },
     template: colorTheme,
     uirevision: "true",
+    xaxis: {
+      range: [xmin - (xmax - xmin) * 0.1, xmax + (xmax - xmin) * 0.1],
+    },
+    yaxis: {
+      range: [ymin - (ymax - ymin) * 0.1, ymax + (ymax - ymin) * 0.1],
+    },
   }
 
   const trials: Trial[] = study ? study.trials : []

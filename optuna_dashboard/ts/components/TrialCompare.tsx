@@ -1,9 +1,20 @@
-import { Box, Card, CardContent, Typography, useTheme } from "@mui/material"
-import { PlotTCParallelCoordinate } from "@optuna/react"
+import DownloadIcon from "@mui/icons-material/Download"
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Typography,
+  useTheme,
+} from "@mui/material"
+import { PlotTCParallelCoordinate, TrialTableTC } from "@optuna/react"
 import React, { FC } from "react"
+import { Link } from "react-router-dom"
 import { GraphTCParetoFront } from "./GraphTCParetoFront"
 
 import { StudyDetail } from "ts/types/optuna"
+import { useConstants } from "../constantsProvider"
+import { studyDetailToStudy } from "../graphUtil"
 
 interface SelectedTrial {
   trialIds: number[]
@@ -14,16 +25,24 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
   studyDetail,
 }) => {
   const theme = useTheme()
+  const { url_prefix } = useConstants()
   const [selectedTrials, setSelectedTrials] =
     React.useState<SelectedTrial | null>(null)
   const handleSelectionChange = (newSelection: SelectedTrial) => {
     setSelectedTrials(newSelection)
   }
 
+  const study = studyDetailToStudy(studyDetail)
+  const linkURL = (studyId: number, trialNumber: number) => {
+    return url_prefix + `/studies/${studyId}/trials?numbers=${trialNumber}`
+  }
+
+  const width = window.innerWidth - 100
+
   return (
     <Box
       component="div"
-      sx={{ display: "flex", width: "100%", flexDirection: "column" }}
+      sx={{ display: "flex", width: width, flexDirection: "column" }}
     >
       <Typography
         variant="h5"
@@ -51,6 +70,27 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
           />
         </CardContent>
       </Card>
+      <Box component="div" sx={{ display: "flex", flexDirection: "column" }}>
+        <Card sx={{ margin: theme.spacing(2) }}>
+          <CardContent>
+            <TrialTableTC
+              study={study}
+              selectedTrials={selectedTrials?.trialIds || []}
+              linkComponent={Link}
+              linkURL={linkURL}
+            />
+            <Button
+              variant="outlined"
+              startIcon={<DownloadIcon />}
+              download
+              href={`/csv/${studyDetail?.id}`}
+              sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
+            >
+              Download CSV File
+            </Button>
+          </CardContent>
+        </Card>
+      </Box>
     </Box>
   )
 }
