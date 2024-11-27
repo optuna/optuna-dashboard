@@ -512,6 +512,15 @@ def create_app(
 
     @app.get("/csv/<study_id:int>")
     def download_csv(study_id: int) -> BottleViewReturn:
+        trial_ids_str = request.query.get("trial_ids", "")
+        trial_ids: Optional[list[int]] = None
+        if trial_ids_str:
+            try:
+                trial_ids = [int(tid.strip()) for tid in trial_ids_str.split(",")]
+            except ValueError:
+                response.status = 400  # Bad Request
+                return {"reason": "Invalid trial_ids format. Expected comma-separated integers"}
+
         # Create a CSV file
         try:
             study_name = storage.get_study_name_from_id(study_id)
@@ -519,7 +528,15 @@ def create_app(
         except KeyError:
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
-        trials = study.trials
+
+        if trial_ids is not None:
+            trials = [t for t in study.trials if t.number in trial_ids]
+            if not trials:
+                response.status = 404
+                return {"reason": f"No trials found with specified trial_ids"}
+        else:
+            trials = study.trials
+
         param_names = sorted(set(chain.from_iterable([t.params.keys() for t in trials])))
         user_attr_names = sorted(set(chain.from_iterable([t.user_attrs.keys() for t in trials])))
         param_names_header = [f"Param {x}" for x in param_names]

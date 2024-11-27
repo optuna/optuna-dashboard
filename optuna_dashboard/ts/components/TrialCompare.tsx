@@ -31,7 +31,6 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
   const handleSelectionChange = (newSelection: SelectedTrial) => {
     setSelectedTrials(newSelection)
   }
-
   const study = studyDetailToStudy(studyDetail)
   const linkURL = (studyId: number, trialNumber: number) => {
     return url_prefix + `/studies/${studyId}/trials?numbers=${trialNumber}`
@@ -70,27 +69,36 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
           />
         </CardContent>
       </Card>
-      <Box component="div" sx={{ display: "flex", flexDirection: "column" }}>
-        <Card sx={{ margin: theme.spacing(2) }}>
-          <CardContent>
-            <TrialTableTC
-              study={study}
-              selectedTrials={selectedTrials?.trialIds || []}
-              linkComponent={Link}
-              linkURL={linkURL}
-            />
-            <Button
-              variant="outlined"
-              startIcon={<DownloadIcon />}
-              download
-              href={`/csv/${studyDetail?.id}`}
-              sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
-            >
-              Download CSV File
-            </Button>
-          </CardContent>
-        </Card>
-      </Box>
+      {study ? (
+        <Box component="div" sx={{ display: "flex", flexDirection: "column" }}>
+          <Card sx={{ margin: theme.spacing(2) }}>
+            <CardContent>
+              <TrialTableTC
+                study={study}
+                selectedTrials={selectedTrials?.trialIds || []}
+                linkComponent={Link}
+                linkURL={linkURL}
+              />
+              <Button
+                variant="outlined"
+                startIcon={<DownloadIcon />}
+                download
+                href={
+                  selectedTrials &&
+                  selectedTrials.trialIds.length !== study.trials.length
+                    ? `/csv/${
+                        studyDetail?.id
+                      }?trial_ids=${selectedTrials?.trialIds.join()}`
+                    : `/csv/${studyDetail?.id}`
+                }
+                sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
+              >
+                Download CSV File
+              </Button>
+            </CardContent>
+          </Card>
+        </Box>
+      ) : null}
     </Box>
   )
 }
