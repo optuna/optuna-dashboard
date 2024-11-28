@@ -63,7 +63,7 @@ const getAxisInfoForCategoricalParams = (
   )
 
   const indices = distribution.choices
-    .map((c) => c?.toString() ?? "null")
+    .map((c) => c?.value ?? "null")
     .sort((a, b) =>
       a.toLowerCase() < b.toLowerCase()
         ? -1
