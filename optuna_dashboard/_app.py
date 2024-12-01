@@ -533,7 +533,7 @@ def create_app(
             trials = [t for t in study.trials if t.number in trial_ids]
             if not trials:
                 response.status = 404
-                return {"reason": f"No trials found with specified trial_ids"}
+                return {"reason": "all specified trial_ids is not found"}
         else:
             trials = study.trials
 
