@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
+from typing import Literal
 
 import optuna
 from optuna.trial import TrialState
@@ -117,7 +118,9 @@ def test_download_csv_user_attr() -> None:
 @pytest.mark.parametrize(
     "trial_ids,correct_status", [("", 200), ("1,2,3", 200), ("aaa", 400), ("50", 404)]
 )
-def test_download_csv_trial_id_query(trial_ids: str, correct_status) -> None:
+def test_download_csv_trial_id_query(
+    trial_ids: str, correct_status: Literal[200, 400, 404]
+) -> None:
     def objective(trial: optuna.Trial) -> float:
         x = trial.suggest_float("x", -100, 100)
         y = trial.suggest_categorical("y", [-1, 0, 1])
