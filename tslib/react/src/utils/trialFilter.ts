@@ -98,12 +98,16 @@ export class Target {
 const filterTrials = (
   study: Optuna.Study | null,
   targets: Target[],
-  filterPruned: boolean
+  filterPruned: boolean,
+  selectedTrials: number[] = []
 ): Optuna.Trial[] => {
   if (study === null) {
     return []
   }
   return study.trials.filter((t) => {
+    if (selectedTrials.length !== 0 && !selectedTrials.includes(t.number)) {
+      return false
+    }
     if (t.state !== "Complete" && t.state !== "Pruned") {
       return false
     }
@@ -127,11 +131,14 @@ export const useFilteredTrials = (
 export const useFilteredTrialsFromStudies = (
   studies: Optuna.Study[],
   targets: Target[],
-  filterPruned: boolean
+  filterPruned: boolean,
+  selectedTrials: number[]
 ): Optuna.Trial[][] =>
   useMemo<Optuna.Trial[][]>(() => {
-    return studies.map((s) => filterTrials(s, targets, filterPruned))
-  }, [studies, targets, filterPruned])
+    return studies.map((s) =>
+      filterTrials(s, targets, filterPruned, selectedTrials)
+    )
+  }, [studies, targets, filterPruned, selectedTrials])
 
 export const useObjectiveTargets = (
   study: Optuna.Study | null

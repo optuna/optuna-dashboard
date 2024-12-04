@@ -10,6 +10,7 @@ import {
 import { PlotTCParallelCoordinate, TrialTableTC } from "@optuna/react"
 import React, { FC } from "react"
 import { Link } from "react-router-dom"
+import { GraphTCHistory } from "./GraphTCHistory"
 import { GraphTCParetoFront } from "./GraphTCParetoFront"
 
 import { StudyDetail } from "ts/types/optuna"
@@ -61,14 +62,27 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
           />
         </CardContent>
       </Card>
-      <Card sx={{ margin: theme.spacing(2) }}>
-        <CardContent>
-          <GraphTCParetoFront
-            study={studyDetail}
-            selectedTrials={selectedTrials?.trialIds || []}
-          />
-        </CardContent>
-      </Card>
+      {studyDetail?.directions.length === 1 ? (
+        <Card sx={{ margin: theme.spacing(2) }}>
+          <CardContent>
+            <GraphTCHistory
+              studies={studyDetail !== null ? [studyDetail] : []}
+              logScale={false}
+              includePruned={false}
+              selectedTrials={selectedTrials?.trialIds || []}
+            />
+          </CardContent>
+        </Card>
+      ) : (
+        <Card sx={{ margin: theme.spacing(2) }}>
+          <CardContent>
+            <GraphTCParetoFront
+              study={studyDetail}
+              selectedTrials={selectedTrials?.trialIds || []}
+            />
+          </CardContent>
+        </Card>
+      )}
       {study ? (
         <Box component="div" sx={{ display: "flex", flexDirection: "column" }}>
           <Card sx={{ margin: theme.spacing(2) }}>
