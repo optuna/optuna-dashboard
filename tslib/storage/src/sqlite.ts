@@ -404,15 +404,13 @@ const parseDistributionJSON = (t: string): Optuna.Distribution => {
       step: parsed.attributes.step as number,
       log: true,
     }
-  }   
+  }
   return {
     type: "CategoricalDistribution",
-    choices: parsed.attributes.choices.map((choice: string) => (
-      { 
-        pytype: "str", 
-        value: choice,
-      }
-    )),
+    choices: parsed.attributes.choices.map((choice: string) => ({
+      pytype: "str",
+      value: choice,
+    })),
   }
 }
 
