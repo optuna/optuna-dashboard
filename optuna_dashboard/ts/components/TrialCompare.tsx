@@ -4,11 +4,13 @@ import {
   Button,
   Card,
   CardContent,
-  Typography,
+  FormControl,
+  FormControlLabel,
+  Switch,
   useTheme,
 } from "@mui/material"
 import { PlotTCParallelCoordinate, TrialTableTC } from "@optuna/react"
-import React, { FC } from "react"
+import React, { FC, useState } from "react"
 import { Link } from "react-router-dom"
 import { GraphTCHistory } from "./GraphTCHistory"
 import { GraphTCParetoFront } from "./GraphTCParetoFront"
@@ -29,9 +31,16 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
   const { url_prefix } = useConstants()
   const [selectedTrials, setSelectedTrials] =
     React.useState<SelectedTrial | null>(null)
+  const [includeDominatedTrials, setIncludeDominatedTrials] =
+    useState<boolean>(true)
+
   const handleSelectionChange = (newSelection: SelectedTrial) => {
     setSelectedTrials(newSelection)
   }
+  const handleIncludeDominatedTrialsChange = () => {
+    setIncludeDominatedTrials(!includeDominatedTrials)
+  }
+
   const study = studyDetailToStudy(studyDetail)
   const linkURL = (studyId: number, trialNumber: number) => {
     return url_prefix + `/studies/${studyId}/trials?numbers=${trialNumber}`
@@ -44,20 +53,34 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
       component="div"
       sx={{ display: "flex", width: width, flexDirection: "column" }}
     >
-      <Typography
-        variant="h5"
+      <FormControl
+        component="fieldset"
         sx={{
-          margin: theme.spacing(2),
-          marginTop: theme.spacing(4),
-          fontWeight: theme.typography.fontWeightBold,
+          display: "flex",
+          flexDirection: "row",
+          justifyContent: "flex-end",
+          padding: theme.spacing(2),
         }}
       >
-        Trial Comparison
-      </Typography>
+        {studyDetail ? (
+          <FormControlLabel
+            control={
+              <Switch
+                checked={includeDominatedTrials}
+                onChange={handleIncludeDominatedTrialsChange}
+                disabled={!(studyDetail.directions.length > 1)}
+                value="enable"
+              />
+            }
+            label="Include dominated trials"
+          />
+        ) : null}
+      </FormControl>
       <Card sx={{ margin: theme.spacing(2) }}>
         <CardContent>
           <PlotTCParallelCoordinate
             study={studyDetail}
+            includeDominatedTrials={includeDominatedTrials}
             onSelectionChange={handleSelectionChange}
           />
         </CardContent>

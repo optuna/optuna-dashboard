@@ -49,9 +49,15 @@ interface PlotlyParCoordTrace {
 
 export const PlotTCParallelCoordinate: FC<{
   study: Optuna.Study | null
+  includeDominatedTrials: boolean
   onSelectionChange: (selection: SelectedData) => void
   colorTheme?: Partial<Plotly.Template>
-}> = ({ study = null, onSelectionChange, colorTheme }) => {
+}> = ({
+  study = null,
+  includeDominatedTrials,
+  onSelectionChange,
+  colorTheme,
+}) => {
   const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const theme = useTheme()
@@ -60,7 +66,12 @@ export const PlotTCParallelCoordinate: FC<{
 
   const [targets, searchSpace, renderCheckBoxes] = useTargets(study)
 
-  const trials = useFilteredTrials(study, targets, false)
+  const trials = useFilteredTrials(
+    study,
+    targets,
+    false,
+    includeDominatedTrials
+  )
   useEffect(() => {
     if (study !== null && graphComponentState !== "componentWillMount") {
       // TODO(c-bata): Fix the broken E2E tests.

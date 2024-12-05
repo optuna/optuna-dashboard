@@ -30,7 +30,7 @@ export const PlotEdf: FC<{
     () => new Target("objective", objectiveId),
     [objectiveId]
   )
-  const trials = useFilteredTrialsFromStudies(studies, [target], false, [])
+  const trials = useFilteredTrialsFromStudies(studies, [target], false)
   const edfPlotInfos = studies.map((study, index) => {
     const e: EdfPlotInfo = {
       study_name: study?.name,

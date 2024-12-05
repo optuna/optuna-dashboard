@@ -66,8 +66,7 @@ export const PlotHistory: FC<{
   const trials = useFilteredTrialsFromStudies(
     studies,
     [selected],
-    includePruned === undefined ? !includePrunedInternal : !includePruned,
-    []
+    includePruned === undefined ? !includePrunedInternal : !includePruned
   )
 
   const historyPlotInfos = studies.map((study, index) => {
