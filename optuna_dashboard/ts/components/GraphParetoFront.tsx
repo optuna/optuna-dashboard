@@ -9,11 +9,12 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import * as Optuna from "@optuna/types"
+import { getFeasibleTrials, getIsDominated } from "@optuna/react"
+import { Trial } from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { StudyDetail, Trial } from "ts/types/optuna"
+import { StudyDetail } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { useConstants } from "../constantsProvider"
 import { makeHovertext } from "../graphUtil"
@@ -165,17 +166,6 @@ const GraphParetoFrontFrontend: FC<{
   )
 }
 
-const filterFunc = (
-  trial: Trial,
-  directions: Optuna.StudyDirection[]
-): boolean => {
-  return (
-    trial.state === "Complete" &&
-    trial.values !== undefined &&
-    trial.values.length === directions.length
-  )
-}
-
 const makeScatterObject = (
   trials: Trial[],
   objectiveXId: number,
@@ -238,72 +228,6 @@ const makeMarker = (
   }
 }
 
-const getIsDominatedND = (normalizedValues: number[][]) => {
-  // Fallback for straight-forward pareto front algorithm (O(N^2) complexity).
-  const isDominated: boolean[] = []
-  normalizedValues.forEach((values0: number[]) => {
-    const dominated = normalizedValues.some((values1: number[]) => {
-      if (values0.every((value0: number, k: number) => values1[k] === value0)) {
-        return false
-      }
-      return values0.every((value0: number, k: number) => values1[k] <= value0)
-    })
-    isDominated.push(dominated)
-  })
-  return isDominated
-}
-
-const getIsDominated2D = (normalizedValues: number[][]) => {
-  // Fast pareto front algorithm (O(N log N) complexity).
-  const sorted = normalizedValues
-    .map((values, i) => [values[0], values[1], i])
-    .sort((a, b) =>
-      a[0] > b[0]
-        ? 1
-        : a[0] < b[0]
-          ? -1
-          : a[1] > b[1]
-            ? 1
-            : a[1] < b[1]
-              ? -1
-              : 0
-    )
-  let maxValueSeen0 = sorted[0][0]
-  let minValueSeen1 = sorted[0][1]
-
-  const isDominated: boolean[] = new Array(normalizedValues.length).fill(false)
-  sorted.forEach((values) => {
-    if (
-      values[1] > minValueSeen1 ||
-      (values[1] === minValueSeen1 && values[0] > maxValueSeen0)
-    ) {
-      isDominated[values[2]] = true
-    } else {
-      minValueSeen1 = values[1]
-    }
-    maxValueSeen0 = values[0]
-  })
-  return isDominated
-}
-
-const getIsDominated1D = (normalizedValues: number[][]) => {
-  const best_value = Math.min(...normalizedValues.map((values) => values[0]))
-  return normalizedValues.map((values) => values[0] !== best_value)
-}
-
-const getIsDominated = (normalizedValues: number[][]) => {
-  if (normalizedValues.length === 0) {
-    return []
-  }
-  if (normalizedValues[0].length === 1) {
-    return getIsDominated1D(normalizedValues)
-  } else if (normalizedValues[0].length === 2) {
-    return getIsDominated2D(normalizedValues)
-  } else {
-    return getIsDominatedND(normalizedValues)
-  }
-}
-
 const plotParetoFront = (
   study: StudyDetail,
   objectiveXId: number,
@@ -327,8 +251,11 @@ const plotParetoFront = (
   }
 
   const trials: Trial[] = study ? study.trials : []
-  const filteredTrials = trials.filter((t: Trial) =>
-    filterFunc(t, study.directions)
+  const filteredTrials = trials.filter(
+    (t: Trial) =>
+      t.state === "Complete" &&
+      t.values !== undefined &&
+      t.values.length === study.directions.length
   )
 
   if (filteredTrials.length === 0) {
@@ -336,15 +263,9 @@ const plotParetoFront = (
     return
   }
 
-  const feasibleTrials: Trial[] = []
-  const infeasibleTrials: Trial[] = []
-  filteredTrials.forEach((t) => {
-    if (t.constraints.every((c) => c <= 0)) {
-      feasibleTrials.push(t)
-    } else {
-      infeasibleTrials.push(t)
-    }
-  })
+  const result = getFeasibleTrials(trials, study)
+  const feasibleTrials = result.feasibleTrials
+  const infeasibleTrials = result.infeasibleTrials
 
   const normalizedValues: number[][] = []
   feasibleTrials.forEach((t) => {

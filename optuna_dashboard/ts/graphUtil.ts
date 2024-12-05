@@ -1,5 +1,6 @@
 import * as Optuna from "@optuna/types"
-import { SearchSpaceItem, StudyDetail, Trial } from "./types/optuna"
+import { Trial } from "@optuna/types"
+import { SearchSpaceItem, StudyDetail } from "./types/optuna"
 
 const PADDING_RATIO = 0.05
 
