@@ -25,13 +25,6 @@ import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "plot-parallel-coordinate"
 
-interface SelectedData {
-  trialIds: number[]
-  values: {
-    [key: string]: number | string
-  }[]
-}
-
 interface PlotlyDimension {
   label: string
   values: number[]
@@ -50,7 +43,7 @@ interface PlotlyParCoordTrace {
 export const PlotTCParallelCoordinate: FC<{
   study: Optuna.Study | null
   includeDominatedTrials: boolean
-  onSelectionChange: (selection: SelectedData) => void
+  onSelectionChange: (selection: number[]) => void
   colorTheme?: Partial<Plotly.Template>
 }> = ({
   study = null,
@@ -115,21 +108,9 @@ export const PlotTCParallelCoordinate: FC<{
               }
             }
 
-            const selectedData: SelectedData = {
-              trialIds: selectedIndices.map((index) =>
-                parseInt(plotData.customdata[index])
-              ),
-              values: selectedIndices.map((index) => {
-                const dataPoint: { [key: string]: number | string } = {
-                  id: plotData.customdata[index],
-                }
-                for (const dim of dimensions) {
-                  dataPoint[dim.label] = dim.values[index]
-                }
-                return dataPoint
-              }),
-            }
-
+            const selectedData: number[] = selectedIndices.map((index) =>
+              parseInt(plotData.customdata[index])
+            )
             onSelectionChange(selectedData)
           })
           return () => {

@@ -19,23 +19,17 @@ import { StudyDetail } from "ts/types/optuna"
 import { useConstants } from "../constantsProvider"
 import { studyDetailToStudy } from "../graphUtil"
 
-interface SelectedTrial {
-  trialIds: number[]
-  values: Record<string, number>[]
-}
-
 export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
   studyDetail,
 }) => {
   const theme = useTheme()
   const { url_prefix } = useConstants()
-  const [selectedTrials, setSelectedTrials] =
-    React.useState<SelectedTrial | null>(null)
+  const [selectedTrials, setSelectedTrials] = useState<number[]>([])
   const [includeDominatedTrials, setIncludeDominatedTrials] =
     useState<boolean>(true)
 
-  const handleSelectionChange = (newSelection: SelectedTrial) => {
-    setSelectedTrials(newSelection)
+  const handleSelectionChange = (selectedTrials: number[]) => {
+    setSelectedTrials(selectedTrials)
   }
   const handleIncludeDominatedTrialsChange = () => {
     setIncludeDominatedTrials(!includeDominatedTrials)
@@ -92,7 +86,7 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
               studies={studyDetail !== null ? [studyDetail] : []}
               logScale={false}
               includePruned={false}
-              selectedTrials={selectedTrials?.trialIds || []}
+              selectedTrials={selectedTrials}
             />
           </CardContent>
         </Card>
@@ -101,7 +95,7 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
           <CardContent>
             <GraphTCParetoFront
               study={studyDetail}
-              selectedTrials={selectedTrials?.trialIds || []}
+              selectedTrials={selectedTrials}
             />
           </CardContent>
         </Card>
@@ -112,7 +106,7 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
             <CardContent>
               <TrialTableTC
                 study={study}
-                selectedTrials={selectedTrials?.trialIds || []}
+                selectedTrials={selectedTrials}
                 linkComponent={Link}
                 linkURL={linkURL}
               />
@@ -121,11 +115,10 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
                 startIcon={<DownloadIcon />}
                 download
                 href={
-                  selectedTrials &&
-                  selectedTrials.trialIds.length !== study.trials.length
+                  selectedTrials.length !== study.trials.length
                     ? `/csv/${
                         studyDetail?.id
-                      }?trial_ids=${selectedTrials?.trialIds.join()}`
+                      }?trial_ids=${selectedTrials.join()}`
                     : `/csv/${studyDetail?.id}`
                 }
                 sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
