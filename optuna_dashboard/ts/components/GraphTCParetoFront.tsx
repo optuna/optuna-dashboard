@@ -9,60 +9,21 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import { getFeasibleTrials, getIsDominated } from "@optuna/react"
-import { Trial } from "@optuna/types"
+import * as Optuna from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { StudyDetail } from "ts/types/optuna"
-import { PlotType } from "../apiClient"
+import { StudyDetail, Trial } from "ts/types/optuna"
 import { useConstants } from "../constantsProvider"
 import { makeHovertext } from "../graphUtil"
-import { usePlot } from "../hooks/usePlot"
 import { usePlotlyColorTheme } from "../state"
-import { useBackendRender } from "../state"
 
 const plotDomId = "graph-pareto-front"
 
-export const GraphParetoFront: FC<{
+export const GraphTCParetoFront: FC<{
   study: StudyDetail | null
-}> = ({ study = null }) => {
-  if (useBackendRender()) {
-    return <GraphParetoFrontBackend study={study} />
-  } else {
-    return <GraphParetoFrontFrontend study={study} />
-  }
-}
-
-const GraphParetoFrontBackend: FC<{
-  study: StudyDetail | null
-}> = ({ study = null }) => {
-  const studyId = study?.id
-  const numCompletedTrials =
-    study?.trials.filter((t) => t.state === "Complete").length || 0
-  const { data, layout, error } = usePlot({
-    numCompletedTrials,
-    studyId,
-    plotType: PlotType.ParetoFront,
-  })
-
-  useEffect(() => {
-    if (data && layout) {
-      plotly.react(plotDomId, data, layout)
-    }
-  }, [data, layout])
-  useEffect(() => {
-    if (error) {
-      console.error(error)
-    }
-  }, [error])
-
-  return <Box component="div" id={plotDomId} sx={{ height: "450px" }} />
-}
-
-const GraphParetoFrontFrontend: FC<{
-  study: StudyDetail | null
-}> = ({ study = null }) => {
+  selectedTrials: number[]
+}> = ({ study = null, selectedTrials }) => {
   const { url_prefix } = useConstants()
 
   const theme = useTheme()
@@ -84,6 +45,7 @@ const GraphParetoFrontFrontend: FC<{
     if (study != null) {
       plotParetoFront(
         study,
+        selectedTrials,
         objectiveXId,
         objectiveYId,
         theme.palette.mode,
@@ -107,7 +69,14 @@ const GraphParetoFrontFrontend: FC<{
         }
       }
     }
-  }, [study, objectiveXId, objectiveYId, theme.palette.mode, colorTheme])
+  }, [
+    study,
+    selectedTrials,
+    objectiveXId,
+    objectiveYId,
+    theme.palette.mode,
+    colorTheme,
+  ])
 
   return (
     <Grid container direction="row">
@@ -163,6 +132,19 @@ const GraphParetoFrontFrontend: FC<{
         />
       </Grid>
     </Grid>
+  )
+}
+
+const filterFunc = (
+  trial: Trial,
+  selectedTrials: number[],
+  directions: Optuna.StudyDirection[]
+): boolean => {
+  return (
+    selectedTrials.includes(trial.number) &&
+    trial.state === "Complete" &&
+    trial.values !== undefined &&
+    trial.values.length === directions.length
   )
 }
 
@@ -228,8 +210,75 @@ const makeMarker = (
   }
 }
 
+const getIsDominatedND = (normalizedValues: number[][]) => {
+  // Fallback for straight-forward pareto front algorithm (O(N^2) complexity).
+  const isDominated: boolean[] = []
+  normalizedValues.forEach((values0: number[]) => {
+    const dominated = normalizedValues.some((values1: number[]) => {
+      if (values0.every((value0: number, k: number) => values1[k] === value0)) {
+        return false
+      }
+      return values0.every((value0: number, k: number) => values1[k] <= value0)
+    })
+    isDominated.push(dominated)
+  })
+  return isDominated
+}
+
+const getIsDominated2D = (normalizedValues: number[][]) => {
+  // Fast pareto front algorithm (O(N log N) complexity).
+  const sorted = normalizedValues
+    .map((values, i) => [values[0], values[1], i])
+    .sort((a, b) =>
+      a[0] > b[0]
+        ? 1
+        : a[0] < b[0]
+          ? -1
+          : a[1] > b[1]
+            ? 1
+            : a[1] < b[1]
+              ? -1
+              : 0
+    )
+  let maxValueSeen0 = sorted[0][0]
+  let minValueSeen1 = sorted[0][1]
+
+  const isDominated: boolean[] = new Array(normalizedValues.length).fill(false)
+  sorted.forEach((values) => {
+    if (
+      values[1] > minValueSeen1 ||
+      (values[1] === minValueSeen1 && values[0] > maxValueSeen0)
+    ) {
+      isDominated[values[2]] = true
+    } else {
+      minValueSeen1 = values[1]
+    }
+    maxValueSeen0 = values[0]
+  })
+  return isDominated
+}
+
+const getIsDominated1D = (normalizedValues: number[][]) => {
+  const best_value = Math.min(...normalizedValues.map((values) => values[0]))
+  return normalizedValues.map((values) => values[0] !== best_value)
+}
+
+const getIsDominated = (normalizedValues: number[][]) => {
+  if (normalizedValues.length === 0) {
+    return []
+  }
+  if (normalizedValues[0].length === 1) {
+    return getIsDominated1D(normalizedValues)
+  } else if (normalizedValues[0].length === 2) {
+    return getIsDominated2D(normalizedValues)
+  } else {
+    return getIsDominatedND(normalizedValues)
+  }
+}
+
 const plotParetoFront = (
   study: StudyDetail,
+  selectedTrials: number[],
   objectiveXId: number,
   objectiveYId: number,
   mode: string,
@@ -238,6 +287,19 @@ const plotParetoFront = (
   if (document.getElementById(plotDomId) === null) {
     return
   }
+
+  const xmin = Math.min(
+    ...study.trials.map((t) => t.values?.[objectiveXId] as number)
+  )
+  const xmax = Math.max(
+    ...study.trials.map((t) => t.values?.[objectiveXId] as number)
+  )
+  const ymin = Math.min(
+    ...study.trials.map((t) => t.values?.[objectiveYId] as number)
+  )
+  const ymax = Math.max(
+    ...study.trials.map((t) => t.values?.[objectiveYId] as number)
+  )
 
   const layout: Partial<plotly.Layout> = {
     margin: {
@@ -248,14 +310,20 @@ const plotParetoFront = (
     },
     template: colorTheme,
     uirevision: "true",
+    xaxis: {
+      range: [xmin - (xmax - xmin) * 0.1, xmax + (xmax - xmin) * 0.1],
+    },
+    yaxis: {
+      range: [ymin - (ymax - ymin) * 0.1, ymax + (ymax - ymin) * 0.1],
+    },
   }
 
   const trials: Trial[] = study ? study.trials : []
-  const filteredTrials = trials.filter(
-    (t: Trial) =>
-      t.state === "Complete" &&
-      t.values !== undefined &&
-      t.values.length === study.directions.length
+  if (selectedTrials === null || selectedTrials.length === 0) {
+    selectedTrials = trials.map((t) => t.number)
+  }
+  const filteredTrials = trials.filter((t: Trial) =>
+    filterFunc(t, selectedTrials, study.directions)
   )
 
   if (filteredTrials.length === 0) {
@@ -263,9 +331,15 @@ const plotParetoFront = (
     return
   }
 
-  const result = getFeasibleTrials(trials, study)
-  const feasibleTrials = result.feasibleTrials
-  const infeasibleTrials = result.infeasibleTrials
+  const feasibleTrials: Trial[] = []
+  const infeasibleTrials: Trial[] = []
+  filteredTrials.forEach((t) => {
+    if (t.constraints.every((c) => c <= 0)) {
+      feasibleTrials.push(t)
+    } else {
+      infeasibleTrials.push(t)
+    }
+  })
 
   const normalizedValues: number[][] = []
   feasibleTrials.forEach((t) => {
