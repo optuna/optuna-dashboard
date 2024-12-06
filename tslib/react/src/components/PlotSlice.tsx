@@ -268,7 +268,7 @@ const plotSlice = (
     }
   } else {
     const vocabArr = selectedParamSpace.distribution.choices.map(
-      (c) => c?.toString() ?? "null"
+      (c) => c?.value ?? "null"
     )
     const tickvals: number[] = vocabArr.map((_v, i) => i)
     layout.xaxis = {
