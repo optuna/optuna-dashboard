@@ -30,6 +30,8 @@ export const AppWrapper: FC = () => {
           for (let i = 0; i < len; i++) {
             bytes[i] = binaryString.charCodeAt(i)
           }
+          // TODO(c-bata): Remove the following ts-ignore comment
+          // @ts-ignore
           arrayBuffer = bytes.buffer
           setStorage(getStorage(arrayBuffer))
           break
