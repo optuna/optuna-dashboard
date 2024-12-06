@@ -7,6 +7,7 @@ import {
   FormControl,
   FormControlLabel,
   Switch,
+  Typography,
   useTheme,
 } from "@mui/material"
 import { PlotTCParallelCoordinate, TrialTableTC } from "@optuna/react"
@@ -25,13 +26,21 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
   const theme = useTheme()
   const { url_prefix } = useConstants()
   const [selectedTrials, setSelectedTrials] = useState<number[]>([])
+  const [includeInfeasibleTrials, setIncludeInfeasibleTrials] =
+    useState<boolean>(true)
   const [includeDominatedTrials, setIncludeDominatedTrials] =
     useState<boolean>(true)
 
   const handleSelectionChange = (selectedTrials: number[]) => {
     setSelectedTrials(selectedTrials)
   }
+  const handleIncludeInfeasibleTrialsChange = () => {
+    setIncludeInfeasibleTrials(!includeInfeasibleTrials)
+  }
   const handleIncludeDominatedTrialsChange = () => {
+    if (includeDominatedTrials) {
+      setIncludeInfeasibleTrials(false)
+    }
     setIncludeDominatedTrials(!includeDominatedTrials)
   }
 
@@ -47,34 +56,58 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
       component="div"
       sx={{ display: "flex", width: width, flexDirection: "column" }}
     >
-      <FormControl
-        component="fieldset"
+      <Typography
+        variant="h5"
         sx={{
-          display: "flex",
-          flexDirection: "row",
-          justifyContent: "flex-end",
-          padding: theme.spacing(2),
+          margin: theme.spacing(2),
+          marginTop: theme.spacing(4),
+          fontWeight: theme.typography.fontWeightBold,
         }}
       >
-        {studyDetail ? (
-          <FormControlLabel
-            control={
-              <Switch
-                checked={includeDominatedTrials}
-                onChange={handleIncludeDominatedTrialsChange}
-                disabled={!(studyDetail.directions.length > 1)}
-                value="enable"
-              />
-            }
-            label="Include dominated trials"
-          />
-        ) : null}
-      </FormControl>
+        Trial Selection
+      </Typography>
       <Card sx={{ margin: theme.spacing(2) }}>
+        <FormControl
+          component="fieldset"
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "flex-end",
+            padding: theme.spacing(2),
+          }}
+        >
+          {studyDetail ? (
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={includeInfeasibleTrials}
+                  onChange={handleIncludeInfeasibleTrialsChange}
+                  disabled={!(studyDetail.directions.length > 1)}
+                  value="enable"
+                />
+              }
+              label="Include Infeasible trials"
+            />
+          ) : null}
+          {studyDetail ? (
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={includeDominatedTrials}
+                  onChange={handleIncludeDominatedTrialsChange}
+                  disabled={!(studyDetail.directions.length > 1)}
+                  value="enable"
+                />
+              }
+              label="Include dominated trials"
+            />
+          ) : null}
+        </FormControl>
         <CardContent>
           <PlotTCParallelCoordinate
             study={studyDetail}
             includeDominatedTrials={includeDominatedTrials}
+            includeInfeasibleTrials={includeInfeasibleTrials}
             onSelectionChange={handleSelectionChange}
           />
         </CardContent>

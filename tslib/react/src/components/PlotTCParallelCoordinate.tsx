@@ -43,11 +43,13 @@ interface PlotlyParCoordTrace {
 export const PlotTCParallelCoordinate: FC<{
   study: Optuna.Study | null
   includeDominatedTrials: boolean
+  includeInfeasibleTrials: boolean
   onSelectionChange: (selection: number[]) => void
   colorTheme?: Partial<Plotly.Template>
 }> = ({
   study = null,
   includeDominatedTrials,
+  includeInfeasibleTrials,
   onSelectionChange,
   colorTheme,
 }) => {
@@ -63,6 +65,7 @@ export const PlotTCParallelCoordinate: FC<{
     study,
     targets,
     false,
+    includeInfeasibleTrials,
     includeDominatedTrials
   )
   useEffect(() => {

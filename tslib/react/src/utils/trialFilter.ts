@@ -100,6 +100,7 @@ const filterTrials = (
   study: Study | null,
   targets: Target[],
   filterPruned: boolean,
+  includeInfeasible = true,
   includeDominated = true,
   selectedTrials: number[] = []
 ): Trial[] => {
@@ -108,6 +109,9 @@ const filterTrials = (
   }
   let trials: Optuna.Trial[] = study.trials
   let isDominated: boolean[] = []
+  if (!includeInfeasible && includeDominated) {
+    trials = getFeasibleTrials(trials, study).feasibleTrials
+  }
   if (!includeDominated) {
     trials = getFeasibleTrials(trials, study).feasibleTrials
     isDominated = getIsDominatedFromStudy(study)
@@ -145,25 +149,53 @@ export const useFilteredTrials = (
   study: Optuna.Study | null,
   targets: Target[],
   filterPruned: boolean,
+  includeInfeasible = true,
   includeDominated = true
 ): Optuna.Trial[] =>
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useMemo<Optuna.Trial[]>(() => {
-    return filterTrials(study, targets, filterPruned, includeDominated)
-  }, [study?.trials, targets, filterPruned, includeDominated])
+    return filterTrials(
+      study,
+      targets,
+      filterPruned,
+      includeInfeasible,
+      includeDominated
+    )
+  }, [
+    study?.trials,
+    targets,
+    filterPruned,
+    includeInfeasible,
+    includeDominated,
+  ])
 
 export const useFilteredTrialsFromStudies = (
   studies: Optuna.Study[],
   targets: Target[],
   filterPruned: boolean,
-  includeDominated = true,
-  selectedTrials: number[] = []
+  selectedTrials: number[] = [],
+  includeInfeasible = true,
+  includeDominated = true
 ): Optuna.Trial[][] =>
   useMemo<Optuna.Trial[][]>(() => {
     return studies.map((s) =>
-      filterTrials(s, targets, filterPruned, includeDominated, selectedTrials)
+      filterTrials(
+        s,
+        targets,
+        filterPruned,
+        includeInfeasible,
+        includeDominated,
+        selectedTrials
+      )
     )
-  }, [studies, targets, filterPruned, includeDominated, selectedTrials])
+  }, [
+    studies,
+    targets,
+    filterPruned,
+    includeInfeasible,
+    includeDominated,
+    selectedTrials,
+  ])
 
 export const useObjectiveTargets = (
   study: Optuna.Study | null
