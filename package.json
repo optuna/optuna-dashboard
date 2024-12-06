@@ -6,9 +6,9 @@
     "lint:biome": "biome ci ."
   },
   "devDependencies": {
-    "@biomejs/biome": "1.5.3",
+    "@biomejs/biome": "^1.9.4",
     "@typescript-eslint/eslint-plugin": "^6.19.1",
     "@typescript-eslint/parser": "^6.19.1",
-    "eslint": "^8.56.0"
+    "eslint": "^8.57.1"
   }
 }
