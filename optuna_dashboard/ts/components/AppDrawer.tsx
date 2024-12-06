@@ -35,6 +35,7 @@ import { useRecoilState, useRecoilValue } from "recoil"
 import {
   drawerOpenState,
   reloadIntervalState,
+  useShowExperimentalFeature,
   useStudyIsPreferential,
 } from "../state"
 import { Settings } from "./Settings"
@@ -147,6 +148,7 @@ export const AppDrawer: FC<{
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const isPreferential =
     studyId !== undefined ? useStudyIsPreferential(studyId) : null
+  const [showExperimentalFeatures] = useShowExperimentalFeature()
 
   const styleListItem = {
     display: "block",
@@ -347,27 +349,29 @@ export const AppDrawer: FC<{
                 <ListItemText primary="Trials (Table)" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
-            <ListItem
-              key="TrialCompare"
-              disablePadding
-              sx={styleListItem}
-              title="Trials (Compare)"
-            >
-              <ListItemButton
-                component={Link}
-                to={`${url_prefix}/studies/${studyId}/trialCompare`}
-                sx={styleListItemButton}
-                selected={page === "trialTable"}
+            {showExperimentalFeatures === true ? (
+              <ListItem
+                key="TrialCompare"
+                disablePadding
+                sx={styleListItem}
+                title="Trials (Compare)"
               >
-                <ListItemIcon sx={styleListItemIcon}>
-                  <CompareIcon />
-                </ListItemIcon>
-                <ListItemText
-                  primary="Trials (Compare)"
-                  sx={styleListItemText}
-                />
-              </ListItemButton>
-            </ListItem>
+                <ListItemButton
+                  component={Link}
+                  to={`${url_prefix}/studies/${studyId}/trialCompare`}
+                  sx={styleListItemButton}
+                  selected={page === "trialTable"}
+                >
+                  <ListItemIcon sx={styleListItemIcon}>
+                    <CompareIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Trials (Compare)"
+                    sx={styleListItemText}
+                  />
+                </ListItemButton>
+              </ListItem>
+            ) : null}
             <ListItem key="Note" disablePadding sx={styleListItem} title="Note">
               <ListItemButton
                 component={Link}
