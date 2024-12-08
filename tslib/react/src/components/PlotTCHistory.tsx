@@ -76,7 +76,7 @@ export const PlotTCHistory: FC<{
     studies,
     [selected],
     includePruned === undefined ? !includePrunedInternal : !includePruned,
-    selectedTrials,
+    selectedTrials
   )
 
   const historyPlotInfos = studies.map((study, index) => {
