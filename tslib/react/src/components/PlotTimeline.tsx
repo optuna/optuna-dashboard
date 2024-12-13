@@ -32,7 +32,7 @@ export const PlotTimeline: FC<{
         >
           Timeline
         </Typography>
-        <Grid item xs={9}>
+        <Grid item xs={12}>
           <div id={plotDomId} />
         </Grid>
       </CardContent>
