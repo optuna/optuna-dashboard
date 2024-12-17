@@ -10,7 +10,7 @@ import {
   useTheme,
 } from "@mui/material"
 import { getFeasibleTrials, getIsDominated } from "@optuna/react"
-import { Trial } from "@optuna/types"
+import { StudyDirection, Trial } from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
@@ -26,11 +26,14 @@ const plotDomId = "graph-pareto-front"
 
 export const GraphParetoFront: FC<{
   study: StudyDetail | null
-}> = ({ study = null }) => {
-  if (useBackendRender()) {
+  selectedTrials: number[] | null
+}> = ({ study = null, selectedTrials = null }) => {
+  if (useBackendRender() && !selectedTrials) {
     return <GraphParetoFrontBackend study={study} />
   } else {
-    return <GraphParetoFrontFrontend study={study} />
+    return (
+      <GraphParetoFrontFrontend study={study} selectedTrials={selectedTrials} />
+    )
   }
 }
 
@@ -62,7 +65,8 @@ const GraphParetoFrontBackend: FC<{
 
 const GraphParetoFrontFrontend: FC<{
   study: StudyDetail | null
-}> = ({ study = null }) => {
+  selectedTrials: number[] | null
+}> = ({ study = null, selectedTrials = null }) => {
   const { url_prefix } = useConstants()
 
   const theme = useTheme()
@@ -87,7 +91,8 @@ const GraphParetoFrontFrontend: FC<{
         objectiveXId,
         objectiveYId,
         theme.palette.mode,
-        colorTheme
+        colorTheme,
+        selectedTrials
       )
       const element = document.getElementById(plotDomId)
       if (element != null) {
@@ -107,7 +112,14 @@ const GraphParetoFrontFrontend: FC<{
         }
       }
     }
-  }, [study, objectiveXId, objectiveYId, theme.palette.mode, colorTheme])
+  }, [
+    study,
+    selectedTrials,
+    objectiveXId,
+    objectiveYId,
+    theme.palette.mode,
+    colorTheme,
+  ])
 
   return (
     <Grid container direction="row">
@@ -163,6 +175,19 @@ const GraphParetoFrontFrontend: FC<{
         />
       </Grid>
     </Grid>
+  )
+}
+
+const filterFunc = (
+  trial: Trial,
+  selectedTrials: number[],
+  directions: StudyDirection[]
+): boolean => {
+  return (
+    selectedTrials.includes(trial.number) &&
+    trial.state === "Complete" &&
+    trial.values !== undefined &&
+    trial.values.length === directions.length
   )
 }
 
@@ -233,11 +258,25 @@ const plotParetoFront = (
   objectiveXId: number,
   objectiveYId: number,
   mode: string,
-  colorTheme: Partial<Plotly.Template>
+  colorTheme: Partial<Plotly.Template>,
+  selectedTrials: number[] | null
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
   }
+
+  const xmin = Math.min(
+    ...study.trials.map((t) => t.values?.[objectiveXId] as number)
+  )
+  const xmax = Math.max(
+    ...study.trials.map((t) => t.values?.[objectiveXId] as number)
+  )
+  const ymin = Math.min(
+    ...study.trials.map((t) => t.values?.[objectiveYId] as number)
+  )
+  const ymax = Math.max(
+    ...study.trials.map((t) => t.values?.[objectiveYId] as number)
+  )
 
   const layout: Partial<plotly.Layout> = {
     margin: {
@@ -248,14 +287,24 @@ const plotParetoFront = (
     },
     template: colorTheme,
     uirevision: "true",
+    xaxis: {
+      range: selectedTrials
+        ? [xmin - (xmax - xmin) * 0.1, xmax + (xmax - xmin) * 0.1]
+        : undefined,
+    },
+    yaxis: {
+      range: selectedTrials
+        ? [ymin - (ymax - ymin) * 0.1, ymax + (ymax - ymin) * 0.1]
+        : undefined,
+    },
   }
 
   const trials: Trial[] = study ? study.trials : []
-  const filteredTrials = trials.filter(
-    (t: Trial) =>
-      t.state === "Complete" &&
-      t.values !== undefined &&
-      t.values.length === study.directions.length
+  if (selectedTrials === null || selectedTrials.length === 0) {
+    selectedTrials = trials.map((t) => t.number)
+  }
+  const filteredTrials = trials.filter((t: Trial) =>
+    filterFunc(t, selectedTrials, study.directions)
   )
 
   if (filteredTrials.length === 0) {
@@ -263,7 +312,7 @@ const plotParetoFront = (
     return
   }
 
-  const result = getFeasibleTrials(trials, study)
+  const result = getFeasibleTrials(filteredTrials, study)
   const feasibleTrials = result.feasibleTrials
   const infeasibleTrials = result.infeasibleTrials
 

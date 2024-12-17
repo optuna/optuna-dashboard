@@ -37,8 +37,8 @@ import { PreferentialGraph } from "./Preferential/PreferentialGraph"
 import { PreferentialHistory } from "./Preferential/PreferentialHistory"
 import { PreferentialTrials } from "./Preferential/PreferentialTrials"
 import { StudyHistory } from "./StudyHistory"
-import { TrialCompare } from "./TrialCompare"
 import { TrialList } from "./TrialList"
+import { TrialSelection } from "./TrialSelection"
 
 export const useURLVars = (): number => {
   const { studyId } = useParams<{ studyId: string }>()
@@ -171,8 +171,8 @@ export const StudyDetail: FC<{
     )
   } else if (page === "trialList") {
     content = <TrialList studyDetail={studyDetail} />
-  } else if (page === "trialCompare") {
-    content = <TrialCompare studyDetail={studyDetail} />
+  } else if (page === "trialSelection") {
+    content = <TrialSelection studyDetail={studyDetail} />
   } else if (page === "trialTable" && study !== null) {
     const linkURL = (studyId: number, trialNumber: number) => {
       return url_prefix + `/studies/${studyId}/trials?numbers=${trialNumber}`

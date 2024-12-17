@@ -3,8 +3,8 @@ import Brightness4Icon from "@mui/icons-material/Brightness4"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
-import CompareIcon from "@mui/icons-material/Compare"
 import RateReviewIcon from "@mui/icons-material/RateReview"
+import RuleIcon from "@mui/icons-material/Rule"
 import SettingsIcon from "@mui/icons-material/Settings"
 import SyncIcon from "@mui/icons-material/Sync"
 import SyncDisabledIcon from "@mui/icons-material/SyncDisabled"
@@ -58,7 +58,7 @@ export type PageId =
   | "analytics"
   | "trialTable"
   | "trialList"
-  | "trialCompare"
+  | "trialSelection"
   | "note"
   | "preferenceHistory"
   | "graph"
@@ -351,22 +351,22 @@ export const AppDrawer: FC<{
             </ListItem>
             {showExperimentalFeatures === true ? (
               <ListItem
-                key="TrialCompare"
+                key="TrialSelection"
                 disablePadding
                 sx={styleListItem}
-                title="Trials (Compare)"
+                title="Trials (Selection)"
               >
                 <ListItemButton
                   component={Link}
-                  to={`${url_prefix}/studies/${studyId}/trialCompare`}
+                  to={`${url_prefix}/studies/${studyId}/trialSelection`}
                   sx={styleListItemButton}
-                  selected={page === "trialTable"}
+                  selected={page === "trialSelection"}
                 >
                   <ListItemIcon sx={styleListItemIcon}>
-                    <CompareIcon />
+                    <RuleIcon />
                   </ListItemIcon>
                   <ListItemText
-                    primary="Trials (Compare)"
+                    primary="Trials (Selection)"
                     sx={styleListItemText}
                   />
                 </ListItemButton>

@@ -10,17 +10,16 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import { PlotTCParallelCoordinate, TrialTableTC } from "@optuna/react"
+import { PlotParallelCoordinate, TrialTable } from "@optuna/react"
 import React, { FC, useState } from "react"
 import { Link } from "react-router-dom"
-import { GraphTCHistory } from "./GraphTCHistory"
-import { GraphTCParetoFront } from "./GraphTCParetoFront"
-
 import { StudyDetail } from "ts/types/optuna"
 import { useConstants } from "../constantsProvider"
 import { studyDetailToStudy } from "../graphUtil"
+import { GraphHistory } from "./GraphHistory"
+import { GraphParetoFront } from "./GraphParetoFront"
 
-export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
+export const TrialSelection: FC<{ studyDetail: StudyDetail | null }> = ({
   studyDetail,
 }) => {
   const theme = useTheme()
@@ -82,7 +81,6 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
                 <Switch
                   checked={includeInfeasibleTrials}
                   onChange={handleIncludeInfeasibleTrialsChange}
-                  disabled={!(studyDetail.directions.length > 1)}
                   value="enable"
                 />
               }
@@ -104,7 +102,7 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
           ) : null}
         </FormControl>
         <CardContent>
-          <PlotTCParallelCoordinate
+          <PlotParallelCoordinate
             study={studyDetail}
             includeDominatedTrials={includeDominatedTrials}
             includeInfeasibleTrials={includeInfeasibleTrials}
@@ -115,7 +113,7 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
       {studyDetail?.directions.length === 1 ? (
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
-            <GraphTCHistory
+            <GraphHistory
               studies={studyDetail !== null ? [studyDetail] : []}
               logScale={false}
               includePruned={false}
@@ -126,7 +124,7 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
       ) : (
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
-            <GraphTCParetoFront
+            <GraphParetoFront
               study={studyDetail}
               selectedTrials={selectedTrials}
             />
@@ -137,7 +135,7 @@ export const TrialCompare: FC<{ studyDetail: StudyDetail | null }> = ({
         <Box component="div" sx={{ display: "flex", flexDirection: "column" }}>
           <Card sx={{ margin: theme.spacing(2) }}>
             <CardContent>
-              <TrialTableTC
+              <TrialTable
                 study={study}
                 selectedTrials={selectedTrials}
                 linkComponent={Link}

@@ -23,12 +23,24 @@ const multiValueFilter: FilterFn<Optuna.Trial> = <D extends object>(
 
 export const TrialTable: FC<{
   study: Optuna.Study
+  selectedTrials?: number[]
   initialRowsPerPage?: number
   // biome-ignore lint/suspicious/noExplicitAny: Any react component.
   linkComponent?: React.ComponentType<any>
   linkURL?: (studyId: number, trialNumber: number) => string
-}> = ({ study, initialRowsPerPage, linkComponent, linkURL }) => {
-  const trials: Optuna.Trial[] = study.trials
+}> = ({
+  study,
+  selectedTrials,
+  initialRowsPerPage,
+  linkComponent,
+  linkURL,
+}) => {
+  if (!selectedTrials || selectedTrials.length === 0) {
+    selectedTrials = study.trials.map((t) => t.number)
+  }
+  const trials: Optuna.Trial[] = study.trials.filter((t) => {
+    return selectedTrials.includes(t.number)
+  })
   const metricNames: string[] = study.metric_names || []
 
   const columnHelper = createColumnHelper<Optuna.Trial>()
