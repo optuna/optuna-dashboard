@@ -70,6 +70,10 @@ export const usePlotBackendRendering = () => {
   return useLocalStorage<boolean>("plotBackendRendering", false)
 }
 
+export const useShowExperimentalFeature = () => {
+  return useLocalStorage<boolean>("showExperimentalFeature", false)
+}
+
 export const usePlotlyColorThemeState = () => {
   return useLocalStorage<PlotlyColorTheme>("plotlyColorTheme", {
     dark: "default",
