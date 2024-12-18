@@ -1,4 +1,4 @@
-import { Card, CardContent, Grid, Typography, useTheme } from "@mui/material"
+import { Card, CardContent, Typography, useTheme } from "@mui/material"
 import * as Optuna from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
 import { FC, useEffect } from "react"
@@ -32,9 +32,7 @@ export const PlotTimeline: FC<{
         >
           Timeline
         </Typography>
-        <Grid item xs={12}>
-          <div id={plotDomId} />
-        </Grid>
+        <div id={plotDomId} />
       </CardContent>
     </Card>
   )
