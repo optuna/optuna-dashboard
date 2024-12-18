@@ -26,7 +26,7 @@ const plotDomId = "graph-pareto-front"
 
 export const GraphParetoFront: FC<{
   study: StudyDetail | null
-  selectedTrials: number[] | null
+  selectedTrials?: number[]
 }> = ({ study = null, selectedTrials = null }) => {
   if (useBackendRender() && !selectedTrials) {
     return <GraphParetoFrontBackend study={study} />
