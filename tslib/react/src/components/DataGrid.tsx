@@ -131,13 +131,13 @@ function DataGrid<T>({
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
-  const rowsPerPageOptions = [10, 50, 100, { label: "All", value: data.length }]
+  const rowsPerPageOptions = [5, 10, 50, 100, { label: "All", value: data.length }]
   const [pagination, setPagination] = React.useState<PaginationState>({
     pageIndex: 0,
     pageSize:
       initialRowsPerPage && rowsPerPageOptions.includes(initialRowsPerPage)
         ? initialRowsPerPage
-        : 50,
+        : 5,
   })
 
   const table = useReactTable({
