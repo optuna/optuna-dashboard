@@ -272,7 +272,7 @@ const MarkdownEditorModal: FC<{
         bottom: 0,
         height: "100%",
         left: 0,
-        overflow: "hidden",
+        overflow: "scroll",
         position: "fixed",
         right: 0,
         top: 0,
@@ -316,6 +316,7 @@ const MarkdownEditorModal: FC<{
         component="div"
         sx={{
           width: "100%",
+          height: "calc(100% - 100px)",
           flexGrow: 1,
           display: preview ? "none" : "flex",
           flexDirection: "row",
