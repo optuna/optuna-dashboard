@@ -331,7 +331,10 @@ const MarkdownEditorModal: FC<{
             resize: "none",
             width: "100%",
             height: "100%",
-            "& .MuiInputBase-root": { height: "100%", alignItems: "start" },
+            "& .MuiInputBase-root": { 
+              height: "100%", 
+              alignItems: "start" 
+            },
           }}
           inputRef={textAreaRef}
           defaultValue={latestNote.body}
