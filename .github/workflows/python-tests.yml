@@ -146,6 +146,19 @@ jobs:
         working-directory: jupyterlab
         run: yarn install
       
+      - working-directory: jupyterlab
+        run: npm ls react
+      
+      - working-directory: jupyterlab
+        run: npm ls @types/react
+      
+      - working-directory: jupyterlab
+        run: jlpm
+      
+      - name: editable install
+        working-directory: jupyterlab
+        run: pip install -e .
+      
       - name: Build package
         working-directory: jupyterlab
         run: python -m build --sdist

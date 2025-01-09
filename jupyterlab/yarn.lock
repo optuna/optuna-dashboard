@@ -1366,8 +1366,8 @@ __metadata:
   linkType: hard
 
 "@react-three/fiber@npm:^8.15.15":
-  version: 8.17.10
-  resolution: "@react-three/fiber@npm:8.17.10"
+  version: 8.17.12
+  resolution: "@react-three/fiber@npm:8.17.12"
   dependencies:
     "@babel/runtime": ^7.17.8
     "@types/debounce": ^1.2.1
@@ -1386,8 +1386,8 @@ __metadata:
     expo-asset: ">=8.4"
     expo-file-system: ">=11.0"
     expo-gl: ">=11.0"
-    react: ">=18.0"
-    react-dom: ">=18.0"
+    react: ">=18 <19"
+    react-dom: ">=18 <19"
     react-native: ">=0.64"
     three: ">=0.133"
   peerDependenciesMeta:
@@ -1403,7 +1403,7 @@ __metadata:
       optional: true
     react-native:
       optional: true
-  checksum: 353c921f95c904883412cacefd8043cd864cb34e748b3195419064bb6577b14ec6d5f5e1f087b52a198a555b3f29e9a9196e32e8b25f8e6f14ec1e80211d81ae
+  checksum: 917ba749c4c589e2d6ceadba944a6da7893ec0e75ededc08e2fe9a96499b6ea8d0dae8307a7e48961d9243174b9319b4268666ea2d307003970364b4a3ca84fa
   languageName: node
   linkType: hard
 
@@ -2206,13 +2206,32 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:*, @types/react@npm:18.3.3, @types/react@npm:^18.0.26":
+"@types/react@npm:*":
+  version: 19.0.4
+  resolution: "@types/react@npm:19.0.4"
+  dependencies:
+    csstype: ^3.0.2
+  checksum: 96efaf1f4a682f606281aec06fe34f6ebf0741815b0be3dd897bc3b28eb60e4abccb0e184f202e1fa38d1ed7c050a68bfba5c1e3b51c0f25cb554da263e7c6c8
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:18.3.3":
   version: 18.3.3
   resolution: "@types/react@npm:18.3.3"
   dependencies:
     "@types/prop-types": "*"
     csstype: ^3.0.2
   checksum: c63d6a78163244e2022b01ef79b0baec4fe4da3475dc4a90bb8accefad35ef0c43560fd0312e5974f92a0f1108aa4d669ac72d73d66396aa060ea03b5d2e3873
+  languageName: node
+  linkType: hard
+
+"@types/react@npm:^18.0.26":
+  version: 18.3.18
+  resolution: "@types/react@npm:18.3.18"
+  dependencies:
+    "@types/prop-types": "*"
+    csstype: ^3.0.2
+  checksum: 5933597bc9f53e282f0438f0bb76d0f0fab60faabe760ea806e05ffe6f5c61b9b4d363e1a03a8fea47c510d493c6cf926cdeeba9f7074fa97b61940c350245e7
   languageName: node
   linkType: hard
 
@@ -6636,9 +6655,9 @@ __metadata:
   linkType: hard
 
 "papaparse@npm:^5.4.1":
-  version: 5.4.1
-  resolution: "papaparse@npm:5.4.1"
-  checksum: fc9e52f7158dca3517c229e3309065b1ab5da6c7194572fba4f31ff138bc43e3c91182cc40365cc828f97fe10d0aca416068fd731661058bea0f69ddb84a411a
+  version: 5.5.0
+  resolution: "papaparse@npm:5.5.0"
+  checksum: fdd169c984c183b1e823a4f0485b393dd0f22fdb2731b625989f50930f2baade5c6da6665da510b6194b1c8793393c3a9732e4d06553099edb55bd454e9b9cf9
   languageName: node
   linkType: hard
 
