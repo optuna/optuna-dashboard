@@ -140,7 +140,9 @@ jobs:
           npm install
           npm run build:pkg
       
-      - name: Mysterious hack to fix Type Error: Cannot read properties of undefined (reading .../jupyterlab/.pnp.cjs)
+      # Without a following step, it will be failed to build the jupyter lab extension by the below error
+      # Type Error Cannot read properties of undefined (reading .../jupyterlab/.pnp.cjs)
+      - name: Mysterious hack to fix the build error
         working-directory: jupyterlab
         run: yarn install
       
