@@ -26,16 +26,6 @@
   },
   "homepage": "https://github.com/optuna/optuna-dashboard#readme",
   "dependencies": {
-    "@emotion/react": "^11.11.3",
-    "@emotion/styled": "^11.11.0",
-    "@mui/icons-material": "^6.1.1",
-    "@mui/lab": "^6.0.0-beta.10",
-    "@mui/material": "^6.1.1",
-    "@mui/system": "^6.1.1",
-    "@tanstack/react-table": "^8.17.3",
-    "plotly.js-dist-min": "^2.30.1",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@chromatic-com/storybook": "^1.6.1",
@@ -59,5 +49,17 @@
     "typescript": "^5.2.2",
     "vite": "^5.4.6",
     "vitest": "^1.4.0"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0",
+    "@emotion/react": ">=11.11.0",
+    "@emotion/styled": ">=11.11.0",
+    "@mui/icons-material": ">=6.0.0",
+    "@mui/lab": ">=6.0.0-beta.0",
+    "@mui/material": ">=6.0.0",
+    "@mui/system": ">=6.0.0",
+    "@tanstack/react-table": ">=8.0.0",
+    "plotly.js-dist-min": ">=2.30.0"
   }
 }
