@@ -5,11 +5,17 @@ import {
   Box,
   Card,
   CardContent,
+  FormControl,
+  FormLabel,
   IconButton,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
+  Stack,
   Typography,
   useTheme,
 } from "@mui/material"
-import React, { FC } from "react"
+import React, { FC, useState } from "react"
 
 import { StudyDetail, Trial } from "ts/types/optuna"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
@@ -34,6 +40,14 @@ export const SelectedTrialArtifactCards: FC<{
   const isArtifactModifiable = (trial: Trial) => {
     return trial.state === "Running" || trial.state === "Waiting"
   }
+  const [targetArtifactId, setTargetArtifactId] = useState<number>(0)
+  const [targetValueId, setTargetValueId] = useState<number>(0)
+  const handleTargetArtifactChange = (event: SelectChangeEvent<number>) => {
+    setTargetArtifactId(event.target.value as number)
+  }
+  const handleTargetValueChange = (event: SelectChangeEvent<number>) => {
+    setTargetValueId(event.target.value as number)
+  }
 
   if (selectedTrials.length === 0) {
     selectedTrials = study.trials.map((trial) => trial.number)
@@ -44,35 +58,66 @@ export const SelectedTrialArtifactCards: FC<{
   )
   const width = "200px"
   const height = "150px"
-
-  const targetValueIndex = 0
-  const targetArtifactIndex = 0
+  const metricNames: string[] = study?.metric_names || []
 
   const valueRanges = calculateMinMax(trials.map((trial) => trial.values))
   const direction =
-    study.directions[targetValueIndex] === "maximize"
+    study.directions[targetValueId] === "maximize"
       ? "maximization"
       : "minimization"
 
   return (
     <>
-      <Typography
-        variant="h5"
-        sx={{ fontWeight: theme.typography.fontWeightBold }}
+      <Stack
+        direction={{ xs: "column", sm: "row" }}
+        spacing={3}
+        sx={{ width: "100%" }}
       >
-        Artifacts
-      </Typography>
+        <Typography
+          variant="h5"
+          sx={{ fontWeight: theme.typography.fontWeightBold }}
+        >
+          Artifacts
+        </Typography>
+        <FormControl component="fieldset">
+          <FormLabel component="legend">Target Artifact Index:</FormLabel>
+          <Select
+            value={targetArtifactId}
+            onChange={handleTargetArtifactChange}
+          >
+            {study.trials[0].artifacts.map((_d, i) => (
+              <MenuItem value={i} key={i}>
+                artifact: {i}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl component="fieldset">
+          <FormLabel component="legend">
+            Border Color Objective Value:
+          </FormLabel>
+          <Select value={targetValueId} onChange={handleTargetValueChange}>
+            {study.directions.map((_d, i) => (
+              <MenuItem value={i} key={i}>
+                {metricNames.length === study?.directions.length
+                  ? metricNames[i]
+                  : `${i}`}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Stack>
       <Box
         component="div"
         sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}
       >
         {trials.map((trial) => {
-          const artifact = trial.artifacts[targetArtifactIndex]
+          const artifact = trial.artifacts[targetArtifactId]
           const urlPath = `/artifacts/${trial.study_id}/${trial.trial_id}/${artifact.artifact_id}`
 
           const value = trial.values
-            ? trial.values[targetValueIndex]
-            : valueRanges.min[targetValueIndex]
+            ? trial.values[targetValueId]
+            : valueRanges.min[targetValueId]
           const borderValue = calculateBorderColor(
             value,
             valueRanges.min[0],
