@@ -45,6 +45,15 @@ export const SelectedTrialArtifactCards: FC<{
   const width = "200px"
   const height = "150px"
 
+  const targetValueIndex = 0
+  const targetArtifactIndex = 0
+
+  const valueRanges = calculateMinMax(trials.map((trial) => trial.values))
+  const direction =
+    study.directions[targetValueIndex] === "maximize"
+      ? "maximization"
+      : "minimization"
+
   return (
     <>
       <Typography
@@ -58,8 +67,19 @@ export const SelectedTrialArtifactCards: FC<{
         sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}
       >
         {trials.map((trial) => {
-          const artifact = trial.artifacts[0]
+          const artifact = trial.artifacts[targetArtifactIndex]
           const urlPath = `/artifacts/${trial.study_id}/${trial.trial_id}/${artifact.artifact_id}`
+
+          const value = trial.values
+            ? trial.values[targetValueIndex]
+            : valueRanges.min[targetValueIndex]
+          const borderValue = calculateBorderColor(
+            value,
+            valueRanges.min[0],
+            valueRanges.max[0],
+            direction
+          )
+          const border = `5px solid ${borderValue}`
           return (
             <Card
               key={artifact.artifact_id}
@@ -70,6 +90,7 @@ export const SelectedTrialArtifactCards: FC<{
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
+                border: border,
               }}
             >
               <ArtifactCardMedia
@@ -161,4 +182,66 @@ export const SelectedTrialArtifactCards: FC<{
       {renderTableArtifactModal()}
     </>
   )
+}
+
+type MinMaxResult = {
+  min: number[]
+  max: number[]
+}
+
+function calculateMinMax(values: (number[] | undefined)[]): MinMaxResult {
+  if (values.length === 0) {
+    return { min: [], max: [] }
+  }
+
+  const firstValidArray = values.find((arr) => arr !== undefined)
+  if (!firstValidArray) {
+    return { min: [], max: [] }
+  }
+
+  const length = firstValidArray.length
+  const mins = new Array(length).fill(Infinity)
+  const maxs = new Array(length).fill(-Infinity)
+
+  values.forEach((arr) => {
+    if (arr === undefined) return
+
+    arr.forEach((value, index) => {
+      if (index < length) {
+        mins[index] = Math.min(mins[index], value)
+        maxs[index] = Math.max(maxs[index], value)
+      }
+    })
+  })
+
+  const result: MinMaxResult = {
+    min: mins.map((val) => (val === Infinity ? 0 : val)),
+    max: maxs.map((val) => (val === -Infinity ? 0 : val)),
+  }
+
+  return result
+}
+
+type Direction = "minimization" | "maximization"
+
+function calculateBorderColor(
+  value: number,
+  minValue: number,
+  maxValue: number,
+  direction: Direction = "minimization"
+): string {
+  if (minValue === maxValue) {
+    return "rgb(255, 255, 255)"
+  }
+
+  let normalizedValue = (value - minValue) / (maxValue - minValue)
+  if (direction === "maximization") {
+    normalizedValue = 1 - normalizedValue
+  }
+
+  const red = Math.round(255 * normalizedValue)
+  const green = Math.round(255 * normalizedValue)
+  const blue = 255
+
+  return `rgb(${red}, ${green}, ${blue})`
 }
