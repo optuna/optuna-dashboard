@@ -16,6 +16,7 @@ import { Link } from "react-router-dom"
 import { StudyDetail } from "ts/types/optuna"
 import { useConstants } from "../constantsProvider"
 import { studyDetailToStudy } from "../graphUtil"
+import { SelectedTrialArtifactCards } from "./Artifact/SelectedTrialArtifactCards"
 import { GraphHistory } from "./GraphHistory"
 import { GraphParetoFront } from "./GraphParetoFront"
 
@@ -29,12 +30,16 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail | null }> = ({
     useState<boolean>(true)
   const [includeDominatedTrials, setIncludeDominatedTrials] =
     useState<boolean>(true)
+  const [showArtifacts, setShowArtifacts] = useState<boolean>(false)
 
   const handleSelectionChange = (selectedTrials: number[]) => {
     setSelectedTrials(selectedTrials)
   }
   const handleIncludeInfeasibleTrialsChange = () => {
     setIncludeInfeasibleTrials(!includeInfeasibleTrials)
+  }
+  const handleShowArtifactsChange = () => {
+    setShowArtifacts(!showArtifacts)
   }
   const handleIncludeDominatedTrialsChange = () => {
     if (includeDominatedTrials) {
@@ -100,6 +105,19 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail | null }> = ({
               label="Include dominated trials"
             />
           ) : null}
+          {studyDetail ? (
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={showArtifacts}
+                  onChange={handleShowArtifactsChange}
+                  disabled={studyDetail.trials[0].artifacts.length === 0}
+                  value="enable"
+                />
+              }
+              label="Show Artifacts"
+            />
+          ) : null}
         </FormControl>
         <CardContent>
           <PlotParallelCoordinate
@@ -131,6 +149,16 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail | null }> = ({
           </CardContent>
         </Card>
       )}
+      {studyDetail != null && showArtifacts ? (
+        <Card sx={{ margin: theme.spacing(2) }}>
+          <CardContent>
+            <SelectedTrialArtifactCards
+              study={studyDetail}
+              selectedTrials={selectedTrials}
+            />
+          </CardContent>
+        </Card>
+      ) : null}
       {study ? (
         <Box component="div" sx={{ display: "flex", flexDirection: "column" }}>
           <Card sx={{ margin: theme.spacing(2) }}>
