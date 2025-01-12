@@ -111,7 +111,7 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail | null }> = ({
                 <Switch
                   checked={showArtifacts}
                   onChange={handleShowArtifactsChange}
-                  disabled={!(studyDetail.directions.length > 1)}
+                  disabled={studyDetail.trials[0].artifacts.length === 0}
                   value="enable"
                 />
               }
