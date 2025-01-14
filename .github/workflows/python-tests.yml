@@ -146,23 +146,6 @@ jobs:
         working-directory: jupyterlab
         run: yarn install
       
-      - working-directory: jupyterlab
-        run: npm ls react
-      
-      - working-directory: jupyterlab
-        run: npm ls @types/react
-      
-      - working-directory: jupyterlab
-        env:
-          YARN_ENABLE_IMMUTABLE_INSTALLS: false
-        run: jlpm
-      
-      - name: editable install
-        working-directory: jupyterlab
-        env:
-          YARN_ENABLE_IMMUTABLE_INSTALLS: false
-        run: pip install -e .
-      
       - name: Build package
         working-directory: jupyterlab
         env:
