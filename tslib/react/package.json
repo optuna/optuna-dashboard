@@ -51,15 +51,15 @@
     "vitest": "^1.4.0"
   },
   "peerDependencies": {
-    "react": ">=16.8.0",
-    "react-dom": ">=16.8.0",
-    "@emotion/react": ">=11.11.0",
-    "@emotion/styled": ">=11.11.0",
+    "react": ">=16.0.0",
+    "react-dom": ">=16.0.0",
+    "@emotion/react": ">=11.0.0",
+    "@emotion/styled": ">=11.0.0",
     "@mui/icons-material": ">=6.0.0",
     "@mui/lab": ">=6.0.0-beta.0",
     "@mui/material": ">=6.0.0",
     "@mui/system": ">=6.0.0",
     "@tanstack/react-table": ">=8.0.0",
-    "plotly.js-dist-min": ">=2.30.0"
+    "plotly.js-dist-min": ">=2.0.0"
   }
 }
