@@ -105,6 +105,9 @@
         "wavesurfer.js": "^7.7.0",
         "yjs": "^13.5.0"
     },
+    "resolutions": {
+        "@types/react": "18.3.3"
+    },
     "sideEffects": [
         "style/*.css",
         "style/index.js"
