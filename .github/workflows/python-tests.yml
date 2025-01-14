@@ -153,13 +153,19 @@ jobs:
         run: npm ls @types/react
       
       - working-directory: jupyterlab
+        env:
+          YARN_ENABLE_IMMUTABLE_INSTALLS: false
         run: jlpm
       
       - name: editable install
         working-directory: jupyterlab
+        env:
+          YARN_ENABLE_IMMUTABLE_INSTALLS: false
         run: pip install -e .
       
       - name: Build package
         working-directory: jupyterlab
+        env:
+          YARN_ENABLE_IMMUTABLE_INSTALLS: false
         run: python -m build --sdist
 
