@@ -10,8 +10,7 @@ from optuna_dashboard._storage import trials_last_fetched_at
 
 
 if typing.TYPE_CHECKING:
-    from sys import _OptExcInfo
-
+    from _typeshed import OptExcInfo
     from _typeshed.wsgi import WSGIEnvironment
 
 
@@ -67,7 +66,7 @@ def send_request(
     response_headers: list[tuple[str, str]] = []
 
     def start_response(
-        status_: str, headers_: list[tuple[str, str]], exc_info: _OptExcInfo | None = None
+        status_: str, headers_: list[tuple[str, str]], exc_info: OptExcInfo | None = None
     ) -> None:
         nonlocal status, response_headers
         status = status_
