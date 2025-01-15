@@ -164,15 +164,8 @@ const StartDashboardForm: FC<{
   const [artifactPath, setArtifactPath] = useState("")
   const [isValidURL, setIsValidURL] = useState(false)
 
-  // biome-ignore lint/complexity/useRegexLiterals: <explanation>
-  const rfc1738Pattern = new RegExp(
-    "[\\w\\+]+://([^:/]*(.*)?@)?((\\[[^/]+\\]|[^/:]+)?([^/]*)?)?(/.*)?"
-  )
-
   const handleValidateURL = (url: string): void => {
-    url.startsWith("redis") || url.match(rfc1738Pattern)
-      ? setIsValidURL(true)
-      : setIsValidURL(false)
+    setIsValidURL(url !== "")
   }
 
   const handleCreateNewDashboard = () => {
