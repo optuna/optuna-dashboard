@@ -272,7 +272,7 @@ const MarkdownEditorModal: FC<{
         bottom: 0,
         height: "100%",
         left: 0,
-        overflow: "hidden",
+        overflow: "scroll",
         position: "fixed",
         right: 0,
         top: 0,
@@ -331,10 +331,10 @@ const MarkdownEditorModal: FC<{
             resize: "none",
             width: "100%",
             height: "100%",
-            "& .MuiInputBase-root": { height: "100%" },
-          }}
-          inputProps={{
-            style: { resize: "none", overflow: "scroll", height: "100%" },
+            "& .MuiInputBase-root": {
+              height: "100%",
+              alignItems: "start",
+            },
           }}
           inputRef={textAreaRef}
           defaultValue={latestNote.body}
