@@ -5,16 +5,29 @@ import {
   Button,
   CssBaseline,
   FormControl,
+  ThemeProvider,
   Typography,
+  createTheme,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material"
 import CircularProgress from "@mui/material/CircularProgress"
+import blue from "@mui/material/colors/blue"
+import pink from "@mui/material/colors/pink"
 import {
   APIClientProvider,
   App,
   ConstantsContext,
 } from "@optuna/optuna-dashboard"
 import { SnackbarProvider, enqueueSnackbar } from "notistack"
-import React, { Dispatch, FC, SetStateAction, useEffect, useState } from "react"
+import React, {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useEffect,
+  useState,
+  useMemo,
+} from "react"
 import { JupyterlabAPIClient } from "../apiClient"
 import { requestAPI } from "../handler"
 import { DebouncedInputTextField } from "./Debounce"
@@ -25,13 +38,26 @@ export const JupyterLabEntrypoint: FC = () => {
   const [ready, setReady] = useState(false)
   const [pathName, setPathName] = useState("")
 
+  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)")
+  const colorMode = prefersDarkMode ? "dark" : "light"
+  const theme = useMemo(
+    () =>
+      createTheme({
+        palette: {
+          mode: colorMode,
+          primary: blue,
+          secondary: pink,
+        },
+      }),
+    [colorMode]
+  )
   useEffect(() => {
     setPathName(window.location.pathname)
   }, [])
 
   if (!ready) {
     return (
-      <>
+      <ThemeProvider theme={theme}>
         <CssBaseline />
         <SnackbarProvider maxSnack={3}>
           <Box
@@ -41,6 +67,7 @@ export const JupyterLabEntrypoint: FC = () => {
               flexDirection: "column",
               justifyContent: "center",
               alignItems: "center",
+              backgroundColor: theme.palette.background.default,
             }}
           >
             <JupyterLabStartWidget
@@ -50,7 +77,7 @@ export const JupyterLabEntrypoint: FC = () => {
             />
           </Box>
         </SnackbarProvider>
-      </>
+      </ThemeProvider>
     )
   }
   return (
@@ -160,6 +187,8 @@ const StartDashboardForm: FC<{
   showOptunaDashboard: () => void
   setLoading: Dispatch<SetStateAction<boolean>>
 }> = ({ showOptunaDashboard, setLoading }) => {
+  const theme = useTheme()
+  const isDarkMode = theme.palette.mode === "dark"
   const [storageURL, setStorageURL] = useState("")
   const [artifactPath, setArtifactPath] = useState("")
   const [isValidURL, setIsValidURL] = useState(false)
@@ -204,7 +233,9 @@ const StartDashboardForm: FC<{
         flexDirection: "column",
         width: "600px",
         borderRadius: "8px",
-        boxShadow: "rgba(0, 0, 0, 0.08) 0 8px 24px",
+        boxShadow: isDarkMode
+          ? "rgba(255, 255, 255, 0.08) 0 8px 24px"
+          : "rgba(0, 0, 0, 0.08) 0 8px 24px",
         padding: "64px",
       }}
     >
