@@ -11,6 +11,8 @@ on:
       - 'optuna_dashboard/package-lock.json'
       - 'vscode/package.json'
       - 'vscode/package-lock.json'
+      - 'standalone_app/package.json'
+      - 'standalone_app/package-lock.json'
       - 'tslib/react/package.json'
       - 'tslib/react/package-lock.json'
       - 'tslib/storage/package.json'
