@@ -29,9 +29,9 @@ jobs:
   build-python-package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
       - name: Set up Python
@@ -50,7 +50,7 @@ jobs:
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
         optuna-version: ['optuna>=3.1.0']
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup Python${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
@@ -71,7 +71,7 @@ jobs:
   test-with-optuna-master:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -90,7 +90,7 @@ jobs:
   test-with-optuna-oldest:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
@@ -106,3 +106,4 @@ jobs:
       - name: Run python unit tests
         run: |
           pytest python_tests
+
