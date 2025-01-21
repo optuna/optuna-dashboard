@@ -113,6 +113,9 @@ export const SelectedTrialArtifactCards: FC<{
       >
         {trials.map((trial) => {
           const artifact = trial.artifacts[targetArtifactId]
+          if (!artifact || !artifact.artifact_id) {
+            return null
+          }
           const urlPath = `/artifacts/${trial.study_id}/${trial.trial_id}/${artifact.artifact_id}`
 
           const value = trial.values
