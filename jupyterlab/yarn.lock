@@ -929,12 +929,10 @@
     react-is "^19.0.0"
 
 "@optuna/optuna-dashboard@link:../optuna_dashboard":
-  version "0.0.0"
-  uid ""
+  version "0.0.1"
 
 "@optuna/types@link:../tslib/types":
-  version "0.0.0"
-  uid ""
+  version "0.0.1"
 
 "@popperjs/core@^2.11.8":
   version "2.11.8"
@@ -3974,9 +3972,9 @@ jsonpointer@^5.0.1:
   integrity sha512-p/nXbhSEcu3pZRdkW1OfJhpsVtW1gd4Wa1fnQc9YLiTfAjn0312eMKimbdIQzuZl9aa9xUGaRlP9T/CJE/ditQ==
 
 katex@^0.16.0:
-  version "0.16.20"
-  resolved "https://registry.yarnpkg.com/katex/-/katex-0.16.20.tgz#75c741ded0f7ee8d896a1d31bac307e61af863c3"
-  integrity sha512-jjuLaMGD/7P8jUTpdKhA9IoqnH+yMFB3sdAFtq5QdAqeP2PjiSbnC3EaguKPNtv6dXXanHxp1ckwvF4a86LBig==
+  version "0.16.21"
+  resolved "https://registry.yarnpkg.com/katex/-/katex-0.16.21.tgz#8f63c659e931b210139691f2cc7bb35166b792a3"
+  integrity sha512-XvqR7FgOHtWupfMiigNzmh+MgUVmDGU2kXZm899ZkPfcuoPuFxyHmXsgATDpFZDAXCI8tvinaVcDo8PIIJSo4A==
   dependencies:
     commander "^8.3.0"
 
