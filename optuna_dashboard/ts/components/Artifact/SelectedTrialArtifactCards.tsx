@@ -123,8 +123,8 @@ export const SelectedTrialArtifactCards: FC<{
             : valueRanges.min[targetValueId]
           const borderValue = calculateBorderColor(
             value,
-            valueRanges.min[0],
-            valueRanges.max[0],
+            valueRanges.min[targetValueId],
+            valueRanges.max[targetValueId],
             direction
           )
           const border = `5px solid ${borderValue}`
