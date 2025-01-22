@@ -22,8 +22,7 @@ namespace CommandIDs {
  */
 const plugin: JupyterFrontEndPlugin<void> = {
   id: "jupyterlab-optuna:plugin",
-  description:
-    "A JupyterLab extension for Optuna",
+  description: "A JupyterLab extension for Optuna",
   autoStart: true,
   optional: [ILauncher],
   requires: [ICommandPalette],
@@ -32,9 +31,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     palette: ICommandPalette,
     launcher: ILauncher | null
   ) => {
-    console.log(
-      "JupyterLab extension jupyterlab-optuna is activated!"
-    )
+    console.log("JupyterLab extension jupyterlab-optuna is activated!")
     console.log("ICommandPalette:", palette)
 
     const { commands, shell } = app
@@ -60,7 +57,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
         command: CommandIDs.ui,
       })
     }
-    palette.addItem({ command: CommandIDs.ui, category: 'Optuna' });
+    palette.addItem({ command: CommandIDs.ui, category: "Optuna" })
   },
 }
 
