@@ -71,14 +71,14 @@ def get_trials(
 
 
 class InMemoryCache:
-    def __init__(self):
+    def __init__(self) -> None:
         self._cached_extra_study_property_cache: dict[int, "_CachedExtraStudyProperty"] = {}
         self._cached_extra_study_property_cache_lock = threading.Lock()
         self._trials_cache: dict[int, list[FrozenTrial]] = {}
         self._trials_cache_lock = threading.Lock()
         self._trials_last_fetched_at: dict[int, datetime] = {}
 
-    def clear(self):
+    def clear(self) -> None:
         self._cached_extra_study_property_cache.clear()
         self._trials_cache.clear()
 
