@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
 
 DEBUG = os.environ.get("OPTUNA_DASHBOARD_DEBUG") == "1"
-SERVER_CHOICES = ["auto", "wsgiref", "gunicorn"],
+SERVER_CHOICES = ["auto", "wsgiref", "gunicorn"]
 
 
 class ThreadedWSGIServer(ThreadingMixIn, WSGIServer):
@@ -74,7 +74,7 @@ def run_debug_server(app: Bottle, host: str, port: int, quiet: bool) -> None:
 
 
 def auto_select_server(
-    server_arg: Literal["auto", "gunicorn", "wsgiref"]
+    server_arg: Literal["auto", "gunicorn", "wsgiref"],
 ) -> Literal["gunicorn", "wsgiref"]:
     if server_arg != "auto":
         return server_arg
