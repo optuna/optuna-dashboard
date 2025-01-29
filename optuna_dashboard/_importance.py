@@ -11,7 +11,8 @@ from optuna.storages import BaseStorage
 from optuna.study import Study
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
-from optuna_dashboard._cached_extra_study_property import get_cached_extra_study_property
+from optuna_dashboard._inmemory_cache import get_cached_extra_study_property
+from optuna_dashboard._inmemory_cache import InMemoryCache
 
 
 _logger = logging.getLogger(__name__)
@@ -97,7 +98,11 @@ def _get_param_importances(
 
 
 def get_param_importance_from_trials_cache(
-    storage: BaseStorage, study_id: int, objective_id: int, trials: list[FrozenTrial]
+    storage: BaseStorage,
+    study_id: int,
+    objective_id: int,
+    trials: list[FrozenTrial],
+    inmemory_cache: InMemoryCache,
 ) -> list[ImportanceType]:
     completed_trials = [t for t in trials if t.state == TrialState.COMPLETE]
     n_completed_trials = len(completed_trials)
@@ -118,7 +123,9 @@ def get_param_importance_from_trials_cache(
         except RuntimeError:
             # RuntimeError("Encountered zero total variance in all trees.") may be raised
             # when all objective values are same.
-            _, union_search_space, _, _ = get_cached_extra_study_property(study_id, trials)
+            _, union_search_space, _, _ = get_cached_extra_study_property(
+                inmemory_cache, study_id, trials
+            )
             importance_value = 1 / len(union_search_space)
             importance = {
                 param_name: importance_value for param_name, distribution in union_search_space
