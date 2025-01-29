@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
 
 DEBUG = os.environ.get("OPTUNA_DASHBOARD_DEBUG") == "1"
-SERVER_CHOICES = ["auto", "wsgiref", "gunicorn"]
+SERVER_CHOICES = ["auto", "wsgiref", "gunicorn"],
 
 
 class ThreadedWSGIServer(ThreadingMixIn, WSGIServer):
