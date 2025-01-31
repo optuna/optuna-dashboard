@@ -312,9 +312,10 @@ const plotParetoFront = (
     return
   }
 
-  const result = getFeasibleTrials(filteredTrials, study)
-  const feasibleTrials = result.feasibleTrials
-  const infeasibleTrials = result.infeasibleTrials
+  const { feasibleTrials, infeasibleTrials } = getFeasibleTrials(
+    filteredTrials,
+    study
+  )
 
   const normalizedValues: number[][] = []
   feasibleTrials.forEach((t) => {

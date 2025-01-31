@@ -15,8 +15,9 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import React, { FC, useState } from "react"
+import React, { FC, useMemo, useState } from "react"
 
+import { StudyDirection } from "@optuna/types"
 import { StudyDetail, Trial } from "ts/types/optuna"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
 import { useDeleteTrialArtifactDialog } from "./DeleteArtifactDialog"
@@ -49,22 +50,21 @@ export const SelectedTrialArtifactCards: FC<{
     setTargetValueId(event.target.value as number)
   }
 
-  if (selectedTrials.length === 0) {
-    selectedTrials = study.trials.map((trial) => trial.number)
-  }
+  const trials: Trial[] = useMemo(() => {
+    if (!selectedTrials || selectedTrials.length === 0) {
+      return study.trials
+    }
+    return study.trials.filter((t) => {
+      return selectedTrials.includes(t.number)
+    })
+  }, [selectedTrials, study.trials])
 
-  const trials = study.trials.filter((trial) =>
-    selectedTrials.includes(trial.number)
-  )
   const width = "200px"
   const height = "150px"
   const metricNames: string[] = study?.metric_names || []
 
   const valueRanges = calculateMinMax(trials.map((trial) => trial.values))
-  const direction =
-    study.directions[targetValueId] === "maximize"
-      ? "maximization"
-      : "minimization"
+  const direction = study.directions[targetValueId]
 
   return (
     <>
@@ -270,20 +270,18 @@ function calculateMinMax(values: (number[] | undefined)[]): MinMaxResult {
   return result
 }
 
-type Direction = "minimization" | "maximization"
-
 function calculateBorderColor(
   value: number,
   minValue: number,
   maxValue: number,
-  direction: Direction = "minimization"
+  direction: StudyDirection = "minimize"
 ): string {
   if (minValue === maxValue) {
     return "rgb(255, 255, 255)"
   }
 
   let normalizedValue = (value - minValue) / (maxValue - minValue)
-  if (direction === "maximization") {
+  if (direction === "maximize") {
     normalizedValue = 1 - normalizedValue
   }
 

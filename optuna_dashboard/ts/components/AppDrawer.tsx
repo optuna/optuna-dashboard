@@ -349,7 +349,7 @@ export const AppDrawer: FC<{
                 <ListItemText primary="Trials (Table)" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
-            {showExperimentalFeatures === true ? (
+            {showExperimentalFeatures && (
               <ListItem
                 key="TrialSelection"
                 disablePadding
@@ -371,7 +371,7 @@ export const AppDrawer: FC<{
                   />
                 </ListItemButton>
               </ListItem>
-            ) : null}
+            )}
             <ListItem key="Note" disablePadding sx={styleListItem} title="Note">
               <ListItemButton
                 component={Link}

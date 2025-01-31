@@ -68,7 +68,7 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail | null }> = ({
           fontWeight: theme.typography.fontWeightBold,
         }}
       >
-        Trial Selection
+        Trial (Selection)
       </Typography>
       <Card sx={{ margin: theme.spacing(2) }}>
         <FormControl
@@ -80,7 +80,7 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail | null }> = ({
             padding: theme.spacing(2),
           }}
         >
-          {studyDetail ? (
+          {studyDetail && (
             <FormControlLabel
               control={
                 <Switch
@@ -91,8 +91,8 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail | null }> = ({
               }
               label="Include Infeasible trials"
             />
-          ) : null}
-          {studyDetail ? (
+          )}
+          {studyDetail && (
             <FormControlLabel
               control={
                 <Switch
@@ -104,8 +104,8 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail | null }> = ({
               }
               label="Include dominated trials"
             />
-          ) : null}
-          {studyDetail ? (
+          )}
+          {studyDetail && (
             <FormControlLabel
               control={
                 <Switch
@@ -117,7 +117,7 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail | null }> = ({
               }
               label="Show Artifacts"
             />
-          ) : null}
+          )}
         </FormControl>
         <CardContent>
           <PlotParallelCoordinate
@@ -159,7 +159,7 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail | null }> = ({
           </CardContent>
         </Card>
       ) : null}
-      {study ? (
+      {study && (
         <Box component="div" sx={{ display: "flex", flexDirection: "column" }}>
           <Card sx={{ margin: theme.spacing(2) }}>
             <CardContent>
@@ -187,7 +187,7 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail | null }> = ({
             </CardContent>
           </Card>
         </Box>
-      ) : null}
+      )}
     </Box>
   )
 }

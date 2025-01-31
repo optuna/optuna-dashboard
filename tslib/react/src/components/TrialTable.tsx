@@ -1,6 +1,6 @@
 import { Link as LinkIcon } from "@mui/icons-material"
 import { IconButton } from "@mui/material"
-import { FC } from "react"
+import { FC, useMemo } from "react"
 
 import * as Optuna from "@optuna/types"
 import { DataGrid } from "./DataGrid"
@@ -35,12 +35,14 @@ export const TrialTable: FC<{
   linkComponent,
   linkURL,
 }) => {
-  if (!selectedTrials || selectedTrials.length === 0) {
-    selectedTrials = study.trials.map((t) => t.number)
-  }
-  const trials: Optuna.Trial[] = study.trials.filter((t) => {
-    return selectedTrials.includes(t.number)
-  })
+  const trials: Optuna.Trial[] = useMemo(() => {
+    if (!selectedTrials || selectedTrials.length === 0) {
+      return study.trials
+    }
+    return study.trials.filter((t) => {
+      return selectedTrials.includes(t.number)
+    })
+  }, [selectedTrials, study.trials])
   const metricNames: string[] = study.metric_names || []
 
   const columnHelper = createColumnHelper<Optuna.Trial>()

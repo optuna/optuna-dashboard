@@ -1,5 +1,4 @@
 import * as Optuna from "@optuna/types"
-import { Trial } from "@optuna/types"
 import { SearchSpaceItem, StudyDetail } from "./types/optuna"
 
 const PADDING_RATIO = 0.05
@@ -20,7 +19,7 @@ const unique = (array: any[]) => {
 }
 
 export const getAxisInfo = (
-  trials: Trial[],
+  trials: Optuna.Trial[],
   param: SearchSpaceItem
 ): AxisInfo => {
   if (param.distribution.type === "CategoricalDistribution") {
@@ -35,7 +34,7 @@ export const getAxisInfo = (
 }
 
 const getAxisInfoForCategoricalParams = (
-  trials: Trial[],
+  trials: Optuna.Trial[],
   paramName: string,
   distribution: Optuna.CategoricalDistribution
 ): AxisInfo => {
@@ -64,7 +63,7 @@ const getAxisInfoForCategoricalParams = (
 }
 
 const getAxisInfoForNumericalParams = (
-  trials: Trial[],
+  trials: Optuna.Trial[],
   paramName: string,
   distribution: Optuna.FloatDistribution | Optuna.IntDistribution
 ): AxisInfo => {
@@ -103,7 +102,7 @@ const getAxisInfoForNumericalParams = (
   }
 }
 
-export const makeHovertext = (trial: Trial): string => {
+export const makeHovertext = (trial: Optuna.Trial): string => {
   return JSON.stringify(
     {
       number: trial.number,

@@ -1,5 +1,4 @@
 import * as Optuna from "@optuna/types"
-import { Study, Trial } from "@optuna/types"
 import { useMemo, useState } from "react"
 
 type TargetKind = "objective" | "user_attr" | "params"
@@ -97,13 +96,13 @@ export class Target {
 }
 
 const filterTrials = (
-  study: Study | null,
+  study: Optuna.Study | null,
   targets: Target[],
   filterPruned: boolean,
   includeInfeasible = true,
   includeDominated = true,
   selectedTrials: number[] = []
-): Trial[] => {
+): Optuna.Trial[] => {
   if (study === null) {
     return []
   }
@@ -393,33 +392,31 @@ export const getIsDominated = (normalizedValues: number[][]) => {
   return getIsDominatedND(normalizedValues)
 }
 
-function getIsDominatedFromStudy(study: Study): boolean[] {
-  return (() => {
-    const trials: Trial[] = study ? study.trials : []
-    const feasibleTrials = getFeasibleTrials(trials, study).feasibleTrials
+function getIsDominatedFromStudy(study: Optuna.Study): boolean[] {
+  const trials: Optuna.Trial[] = study ? study.trials : []
+  const feasibleTrials = getFeasibleTrials(trials, study).feasibleTrials
 
-    const normalizedValues: number[][] = []
-    for (const t of feasibleTrials) {
-      if (t.values && t.values.length === study.directions.length) {
-        const trialValues = t.values.map((v, i) => {
-          return study.directions[i] === "minimize"
-            ? (v as number)
-            : (-v as number)
-        })
-        normalizedValues.push(trialValues)
-      }
+  const normalizedValues: number[][] = []
+  for (const t of feasibleTrials) {
+    if (t.values && t.values.length === study.directions.length) {
+      const trialValues = t.values.map((v, i) => {
+        return study.directions[i] === "minimize"
+          ? (v as number)
+          : (-v as number)
+      })
+      normalizedValues.push(trialValues)
     }
+  }
 
-    return getIsDominated(normalizedValues)
-  })()
+  return getIsDominated(normalizedValues)
 }
 
-export function getFeasibleTrials(trials: Trial[], study: Study) {
-  const filteredTrials = trials.filter((t: Trial) =>
+export function getFeasibleTrials(trials: Optuna.Trial[], study: Optuna.Study) {
+  const filteredTrials = trials.filter((t: Optuna.Trial) =>
     filterFunc(t, study.directions)
   )
-  const feasibleTrials: Trial[] = []
-  const infeasibleTrials: Trial[] = []
+  const feasibleTrials: Optuna.Trial[] = []
+  const infeasibleTrials: Optuna.Trial[] = []
   for (const t of filteredTrials) {
     if (t.constraints.every((c) => c <= 0)) {
       feasibleTrials.push(t)
