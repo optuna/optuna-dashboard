@@ -44,8 +44,8 @@ def save_plotly_graph_object(
     Args:
         study:
             Target study object.
-        plot_data:
-            The plotly's graph object to save.
+        figure:
+            A :class:`plotly.graph_objects.Figure` object to save.
         graph_object_id:
             Unique identifier of the graph object. If specified, the graph object is overwritten.
             This must be a valid HTML id attribute value.

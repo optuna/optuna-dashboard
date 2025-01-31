@@ -28,6 +28,7 @@ API_NAMESPACE = "jupyterlab-optuna"
 
 _dashboard_app: WSGIApplication | None = None
 _is_initialized = False
+_base_url = ""
 threading_lock = threading.Lock()
 
 
@@ -66,7 +67,7 @@ def dashboard_app(env, start_response):
     # Set Content-Type
     if "/api/" in env["PATH_INFO"]:
         env["CONTENT_TYPE"] = "application/json"
-    env["PATH_INFO"] = env["PATH_INFO"].replace(f"/{API_NAMESPACE}", "")
+    env["PATH_INFO"] = env["PATH_INFO"].replace(_base_url, "")
 
     if _dashboard_app is None:
         start_response("400 Bad Request", [{"Content-Type": "application/json"}])
@@ -76,9 +77,12 @@ def dashboard_app(env, start_response):
 
 
 def setup_handlers(web_app):
+    global _base_url
+
     host_pattern = ".*$"
 
     base_url = web_app.settings["base_url"]
+    _base_url = url_path_join(base_url, API_NAMESPACE)
     # Prepend the base_url so that it works in a JupyterHub setting
     initialize_route_pattern = url_path_join(base_url, API_NAMESPACE, "api/is_initialized")
     handlers = [(initialize_route_pattern, InitializedStateHandler)]
