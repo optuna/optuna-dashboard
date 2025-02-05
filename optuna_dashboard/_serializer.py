@@ -315,7 +315,7 @@ def serialize_distribution(distribution: BaseDistribution) -> DistributionJSON:
 
 
 def serialize_search_space(
-    search_space: list[tuple[str, BaseDistribution]]
+    search_space: list[tuple[str, BaseDistribution]],
 ) -> list[dict[str, Any]]:
     serialized = []
     for param_name, distribution in search_space:
