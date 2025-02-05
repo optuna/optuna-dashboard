@@ -39,9 +39,8 @@ export const TrialTable: FC<{
     if (!selectedTrials || selectedTrials.length === 0) {
       return study.trials
     }
-    return study.trials.filter((t) => {
-      return selectedTrials.includes(t.number)
-    })
+    const selectedTrialsSet = new Set(selectedTrials)
+    return study.trials.filter((t) => selectedTrialsSet.has(t.number))
   }, [selectedTrials, study.trials])
   const metricNames: string[] = study.metric_names || []
 
