@@ -10,6 +10,9 @@ from typing import Tuple
 from typing import TYPE_CHECKING
 
 from optuna.distributions import BaseDistribution
+from optuna.distributions import CategoricalDistribution
+from optuna.distributions import FloatDistribution
+from optuna.distributions import IntDistribution
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
 
@@ -102,9 +105,70 @@ class _CachedExtraStudyProperty:
             self.has_intermediate_values = True
 
     def _update_search_space(self, trial: FrozenTrial) -> None:
-        current = set([(n, d) for n, d in trial.distributions.items()])
-        self._union_search_space = self._union_search_space.union(current)
+        union_search_space_distributions = {n: d for n, d in self._union_search_space}
+        new_union_search_space: SearchSpaceSetT = set()
+        for n, d in trial.distributions.items():
+            if n in union_search_space_distributions:
+                union_search_space_distribution = union_search_space_distributions[n]
+                if (
+                    isinstance(d, FloatDistribution)
+                    and isinstance(union_search_space_distribution, FloatDistribution)
+                    and d.step == union_search_space_distribution.step
+                    and d.log == union_search_space_distribution.log
+                ):
+                    new_union_search_space.add(
+                        (
+                            n,
+                            FloatDistribution(
+                                low=min(d.low, union_search_space_distribution.low),
+                                high=max(d.high, union_search_space_distribution.high),
+                                step=d.step,
+                                log=d.log,
+                            ),
+                        )
+                    )
+                    union_search_space_distributions.pop(n)
+                elif (
+                    isinstance(d, IntDistribution)
+                    and isinstance(union_search_space_distribution, IntDistribution)
+                    and d.step == union_search_space_distribution.step
+                    and d.log == union_search_space_distribution.log
+                ):
+                    new_union_search_space.add(
+                        (
+                            n,
+                            IntDistribution(
+                                low=min(d.low, union_search_space_distribution.low),
+                                high=max(d.high, union_search_space_distribution.high),
+                                step=d.step,
+                                log=d.log,
+                            ),
+                        )
+                    )
+                    union_search_space_distributions.pop(n)
+                elif isinstance(d, CategoricalDistribution) and isinstance(
+                    union_search_space_distribution, CategoricalDistribution
+                ):
+                    new_union_search_space.add(
+                        (
+                            n,
+                            CategoricalDistribution(
+                                choices=list(
+                                    set(d.choices + union_search_space_distribution.choices)
+                                )
+                            ),
+                        )
+                    )
+                    union_search_space_distributions.pop(n)
+                else:
+                    new_union_search_space.add((n, d))
+            else:
+                new_union_search_space.add((n, d))
+        for n, d in union_search_space_distributions.items():
+            new_union_search_space.add((n, d))
+        self._union_search_space = new_union_search_space
 
+        current = set([(n, d) for n, d in trial.distributions.items()])
         if self._intersection_search_space is None:
             self._intersection_search_space = copy.copy(current)
         else:
