@@ -30,7 +30,6 @@ from ._bottle_util import json_api_view
 from ._custom_plot_data import get_plotly_graph_objects
 from ._importance import get_param_importance_from_trials_cache
 from ._inmemory_cache import get_cached_extra_study_property
-from ._inmemory_cache import get_trials
 from ._inmemory_cache import InMemoryCache
 from ._pareto_front import get_pareto_front_trials
 from ._preference_setting import _register_preference_feedback_component
@@ -45,6 +44,7 @@ from ._serializer import serialize_study_detail
 from ._storage import create_new_study
 from ._storage import get_studies
 from ._storage import get_study
+from ._storage import get_trials
 from ._storage_url import get_storage
 from .artifact._backend import delete_all_artifacts
 from .artifact._backend import register_artifact_route
@@ -267,7 +267,11 @@ def create_app(
         try:
             importances = [
                 get_param_importance_from_trials_cache(
-                    storage, study_id, objective_id, trials, app._inmemory_cache
+                    app._inmemory_cache,
+                    storage,
+                    study_id,
+                    objective_id,
+                    trials,
                 )
                 for objective_id in range(n_directions)
             ]

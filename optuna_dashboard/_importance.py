@@ -98,11 +98,11 @@ def _get_param_importances(
 
 
 def get_param_importance_from_trials_cache(
+    inmemory_cache: InMemoryCache,
     storage: BaseStorage,
     study_id: int,
     objective_id: int,
     trials: list[FrozenTrial],
-    inmemory_cache: InMemoryCache,
 ) -> list[ImportanceType]:
     completed_trials = [t for t in trials if t.state == TrialState.COMPLETE]
     n_completed_trials = len(completed_trials)
