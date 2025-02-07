@@ -1,6 +1,6 @@
 import { Link as LinkIcon } from "@mui/icons-material"
 import { IconButton } from "@mui/material"
-import { FC } from "react"
+import { FC, useMemo } from "react"
 
 import * as Optuna from "@optuna/types"
 import { DataGrid } from "./DataGrid"
@@ -23,12 +23,25 @@ const multiValueFilter: FilterFn<Optuna.Trial> = <D extends object>(
 
 export const TrialTable: FC<{
   study: Optuna.Study
+  selectedTrials?: number[]
   initialRowsPerPage?: number
   // biome-ignore lint/suspicious/noExplicitAny: Any react component.
   linkComponent?: React.ComponentType<any>
   linkURL?: (studyId: number, trialNumber: number) => string
-}> = ({ study, initialRowsPerPage, linkComponent, linkURL }) => {
-  const trials: Optuna.Trial[] = study.trials
+}> = ({
+  study,
+  selectedTrials,
+  initialRowsPerPage,
+  linkComponent,
+  linkURL,
+}) => {
+  const trials: Optuna.Trial[] = useMemo(() => {
+    if (!selectedTrials || selectedTrials.length === 0) {
+      return study.trials
+    }
+    const selectedTrialsSet = new Set(selectedTrials)
+    return study.trials.filter((t) => selectedTrialsSet.has(t.number))
+  }, [selectedTrials, study.trials])
   const metricNames: string[] = study.metric_names || []
 
   const columnHelper = createColumnHelper<Optuna.Trial>()

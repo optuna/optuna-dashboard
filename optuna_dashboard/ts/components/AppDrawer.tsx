@@ -4,6 +4,7 @@ import Brightness7Icon from "@mui/icons-material/Brightness7"
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft"
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
 import RateReviewIcon from "@mui/icons-material/RateReview"
+import RuleIcon from "@mui/icons-material/Rule"
 import SettingsIcon from "@mui/icons-material/Settings"
 import SyncIcon from "@mui/icons-material/Sync"
 import SyncDisabledIcon from "@mui/icons-material/SyncDisabled"
@@ -34,6 +35,7 @@ import { useRecoilState, useRecoilValue } from "recoil"
 import {
   drawerOpenState,
   reloadIntervalState,
+  useShowExperimentalFeature,
   useStudyIsPreferential,
 } from "../state"
 import { Settings } from "./Settings"
@@ -56,6 +58,7 @@ export type PageId =
   | "analytics"
   | "trialTable"
   | "trialList"
+  | "trialSelection"
   | "note"
   | "preferenceHistory"
   | "graph"
@@ -145,6 +148,7 @@ export const AppDrawer: FC<{
   const reloadInterval = useRecoilValue<number>(reloadIntervalState)
   const isPreferential =
     studyId !== undefined ? useStudyIsPreferential(studyId) : null
+  const [showExperimentalFeatures] = useShowExperimentalFeature()
 
   const styleListItem = {
     display: "block",
@@ -345,6 +349,29 @@ export const AppDrawer: FC<{
                 <ListItemText primary="Trials (Table)" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
+            {showExperimentalFeatures && (
+              <ListItem
+                key="TrialSelection"
+                disablePadding
+                sx={styleListItem}
+                title="Trials (Selection)"
+              >
+                <ListItemButton
+                  component={Link}
+                  to={`${url_prefix}/studies/${studyId}/trialSelection`}
+                  sx={styleListItemButton}
+                  selected={page === "trialSelection"}
+                >
+                  <ListItemIcon sx={styleListItemIcon}>
+                    <RuleIcon />
+                  </ListItemIcon>
+                  <ListItemText
+                    primary="Trials (Selection)"
+                    sx={styleListItemText}
+                  />
+                </ListItemButton>
+              </ListItem>
+            )}
             <ListItem key="Note" disablePadding sx={styleListItem} title="Note">
               <ListItemButton
                 component={Link}

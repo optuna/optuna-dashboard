@@ -10,7 +10,8 @@ export const GraphHistory: FC<{
   studies: StudyDetail[]
   logScale: boolean
   includePruned: boolean
-}> = ({ studies, logScale, includePruned }) => {
+  selectedTrials?: number[]
+}> = ({ studies, logScale, includePruned, selectedTrials }) => {
   const { url_prefix } = useConstants()
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
@@ -27,6 +28,7 @@ export const GraphHistory: FC<{
       colorTheme={colorTheme}
       linkURL={linkURL}
       router={navigate}
+      selectedTrials={selectedTrials}
     />
   )
 }
