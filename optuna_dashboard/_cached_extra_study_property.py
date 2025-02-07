@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import numbers
 import threading
-from typing import List, cast
+from typing import cast
+from typing import List
 from typing import Optional
 from typing import Set
 from typing import Tuple
