@@ -20,6 +20,7 @@ import React, {
   useState,
 } from "react"
 import { actionCreator } from "../../action"
+import { StudyDetail, Trial } from "../../types/optuna"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
 import { isTableArtifact, useTableArtifactModal } from "./TableArtifactViewer"
@@ -27,34 +28,34 @@ import {
   isThreejsArtifact,
   useThreejsArtifactModal,
 } from "./ThreejsArtifactViewer"
-import { StudyDetail, Trial } from "../../types/optuna"
 
-type StudyOrTrial = {
-  type: "study";
-  study: StudyDetail;
-} | {
-  type: "trial";
-  trial: Trial;
-}
+type StudyOrTrial =
+  | {
+      type: "study"
+      study: StudyDetail
+    }
+  | {
+      type: "trial"
+      trial: Trial
+    }
 export const ArtifactCards: FC<{
-    studyOrTrial: StudyOrTrial;
-    isArtifactModifiable?: boolean;
-}> = ({
-    studyOrTrial,
-    isArtifactModifiable = true,
-}) => {
-    const theme = useTheme();
-    const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
+  studyOrTrial: StudyOrTrial
+  isArtifactModifiable?: boolean
+}> = ({ studyOrTrial, isArtifactModifiable = true }) => {
+  const theme = useTheme()
+  const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
     useDeleteArtifactDialog()
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
     useThreejsArtifactModal()
   const [openTableArtifactModal, renderTableArtifactModal] =
-    useTableArtifactModal() 
-   
-    const width = "200px"
+    useTableArtifactModal()
+
+  const width = "200px"
   const height = "150px"
   const sortedArtifacts = [
-    ...studyOrTrial.type === "study" ? studyOrTrial.study.artifacts : studyOrTrial.trial.artifacts
+    ...(studyOrTrial.type === "study"
+      ? studyOrTrial.study.artifacts
+      : studyOrTrial.trial.artifacts),
   ].sort((a, b) => {
     if (a.filename < b.filename) {
       return -1
@@ -71,20 +72,27 @@ export const ArtifactCards: FC<{
         component="div"
         sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}
       >
-        {
-          sortedArtifacts.map((artifact) => {
-            const urlPath = studyOrTrial.type === "study" ? `/artifacts/${studyOrTrial.study.id}/${artifact.artifact_id}` : `/artifacts/${studyOrTrial.trial.study_id}/${studyOrTrial.trial.trial_id}/${artifact.artifact_id}`
-            return (
-              <Card
+        {sortedArtifacts.map((artifact) => {
+          const urlPath =
+            studyOrTrial.type === "study"
+              ? `/artifacts/${studyOrTrial.study.id}/${artifact.artifact_id}`
+              : `/artifacts/${studyOrTrial.trial.study_id}/${studyOrTrial.trial.trial_id}/${artifact.artifact_id}`
+          return (
+            <Card
               key={artifact.artifact_id}
               sx={{
                 marginBottom: theme.spacing(2),
                 width: width,
                 margin: theme.spacing(0, 1, 1, 0),
                 display: studyOrTrial.type === "trial" ? "flex" : undefined,
-                flexDirection: studyOrTrial.type === "trial" ? "column" : undefined,
-                alignItems: studyOrTrial.type === "trial" ? "center" : undefined,
-                border: studyOrTrial.type === "study" ? `1px solid ${theme.palette.divider}` : undefined,
+                flexDirection:
+                  studyOrTrial.type === "trial" ? "column" : undefined,
+                alignItems:
+                  studyOrTrial.type === "trial" ? "center" : undefined,
+                border:
+                  studyOrTrial.type === "study"
+                    ? `1px solid ${theme.palette.divider}`
+                    : undefined,
               }}
             >
               <ArtifactCardMedia
@@ -103,17 +111,22 @@ export const ArtifactCards: FC<{
                   sx={{
                     p: theme.spacing(0.5, 0),
                     flexGrow: 1,
-                    wordBreak: studyOrTrial.type === "trial" ? "break-all" : undefined,
-                    maxWidth: studyOrTrial.type === "trial" ? `calc(100% - ${theme.spacing(
-                      4 +
-                        (isThreejsArtifact(artifact) ? 4 : 0) +
-                        (isArtifactModifiable ? 4 : 0)
-                    )})` : `calc(100% - ${
-                      isThreejsArtifact(artifact)
-                        ? theme.spacing(12)
-                        : theme.spacing(8)
-                    })`,
-                    wordWrap: studyOrTrial.type === "study" ?  "break-word" : undefined,
+                    wordBreak:
+                      studyOrTrial.type === "trial" ? "break-all" : undefined,
+                    maxWidth:
+                      studyOrTrial.type === "trial"
+                        ? `calc(100% - ${theme.spacing(
+                            4 +
+                              (isThreejsArtifact(artifact) ? 4 : 0) +
+                              (isArtifactModifiable ? 4 : 0)
+                          )})`
+                        : `calc(100% - ${
+                            isThreejsArtifact(artifact)
+                              ? theme.spacing(12)
+                              : theme.spacing(8)
+                          })`,
+                    wordWrap:
+                      studyOrTrial.type === "study" ? "break-word" : undefined,
                   }}
                 >
                   {artifact.filename}
@@ -144,30 +157,32 @@ export const ArtifactCards: FC<{
                     <FullscreenIcon />
                   </IconButton>
                 ) : null}
-                {isArtifactModifiable && <IconButton
-                  aria-label="delete artifact"
-                  size="small"
-                  color="inherit"
-                  sx={{ margin: "auto 0" }}
-                  onClick={() => {
-                    openDeleteArtifactDialog(
-                      studyOrTrial.type === "study" ?
-                      {
-                        type: "study",
-                        studyId: studyOrTrial.study.id,
-                        artifact,
-                      } :
-                      {
-                        type: "trial",
-                        studyId: studyOrTrial.trial.study_id,
-                        trialId: studyOrTrial.trial.trial_id,
-                        artifact,
-                      }
-                    )
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>}
+                {isArtifactModifiable && (
+                  <IconButton
+                    aria-label="delete artifact"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    onClick={() => {
+                      openDeleteArtifactDialog(
+                        studyOrTrial.type === "study"
+                          ? {
+                              type: "study",
+                              studyId: studyOrTrial.study.id,
+                              artifact,
+                            }
+                          : {
+                              type: "trial",
+                              studyId: studyOrTrial.trial.study_id,
+                              trialId: studyOrTrial.trial.trial_id,
+                              artifact,
+                            }
+                      )
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                )}
                 <IconButton
                   aria-label="download artifact"
                   size="small"
@@ -180,14 +195,15 @@ export const ArtifactCards: FC<{
                 </IconButton>
               </CardContent>
             </Card>
-            )
-          })
-        }
-        {
-          isArtifactModifiable && (
-            <ArtifactUploader studyOrTrial={studyOrTrial} width={width} height={height} />
           )
-        }
+        })}
+        {isArtifactModifiable && (
+          <ArtifactUploader
+            studyOrTrial={studyOrTrial}
+            width={width}
+            height={height}
+          />
+        )}
       </Box>
       {renderDeleteArtifactDialog()}
       {renderThreejsArtifactModal()}
@@ -197,14 +213,10 @@ export const ArtifactCards: FC<{
 }
 
 const ArtifactUploader: FC<{
-  studyOrTrial: StudyOrTrial;
-  width: string;
-  height: string;
-}> = ({
-  studyOrTrial,
-  width,
-  height,
-}) => {
+  studyOrTrial: StudyOrTrial
+  width: string
+  height: string
+}> = ({ studyOrTrial, width, height }) => {
   const theme = useTheme()
   const action = actionCreator()
   const [dragOver, setDragOver] = useState(false)
@@ -225,7 +237,11 @@ const ArtifactUploader: FC<{
     if (studyOrTrial.type === "study") {
       action.uploadStudyArtifact(studyOrTrial.study.id, files[0])
     } else if (studyOrTrial.type === "trial") {
-      action.uploadTrialArtifact(studyOrTrial.trial.study_id, studyOrTrial.trial.trial_id, files[0])
+      action.uploadTrialArtifact(
+        studyOrTrial.trial.study_id,
+        studyOrTrial.trial.trial_id,
+        files[0]
+      )
     }
   }
 
@@ -252,7 +268,11 @@ const ArtifactUploader: FC<{
       if (studyOrTrial.type === "study") {
         action.uploadStudyArtifact(studyOrTrial.study.id, files[i])
       } else if (studyOrTrial.type === "trial") {
-        action.uploadTrialArtifact(studyOrTrial.trial.study_id, studyOrTrial.trial.trial_id, files[i])
+        action.uploadTrialArtifact(
+          studyOrTrial.trial.study_id,
+          studyOrTrial.trial.trial_id,
+          files[i]
+        )
       }
     }
   }

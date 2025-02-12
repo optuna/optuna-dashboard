@@ -307,20 +307,21 @@ export const TrialListDetail: FC<{
       </Box>
       {artifactEnabled && (
         <>
-        <Typography
-        variant="h5"
-        sx={{ fontWeight: theme.typography.fontWeightBold }}
-      >
-        Artifacts
-      </Typography>
-        <ArtifactCards studyOrTrial={
-        {
-          type: "trial",
-          trial
-        }
-      } isArtifactModifiable={
-        trial.state === "Running" || trial.state === "Waiting"
-      } />
+          <Typography
+            variant="h5"
+            sx={{ fontWeight: theme.typography.fontWeightBold }}
+          >
+            Artifacts
+          </Typography>
+          <ArtifactCards
+            studyOrTrial={{
+              type: "trial",
+              trial,
+            }}
+            isArtifactModifiable={
+              trial.state === "Running" || trial.state === "Waiting"
+            }
+          />
         </>
       )}
     </Box>

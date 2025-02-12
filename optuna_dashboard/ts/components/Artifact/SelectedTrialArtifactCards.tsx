@@ -199,14 +199,12 @@ export const SelectedTrialArtifactCards: FC<{
                     color="inherit"
                     sx={{ margin: "auto 0" }}
                     onClick={() => {
-                      openDeleteArtifactDialog(
-                        {
-                          type: "trial",
-                          studyId: trial.study_id,
-                          trialId: trial.trial_id,
-                          artifact,
-                        }
-                      )
+                      openDeleteArtifactDialog({
+                        type: "trial",
+                        studyId: trial.study_id,
+                        trialId: trial.trial_id,
+                        artifact,
+                      })
                     }}
                   >
                     <DeleteIcon />

@@ -201,7 +201,9 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
                 >
                   Study Artifacts
                 </Typography>
-                <ArtifactCards studyOrTrial={{ type: "study", study: studyDetail }} />
+                <ArtifactCards
+                  studyOrTrial={{ type: "study", study: studyDetail }}
+                />
               </CardContent>
             </Card>
           </Grid>
