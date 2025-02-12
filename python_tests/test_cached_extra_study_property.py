@@ -50,7 +50,7 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
         self.assertEqual(len(cached_extra_study_property.intersection_search_space), 2)
         self.assertEqual(len(cached_extra_study_property.union_search_space), 2)
 
-    def test_different_distributions(self) -> None:
+    def test_same_distributions_with_different_low_high(self) -> None:
         distributions: list[dict[str, BaseDistribution]] = [
             {
                 "x0": FloatDistribution(low=0, high=10),
@@ -59,6 +59,37 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
             {
                 "x0": FloatDistribution(low=0, high=5),
                 "x1": FloatDistribution(low=0, high=10),
+            },
+        ]
+        params = [
+            {
+                "x0": 0.5,
+                "x1": 0.5,
+            },
+            {
+                "x0": 0.5,
+                "x1": 0.5,
+            },
+        ]
+        trials = [
+            create_trial(state=TrialState.COMPLETE, value=0, distributions=d, params=p)
+            for d, p in zip(distributions, params)
+        ]
+        cached_extra_study_property = _CachedExtraStudyProperty()
+        cached_extra_study_property.update(trials)
+
+        self.assertEqual(len(cached_extra_study_property.intersection_search_space), 2)
+        self.assertEqual(len(cached_extra_study_property.union_search_space), 2)
+
+    def test_different_distributions(self) -> None:
+        distributions: list[dict[str, BaseDistribution]] = [
+            {
+                "x0": FloatDistribution(low=0, high=10, step=0.1, log=False),
+                "x1": FloatDistribution(low=0, high=10, step=0.1, log=False),
+            },
+            {
+                "x0": FloatDistribution(low=0, high=5, step=0.1, log=False),
+                "x1": FloatDistribution(low=0, high=10, step=0.5, log=False),
             },
         ]
         params = [
@@ -116,8 +147,8 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
         cached_extra_study_property = _CachedExtraStudyProperty()
         cached_extra_study_property.update(trials)
 
-        self.assertEqual(len(cached_extra_study_property.intersection_search_space), 0)
-        self.assertEqual(len(cached_extra_study_property.union_search_space), 3)
+        self.assertEqual(len(cached_extra_study_property.intersection_search_space), 1)
+        self.assertEqual(len(cached_extra_study_property.union_search_space), 2)
 
     def test_contains_failed_trials(self) -> None:
         distributions: dict[str, BaseDistribution] = {
