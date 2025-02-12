@@ -43,7 +43,16 @@ export const PlotHistory: FC<{
   linkURL?: (studyId: number, trialNumber: number) => string
   // biome-ignore lint/suspicious/noExplicitAny: It will accept any routers of each library.
   router?: any
-}> = ({ studies, logScale, includePruned, colorTheme, linkURL, router }) => {
+  selectedTrials?: number[]
+}> = ({
+  studies,
+  logScale,
+  includePruned,
+  colorTheme,
+  linkURL,
+  router,
+  selectedTrials,
+}) => {
   const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const theme = useTheme()
@@ -66,7 +75,8 @@ export const PlotHistory: FC<{
   const trials = useFilteredTrialsFromStudies(
     studies,
     [selected],
-    includePruned === undefined ? !includePrunedInternal : !includePruned
+    includePruned === undefined ? !includePrunedInternal : !includePruned,
+    selectedTrials
   )
 
   const historyPlotInfos = studies.map((study, index) => {
@@ -104,13 +114,18 @@ export const PlotHistory: FC<{
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (graphComponentState !== "componentWillMount") {
+      const axisRange = selectedTrials
+        ? calculateAxisRanges(studies, selected)
+        : undefined
+
       plotHistory(
         historyPlotInfos,
         selected,
         xAxis,
         logScale === undefined ? logScaleInternal : logScale,
         colorThemeUsed,
-        markerSize
+        markerSize,
+        axisRange
       )?.then(notifyGraphDidRender)
 
       const element = document.getElementById(plotDomId)
@@ -278,7 +293,8 @@ const plotHistory = (
   xAxis: "number" | "datetime_start" | "datetime_complete",
   logScale: boolean,
   colorTheme: Partial<Plotly.Template>,
-  markerSize: number
+  markerSize: number,
+  axisRange: number[][] | undefined
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -300,10 +316,12 @@ const plotHistory = (
     yaxis: {
       title: target.toLabel(historyPlotInfos[0].metric_names),
       type: logScale ? "log" : "linear",
+      range: axisRange ? axisRange[1] : undefined,
     },
     xaxis: {
       title: xAxis === "number" ? "Trial" : "Time",
       type: xAxis === "number" ? "linear" : "date",
+      range: axisRange ? axisRange[0] : undefined,
     },
     showlegend: historyPlotInfos.length === 1 ? false : true,
     template: colorTheme,
@@ -425,4 +443,24 @@ const plotHistory = (
   }
   plotData.push(...infeasiblePlotData)
   return plotly.react(plotDomId, plotData, layout)
+}
+
+function calculateAxisRanges(studies: Optuna.Study[], selected: Target) {
+  const xmin = Math.min(...studies[0].trials.map((t) => t.number))
+  const xmax = Math.max(...studies[0].trials.map((t) => t.number))
+  const ymin = Math.min(
+    ...studies[0].trials.map((t) => selected.getTargetValue(t) as number)
+  )
+  const ymax = Math.max(
+    ...studies[0].trials.map((t) => selected.getTargetValue(t) as number)
+  )
+  const xAxisRange: [number, number] = [
+    xmin - (xmax - xmin) * 0.1,
+    xmax + (xmax - xmin) * 0.1,
+  ]
+  const yAxisRange: [number, number] = [
+    ymin - (ymax - ymin) * 0.1,
+    ymax + (ymax - ymin) * 0.1,
+  ]
+  return [xAxisRange, yAxisRange]
 }

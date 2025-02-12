@@ -1,4 +1,5 @@
 import {
+  Box,
   Checkbox,
   Divider,
   FormControlLabel,
@@ -9,6 +10,7 @@ import {
 } from "@mui/material"
 import * as Optuna from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
+import { PlotlyHTMLElement } from "plotly.js-dist-min"
 import React, { FC, ReactNode, useEffect, useState } from "react"
 import {
   GraphContainer,
@@ -23,10 +25,29 @@ import { plotlyDarkTemplate } from "./PlotlyDarkMode"
 
 const plotDomId = "plot-parallel-coordinate"
 
+interface PlotlyDimension {
+  values: number[]
+  constraintrange?: [number, number]
+}
+
+interface PlotlyParCoordTrace {
+  dimensions: PlotlyDimension[]
+  customdata: string[]
+}
+
 export const PlotParallelCoordinate: FC<{
   study: Optuna.Study | null
   colorTheme?: Partial<Plotly.Template>
-}> = ({ study = null, colorTheme }) => {
+  includeInfeasibleTrials?: boolean
+  includeDominatedTrials?: boolean
+  onSelectionChange?: (selectedTrials: number[]) => void
+}> = ({
+  study = null,
+  colorTheme,
+  includeInfeasibleTrials,
+  includeDominatedTrials,
+  onSelectionChange,
+}) => {
   const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   const theme = useTheme()
@@ -35,7 +56,13 @@ export const PlotParallelCoordinate: FC<{
 
   const [targets, searchSpace, renderCheckBoxes] = useTargets(study)
 
-  const trials = useFilteredTrials(study, targets, false)
+  const trials = useFilteredTrials(
+    study,
+    targets,
+    false,
+    includeInfeasibleTrials,
+    includeDominatedTrials
+  )
   useEffect(() => {
     if (study !== null && graphComponentState !== "componentWillMount") {
       // TODO(c-bata): Fix the broken E2E tests.
@@ -49,6 +76,48 @@ export const PlotParallelCoordinate: FC<{
           searchSpace,
           colorThemeUsed
         )?.then(notifyGraphDidRender)
+
+        if (onSelectionChange) {
+          const element = document.getElementById(plotDomId)
+          if (element !== null) {
+            //@ts-ignore
+            element.on("plotly_restyle", () => {
+              const plotlyElement = element as PlotlyHTMLElement
+              const plotData = plotlyElement.data[0] as PlotlyParCoordTrace
+              const dimensions = plotData.dimensions as PlotlyDimension[]
+              const ranges = dimensions.map((dim) => dim.constraintrange)
+
+              const selectedIndices = []
+              const values = dimensions.map((dim) => dim.values)
+
+              for (let i = 0; i < values[0].length; i++) {
+                let isSelected = true
+                for (let j = 0; j < values.length; j++) {
+                  if (ranges[j]) {
+                    const value = values[j][i]
+                    const range = ranges[j]
+                    if (range && (value < range[0] || value > range[1])) {
+                      isSelected = false
+                      break
+                    }
+                  }
+                }
+                if (isSelected) {
+                  selectedIndices.push(i)
+                }
+              }
+
+              const selectedData: number[] = selectedIndices.map((index) =>
+                parseInt(plotData.customdata[index])
+              )
+              onSelectionChange(selectedData)
+            })
+            return () => {
+              //@ts-ignore
+              element.removeAllListeners("plotly_restyle")
+            }
+          }
+        }
       } catch (e) {
         console.error(e)
       }
@@ -59,6 +128,7 @@ export const PlotParallelCoordinate: FC<{
     targets,
     searchSpace,
     colorThemeUsed,
+    onSelectionChange,
     graphComponentState,
     notifyGraphDidRender,
   ])
@@ -219,6 +289,7 @@ const plotCoordinate = (
     {
       type: "parcoords",
       dimensions: dimensions,
+      customdata: trials.map((t) => t.number),
       labelangle: 30,
       labelside: "bottom",
       line: {
@@ -298,22 +369,25 @@ const useTargets = (
         label="Check All"
       />
       <Divider />
-      {allTargets.map((t, i) => {
-        const key = t.toLabel(study?.metric_names)
-        return (
-          <FormControlLabel
-            key={key}
-            control={
-              <Checkbox
-                checked={checked.length > i ? checked[i] : true}
-                onChange={handleOnChange}
-                name={i.toString()}
-              />
-            }
-            label={t.toLabel(study?.metric_names)}
-          />
-        )
-      })}
+      <Box sx={{ maxHeight: "300px", overflowX: "hidden", overflowY: "auto" }}>
+        {allTargets.map((t, i) => {
+          const key = t.toLabel(study?.metric_names)
+          return (
+            <FormControlLabel
+              sx={{ width: "100%" }}
+              key={key}
+              control={
+                <Checkbox
+                  checked={checked.length > i ? checked[i] : true}
+                  onChange={handleOnChange}
+                  name={i.toString()}
+                />
+              }
+              label={t.toLabel(study?.metric_names)}
+            />
+          )
+        })}
+      </Box>
     </FormGroup>
   )
 

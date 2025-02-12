@@ -19,6 +19,8 @@ export {
   useParamTargets,
   useObjectiveAndUserAttrTargets,
   useObjectiveAndUserAttrTargetsFromStudies,
+  getFeasibleTrials,
+  getIsDominated,
 } from "./utils/trialFilter"
 export { useMergedUnionSearchSpace } from "./utils/searchSpace"
 export type { GraphComponentState } from "./types"
