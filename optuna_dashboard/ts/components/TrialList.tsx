@@ -30,7 +30,7 @@ import { actionCreator } from "../action"
 import { useConstants } from "../constantsProvider"
 import { artifactIsAvailable } from "../state"
 import { useQuery } from "../urlQuery"
-import { TrialArtifactCards } from "./Artifact/TrialArtifactCards"
+import { ArtifactCards } from "./Artifact/ArtifactCards"
 import { TrialNote } from "./Note"
 import { TrialFormWidgets } from "./TrialFormWidgets"
 
@@ -305,7 +305,24 @@ export const TrialListDetail: FC<{
           value !== null ? renderInfo(key, value) : null
         )}
       </Box>
-      {artifactEnabled && <TrialArtifactCards trial={trial} />}
+      {artifactEnabled && (
+        <>
+        <Typography
+        variant="h5"
+        sx={{ fontWeight: theme.typography.fontWeightBold }}
+      >
+        Artifacts
+      </Typography>
+        <ArtifactCards studyOrTrial={
+        {
+          type: "trial",
+          trial
+        }
+      } isArtifactModifiable={
+        trial.state === "Running" || trial.state === "Waiting"
+      } />
+        </>
+      )}
     </Box>
   )
 }

@@ -20,7 +20,7 @@ import {
   useStudySummaryValue,
 } from "../state"
 import { artifactIsAvailable } from "../state"
-import { StudyArtifactCards } from "./Artifact/StudyArtifactCards"
+import { ArtifactCards } from "./Artifact/ArtifactCards"
 import { BestTrialsCard } from "./BestTrialsCard"
 import { GraphHistory } from "./GraphHistory"
 import { GraphHyperparameterImportance } from "./GraphHyperparameterImportances"
@@ -201,7 +201,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
                 >
                   Study Artifacts
                 </Typography>
-                <StudyArtifactCards study={studyDetail} />
+                <ArtifactCards studyOrTrial={{ type: "study", study: studyDetail }} />
               </CardContent>
             </Card>
           </Grid>
