@@ -48,9 +48,11 @@ class InMemoryCache:
         self._trials_last_fetched_at: dict[int, datetime] = {}
 
     def clear(self) -> None:
-        self._cached_extra_study_property_cache.clear()
-        self._trials_cache.clear()
-        self._trials_last_fetched_at.clear()
+        with self._cached_extra_study_property_cache_lock:
+            self._cached_extra_study_property_cache.clear()
+        with self._trials_cache_lock:
+            self._trials_cache.clear()
+            self._trials_last_fetched_at.clear()
 
 
 class _CachedExtraStudyProperty:
