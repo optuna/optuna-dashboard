@@ -15,15 +15,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  publish-gh-pages:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
-
-    # Not intended for forks
     if: github.repository == 'optuna/optuna-dashboard'
-
     steps:
       - uses: actions/checkout@v4
       - name: Install Rust toolchains
@@ -31,7 +25,7 @@ jobs:
       - name: Install wasm-pack
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
       - name: Build rustlib
@@ -45,9 +39,17 @@ jobs:
           npm install
           npx vite build --base=/optuna-dashboard/ --outDir ./gh-pages
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
+        uses: actions/upload-pages-artifact@v3
         with:
           path: './standalone_app/gh-pages'
+  deploy:
+    runs-on: ubuntu-latest
+    if: github.repository == 'optuna/optuna-dashboard'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
