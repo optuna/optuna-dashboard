@@ -17,7 +17,7 @@ on:
       - 'optuna_dashboard/tsconfig.json'
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         optuna-version: ['optuna==3.1.0', 'git+https://github.com/optuna/optuna.git']
