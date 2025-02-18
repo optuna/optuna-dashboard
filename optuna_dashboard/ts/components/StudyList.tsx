@@ -20,6 +20,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
+import { useAtomValue } from "jotai"
 import React, {
   FC,
   useEffect,
@@ -29,7 +30,6 @@ import React, {
 } from "react"
 import { useNavigate } from "react-router-dom"
 import { Link } from "react-router-dom"
-import { useRecoilValue } from "recoil"
 
 import { styled } from "@mui/system"
 import { StudySummary } from "ts/types/optuna"
@@ -61,14 +61,14 @@ export const StudyList: FC<{
       return row.study_name.indexOf(k) >= 0
     })
   }
-  const studies = useRecoilValue<StudySummary[]>(studySummariesState)
+  const studies = useAtomValue<StudySummary[]>(studySummariesState)
   const [openCreateStudyDialog, renderCreateStudyDialog] =
     useCreateStudyDialog()
   const [openDeleteStudyDialog, renderDeleteStudyDialog] =
     useDeleteStudyDialog()
   const [openRenameStudyDialog, renderRenameStudyDialog] =
     useRenameStudyDialog(studies)
-  const isLoading = useRecoilValue<boolean>(studySummariesLoadingState)
+  const isLoading = useAtomValue<boolean>(studySummariesLoadingState)
 
   const navigate = useNavigate()
   const query = useQuery()

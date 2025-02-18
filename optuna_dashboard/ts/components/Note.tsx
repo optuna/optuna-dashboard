@@ -50,7 +50,7 @@ import rehypeRaw from "rehype-raw"
 import remarkGfm from "remark-gfm"
 import remarkMath from "remark-math"
 
-import { useRecoilValue } from "recoil"
+import { useAtomValue } from "jotai"
 import { Note } from "ts/types/optuna"
 import { actionCreator } from "../action"
 import { artifactIsAvailable, isFileUploading, useArtifacts } from "../state"
@@ -200,7 +200,7 @@ const MarkdownEditorModal: FC<{
   const [curNote, setCurNote] = useState({ version: 0, body: "" })
   const textAreaRef = createRef<HTMLTextAreaElement>()
   const notLatest = latestNote.version > curNote.version
-  const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
+  const artifactEnabled = useAtomValue<boolean>(artifactIsAvailable)
 
   const [previewMarkdown, setPreviewMarkdown] = useState<string>("")
   const [preview, setPreview] = useState<boolean>(false)
@@ -419,7 +419,7 @@ const ArtifactUploader: FC<{
   const theme = useTheme()
   const action = actionCreator()
 
-  const uploading = useRecoilValue<boolean>(isFileUploading)
+  const uploading = useAtomValue<boolean>(isFileUploading)
   const artifacts = useArtifacts(studyId, trialId)
   const [dragOver, setDragOver] = useState<boolean>(false)
   const [selectedArtifactId, setSelectedArtifactId] = useState<string>("")

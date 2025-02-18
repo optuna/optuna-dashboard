@@ -1,6 +1,6 @@
 import * as Optuna from "@optuna/types"
+import { useAtom, useSetAtom } from "jotai"
 import { useSnackbar } from "notistack"
-import { useRecoilState, useSetRecoilState } from "recoil"
 import { useAPIClient } from "./apiClientProvider"
 import { getDominatedTrials } from "./dominatedTrials"
 import {
@@ -29,20 +29,16 @@ export const actionCreator = () => {
   const { apiClient } = useAPIClient()
   const { enqueueSnackbar } = useSnackbar()
   const [studySummaries, setStudySummaries] =
-    useRecoilState<StudySummary[]>(studySummariesState)
+    useAtom<StudySummary[]>(studySummariesState)
   const [studyDetails, setStudyDetails] =
-    useRecoilState<StudyDetails>(studyDetailsState)
-  const setReloadInterval = useSetRecoilState<number>(reloadIntervalState)
-  const setUploading = useSetRecoilState<boolean>(isFileUploading)
-  const setTrialsUpdating = useSetRecoilState(trialsUpdatingState)
-  const setArtifactIsAvailable = useSetRecoilState<boolean>(artifactIsAvailable)
-  const setPlotlypyIsAvailable = useSetRecoilState<boolean>(
-    plotlypyIsAvailableState
-  )
-  const setStudySummariesLoading = useSetRecoilState<boolean>(
-    studySummariesLoadingState
-  )
-  const [studyDetailLoading, setStudyDetailLoading] = useRecoilState<
+    useAtom<StudyDetails>(studyDetailsState)
+  const setReloadInterval = useSetAtom(reloadIntervalState)
+  const setUploading = useSetAtom(isFileUploading)
+  const setTrialsUpdating = useSetAtom(trialsUpdatingState)
+  const setArtifactIsAvailable = useSetAtom(artifactIsAvailable)
+  const setPlotlypyIsAvailable = useSetAtom(plotlypyIsAvailableState)
+  const setStudySummariesLoading = useSetAtom(studySummariesLoadingState)
+  const [studyDetailLoading, setStudyDetailLoading] = useAtom<
     Record<number, boolean>
   >(studyDetailLoadingState)
 

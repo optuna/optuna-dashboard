@@ -14,8 +14,8 @@ import {
   useTheme,
 } from "@mui/material"
 import * as Optuna from "@optuna/types"
+import { useAtomValue } from "jotai"
 import React, { ReactNode, useState } from "react"
-import { useRecoilValue } from "recoil"
 import { StudySummary } from "ts/types/optuna"
 import { actionCreator } from "../action"
 import { studySummariesState } from "../state"
@@ -30,7 +30,7 @@ export const useCreateStudyDialog = (): [() => void, () => ReactNode] => {
   const [directions, setDirections] = useState<Optuna.StudyDirection[]>([
     "minimize",
   ])
-  const studies = useRecoilValue<StudySummary[]>(studySummariesState)
+  const studies = useAtomValue<StudySummary[]>(studySummariesState)
   const newStudyNameAlreadyUsed = studies.some(
     (v) => v.study_name === newStudyName
   )

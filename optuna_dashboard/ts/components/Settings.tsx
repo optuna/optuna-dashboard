@@ -11,8 +11,8 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
+import { useAtomValue } from "jotai"
 import React from "react"
-import { useRecoilValue } from "recoil"
 import { PlotlyColorThemeDark, PlotlyColorThemeLight } from "ts/types/optuna"
 import {
   plotlypyIsAvailableState,
@@ -30,7 +30,7 @@ export const Settings = ({ handleClose }: SettingsProps) => {
   const [plotlyColorTheme, setPlotlyColorTheme] = usePlotlyColorThemeState()
   const [plotBackendRendering, setPlotBackendRendering] =
     usePlotBackendRendering()
-  const plotlypyIsAvailable = useRecoilValue(plotlypyIsAvailableState)
+  const plotlypyIsAvailable = useAtomValue(plotlypyIsAvailableState)
   const [showExperimentalFeature, setShowExperimentalFeature] =
     useShowExperimentalFeature()
 

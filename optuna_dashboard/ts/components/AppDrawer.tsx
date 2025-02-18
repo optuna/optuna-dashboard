@@ -29,9 +29,9 @@ import {
   styled,
   useTheme,
 } from "@mui/material/styles"
+import { useAtom, useAtomValue } from "jotai"
 import React, { FC } from "react"
 import { Link } from "react-router-dom"
-import { useRecoilState, useRecoilValue } from "recoil"
 import {
   drawerOpenState,
   reloadIntervalState,
@@ -144,8 +144,8 @@ export const AppDrawer: FC<{
   const theme = useTheme()
   const constants = useConstants()
   const action = actionCreator()
-  const [open, setOpen] = useRecoilState<boolean>(drawerOpenState)
-  const reloadInterval = useRecoilValue<number>(reloadIntervalState)
+  const [open, setOpen] = useAtom<boolean>(drawerOpenState)
+  const reloadInterval = useAtomValue<number>(reloadIntervalState)
   const isPreferential =
     studyId !== undefined ? useStudyIsPreferential(studyId) : null
   const [showExperimentalFeatures] = useShowExperimentalFeature()
