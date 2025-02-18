@@ -40,6 +40,9 @@ vscode-extension: vscode/assets/bundle.js
 .PHONY: jupyterlab-extension
 jupyterlab-extension: tslib
 	cd optuna_dashboard && npm install && npm run build:pkg
+	rm -rf jupyterlab/jupyterlab_optuna/vendor/
+	mkdir -p jupyterlab/jupyterlab_optuna/vendor/
+	cp -r optuna_dashboard jupyterlab/jupyterlab_optuna/vendor/optuna_dashboard
 	cd jupyterlab && python -m build --sdist
 
 .PHONY: python-package
