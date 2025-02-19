@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 from unittest import TestCase
 import warnings
 
@@ -80,6 +80,14 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
 
         self.assertEqual(len(cached_extra_study_property.intersection_search_space), 2)
         self.assertEqual(len(cached_extra_study_property.union_search_space), 2)
+
+        x0_distribution_in_union = next(
+            filter(lambda x: x[0] == "x0", cached_extra_study_property.union_search_space)
+        )[1]
+        self.assertIsInstance(x0_distribution_in_union, FloatDistribution)
+        x0_distribution_in_union = cast(FloatDistribution, x0_distribution_in_union)
+        self.assertEqual(x0_distribution_in_union.low, 0)
+        self.assertEqual(x0_distribution_in_union.high, 10)
 
     def test_different_distributions(self) -> None:
         distributions: list[dict[str, BaseDistribution]] = [
