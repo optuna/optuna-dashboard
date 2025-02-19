@@ -157,9 +157,14 @@ export const TrialListDetail: FC<{
   )
 
   const params = trial.state === "Waiting" ? trial.fixed_params : trial.params
-  const info: [string | ReactNode, string | null | ReactNode][] = [
-    ["Value", trial.values?.map((v) => v.toString()).join(", ") || "None"],
+  const info: [string, string | ReactNode, string | null | ReactNode][] = [
     [
+      "value",
+      "Value",
+      trial.values?.map((v) => v.toString()).join(", ") || "None",
+    ],
+    [
+      "intermediate_values",
       "Intermediate Values",
       <Box component="div">
         {trial.intermediate_values.map((v) => (
@@ -170,6 +175,7 @@ export const TrialListDetail: FC<{
       </Box>,
     ],
     [
+      "parameter",
       "Parameter",
       <Box component="div">
         {params.map((p) => (
@@ -180,14 +186,17 @@ export const TrialListDetail: FC<{
       </Box>,
     ],
     [
+      "started_at",
       "Started At",
       trial?.datetime_start ? trial?.datetime_start.toString() : null,
     ],
     [
+      "completed_at",
       "Completed At",
       trial?.datetime_complete ? trial?.datetime_complete.toString() : null,
     ],
     [
+      "duration",
       <Box
         component="div"
         sx={{ display: "flex", alignItems: "center", minWidth: "200px" }}
@@ -222,6 +231,7 @@ export const TrialListDetail: FC<{
       duration,
     ],
     [
+      "user_attrs",
       "User Attributes",
       <Box component="div">
         {trial.user_attrs.map((t) => (
@@ -233,7 +243,8 @@ export const TrialListDetail: FC<{
     ],
   ]
   const renderInfo = (
-    key: string | ReactNode,
+    key: string,
+    attribute: string | ReactNode,
     value: string | null | ReactNode
   ): ReactNode => (
     <Box
@@ -245,7 +256,7 @@ export const TrialListDetail: FC<{
         marginBottom: theme.spacing(0.5),
       }}
     >
-      {typeof key === "string" ? (
+      {typeof attribute === "string" ? (
         <Typography
           sx={{ p: theme.spacing(1) }}
           color="text.secondary"
@@ -253,10 +264,10 @@ export const TrialListDetail: FC<{
           fontWeight={theme.typography.fontWeightLight}
           fontSize={theme.typography.fontSize}
         >
-          {key}
+          {attribute}
         </Typography>
       ) : (
-        key
+        attribute
       )}
       <Box
         component="div"
@@ -354,8 +365,8 @@ export const TrialListDetail: FC<{
           flexDirection: "column",
         }}
       >
-        {info.map(([key, value]) =>
-          value !== null ? renderInfo(key, value) : null
+        {info.map(([key, attribute, value]) =>
+          value !== null ? renderInfo(key, attribute, value) : null
         )}
       </Box>
       {artifactEnabled && <TrialArtifactCards trial={trial} />}
