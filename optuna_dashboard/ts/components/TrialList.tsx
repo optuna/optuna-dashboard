@@ -5,9 +5,12 @@ import StopCircleIcon from "@mui/icons-material/StopCircle"
 import {
   Box,
   Button,
+  FormControl,
   IconButton,
+  InputLabel,
   Menu,
   MenuItem,
+  Select,
   Typography,
   useTheme,
 } from "@mui/material"
@@ -24,11 +27,11 @@ import React, { FC, ReactNode, useMemo } from "react"
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { useNavigate } from "react-router-dom"
-import { useRecoilValue } from "recoil"
+import { useRecoilState, useRecoilValue } from "recoil"
 import { FormWidgets, StudyDetail, Trial } from "ts/types/optuna"
 import { actionCreator } from "../action"
 import { useConstants } from "../constantsProvider"
-import { artifactIsAvailable } from "../state"
+import { artifactIsAvailable, trialListDurationTimeUnitState } from "../state"
 import { useQuery } from "../urlQuery"
 import { TrialArtifactCards } from "./Artifact/TrialArtifactCards"
 import { TrialNote } from "./Note"
@@ -134,9 +137,25 @@ export const TrialListDetail: FC<{
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
+  const [durationTimeUnit, setDurationTimeUnit] = useRecoilState(trialListDurationTimeUnitState)
+  const duration = useMemo(
+    () =>
+      startMs !== undefined && completeMs !== undefined
+        ? (completeMs - startMs) /
+          10 **
+            (durationTimeUnit === "ms"
+              ? 0
+              : durationTimeUnit === "s"
+                ? 3
+                : durationTimeUnit === "min"
+                  ? 6
+                  : 9)
+        : null,
+    [startMs, completeMs, durationTimeUnit]
+  )
 
   const params = trial.state === "Waiting" ? trial.fixed_params : trial.params
-  const info: [string, string | null | ReactNode][] = [
+  const info: [string | ReactNode, string | null | ReactNode][] = [
     ["Value", trial.values?.map((v) => v.toString()).join(", ") || "None"],
     [
       "Intermediate Values",
@@ -167,10 +186,38 @@ export const TrialListDetail: FC<{
       trial?.datetime_complete ? trial?.datetime_complete.toString() : null,
     ],
     [
-      "Duration (ms)",
-      startMs !== undefined && completeMs !== undefined
-        ? (completeMs - startMs).toString()
-        : null,
+      <Box
+        component="div"
+        sx={{ display: "flex", alignItems: "center", minWidth: "200px" }}
+      >
+        <Typography
+          sx={{ p: theme.spacing(1) }}
+          color="text.secondary"
+          fontWeight={theme.typography.fontWeightLight}
+          fontSize={theme.typography.fontSize}
+        >
+          Duration
+        </Typography>
+        <FormControl sx={{ width: 80 }} size="small">
+          <InputLabel id="trial-list-duration-select-label">
+            Time Unit
+          </InputLabel>
+          <Select
+            labelId="trial-list-duration-select-label"
+            label="Time Unit"
+            value={durationTimeUnit}
+            onChange={(e) =>
+              setDurationTimeUnit(e.target.value as "ms" | "s" | "min" | "h")
+            }
+          >
+            <MenuItem value="ms">ms</MenuItem>
+            <MenuItem value="s">s</MenuItem>
+            <MenuItem value="min">min</MenuItem>
+            <MenuItem value="h">h</MenuItem>
+          </Select>
+        </FormControl>
+      </Box>,
+      duration,
     ],
     [
       "User Attributes",
@@ -184,7 +231,7 @@ export const TrialListDetail: FC<{
     ],
   ]
   const renderInfo = (
-    key: string,
+    key: string | ReactNode,
     value: string | null | ReactNode
   ): ReactNode => (
     <Box
@@ -196,15 +243,19 @@ export const TrialListDetail: FC<{
         marginBottom: theme.spacing(0.5),
       }}
     >
-      <Typography
-        sx={{ p: theme.spacing(1) }}
-        color="text.secondary"
-        minWidth={"200px"}
-        fontWeight={theme.typography.fontWeightLight}
-        fontSize={theme.typography.fontSize}
-      >
-        {key}
-      </Typography>
+      {typeof key === "string" ? (
+        <Typography
+          sx={{ p: theme.spacing(1) }}
+          color="text.secondary"
+          minWidth={"200px"}
+          fontWeight={theme.typography.fontWeightLight}
+          fontSize={theme.typography.fontSize}
+        >
+          {key}
+        </Typography>
+      ) : (
+        key
+      )}
       <Box
         component="div"
         sx={{
