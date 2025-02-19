@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from datetime import datetime
 from datetime import timedelta
-import threading
 
 from optuna.storages import BaseStorage
 from optuna.storages import RDBStorage
@@ -10,16 +9,14 @@ from optuna.study import StudyDirection
 from optuna.study._frozen import FrozenStudy
 from optuna.trial import FrozenTrial
 
-
-# In-memory trials cache
-trials_cache_lock = threading.Lock()
-trials_cache: dict[int, list[FrozenTrial]] = {}
-trials_last_fetched_at: dict[int, datetime] = {}
+from ._inmemory_cache import InMemoryCache
 
 
-def get_trials(storage: BaseStorage, study_id: int) -> list[FrozenTrial]:
-    with trials_cache_lock:
-        trials = trials_cache.get(study_id, None)
+def get_trials(
+    in_memory_cache: InMemoryCache, storage: BaseStorage, study_id: int
+) -> list[FrozenTrial]:
+    with in_memory_cache._trials_cache_lock:
+        trials = in_memory_cache._trials_cache.get(study_id, None)
 
         # Not a big fan of the heuristic, but I can't think of anything better.
         if trials is None or len(trials) < 100:
@@ -29,7 +26,7 @@ def get_trials(storage: BaseStorage, study_id: int) -> list[FrozenTrial]:
         else:
             ttl_seconds = 10
 
-        last_fetched_at = trials_last_fetched_at.get(study_id, None)
+        last_fetched_at = in_memory_cache._trials_last_fetched_at.get(study_id, None)
         if (
             trials is not None
             and last_fetched_at is not None
@@ -38,9 +35,9 @@ def get_trials(storage: BaseStorage, study_id: int) -> list[FrozenTrial]:
             return trials
     trials = storage.get_all_trials(study_id, deepcopy=False)
 
-    with trials_cache_lock:
-        trials_last_fetched_at[study_id] = datetime.now()
-        trials_cache[study_id] = trials
+    with in_memory_cache._trials_cache_lock:
+        in_memory_cache._trials_last_fetched_at[study_id] = datetime.now()
+        in_memory_cache._trials_cache[study_id] = trials
     return trials
 
 
