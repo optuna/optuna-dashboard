@@ -181,7 +181,7 @@ export const TrialTable: FC<{
     <DataGrid
       data={trials}
       columns={columns}
-      initialRowsPerPage={initialRowsPerPage}
+      initialRowsPerPage={initialRowsPerPage ?? 50}
     />
   )
 }
