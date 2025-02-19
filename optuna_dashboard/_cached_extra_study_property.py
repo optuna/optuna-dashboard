@@ -131,46 +131,45 @@ class _CachedExtraStudyProperty:
         )
         for n1, d1 in trial.distributions.items():
             for n2, d2 in self._union_search_space:
-                if n1 == n2:
-                    if _is_same_float_distribution(d1, d2):
-                        d1, d2 = cast(FloatDistribution, d1), cast(FloatDistribution, d2)
-                        new_float_search_space = (
-                            n1,
-                            FloatDistribution(
-                                low=min(d1.low, d2.low),
-                                high=max(d1.high, d2.high),
-                                step=d1.step,
-                                log=d1.log,
-                            ),
-                        )
-                        new_union_search_space.remove((n2, d2))
-                        new_union_search_space.add(new_float_search_space)
-                        break
-                    elif _is_same_int_distribution(d1, d2):
-                        d1, d2 = cast(IntDistribution, d1), cast(IntDistribution, d2)
-                        new_int_search_space = (
-                            n1,
-                            IntDistribution(
-                                low=min(d1.low, d2.low),
-                                high=max(d1.high, d2.high),
-                                step=d1.step,
-                                log=d1.log,
-                            ),
-                        )
-                        new_union_search_space.remove((n2, d2))
-                        new_union_search_space.add(new_int_search_space)
-                        break
-                    elif _is_same_categorical_distribution(d1, d2):
-                        d1, d2 = cast(CategoricalDistribution, d1), cast(
-                            CategoricalDistribution, d2
-                        )
-                        new_categorical_search_space = (
-                            n1,
-                            CategoricalDistribution(choices=list(set(d1.choices + d2.choices))),
-                        )
-                        new_union_search_space.remove((n2, d2))
-                        new_union_search_space.add(new_categorical_search_space)
-                        break
+                if n1 == n2 and _is_same_float_distribution(d1, d2):
+                    d1, d2 = cast(FloatDistribution, d1), cast(FloatDistribution, d2)
+                    new_float_search_space = (
+                        n1,
+                        FloatDistribution(
+                            low=min(d1.low, d2.low),
+                            high=max(d1.high, d2.high),
+                            step=d1.step,
+                            log=d1.log,
+                        ),
+                    )
+                    new_union_search_space.remove((n2, d2))
+                    new_union_search_space.add(new_float_search_space)
+                    break
+                elif n1 == n2 and _is_same_int_distribution(d1, d2):
+                    d1, d2 = cast(IntDistribution, d1), cast(IntDistribution, d2)
+                    new_int_search_space = (
+                        n1,
+                        IntDistribution(
+                            low=min(d1.low, d2.low),
+                            high=max(d1.high, d2.high),
+                            step=d1.step,
+                            log=d1.log,
+                        ),
+                    )
+                    new_union_search_space.remove((n2, d2))
+                    new_union_search_space.add(new_int_search_space)
+                    break
+                elif n1 == n2 and _is_same_categorical_distribution(d1, d2):
+                    d1, d2 = cast(CategoricalDistribution, d1), cast(
+                        CategoricalDistribution, d2
+                    )
+                    new_categorical_search_space = (
+                        n1,
+                        CategoricalDistribution(choices=list(set(d1.choices + d2.choices))),
+                    )
+                    new_union_search_space.remove((n2, d2))
+                    new_union_search_space.add(new_categorical_search_space)
+                    break
             else:
                 new_union_search_space.add((n1, d1))
         self._union_search_space = new_union_search_space
@@ -181,43 +180,42 @@ class _CachedExtraStudyProperty:
             new_intersection_search_space: SearchSpaceSetT = set()
             for n1, d1 in trial.distributions.items():
                 for n2, d2 in self._intersection_search_space:
-                    if n1 == n2:
-                        if _is_same_float_distribution(d1, d2):
-                            d1, d2 = cast(FloatDistribution, d1), cast(FloatDistribution, d2)
-                            new_float_search_space = (
-                                n1,
-                                FloatDistribution(
-                                    low=min(d1.low, d2.low),
-                                    high=max(d1.high, d2.high),
-                                    step=d1.step,
-                                    log=d1.log,
-                                ),
-                            )
-                            new_intersection_search_space.add(new_float_search_space)
-                            break
-                        elif _is_same_int_distribution(d1, d2):
-                            d1, d2 = cast(IntDistribution, d1), cast(IntDistribution, d2)
-                            new_int_search_space = (
-                                n1,
-                                IntDistribution(
-                                    low=min(d1.low, d2.low),
-                                    high=max(d1.high, d2.high),
-                                    step=d1.step,
-                                    log=d1.log,
-                                ),
-                            )
-                            new_intersection_search_space.add(new_int_search_space)
-                            break
-                        elif _is_same_categorical_distribution(d1, d2):
-                            d1, d2 = cast(CategoricalDistribution, d1), cast(
-                                CategoricalDistribution, d2
-                            )
-                            new_categorical_search_space = (
-                                n1,
-                                CategoricalDistribution(
-                                    choices=list(set(d1.choices + d2.choices))
-                                ),
-                            )
-                            new_intersection_search_space.add(new_categorical_search_space)
-                            break
+                    if n1 == n2 and _is_same_float_distribution(d1, d2):
+                        d1, d2 = cast(FloatDistribution, d1), cast(FloatDistribution, d2)
+                        new_float_search_space = (
+                            n1,
+                            FloatDistribution(
+                                low=min(d1.low, d2.low),
+                                high=max(d1.high, d2.high),
+                                step=d1.step,
+                                log=d1.log,
+                            ),
+                        )
+                        new_intersection_search_space.add(new_float_search_space)
+                        break
+                    elif n1 == n2 and _is_same_int_distribution(d1, d2):
+                        d1, d2 = cast(IntDistribution, d1), cast(IntDistribution, d2)
+                        new_int_search_space = (
+                            n1,
+                            IntDistribution(
+                                low=min(d1.low, d2.low),
+                                high=max(d1.high, d2.high),
+                                step=d1.step,
+                                log=d1.log,
+                            ),
+                        )
+                        new_intersection_search_space.add(new_int_search_space)
+                        break
+                    elif n1 == n2 and _is_same_categorical_distribution(d1, d2):
+                        d1, d2 = cast(CategoricalDistribution, d1), cast(
+                            CategoricalDistribution, d2
+                        )
+                        new_categorical_search_space = (
+                            n1,
+                            CategoricalDistribution(
+                                choices=list(set(d1.choices + d2.choices))
+                            ),
+                        )
+                        new_intersection_search_space.add(new_categorical_search_space)
+                        break
             self._intersection_search_space = new_intersection_search_space
