@@ -66,6 +66,11 @@ export const studyDetailLoadingState = atom<Record<number, boolean>>({
   default: {},
 })
 
+export const trialListDurationTimeUnitState = atom<"ms" | "s" | "min" | "h">({
+  key: "trialListDurationTimeUnit",
+  default: "ms",
+})
+
 export const usePlotBackendRendering = () => {
   return useLocalStorage<boolean>("plotBackendRendering", false)
 }
