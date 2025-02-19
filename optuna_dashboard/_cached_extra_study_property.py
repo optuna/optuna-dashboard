@@ -160,9 +160,7 @@ class _CachedExtraStudyProperty:
                     new_union_search_space.add(new_int_search_space)
                     break
                 elif n1 == n2 and _is_same_categorical_distribution(d1, d2):
-                    d1, d2 = cast(CategoricalDistribution, d1), cast(
-                        CategoricalDistribution, d2
-                    )
+                    d1, d2 = cast(CategoricalDistribution, d1), cast(CategoricalDistribution, d2)
                     new_categorical_search_space = (
                         n1,
                         CategoricalDistribution(choices=list(set(d1.choices + d2.choices))),
@@ -212,9 +210,7 @@ class _CachedExtraStudyProperty:
                         )
                         new_categorical_search_space = (
                             n1,
-                            CategoricalDistribution(
-                                choices=list(set(d1.choices + d2.choices))
-                            ),
+                            CategoricalDistribution(choices=list(set(d1.choices + d2.choices))),
                         )
                         new_intersection_search_space.add(new_categorical_search_space)
                         break
