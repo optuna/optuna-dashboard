@@ -123,7 +123,7 @@ export const TrialTable: FC<{
               : param_external_value
           },
           {
-            id: `params_${s.name}`,
+            id: `params_${JSON.stringify(s)}`,
             header: `Param ${s.name}`,
             enableSorting: sortable,
             sortUndefined: "last",
