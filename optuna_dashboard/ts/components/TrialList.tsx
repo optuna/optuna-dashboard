@@ -137,7 +137,9 @@ export const TrialListDetail: FC<{
   const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
-  const [durationTimeUnit, setDurationTimeUnit] = useRecoilState(trialListDurationTimeUnitState)
+  const [durationTimeUnit, setDurationTimeUnit] = useRecoilState(
+    trialListDurationTimeUnitState
+  )
   const duration = useMemo(
     () =>
       startMs !== undefined && completeMs !== undefined
