@@ -12,7 +12,7 @@ from optuna.distributions import BaseDistribution
 from optuna.distributions import FloatDistribution
 from optuna.exceptions import ExperimentalWarning
 from optuna.trial import TrialState
-from optuna_dashboard._cached_extra_study_property import _CachedExtraStudyProperty
+from optuna_dashboard._inmemory_cache import _CachedExtraStudyProperty
 
 
 class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):

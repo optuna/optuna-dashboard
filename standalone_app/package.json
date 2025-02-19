@@ -22,12 +22,12 @@
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
-    "@emotion/react": "^11.11.5",
-    "@emotion/styled": "^11.14.0",
-    "@mui/icons-material": "^6.3.1",
-    "@mui/lab": "^6.0.0-beta.22",
-    "@mui/material": "^6.3.1",
-    "@mui/system": "^6.3.1",
+    "@emotion/react": "file:../tslib/react/node_modules/@emotion/react",
+    "@emotion/styled": "file:../tslib/react/node_modules/@emotion/styled",
+    "@mui/icons-material": "file:../tslib/react/node_modules/@mui/icons-material",
+    "@mui/lab": "file:../tslib/react/node_modules/@mui/lab",
+    "@mui/material": "file:../tslib/react/node_modules/@mui/material",
+    "@mui/system": "file:../tslib/react/node_modules/@mui/system",
     "@optuna/react": "../tslib/react",
     "@optuna/storage": "../tslib/storage",
     "module-workers-polyfill": "^0.3.2",

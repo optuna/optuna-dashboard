@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 import numbers
 import threading
 from typing import cast
@@ -17,31 +18,44 @@ from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
 
 
-#  In-memory cache
-cached_extra_study_property_cache_lock = threading.Lock()
-cached_extra_study_property_cache: dict[int, "_CachedExtraStudyProperty"] = {}
-
-
 if TYPE_CHECKING:
     SearchSpaceSetT = Set[Tuple[str, BaseDistribution]]
     SearchSpaceListT = List[Tuple[str, BaseDistribution]]
 
 
 def get_cached_extra_study_property(
-    study_id: int, trials: list[FrozenTrial]
+    in_memory_cache: InMemoryCache, study_id: int, trials: list[FrozenTrial]
 ) -> tuple[SearchSpaceListT, SearchSpaceListT, list[tuple[str, bool]], bool]:
-    with cached_extra_study_property_cache_lock:
-        cached_extra_study_property = cached_extra_study_property_cache.get(study_id, None)
+    with in_memory_cache._cached_extra_study_property_cache_lock:
+        cached_extra_study_property = in_memory_cache._cached_extra_study_property_cache.get(
+            study_id, None
+        )
         if cached_extra_study_property is None:
             cached_extra_study_property = _CachedExtraStudyProperty()
         cached_extra_study_property.update(trials)
-        cached_extra_study_property_cache[study_id] = cached_extra_study_property
+        in_memory_cache._cached_extra_study_property_cache[study_id] = cached_extra_study_property
         return (
             cached_extra_study_property.intersection_search_space,
             cached_extra_study_property.union_search_space,
             cached_extra_study_property.union_user_attrs,
             cached_extra_study_property.has_intermediate_values,
         )
+
+
+class InMemoryCache:
+    def __init__(self) -> None:
+        self._cached_extra_study_property_cache: dict[int, "_CachedExtraStudyProperty"] = {}
+        self._cached_extra_study_property_cache_lock = threading.Lock()
+        self._trials_cache: dict[int, list[FrozenTrial]] = {}
+        self._trials_cache_lock = threading.Lock()
+        self._trials_last_fetched_at: dict[int, datetime] = {}
+
+    def clear(self) -> None:
+        with self._cached_extra_study_property_cache_lock:
+            self._cached_extra_study_property_cache.clear()
+        with self._trials_cache_lock:
+            self._trials_cache.clear()
+            self._trials_last_fetched_at.clear()
 
 
 class _CachedExtraStudyProperty:

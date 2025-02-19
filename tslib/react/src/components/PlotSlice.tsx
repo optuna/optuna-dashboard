@@ -48,13 +48,14 @@ export const PlotSlice: FC<{
   const [paramTargets, selectedParamTarget, setParamTarget] =
     useParamTargets(searchSpace)
   const [logYScale, setLogYScale] = useState(false)
+  const [filterPrunedTrials, setFilterPrunedTrials] = useState(false)
 
   const trials = useFilteredTrials(
     study,
     selectedParamTarget !== null
       ? [selectedObjective, selectedParamTarget]
       : [selectedObjective],
-    false
+    filterPrunedTrials
   )
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -88,7 +89,11 @@ export const PlotSlice: FC<{
   }
 
   const handleLogYScaleChange = () => {
-    setLogYScale(!logYScale)
+    setLogYScale((cur) => !cur)
+  }
+
+  const handleFilterPrunedTrialsChange = () => {
+    setFilterPrunedTrials((cur) => !cur)
   }
 
   return (
@@ -98,6 +103,7 @@ export const PlotSlice: FC<{
         xs={3}
         container
         direction="column"
+        gap={2}
         sx={{ paddingRight: theme.spacing(2) }}
       >
         <Typography
@@ -143,6 +149,14 @@ export const PlotSlice: FC<{
           <Switch
             checked={logYScale}
             onChange={handleLogYScaleChange}
+            value="enable"
+          />
+        </FormControl>
+        <FormControl component="fieldset">
+          <FormLabel component="legend">Filter out pruned trials:</FormLabel>
+          <Switch
+            checked={filterPrunedTrials}
+            onChange={handleFilterPrunedTrialsChange}
             value="enable"
           />
         </FormControl>
