@@ -43,7 +43,8 @@ jupyterlab-extension: tslib
 	rm -rf jupyterlab/jupyterlab_optuna/vendor/
 	mkdir -p jupyterlab/jupyterlab_optuna/vendor/
 	cp -r optuna_dashboard jupyterlab/jupyterlab_optuna/vendor/optuna_dashboard
-	cd jupyterlab && python -m build --sdist
+	rm -rf jupyterlab/jupyterlab_optuna/vendor/optuna_dashboard/node_modules
+	cd jupyterlab && jlpm install && jlpm run build && python -m build --wheel
 
 .PHONY: python-package
 python-package: pyproject.toml tslib

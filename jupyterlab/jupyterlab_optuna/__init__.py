@@ -20,7 +20,7 @@ vendor_path = os.path.join(os.path.dirname(__file__), "vendor")
 if vendor_path not in sys.path:
     sys.path.insert(0, vendor_path)
 
-from .handlers import setup_handlers # NOQA
+from .handlers import setup_handlers  # NOQA
 
 
 def _jupyter_labextension_paths():
