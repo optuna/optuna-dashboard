@@ -70,7 +70,7 @@ logger = logging.getLogger(__name__)
 
 # Static files
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_DIR = os.path.join(BASE_DIR, "public")
+STATIC_DIR = os.path.join(BASE_DIR, "static")
 IMG_DIR = os.path.join(BASE_DIR, "img")
 cached_path_exists = functools.lru_cache(maxsize=10)(os.path.exists)
 
@@ -86,6 +86,20 @@ def create_app(
     @app.hook("before_request")
     def remove_trailing_slashes_hook() -> None:
         request.environ["PATH_INFO"] = request.environ["PATH_INFO"].rstrip("/")
+
+    @app.hook("after_request")
+    def enable_cors():
+        if "Origin" not in request.headers.keys():
+            return
+        response.headers["Access-Control-Allow-Origin"] = request.headers["Origin"]
+        response.headers["Access-Control-Allow-Methods"] = "PUT, GET, POST, DELETE, OPTIONS"
+        response.headers[
+            "Access-Control-Allow-Headers"
+        ] = "Origin, Accept, Content-Type, X-Requested-With, X-CSRF-Token, Authorization"
+
+    @app.route("<any:path>", method="OPTIONS")
+    def response_for_options(**kwargs):
+        return {}
 
     @app.get("/")
     def index() -> BottleViewReturn:
