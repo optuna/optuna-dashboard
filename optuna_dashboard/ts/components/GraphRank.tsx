@@ -11,10 +11,10 @@ import {
 import {
   GraphContainer,
   getAxisInfo,
+  makeHovertext,
   useGraphComponentState,
   useMergedUnionSearchSpace,
 } from "@optuna/react"
-import { makeHovertext } from "@optuna/react"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
 import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
