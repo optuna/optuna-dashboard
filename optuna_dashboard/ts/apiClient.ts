@@ -18,6 +18,9 @@ import {
 export type APIMeta = {
   artifact_is_available: boolean
   plotlypy_is_available: boolean
+  jupyterlab_extension_context?: {
+    base_url: string
+  }
 }
 
 export interface TrialResponse {

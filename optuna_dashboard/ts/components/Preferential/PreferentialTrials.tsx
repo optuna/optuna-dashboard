@@ -36,7 +36,7 @@ import {
   Trial,
 } from "ts/types/optuna"
 import { actionCreator } from "../../action"
-import { useConstants } from "../../constantsProvider"
+import { useAPIMeta } from "../../hooks/useAPIMeta"
 import {
   isThreejsArtifact,
   useThreejsArtifactModal,
@@ -179,13 +179,12 @@ const isComparisonReady = (
 }
 
 export const getArtifactUrlPath = (
-  environment: "jupyterlab" | "optuna-dashboard",
+  jupyterlab_base_url: string,
   studyId: number,
   trialId: number,
-  artifactId: string
+  artifactId: string,
 ): string => {
-  const apiNamespace = environment === "jupyterlab" ? "/jupyterlab-optuna" : ""
-  return `${apiNamespace}/artifacts/${studyId}/${trialId}/${artifactId}`
+  return `${jupyterlab_base_url}/artifacts/${studyId}/${trialId}/${artifactId}`
 }
 
 const PreferentialTrial: FC<{
@@ -204,7 +203,7 @@ const PreferentialTrial: FC<{
   openThreejsArtifactModal,
 }) => {
   const theme = useTheme()
-  const { environment } = useConstants()
+  const { apiMeta, isLoading, error } = useAPIMeta()
   const action = actionCreator()
   const [buttonHover, setButtonHover] = useState(false)
   const trialWidth = 400
@@ -217,9 +216,9 @@ const PreferentialTrial: FC<{
       : undefined
   const artifact = trial?.artifacts.find((a) => a.artifact_id === artifactId)
   const urlPath =
-    trial !== undefined && artifactId !== undefined
+    trial !== undefined && artifactId !== undefined && !isLoading && error === null
       ? getArtifactUrlPath(
-          environment,
+          apiMeta?.jupyterlab_extension_context?.base_url ?? "",
           studyDetail.id,
           trial?.trial_id,
           artifactId
