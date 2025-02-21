@@ -28,10 +28,8 @@ import {
 export const actionCreator = () => {
   const { apiClient } = useAPIClient()
   const { enqueueSnackbar } = useSnackbar()
-  const [studySummaries, setStudySummaries] =
-    useAtom<StudySummary[]>(studySummariesState)
-  const [studyDetails, setStudyDetails] =
-    useAtom<StudyDetails>(studyDetailsState)
+  const [studySummaries, setStudySummaries] = useAtom(studySummariesState)
+  const [studyDetails, setStudyDetails] = useAtom(studyDetailsState)
   const setReloadInterval = useSetAtom(reloadIntervalState)
   const setUploading = useSetAtom(isFileUploading)
   const setTrialsUpdating = useSetAtom(trialsUpdatingState)
