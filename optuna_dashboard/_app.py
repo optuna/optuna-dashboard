@@ -11,6 +11,7 @@ import os
 import re
 import typing
 import warnings
+from dataclasses import dataclass
 
 from bottle import Bottle
 from bottle import redirect
@@ -74,10 +75,16 @@ IMG_DIR = os.path.join(BASE_DIR, "img")
 cached_path_exists = functools.lru_cache(maxsize=10)(os.path.exists)
 
 
+@dataclass
+class JupyterLabExtensionContext:
+    base_url: str
+
+
 def create_app(
     storage: BaseStorage,
     artifact_store: Optional[ArtifactStore] = None,
     debug: bool = False,
+    jupyterlab_extension_context: JupyterLabExtensionContext | None = None,
 ) -> Bottle:
     app = Bottle()
 
@@ -97,10 +104,15 @@ def create_app(
     @app.get("/api/meta")
     @json_api_view
     def api_meta() -> dict[str, Any]:
-        return {
+        meta = {
             "artifact_is_available": artifact_store is not None,
             "plotlypy_is_available": importlib.util.find_spec("plotly") is not None,
         }
+        if jupyterlab_extension_context is not None:
+            meta["jupyterlab_extension_context"] = {
+                "base_url": jupyterlab_extension_context.base_url
+            }
+        return meta
 
     @app.get("/api/studies")
     @json_api_view
@@ -630,6 +642,7 @@ def wsgi(
     artifact_store: Optional[ArtifactBackend | ArtifactStore] = None,
     *,
     artifact_backend: Optional[ArtifactBackend] = None,
+    jupyterlab_extension_context: JupyterLabExtensionContext | None = None
 ) -> WSGIApplication:
     """This function exposes WSGI interface for people who want to run on the
     production-class WSGI servers like Gunicorn or uWSGI.
@@ -646,4 +659,4 @@ def wsgi(
         )
         store = to_artifact_store(artifact_backend)
 
-    return create_app(get_storage(storage), artifact_store=store)
+    return create_app(get_storage(storage), artifact_store=store, jupyterlab_extension_context=jupyterlab_extension_context)
