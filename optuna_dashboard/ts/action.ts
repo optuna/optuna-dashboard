@@ -19,7 +19,6 @@ import {
   FeedbackComponentType,
   Note,
   StudyDetail,
-  StudyDetails,
   StudySummary,
   Trial,
 } from "./types/optuna"
