@@ -20,10 +20,10 @@ import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
 import * as Optuna from "@optuna/types"
+import { useAtomValue } from "jotai"
 import { useSnackbar } from "notistack"
 import React, { FC, useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
-import { useRecoilValue } from "recoil"
 
 import { useNavigate } from "react-router-dom"
 import { StudyDetails, StudySummary } from "ts/types/optuna"
@@ -84,7 +84,7 @@ export const CompareStudies: FC<{
   const navigate = useNavigate()
 
   const action = actionCreator()
-  const studies = useRecoilValue<StudySummary[]>(studySummariesState)
+  const studies = useAtomValue<StudySummary[]>(studySummariesState)
   const queried = useQueriedStudies(studies, query)
   const selected = useMemo(() => {
     return queried.length > 0 ? queried : studies.length > 0 ? [studies[0]] : []
@@ -269,7 +269,7 @@ export const CompareStudies: FC<{
 const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
   const theme = useTheme()
   const action = actionCreator()
-  const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
+  const studyDetails = useAtomValue<StudyDetails>(studyDetailsState)
   const [logScale, setLogScale] = useState<boolean>(false)
   const [includePruned, setIncludePruned] = useState<boolean>(true)
 
