@@ -52,12 +52,6 @@ var config = {
   resolve: {
     extensions: [".ts", ".tsx", ".js"],
   },
-  plugins: [
-    new webpack.DefinePlugin({
-      API_ENDPOINT: JSON.stringify(process.env.API_ENDPOINT),
-      URL_PREFIX: JSON.stringify(process.env.URL_PREFIX || "/dashboard"),
-    }),
-  ],
 }
 
 if (isDev) {

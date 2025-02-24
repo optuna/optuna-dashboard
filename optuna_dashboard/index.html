@@ -4,7 +4,7 @@
     <title>Optuna Dashboard</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script defer src="/static/bundle.js"></script>
+    <script defer src="static/bundle.js"></script>
     <style>
         .optuna-loading-wrapper {
             height: 100vh;
@@ -71,5 +71,11 @@
             <p class="optuna-loading-message">NOW LOADING</p>
         </span>
     </div>
+    <script>
+      window.CONFIG = {
+        API_ENDPOINT: "{{ api_endpoint }}",
+        URL_PREFIX: "{{ url_prefix }}"
+      };
+    </script>
 </body>
 </html>
