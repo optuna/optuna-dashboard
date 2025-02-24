@@ -5,16 +5,14 @@ import { AxiosClient } from "./axiosClient"
 import { App } from "./components/App"
 import { ConstantsContext } from "./constantsProvider"
 
-declare const API_ENDPOINT: string
-declare const URL_PREFIX: string
-
-const axiosAPIClient = new AxiosClient(API_ENDPOINT)
+const config = (window as any).CONFIG
+const axiosAPIClient = new AxiosClient(config.API_ENDPOINT)
 
 const ConstantsProvider: FC<{ children: ReactNode }> = ({ children }) => (
   <ConstantsContext.Provider
     value={{
       environment: "optuna-dashboard",
-      url_prefix: URL_PREFIX,
+      url_prefix: config.URL_PREFIX,
     }}
   >
     {children}

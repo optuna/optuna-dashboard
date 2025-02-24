@@ -19,6 +19,7 @@ from bottle import request
 from bottle import response
 from bottle import run
 from bottle import static_file
+from bottle import template
 import optuna
 from optuna.exceptions import DuplicatedStudyError
 from optuna.storages import BaseStorage
@@ -75,6 +76,9 @@ STATIC_DIR = os.path.join(BASE_DIR, "public")
 IMG_DIR = os.path.join(BASE_DIR, "img")
 cached_path_exists = functools.lru_cache(maxsize=10)(os.path.exists)
 
+API_ENDPOINT = os.environ.get("API_ENDPOINT", "")
+URL_PREFIX = os.environ.get("URL_PREFIX", "/dashboard")
+
 
 @dataclass
 class JupyterLabExtensionContext:
@@ -96,12 +100,16 @@ def create_app(
 
     @app.get("/")
     def index() -> BottleViewReturn:
-        return redirect("/dashboard", 302)  # Status Found
+        return redirect(URL_PREFIX, 302)  # Status Found
 
     # Accept any following paths for client-side routing
     @app.get("/dashboard<:re:(/.*)?>")
     def dashboard() -> BottleViewReturn:
-        return static_file("index.html", BASE_DIR, mimetype="text/html")
+        return template(
+            "optuna_dashboard/index.html",
+            api_endpoint=API_ENDPOINT,
+            url_prefix=URL_PREFIX
+        )
 
     @app.get("/api/meta")
     @json_api_view
