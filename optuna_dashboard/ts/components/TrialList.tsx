@@ -23,8 +23,8 @@ import React, { FC, ReactNode, useMemo } from "react"
 
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useVirtualizer } from "@tanstack/react-virtual"
+import { useAtomValue } from "jotai"
 import { useNavigate } from "react-router-dom"
-import { useRecoilValue } from "recoil"
 import { FormWidgets, StudyDetail, Trial } from "ts/types/optuna"
 import { actionCreator } from "../action"
 import { useConstants } from "../constantsProvider"
@@ -131,7 +131,7 @@ export const TrialListDetail: FC<{
 }> = ({ trial, isBestTrial, directions, metricNames, formWidgets }) => {
   const theme = useTheme()
   const action = actionCreator()
-  const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
+  const artifactEnabled = useAtomValue<boolean>(artifactIsAvailable)
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
 

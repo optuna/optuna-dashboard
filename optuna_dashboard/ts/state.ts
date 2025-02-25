@@ -1,5 +1,5 @@
 import * as Optuna from "@optuna/types"
-import { atom, useRecoilValue } from "recoil"
+import { atom, useAtomValue } from "jotai"
 import { useLocalStorage } from "usehooks-ts"
 import {
   DarkColorTemplates,
@@ -13,58 +13,26 @@ import {
   StudySummary,
 } from "./types/optuna"
 
-export const studySummariesState = atom<StudySummary[]>({
-  key: "studySummaries",
-  default: [],
-})
+export const studySummariesState = atom<StudySummary[]>([])
 
-export const studyDetailsState = atom<StudyDetails>({
-  key: "studyDetails",
-  default: {},
-})
+export const studyDetailsState = atom<StudyDetails>({})
 
-export const trialsUpdatingState = atom<{
-  [trialId: string]: boolean
-}>({
-  key: "trialsUpdating",
-  default: {},
-})
+export const trialsUpdatingState = atom<{ [trialId: string]: boolean }>({})
 
 // TODO(c-bata): Consider representing the state as boolean.
-export const reloadIntervalState = atom<number>({
-  key: "reloadInterval",
-  default: 10,
-})
+export const reloadIntervalState = atom<number>(10)
 
-export const drawerOpenState = atom<boolean>({
-  key: "drawerOpen",
-  default: false,
-})
+export const drawerOpenState = atom<boolean>(false)
 
-export const isFileUploading = atom<boolean>({
-  key: "isFileUploading",
-  default: false,
-})
+export const isFileUploading = atom<boolean>(false)
 
-export const artifactIsAvailable = atom<boolean>({
-  key: "artifactIsAvailable",
-  default: false,
-})
+export const artifactIsAvailable = atom<boolean>(false)
 
-export const plotlypyIsAvailableState = atom<boolean>({
-  key: "plotlypyIsAvailable",
-  default: false,
-})
+export const plotlypyIsAvailableState = atom<boolean>(false)
 
-export const studySummariesLoadingState = atom<boolean>({
-  key: "studySummariesLoadingState",
-  default: false,
-})
+export const studySummariesLoadingState = atom<boolean>(false)
 
-export const studyDetailLoadingState = atom<Record<number, boolean>>({
-  key: "studyDetailLoading",
-  default: {},
-})
+export const studyDetailLoadingState = atom<Record<number, boolean>>({})
 
 export const usePlotBackendRendering = () => {
   return useLocalStorage<boolean>("plotBackendRendering", false)
@@ -82,17 +50,17 @@ export const usePlotlyColorThemeState = () => {
 }
 
 export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
-  const studyDetails = useRecoilValue<StudyDetails>(studyDetailsState)
+  const studyDetails = useAtomValue<StudyDetails>(studyDetailsState)
   return studyDetails[studyId] || null
 }
 
 export const useStudySummaryValue = (studyId: number): StudySummary | null => {
-  const studySummaries = useRecoilValue<StudySummary[]>(studySummariesState)
+  const studySummaries = useAtomValue<StudySummary[]>(studySummariesState)
   return studySummaries.find((s) => s.study_id === studyId) || null
 }
 
 export const useTrialUpdatingValue = (trialId: number): boolean => {
-  const updating = useRecoilValue(trialsUpdatingState)
+  const updating = useAtomValue(trialsUpdatingState)
   return updating[trialId] || false
 }
 
@@ -136,7 +104,7 @@ export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
 
 export const useBackendRender = (): boolean => {
   const [plotBackendRendering] = usePlotBackendRendering()
-  const plotlypyIsAvailable = useRecoilValue(plotlypyIsAvailableState)
+  const plotlypyIsAvailable = useAtomValue(plotlypyIsAvailableState)
 
   if (plotBackendRendering) {
     if (plotlypyIsAvailable) {
