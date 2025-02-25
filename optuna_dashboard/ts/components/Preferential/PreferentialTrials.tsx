@@ -635,7 +635,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
                 trial={studyDetail.trials[detailTrial]}
                 isBestTrial={(trialId) =>
                   studyDetail.trials.find((t) => t.trial_id === trialId)
-                    ?.state === "Complete" ?? false
+                    ?.state === "Complete"
                 }
                 directions={[]}
                 metricNames={[]}
