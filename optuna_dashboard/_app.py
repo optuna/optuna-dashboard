@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+from dataclasses import dataclass
 import functools
 import importlib
 import io
@@ -11,7 +12,6 @@ import os
 import re
 import typing
 import warnings
-from dataclasses import dataclass
 
 from bottle import Bottle
 from bottle import redirect
@@ -104,7 +104,7 @@ def create_app(
     @app.get("/api/meta")
     @json_api_view
     def api_meta() -> dict[str, Any]:
-        meta = {
+        meta: dict[str, Any] = {
             "artifact_is_available": artifact_store is not None,
             "plotlypy_is_available": importlib.util.find_spec("plotly") is not None,
         }
@@ -642,7 +642,7 @@ def wsgi(
     artifact_store: Optional[ArtifactBackend | ArtifactStore] = None,
     *,
     artifact_backend: Optional[ArtifactBackend] = None,
-    jupyterlab_extension_context: JupyterLabExtensionContext | None = None
+    jupyterlab_extension_context: JupyterLabExtensionContext | None = None,
 ) -> WSGIApplication:
     """This function exposes WSGI interface for people who want to run on the
     production-class WSGI servers like Gunicorn or uWSGI.
@@ -659,4 +659,8 @@ def wsgi(
         )
         store = to_artifact_store(artifact_backend)
 
-    return create_app(get_storage(storage), artifact_store=store, jupyterlab_extension_context=jupyterlab_extension_context)
+    return create_app(
+        get_storage(storage),
+        artifact_store=store,
+        jupyterlab_extension_context=jupyterlab_extension_context,
+    )
