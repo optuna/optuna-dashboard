@@ -17,12 +17,12 @@ import React, { FC, useState } from "react"
 
 import { PreferenceHistory, StudyDetail, Trial } from "ts/types/optuna"
 import { actionCreator } from "../../action"
-import { useConstants } from "../../constantsProvider"
 import { formatDate } from "../../dateUtil"
+import { useArtifactBaseUrlPath } from "../../hooks/useArtifactBaseUrlPath"
 import { useStudyDetailValue } from "../../state"
+import { getTrialArtifactUrlPath } from "../Artifact/TrialArtifactCards"
 import { TrialListDetail } from "../TrialList"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
-import { getArtifactUrlPath } from "./PreferentialTrials"
 
 type TrialType = "worst" | "none"
 
@@ -31,10 +31,10 @@ const CandidateTrial: FC<{
   type: TrialType
 }> = ({ trial, type }) => {
   const theme = useTheme()
-  const { environment } = useConstants()
   const trialWidth = 300
   const trialHeight = 300
   const studyDetail = useStudyDetailValue(trial.study_id)
+  const artifactBaseUrl = useArtifactBaseUrlPath()
   const [detailShown, setDetailShown] = useState(false)
 
   if (studyDetail === null) {
@@ -49,8 +49,8 @@ const CandidateTrial: FC<{
   const artifact = trial.artifacts.find((a) => a.artifact_id === artifactId)
   const urlPath =
     artifactId !== undefined
-      ? getArtifactUrlPath(
-          environment,
+      ? getTrialArtifactUrlPath(
+          artifactBaseUrl,
           trial.study_id,
           trial.trial_id,
           artifactId

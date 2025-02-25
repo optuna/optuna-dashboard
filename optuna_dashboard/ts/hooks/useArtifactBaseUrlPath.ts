@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
-import { APIMeta } from "../apiClient"
-import { useAPIClient } from "../apiClientProvider"
 import { useSnackbar } from "notistack"
 import { useEffect } from "react"
+import { APIMeta } from "../apiClient"
+import { useAPIClient } from "../apiClientProvider"
 
-export const useAPIMeta = () => {
+export const useArtifactBaseUrlPath = (): string => {
   const { apiClient } = useAPIClient()
   const { enqueueSnackbar } = useSnackbar()
   const { data, isLoading, error } = useQuery<
@@ -21,18 +21,14 @@ export const useAPIMeta = () => {
   useEffect(() => {
     if (error) {
       const reason = error.response?.data.reason
-      enqueueSnackbar(
-        `Failed to load API meta (reason=${reason})`,
-        {
-          variant: "error",
-        }
-      )
+      enqueueSnackbar(`Failed to load API meta (reason=${reason})`, {
+        variant: "error",
+      })
     }
   }, [error])
 
-  return {
-    apiMeta: data,
-    isLoading,
-    error,
+  if (isLoading || error !== null) {
+    return ""
   }
+  return data?.jupyterlab_extension_context?.base_url ?? ""
 }
