@@ -5,7 +5,7 @@ import { AxiosClient } from "./axiosClient"
 import { App } from "./components/App"
 import { ConstantsContext } from "./constantsProvider"
 
-const config = (window as any).CONFIG
+const config = window.CONFIG
 const axiosAPIClient = new AxiosClient(config.API_ENDPOINT)
 
 const ConstantsProvider: FC<{ children: ReactNode }> = ({ children }) => (
