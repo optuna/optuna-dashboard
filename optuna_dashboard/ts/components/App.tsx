@@ -66,10 +66,10 @@ export const App: FC = () => {
             }}
           >
             <SnackbarProvider maxSnack={3}>
-              <Router>
+              <Router basename={url_prefix}>
                 <Routes>
                   <Route
-                    path={url_prefix + "/studies/:studyId/analytics"}
+                    path="/studies/:studyId/analytics"
                     element={
                       <StudyDetail
                         toggleColorMode={toggleColorMode}
@@ -78,7 +78,7 @@ export const App: FC = () => {
                     }
                   />
                   <Route
-                    path={url_prefix + "/studies/:studyId/trials"}
+                    path="/studies/:studyId/trials"
                     element={
                       <StudyDetail
                         toggleColorMode={toggleColorMode}
@@ -87,7 +87,7 @@ export const App: FC = () => {
                     }
                   />
                   <Route
-                    path={url_prefix + "/studies/:studyId/trialTable"}
+                    path="/studies/:studyId/trialTable"
                     element={
                       <StudyDetail
                         toggleColorMode={toggleColorMode}
@@ -96,7 +96,7 @@ export const App: FC = () => {
                     }
                   />
                   <Route
-                    path={url_prefix + "/studies/:studyId/trialSelection"}
+                    path="/studies/:studyId/trialSelection"
                     element={
                       <StudyDetail
                         toggleColorMode={toggleColorMode}
@@ -105,7 +105,7 @@ export const App: FC = () => {
                     }
                   />
                   <Route
-                    path={url_prefix + "/studies/:studyId/note"}
+                    path="/studies/:studyId/note"
                     element={
                       <StudyDetail
                         toggleColorMode={toggleColorMode}
@@ -114,7 +114,7 @@ export const App: FC = () => {
                     }
                   />
                   <Route
-                    path={url_prefix + "/studies/:studyId/graph"}
+                    path="/studies/:studyId/graph"
                     element={
                       <StudyDetail
                         toggleColorMode={toggleColorMode}
@@ -123,7 +123,7 @@ export const App: FC = () => {
                     }
                   />
                   <Route
-                    path={url_prefix + "/studies/:studyId"}
+                    path="/studies/:studyId"
                     element={
                       <StudyDetail
                         toggleColorMode={toggleColorMode}
@@ -132,7 +132,7 @@ export const App: FC = () => {
                     }
                   />
                   <Route
-                    path={url_prefix + "/studies/:studyId/preference-history"}
+                    path="/studies/:studyId/preference-history"
                     element={
                       <StudyDetail
                         toggleColorMode={toggleColorMode}
@@ -141,13 +141,13 @@ export const App: FC = () => {
                     }
                   />
                   <Route
-                    path={url_prefix + "/compare-studies"}
+                    path="/compare-studies"
                     element={
                       <CompareStudies toggleColorMode={toggleColorMode} />
                     }
                   />
                   <Route
-                    path={url_prefix + "/"}
+                    path="/"
                     element={<StudyList toggleColorMode={toggleColorMode} />}
                   />
                 </Routes>
