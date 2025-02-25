@@ -322,7 +322,7 @@ const PreferentialTrial: FC<{
       </CardActions>
       <CardContent
         aria-label="trial-button"
-        onClick={(e) => {
+        onClick={(e: React.MouseEvent<HTMLDivElement>) => {
           if (e.shiftKey) onFeedback()
         }}
         sx={{

@@ -392,7 +392,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
               aria-controls={openFilterMenu ? "filter-trials" : undefined}
               aria-haspopup="true"
               aria-expanded={openFilterMenu ? "true" : undefined}
-              onClick={(e) => {
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                 setFilterMenuAnchorEl(e.currentTarget)
               }}
             >
@@ -469,7 +469,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                   disablePadding
                 >
                   <ListItemButton
-                    onClick={(e) => {
+                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
                       if (e.shiftKey) {
                         let next: number[]
                         const selectedNumbers = selected.map((t) => t.number)
