@@ -1,9 +1,21 @@
 #!/bin/bash
 
-# Check if an argument is provided
+# Parse command line arguments
+DAEMON_MODE=false
+while getopts "d" opt; do
+    case $opt in
+        d) DAEMON_MODE=true ;;
+        *) ;;
+    esac
+done
+shift $((OPTIND-1))
+
+# Check if database URL is provided
 if [ $# -eq 0 ]; then
-    echo "Usage: $0 <database-url>"
-    echo "Example: $0 postgresql://postgres:password@localhost:5432/db_name"
+    echo "Usage: $0 [-d] <database-url>"
+    echo "Options:"
+    echo "  -d            Run in daemon mode"
+    echo "Example: $0 -d postgresql://postgres:password@localhost:5432/db_name"
     exit 1
 fi
 
@@ -19,4 +31,10 @@ fi
 export URL_PREFIX="${BASE_URL}optuna/dashboard"
 export API_ENDPOINT="${BASE_URL}optuna/"
 
-optuna-dashboard --server wsgiref --port 8081 "$DB_URL"
+if [ "$DAEMON_MODE" = true ]; then
+    nohup optuna-dashboard --server auto --port 8081 "$DB_URL" > /tmp/optuna-dashboard.log 2>&1 &
+    echo "Optuna Dashboard started in daemon mode. PID: $!"
+    echo "Log file: /tmp/optuna-dashboard.log"
+else
+    optuna-dashboard --server auto --port 8081 "$DB_URL"
+fi
