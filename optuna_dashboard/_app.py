@@ -14,12 +14,14 @@ import typing
 import warnings
 
 from bottle import Bottle
+from bottle import TEMPLATE_PATH
 from bottle import redirect
 from bottle import request
 from bottle import response
 from bottle import run
 from bottle import static_file
 from bottle import template
+
 import optuna
 from optuna.exceptions import DuplicatedStudyError
 from optuna.storages import BaseStorage
@@ -74,6 +76,8 @@ logger = logging.getLogger(__name__)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 STATIC_DIR = os.path.join(BASE_DIR, "public")
 IMG_DIR = os.path.join(BASE_DIR, "img")
+TEMPLATE_PATH.append(BASE_DIR)
+print("BASE_DIR", BASE_DIR)
 cached_path_exists = functools.lru_cache(maxsize=10)(os.path.exists)
 
 API_ENDPOINT = os.environ.get("API_ENDPOINT", "")
@@ -106,7 +110,7 @@ def create_app(
     @app.get("/dashboard<:re:(/.*)?>")
     def dashboard() -> BottleViewReturn:
         return template(
-            "optuna_dashboard/index.html",
+            "index.html.tpl",
             api_endpoint=API_ENDPOINT,
             url_prefix=URL_PREFIX
         )
