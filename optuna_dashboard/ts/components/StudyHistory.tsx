@@ -11,8 +11,8 @@ import FormControlLabel from "@mui/material/FormControlLabel"
 import Grid from "@mui/material/Grid"
 import { DataGrid } from "@optuna/react"
 import * as Optuna from "@optuna/types"
+import { useAtomValue } from "jotai"
 import React, { FC, useState } from "react"
-import { useRecoilValue } from "recoil"
 import { Trial } from "ts/types/optuna"
 import {
   useStudyDetailValue,
@@ -38,7 +38,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   const studyDetail = useStudyDetailValue(studyId)
   const [logScale, setLogScale] = useState<boolean>(false)
   const [includePruned, setIncludePruned] = useState<boolean>(true)
-  const artifactEnabled = useRecoilValue<boolean>(artifactIsAvailable)
+  const artifactEnabled = useAtomValue<boolean>(artifactIsAvailable)
 
   const handleLogScaleChange = () => {
     setLogScale(!logScale)
