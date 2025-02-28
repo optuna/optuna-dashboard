@@ -90,6 +90,9 @@ def register_artifact_route(
         if encoding:
             headers["Content-Encodings"] = encoding
 
+        # CORS Headers
+        headers["Access-Control-Allow-Origin"] = "*"
+
         fp = artifact_store.open_reader(artifact_id)
         return HTTPResponse(fp, headers=headers)
 
@@ -110,6 +113,9 @@ def register_artifact_route(
         encoding = artifact_dict.get("encoding")
         if encoding:
             headers["Content-Encodings"] = encoding
+
+        # CORS Headers
+        headers["Access-Control-Allow-Origin"] = "*"
 
         fp = artifact_store.open_reader(artifact_id)
         return HTTPResponse(fp, headers=headers)

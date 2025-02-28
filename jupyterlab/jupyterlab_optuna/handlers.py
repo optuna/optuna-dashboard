@@ -13,9 +13,12 @@ import tornado
 try:
     from optuna.artifacts import FileSystemArtifactStore
 except ImportError:
-    from optuna_dashboard.artifact.file_system import FileSystemBackend as FileSystemArtifactStore
+    from optuna_dashboard.artifact.file_system import (
+        FileSystemBackend as FileSystemArtifactStore,
+    )
 
 from optuna_dashboard import wsgi
+from optuna_dashboard._app import JupyterLabExtensionContext
 from tornado.web import FallbackHandler
 from tornado.wsgi import WSGIContainer
 
@@ -52,7 +55,11 @@ class RouteHandler(APIHandler):
             artifact_store = None
 
         with threading_lock:
-            _dashboard_app = wsgi(storage=storage_url, artifact_store=artifact_store)
+            _dashboard_app = wsgi(
+                storage=storage_url,
+                artifact_store=artifact_store,
+                jupyterlab_extension_context=JupyterLabExtensionContext(base_url=_base_url),
+            )
             _is_initialized = True
         self.finish(json.dumps({"is_initialized": True}))
 
