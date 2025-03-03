@@ -313,7 +313,7 @@ const PreferentialTrial: FC<{
       </CardActions>
       <CardContent
         aria-label="trial-button"
-        onClick={(e) => {
+        onClick={(e: React.MouseEvent<HTMLDivElement>) => {
           if (e.shiftKey) onFeedback()
         }}
         sx={{
@@ -626,7 +626,7 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
                 trial={studyDetail.trials[detailTrial]}
                 isBestTrial={(trialId) =>
                   studyDetail.trials.find((t) => t.trial_id === trialId)
-                    ?.state === "Complete" ?? false
+                    ?.state === "Complete"
                 }
                 directions={[]}
                 metricNames={[]}
