@@ -456,40 +456,38 @@ export const AppDrawer: FC<{
               </Box>
             </Modal>
           </ListItem>
-          {
-            color_mode === undefined && (
-              <ListItem
-            key="DarkMode"
-            disablePadding
-            sx={styleListItem}
-            title="Dark Mode"
-          >
-            <ListItemButton
-              sx={styleListItemButton}
-              onClick={() => {
-                toggleColorMode()
-              }}
+          {color_mode === undefined && (
+            <ListItem
+              key="DarkMode"
+              disablePadding
+              sx={styleListItem}
+              title="Dark Mode"
             >
-              <ListItemIcon sx={styleListItemIcon}>
-                {theme.palette.mode === "dark" ? (
-                  <Brightness4Icon />
-                ) : (
-                  <Brightness7Icon />
-                )}
-              </ListItemIcon>
-              <ListItemText primary="Dark Mode" sx={styleListItemText} />
-              <Switch
-                edge="end"
-                checked={theme.palette.mode === "dark"}
-                sx={styleSwitch}
-                inputProps={{
-                  "aria-labelledby": "switch-list-label-dark-mode",
+              <ListItemButton
+                sx={styleListItemButton}
+                onClick={() => {
+                  toggleColorMode()
                 }}
-              />
-            </ListItemButton>
-          </ListItem>
-            )
-          }
+              >
+                <ListItemIcon sx={styleListItemIcon}>
+                  {theme.palette.mode === "dark" ? (
+                    <Brightness4Icon />
+                  ) : (
+                    <Brightness7Icon />
+                  )}
+                </ListItemIcon>
+                <ListItemText primary="Dark Mode" sx={styleListItemText} />
+                <Switch
+                  edge="end"
+                  checked={theme.palette.mode === "dark"}
+                  sx={styleSwitch}
+                  inputProps={{
+                    "aria-labelledby": "switch-list-label-dark-mode",
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          )}
           <Divider />
           <ListItem
             key="Feedback"

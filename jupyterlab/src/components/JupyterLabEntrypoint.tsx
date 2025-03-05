@@ -40,7 +40,12 @@ export const JupyterLabEntrypoint: FC = () => {
   // JupyterLab's theme switching is handled by setting CSS variables (ref: https://github.com/jupyterlab/jupyterlab/issues/4919#issuecomment-405757623).
   // Therefore, the implementation of determining whether JupyterLab is in dark or light mode should rely on these CSS variables.
   // The CSS variable used is defined here: https://github.com/jupyterlab/jupyterlab/blob/d470c501f50ad7075413cd89967a1a8a332b9a2f/packages/theme-light-extension/style/variables.css#L36
-  const colorMode = getComputedStyle(document.querySelector(":root") as Element).getPropertyValue("--jp-shadow-base-lightness") === "0" ? "light" : "dark"
+  const colorMode =
+    getComputedStyle(
+      document.querySelector(":root") as Element
+    ).getPropertyValue("--jp-shadow-base-lightness") === "0"
+      ? "light"
+      : "dark"
   const theme = useMemo(
     () =>
       createTheme({

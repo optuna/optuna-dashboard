@@ -33,33 +33,34 @@ export const App: FC = () => {
   const { color_mode, url_prefix } = useConstants()
 
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)")
-  const [optunaDashboardColorMode, optunaDashboardSetColorMode] = useState<"light" | "dark">("light")
+  const [optunaDashboardColorMode, optunaDashboardSetColorMode] = useState<
+    "light" | "dark"
+  >("light")
   useEffect(() => {
     optunaDashboardSetColorMode(prefersDarkMode ? "dark" : "light")
   }, [prefersDarkMode])
-  const theme = useMemo(
-    () => {
-      if (color_mode !== undefined) {
-        return createTheme({
-          palette: {
-            mode: color_mode,
-            primary: blue,
-            secondary: pink,
-          },
-        })
-      }
+  const theme = useMemo(() => {
+    if (color_mode !== undefined) {
       return createTheme({
         palette: {
-          mode: optunaDashboardColorMode,
+          mode: color_mode,
           primary: blue,
           secondary: pink,
         },
       })
-    },
-    [optunaDashboardColorMode, color_mode]
-  )
+    }
+    return createTheme({
+      palette: {
+        mode: optunaDashboardColorMode,
+        primary: blue,
+        secondary: pink,
+      },
+    })
+  }, [optunaDashboardColorMode, color_mode])
   const toggleColorMode = () => {
-    optunaDashboardSetColorMode(optunaDashboardColorMode === "dark" ? "light" : "dark")
+    optunaDashboardSetColorMode(
+      optunaDashboardColorMode === "dark" ? "light" : "dark"
+    )
   }
 
   return (
@@ -70,7 +71,8 @@ export const App: FC = () => {
           <Box
             component="div"
             sx={{
-              backgroundColor: theme.palette.mode === "dark" ? "#121212" : "#ffffff",
+              backgroundColor:
+                theme.palette.mode === "dark" ? "#121212" : "#ffffff",
               width: "100%",
               minHeight: "100vh",
             }}
