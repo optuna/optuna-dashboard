@@ -9,7 +9,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import { getFeasibleTrials, getIsDominated } from "@optuna/react"
+import { getFeasibleTrials, getIsDominated, makeHovertext } from "@optuna/react"
 import { StudyDirection, Trial } from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
@@ -17,7 +17,6 @@ import { useNavigate } from "react-router-dom"
 import { StudyDetail } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { useConstants } from "../constantsProvider"
-import { makeHovertext } from "../graphUtil"
 import { usePlot } from "../hooks/usePlot"
 import { usePlotlyColorTheme } from "../state"
 import { useBackendRender } from "../state"
