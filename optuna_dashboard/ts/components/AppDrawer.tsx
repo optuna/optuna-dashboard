@@ -139,7 +139,7 @@ export const AppDrawer: FC<{
   toolbar: React.ReactNode
   children?: React.ReactNode
 }> = ({ studyId, toggleColorMode, page, toolbar, children }) => {
-  const { url_prefix } = useConstants()
+  const { color_mode, url_prefix } = useConstants()
 
   const theme = useTheme()
   const constants = useConstants()
@@ -456,7 +456,9 @@ export const AppDrawer: FC<{
               </Box>
             </Modal>
           </ListItem>
-          <ListItem
+          {
+            color_mode === undefined && (
+              <ListItem
             key="DarkMode"
             disablePadding
             sx={styleListItem}
@@ -486,6 +488,8 @@ export const AppDrawer: FC<{
               />
             </ListItemButton>
           </ListItem>
+            )
+          }
           <Divider />
           <ListItem
             key="Feedback"
