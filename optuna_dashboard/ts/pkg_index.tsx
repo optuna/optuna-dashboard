@@ -6,6 +6,7 @@ import {
   ParamImportancesResponse,
   PlotResponse,
   PlotType,
+  ParamImportanceEvaluator,
   PreferenceHistoryResponse,
   RenameStudyResponse,
   StudyDetailResponse,
@@ -61,5 +62,6 @@ export {
   TrialParam,
   CompareStudiesPlotType,
   PlotType,
+  ParamImportanceEvaluator,
   PlotResponse,
 }
