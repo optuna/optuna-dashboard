@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 
 import optuna
 from optuna.importance import FanovaImportanceEvaluator
+from optuna.importance import MeanDecreaseImpurityImportanceEvaluator
 from optuna.importance import get_param_importances
 from optuna.storages import BaseStorage
 from optuna.study import Study
@@ -70,26 +71,32 @@ def _get_param_importances(
     completed_trials: list[FrozenTrial],
     *,
     target: Optional[Callable[[FrozenTrial], float]] = None,
+    evaluator: str,
 ) -> dict[str, float]:
-    if PedAnovaImportanceEvaluator is not None:
-        # TODO(nabenabe0928): We might want to pass baseline_quantile as an argument in the future.
-        return get_param_importances(study, target=target, evaluator=PedAnovaImportanceEvaluator())
+    if evaluator == "fanova":
+        if FastFanovaImportanceEvaluator is not None:
+            try:
+                return get_param_importances(
+                    study,
+                    target=target,
+                    evaluator=FastFanovaImportanceEvaluator(completed_trials=completed_trials),
+                )
+            except RuntimeError:
+                # RuntimeError("Encountered zero total variance in all trees.") may be raised
+                # when all objective values are same.
+                raise
+            except Exception:
+                _logger.exception("Failed to call optuna-fast-fanova")
+                pass
+    elif evaluator == "ped_anova":
+        if PedAnovaImportanceEvaluator is not None:
+            # TODO(nabenabe0928): We might want to pass baseline_quantile as an argument in the future.
+            return get_param_importances(study, target=target, evaluator=PedAnovaImportanceEvaluator())
+    elif evaluator == "mean_decrease_impurity":
+        return get_param_importances(
+            study, target=target, evaluator=MeanDecreaseImpurityImportanceEvaluator()
+        )
 
-    if FastFanovaImportanceEvaluator is not None:
-        try:
-            evaluator = FastFanovaImportanceEvaluator(completed_trials=completed_trials)
-            return get_param_importances(
-                study,
-                target=target,
-                evaluator=evaluator,
-            )
-        except RuntimeError:
-            # RuntimeError("Encountered zero total variance in all trees.") may be raised
-            # when all objective values are same.
-            raise
-        except Exception:
-            _logger.exception("Failed to call optuna-fast-fanova")
-            pass
     return get_param_importances(
         study,
         target=target,
@@ -102,6 +109,7 @@ def get_param_importance_from_trials_cache(
     storage: BaseStorage,
     study_id: int,
     objective_id: int,
+    evaluator: str,
     trials: list[FrozenTrial],
 ) -> list[ImportanceType]:
     completed_trials = [t for t in trials if t.state == TrialState.COMPLETE]
@@ -109,7 +117,7 @@ def get_param_importance_from_trials_cache(
     if n_completed_trials <= 1:
         return []
 
-    cache_key = f"{study_id}:{objective_id}"
+    cache_key = f"{study_id}:{objective_id}:{evaluator}"
     with param_importance_cache_lock:
         cache_n_trial, cache_importance = param_importance_cache.get(cache_key, (0, []))
         if n_completed_trials == cache_n_trial:
@@ -118,7 +126,10 @@ def get_param_importance_from_trials_cache(
         study = StudyWrapper(storage, study_id, trials)
         try:
             importance = _get_param_importances(
-                study, completed_trials, target=lambda t: t.values[objective_id]
+                study,
+                completed_trials,
+                target=lambda t: t.values[objective_id],
+                evaluator=evaluator,
             )
         except RuntimeError:
             # RuntimeError("Encountered zero total variance in all trees.") may be raised
