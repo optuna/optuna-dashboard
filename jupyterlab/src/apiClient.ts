@@ -4,6 +4,7 @@ import {
   CompareStudiesPlotType,
   CreateNewStudyResponse,
   FeedbackComponentType,
+  ParamImportanceEvaluator,
   ParamImportancesResponse,
   PlotResponse,
   PlotType,
@@ -232,10 +233,11 @@ export class JupyterlabAPIClient extends APIClient {
     return
   }
   getParamImportances = (
-    studyId: number
+    studyId: number,
+    evaluator: ParamImportanceEvaluator
   ): Promise<Optuna.ParamImportance[][]> =>
     requestAPI<ParamImportancesResponse>(
-      `/api/studies/${studyId}/param_importances`
+      `/api/studies/${studyId}/param_importances?evaluator=${evaluator}`
     ).then((res) => {
       return res.param_importances
     })
