@@ -13,6 +13,7 @@ const axiosAPIClient = new AxiosClient(API_ENDPOINT)
 const ConstantsProvider: FC<{ children: ReactNode }> = ({ children }) => (
   <ConstantsContext.Provider
     value={{
+      color_mode: undefined,
       environment: "optuna-dashboard",
       url_prefix: URL_PREFIX,
     }}
