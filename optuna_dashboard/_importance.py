@@ -6,8 +6,8 @@ from typing import TYPE_CHECKING
 
 import optuna
 from optuna.importance import FanovaImportanceEvaluator
-from optuna.importance import MeanDecreaseImpurityImportanceEvaluator
 from optuna.importance import get_param_importances
+from optuna.importance import MeanDecreaseImpurityImportanceEvaluator
 from optuna.storages import BaseStorage
 from optuna.study import Study
 from optuna.trial import FrozenTrial
@@ -90,8 +90,11 @@ def _get_param_importances(
                 pass
     elif evaluator == "ped_anova":
         if PedAnovaImportanceEvaluator is not None:
-            # TODO(nabenabe0928): We might want to pass baseline_quantile as an argument in the future.
-            return get_param_importances(study, target=target, evaluator=PedAnovaImportanceEvaluator())
+            # TODO(nabenabe0928): We might want to pass baseline_quantile
+            #                     as an argument in the future.
+            return get_param_importances(
+                study, target=target, evaluator=PedAnovaImportanceEvaluator()
+            )
     elif evaluator == "mean_decrease_impurity":
         return get_param_importances(
             study, target=target, evaluator=MeanDecreaseImpurityImportanceEvaluator()

@@ -1,4 +1,13 @@
-import { Box, Card, CardContent, FormControl, FormLabel, MenuItem, Select, useTheme } from "@mui/material"
+import {
+  Box,
+  Card,
+  CardContent,
+  FormControl,
+  FormLabel,
+  MenuItem,
+  Select,
+  useTheme,
+} from "@mui/material"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
 
@@ -18,7 +27,9 @@ export const GraphHyperparameterImportance: FC<{
 }> = ({ studyId, study = null, graphHeight }) => {
   const numCompletedTrials =
     study?.trials.filter((t) => t.state === "Complete").length || 0
-  const [evaluator, setEvaluator] = useState<ParamImportanceEvaluator>(ParamImportanceEvaluator.PedAnova);
+  const [evaluator, setEvaluator] = useState<ParamImportanceEvaluator>(
+    ParamImportanceEvaluator.PedAnova
+  )
   const { importances } = useParamImportance({
     numCompletedTrials,
     studyId,
@@ -47,15 +58,18 @@ export const GraphHyperparameterImportance: FC<{
             colorTheme={colorTheme}
           />
           <FormControl component="fieldset">
-            <FormLabel component="legend">
-              Evaluator:
-            </FormLabel>
-            <Select value={evaluator} onChange={(e) => setEvaluator(e.target.value as ParamImportanceEvaluator)}>
-              {
-                Object.values(ParamImportanceEvaluator).map((evaluator) => (
-                  <MenuItem key={evaluator} value={evaluator}>{evaluator}</MenuItem>
-                ))
+            <FormLabel component="legend">Evaluator:</FormLabel>
+            <Select
+              value={evaluator}
+              onChange={(e) =>
+                setEvaluator(e.target.value as ParamImportanceEvaluator)
               }
+            >
+              {Object.values(ParamImportanceEvaluator).map((evaluator) => (
+                <MenuItem key={evaluator} value={evaluator}>
+                  {evaluator}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
         </CardContent>

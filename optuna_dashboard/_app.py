@@ -277,10 +277,19 @@ def create_app(
 
         trials = get_trials(app._inmemory_cache, storage, study_id)
 
-        evaluator = request.query.get("evaluator", "ped_anova") # Default evaluator is "ped_anova"
-        if evaluator != "fanova" and evaluator != "ped_anova" and evaluator != "mean_decrease_impurity":
+        evaluator = request.query.get("evaluator", "ped_anova")  # Default evaluator is "ped_anova"
+        if (
+            evaluator != "fanova"
+            and evaluator != "ped_anova"
+            and evaluator != "mean_decrease_impurity"
+        ):
             response.status = 400
-            return {"reason": "evaluator must be either 'fanova', 'ped_anova' or 'mean_decrease_impurity'."}
+            return {
+                "reason": (
+                    "evaluator must be either "
+                    "'fanova', 'ped_anova' or 'mean_decrease_impurity'."
+                )
+            }
 
         try:
             importances = [

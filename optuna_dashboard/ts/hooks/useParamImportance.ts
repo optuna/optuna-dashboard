@@ -3,14 +3,18 @@ import { useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import { useSnackbar } from "notistack"
 import { useEffect } from "react"
-import { useAPIClient } from "../apiClientProvider"
 import { ParamImportanceEvaluator } from "../apiClient"
+import { useAPIClient } from "../apiClientProvider"
 
 export const useParamImportance = ({
   numCompletedTrials,
   studyId,
   evaluator,
-}: { numCompletedTrials: number; studyId: number, evaluator: ParamImportanceEvaluator }) => {
+}: {
+  numCompletedTrials: number
+  studyId: number
+  evaluator: ParamImportanceEvaluator
+}) => {
   const { apiClient } = useAPIClient()
   const { enqueueSnackbar } = useSnackbar()
 
