@@ -72,7 +72,7 @@ version = {attr = "optuna_dashboard.__version__"}
 
 [tool.setuptools]
 include-package-data = false
-package-data = { "optuna_dashboard" = ["public/*", "img/*", "index.html"] }
+package-data = { "optuna_dashboard" = ["public/*", "img/*", "index.html.tpl"] }
 
 [tool.setuptools.packages.find]
 include = ["optuna_dashboard*"]
