@@ -9,8 +9,8 @@ import {
   DialogTitle,
   FormControlLabel,
 } from "@mui/material"
+import { useAtomValue } from "jotai"
 import React, { ReactNode, useState } from "react"
-import { useRecoilValue } from "recoil"
 import { actionCreator } from "../action"
 import { artifactIsAvailable as artifactIsAvailableState } from "../state"
 
@@ -19,7 +19,7 @@ export const useDeleteStudyDialog = (): [
   () => ReactNode,
 ] => {
   const action = actionCreator()
-  const artifactIsAvailable = useRecoilValue(artifactIsAvailableState)
+  const artifactIsAvailable = useAtomValue(artifactIsAvailableState)
 
   const [openDeleteStudyDialog, setOpenDeleteStudyDialog] = useState(false)
   const [deleteStudyID, setDeleteStudyID] = useState(-1)

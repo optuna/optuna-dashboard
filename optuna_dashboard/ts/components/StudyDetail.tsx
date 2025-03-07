@@ -11,9 +11,9 @@ import {
   useTheme,
 } from "@mui/material"
 import Grid from "@mui/material/Grid"
+import { useAtomValue } from "jotai"
 import React, { FC, useEffect, useMemo } from "react"
 import { Link, useParams } from "react-router-dom"
-import { useRecoilValue } from "recoil"
 
 import { TrialTable } from "@optuna/react"
 import { actionCreator } from "../action"
@@ -60,7 +60,7 @@ export const StudyDetail: FC<{
   const action = actionCreator()
   const studyId = useURLVars()
   const studyDetail = useStudyDetailValue(studyId)
-  const reloadInterval = useRecoilValue<number>(reloadIntervalState)
+  const reloadInterval = useAtomValue(reloadIntervalState)
   const studyName = useStudyName(studyId)
   const isPreferential = useStudyIsPreferential(studyId)
   const study = studyDetailToStudy(studyDetail)
