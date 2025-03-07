@@ -14,6 +14,7 @@ import {
 import blue from "@mui/material/colors/blue"
 import {
   GraphContainer,
+  getAxisInfo,
   useGraphComponentState,
   useMergedUnionSearchSpace,
 } from "@optuna/react"
@@ -21,7 +22,6 @@ import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useMemo, useState } from "react"
 import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
-import { getAxisInfo } from "../graphUtil"
 import { usePlot } from "../hooks/usePlot"
 import { usePlotlyColorTheme } from "../state"
 import { useBackendRender } from "../state"

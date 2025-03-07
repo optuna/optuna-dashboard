@@ -22,6 +22,7 @@ import React, {
 
 import { Trial } from "ts/types/optuna"
 import { actionCreator } from "../../action"
+import { useArtifactBaseUrlPath } from "../../hooks/useArtifactBaseUrlPath"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
 import { useDeleteTrialArtifactDialog } from "./DeleteArtifactDialog"
 import { isTableArtifact, useTableArtifactModal } from "./TableArtifactViewer"
@@ -30,8 +31,18 @@ import {
   useThreejsArtifactModal,
 } from "./ThreejsArtifactViewer"
 
+export const getTrialArtifactUrlPath = (
+  baseUrlPath: string,
+  studyId: number,
+  trialId: number,
+  artifactId: string
+): string => {
+  return `${baseUrlPath}/artifacts/${studyId}/${trialId}/${artifactId}`
+}
+
 export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
   const theme = useTheme()
+  const artifactBaseUrl = useArtifactBaseUrlPath()
   const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
     useDeleteTrialArtifactDialog()
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
@@ -67,7 +78,12 @@ export const TrialArtifactCards: FC<{ trial: Trial }> = ({ trial }) => {
         sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}
       >
         {artifacts.map((artifact) => {
-          const urlPath = `/artifacts/${trial.study_id}/${trial.trial_id}/${artifact.artifact_id}`
+          const urlPath = getTrialArtifactUrlPath(
+            artifactBaseUrl,
+            trial.study_id,
+            trial.trial_id,
+            artifact.artifact_id
+          )
           return (
             <Card
               key={artifact.artifact_id}

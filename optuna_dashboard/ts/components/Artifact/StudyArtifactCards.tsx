@@ -22,6 +22,7 @@ import React, {
 
 import { StudyDetail } from "ts/types/optuna"
 import { actionCreator } from "../../action"
+import { useArtifactBaseUrlPath } from "../../hooks/useArtifactBaseUrlPath"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
 import { useDeleteStudyArtifactDialog } from "./DeleteArtifactDialog"
 import { isTableArtifact, useTableArtifactModal } from "./TableArtifactViewer"
@@ -30,8 +31,17 @@ import {
   useThreejsArtifactModal,
 } from "./ThreejsArtifactViewer"
 
+const getStudyArtifactUrlPath = (
+  baseUrlPath: string,
+  studyId: number,
+  artifactId: string
+): string => {
+  return `${baseUrlPath}/artifacts/${studyId}/${artifactId}`
+}
+
 export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
   const theme = useTheme()
+  const artifactBaseUrl = useArtifactBaseUrlPath()
   const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
     useDeleteStudyArtifactDialog()
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
@@ -58,7 +68,11 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
         sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}
       >
         {artifacts.map((artifact) => {
-          const urlPath = `/artifacts/${study.id}/${artifact.artifact_id}`
+          const urlPath = getStudyArtifactUrlPath(
+            artifactBaseUrl,
+            study.id,
+            artifact.artifact_id
+          )
           return (
             <Card
               key={artifact.artifact_id}

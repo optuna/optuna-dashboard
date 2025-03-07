@@ -22,6 +22,7 @@
     "@optuna/react": "../tslib/react",
     "@babel/core": "^7.23.9",
     "@babel/preset-env": "^7.23.9",
+    "@types/node": ">=22.8.0",
     "@types/react": "^18.2.55",
     "@types/plotly.js": "^2.12.32",
     "@types/react-dom": "^18.2.18",
@@ -34,7 +35,7 @@
     "process": "^0.11.10",
     "style-loader": "^3.3.4",
     "ts-loader": "^9.5.1",
-    "typescript": "^5.3.3",
+    "typescript": "^5.7.3",
     "webpack": "^5.90.0",
     "webpack-cli": "^5.1.4"
   },

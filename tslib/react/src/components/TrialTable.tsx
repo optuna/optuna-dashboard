@@ -65,6 +65,19 @@ export const TrialTable: FC<{
         enableSorting: true,
         enableColumnFilter: false,
         sortUndefined: "last",
+        sortingFn: (a, b) => {
+          const aVal = Number(a.original.values?.[0] ?? 0)
+          const bVal = Number(b.original.values?.[0] ?? 0)
+          return aVal - bVal
+        },
+        cell: (info) => {
+          const val = info.getValue()?.[0] ?? null
+          // Display in exponential notation if the value is too large or too small.
+          if (val !== null && (val >= 10000 || val < 1e-4)) {
+            return val.toExponential()
+          }
+          return val
+        },
       })
     )
   } else {
@@ -110,7 +123,7 @@ export const TrialTable: FC<{
               : param_external_value
           },
           {
-            id: `params_${s.name}`,
+            id: `params_${JSON.stringify(s)}`,
             header: `Param ${s.name}`,
             enableSorting: sortable,
             sortUndefined: "last",
@@ -168,7 +181,7 @@ export const TrialTable: FC<{
     <DataGrid
       data={trials}
       columns={columns}
-      initialRowsPerPage={initialRowsPerPage}
+      initialRowsPerPage={initialRowsPerPage ?? 50}
     />
   )
 }

@@ -20,9 +20,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
-dependencies = [
-    "jupyter_server>=2.0.1,<3", "optuna-dashboard>=0.12.0"
-]
+dependencies = ["jupyter_server>=2.0.1,<3", "optuna>=3.1.0", "bottle>=0.13.0", "packaging", "scikit-learn"]
 dynamic = ["version", "description", "authors", "urls", "keywords"]
 
 [project.optional-dependencies]
@@ -36,7 +34,7 @@ fields = ["description", "authors", "urls"]
 
 [tool.hatch.build.targets.sdist]
 artifacts = ["jupyterlab_optuna/labextension"]
-exclude = [".github", "binder", "node_modules"]
+exclude = [".github", "binder"]
 
 [tool.hatch.build.targets.wheel.shared-data]
 "jupyterlab_optuna/labextension" = "share/jupyter/labextensions/jupyterlab-optuna"
