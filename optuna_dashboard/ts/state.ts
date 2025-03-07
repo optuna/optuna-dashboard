@@ -50,12 +50,12 @@ export const usePlotlyColorThemeState = () => {
 }
 
 export const useStudyDetailValue = (studyId: number): StudyDetail | null => {
-  const studyDetails = useAtomValue<StudyDetails>(studyDetailsState)
+  const studyDetails = useAtomValue(studyDetailsState)
   return studyDetails[studyId] || null
 }
 
 export const useStudySummaryValue = (studyId: number): StudySummary | null => {
-  const studySummaries = useAtomValue<StudySummary[]>(studySummariesState)
+  const studySummaries = useAtomValue(studySummariesState)
   return studySummaries.find((s) => s.study_id === studyId) || null
 }
 

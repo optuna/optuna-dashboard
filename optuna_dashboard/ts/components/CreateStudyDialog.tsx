@@ -30,7 +30,7 @@ export const useCreateStudyDialog = (): [() => void, () => ReactNode] => {
   const [directions, setDirections] = useState<Optuna.StudyDirection[]>([
     "minimize",
   ])
-  const studies = useAtomValue<StudySummary[]>(studySummariesState)
+  const studies = useAtomValue(studySummariesState)
   const newStudyNameAlreadyUsed = studies.some(
     (v) => v.study_name === newStudyName
   )

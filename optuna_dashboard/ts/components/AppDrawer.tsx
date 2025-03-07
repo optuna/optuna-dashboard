@@ -144,8 +144,8 @@ export const AppDrawer: FC<{
   const theme = useTheme()
   const constants = useConstants()
   const action = actionCreator()
-  const [open, setOpen] = useAtom<boolean>(drawerOpenState)
-  const reloadInterval = useAtomValue<number>(reloadIntervalState)
+  const [open, setOpen] = useAtom(drawerOpenState)
+  const reloadInterval = useAtomValue(reloadIntervalState)
   const isPreferential =
     studyId !== undefined ? useStudyIsPreferential(studyId) : null
   const [showExperimentalFeatures] = useShowExperimentalFeature()

@@ -200,7 +200,7 @@ const MarkdownEditorModal: FC<{
   const [curNote, setCurNote] = useState({ version: 0, body: "" })
   const textAreaRef = createRef<HTMLTextAreaElement>()
   const notLatest = latestNote.version > curNote.version
-  const artifactEnabled = useAtomValue<boolean>(artifactIsAvailable)
+  const artifactEnabled = useAtomValue(artifactIsAvailable)
 
   const [previewMarkdown, setPreviewMarkdown] = useState<string>("")
   const [preview, setPreview] = useState<boolean>(false)
@@ -419,7 +419,7 @@ const ArtifactUploader: FC<{
   const theme = useTheme()
   const action = actionCreator()
 
-  const uploading = useAtomValue<boolean>(isFileUploading)
+  const uploading = useAtomValue(isFileUploading)
   const artifacts = useArtifacts(studyId, trialId)
   const [dragOver, setDragOver] = useState<boolean>(false)
   const [selectedArtifactId, setSelectedArtifactId] = useState<string>("")

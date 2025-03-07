@@ -61,14 +61,14 @@ export const StudyList: FC<{
       return row.study_name.indexOf(k) >= 0
     })
   }
-  const studies = useAtomValue<StudySummary[]>(studySummariesState)
+  const studies = useAtomValue(studySummariesState)
   const [openCreateStudyDialog, renderCreateStudyDialog] =
     useCreateStudyDialog()
   const [openDeleteStudyDialog, renderDeleteStudyDialog] =
     useDeleteStudyDialog()
   const [openRenameStudyDialog, renderRenameStudyDialog] =
     useRenameStudyDialog(studies)
-  const isLoading = useAtomValue<boolean>(studySummariesLoadingState)
+  const isLoading = useAtomValue(studySummariesLoadingState)
 
   const navigate = useNavigate()
   const query = useQuery()

@@ -38,7 +38,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   const studyDetail = useStudyDetailValue(studyId)
   const [logScale, setLogScale] = useState<boolean>(false)
   const [includePruned, setIncludePruned] = useState<boolean>(true)
-  const artifactEnabled = useAtomValue<boolean>(artifactIsAvailable)
+  const artifactEnabled = useAtomValue(artifactIsAvailable)
 
   const handleLogScaleChange = () => {
     setLogScale(!logScale)

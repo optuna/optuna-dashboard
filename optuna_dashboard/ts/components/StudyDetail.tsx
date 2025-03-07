@@ -60,7 +60,7 @@ export const StudyDetail: FC<{
   const action = actionCreator()
   const studyId = useURLVars()
   const studyDetail = useStudyDetailValue(studyId)
-  const reloadInterval = useAtomValue<number>(reloadIntervalState)
+  const reloadInterval = useAtomValue(reloadIntervalState)
   const studyName = useStudyName(studyId)
   const isPreferential = useStudyIsPreferential(studyId)
   const study = studyDetailToStudy(studyDetail)

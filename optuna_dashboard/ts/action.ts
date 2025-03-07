@@ -35,9 +35,9 @@ export const actionCreator = () => {
   const setArtifactIsAvailable = useSetAtom(artifactIsAvailable)
   const setPlotlypyIsAvailable = useSetAtom(plotlypyIsAvailableState)
   const setStudySummariesLoading = useSetAtom(studySummariesLoadingState)
-  const [studyDetailLoading, setStudyDetailLoading] = useAtom<
-    Record<number, boolean>
-  >(studyDetailLoadingState)
+  const [studyDetailLoading, setStudyDetailLoading] = useAtom(
+    studyDetailLoadingState
+  )
 
   const setStudyDetailState = (studyId: number, study: StudyDetail) => {
     setStudyDetails((prevVal) => {

@@ -131,7 +131,7 @@ export const TrialListDetail: FC<{
 }> = ({ trial, isBestTrial, directions, metricNames, formWidgets }) => {
   const theme = useTheme()
   const action = actionCreator()
-  const artifactEnabled = useAtomValue<boolean>(artifactIsAvailable)
+  const artifactEnabled = useAtomValue(artifactIsAvailable)
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
 
