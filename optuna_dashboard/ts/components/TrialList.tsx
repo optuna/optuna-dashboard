@@ -26,7 +26,7 @@ import React, { FC, ReactNode, useMemo } from "react"
 
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useVirtualizer } from "@tanstack/react-virtual"
-import { useAtom } from "jotai"
+import { useAtom, useAtomValue } from "jotai"
 import { useNavigate } from "react-router-dom"
 import { FormWidgets, StudyDetail, Trial } from "ts/types/optuna"
 import { actionCreator } from "../action"
