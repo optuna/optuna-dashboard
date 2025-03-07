@@ -26,9 +26,8 @@ import React, { FC, ReactNode, useMemo } from "react"
 
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useVirtualizer } from "@tanstack/react-virtual"
-import { useAtomValue } from "jotai"
+import { useAtom } from "jotai"
 import { useNavigate } from "react-router-dom"
-import { useRecoilState, useRecoilValue } from "recoil"
 import { FormWidgets, StudyDetail, Trial } from "ts/types/optuna"
 import { actionCreator } from "../action"
 import { useConstants } from "../constantsProvider"
@@ -138,7 +137,7 @@ export const TrialListDetail: FC<{
   const artifactEnabled = useAtomValue(artifactIsAvailable)
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
-  const [durationTimeUnit, setDurationTimeUnit] = useRecoilState(
+  const [durationTimeUnit, setDurationTimeUnit] = useAtom(
     trialListDurationTimeUnitState
   )
   const duration = useMemo(
