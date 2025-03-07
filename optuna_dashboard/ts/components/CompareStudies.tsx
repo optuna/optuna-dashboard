@@ -26,7 +26,7 @@ import React, { FC, useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 
 import { useNavigate } from "react-router-dom"
-import { StudyDetails, StudySummary } from "ts/types/optuna"
+import { StudySummary } from "ts/types/optuna"
 import { actionCreator } from "../action"
 import { useConstants } from "../constantsProvider"
 import { studyDetailsState, studySummariesState } from "../state"

@@ -16,7 +16,6 @@ import {
 import * as Optuna from "@optuna/types"
 import { useAtomValue } from "jotai"
 import React, { ReactNode, useState } from "react"
-import { StudySummary } from "ts/types/optuna"
 import { actionCreator } from "../action"
 import { studySummariesState } from "../state"
 import { DebouncedInputTextField } from "./Debounce"
