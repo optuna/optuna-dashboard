@@ -180,14 +180,24 @@ const GraphParetoFrontFrontend: FC<{
 const filterFunc = (
   trial: Trial,
   selectedTrials: number[],
-  directions: StudyDirection[]
+  directions: StudyDirection[],
+  selected = true
 ): boolean => {
-  return (
-    selectedTrials.includes(trial.number) &&
-    trial.state === "Complete" &&
-    trial.values !== undefined &&
-    trial.values.length === directions.length
-  )
+  if (selected) {
+    return (
+      selectedTrials.includes(trial.number) &&
+      trial.state === "Complete" &&
+      trial.values !== undefined &&
+      trial.values.length === directions.length
+    )
+  } else {
+    return (
+      !selectedTrials.includes(trial.number) ||
+      trial.state !== "Complete" ||
+      trial.values === undefined ||
+      trial.values.length !== directions.length
+    )
+  }
 }
 
 const makeScatterObject = (
@@ -197,9 +207,10 @@ const makeScatterObject = (
   hovertemplate: string,
   dominated: boolean,
   feasible: boolean,
+  unselected: boolean,
   mode: string
 ): Partial<plotly.PlotData> => {
-  const marker = makeMarker(trials, dominated, feasible, mode)
+  const marker = makeMarker(trials, dominated, feasible, unselected, mode)
   return {
     x: trials.map((t) =>
       t.values ? (t.values[objectiveXId] as number) : null
@@ -219,6 +230,7 @@ const makeMarker = (
   trials: Trial[],
   dominated: boolean,
   feasible: boolean,
+  unselected: boolean,
   mode: string
 ): Partial<plotly.PlotData> => {
   if (feasible && dominated) {
@@ -244,6 +256,15 @@ const makeMarker = (
         xpad: 80,
       },
     }
+  } else if (unselected) {
+    return {
+      line:
+        mode === "dark"
+          ? { width: 0.25, color: "#666666" }
+          : { width: 0.25, color: "#cccccc" },
+      // @ts-ignore
+      color: "#FFFFFF00",
+    }
   } else {
     return {
       // @ts-ignore
@@ -264,19 +285,6 @@ const plotParetoFront = (
     return
   }
 
-  const xmin = Math.min(
-    ...study.trials.map((t) => t.values?.[objectiveXId] as number)
-  )
-  const xmax = Math.max(
-    ...study.trials.map((t) => t.values?.[objectiveXId] as number)
-  )
-  const ymin = Math.min(
-    ...study.trials.map((t) => t.values?.[objectiveYId] as number)
-  )
-  const ymax = Math.max(
-    ...study.trials.map((t) => t.values?.[objectiveYId] as number)
-  )
-
   const layout: Partial<plotly.Layout> = {
     margin: {
       l: 50,
@@ -286,16 +294,6 @@ const plotParetoFront = (
     },
     template: colorTheme,
     uirevision: "true",
-    xaxis: {
-      range: selectedTrials
-        ? [xmin - (xmax - xmin) * 0.1, xmax + (xmax - xmin) * 0.1]
-        : undefined,
-    },
-    yaxis: {
-      range: selectedTrials
-        ? [ymin - (ymax - ymin) * 0.1, ymax + (ymax - ymin) * 0.1]
-        : undefined,
-    },
   }
 
   const trials: Trial[] = study ? study.trials : []
@@ -304,6 +302,9 @@ const plotParetoFront = (
   }
   const filteredTrials = trials.filter((t: Trial) =>
     filterFunc(t, selectedTrials, study.directions)
+  )
+  const unselectedTrials = trials.filter((t: Trial) =>
+    filterFunc(t, selectedTrials, study.directions, false)
   )
 
   if (filteredTrials.length === 0) {
@@ -332,6 +333,16 @@ const plotParetoFront = (
 
   const plotData: Partial<plotly.PlotData>[] = [
     makeScatterObject(
+      unselectedTrials,
+      objectiveXId,
+      objectiveYId,
+      "%{text}<extra>Unselected Trial</extra>",
+      false,
+      false,
+      true,
+      mode
+    ),
+    makeScatterObject(
       feasibleTrials.filter((t, i) => isDominated[i]),
       objectiveXId,
       objectiveYId,
@@ -340,6 +351,7 @@ const plotParetoFront = (
         : "%{text}<extra>Feasible Trial</extra>",
       true,
       true,
+      false,
       mode
     ),
     makeScatterObject(
@@ -349,6 +361,7 @@ const plotParetoFront = (
       "%{text}<extra>Best Trial</extra>",
       false,
       true,
+      false,
       mode
     ),
     makeScatterObject(
@@ -356,6 +369,7 @@ const plotParetoFront = (
       objectiveXId,
       objectiveYId,
       "%{text}<extra>Infeasible Trial</extra>",
+      false,
       false,
       false,
       mode
