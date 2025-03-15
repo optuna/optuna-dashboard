@@ -100,8 +100,7 @@ const filterTrials = (
   targets: Target[],
   filterPruned: boolean,
   includeInfeasible = true,
-  includeDominated = true,
-  selectedTrials: number[] = []
+  includeDominated = true
 ): Optuna.Trial[] => {
   if (study === null) {
     return []
@@ -118,9 +117,6 @@ const filterTrials = (
 
   return trials.filter((t, i) => {
     if (isDominated.length > 0 && isDominated[i]) {
-      return false
-    }
-    if (selectedTrials.length !== 0 && !selectedTrials.includes(t.number)) {
       return false
     }
     if (t.state !== "Complete" && t.state !== "Pruned") {
@@ -172,7 +168,6 @@ export const useFilteredTrialsFromStudies = (
   studies: Optuna.Study[],
   targets: Target[],
   filterPruned: boolean,
-  selectedTrials: number[] = [],
   includeInfeasible = true,
   includeDominated = true
 ): Optuna.Trial[][] =>
@@ -183,18 +178,10 @@ export const useFilteredTrialsFromStudies = (
         targets,
         filterPruned,
         includeInfeasible,
-        includeDominated,
-        selectedTrials
+        includeDominated
       )
     )
-  }, [
-    studies,
-    targets,
-    filterPruned,
-    includeInfeasible,
-    includeDominated,
-    selectedTrials,
-  ])
+  }, [studies, targets, filterPruned, includeInfeasible, includeDominated])
 
 export const useObjectiveTargets = (
   study: Optuna.Study | null

@@ -33,6 +33,7 @@ interface HistoryPlotInfo {
   trials: Optuna.Trial[]
   directions: Optuna.StudyDirection[]
   metric_names?: string[]
+  selectedTrials?: number[]
 }
 
 export const PlotHistory: FC<{
@@ -75,8 +76,7 @@ export const PlotHistory: FC<{
   const trials = useFilteredTrialsFromStudies(
     studies,
     [selected],
-    includePruned === undefined ? !includePrunedInternal : !includePruned,
-    selectedTrials
+    includePruned === undefined ? !includePrunedInternal : !includePruned
   )
 
   const historyPlotInfos = studies.map((study, index) => {
@@ -85,6 +85,7 @@ export const PlotHistory: FC<{
       trials: trials[index],
       directions: study.directions,
       metric_names: study.metric_names,
+      selectedTrials: selectedTrials,
     }
     return h
   })
@@ -114,18 +115,13 @@ export const PlotHistory: FC<{
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (graphComponentState !== "componentWillMount") {
-      const axisRange = selectedTrials
-        ? calculateAxisRanges(studies, selected)
-        : undefined
-
       plotHistory(
         historyPlotInfos,
         selected,
         xAxis,
         logScale === undefined ? logScaleInternal : logScale,
         colorThemeUsed,
-        markerSize,
-        axisRange
+        markerSize
       )?.then(notifyGraphDidRender)
 
       const element = document.getElementById(plotDomId)
@@ -293,8 +289,7 @@ const plotHistory = (
   xAxis: "number" | "datetime_start" | "datetime_complete",
   logScale: boolean,
   colorTheme: Partial<Plotly.Template>,
-  markerSize: number,
-  axisRange: number[][] | undefined
+  markerSize: number
 ) => {
   if (document.getElementById(plotDomId) === null) {
     return
@@ -316,12 +311,10 @@ const plotHistory = (
     yaxis: {
       title: target.toLabel(historyPlotInfos[0].metric_names),
       type: logScale ? "log" : "linear",
-      range: axisRange ? axisRange[1] : undefined,
     },
     xaxis: {
       title: xAxis === "number" ? "Trial" : "Time",
       type: xAxis === "number" ? "linear" : "date",
-      range: axisRange ? axisRange[0] : undefined,
     },
     showlegend: historyPlotInfos.length === 1 ? false : true,
     template: colorTheme,
@@ -341,10 +334,24 @@ const plotHistory = (
 
   const plotData: Partial<plotly.PlotData>[] = []
   const infeasiblePlotData: Partial<plotly.PlotData>[] = []
+  const unselectedPlotData: Partial<plotly.PlotData>[] = []
   for (const h of historyPlotInfos) {
+    const selectedTrials: Optuna.Trial[] = []
+    const unselectedTrials: Optuna.Trial[] = []
+    if (h.selectedTrials !== undefined && h.selectedTrials.length !== 0) {
+      for (const t of h.trials) {
+        if (h.selectedTrials.includes(t.number)) {
+          selectedTrials.push(t)
+        } else {
+          unselectedTrials.push(t)
+        }
+      }
+    } else {
+      selectedTrials.push(...h.trials)
+    }
     const feasibleTrials: Optuna.Trial[] = []
     const infeasibleTrials: Optuna.Trial[] = []
-    for (const t of h.trials) {
+    for (const t of selectedTrials) {
       if (t.constraints.every((c) => c <= 0)) {
         feasibleTrials.push(t)
       } else {
@@ -440,27 +447,28 @@ const plotHistory = (
       hovertemplate: "%{text}<extra>Infeasible Trial</extra>",
       showlegend: false,
     })
+    unselectedPlotData.push({
+      x: unselectedTrials.map(getAxisX),
+      y: unselectedTrials.map(
+        (t: Optuna.Trial): number => target.getTargetValue(t) as number
+      ),
+      name: `Unselected Trial of ${h.study_name}`,
+      marker: {
+        line:
+          colorTheme === plotlyDarkTemplate
+            ? { width: 0.25, color: "#666666" }
+            : { width: 0.5, color: "#cccccc" },
+        size: markerSize,
+        color: "#ffffff00",
+      },
+      mode: "markers",
+      type: "scatter",
+      text: unselectedTrials.map((t) => makeHovertext(t)),
+      hovertemplate: "%{text}<extra>Unselected Trial</extra>",
+      showlegend: false,
+    })
   }
   plotData.push(...infeasiblePlotData)
+  plotData.push(...unselectedPlotData)
   return plotly.react(plotDomId, plotData, layout)
-}
-
-function calculateAxisRanges(studies: Optuna.Study[], selected: Target) {
-  const xmin = Math.min(...studies[0].trials.map((t) => t.number))
-  const xmax = Math.max(...studies[0].trials.map((t) => t.number))
-  const ymin = Math.min(
-    ...studies[0].trials.map((t) => selected.getTargetValue(t) as number)
-  )
-  const ymax = Math.max(
-    ...studies[0].trials.map((t) => selected.getTargetValue(t) as number)
-  )
-  const xAxisRange: [number, number] = [
-    xmin - (xmax - xmin) * 0.1,
-    xmax + (xmax - xmin) * 0.1,
-  ]
-  const yAxisRange: [number, number] = [
-    ymin - (ymax - ymin) * 0.1,
-    ymax + (ymax - ymin) * 0.1,
-  ]
-  return [xAxisRange, yAxisRange]
 }
