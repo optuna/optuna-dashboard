@@ -261,7 +261,7 @@ const makeMarker = (
       line:
         mode === "dark"
           ? { width: 0.25, color: "#666666" }
-          : { width: 0.50, color: "#cccccc" },
+          : { width: 0.5, color: "#cccccc" },
       // @ts-ignore
       color: "#ffffff00",
     }
