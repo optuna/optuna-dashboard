@@ -64,107 +64,105 @@ export const App: FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-        <ThemeProvider theme={theme}>
-          <CssBaseline />
-          <Box
-            component="div"
-            sx={{
-              backgroundColor:
-                theme.palette.mode === "dark" ? "#121212" : "#ffffff",
-              width: "100%",
-              minHeight: "100vh",
-            }}
-          >
-            <SnackbarProvider maxSnack={3}>
-              <Router>
-                <Routes>
-                  <Route
-                    path={url_prefix + "/studies/:studyId/analytics"}
-                    element={
-                      <StudyDetail
-                        toggleColorMode={toggleColorMode}
-                        page={"analytics"}
-                      />
-                    }
-                  />
-                  <Route
-                    path={url_prefix + "/studies/:studyId/trials"}
-                    element={
-                      <StudyDetail
-                        toggleColorMode={toggleColorMode}
-                        page={"trialList"}
-                      />
-                    }
-                  />
-                  <Route
-                    path={url_prefix + "/studies/:studyId/trialTable"}
-                    element={
-                      <StudyDetail
-                        toggleColorMode={toggleColorMode}
-                        page={"trialTable"}
-                      />
-                    }
-                  />
-                  <Route
-                    path={url_prefix + "/studies/:studyId/trialSelection"}
-                    element={
-                      <StudyDetail
-                        toggleColorMode={toggleColorMode}
-                        page={"trialSelection"}
-                      />
-                    }
-                  />
-                  <Route
-                    path={url_prefix + "/studies/:studyId/note"}
-                    element={
-                      <StudyDetail
-                        toggleColorMode={toggleColorMode}
-                        page={"note"}
-                      />
-                    }
-                  />
-                  <Route
-                    path={url_prefix + "/studies/:studyId/graph"}
-                    element={
-                      <StudyDetail
-                        toggleColorMode={toggleColorMode}
-                        page={"graph"}
-                      />
-                    }
-                  />
-                  <Route
-                    path={url_prefix + "/studies/:studyId"}
-                    element={
-                      <StudyDetail
-                        toggleColorMode={toggleColorMode}
-                        page={"top"}
-                      />
-                    }
-                  />
-                  <Route
-                    path={url_prefix + "/studies/:studyId/preference-history"}
-                    element={
-                      <StudyDetail
-                        toggleColorMode={toggleColorMode}
-                        page={"preferenceHistory"}
-                      />
-                    }
-                  />
-                  <Route
-                    path={url_prefix + "/compare-studies"}
-                    element={
-                      <CompareStudies toggleColorMode={toggleColorMode} />
-                    }
-                  />
-                  <Route
-                    path={url_prefix + "/"}
-                    element={<StudyList toggleColorMode={toggleColorMode} />}
-                  />
-                </Routes>
-              </Router>
-            </SnackbarProvider>
-          </Box>
-        </ThemeProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Box
+          component="div"
+          sx={{
+            backgroundColor:
+              theme.palette.mode === "dark" ? "#121212" : "#ffffff",
+            width: "100%",
+            minHeight: "100vh",
+          }}
+        >
+          <SnackbarProvider maxSnack={3}>
+            <Router>
+              <Routes>
+                <Route
+                  path={url_prefix + "/studies/:studyId/analytics"}
+                  element={
+                    <StudyDetail
+                      toggleColorMode={toggleColorMode}
+                      page={"analytics"}
+                    />
+                  }
+                />
+                <Route
+                  path={url_prefix + "/studies/:studyId/trials"}
+                  element={
+                    <StudyDetail
+                      toggleColorMode={toggleColorMode}
+                      page={"trialList"}
+                    />
+                  }
+                />
+                <Route
+                  path={url_prefix + "/studies/:studyId/trialTable"}
+                  element={
+                    <StudyDetail
+                      toggleColorMode={toggleColorMode}
+                      page={"trialTable"}
+                    />
+                  }
+                />
+                <Route
+                  path={url_prefix + "/studies/:studyId/trialSelection"}
+                  element={
+                    <StudyDetail
+                      toggleColorMode={toggleColorMode}
+                      page={"trialSelection"}
+                    />
+                  }
+                />
+                <Route
+                  path={url_prefix + "/studies/:studyId/note"}
+                  element={
+                    <StudyDetail
+                      toggleColorMode={toggleColorMode}
+                      page={"note"}
+                    />
+                  }
+                />
+                <Route
+                  path={url_prefix + "/studies/:studyId/graph"}
+                  element={
+                    <StudyDetail
+                      toggleColorMode={toggleColorMode}
+                      page={"graph"}
+                    />
+                  }
+                />
+                <Route
+                  path={url_prefix + "/studies/:studyId"}
+                  element={
+                    <StudyDetail
+                      toggleColorMode={toggleColorMode}
+                      page={"top"}
+                    />
+                  }
+                />
+                <Route
+                  path={url_prefix + "/studies/:studyId/preference-history"}
+                  element={
+                    <StudyDetail
+                      toggleColorMode={toggleColorMode}
+                      page={"preferenceHistory"}
+                    />
+                  }
+                />
+                <Route
+                  path={url_prefix + "/compare-studies"}
+                  element={<CompareStudies toggleColorMode={toggleColorMode} />}
+                />
+                <Route
+                  path={url_prefix + "/"}
+                  element={<StudyList toggleColorMode={toggleColorMode} />}
+                />
+              </Routes>
+            </Router>
+          </SnackbarProvider>
+        </Box>
+      </ThemeProvider>
     </QueryClientProvider>
   )
 }
