@@ -3,6 +3,7 @@ import {
   APIMeta,
   CompareStudiesPlotType,
   CreateNewStudyResponse,
+  ParamImportanceEvaluator,
   ParamImportancesResponse,
   PlotResponse,
   PlotType,
@@ -61,5 +62,6 @@ export {
   TrialParam,
   CompareStudiesPlotType,
   PlotType,
+  ParamImportanceEvaluator,
   PlotResponse,
 }

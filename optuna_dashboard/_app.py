@@ -276,6 +276,21 @@ def create_app(
             return {"reason": f"study_id={study_id} is not found"}
 
         trials = get_trials(app._inmemory_cache, storage, study_id)
+
+        evaluator = request.query.get("evaluator", "ped_anova")  # Default evaluator is "ped_anova"
+        if (
+            evaluator != "fanova"
+            and evaluator != "ped_anova"
+            and evaluator != "mean_decrease_impurity"
+        ):
+            response.status = 400
+            return {
+                "reason": (
+                    "evaluator must be either "
+                    "'fanova', 'ped_anova' or 'mean_decrease_impurity'."
+                )
+            }
+
         try:
             importances = [
                 get_param_importance_from_trials_cache(
@@ -283,6 +298,7 @@ def create_app(
                     storage,
                     study_id,
                     objective_id,
+                    evaluator,
                     trials,
                 )
                 for objective_id in range(n_directions)
