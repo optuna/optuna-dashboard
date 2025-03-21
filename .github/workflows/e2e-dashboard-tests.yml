@@ -17,7 +17,7 @@ on:
       - 'optuna_dashboard/tsconfig.json'
 jobs:
   test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         optuna-version: ['optuna==3.1.0', 'git+https://github.com/optuna/optuna.git']
@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 

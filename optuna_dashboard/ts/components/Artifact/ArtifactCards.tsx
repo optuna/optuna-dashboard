@@ -28,6 +28,18 @@ import {
   isThreejsArtifact,
   useThreejsArtifactModal,
 } from "./ThreejsArtifactViewer"
+import { useArtifactBaseUrlPath } from "../../hooks/useArtifactBaseUrlPath"
+
+export const getTrialArtifactUrlPath = (
+  baseUrlPath: string,
+  studyId: number,
+  trialId: number | null,
+  artifactId: string
+): string => {
+  return `${baseUrlPath}/artifacts/${studyId}${
+    trialId !== null ? `/${trialId}` : ""
+  }/${artifactId}`
+}
 
 type StudyOrTrial =
   | {
@@ -43,6 +55,7 @@ export const ArtifactCards: FC<{
   isArtifactModifiable?: boolean
 }> = ({ studyOrTrial, isArtifactModifiable = true }) => {
   const theme = useTheme()
+  const artifactBaseUrl = useArtifactBaseUrlPath()
   const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
     useDeleteArtifactDialog()
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
@@ -73,10 +86,14 @@ export const ArtifactCards: FC<{
         sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}
       >
         {sortedArtifacts.map((artifact) => {
-          const urlPath =
+          const urlPath = getTrialArtifactUrlPath(
+            artifactBaseUrl,
             studyOrTrial.type === "study"
-              ? `/artifacts/${studyOrTrial.study.id}/${artifact.artifact_id}`
-              : `/artifacts/${studyOrTrial.trial.study_id}/${studyOrTrial.trial.trial_id}/${artifact.artifact_id}`
+              ? studyOrTrial.study.id
+              : studyOrTrial.trial.study_id,
+            studyOrTrial.type === "study" ? null : studyOrTrial.trial.trial_id,
+            artifact.artifact_id
+          )
           return (
             <Card
               key={artifact.artifact_id}

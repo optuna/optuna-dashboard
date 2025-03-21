@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+from dataclasses import dataclass
 import functools
 import importlib
 import io
@@ -27,9 +28,10 @@ from optuna.trial import TrialState
 from . import _note as note
 from ._bottle_util import BottleViewReturn
 from ._bottle_util import json_api_view
-from ._cached_extra_study_property import get_cached_extra_study_property
 from ._custom_plot_data import get_plotly_graph_objects
 from ._importance import get_param_importance_from_trials_cache
+from ._inmemory_cache import get_cached_extra_study_property
+from ._inmemory_cache import InMemoryCache
 from ._pareto_front import get_pareto_front_trials
 from ._preference_setting import _register_preference_feedback_component
 from ._preferential_history import NewHistory
@@ -74,12 +76,19 @@ IMG_DIR = os.path.join(BASE_DIR, "img")
 cached_path_exists = functools.lru_cache(maxsize=10)(os.path.exists)
 
 
+@dataclass
+class JupyterLabExtensionContext:
+    base_url: str
+
+
 def create_app(
     storage: BaseStorage,
     artifact_store: Optional[ArtifactStore] = None,
     debug: bool = False,
+    jupyterlab_extension_context: JupyterLabExtensionContext | None = None,
 ) -> Bottle:
     app = Bottle()
+    app._inmemory_cache = InMemoryCache()
 
     @app.hook("before_request")
     def remove_trailing_slashes_hook() -> None:
@@ -97,10 +106,15 @@ def create_app(
     @app.get("/api/meta")
     @json_api_view
     def api_meta() -> dict[str, Any]:
-        return {
+        meta: dict[str, Any] = {
             "artifact_is_available": artifact_store is not None,
             "plotlypy_is_available": importlib.util.find_spec("plotly") is not None,
         }
+        if jupyterlab_extension_context is not None:
+            meta["jupyterlab_extension_context"] = {
+                "base_url": jupyterlab_extension_context.base_url
+            }
+        return meta
 
     @app.get("/api/studies")
     @json_api_view
@@ -214,7 +228,7 @@ def create_app(
         if study is None:
             response.status = 404  # Not found
             return {"reason": f"study_id={study_id} is not found"}
-        trials = get_trials(storage, study_id)
+        trials = get_trials(app._inmemory_cache, storage, study_id)
 
         system_attrs = getattr(study, "system_attrs", {})
         is_preferential = system_attrs.get(_SYSTEM_ATTR_PREFERENTIAL_STUDY, False)
@@ -235,7 +249,7 @@ def create_app(
             union,
             union_user_attrs,
             has_intermediate_values,
-        ) = get_cached_extra_study_property(study_id, trials)
+        ) = get_cached_extra_study_property(app._inmemory_cache, study_id, trials)
 
         plotly_graph_objects = get_plotly_graph_objects(system_attrs)
         skipped_trial_ids = get_skipped_trial_ids(system_attrs)
@@ -261,10 +275,16 @@ def create_app(
             response.status = 404  # Study is not found
             return {"reason": f"study_id={study_id} is not found"}
 
-        trials = get_trials(storage, study_id)
+        trials = get_trials(app._inmemory_cache, storage, study_id)
         try:
             importances = [
-                get_param_importance_from_trials_cache(storage, study_id, objective_id, trials)
+                get_param_importance_from_trials_cache(
+                    app._inmemory_cache,
+                    storage,
+                    study_id,
+                    objective_id,
+                    trials,
+                )
                 for objective_id in range(n_directions)
             ]
             return {"param_importances": importances}
@@ -630,6 +650,7 @@ def wsgi(
     artifact_store: Optional[ArtifactBackend | ArtifactStore] = None,
     *,
     artifact_backend: Optional[ArtifactBackend] = None,
+    jupyterlab_extension_context: JupyterLabExtensionContext | None = None,
 ) -> WSGIApplication:
     """This function exposes WSGI interface for people who want to run on the
     production-class WSGI servers like Gunicorn or uWSGI.
@@ -646,4 +667,8 @@ def wsgi(
         )
         store = to_artifact_store(artifact_backend)
 
-    return create_app(get_storage(storage), artifact_store=store)
+    return create_app(
+        get_storage(storage),
+        artifact_store=store,
+        jupyterlab_extension_context=jupyterlab_extension_context,
+    )

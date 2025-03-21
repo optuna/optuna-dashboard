@@ -44,23 +44,13 @@ jobs:
           node-version: '20'
           cache: 'npm'
       
-      - run: make tslib
-      
-      - name: Build JavaScript dependencies
-        working-directory: optuna_dashboard
-        run: |
-          npm install
-          npm run build:pkg
-      
       # Without a following step, it will be failed to build the jupyter lab extension by the below error
       # Type Error Cannot read properties of undefined (reading .../jupyterlab/.pnp.cjs)
       - name: Mysterious hack to fix the build error
         working-directory: jupyterlab
         run: yarn install
       
-      - name: Build package
-        working-directory: jupyterlab
+      - run: make jupyterlab-extension
         env:
           YARN_ENABLE_IMMUTABLE_INSTALLS: false
-        run: python -m build --sdist
 

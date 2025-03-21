@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Any
+from typing import cast
 from unittest import TestCase
 import warnings
 
@@ -11,7 +12,7 @@ from optuna.distributions import BaseDistribution
 from optuna.distributions import FloatDistribution
 from optuna.exceptions import ExperimentalWarning
 from optuna.trial import TrialState
-from optuna_dashboard._cached_extra_study_property import _CachedExtraStudyProperty
+from optuna_dashboard._inmemory_cache import _CachedExtraStudyProperty
 
 
 class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
@@ -50,7 +51,7 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
         self.assertEqual(len(cached_extra_study_property.intersection_search_space), 2)
         self.assertEqual(len(cached_extra_study_property.union_search_space), 2)
 
-    def test_different_distributions(self) -> None:
+    def test_same_distributions_with_different_low_high(self) -> None:
         distributions: list[dict[str, BaseDistribution]] = [
             {
                 "x0": FloatDistribution(low=0, high=10),
@@ -59,6 +60,45 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
             {
                 "x0": FloatDistribution(low=0, high=5),
                 "x1": FloatDistribution(low=0, high=10),
+            },
+        ]
+        params = [
+            {
+                "x0": 0.5,
+                "x1": 0.5,
+            },
+            {
+                "x0": 0.5,
+                "x1": 0.5,
+            },
+        ]
+        trials = [
+            create_trial(state=TrialState.COMPLETE, value=0, distributions=d, params=p)
+            for d, p in zip(distributions, params)
+        ]
+        cached_extra_study_property = _CachedExtraStudyProperty()
+        cached_extra_study_property.update(trials)
+
+        self.assertEqual(len(cached_extra_study_property.intersection_search_space), 2)
+        self.assertEqual(len(cached_extra_study_property.union_search_space), 2)
+
+        x0_distribution_in_union = next(
+            filter(lambda x: x[0] == "x0", cached_extra_study_property.union_search_space)
+        )[1]
+        self.assertIsInstance(x0_distribution_in_union, FloatDistribution)
+        x0_distribution_in_union = cast(FloatDistribution, x0_distribution_in_union)
+        self.assertEqual(x0_distribution_in_union.low, 0)
+        self.assertEqual(x0_distribution_in_union.high, 10)
+
+    def test_different_distributions(self) -> None:
+        distributions: list[dict[str, BaseDistribution]] = [
+            {
+                "x0": FloatDistribution(low=0, high=10, step=0.1, log=False),
+                "x1": FloatDistribution(low=0, high=10, step=0.1, log=False),
+            },
+            {
+                "x0": FloatDistribution(low=0, high=5, step=0.1, log=False),
+                "x1": FloatDistribution(low=0, high=10, step=0.5, log=False),
             },
         ]
         params = [
@@ -116,8 +156,8 @@ class _CachedExtraStudyPropertySearchSpaceTestCase(TestCase):
         cached_extra_study_property = _CachedExtraStudyProperty()
         cached_extra_study_property.update(trials)
 
-        self.assertEqual(len(cached_extra_study_property.intersection_search_space), 0)
-        self.assertEqual(len(cached_extra_study_property.union_search_space), 3)
+        self.assertEqual(len(cached_extra_study_property.intersection_search_space), 1)
+        self.assertEqual(len(cached_extra_study_property.union_search_space), 2)
 
     def test_contains_failed_trials(self) -> None:
         distributions: dict[str, BaseDistribution] = {
