@@ -20,6 +20,7 @@ import React, {
   useState,
 } from "react"
 import { actionCreator } from "../../action"
+import { useArtifactBaseUrlPath } from "../../hooks/useArtifactBaseUrlPath"
 import { StudyDetail, Trial } from "../../types/optuna"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
@@ -28,7 +29,6 @@ import {
   isThreejsArtifact,
   useThreejsArtifactModal,
 } from "./ThreejsArtifactViewer"
-import { useArtifactBaseUrlPath } from "../../hooks/useArtifactBaseUrlPath"
 
 export const getTrialArtifactUrlPath = (
   baseUrlPath: string,
