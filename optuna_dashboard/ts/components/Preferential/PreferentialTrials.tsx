@@ -37,11 +37,11 @@ import {
 } from "ts/types/optuna"
 import { actionCreator } from "../../action"
 import { useArtifactBaseUrlPath } from "../../hooks/useArtifactBaseUrlPath"
+import { getTrialArtifactUrlPath } from "../Artifact/ArtifactCards"
 import {
   isThreejsArtifact,
   useThreejsArtifactModal,
 } from "../Artifact/ThreejsArtifactViewer"
-import { getTrialArtifactUrlPath } from "../Artifact/TrialArtifactCards"
 import { TrialListDetail } from "../TrialList"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
 

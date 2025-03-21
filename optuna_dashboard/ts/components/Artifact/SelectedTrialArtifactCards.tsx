@@ -20,7 +20,7 @@ import React, { FC, useMemo, useState } from "react"
 import { StudyDirection } from "@optuna/types"
 import { StudyDetail, Trial } from "ts/types/optuna"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
-import { useDeleteTrialArtifactDialog } from "./DeleteArtifactDialog"
+import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
 import { isTableArtifact, useTableArtifactModal } from "./TableArtifactViewer"
 import {
   isThreejsArtifact,
@@ -33,7 +33,7 @@ export const SelectedTrialArtifactCards: FC<{
 }> = ({ study, selectedTrials }) => {
   const theme = useTheme()
   const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
-    useDeleteTrialArtifactDialog()
+    useDeleteArtifactDialog()
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
     useThreejsArtifactModal()
   const [openTableArtifactModal, renderTableArtifactModal] =
@@ -199,11 +199,12 @@ export const SelectedTrialArtifactCards: FC<{
                     color="inherit"
                     sx={{ margin: "auto 0" }}
                     onClick={() => {
-                      openDeleteArtifactDialog(
-                        trial.study_id,
-                        trial.trial_id,
-                        artifact
-                      )
+                      openDeleteArtifactDialog({
+                        type: "trial",
+                        studyId: trial.study_id,
+                        trialId: trial.trial_id,
+                        artifact,
+                      })
                     }}
                   >
                     <DeleteIcon />

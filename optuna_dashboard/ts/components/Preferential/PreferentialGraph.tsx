@@ -26,7 +26,7 @@ import "reactflow/dist/style.css"
 import { StudyDetail, Trial } from "ts/types/optuna"
 import { useArtifactBaseUrlPath } from "../../hooks/useArtifactBaseUrlPath"
 import { useStudyDetailValue } from "../../state"
-import { getTrialArtifactUrlPath } from "../Artifact/TrialArtifactCards"
+import { getTrialArtifactUrlPath } from "../Artifact/ArtifactCards"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
 
 const elk = new ELK()

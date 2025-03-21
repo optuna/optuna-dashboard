@@ -19,31 +19,45 @@ import React, {
   useRef,
   useState,
 } from "react"
-
-import { StudyDetail } from "ts/types/optuna"
 import { actionCreator } from "../../action"
 import { useArtifactBaseUrlPath } from "../../hooks/useArtifactBaseUrlPath"
+import { StudyDetail, Trial } from "../../types/optuna"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
-import { useDeleteStudyArtifactDialog } from "./DeleteArtifactDialog"
+import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
 import { isTableArtifact, useTableArtifactModal } from "./TableArtifactViewer"
 import {
   isThreejsArtifact,
   useThreejsArtifactModal,
 } from "./ThreejsArtifactViewer"
 
-const getStudyArtifactUrlPath = (
+export const getTrialArtifactUrlPath = (
   baseUrlPath: string,
   studyId: number,
+  trialId: number | null,
   artifactId: string
 ): string => {
-  return `${baseUrlPath}/artifacts/${studyId}/${artifactId}`
+  return `${baseUrlPath}/artifacts/${studyId}${
+    trialId !== null ? `/${trialId}` : ""
+  }/${artifactId}`
 }
 
-export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
+type StudyOrTrial =
+  | {
+      type: "study"
+      study: StudyDetail
+    }
+  | {
+      type: "trial"
+      trial: Trial
+    }
+export const ArtifactCards: FC<{
+  studyOrTrial: StudyOrTrial
+  isArtifactModifiable?: boolean
+}> = ({ studyOrTrial, isArtifactModifiable = true }) => {
   const theme = useTheme()
   const artifactBaseUrl = useArtifactBaseUrlPath()
   const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
-    useDeleteStudyArtifactDialog()
+    useDeleteArtifactDialog()
   const [openThreejsArtifactModal, renderThreejsArtifactModal] =
     useThreejsArtifactModal()
   const [openTableArtifactModal, renderTableArtifactModal] =
@@ -51,7 +65,11 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
 
   const width = "200px"
   const height = "150px"
-  const artifacts = [...study.artifacts].sort((a, b) => {
+  const sortedArtifacts = [
+    ...(studyOrTrial.type === "study"
+      ? studyOrTrial.study.artifacts
+      : studyOrTrial.trial.artifacts),
+  ].sort((a, b) => {
     if (a.filename < b.filename) {
       return -1
     } else if (a.filename > b.filename) {
@@ -67,10 +85,13 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
         component="div"
         sx={{ display: "flex", flexWrap: "wrap", p: theme.spacing(1, 0) }}
       >
-        {artifacts.map((artifact) => {
-          const urlPath = getStudyArtifactUrlPath(
+        {sortedArtifacts.map((artifact) => {
+          const urlPath = getTrialArtifactUrlPath(
             artifactBaseUrl,
-            study.id,
+            studyOrTrial.type === "study"
+              ? studyOrTrial.study.id
+              : studyOrTrial.trial.study_id,
+            studyOrTrial.type === "study" ? null : studyOrTrial.trial.trial_id,
             artifact.artifact_id
           )
           return (
@@ -80,7 +101,15 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
                 marginBottom: theme.spacing(2),
                 width: width,
                 margin: theme.spacing(0, 1, 1, 0),
-                border: `1px solid ${theme.palette.divider}`,
+                display: studyOrTrial.type === "trial" ? "flex" : undefined,
+                flexDirection:
+                  studyOrTrial.type === "trial" ? "column" : undefined,
+                alignItems:
+                  studyOrTrial.type === "trial" ? "center" : undefined,
+                border:
+                  studyOrTrial.type === "study"
+                    ? `1px solid ${theme.palette.divider}`
+                    : undefined,
               }}
             >
               <ArtifactCardMedia
@@ -99,12 +128,22 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
                   sx={{
                     p: theme.spacing(0.5, 0),
                     flexGrow: 1,
-                    wordWrap: "break-word",
-                    maxWidth: `calc(100% - ${
-                      isThreejsArtifact(artifact)
-                        ? theme.spacing(12)
-                        : theme.spacing(8)
-                    })`,
+                    wordBreak:
+                      studyOrTrial.type === "trial" ? "break-all" : undefined,
+                    maxWidth:
+                      studyOrTrial.type === "trial"
+                        ? `calc(100% - ${theme.spacing(
+                            4 +
+                              (isThreejsArtifact(artifact) ? 4 : 0) +
+                              (isArtifactModifiable ? 4 : 0)
+                          )})`
+                        : `calc(100% - ${
+                            isThreejsArtifact(artifact)
+                              ? theme.spacing(12)
+                              : theme.spacing(8)
+                          })`,
+                    wordWrap:
+                      studyOrTrial.type === "study" ? "break-word" : undefined,
                   }}
                 >
                   {artifact.filename}
@@ -135,17 +174,32 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
                     <FullscreenIcon />
                   </IconButton>
                 ) : null}
-                <IconButton
-                  aria-label="delete artifact"
-                  size="small"
-                  color="inherit"
-                  sx={{ margin: "auto 0" }}
-                  onClick={() => {
-                    openDeleteArtifactDialog(study.id, artifact)
-                  }}
-                >
-                  <DeleteIcon />
-                </IconButton>
+                {isArtifactModifiable && (
+                  <IconButton
+                    aria-label="delete artifact"
+                    size="small"
+                    color="inherit"
+                    sx={{ margin: "auto 0" }}
+                    onClick={() => {
+                      openDeleteArtifactDialog(
+                        studyOrTrial.type === "study"
+                          ? {
+                              type: "study",
+                              studyId: studyOrTrial.study.id,
+                              artifact,
+                            }
+                          : {
+                              type: "trial",
+                              studyId: studyOrTrial.trial.study_id,
+                              trialId: studyOrTrial.trial.trial_id,
+                              artifact,
+                            }
+                      )
+                    }}
+                  >
+                    <DeleteIcon />
+                  </IconButton>
+                )}
                 <IconButton
                   aria-label="download artifact"
                   size="small"
@@ -160,7 +214,13 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
             </Card>
           )
         })}
-        <StudyArtifactUploader study={study} width={width} height={height} />
+        {isArtifactModifiable && (
+          <ArtifactUploader
+            studyOrTrial={studyOrTrial}
+            width={width}
+            height={height}
+          />
+        )}
       </Box>
       {renderDeleteArtifactDialog()}
       {renderThreejsArtifactModal()}
@@ -169,14 +229,14 @@ export const StudyArtifactCards: FC<{ study: StudyDetail }> = ({ study }) => {
   )
 }
 
-const StudyArtifactUploader: FC<{
-  study: StudyDetail
+const ArtifactUploader: FC<{
+  studyOrTrial: StudyOrTrial
   width: string
   height: string
-}> = ({ study, width, height }) => {
+}> = ({ studyOrTrial, width, height }) => {
   const theme = useTheme()
-  const [dragOver, setDragOver] = useState<boolean>(false)
   const action = actionCreator()
+  const [dragOver, setDragOver] = useState(false)
 
   const inputRef = useRef<HTMLInputElement>(null)
   const handleClick: MouseEventHandler = () => {
@@ -191,7 +251,15 @@ const StudyArtifactUploader: FC<{
     if (files === null) {
       return
     }
-    action.uploadStudyArtifact(study.id, files[0])
+    if (studyOrTrial.type === "study") {
+      action.uploadStudyArtifact(studyOrTrial.study.id, files[0])
+    } else if (studyOrTrial.type === "trial") {
+      action.uploadTrialArtifact(
+        studyOrTrial.trial.study_id,
+        studyOrTrial.trial.trial_id,
+        files[0]
+      )
+    }
   }
 
   const handleDragOver: DragEventHandler = (e) => {
@@ -214,7 +282,15 @@ const StudyArtifactUploader: FC<{
     const files = e.dataTransfer.files
     setDragOver(false)
     for (let i = 0; i < files.length; i++) {
-      action.uploadStudyArtifact(study.id, files[i])
+      if (studyOrTrial.type === "study") {
+        action.uploadStudyArtifact(studyOrTrial.study.id, files[i])
+      } else if (studyOrTrial.type === "trial") {
+        action.uploadTrialArtifact(
+          studyOrTrial.trial.study_id,
+          studyOrTrial.trial.trial_id,
+          files[i]
+        )
+      }
     }
   }
 
