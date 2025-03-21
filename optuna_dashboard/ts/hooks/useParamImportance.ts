@@ -3,12 +3,18 @@ import { useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import { useSnackbar } from "notistack"
 import { useEffect } from "react"
+import { ParamImportanceEvaluator } from "../apiClient"
 import { useAPIClient } from "../apiClientProvider"
 
 export const useParamImportance = ({
   numCompletedTrials,
   studyId,
-}: { numCompletedTrials: number; studyId: number }) => {
+  evaluator,
+}: {
+  numCompletedTrials: number
+  studyId: number
+  evaluator: ParamImportanceEvaluator
+}) => {
   const { apiClient } = useAPIClient()
   const { enqueueSnackbar } = useSnackbar()
 
@@ -16,8 +22,8 @@ export const useParamImportance = ({
     Optuna.ParamImportance[][],
     AxiosError<{ reason: string }>
   >({
-    queryKey: ["paramImportance", studyId, numCompletedTrials],
-    queryFn: () => apiClient.getParamImportances(studyId),
+    queryKey: ["paramImportance", studyId, numCompletedTrials, evaluator],
+    queryFn: () => apiClient.getParamImportances(studyId, evaluator),
     staleTime: Infinity,
     gcTime: 30 * 60 * 1000, // 30 minutes
   })

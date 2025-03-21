@@ -10,7 +10,6 @@ import pink from "@mui/material/colors/pink"
 import { SnackbarProvider } from "notistack"
 import React, { useMemo, useState, useEffect, FC } from "react"
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
-import { RecoilRoot } from "recoil"
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"
 import { useConstants } from "../constantsProvider"
@@ -65,7 +64,6 @@ export const App: FC = () => {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <RecoilRoot>
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Box
@@ -167,7 +165,6 @@ export const App: FC = () => {
             </SnackbarProvider>
           </Box>
         </ThemeProvider>
-      </RecoilRoot>
     </QueryClientProvider>
   )
 }
