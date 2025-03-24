@@ -29,27 +29,38 @@ const queryClient = new QueryClient({
 })
 
 export const App: FC = () => {
+  const { color_mode, url_prefix } = useConstants()
+
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)")
-  const [colorMode, setColorMode] = useState<"light" | "dark">("light")
+  const [optunaDashboardColorMode, optunaDashboardSetColorMode] = useState<
+    "light" | "dark"
+  >("light")
   useEffect(() => {
-    setColorMode(prefersDarkMode ? "dark" : "light")
+    optunaDashboardSetColorMode(prefersDarkMode ? "dark" : "light")
   }, [prefersDarkMode])
-  const theme = useMemo(
-    () =>
-      createTheme({
+  const theme = useMemo(() => {
+    if (color_mode !== undefined) {
+      return createTheme({
         palette: {
-          mode: colorMode,
+          mode: color_mode,
           primary: blue,
           secondary: pink,
         },
-      }),
-    [colorMode]
-  )
+      })
+    }
+    return createTheme({
+      palette: {
+        mode: optunaDashboardColorMode,
+        primary: blue,
+        secondary: pink,
+      },
+    })
+  }, [optunaDashboardColorMode, color_mode])
   const toggleColorMode = () => {
-    setColorMode(colorMode === "dark" ? "light" : "dark")
+    optunaDashboardSetColorMode(
+      optunaDashboardColorMode === "dark" ? "light" : "dark"
+    )
   }
-
-  const { url_prefix } = useConstants()
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -58,7 +69,8 @@ export const App: FC = () => {
         <Box
           component="div"
           sx={{
-            backgroundColor: colorMode === "dark" ? "#121212" : "#ffffff",
+            backgroundColor:
+              theme.palette.mode === "dark" ? "#121212" : "#ffffff",
             width: "100%",
             minHeight: "100vh",
           }}

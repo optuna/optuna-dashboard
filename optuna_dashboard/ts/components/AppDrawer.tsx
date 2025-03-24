@@ -139,7 +139,7 @@ export const AppDrawer: FC<{
   toolbar: React.ReactNode
   children?: React.ReactNode
 }> = ({ studyId, toggleColorMode, page, toolbar, children }) => {
-  const { url_prefix } = useConstants()
+  const { color_mode, url_prefix } = useConstants()
 
   const theme = useTheme()
   const constants = useConstants()
@@ -456,36 +456,38 @@ export const AppDrawer: FC<{
               </Box>
             </Modal>
           </ListItem>
-          <ListItem
-            key="DarkMode"
-            disablePadding
-            sx={styleListItem}
-            title="Dark Mode"
-          >
-            <ListItemButton
-              sx={styleListItemButton}
-              onClick={() => {
-                toggleColorMode()
-              }}
+          {color_mode === undefined && (
+            <ListItem
+              key="DarkMode"
+              disablePadding
+              sx={styleListItem}
+              title="Dark Mode"
             >
-              <ListItemIcon sx={styleListItemIcon}>
-                {theme.palette.mode === "dark" ? (
-                  <Brightness4Icon />
-                ) : (
-                  <Brightness7Icon />
-                )}
-              </ListItemIcon>
-              <ListItemText primary="Dark Mode" sx={styleListItemText} />
-              <Switch
-                edge="end"
-                checked={theme.palette.mode === "dark"}
-                sx={styleSwitch}
-                inputProps={{
-                  "aria-labelledby": "switch-list-label-dark-mode",
+              <ListItemButton
+                sx={styleListItemButton}
+                onClick={() => {
+                  toggleColorMode()
                 }}
-              />
-            </ListItemButton>
-          </ListItem>
+              >
+                <ListItemIcon sx={styleListItemIcon}>
+                  {theme.palette.mode === "dark" ? (
+                    <Brightness4Icon />
+                  ) : (
+                    <Brightness7Icon />
+                  )}
+                </ListItemIcon>
+                <ListItemText primary="Dark Mode" sx={styleListItemText} />
+                <Switch
+                  edge="end"
+                  checked={theme.palette.mode === "dark"}
+                  sx={styleSwitch}
+                  inputProps={{
+                    "aria-labelledby": "switch-list-label-dark-mode",
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          )}
           <Divider />
           <ListItem
             key="Feedback"

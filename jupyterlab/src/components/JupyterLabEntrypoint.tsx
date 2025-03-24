@@ -8,7 +8,6 @@ import {
   ThemeProvider,
   Typography,
   createTheme,
-  useMediaQuery,
   useTheme,
 } from "@mui/material"
 import CircularProgress from "@mui/material/CircularProgress"
@@ -38,8 +37,15 @@ export const JupyterLabEntrypoint: FC = () => {
   const [ready, setReady] = useState(false)
   const [pathName, setPathName] = useState("")
 
-  const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)")
-  const colorMode = prefersDarkMode ? "dark" : "light"
+  // JupyterLab's theme switching is handled by setting CSS variables (ref: https://github.com/jupyterlab/jupyterlab/issues/4919#issuecomment-405757623).
+  // Therefore, the implementation of determining whether JupyterLab is in dark or light mode should rely on these CSS variables.
+  // The CSS variable used is defined here: https://github.com/jupyterlab/jupyterlab/blob/d470c501f50ad7075413cd89967a1a8a332b9a2f/packages/theme-light-extension/style/variables.css#L36
+  const colorMode =
+    getComputedStyle(
+      document.querySelector(":root") as Element
+    ).getPropertyValue("--jp-shadow-base-lightness") === "0"
+      ? "light"
+      : "dark"
   const theme = useMemo(
     () =>
       createTheme({
@@ -83,6 +89,7 @@ export const JupyterLabEntrypoint: FC = () => {
   return (
     <ConstantsContext.Provider
       value={{
+        color_mode: colorMode,
         environment: "jupyterlab",
         url_prefix: pathName,
       }}
