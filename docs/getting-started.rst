@@ -231,32 +231,3 @@ or install the code-server extension via `Open VSX <https://open-vsx.org/extensi
 To use, right-click the SQLite3 files (``*.db`` or ``*.sqlite3``) in the file explorer and select the "Open in Optuna Dashboard" from the dropdown menu.
 This extension leverages the browser-only version of Optuna Dashboard, so the same limitations apply.
 
-Google Colaboratory
--------------------
-
-When you want to check the optimization history on Google Colaboratory,
-you can use ``google.colab.output()`` function as follows:
-
-.. code-block:: python
-
-   import optuna
-   import threading
-   from google.colab import output
-   from optuna_dashboard import run_server
-
-   def objective(trial):
-       x = trial.suggest_float("x", -100, 100)
-       return (x - 2) ** 2
-
-   # Run optimization
-   storage = optuna.storages.InMemoryStorage()
-   study = optuna.create_study(storage=storage)
-   study.optimize(objective, n_trials=100)
-
-   # Start Optuna Dashboard
-   port = 8081
-   thread = threading.Thread(target=run_server, args=(storage,), kwargs={"port": port})
-   thread.start()
-   output.serve_kernel_port_as_window(port, path='/dashboard/')
-
-Then please open http://localhost:8081/dashboard to browse.
