@@ -12,37 +12,49 @@ import React, { ReactNode, useState, FC } from "react"
 import { Artifact } from "ts/types/optuna"
 import { actionCreator } from "../../action"
 
-export const useDeleteTrialArtifactDialog = (): [
-  (studyId: number, trialId: number, artifact: Artifact) => void,
+type Target =
+  | {
+      type: "study"
+      studyId: number
+      artifact: Artifact
+    }
+  | {
+      type: "trial"
+      studyId: number
+      trialId: number
+      artifact: Artifact
+    }
+export const useDeleteArtifactDialog = (): [
+  (target: Target) => void,
   () => ReactNode,
 ] => {
   const action = actionCreator()
-
   const [openDeleteArtifactDialog, setOpenDeleteArtifactDialog] =
     useState(false)
-  const [target, setTarget] = useState<[number, number, Artifact | null]>([
-    -1,
-    -1,
-    null,
-  ])
+  const [target, setTarget] = useState<Target | null>(null)
 
   const handleCloseDeleteArtifactDialog = () => {
     setOpenDeleteArtifactDialog(false)
-    setTarget([-1, -1, null])
+    setTarget(null)
   }
 
   const handleDeleteArtifact = () => {
-    const [studyId, trialId, artifact] = target
-    if (artifact === null) {
-      return
+    if (target === null) return
+    if (target.type === "study") {
+      action.deleteStudyArtifact(target.studyId, target.artifact.artifact_id)
+    } else if (target.type === "trial") {
+      action.deleteTrialArtifact(
+        target.studyId,
+        target.trialId,
+        target.artifact.artifact_id
+      )
     }
-    action.deleteTrialArtifact(studyId, trialId, artifact.artifact_id)
     setOpenDeleteArtifactDialog(false)
-    setTarget([-1, -1, null])
+    setTarget(null)
   }
 
-  const openDialog = (studyId: number, trialId: number, artifact: Artifact) => {
-    setTarget([studyId, trialId, artifact])
+  const openDialog = (target: Target) => {
+    setTarget(target)
     setOpenDeleteArtifactDialog(true)
   }
 
@@ -51,50 +63,7 @@ export const useDeleteTrialArtifactDialog = (): [
       <DeleteDialog
         openDeleteArtifactDialog={openDeleteArtifactDialog}
         handleCloseDeleteArtifactDialog={handleCloseDeleteArtifactDialog}
-        filename={target[2]?.filename}
-        handleDeleteArtifact={handleDeleteArtifact}
-      />
-    )
-  }
-  return [openDialog, renderDeleteArtifactDialog]
-}
-
-export const useDeleteStudyArtifactDialog = (): [
-  (studyId: number, artifact: Artifact) => void,
-  () => ReactNode,
-] => {
-  const action = actionCreator()
-
-  const [openDeleteArtifactDialog, setOpenDeleteArtifactDialog] =
-    useState(false)
-  const [target, setTarget] = useState<[number, Artifact | null]>([-1, null])
-
-  const handleCloseDeleteArtifactDialog = () => {
-    setOpenDeleteArtifactDialog(false)
-    setTarget([-1, null])
-  }
-
-  const handleDeleteArtifact = () => {
-    const [studyId, artifact] = target
-    if (artifact === null) {
-      return
-    }
-    action.deleteStudyArtifact(studyId, artifact.artifact_id)
-    setOpenDeleteArtifactDialog(false)
-    setTarget([-1, null])
-  }
-
-  const openDialog = (studyId: number, artifact: Artifact) => {
-    setTarget([studyId, artifact])
-    setOpenDeleteArtifactDialog(true)
-  }
-
-  const renderDeleteArtifactDialog = () => {
-    return (
-      <DeleteDialog
-        openDeleteArtifactDialog={openDeleteArtifactDialog}
-        handleCloseDeleteArtifactDialog={handleCloseDeleteArtifactDialog}
-        filename={target[1]?.filename}
+        filename={target?.artifact.filename}
         handleDeleteArtifact={handleDeleteArtifact}
       />
     )

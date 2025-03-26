@@ -20,7 +20,7 @@ import { actionCreator } from "../../action"
 import { formatDate } from "../../dateUtil"
 import { useArtifactBaseUrlPath } from "../../hooks/useArtifactBaseUrlPath"
 import { useStudyDetailValue } from "../../state"
-import { getTrialArtifactUrlPath } from "../Artifact/TrialArtifactCards"
+import { getTrialArtifactUrlPath } from "../Artifact/ArtifactCards"
 import { TrialListDetail } from "../TrialList"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
 
