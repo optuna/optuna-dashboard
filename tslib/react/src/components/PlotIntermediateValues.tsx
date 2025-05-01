@@ -2,7 +2,7 @@ import { Box, Typography, useTheme } from "@mui/material"
 import * as Optuna from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
 import { FC, useEffect } from "react"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import { DarkColorTemplates } from "./PlotlyColorTemplates"
 
 const plotDomId = "graph-intermediate-values"
 
@@ -14,7 +14,8 @@ export const PlotIntermediateValues: FC<{
 }> = ({ trials, includePruned, logScale, colorTheme }) => {
   const theme = useTheme()
   const colorThemeUsed =
-    colorTheme ?? (theme.palette.mode === "dark" ? plotlyDarkTemplate : {})
+    colorTheme ??
+    (theme.palette.mode === "dark" ? DarkColorTemplates.default : {})
 
   useEffect(() => {
     plotIntermediateValue(

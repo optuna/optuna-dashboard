@@ -21,7 +21,7 @@ import {
   useObjectiveAndUserAttrTargets,
   useParamTargets,
 } from ".."
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import { DarkColorTemplates } from "./PlotlyColorTemplates"
 
 const plotDomId = "plot-parallel-coordinate"
 
@@ -52,7 +52,8 @@ export const PlotParallelCoordinate: FC<{
 
   const theme = useTheme()
   const colorThemeUsed =
-    colorTheme ?? (theme.palette.mode === "dark" ? plotlyDarkTemplate : {})
+    colorTheme ??
+    (theme.palette.mode === "dark" ? DarkColorTemplates.default : {})
 
   const [targets, searchSpace, renderCheckBoxes] = useTargets(study)
 

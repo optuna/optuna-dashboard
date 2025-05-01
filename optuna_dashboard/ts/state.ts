@@ -1,10 +1,7 @@
+import { DarkColorTemplates, LightColorTemplates } from "@optuna/react"
 import * as Optuna from "@optuna/types"
 import { atom, useAtomValue } from "jotai"
 import { useLocalStorage } from "usehooks-ts"
-import {
-  DarkColorTemplates,
-  LightColorTemplates,
-} from "./components/PlotlyColorTemplates"
 import {
   Artifact,
   PlotlyColorTheme,

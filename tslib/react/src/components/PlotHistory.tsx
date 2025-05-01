@@ -24,7 +24,7 @@ import {
   useFilteredTrialsFromStudies,
   useObjectiveAndUserAttrTargetsFromStudies,
 } from "../utils/trialFilter"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import { DarkColorTemplates } from "./PlotlyColorTemplates"
 
 const plotDomId = "plot-history"
 
@@ -58,7 +58,8 @@ export const PlotHistory: FC<{
 
   const theme = useTheme()
   const colorThemeUsed =
-    colorTheme ?? (theme.palette.mode === "dark" ? plotlyDarkTemplate : {})
+    colorTheme ??
+    (theme.palette.mode === "dark" ? DarkColorTemplates.default : {})
 
   const [xAxis, setXAxis] = useState<
     "number" | "datetime_start" | "datetime_complete"
@@ -439,7 +440,8 @@ const plotHistory = (
       name: `Infeasible Trial of ${h.study_name}`,
       marker: {
         size: markerSize,
-        color: colorTheme === plotlyDarkTemplate ? "#666666" : "#cccccc",
+        color:
+          colorTheme === DarkColorTemplates.default ? "#666666" : "#cccccc",
       },
       mode: "markers",
       type: "scatter",
@@ -455,7 +457,7 @@ const plotHistory = (
       name: `Unselected Trial of ${h.study_name}`,
       marker: {
         line:
-          colorTheme === plotlyDarkTemplate
+          colorTheme === DarkColorTemplates.default
             ? { width: 0.25, color: "#666666" }
             : { width: 0.5, color: "#cccccc" },
         size: markerSize,

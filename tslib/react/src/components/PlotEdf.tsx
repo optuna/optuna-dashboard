@@ -5,7 +5,7 @@ import { FC, useEffect, useMemo } from "react"
 import { useGraphComponentState } from "../hooks/useGraphComponentState"
 import { Target, useFilteredTrialsFromStudies } from "../utils/trialFilter"
 import { GraphContainer } from "./GraphContainer"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import { DarkColorTemplates } from "./PlotlyColorTemplates"
 
 export type EdfPlotInfo = {
   study_name: string
@@ -23,7 +23,8 @@ export const PlotEdf: FC<{
 
   const theme = useTheme()
   const colorThemeUsed =
-    colorTheme ?? (theme.palette.mode === "dark" ? plotlyDarkTemplate : {})
+    colorTheme ??
+    (theme.palette.mode === "dark" ? DarkColorTemplates.default : {})
 
   const domId = getPlotDomId(objectiveId)
   const target = useMemo<Target>(

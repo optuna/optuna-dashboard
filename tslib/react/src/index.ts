@@ -1,5 +1,8 @@
 export { DataGrid } from "./components/DataGrid"
-export { plotlyDarkTemplate } from "./components/PlotlyDarkMode"
+export {
+  DarkColorTemplates,
+  LightColorTemplates,
+} from "./components/PlotlyColorTemplates"
 export { PlotEdf } from "./components/PlotEdf"
 export type { EdfPlotInfo } from "./components/PlotEdf"
 export { PlotHistory } from "./components/PlotHistory"

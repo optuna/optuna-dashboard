@@ -15,8 +15,7 @@
 			"jupyterlab/src/**/*.tsx"
 		],
 		"ignore": [
-			"optuna_dashboard/ts/components/PlotlyColorTemplates.ts",
-			"tslib/react/src/components/PlotlyDarkMode.ts",
+			"tslib/react/src/components/PlotlyColorTemplates.ts",
 			"tslib/**/pkg/*",
 			"tslib/react/types/*"
 		]
