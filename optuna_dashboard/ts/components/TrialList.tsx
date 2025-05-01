@@ -144,14 +144,13 @@ export const TrialListDetail: FC<{
     () =>
       startMs !== undefined && completeMs !== undefined
         ? (completeMs - startMs) /
-          10 **
-            (durationTimeUnit === "ms"
-              ? 0
-              : durationTimeUnit === "s"
-                ? 3
-                : durationTimeUnit === "min"
-                  ? 6
-                  : 9)
+          (durationTimeUnit === "ms"
+            ? 1
+            : durationTimeUnit === "s"
+              ? 10 ** 3
+              : durationTimeUnit === "min"
+                ? 6 * 10 ** 4
+                : 3.6 * 10 ** 6)
         : null,
     [startMs, completeMs, durationTimeUnit]
   )
