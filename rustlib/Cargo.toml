@@ -1,14 +1,14 @@
 [package]
 name = "optuna-wasm"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
 fanova = "0.2.0"
-wasm-bindgen = "0.2"
-getrandom = { version = "0.2", features = ["js"] }
-js-sys = "0.3.61"
-serde-wasm-bindgen = "0.4"
+wasm-bindgen = ">=0.2.88"
+getrandom = { version = "0.3", features = ["js"] }
+js-sys = "0.3.77"
+serde-wasm-bindgen = "0.6"
 
 [lib]
 crate-type = ["cdylib"]
