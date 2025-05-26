@@ -3,7 +3,7 @@ import * as Optuna from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
 import { FC, useEffect } from "react"
 import { makeHovertext } from "../utils/graph"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import { DarkColorTemplates } from "./PlotlyColorTemplates"
 
 const plotDomId = "graph-timeline"
 const maxBars = 100
@@ -14,7 +14,8 @@ export const PlotTimeline: FC<{
 }> = ({ study, colorTheme }) => {
   const theme = useTheme()
   const colorThemeUsed =
-    colorTheme ?? (theme.palette.mode === "dark" ? plotlyDarkTemplate : {})
+    colorTheme ??
+    (theme.palette.mode === "dark" ? DarkColorTemplates.default : {})
   const trials = study?.trials ?? []
 
   useEffect(() => {

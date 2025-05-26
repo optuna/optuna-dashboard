@@ -21,7 +21,7 @@ import {
   useParamTargets,
 } from "../utils/trialFilter"
 import { GraphContainer } from "./GraphContainer"
-import { plotlyDarkTemplate } from "./PlotlyDarkMode"
+import { DarkColorTemplates } from "./PlotlyColorTemplates"
 
 const isLogScale = (s: Optuna.SearchSpaceItem): boolean => {
   if (s.distribution.type === "CategoricalDistribution") {
@@ -40,7 +40,8 @@ export const PlotSlice: FC<{
 
   const theme = useTheme()
   const colorThemeUsed =
-    colorTheme ?? (theme.palette.mode === "dark" ? plotlyDarkTemplate : {})
+    colorTheme ??
+    (theme.palette.mode === "dark" ? DarkColorTemplates.default : {})
 
   const [objectiveTargets, selectedObjective, setObjectiveTarget] =
     useObjectiveAndUserAttrTargets(study)
