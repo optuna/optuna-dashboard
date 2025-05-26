@@ -149,8 +149,8 @@ export const TrialListDetail: FC<{
             : durationTimeUnit === "s"
               ? 10 ** 3
               : durationTimeUnit === "min"
-                ? 6 * 10 ** 4
-                : 3.6 * 10 ** 6)
+                ? 60 * 10 ** 3
+                : 60 * 60 * 10 ** 3)
         : null,
     [startMs, completeMs, durationTimeUnit]
   )
