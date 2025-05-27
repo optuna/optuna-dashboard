@@ -91,13 +91,13 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Real-time dashboard for Optuna.")
     parser.add_argument(
         "storage",
-        help="A storage URL (e.g. sqlite:///example.db). Or path to a SQLite database file (to/db.sqlite3)"
+        help="a storage URL (e.g. sqlite:///example.db) or path to a SQLite database file (to/db.sqlite3)"
         " or Journal Storage file (e.g. to/journal.log)",
         type=str,
     )
     parser.add_argument(
         "--storage-class",
-        help="Storage class hint (default: None)",
+        help="storage class overwrite. Disables guess from the storage string (default: %(default)s)",
         type=str,
         default=None,
         choices=STORAGE_CHOICES,
@@ -114,7 +114,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--artifact-dir",
-        help="directory to store artifact files",
+        help="directory of the artifact files store",
         default=None,
     )
     parser.add_argument("--version", "-v", action="version", version=__version__)
