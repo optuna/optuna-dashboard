@@ -91,13 +91,14 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Real-time dashboard for Optuna.")
     parser.add_argument(
         "storage",
-        help="a storage URL (e.g. sqlite:///example.db) or path to a SQLite database file (to/db.sqlite3)"
-        " or Journal Storage file (e.g. to/journal.log)",
+        help="a storage URL (e.g. sqlite:///example.db) or path to a SQLite database file"
+        " (to/db.sqlite3) or Journal Storage file (e.g. to/journal.log)",
         type=str,
     )
     parser.add_argument(
         "--storage-class",
-        help="storage class overwrite. Disables guess from the storage string (default: %(default)s)",
+        help="storage class overwrite. Disables guess from the storage string"
+        " (default: %(default)s)",
         type=str,
         default=None,
         choices=STORAGE_CHOICES,
