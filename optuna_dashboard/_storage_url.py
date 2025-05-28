@@ -17,6 +17,11 @@ if TYPE_CHECKING:
 
     from optuna.storages import JournalStorage
 
+STORAGE_CHOICES = [
+    "RDBStorage",
+    "JournalRedisStorage",
+    "JournalFileStorage",
+]
 
 # The code to declare `rfc1738_pattern` variable is quoted from the source code
 # of SQLAlchemy project (MIT License). See LICENSE file for detials.
@@ -54,7 +59,9 @@ def get_storage(
             return get_journal_redis_storage(storage)
         if storage_class == "JournalFileStorage":
             return get_journal_file_storage(storage)
-        raise ValueError("Unexpected storage_class")
+        raise ValueError(
+            f"Unexpected storage_class '{storage_class}'. Expected one of {STORAGE_CHOICES}."
+        )
 
     return guess_storage_from_url(storage)
 
@@ -70,15 +77,14 @@ def _has_sqlite_header(storage_url: str) -> bool:
 
 
 def guess_storage_from_url(storage_url: str) -> BaseStorage:
-    if storage_url.startswith("redis"):
+    if storage_url.startswith("redis://"):
         return get_journal_redis_storage(storage_url)
 
     if os.path.isfile(storage_url):
         if _has_sqlite_header(storage_url):
-            raise ValueError(
-                f"Please specify 'sqlite:///{storage_url}' to use SQLite3 (RDBStorage)"
-            )
-        return get_journal_file_storage(storage_url)
+            return get_rdb_storage(f"sqlite:///{storage_url}")
+        else:
+            return get_journal_file_storage(storage_url)
 
     if rfc1738_pattern.match(storage_url) is not None:
         return get_rdb_storage(storage_url)

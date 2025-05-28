@@ -92,6 +92,16 @@ you can use the command line interface like ``optuna-dashboard <STORAGE_URL>``.
    Listening on http://localhost:8080/
    Hit Ctrl-C to quit.
 
+
+Alternatively, for local SQLite3 databases, you can provide the file path directly:
+
+.. code-block:: console
+
+   $ optuna-dashboard ./db.sqlite3
+   Listening on http://localhost:8080/
+   Hit Ctrl-C to quit.
+
+
 If you are using JournalStorage classes introduced in Optuna v3.1, you can use them like below:
 
 .. code-block:: console
