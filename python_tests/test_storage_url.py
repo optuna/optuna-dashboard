@@ -7,16 +7,15 @@ import warnings
 from optuna.exceptions import ExperimentalWarning
 import optuna.storages
 
+from optuna.storages import JournalStorage
+from optuna.storages import RDBStorage
+from optuna_dashboard._storage_url import get_storage
+import sqlalchemy.exc
 
 try:
     from optuna.storages.journal import JournalFileBackend
 except ImportError:
     from optuna.storages import JournalFileStorage as JournalFileBackend
-
-from optuna.storages import JournalStorage
-from optuna.storages import RDBStorage
-from optuna_dashboard._storage_url import get_storage
-import sqlalchemy.exc
 
 
 class GetStorageTestCase(TestCase):
