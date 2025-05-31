@@ -6,7 +6,10 @@ import warnings
 
 from optuna.exceptions import ExperimentalWarning
 import optuna.storages
-from optuna.storages import JournalFileStorage
+try:
+    from optuna.storages.journal import JournalFileBackend
+except ImportError:
+    from optuna.storages import JournalFileStorage as JournalFileBackend
 from optuna.storages import JournalStorage
 from optuna.storages import RDBStorage
 from optuna_dashboard._storage_url import get_storage
@@ -44,17 +47,17 @@ class GetStorageTestCase(TestCase):
         with tempfile.NamedTemporaryFile() as file:
             storage = get_storage(file.name)
             assert isinstance(storage, JournalStorage)
-            self.assertIsInstance(storage._backend, JournalFileStorage)
+            self.assertIsInstance(storage._backend, JournalFileBackend)
 
         with tempfile.NamedTemporaryFile() as file:
             storage = get_storage(file.name, storage_class="JournalFileStorage")
             assert isinstance(storage, JournalStorage)
-            self.assertIsInstance(storage._backend, JournalFileStorage)
+            self.assertIsInstance(storage._backend, JournalFileBackend)
 
         with tempfile.NamedTemporaryFile() as file:
             storage = get_storage(file.name, storage_class="JournalFileStorage")
             assert isinstance(storage, JournalStorage)
-            self.assertIsInstance(storage._backend, JournalFileStorage)
+            self.assertIsInstance(storage._backend, JournalFileBackend)
 
     def test_get_journal_file_storage_invalid(self) -> None:
         with tempfile.NamedTemporaryFile() as file:
