@@ -102,7 +102,7 @@ jobs:
           pip install --progress-bar off .[optional]
           pip install --progress-bar off .[test]
           pip install --progress-bar off .
-          python -m pip install --progress-bar off --force-reinstall optuna==3.1.0
+          python -m pip install --progress-bar off --force-reinstall optuna==4.0.0
       - name: Run python unit tests
         run: |
           pytest python_tests

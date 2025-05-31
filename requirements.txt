@@ -1,5 +1,5 @@
 # project dependency
-optuna>=3.1
+optuna>=4.0
 bottle
 scikit-learn
 streamlit
