@@ -294,7 +294,9 @@ class PreferentialStudy:
             for t in trials
             if t.number not in worse_trial_numbers and t._trial_id not in skipped_trial_ids
         ]
-        return len(active_trials) < get_n_generate(self._study.system_attrs)
+        return len(active_trials) < get_n_generate(
+            self._study._storage.get_study_system_attrs(self._study._study_id)
+        )
 
 
 def get_best_trials(study_id: int, storage: optuna.storages.BaseStorage) -> list[FrozenTrial]:
