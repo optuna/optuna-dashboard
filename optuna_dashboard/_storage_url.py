@@ -99,7 +99,7 @@ def get_journal_file_storage(file_path: str) -> JournalStorage:
 
     from optuna.storages import JournalFileOpenLock
     from optuna.storages import JournalStorage
-    
+
     try:
         from optuna.storages.journal import JournalFileBackend
     except ImportError:
