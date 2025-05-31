@@ -98,7 +98,7 @@ def get_journal_file_storage(file_path: str) -> JournalStorage:
         raise ValueError("JournalRedisStorage is available from Optuna v3.1.0")
 
     from optuna.storages import JournalFileOpenLock
-    from optuna.storages import JournalFileBackend
+    from optuna.storages.journal import JournalFileBackend
     from optuna.storages import JournalStorage
 
     storage: JournalStorage
