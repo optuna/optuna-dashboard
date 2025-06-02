@@ -18,7 +18,8 @@ from packaging import version
 from . import __version__
 from ._app import create_app
 from ._sql_profiler import register_profiler_view
-from ._storage_url import get_storage, STORAGE_CHOICES
+from ._storage_url import get_storage
+from ._storage_url import STORAGE_CHOICES
 from .artifact._backend_to_store import ArtifactBackendToStore
 from .artifact.file_system import FileSystemBackend
 
