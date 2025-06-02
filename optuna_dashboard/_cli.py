@@ -19,6 +19,7 @@ from . import __version__
 from ._app import create_app
 from ._sql_profiler import register_profiler_view
 from ._storage_url import get_storage
+from ._storage_url import STORAGE_CHOICES
 from .artifact._backend_to_store import ArtifactBackendToStore
 from .artifact.file_system import FileSystemBackend
 
@@ -89,12 +90,19 @@ def auto_select_server(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Real-time dashboard for Optuna.")
-    parser.add_argument("storage", help="Storage URL (e.g. sqlite:///example.db)", type=str)
+    parser.add_argument(
+        "storage",
+        help="a storage URL (e.g. sqlite:///example.db) or path to a SQLite database file"
+        " (to/db.sqlite3) or Journal Storage file (e.g. to/journal.log)",
+        type=str,
+    )
     parser.add_argument(
         "--storage-class",
-        help="Storage class hint (e.g. JournalFileStorage)",
+        help="storage class overwrite. Disables guess from the storage string"
+        " (default: %(default)s)",
         type=str,
         default=None,
+        choices=STORAGE_CHOICES,
     )
     parser.add_argument(
         "--port", help="port number (default: %(default)s)", type=int, default=8080
@@ -108,15 +116,14 @@ def main() -> None:
     )
     parser.add_argument(
         "--artifact-dir",
-        help="directory to store artifact files",
+        help="directory of the artifact files store",
         default=None,
     )
     parser.add_argument("--version", "-v", action="version", version=__version__)
     parser.add_argument("--quiet", "-q", help="quiet", action="store_true")
     args = parser.parse_args()
 
-    storage: BaseStorage
-    storage = get_storage(args.storage, storage_class=args.storage_class)
+    storage: BaseStorage = get_storage(args.storage, storage_class=args.storage_class)
 
     artifact_store: ArtifactStore | None
     if args.artifact_dir is None:
