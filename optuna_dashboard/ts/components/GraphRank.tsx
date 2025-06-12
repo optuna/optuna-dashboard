@@ -213,8 +213,8 @@ const getRankPlotInfo = (
   const xAxis = getAxisInfo(filteredTrials, xParam)
   const yAxis = getAxisInfo(filteredTrials, yParam)
 
-  let xValues: (string | number)[] = []
-  let yValues: (string | number)[] = []
+  const xValues: (string | number)[] = []
+  const yValues: (string | number)[] = []
   const zValues: number[] = []
   const isFeasible: boolean[] = []
   const hovertext: string[] = []
@@ -234,56 +234,60 @@ const getRankPlotInfo = (
 
   const colors = getColors(zValues)
 
+  const dataPoints = xValues.map((x, i) => ({
+    xValue: x,
+    yValue: yValues[i],
+    color: colors[i],
+    isFeasible: isFeasible[i],
+    hovertext: hovertext[i],
+  }))
+
   if (xAxis.isCat && !yAxis.isCat) {
-    const indices: number[] = Array.from(Array(xValues.length).keys()).sort(
-      (a, b) =>
-        xValues[a]
-          .toString()
-          .toLowerCase()
-          .localeCompare(xValues[b].toString().toLowerCase())
+    dataPoints.sort((a, b) =>
+      a.xValue
+        .toString()
+        .toLowerCase()
+        .localeCompare(b.xValue.toString().toLowerCase())
     )
-    xValues = indices.map((i) => xValues[i])
-    yValues = indices.map((i) => yValues[i])
   } else if (!xAxis.isCat && yAxis.isCat) {
-    const indices: number[] = Array.from(Array(yValues.length).keys()).sort(
-      (a, b) =>
-        yValues[a]
-          .toString()
-          .toLowerCase()
-          .localeCompare(yValues[b].toString().toLowerCase())
+    dataPoints.sort((a, b) =>
+      a.yValue
+        .toString()
+        .toLowerCase()
+        .localeCompare(b.yValue.toString().toLowerCase())
     )
-    xValues = indices.map((i) => xValues[i])
-    yValues = indices.map((i) => yValues[i])
   } else if (xAxis.isCat && yAxis.isCat) {
-    const indices: number[] = Array.from(Array(xValues.length).keys()).sort(
-      (a, b) => {
-        const xComp = xValues[a]
-          .toString()
-          .toLowerCase()
-          .localeCompare(xValues[b].toString().toLowerCase())
-        if (xComp !== 0) {
-          return xComp
-        }
-        return yValues[a]
-          .toString()
-          .toLowerCase()
-          .localeCompare(yValues[b].toString().toLowerCase())
+    dataPoints.sort((a, b) => {
+      const xComp = a.xValue
+        .toString()
+        .toLowerCase()
+        .localeCompare(b.xValue.toString().toLowerCase())
+      if (xComp !== 0) {
+        return xComp
       }
-    )
-    xValues = indices.map((i) => xValues[i])
-    yValues = indices.map((i) => yValues[i])
+      return a.yValue
+        .toString()
+        .toLowerCase()
+        .localeCompare(b.yValue.toString().toLowerCase())
+    })
   }
+
+  const sortedXValues = dataPoints.map((d) => d.xValue)
+  const sortedYValues = dataPoints.map((d) => d.yValue)
+  const sortedColors = dataPoints.map((d) => d.color)
+  const sortedIsFeasible = dataPoints.map((d) => d.isFeasible)
+  const sortedHovertext = dataPoints.map((d) => d.hovertext)
 
   return {
     xtitle: xAxis.name,
     ytitle: yAxis.name,
     xtype: xAxis.isCat ? "category" : xAxis.isLog ? "log" : "linear",
     ytype: yAxis.isCat ? "category" : yAxis.isLog ? "log" : "linear",
-    xvalues: xValues,
-    yvalues: yValues,
-    colors,
-    is_feasible: isFeasible,
-    hovertext,
+    xvalues: sortedXValues,
+    yvalues: sortedYValues,
+    colors: sortedColors,
+    is_feasible: sortedIsFeasible,
+    hovertext: sortedHovertext,
   }
 }
 

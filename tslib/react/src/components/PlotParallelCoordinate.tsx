@@ -243,17 +243,26 @@ const plotCoordinate = (
     )
     if (s.distribution.type === "CategoricalDistribution") {
       // categorical
-      const vocabArr: string[] = s.distribution.choices.map(
-        (c) => c?.value ?? "null"
-      )
-      const tickvals: number[] = vocabArr.map((_, i) => i)
+      const tickItems: Record<string, number> = {}
+      for (const t of trials) {
+        const trialParam = t.params.find(
+          (p) => p.name === s.name
+        ) as Optuna.TrialParam
+        const exValue = trialParam.param_external_value
+        const inValue = trialParam.param_internal_value
+        if (!(exValue in tickItems)) {
+          tickItems[exValue] = inValue
+        }
+      }
+      const entries = Object.entries(tickItems)
+      entries.sort((a, b) => a[1] - b[1])
+
       return {
         label: breakLabelIfTooLong(s.name),
         values: values,
         range: [0, s.distribution.choices.length - 1],
-        // @ts-ignore
-        tickvals: tickvals,
-        ticktext: vocabArr,
+        tickvals: entries.map(([_, inValue]) => inValue),
+        ticktext: entries.map(([exValue]) => exValue),
       }
     }
     if (s.distribution.log) {

@@ -282,16 +282,26 @@ const plotSlice = (
       automargin: true, // Otherwise the label is outside of the plot
     }
   } else {
-    const vocabArr = selectedParamSpace.distribution.choices.map(
-      (c) => c?.value ?? "null"
-    )
-    const tickvals: number[] = vocabArr.map((_v, i) => i)
+    const tickItems: Record<string, number> = {}
+    for (const t of trials) {
+      const trialParam = t.params.find(
+        (p) => p.name === selectedParamSpace.name
+      ) as Optuna.TrialParam
+      const exValue = trialParam.param_external_value
+      const inValue = trialParam.param_internal_value
+      if (!(exValue in tickItems)) {
+        tickItems[exValue] = inValue
+      }
+    }
+    const entries = Object.entries(tickItems)
+    entries.sort((a, b) => a[1] - b[1])
+
     layout.xaxis = {
       title: selectedParamTarget.toLabel(),
       type: "linear",
       gridwidth: 1,
-      tickvals: tickvals,
-      ticktext: vocabArr,
+      tickvals: entries.map(([_, inValue]) => inValue),
+      ticktext: entries.map(([exValue]) => exValue),
       automargin: true, // Otherwise the label is outside of the plot
     }
   }
