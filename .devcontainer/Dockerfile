@@ -1,7 +1,7 @@
-FROM python:3.10
+FROM python:3.12
 
 # Node.js
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
 RUN apt-get install -y nodejs
 RUN npm install -g vsce
 
