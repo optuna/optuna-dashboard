@@ -121,8 +121,8 @@ def render_user_attr_form_widgets(
             if "user_attr_key" in widget.keys():
                 study._storage.set_trial_user_attr(
                     trial._trial_id,
-                    key=widget["user_attr_key"],
-                    value=value,  # type: ignore
+                    key=widget["user_attr_key"],  # type: ignore
+                    value=value,
                 )
 
         if on_success_callback is None:
