@@ -15,9 +15,10 @@ import {
   useGraphComponentState,
   useMergedUnionSearchSpace,
 } from "@optuna/react"
+import * as Optuna from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
-import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
+import { StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { usePlot } from "../hooks/usePlot"
 import { useBackendRender, usePlotlyColorTheme } from "../state"
@@ -90,8 +91,8 @@ const GraphRankFrontend: FC<{
 
   const [objectiveId, setobjectiveId] = useState<number>(0)
   const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
-  const [xParam, setXParam] = useState<SearchSpaceItem | null>(null)
-  const [yParam, setYParam] = useState<SearchSpaceItem | null>(null)
+  const [xParam, setXParam] = useState<Optuna.SearchSpaceItem | null>(null)
+  const [yParam, setYParam] = useState<Optuna.SearchSpaceItem | null>(null)
   const metricNames: string[] = study?.metric_names || []
 
   if (xParam === null && searchSpace.length > 0) {
@@ -128,7 +129,7 @@ const GraphRankFrontend: FC<{
     graphComponentState,
   ])
 
-  const space: SearchSpaceItem[] = study ? study.union_search_space : []
+  const space: Optuna.SearchSpaceItem[] = study ? study.union_search_space : []
 
   return (
     <Grid container direction="row">
@@ -197,8 +198,8 @@ const GraphRankFrontend: FC<{
 const getRankPlotInfo = (
   study: StudyDetail | null,
   objectiveId: number,
-  xParam: SearchSpaceItem | null,
-  yParam: SearchSpaceItem | null
+  xParam: Optuna.SearchSpaceItem | null,
+  yParam: Optuna.SearchSpaceItem | null
 ): RankPlotInfo | null => {
   if (study === null) {
     return null

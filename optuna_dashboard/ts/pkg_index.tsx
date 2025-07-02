@@ -26,11 +26,9 @@ import {
   PlotlyGraphObject,
   PreferenceFeedbackMode,
   PreferenceHistory,
-  SearchSpaceItem,
   StudyDetail,
   StudySummary,
   Trial,
-  TrialParam,
 } from "./types/optuna"
 
 export {
@@ -46,7 +44,6 @@ export {
   PlotlyGraphObject,
   PreferenceFeedbackMode,
   PreferenceHistory,
-  SearchSpaceItem,
   TrialResponse,
   PreferenceHistoryResponse,
   StudyDetailResponse,
@@ -59,7 +56,6 @@ export {
   StudyDetail,
   StudySummary,
   Trial,
-  TrialParam,
   CompareStudiesPlotType,
   PlotType,
   ParamImportanceEvaluator,
