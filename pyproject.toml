@@ -108,35 +108,8 @@ select = [
     "I",      # isort
 ]
 ignore = [
-    "E203",   # whitespace before ':'
-    # Import-related rules that might be too strict for existing codebase
     "I001",   # Import block is unsorted
-    # Naming convention rules that might conflict with existing code
-    "N",      # Disable all pep8-naming rules for now
-    # Rules that require significant code changes
-    "UP",     # Disable pyupgrade rules for now
-    "B",      # Disable flake8-bugbear rules for now
-    "C4",     # Disable flake8-comprehensions rules for now
-    "PIE",    # Disable flake8-pie rules for now
-    "SIM",    # Disable flake8-simplify rules for now
-    "C419",   # Unnecessary list comprehension
-    "B007",   # Loop control variable not used
-    "B009",   # Do not call getattr with constant attribute
-    "B011",   # Do not assert False
-    "B023",   # Function definition does not bind loop variable
-    "B028",   # No explicit stacklevel keyword argument found
-    "B035",   # Dictionary comprehension uses static key
 ]
-
-[tool.ruff.lint.isort]
-lines-after-imports = 2
-force-single-line = true
-force-sort-within-sections = true
-order-by-type = false
-
-[tool.ruff.format]
-# Use double quotes to match black default
-quote-style = "double"
 
 [tool.mypy]
 ignore_missing_imports = true
