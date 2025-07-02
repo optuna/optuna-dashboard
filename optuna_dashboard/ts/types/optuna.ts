@@ -13,19 +13,6 @@ export type GraphVisibility = {
   slice: boolean
 }
 
-export type TrialParam = {
-  name: string
-  param_internal_value: number
-  param_external_value: string
-  param_external_type: string
-  distribution: Optuna.Distribution
-}
-
-export type SearchSpaceItem = {
-  name: string
-  distribution: Optuna.Distribution
-}
-
 export type Note = {
   version: number
   body: string
@@ -47,7 +34,7 @@ export type Trial = {
   intermediate_values: Optuna.TrialIntermediateValue[]
   datetime_start?: Date
   datetime_complete?: Date
-  params: TrialParam[]
+  params: Optuna.TrialParam[]
   fixed_params: {
     name: string
     param_external_value: string
@@ -149,8 +136,8 @@ export type StudyDetail = {
   datetime_start: Date
   best_trials: Trial[]
   trials: Trial[]
-  intersection_search_space: SearchSpaceItem[]
-  union_search_space: SearchSpaceItem[]
+  intersection_search_space: Optuna.SearchSpaceItem[]
+  union_search_space: Optuna.SearchSpaceItem[]
   union_user_attrs: Optuna.AttributeSpec[]
   has_intermediate_values: boolean
   note: Note

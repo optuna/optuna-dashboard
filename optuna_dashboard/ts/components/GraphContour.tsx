@@ -20,7 +20,8 @@ import {
 } from "@optuna/react"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useMemo, useState } from "react"
-import { SearchSpaceItem, StudyDetail, Trial } from "ts/types/optuna"
+import * as Optuna from "@optuna/types"
+import { StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { usePlot } from "../hooks/usePlot"
 import { usePlotlyColorTheme } from "../state"
@@ -128,8 +129,8 @@ const ContourFrontend: FC<{
 
   const [objectiveId, setObjectiveId] = useState<number>(0)
   const searchSpace = useMergedUnionSearchSpace(study?.union_search_space)
-  const [xParam, setXParam] = useState<SearchSpaceItem | null>(null)
-  const [yParam, setYParam] = useState<SearchSpaceItem | null>(null)
+  const [xParam, setXParam] = useState<Optuna.SearchSpaceItem | null>(null)
+  const [yParam, setYParam] = useState<Optuna.SearchSpaceItem | null>(null)
   const metricNames: string[] = study?.metric_names || []
 
   if (xParam === null && searchSpace.length > 0) {
@@ -159,7 +160,7 @@ const ContourFrontend: FC<{
     }
   }, [study, objectiveId, xParam, yParam, colorTheme, graphComponentState])
 
-  const space: SearchSpaceItem[] = study ? study.union_search_space : []
+  const space: Optuna.SearchSpaceItem[] = study ? study.union_search_space : []
 
   return (
     <Grid container direction="row">
@@ -232,8 +233,8 @@ const filterFunc = (trial: Trial): boolean => {
 const plotContour = (
   study: StudyDetail,
   objectiveId: number,
-  xParam: SearchSpaceItem | null,
-  yParam: SearchSpaceItem | null,
+  xParam: Optuna.SearchSpaceItem | null,
+  yParam: Optuna.SearchSpaceItem | null,
   colorTheme: Partial<Plotly.Template>
 ) => {
   if (document.getElementById(plotDomId) === null) {

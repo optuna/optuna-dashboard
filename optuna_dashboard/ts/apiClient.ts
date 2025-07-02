@@ -8,11 +8,9 @@ import {
   PlotlyGraphObject,
   PreferenceFeedbackMode,
   PreferenceHistory,
-  SearchSpaceItem,
   StudyDetail,
   StudySummary,
   Trial,
-  TrialParam,
 } from "./types/optuna"
 
 export type APIMeta = {
@@ -32,7 +30,7 @@ export interface TrialResponse {
   intermediate_values: Optuna.TrialIntermediateValue[]
   datetime_start?: string
   datetime_complete?: string
-  params: TrialParam[]
+  params: Optuna.TrialParam[]
   fixed_params: {
     name: string
     param_external_value: string
@@ -62,8 +60,8 @@ export interface StudyDetailResponse {
   user_attrs: Optuna.Attribute[]
   trials: TrialResponse[]
   best_trials: TrialResponse[]
-  intersection_search_space: SearchSpaceItem[]
-  union_search_space: SearchSpaceItem[]
+  intersection_search_space: Optuna.SearchSpaceItem[]
+  union_search_space: Optuna.SearchSpaceItem[]
   union_user_attrs: Optuna.AttributeSpec[]
   has_intermediate_values: boolean
   note: Note
