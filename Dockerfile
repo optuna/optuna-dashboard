@@ -26,6 +26,7 @@ RUN make tslib
 
 WORKDIR /usr/src/optuna_dashboard
 ADD ./optuna_dashboard /usr/src/optuna_dashboard
+RUN npm install
 RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build:prd
 
 FROM python:3.12-bookworm AS python-builder
