@@ -140,9 +140,13 @@ $ make fmt
 
 The release process(compiling TypeScript files, packaging Python distributions and uploading to PyPI) is fully automated by GitHub Actions.
 
-1. Replace `optuna_dashboard.__version__` to the next version (e.g. 0.8.0).
-2. Create a git tag (e.g. v0.8.0) and push it to GitHub. If succeeded, GitHub Action will build sdist/wheel packages and create a draft GitHub release.
-3. Edit a GitHub release, generate release note, write highlights of this release if needed, and mark "Create [a discussion](https://github.com/optuna/optuna-dashboard/discussions/categories/announcements) for this release" checkbox. Then make it publish. GitHub Action will release the new version to PyPI.
+1. **Create release branch**: Create a release branch from main (e.g. `git checkout -b release/v0.8.0`).
+2. **Update version**: Replace a `__version__` variable in `optuna_dashboard/__init__.py` to the next version (e.g. 0.8.0).
+3. **Push to fork**: Commit the changes and push the branch to your fork (e.g. `git push <your-forked-repo> release/v0.8.0`).
+4. **Create PR and merge**: Create a PR from your fork's release branch to the main repository's main branch, wait for CI to pass, get approval from maintainers, and merge the PR.
+5. **Create tag**: Pull the latest main branch (`git checkout main && git pull origin main`) and create a git tag (`git tag v0.8.0`).
+6. **Push tag**: Push the tag to trigger the release process (`git push origin v0.8.0`). GitHub Action will build sdist/wheel packages and create a draft GitHub release.
+7. **Publish release**: Edit the GitHub release, generate release notes, write highlights if needed, and mark "Create [a discussion](https://github.com/optuna/optuna-dashboard/discussions/categories/announcements) for this release" checkbox. Then publish the release. GitHub Action will release the new version to PyPI.
 
 
 ## Standalone Single-page Application
