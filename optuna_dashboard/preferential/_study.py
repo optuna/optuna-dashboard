@@ -395,8 +395,9 @@ def create_study(
             assert storage is not None
 
             _logger.info(
-                "Using an existing study with name '{}' instead of "
-                "creating a new one.".format(study_name)
+                "Using an existing study with name '{}' instead of creating a new one.".format(
+                    study_name
+                )
             )
             return load_study(
                 study_name=study_name,

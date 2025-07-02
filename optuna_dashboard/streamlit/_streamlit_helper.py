@@ -74,9 +74,7 @@ def _render_widgets(
                 )
             elif widget["type"] == "text":
                 # NOTE: Current implementation ignores "optional".
-                value = st.text_input(
-                    _format_description(widget["description"]), key=f"text_{i}"
-                )  # type: ignore
+                value = st.text_input(_format_description(widget["description"]), key=f"text_{i}")  # type: ignore
             elif widget["type"] == "user_attr":
                 value = trial.user_attrs[widget["key"]]
             else:
@@ -122,7 +120,9 @@ def render_user_attr_form_widgets(
         for widget, value in zip(widgets, values):
             if "user_attr_key" in widget.keys():
                 study._storage.set_trial_user_attr(
-                    trial._trial_id, key=widget["user_attr_key"], value=value  # type: ignore
+                    trial._trial_id,
+                    key=widget["user_attr_key"],
+                    value=value,  # type: ignore
                 )
 
         if on_success_callback is None:
