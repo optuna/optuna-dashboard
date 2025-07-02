@@ -20,15 +20,6 @@ _logger = logging.getLogger(__name__)
 
 
 try:
-    from optuna_fast_fanova import FanovaImportanceEvaluator as FastFanovaImportanceEvaluator
-except ModuleNotFoundError:
-    FastFanovaImportanceEvaluator = None  # type: ignore
-except Exception as e:
-    _logger.warning(f"Skipping to use optuna-fast-fanova due to {e}")
-    FastFanovaImportanceEvaluator = None  # type: ignore
-
-
-try:
     from optuna.importance import PedAnovaImportanceEvaluator  # type: ignore[attr-defined]
 except ImportError:
     PedAnovaImportanceEvaluator = None  # type: ignore
@@ -68,27 +59,11 @@ class StudyWrapper(Study):
 
 def _get_param_importances(
     study: optuna.Study,
-    completed_trials: list[FrozenTrial],
     *,
     target: Optional[Callable[[FrozenTrial], float]] = None,
     evaluator: str,
 ) -> dict[str, float]:
-    if evaluator == "fanova":
-        if FastFanovaImportanceEvaluator is not None:
-            try:
-                return get_param_importances(
-                    study,
-                    target=target,
-                    evaluator=FastFanovaImportanceEvaluator(completed_trials=completed_trials),
-                )
-            except RuntimeError:
-                # RuntimeError("Encountered zero total variance in all trees.") may be raised
-                # when all objective values are same.
-                raise
-            except Exception:
-                _logger.exception("Failed to call optuna-fast-fanova")
-                pass
-    elif evaluator == "ped_anova":
+    if evaluator == "ped_anova":
         if PedAnovaImportanceEvaluator is not None:
             # TODO(nabenabe0928): We might want to pass baseline_quantile
             #                     as an argument in the future.
@@ -115,8 +90,7 @@ def get_param_importance_from_trials_cache(
     evaluator: str,
     trials: list[FrozenTrial],
 ) -> list[ImportanceType]:
-    completed_trials = [t for t in trials if t.state == TrialState.COMPLETE]
-    n_completed_trials = len(completed_trials)
+    n_completed_trials = len([t for t in trials if t.state == TrialState.COMPLETE])
     if n_completed_trials <= 1:
         return []
 
@@ -130,7 +104,6 @@ def get_param_importance_from_trials_cache(
         try:
             importance = _get_param_importances(
                 study,
-                completed_trials,
                 target=lambda t: t.values[objective_id],
                 evaluator=evaluator,
             )
