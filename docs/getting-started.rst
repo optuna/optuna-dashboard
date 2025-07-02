@@ -26,12 +26,6 @@ You can install optuna-dashboard via `PyPI <https://pypi.org/project/optuna-dash
 
     $ pip install optuna-dashboard
 
-Also, you can install following optional dependencies to make optuna-dashboard faster.
-
-.. code-block:: console
-
-   $ pip install optuna-fast-fanova gunicorn
-
 Installing from the source code
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
