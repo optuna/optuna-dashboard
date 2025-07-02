@@ -286,8 +286,7 @@ def create_app(
             response.status = 400
             return {
                 "reason": (
-                    "evaluator must be either "
-                    "'fanova', 'ped_anova' or 'mean_decrease_impurity'."
+                    "evaluator must be either 'fanova', 'ped_anova' or 'mean_decrease_impurity'."
                 )
             }
 
@@ -651,8 +650,7 @@ def run_server(
         store = to_artifact_store(artifact_store)
     elif artifact_backend is not None:
         warnings.warn(
-            "The `artifact_backend` argument is deprecated. "
-            "Please use `artifact_store` instead.",
+            "The `artifact_backend` argument is deprecated. Please use `artifact_store` instead.",
             DeprecationWarning,
         )
         store = to_artifact_store(artifact_backend)
@@ -677,8 +675,7 @@ def wsgi(
         store = to_artifact_store(artifact_store)
     elif artifact_backend is not None:
         warnings.warn(
-            "The `artifact_backend` argument is deprecated. "
-            "Please use `artifact_store` instead.",
+            "The `artifact_backend` argument is deprecated. Please use `artifact_store` instead.",
             DeprecationWarning,
         )
         store = to_artifact_store(artifact_backend)

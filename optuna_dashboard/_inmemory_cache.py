@@ -219,8 +219,9 @@ class _CachedExtraStudyProperty:
                         new_intersection_search_space.add(new_int_search_space)
                         break
                     elif n1 == n2 and _is_same_categorical_distribution(d1, d2):
-                        d1, d2 = cast(CategoricalDistribution, d1), cast(
-                            CategoricalDistribution, d2
+                        d1, d2 = (
+                            cast(CategoricalDistribution, d1),
+                            cast(CategoricalDistribution, d2),
                         )
                         new_categorical_search_space = (
                             n1,

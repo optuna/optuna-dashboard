@@ -120,13 +120,12 @@ If you want to generate a locator in each webpage, please use the playwright cod
 
 For more detail options, you can check [this page](https://playwright.dev/python/docs/test-runners).
 
-#### Linters (flake8, black and mypy)
+#### Linters (ruff and mypy)
 
 ```
 $ pip install -r requirements.txt
-$ flake8
-$ black --check .
-$ isort . --check
+$ ruff check .
+$ ruff format --check .
 $ mypy optuna_dashboard python_tests
 ```
 

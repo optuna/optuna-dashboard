@@ -6,9 +6,7 @@ streamlit
 typing-extensions;python_version<"3.8"
 
 # lint
-black
-flake8
-isort
+ruff
 mypy-boto3-s3
 mypy
 

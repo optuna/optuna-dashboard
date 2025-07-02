@@ -58,8 +58,8 @@ docs: docs/conf.py $(RST_FILES)
 .PHONY: fmt
 fmt:
 	npm run fmt
-	black ./optuna_dashboard/ ./python_tests/ ./e2e_tests/ ./jupyterlab/
-	isort .
+	ruff format ./optuna_dashboard/ ./python_tests/ ./e2e_tests/ ./jupyterlab/
+	ruff check --fix ./optuna_dashboard/ ./python_tests/ ./e2e_tests/ ./jupyterlab/
 
 .PHONY: clean
 clean:
