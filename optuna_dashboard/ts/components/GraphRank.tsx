@@ -1,4 +1,3 @@
-import * as Optuna from "@optuna/types"
 import {
   FormControl,
   FormLabel,
@@ -16,6 +15,7 @@ import {
   useGraphComponentState,
   useMergedUnionSearchSpace,
 } from "@optuna/react"
+import * as Optuna from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useState } from "react"
 import { StudyDetail, Trial } from "ts/types/optuna"

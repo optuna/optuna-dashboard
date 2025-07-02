@@ -18,9 +18,9 @@ import {
   useGraphComponentState,
   useMergedUnionSearchSpace,
 } from "@optuna/react"
+import * as Optuna from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect, useMemo, useState } from "react"
-import * as Optuna from "@optuna/types"
 import { StudyDetail, Trial } from "ts/types/optuna"
 import { PlotType } from "../apiClient"
 import { usePlot } from "../hooks/usePlot"
