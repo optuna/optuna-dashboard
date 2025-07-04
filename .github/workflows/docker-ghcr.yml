@@ -3,9 +3,6 @@ on:
   release:
     types:
       - published
-  pull_request:
-    branches:
-      - 'docker-release/*'
 jobs:
   build:
     runs-on: ubuntu-latest
