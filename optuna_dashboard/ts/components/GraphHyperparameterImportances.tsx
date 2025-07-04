@@ -1,9 +1,4 @@
-import {
-  Box,
-  Card,
-  CardContent,
-  useTheme,
-} from "@mui/material"
+import { Box, Card, CardContent, useTheme } from "@mui/material"
 import * as plotly from "plotly.js-dist-min"
 import React, { FC, useEffect } from "react"
 

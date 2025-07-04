@@ -4,7 +4,6 @@ import logging
 import threading
 from typing import TYPE_CHECKING
 
-import optuna
 from optuna.importance import get_param_importances
 from optuna.importance import PedAnovaImportanceEvaluator
 from optuna.storages import BaseStorage
@@ -19,8 +18,6 @@ _logger = logging.getLogger(__name__)
 
 
 if TYPE_CHECKING:
-    from typing import Callable
-    from typing import Optional
     from typing import TypedDict
 
     ImportanceType = TypedDict(
@@ -71,9 +68,7 @@ def get_param_importance_from_trials_cache(
         # TODO(nabenabe0928): We might want to pass baseline_quantile
         #                     as an argument in the future.
         importance = get_param_importances(
-            study,
-            target=lambda t: t.values[objective_id],
-            evaluator=PedAnovaImportanceEvaluator()
+            study, target=lambda t: t.values[objective_id], evaluator=PedAnovaImportanceEvaluator()
         )
         if not importance:
             _, union_search_space, _, _ = get_cached_extra_study_property(

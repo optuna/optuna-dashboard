@@ -230,7 +230,7 @@ export abstract class APIClient {
     user_attrs: { [key: string]: number | string }
   ): Promise<void>
   abstract getParamImportances(
-    studyId: number,
+    studyId: number
   ): Promise<Optuna.ParamImportance[][]>
   abstract reportPreference(
     studyId: number,

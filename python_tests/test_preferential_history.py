@@ -17,6 +17,7 @@ from packaging import version
 import pytest
 
 import importlib.util
+
 if importlib.util.find_spec("botorch") is None:
     pytest.skip("PyTorch/BoTorch is not installed", allow_module_level=True)
 

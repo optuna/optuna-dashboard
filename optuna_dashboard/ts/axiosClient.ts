@@ -230,7 +230,7 @@ export class AxiosClient extends APIClient {
         return
       })
   getParamImportances = (
-    studyId: number,
+    studyId: number
   ): Promise<Optuna.ParamImportance[][]> =>
     this.axiosInstance
       .get<ParamImportancesResponse>(

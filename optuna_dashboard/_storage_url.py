@@ -36,9 +36,7 @@ rfc1738_pattern = re.compile(
 )
 
 
-def get_storage(
-    storage: str | BaseStorage, storage_class: str | None = None
-) -> BaseStorage:
+def get_storage(storage: str | BaseStorage, storage_class: str | None = None) -> BaseStorage:
     if isinstance(storage, BaseStorage):
         return storage
 
