@@ -12,8 +12,23 @@ __all__ = ["OpenAI", "AzureOpenAI"]
 
 
 class OpenAI:
-    """An LLMProvider implementation for OpenAI and its compatible APIs."""
+    """An LLMProvider implementation for OpenAI and its compatible APIs.
 
+    Example:
+
+        To use, please set ``OPENAI_API_KEY`` and ``OPENAI_BASE_URL`` environment variables
+        and execute the following code:
+
+        .. testcode::
+
+            import optuna
+            import optuna_dashboard
+            from optuna_dashboard.llm.openai import OpenAI
+
+            storage = optuna.storages.InMemoryStorage()
+            openai_client = OpenAI.from_env()
+            optuna_dashboard.run_server(storage, llm_provider=openai_client)
+    """
     def __init__(
         self,
         client: openai.OpenAI,
@@ -36,8 +51,23 @@ class OpenAI:
 
 
 class AzureOpenAI:
-    """An LLMProvider implementation for Microsoft Azure OpenAI."""
+    """An LLMProvider implementation for Microsoft Azure OpenAI.
 
+    Example:
+
+        To use, please set ``OPENAI_API_KEY`` and ``OPENAI_BASE_URL`` environment variables
+        and execute the following code:
+
+        .. testcode::
+
+            import optuna
+            import optuna_dashboard
+            from optuna_dashboard.llm.openai import AzureOpenAI
+
+            storage = optuna.storages.InMemoryStorage()
+            openai_client = AzureOpenAI.from_env()
+            optuna_dashboard.run_server(storage, llm_provider=openai_client)
+    """
     def __init__(
         self,
         client: openai.AzureOpenAI,

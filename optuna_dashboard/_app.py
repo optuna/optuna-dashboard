@@ -629,6 +629,11 @@ def run_server(
     This function uses wsgiref module which is not intended for the production
     use. If you want to run optuna-dashboard more secure and/or more fast,
     please use WSGI server like Gunicorn or uWSGI via :func:`wsgi` function.
+
+    Args:
+        storage: Optuna storage.
+        artifact_store: Optuna's Artifact store (optional).
+        llm_provider: LLM providers defined under the ``optuna_dashboard.llm`` package (optional).
     """
     # TODO(c-bata): Remove artifact_backend keyword argument in the future release.
     store: ArtifactStore | None = None
@@ -659,6 +664,14 @@ def wsgi(
 ) -> WSGIApplication:
     """This function exposes WSGI interface for people who want to run on the
     production-class WSGI servers like Gunicorn or uWSGI.
+
+    Args:
+        storage: Optuna storage.
+        artifact_store: Optuna's Artifact store (optional).
+        llm_provider: LLM providers defined under the ``optuna_dashboard.llm`` package (optional).
+
+    Returns:
+        WSGI application object.
     """
     # TODO(c-bata): Remove artifact_backend keyword argument in the future release.
     store: ArtifactStore | None = None
