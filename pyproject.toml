@@ -35,24 +35,15 @@ dependencies = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
-optional = [
-    "streamlit",
-    "boto3",
-    "torch",
-    "botorch",
-]
 preferential = [
     "torch",
     "botorch",
 ]
-plotlypy = [
-    "plotly",
-]
 # This field is referrenced by .readthedocs.yaml.
 docs = [
     "boto3",
-    "torch",
-    "botorch",
+    "torch; python_version>='3.9'",
+    "botorch; python_version>='3.9'",
     "streamlit",
     "sphinx",
     "sphinx_rtd_theme",
@@ -127,6 +118,10 @@ markers = [
 
 [dependency-groups]
 test = [
+    "torch; python_version>='3.9'",
+    "botorch; python_version>='3.9'",
+    "streamlit",
+    "boto3",
     "coverage",
     "plotly",
     "pytest",
