@@ -1,7 +1,7 @@
 from __future__ import annotations
 
+import importlib.util
 import json
-import sys
 import tempfile
 from unittest import TestCase
 
@@ -20,13 +20,9 @@ from optuna_dashboard._serializer import serialize_preference_history
 from packaging import version
 import pytest
 
-try:
-    import botorch as _
-    botorch_is_available = True
-except ImportError:
-    botorch_is_available = False
-
 from .wsgi_client import send_request
+
+botorch_is_available = importlib.util.find_spec("botorch") is not None
 
 
 def objective(trial: optuna.trial.Trial) -> float:

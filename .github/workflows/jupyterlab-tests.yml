@@ -32,6 +32,7 @@ jobs:
           python-version: '3.11'
       
       - name: Install dependencies
+        working-directory: jupyterlab
         run: |
           uv venv
           uv pip install --upgrade pip setuptools build

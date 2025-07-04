@@ -56,9 +56,9 @@ def register_preference_feedback_component(
             ``artifact``id you want to display on the human feedback page.
     """
     if component_type == "artifact":
-        assert (
-            artifact_key is not None
-        ), "artifact_key must be specified when component_type is Artifact"
+        assert artifact_key is not None, (
+            "artifact_key must be specified when component_type is Artifact"
+        )
 
     _register_preference_feedback_component(
         study_id=study._study._study_id,
