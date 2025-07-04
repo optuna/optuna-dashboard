@@ -38,10 +38,12 @@ dynamic = ["version"]
 optional = [
     "streamlit",
     "boto3",
-    "botorch>=0.8.1",
+    "torch",
+    "botorch",
 ]
 preferential = [
-    "botorch>=0.8.1",
+    "torch",
+    "botorch",
 ]
 plotlypy = [
     "plotly",
@@ -49,10 +51,21 @@ plotlypy = [
 # This field is referrenced by .readthedocs.yaml.
 docs = [
     "boto3",
+    "torch",
     "botorch",
     "streamlit",
     "sphinx",
     "sphinx_rtd_theme",
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cpu" },
 ]
 
 [project.scripts]

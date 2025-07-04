@@ -80,12 +80,7 @@ $ docker run -it --rm -p 8080:8080 -v `pwd`:/app -w /app optuna-dashboard sqlite
 
 #### Running dashboard server
 
-This project uses [uv](https://docs.astral.sh/uv/) for Python package management. Make sure you have uv installed:
-
-```
-$ curl -LsSf https://astral.sh/uv/install.sh | sh
-```
-
+This project uses [uv](https://docs.astral.sh/uv/) for Python package management.
 Install dependencies and run the dashboard:
 
 ```
@@ -93,7 +88,15 @@ $ uv sync
 $ OPTUNA_DASHBOARD_DEBUG=1 uv run optuna-dashboard sqlite:///db.sqlite3
 ```
 
-Note that `OPTUNA_DASHBOARD_DEBUG=1` makes the server will automatically restart when the source codes are changed.
+Or pip:
+
+```
+$ pip install .
+$ OPTUNA_DASHBOARD_DEBUG=1 optuna-dashboard sqlite:///db.sqlite3
+```
+
+> [!NOTE]
+> `OPTUNA_DASHBOARD_DEBUG=1` makes the server will automatically restart when the source codes are changed.
 
 ### Running tests, lint checks and formatters
 
@@ -105,21 +108,15 @@ $ make tslib-test
 
 #### Running unit tests for `python_tests/`
 
-Using uv (recommended):
 ```
-$ uv sync --group test
+$ uv sync --all-extras --group test
 $ uv run pytest python_tests/
-```
-
-Or using pip:
-```
-$ pytest python_tests/
 ```
 
 #### Running e2e tests using pytest playwright
 
 ```
-$ uv sync --group test
+$ uv sync --all-extras --group test
 $ uv run playwright install
 $ uv run pytest e2e_tests
 ```
@@ -131,8 +128,6 @@ $ uv run pytest e2e_tests --screenshot on --output tmp
 ```
 
 If you want to generate a locator in each webpage, please use the playwright codegen. See [this page](https://playwright.dev/python/docs/codegen-intro) for more details.
-
-
 For more detail options, you can check [this page](https://playwright.dev/python/docs/test-runners).
 
 #### Linters (ruff and mypy)
