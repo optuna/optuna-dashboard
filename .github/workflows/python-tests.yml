@@ -15,7 +15,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v6
         with:
-          version: '3.12'
+          python-version: '3.12'
       - name: Install dependencies
         run: |
           uv sync --group lint
@@ -32,7 +32,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v6
         with:
-          version: '3.12'
+          python-version: '3.12'
       - name: Install dependencies
         run: uv add --dev wheel twine build
       - run: make python-package
@@ -47,7 +47,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v6
         with:
-          version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python-version }}
       - name: Setup Optuna ${{ matrix.optuna-version }}
         run: uv add '${{ matrix.optuna-version }}'
       - name: Install dependencies
@@ -61,7 +61,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v6
         with:
-          version: '3.12'
+          python-version: '3.12'
       - name: Install dependencies
         run: |
           uv sync --group test
@@ -75,7 +75,7 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v6
         with:
-          version: '3.12'
+          python-version: '3.12'
       - name: Install dependencies
         run: |
           uv sync --group test

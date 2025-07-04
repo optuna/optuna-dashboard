@@ -80,15 +80,14 @@ $ docker run -it --rm -p 8080:8080 -v `pwd`:/app -w /app optuna-dashboard sqlite
 
 #### Running dashboard server
 
-This project uses [uv](https://docs.astral.sh/uv/) for Python package management.
-Install dependencies and run the dashboard:
+Install dependencies and run the dashboard using uv:
 
 ```
 $ uv sync
 $ OPTUNA_DASHBOARD_DEBUG=1 uv run optuna-dashboard sqlite:///db.sqlite3
 ```
 
-Or pip:
+Or using pip:
 
 ```
 $ pip install .

@@ -20,7 +20,7 @@ jobs:
     - name: Install uv
       uses: astral-sh/setup-uv@v6
       with:
-        version: "3.12"
+        python-version: "3.12"
 
     - name: Install dependencies
       run: |
