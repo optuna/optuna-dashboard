@@ -2271,7 +2271,6 @@ dependencies = [
 docs = [
     { name = "boto3", version = "1.37.38", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "boto3", version = "1.39.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
-    { name = "botorch", version = "0.8.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "botorch", version = "0.10.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.9.*'" },
     { name = "botorch", version = "0.14.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "sphinx", version = "7.1.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
@@ -2281,26 +2280,8 @@ docs = [
     { name = "sphinx-rtd-theme" },
     { name = "streamlit", version = "1.40.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "streamlit", version = "1.46.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
-    { name = "torch", version = "2.5.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(python_full_version < '3.9' and platform_machine == 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.9' and sys_platform == 'darwin')" },
-    { name = "torch", version = "2.5.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(python_full_version < '3.9' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.9' and sys_platform != 'darwin' and sys_platform != 'linux')" },
     { name = "torch", version = "2.7.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "python_full_version >= '3.9' and sys_platform == 'darwin'" },
     { name = "torch", version = "2.7.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "python_full_version >= '3.9' and sys_platform != 'darwin'" },
-]
-optional = [
-    { name = "boto3", version = "1.37.38", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
-    { name = "boto3", version = "1.39.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
-    { name = "botorch", version = "0.8.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
-    { name = "botorch", version = "0.10.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.9.*'" },
-    { name = "botorch", version = "0.14.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
-    { name = "streamlit", version = "1.40.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
-    { name = "streamlit", version = "1.46.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
-    { name = "torch", version = "2.5.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(python_full_version < '3.9' and platform_machine == 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.9' and sys_platform == 'darwin')" },
-    { name = "torch", version = "2.5.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "(python_full_version < '3.9' and platform_machine != 'aarch64' and sys_platform == 'linux') or (python_full_version < '3.9' and sys_platform != 'darwin' and sys_platform != 'linux')" },
-    { name = "torch", version = "2.7.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "python_full_version >= '3.9' and sys_platform == 'darwin'" },
-    { name = "torch", version = "2.7.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "python_full_version >= '3.9' and sys_platform != 'darwin'" },
-]
-plotlypy = [
-    { name = "plotly" },
 ]
 preferential = [
     { name = "botorch", version = "0.8.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
@@ -2320,6 +2301,10 @@ lint = [
     { name = "ruff" },
 ]
 test = [
+    { name = "boto3", version = "1.37.38", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
+    { name = "boto3", version = "1.39.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
+    { name = "botorch", version = "0.10.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.9.*'" },
+    { name = "botorch", version = "0.14.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "coverage", version = "7.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "coverage", version = "7.9.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "moto", version = "5.0.28", source = { registry = "https://pypi.org/simple" }, extra = ["s3"], marker = "python_full_version < '3.9'" },
@@ -2331,29 +2316,26 @@ test = [
     { name = "pytest-playwright", version = "0.7.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "streamlit", version = "1.40.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "streamlit", version = "1.46.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
+    { name = "torch", version = "2.7.1", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "python_full_version >= '3.9' and sys_platform == 'darwin'" },
+    { name = "torch", version = "2.7.1+cpu", source = { registry = "https://download.pytorch.org/whl/cpu" }, marker = "python_full_version >= '3.9' and sys_platform != 'darwin'" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "boto3", marker = "extra == 'docs'" },
-    { name = "boto3", marker = "extra == 'optional'" },
-    { name = "botorch", marker = "extra == 'docs'" },
-    { name = "botorch", marker = "extra == 'optional'" },
+    { name = "botorch", marker = "python_full_version >= '3.9' and extra == 'docs'" },
     { name = "botorch", marker = "extra == 'preferential'" },
     { name = "bottle", specifier = ">=0.13.0" },
     { name = "optuna", specifier = ">=3.1.0" },
     { name = "packaging" },
-    { name = "plotly", marker = "extra == 'plotlypy'" },
     { name = "scikit-learn" },
     { name = "sphinx", marker = "extra == 'docs'" },
     { name = "sphinx-rtd-theme", marker = "extra == 'docs'" },
     { name = "streamlit", marker = "extra == 'docs'" },
-    { name = "streamlit", marker = "extra == 'optional'" },
-    { name = "torch", marker = "extra == 'docs'", index = "https://download.pytorch.org/whl/cpu" },
-    { name = "torch", marker = "extra == 'optional'", index = "https://download.pytorch.org/whl/cpu" },
+    { name = "torch", marker = "python_full_version >= '3.9' and extra == 'docs'", index = "https://download.pytorch.org/whl/cpu" },
     { name = "torch", marker = "extra == 'preferential'", index = "https://download.pytorch.org/whl/cpu" },
 ]
-provides-extras = ["optional", "preferential", "plotlypy", "docs"]
+provides-extras = ["preferential", "docs"]
 
 [package.metadata.requires-dev]
 lint = [
@@ -2362,12 +2344,15 @@ lint = [
     { name = "ruff" },
 ]
 test = [
+    { name = "boto3" },
+    { name = "botorch", marker = "python_full_version >= '3.9'" },
     { name = "coverage" },
     { name = "moto", extras = ["s3"] },
     { name = "plotly" },
     { name = "pytest" },
     { name = "pytest-playwright", specifier = ">=0.4.4" },
     { name = "streamlit" },
+    { name = "torch", marker = "python_full_version >= '3.9'", index = "https://download.pytorch.org/whl/cpu" },
 ]
 
 [[package]]
