@@ -27,7 +27,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Setup tslib
         run: make tslib
@@ -38,25 +38,20 @@ jobs:
           npm install
           npm run build:dev
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: '3.12'
-          architecture: x64
-
-      - name: Setup Optuna ${{ matrix.optuna-version }}
-        run: |
-          python -m pip install --progress-bar off --upgrade pip setuptools
-          python -m pip install --progress-bar off --upgrade ${{ matrix.optuna-version }}
+          version: '3.12'
 
       - name: Install dependencies
         run: |
-          python -m pip install --progress-bar off .
-          python -m pip install --progress-bar off pytest-playwright==0.4.3  # next version is flaky
+          uv sync --group test
+
+      - name: Setup Optuna ${{ matrix.optuna-version }}
+        run: uv pip install '${{ matrix.optuna-version }}'
 
       - name: Install the required browsers
-        run: playwright install
+        run: uv run playwright install
 
       - name: Run e2e tests
-        run: |
-          pytest e2e_tests/test_dashboard
+        run: uv run pytest e2e_tests/test_dashboard

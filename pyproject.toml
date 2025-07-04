@@ -35,33 +35,24 @@ dependencies = [
 dynamic = ["version"]
 
 [project.optional-dependencies]
+optional = [
+    "streamlit",
+    "boto3",
+    "botorch>=0.8.1",
+]
+preferential = [
+    "botorch>=0.8.1",
+]
+plotlypy = [
+    "plotly",
+]
+# This field is referrenced by .readthedocs.yaml.
 docs = [
     "boto3",
     "botorch",
     "streamlit",
     "sphinx",
     "sphinx_rtd_theme",
-]
-
-test = [
-    "coverage",
-    "plotly",
-    "pytest",
-    "moto[s3]",
-]
-
-optional = [
-    "streamlit",
-    "boto3",
-    "botorch>=0.8.1; python_version>='3.8'",
-]
-
-preferential = [
-    "botorch>=0.8.1",
-]
-
-plotlypy = [
-    "plotly",
 ]
 
 [project.scripts]
@@ -119,4 +110,19 @@ disallow_untyped_defs = true
 addopts = "--color=yes"
 markers = [
   "slow: marks tests as slow",
+]
+
+[dependency-groups]
+test = [
+    "coverage",
+    "plotly",
+    "pytest",
+    "streamlit",
+    "moto[s3]",
+    "pytest-playwright>=0.4.4",
+]
+lint = [
+    "ruff",
+    "mypy",
+    "mypy-boto3-s3",
 ]

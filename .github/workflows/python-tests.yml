@@ -12,18 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: '3.12'
-          architecture: x64
+          version: '3.12'
       - name: Install dependencies
         run: |
-          python -m pip install --progress-bar off --upgrade pip setuptools
-          pip install --progress-bar off .
-          pip install --progress-bar off ruff mypy mypy-boto3-s3
-      - run: ruff check .
-      - run: mypy optuna_dashboard python_tests
+          uv sync --group lint
+      - run: uv run ruff check .
+      - run: uv run mypy optuna_dashboard python_tests
   build-python-package:
     runs-on: ubuntu-latest
     steps:
@@ -31,77 +28,57 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      - name: Set up Python
-        uses: actions/setup-python@v4
+          node-version: '22'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: '3.12'
+          version: '3.12'
       - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip setuptools
-          pip install --progress-bar off wheel twine build
+        run: uv add --dev wheel twine build
       - run: make python-package
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12', '3.13']
-        optuna-version: ['optuna>=3.1.0']
+        optuna-version: ['optuna>=3.6.0']
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Python${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x64
+          version: ${{ matrix.python-version }}
       - name: Setup Optuna ${{ matrix.optuna-version }}
-        run: |
-          python -m pip install --progress-bar off --upgrade pip setuptools
-          python -m pip install --progress-bar off --upgrade ${{ matrix.optuna-version }}
+        run: uv add '${{ matrix.optuna-version }}'
       - name: Install dependencies
-        run: |
-          pip install --progress-bar off .[optional]
-          pip install --progress-bar off .[test]
-          pip install --progress-bar off .
+        run: uv sync --group test
       - name: Run python unit tests
-        run: |
-          pytest python_tests
+        run: uv run pytest python_tests
   test-with-optuna-master:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: '3.11'
-          architecture: x64
+          version: '3.12'
       - name: Install dependencies
         run: |
-          python -m pip install --progress-bar off --upgrade pip setuptools
-          pip install --progress-bar off .[optional]
-          pip install --progress-bar off .[test]
-          pip install --progress-bar off .
-          python -m pip install --progress-bar off --upgrade git+https://github.com/optuna/optuna.git
+          uv sync --group test
+          uv pip install git+https://github.com/optuna/optuna.git
       - name: Run python unit tests
-        run: |
-          pytest python_tests
+        run: uv run pytest python_tests
   test-with-optuna-oldest:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: '3.11'
-          architecture: x64
+          version: '3.12'
       - name: Install dependencies
         run: |
-          python -m pip install --progress-bar off --upgrade pip setuptools
-          pip install --progress-bar off .[optional]
-          pip install --progress-bar off .[test]
-          pip install --progress-bar off .
-          python -m pip install --progress-bar off --force-reinstall optuna==3.1.0
+          uv sync --group test
+          uv add optuna==3.6.0
       - name: Run python unit tests
-        run: |
-          pytest python_tests
-
+        run: uv run pytest python_tests

@@ -8,10 +8,14 @@
   "customizations": {
     "vscode": {
       "settings": {
-        "editor.renderWhitespace": "all"
+        "editor.renderWhitespace": "all",
+        "python.defaultInterpreterPath": "./.venv/bin/python",
+        "python.terminal.activateEnvironment": true
       },
       "extensions": [
-        "ms-python.python"
+        "ms-python.python",
+        "ms-python.mypy-type-checker",
+        "charliermarsh.ruff"
       ]
     }
   }

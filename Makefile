@@ -44,12 +44,12 @@ jupyterlab-extension: tslib
 	mkdir -p jupyterlab/jupyterlab_optuna/vendor/
 	cp -r optuna_dashboard jupyterlab/jupyterlab_optuna/vendor/optuna_dashboard
 	rm -rf jupyterlab/jupyterlab_optuna/vendor/optuna_dashboard/node_modules
-	cd jupyterlab && jlpm install && jlpm run build && python -m build --wheel
+	cd jupyterlab && uv run jlpm install && uv run jlpm run build && uv run python -m build --wheel
 
 .PHONY: python-package
 python-package: pyproject.toml tslib
 	cd optuna_dashboard && npm i && npm run build:prd
-	python -m build --sdist --wheel
+	uv build
 
 .PHONY: docs
 docs: docs/conf.py $(RST_FILES)
@@ -58,8 +58,8 @@ docs: docs/conf.py $(RST_FILES)
 .PHONY: fmt
 fmt:
 	npm run fmt
-	ruff format ./optuna_dashboard/ ./python_tests/ ./e2e_tests/ ./jupyterlab/
-	ruff check --fix ./optuna_dashboard/ ./python_tests/ ./e2e_tests/ ./jupyterlab/
+	uv run ruff format ./optuna_dashboard/ ./python_tests/ ./e2e_tests/ ./jupyterlab/
+	uv run ruff check --fix ./optuna_dashboard/ ./python_tests/ ./e2e_tests/ ./jupyterlab/
 
 .PHONY: clean
 clean:
