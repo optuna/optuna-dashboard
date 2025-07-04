@@ -24,7 +24,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          uv pip install --progress-bar off wheel twine build
+          uv pip install wheel twine build
 
       - run: make python-package
       - run: uv run twine check dist/*
