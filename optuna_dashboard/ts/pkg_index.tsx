@@ -57,6 +57,5 @@ export {
   Trial,
   CompareStudiesPlotType,
   PlotType,
-  ParamImportanceEvaluator,
   PlotResponse,
 }
