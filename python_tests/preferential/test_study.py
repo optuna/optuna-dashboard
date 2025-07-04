@@ -28,8 +28,9 @@ from ..storage_supplier import StorageSupplier
 if version.parse(optuna.__version__) < version.parse("3.4.0"):
     pytest.skip("Preferential optimization is introduced at v3.4.0", allow_module_level=True)
 
-if sys.version_info < (3, 8):
-    pytest.skip("BoTorch dropped Python3.7 support", allow_module_level=True)
+import importlib.util
+if importlib.util.find_spec("torch") is None:
+    pytest.skip("PyTorch is not installed", allow_module_level=True)
 
 
 @parametrize_storages

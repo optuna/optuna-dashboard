@@ -1,18 +1,16 @@
 from __future__ import annotations
 
-import sys
 from unittest.mock import patch
 
 import numpy as np
 import pytest
 
-
-if sys.version_info >= (3, 8):
+try:
+    import torch
     from optuna_dashboard.preferential.samplers.gp import _one_side_trunc_norm_sampling
     from optuna_dashboard.preferential.samplers.gp import _orthants_MVN_Gibbs_sampling
-    import torch
-else:
-    pytest.skip("BoTorch dropped Python3.7 support", allow_module_level=True)
+except ImportError:
+    pytest.skip("PyTorch is not installed", allow_module_level=True)
 
 
 def test_orthants_MVN_Gibbs_sampling() -> None:

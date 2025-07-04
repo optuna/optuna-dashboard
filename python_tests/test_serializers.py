@@ -8,9 +8,14 @@ from optuna_dashboard._serializer import serialize_attrs
 from optuna_dashboard._serializer import serialize_frozen_study
 from optuna_dashboard._serializer import serialize_study_detail
 from optuna_dashboard._storage import get_studies
-from optuna_dashboard.preferential import create_study
 from packaging import version
 import pytest
+
+import importlib.util
+if importlib.util.find_spec("botorch") is None:
+    pytest.skip("PyTorch/BoTorch is not installed", allow_module_level=True)
+
+from optuna_dashboard.preferential import create_study
 
 
 def test_serialize_bytes() -> None:

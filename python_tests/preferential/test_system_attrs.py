@@ -3,11 +3,16 @@ from __future__ import annotations
 from typing import Callable
 
 import optuna
+import pytest
 from optuna_dashboard.preferential._system_attrs import get_preferences
 from optuna_dashboard.preferential._system_attrs import report_preferences
 
 from ..storage_supplier import parametrize_storages
 from ..storage_supplier import StorageSupplier
+
+import importlib.util
+if importlib.util.find_spec("torch") is None:
+    pytest.skip("PyTorch is not installed", allow_module_level=True)
 
 
 @parametrize_storages

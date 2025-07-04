@@ -14,11 +14,10 @@ from optuna_dashboard.preferential import create_study
 from packaging import version
 import pytest
 
-
-if sys.version_info >= (3, 8):
+try:
     from optuna_dashboard.preferential.samplers.gp import PreferentialGPSampler
-else:
-    PreferentialGPSampler = None
+except ImportError:
+    pytest.skip("PyTorch is not installed", allow_module_level=True)
 
 
 parametrize_sampler = pytest.mark.parametrize(

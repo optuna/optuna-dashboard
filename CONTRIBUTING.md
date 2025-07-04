@@ -80,12 +80,22 @@ $ docker run -it --rm -p 8080:8080 -v `pwd`:/app -w /app optuna-dashboard sqlite
 
 #### Running dashboard server
 
+Install dependencies and run the dashboard using uv:
+
 ```
-$ pip install -e .
+$ uv sync
+$ OPTUNA_DASHBOARD_DEBUG=1 uv run optuna-dashboard sqlite:///db.sqlite3
+```
+
+Or using pip:
+
+```
+$ pip install .
 $ OPTUNA_DASHBOARD_DEBUG=1 optuna-dashboard sqlite:///db.sqlite3
 ```
 
-Note that `OPTUNA_DASHBOARD_DEBUG=1` makes the server will automatically restart when the source codes are changed.
+> [!NOTE]
+> `OPTUNA_DASHBOARD_DEBUG=1` makes the server will automatically restart when the source codes are changed.
 
 ### Running tests, lint checks and formatters
 
@@ -98,35 +108,35 @@ $ make tslib-test
 #### Running unit tests for `python_tests/`
 
 ```
-$ pytest python_tests/
+$ uv sync --all-extras --group test
+$ uv run pytest python_tests/
 ```
 
 #### Running e2e tests using pytest playwright
 
 ```
-$ pip install -r requirements.txt
-$ playwright install
-$ pytest e2e_tests
+$ uv sync --all-extras --group test
+$ uv run playwright install
+$ uv run pytest e2e_tests
 ```
 
 If you want to create a screenshot for each test, please run a following command, then check screenshots in `tmp/` directory.
 
 ```
-$ pytest e2e_tests --screenshot on --output tmp
+$ uv run pytest e2e_tests --screenshot on --output tmp
 ```
 
 If you want to generate a locator in each webpage, please use the playwright codegen. See [this page](https://playwright.dev/python/docs/codegen-intro) for more details.
-
-
 For more detail options, you can check [this page](https://playwright.dev/python/docs/test-runners).
 
 #### Linters (ruff and mypy)
 
+Using uv (recommended):
 ```
-$ pip install -r requirements.txt
-$ ruff check .
-$ ruff format --check .
-$ mypy optuna_dashboard python_tests
+$ uv sync --group lint
+$ uv run ruff check .
+$ uv run ruff format --check .
+$ uv run mypy optuna_dashboard python_tests
 ```
 
 #### Auto-formatting Python and TypeScript files
@@ -134,7 +144,6 @@ $ mypy optuna_dashboard python_tests
 ```
 $ make fmt
 ```
-
 
 ### Release the new version
 
