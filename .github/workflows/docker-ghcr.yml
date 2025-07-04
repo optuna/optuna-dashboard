@@ -3,6 +3,9 @@ on:
   release:
     types:
       - published
+  pull_request:
+    branches:
+      - 'docker-release/*'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,13 +21,14 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Docker build/push
+      - name: Docker build/push (tag)
+        if: github.event_name == 'release'
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true
           tags: ghcr.io/${{ env.REPO }}:${{ env.TAG }}
-      - name: Docker build/push
+      - name: Docker build/push (latest)
         uses: docker/build-push-action@v2
         with:
           context: .
