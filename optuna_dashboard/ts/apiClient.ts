@@ -137,12 +137,6 @@ export enum CompareStudiesPlotType {
   EDF = "edf",
 }
 
-export enum ParamImportanceEvaluator {
-  Fanova = "fanova",
-  PedAnova = "ped_anova",
-  MeanDecreaseImpurity = "mean_decrease_impurity",
-}
-
 export abstract class APIClient {
   constructor() {}
 
@@ -237,7 +231,6 @@ export abstract class APIClient {
   ): Promise<void>
   abstract getParamImportances(
     studyId: number,
-    evaluator: ParamImportanceEvaluator
   ): Promise<Optuna.ParamImportance[][]>
   abstract reportPreference(
     studyId: number,

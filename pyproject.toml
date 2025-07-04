@@ -28,9 +28,8 @@ classifiers = [
 ]
 dependencies = [
     "bottle>=0.13.0",
-    "optuna>=3.1.0",
+    "optuna>=3.6.0",
     "packaging",
-    "scikit-learn",
 ]
 dynamic = ["version"]
 
@@ -126,6 +125,7 @@ test = [
     "plotly",
     "pytest",
     "streamlit",
+    "scikit-learn",
     "moto[s3]",
     "pytest-playwright>=0.4.4",
 ]

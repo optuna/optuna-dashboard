@@ -3,7 +3,6 @@ import {
   APIMeta,
   CompareStudiesPlotType,
   CreateNewStudyResponse,
-  ParamImportanceEvaluator,
   ParamImportancesResponse,
   PlotResponse,
   PlotType,

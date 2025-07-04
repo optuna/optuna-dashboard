@@ -7,14 +7,9 @@ from typing import TYPE_CHECKING
 
 from optuna.storages import BaseStorage
 from optuna.storages import RDBStorage
-from optuna.version import __version__ as optuna_ver
-from packaging import version
 
 
 if TYPE_CHECKING:
-    from typing import Optional
-    from typing import Union
-
     from optuna.storages import JournalStorage
 
 
@@ -42,7 +37,7 @@ rfc1738_pattern = re.compile(
 
 
 def get_storage(
-    storage: Union[str, BaseStorage], storage_class: Optional[str] = None
+    storage: str | BaseStorage, storage_class: str | None = None
 ) -> BaseStorage:
     if isinstance(storage, BaseStorage):
         return storage
@@ -87,23 +82,20 @@ def guess_storage_from_url(storage_url: str) -> BaseStorage:
 
 
 def get_rdb_storage(storage_url: str) -> RDBStorage:
-    if version.parse(optuna_ver) >= version.Version("v3.0.0"):
-        return RDBStorage(storage_url, skip_compatibility_check=True, skip_table_creation=True)
-    else:
-        return RDBStorage(storage_url, skip_compatibility_check=True)
+    return RDBStorage(storage_url, skip_compatibility_check=True, skip_table_creation=True)
 
 
 def get_journal_file_storage(file_path: str) -> JournalStorage:
-    if version.parse(optuna_ver) < version.Version("v3.1.0"):
-        raise ValueError("JournalRedisStorage is available from Optuna v3.1.0")
-
-    from optuna.storages import JournalFileOpenLock
     from optuna.storages import JournalStorage
 
     try:
         from optuna.storages.journal import JournalFileBackend
     except ImportError:
         from optuna.storages import JournalFileStorage as JournalFileBackend
+    try:
+        from optuna.storages.journal import JournalFileOpenLock
+    except ImportError:
+        from optuna.storages import JournalFileOpenLock
 
     storage: JournalStorage
     if os.name == "nt":
@@ -115,9 +107,6 @@ def get_journal_file_storage(file_path: str) -> JournalStorage:
 
 
 def get_journal_redis_storage(redis_url: str) -> JournalStorage:
-    if version.parse(optuna_ver) < version.Version("v3.1.0"):
-        raise ValueError("JournalRedisStorage is available from Optuna v3.1.0")
-
     from optuna.storages import JournalRedisStorage
     from optuna.storages import JournalStorage
 
