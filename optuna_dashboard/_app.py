@@ -59,12 +59,11 @@ from .preferential._system_attrs import report_skip
 if typing.TYPE_CHECKING:
     from typing import Any
     from typing import Literal
-    from typing import Optional
-    from typing import Union
 
     from _typeshed.wsgi import WSGIApplication
     from optuna.artifacts._protocol import ArtifactStore
     from optuna_dashboard.artifact.protocol import ArtifactBackend
+    from optuna_dashboard.llm.provider import LLMProvider
 
 
 logger = logging.getLogger(__name__)
@@ -83,7 +82,8 @@ class JupyterLabExtensionContext:
 
 def create_app(
     storage: BaseStorage,
-    artifact_store: Optional[ArtifactStore] = None,
+    artifact_store: ArtifactStore | None = None,
+    llm_provider: LLMProvider | None = None,
     debug: bool = False,
     jupyterlab_extension_context: JupyterLabExtensionContext | None = None,
 ) -> Bottle:
@@ -533,7 +533,7 @@ def create_app(
     @app.get("/csv/<study_id:int>")
     def download_csv(study_id: int) -> BottleViewReturn:
         trial_ids_str = request.query.get("trial_ids", "")
-        trial_ids: Optional[list[int]] = None
+        trial_ids: list[int] | None = None
         if trial_ids_str:
             try:
                 trial_ids = [int(tid.strip()) for tid in trial_ids_str.split(",")]
@@ -616,12 +616,13 @@ def create_app(
 
 
 def run_server(
-    storage: Union[str, BaseStorage],
+    storage: str | BaseStorage,
     host: str = "localhost",
     port: int = 8080,
-    artifact_store: Optional[ArtifactStore | ArtifactBackend] = None,
+    artifact_store: ArtifactStore | ArtifactBackend | None = None,
     *,
-    artifact_backend: Optional[ArtifactBackend] = None,
+    artifact_backend: ArtifactBackend | None = None,
+    llm_provider: LLMProvider | None = None,
 ) -> None:
     """Start running optuna-dashboard and blocks until the server terminates.
 
@@ -640,15 +641,20 @@ def run_server(
         )
         store = to_artifact_store(artifact_backend)
 
-    app = create_app(get_storage(storage), artifact_store=store)
+    app = create_app(
+        get_storage(storage),
+        artifact_store=store,
+        llm_provider=llm_provider,
+    )
     run(app, host=host, port=port)
 
 
 def wsgi(
-    storage: Union[str, BaseStorage],
-    artifact_store: Optional[ArtifactBackend | ArtifactStore] = None,
+    storage: str | BaseStorage,
+    artifact_store: ArtifactBackend | ArtifactStore | None = None,
     *,
-    artifact_backend: Optional[ArtifactBackend] = None,
+    artifact_backend: ArtifactBackend | None = None,
+    llm_provider: LLMProvider | None = None,
     jupyterlab_extension_context: JupyterLabExtensionContext | None = None,
 ) -> WSGIApplication:
     """This function exposes WSGI interface for people who want to run on the
@@ -668,5 +674,6 @@ def wsgi(
     return create_app(
         get_storage(storage),
         artifact_store=store,
+        llm_provider=llm_provider,
         jupyterlab_extension_context=jupyterlab_extension_context,
     )
