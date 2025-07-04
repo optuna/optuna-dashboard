@@ -1,14 +1,9 @@
 from __future__ import annotations
 
-import sys
 from unittest.mock import patch
 
 import numpy as np
 import pytest
-
-
-if sys.version_info < (3, 8):
-    pytest.skip("BoTorch dropped Python3.7 support", allow_module_level=True)
 
 try:
     import torch
