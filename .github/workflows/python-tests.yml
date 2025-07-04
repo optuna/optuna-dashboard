@@ -34,7 +34,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install dependencies
-        run: uv add --dev wheel twine build
+        run: uv pip install wheel twine build
       - run: make python-package
   test:
     runs-on: ubuntu-latest
@@ -51,7 +51,7 @@ jobs:
       - name: Setup Optuna ${{ matrix.optuna-version }}
         run: uv add '${{ matrix.optuna-version }}'
       - name: Install dependencies
-        run: uv sync --group test
+        run: uv sync --extra plotlypy --extra test --group test
       - name: Run python unit tests
         run: uv run pytest python_tests
   test-with-optuna-master:
@@ -64,7 +64,7 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: |
-          uv sync --group test
+          uv sync --extra plotlypy --extra test --group test
           uv pip install git+https://github.com/optuna/optuna.git
       - name: Run python unit tests
         run: uv run pytest python_tests
@@ -78,7 +78,7 @@ jobs:
           python-version: '3.12'
       - name: Install dependencies
         run: |
-          uv sync --group test
-          uv add optuna==3.6.0
+          uv sync --extra plotlypy --extra test --group test
+          uv add optuna==3.1.0
       - name: Run python unit tests
         run: uv run pytest python_tests
