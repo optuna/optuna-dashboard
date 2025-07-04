@@ -34,8 +34,11 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install dependencies
-        run: uv pip install wheel twine build
+        run: |
+          uv venv
+          uv pip install wheel twine build
       - run: make python-package
+      - run: uv run twine check dist/*
   test:
     runs-on: ubuntu-latest
     strategy:
