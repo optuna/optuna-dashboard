@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        optuna-version: ['optuna==3.1.0', 'git+https://github.com/optuna/optuna.git']
+        optuna-version: ['optuna==3.6.0', 'git+https://github.com/optuna/optuna.git']
     steps:
       - uses: actions/checkout@v4
 

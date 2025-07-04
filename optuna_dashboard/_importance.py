@@ -4,10 +4,8 @@ import logging
 import threading
 from typing import TYPE_CHECKING
 
-import optuna
-from optuna.importance import FanovaImportanceEvaluator
 from optuna.importance import get_param_importances
-from optuna.importance import MeanDecreaseImpurityImportanceEvaluator
+from optuna.importance import PedAnovaImportanceEvaluator
 from optuna.storages import BaseStorage
 from optuna.study import Study
 from optuna.trial import FrozenTrial
@@ -19,15 +17,7 @@ from optuna_dashboard._inmemory_cache import InMemoryCache
 _logger = logging.getLogger(__name__)
 
 
-try:
-    from optuna.importance import PedAnovaImportanceEvaluator  # type: ignore[attr-defined]
-except ImportError:
-    PedAnovaImportanceEvaluator = None  # type: ignore
-
-
 if TYPE_CHECKING:
-    from typing import Callable
-    from typing import Optional
     from typing import TypedDict
 
     ImportanceType = TypedDict(
@@ -57,59 +47,30 @@ class StudyWrapper(Study):
         return self._cached_trials
 
 
-def _get_param_importances(
-    study: optuna.Study,
-    *,
-    target: Optional[Callable[[FrozenTrial], float]] = None,
-    evaluator: str,
-) -> dict[str, float]:
-    if evaluator == "ped_anova":
-        if PedAnovaImportanceEvaluator is not None:
-            # TODO(nabenabe0928): We might want to pass baseline_quantile
-            #                     as an argument in the future.
-            return get_param_importances(
-                study, target=target, evaluator=PedAnovaImportanceEvaluator()
-            )
-    elif evaluator == "mean_decrease_impurity":
-        return get_param_importances(
-            study, target=target, evaluator=MeanDecreaseImpurityImportanceEvaluator()
-        )
-
-    return get_param_importances(
-        study,
-        target=target,
-        evaluator=FanovaImportanceEvaluator(),
-    )
-
-
 def get_param_importance_from_trials_cache(
     inmemory_cache: InMemoryCache,
     storage: BaseStorage,
     study_id: int,
     objective_id: int,
-    evaluator: str,
     trials: list[FrozenTrial],
 ) -> list[ImportanceType]:
     n_completed_trials = len([t for t in trials if t.state == TrialState.COMPLETE])
     if n_completed_trials <= 1:
         return []
 
-    cache_key = f"{study_id}:{objective_id}:{evaluator}"
+    cache_key = f"{study_id}:{objective_id}"
     with param_importance_cache_lock:
         cache_n_trial, cache_importance = param_importance_cache.get(cache_key, (0, []))
         if n_completed_trials == cache_n_trial:
             return cache_importance
 
         study = StudyWrapper(storage, study_id, trials)
-        try:
-            importance = _get_param_importances(
-                study,
-                target=lambda t: t.values[objective_id],
-                evaluator=evaluator,
-            )
-        except RuntimeError:
-            # RuntimeError("Encountered zero total variance in all trees.") may be raised
-            # when all objective values are same.
+        # TODO(nabenabe0928): We might want to pass baseline_quantile
+        #                     as an argument in the future.
+        importance = get_param_importances(
+            study, target=lambda t: t.values[objective_id], evaluator=PedAnovaImportanceEvaluator()
+        )
+        if not importance:
             _, union_search_space, _, _ = get_cached_extra_study_property(
                 inmemory_cache, study_id, trials
             )

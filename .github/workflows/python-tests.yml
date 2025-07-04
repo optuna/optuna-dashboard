@@ -82,6 +82,6 @@ jobs:
       - name: Install dependencies
         run: |
           uv sync --group test
-          uv add optuna==3.1.0
+          uv add optuna==3.6.0
       - name: Run python unit tests
         run: uv run pytest python_tests

@@ -5,7 +5,6 @@ import {
   APIMeta,
   CompareStudiesPlotType,
   CreateNewStudyResponse,
-  ParamImportanceEvaluator,
   ParamImportancesResponse,
   PlotResponse,
   PlotType,
@@ -231,12 +230,11 @@ export class AxiosClient extends APIClient {
         return
       })
   getParamImportances = (
-    studyId: number,
-    evaluator: ParamImportanceEvaluator
+    studyId: number
   ): Promise<Optuna.ParamImportance[][]> =>
     this.axiosInstance
       .get<ParamImportancesResponse>(
-        `/api/studies/${studyId}/param_importances?evaluator=${evaluator}`
+        `/api/studies/${studyId}/param_importances`
       )
       .then((res) => {
         return res.data.param_importances

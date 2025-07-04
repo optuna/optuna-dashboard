@@ -11,6 +11,7 @@ from ..storage_supplier import parametrize_storages
 from ..storage_supplier import StorageSupplier
 
 import importlib.util
+
 if importlib.util.find_spec("torch") is None:
     pytest.skip("PyTorch is not installed", allow_module_level=True)
 
