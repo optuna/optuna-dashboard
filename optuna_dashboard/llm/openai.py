@@ -17,12 +17,13 @@ __all__ = ["OpenAI", "AzureOpenAI"]
 
 class OpenAI:
     """An LLMProvider implementation for OpenAI and its compatible APIs.
-    
+
     Args:
         client: An instance of the ``openai.OpenAI`` client.
         model: The model name.
-        use_chat_completions_api: If True, Chat Completions API will be used instead of the Responses API.
-            For a comparison between the two APIs, see the official documentation:
+        use_chat_completions_api: If True, Chat Completions API will be used instead
+            of the Responses API. For a comparison between the two APIs, see the
+            official documentation:
             https://platform.openai.com/docs/guides/responses-vs-chat-completions
     """
 
@@ -40,22 +41,24 @@ class OpenAI:
     def call(self, prompt: str) -> str:
         try:
             if self._use_chat_completions_api:
-                response = _call_chat_completions_api(self._client, self._model, prompt)
+                return _call_chat_completions_api(self._client, self._model, prompt)
             else:
-                response = _call_responses_api(self._client, self._model, prompt)
+                return _call_responses_api(self._client, self._model, prompt)
         except openai.RateLimitError as e:
             raise RateLimitExceeded() from e
-        return response
+        except openai.AuthenticationError as e:
+            raise InvalidAuthentication() from e
 
 
 class AzureOpenAI:
     """An LLMProvider implementation for Microsoft Azure OpenAI.
-    
+
     Args:
         client: An instance of the ``openai.OpenAI`` client.
         model: The model name.
-        use_chat_completions_api: If True, Chat Completions API will be used instead of the Responses API.
-            For a comparison between the two APIs, see the official documentation:
+        use_chat_completions_api: If True, Chat Completions API will be used instead
+            of the Responses API. For a comparison between the two APIs, see the
+            official documentation:
             https://platform.openai.com/docs/guides/responses-vs-chat-completions
     """
 
@@ -73,14 +76,13 @@ class AzureOpenAI:
     def call(self, prompt: str) -> str:
         try:
             if self._use_chat_completions_api:
-                response = _call_chat_completions_api(self._client, self._model, prompt)
+                return _call_chat_completions_api(self._client, self._model, prompt)
             else:
-                response = _call_responses_api(self._client, self._model, prompt)
+                return _call_responses_api(self._client, self._model, prompt)
         except openai.RateLimitError as e:
             raise RateLimitExceeded() from e
         except openai.AuthenticationError as e:
             raise InvalidAuthentication() from e
-        return response
 
 
 def _call_responses_api(
