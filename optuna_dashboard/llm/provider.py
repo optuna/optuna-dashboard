@@ -31,5 +31,6 @@ class LLMProvider(Protocol):
 
         Raises:
             RateLimitExceeded: if LLM provider returns too many requests error.
+            InvalidAuthentication: if authentication fails.
         """
         ...
