@@ -3,7 +3,8 @@ from __future__ import annotations
 from typing import Protocol
 
 
-class RateLimitExceeded(Exception): ...
+class RateLimitExceeded(Exception):
+    """Raised when the request rate limit is exceeded."""
 
 
 class LLMProvider(Protocol):

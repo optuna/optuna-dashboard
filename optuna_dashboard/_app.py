@@ -108,6 +108,7 @@ def create_app(
     def api_meta() -> dict[str, Any]:
         meta: dict[str, Any] = {
             "artifact_is_available": artifact_store is not None,
+            "llm_is_available": llm_provider is not None,
             "plotlypy_is_available": importlib.util.find_spec("plotly") is not None,
         }
         if jupyterlab_extension_context is not None:

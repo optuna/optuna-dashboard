@@ -14,20 +14,18 @@ __all__ = ["OpenAI", "AzureOpenAI"]
 class OpenAI:
     """An LLMProvider implementation for OpenAI and its compatible APIs.
 
-    Example:
+    Examples:
 
         To use, please set ``OPENAI_API_KEY`` and ``OPENAI_BASE_URL`` environment variables
         and execute the following code:
 
-        .. testcode::
+        import optuna
+        import optuna_dashboard
+        from optuna_dashboard.llm.openai import OpenAI
 
-            import optuna
-            import optuna_dashboard
-            from optuna_dashboard.llm.openai import OpenAI
-
-            storage = optuna.storages.InMemoryStorage()
-            openai_client = OpenAI.from_env()
-            optuna_dashboard.run_server(storage, llm_provider=openai_client)
+        storage = optuna.storages.InMemoryStorage()
+        openai_client = OpenAI.from_env()
+        optuna_dashboard.run_server(storage, llm_provider=openai_client)
     """
     def __init__(
         self,
@@ -53,20 +51,19 @@ class OpenAI:
 class AzureOpenAI:
     """An LLMProvider implementation for Microsoft Azure OpenAI.
 
-    Example:
+    Examples:
 
-        To use, please set ``OPENAI_API_KEY`` and ``OPENAI_BASE_URL`` environment variables
-        and execute the following code:
+        To use, please set ``AZURE_OPENAI_API_KEY``, ``AZURE_OPENAI_VERSION``,
+        and ``AZURE_OPENAI_ENDPOINT`` environment variables and execute the
+        following code:
 
-        .. testcode::
+        import optuna
+        import optuna_dashboard
+        from optuna_dashboard.llm.openai import AzureOpenAI
 
-            import optuna
-            import optuna_dashboard
-            from optuna_dashboard.llm.openai import AzureOpenAI
-
-            storage = optuna.storages.InMemoryStorage()
-            openai_client = AzureOpenAI.from_env()
-            optuna_dashboard.run_server(storage, llm_provider=openai_client)
+        storage = optuna.storages.InMemoryStorage()
+        openai_client = AzureOpenAI.from_env()
+        optuna_dashboard.run_server(storage, llm_provider=openai_client)
     """
     def __init__(
         self,
@@ -119,7 +116,7 @@ class AzureOpenAI:
 
 
 if TYPE_CHECKING:
-    # A mypy-runtime assertion to ensure that OpenAI
-    # implements all abstract methods in LLMProvider.
-    _: LLMProvider = OpenAI(openai.OpenAI())
-    _: LLMProvider = AzureOpenAI(openai.AzureOpenAI())
+    # A mypy-runtime assertion to ensure that OpenAI and AzureOpenAI
+    # implement all abstract methods in LLMProvider protocol.
+    _type_checking_openai: LLMProvider = OpenAI(openai.OpenAI())
+    _type_checking_openai_azure: LLMProvider = AzureOpenAI(openai.AzureOpenAI())
