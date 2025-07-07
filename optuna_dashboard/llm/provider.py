@@ -7,6 +7,10 @@ class RateLimitExceeded(Exception):
     """Raised when the request rate limit is exceeded."""
 
 
+class InvalidAuthentication(Exception):
+    """Raised when authentication fails, for example due to an incorrect API key."""
+
+
 class LLMProvider(Protocol):
     """An abstract interface for LLM providers.
 
