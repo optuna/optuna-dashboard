@@ -122,6 +122,7 @@ test = [
     "streamlit",
     "boto3",
     "coverage",
+    "openai",
     "plotly",
     "pytest",
     "streamlit",
