@@ -2604,6 +2604,7 @@ lint = [
     { name = "mypy", version = "1.14.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "mypy", version = "1.16.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "mypy-boto3-s3" },
+    { name = "openai" },
     { name = "ruff" },
 ]
 test = [
@@ -2615,7 +2616,6 @@ test = [
     { name = "coverage", version = "7.9.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
     { name = "moto", version = "5.0.28", source = { registry = "https://pypi.org/simple" }, extra = ["s3"], marker = "python_full_version < '3.9'" },
     { name = "moto", version = "5.1.6", source = { registry = "https://pypi.org/simple" }, extra = ["s3"], marker = "python_full_version >= '3.9'" },
-    { name = "openai" },
     { name = "plotly" },
     { name = "pytest", version = "8.3.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.9'" },
     { name = "pytest", version = "8.4.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.9'" },
@@ -2650,6 +2650,7 @@ provides-extras = ["preferential", "docs"]
 lint = [
     { name = "mypy" },
     { name = "mypy-boto3-s3" },
+    { name = "openai" },
     { name = "ruff" },
 ]
 test = [
@@ -2657,7 +2658,6 @@ test = [
     { name = "botorch", marker = "python_full_version >= '3.9'" },
     { name = "coverage" },
     { name = "moto", extras = ["s3"] },
-    { name = "openai" },
     { name = "plotly" },
     { name = "pytest" },
     { name = "pytest-playwright", specifier = ">=0.4.4" },

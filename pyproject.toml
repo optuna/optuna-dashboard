@@ -122,7 +122,6 @@ test = [
     "streamlit",
     "boto3",
     "coverage",
-    "openai",
     "plotly",
     "pytest",
     "streamlit",
@@ -134,4 +133,5 @@ lint = [
     "ruff",
     "mypy",
     "mypy-boto3-s3",
+    "openai",
 ]
