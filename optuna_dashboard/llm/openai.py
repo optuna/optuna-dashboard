@@ -21,7 +21,7 @@ class OpenAI:
     Args:
         client: An instance of the ``openai.OpenAI`` client.
         model: The model name.
-        use_chat_completions_api: If True, Chat Completions API will be used instead
+        use_chat_completions_api: If ``True``, Chat Completions API will be used instead
             of the Responses API. For a comparison between the two APIs, see the
             official documentation:
             https://platform.openai.com/docs/guides/responses-vs-chat-completions
@@ -56,7 +56,7 @@ class AzureOpenAI:
     Args:
         client: An instance of the ``openai.OpenAI`` client.
         model: The model name.
-        use_chat_completions_api: If True, Chat Completions API will be used instead
+        use_chat_completions_api: If ``True``, Chat Completions API will be used instead
             of the Responses API. For a comparison between the two APIs, see the
             official documentation:
             https://platform.openai.com/docs/guides/responses-vs-chat-completions

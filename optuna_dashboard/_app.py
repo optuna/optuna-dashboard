@@ -633,6 +633,8 @@ def run_server(
 
     Args:
         storage: Optuna storage.
+        port: The port number to listen on.
+        host: The hostname or IP address to bind to.
         artifact_store: Optuna's Artifact store (optional).
         llm_provider: LLM providers defined under the ``optuna_dashboard.llm`` package (optional).
     """
