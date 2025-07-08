@@ -3,7 +3,6 @@
 ![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/optuna-dashboard)](https://pypistats.org/packages/optuna-dashboard)
 [![Read the Docs](https://readthedocs.org/projects/optuna-dashboard/badge/?version=latest)](https://optuna-dashboard.readthedocs.io/en/latest/?badge=latest)
-[![Codecov](https://codecov.io/gh/optuna/optuna-dashboard/branch/main/graph/badge.svg)](https://codecov.io/gh/optuna/optuna-dashboard)
 
 :link: [**Website**](https://optuna.org/)
 | :page_with_curl: [**Docs**](https://optuna-dashboard.readthedocs.io/en/stable/)
