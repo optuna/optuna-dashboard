@@ -15,7 +15,7 @@ ProviderFactoryType = Callable[[str], OpenAI | AzureOpenAI]
 parametrize_openai_provider = pytest.mark.parametrize(
     "provider_factory",
     [
-        lambda model: OpenAI(openai.OpenAI(), model=model),
+        lambda model: OpenAI(openai.OpenAI(api_key="dummy"), model=model),
         lambda model: AzureOpenAI(
             openai.AzureOpenAI(
                 api_key="dummy", base_url="http://example.com/", api_version="2023-05-15"
