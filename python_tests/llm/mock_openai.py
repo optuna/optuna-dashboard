@@ -12,18 +12,19 @@ from openai.types.responses import ResponseOutputText
 from openai.types.chat import ChatCompletionMessage
 from openai.types.chat.chat_completion import ChatCompletion, Choice
 
-
-dummy_model_id = "gpt-4.1"
+from optuna_dashboard.llm.openai import OpenAI
+from optuna_dashboard.llm.openai import AzureOpenAI
 
 
 def mock_responses_api(
     respx_mock: MockRouter,
+    openai_provider: OpenAI | AzureOpenAI,
     status_code: int,
     response_content: str,
 ) -> None:
     response = Response(
         id="foo",
-        model=dummy_model_id,
+        model=openai_provider._model,
         object="response",
         output=[
             ResponseOutputMessage(
@@ -45,19 +46,25 @@ def mock_responses_api(
         tool_choice="none",
         parallel_tool_calls=False,
     )
-    respx_mock.post("/v1/responses").mock(
+
+    if isinstance(openai_provider, AzureOpenAI):
+        url_path = f"{openai_provider._client._base_url}/openai/responses"
+    else:
+        url_path = "/v1/responses"
+    respx_mock.post(url_path).mock(
         return_value=httpx.Response(status_code, json=response.model_dump(mode="json"))
     )
 
 
 def mock_chat_completions_api(
     respx_mock: MockRouter,
+    openai_provider: OpenAI | AzureOpenAI,
     status_code: int,
     response_content: str,
 ) -> None:
     completion = ChatCompletion(
         id="foo",
-        model=dummy_model_id,
+        model=openai_provider._model,
         object="chat.completion",
         choices=[
             Choice(
@@ -71,6 +78,11 @@ def mock_chat_completions_api(
         ],
         created=int(datetime.now().timestamp()),
     )
-    respx_mock.post("/v1/chat/completions").mock(
+
+    if isinstance(openai_provider, AzureOpenAI):
+        url_path = f"/deployments/{openai_provider._model}/chat/completions"
+    else:
+        url_path = "/v1/chat/completions"
+    respx_mock.post(url_path).mock(
         return_value=httpx.Response(status_code, json=completion.model_dump(mode="json"))
     )
