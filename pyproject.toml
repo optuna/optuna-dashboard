@@ -133,4 +133,5 @@ lint = [
     "ruff",
     "mypy",
     "mypy-boto3-s3",
+    "openai",
 ]
