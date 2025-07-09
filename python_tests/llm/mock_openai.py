@@ -2,9 +2,11 @@
 #
 # To mock the API response, here we use the method described in the below.
 # https://github.com/openai/openai-python/issues/398#issuecomment-1742862473
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 from datetime import datetime
 import httpx
-from respx import MockRouter
 
 from openai.types.responses import Response
 from openai.types.responses import ResponseOutputMessage
@@ -14,6 +16,9 @@ from openai.types.chat.chat_completion import ChatCompletion, Choice
 
 from optuna_dashboard.llm.openai import OpenAI
 from optuna_dashboard.llm.openai import AzureOpenAI
+
+if TYPE_CHECKING:
+    from respx import MockRouter
 
 
 def mock_responses_api(

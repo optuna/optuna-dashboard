@@ -1,6 +1,7 @@
+from __future__ import annotations
+
 import pytest
-from respx import MockRouter
-from typing import Callable
+from typing import TYPE_CHECKING
 
 import openai
 
@@ -11,7 +12,12 @@ from optuna_dashboard.llm.provider import RateLimitExceeded
 from .mock_openai import mock_responses_api
 
 
-ProviderFactoryType = Callable[[str], OpenAI | AzureOpenAI]
+if TYPE_CHECKING:
+    from typing import Callable
+    from respx import MockRouter
+
+    ProviderFactoryType = Callable[[str], OpenAI | AzureOpenAI]
+
 parametrize_openai_provider = pytest.mark.parametrize(
     "provider_factory",
     [
