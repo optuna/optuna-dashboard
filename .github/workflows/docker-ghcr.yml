@@ -3,6 +3,9 @@ on:
   release:
     types:
       - published
+  pull_request:
+    branches:
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -26,8 +29,15 @@ jobs:
           push: true
           tags: ghcr.io/${{ env.REPO }}:${{ env.TAG }}
       - name: Docker build/push (latest)
+        if: github.event_name == 'release'
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           tags: ghcr.io/${{ env.REPO }}:latest
+      - name: Docker build (PR)
+        if: github.event_name == 'pull_request'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: false
