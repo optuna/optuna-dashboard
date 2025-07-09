@@ -9,6 +9,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - run: echo "REPO=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
@@ -29,15 +34,9 @@ jobs:
           push: true
           tags: ghcr.io/${{ env.REPO }}:${{ env.TAG }}
       - name: Docker build/push (latest)
-        if: github.event_name == 'release'
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
           tags: ghcr.io/${{ env.REPO }}:latest
-      - name: Docker build (PR)
-        if: github.event_name == 'pull_request'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: false
+
