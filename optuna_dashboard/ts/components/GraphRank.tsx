@@ -360,6 +360,25 @@ const plotRank = (
   const plotData: Partial<plotly.PlotData>[] = [
     {
       type: "scatter",
+      x: xValues.filter((_, i) => !rankPlotInfo.is_feasible[i]),
+      y: yValues.filter((_, i) => !rankPlotInfo.is_feasible[i]),
+      marker: {
+        color: "#cccccc",
+        size: 10,
+        line: {
+          color: "Grey",
+          width: 0.5,
+        },
+      },
+      mode: "markers",
+      showlegend: false,
+      hovertemplate: "%{hovertext}<extra></extra>",
+      hovertext: rankPlotInfo.hovertext.filter(
+        (_, i) => !rankPlotInfo.is_feasible[i]
+      ),
+    },
+    {
+      type: "scatter",
       x: xValues.filter((_, i) => rankPlotInfo.is_feasible[i]),
       y: yValues.filter((_, i) => rankPlotInfo.is_feasible[i]),
       marker: {
@@ -381,25 +400,6 @@ const plotRank = (
       hovertemplate: "%{hovertext}<extra></extra>",
       hovertext: rankPlotInfo.hovertext.filter(
         (_, i) => rankPlotInfo.is_feasible[i]
-      ),
-    },
-    {
-      type: "scatter",
-      x: xValues.filter((_, i) => !rankPlotInfo.is_feasible[i]),
-      y: yValues.filter((_, i) => !rankPlotInfo.is_feasible[i]),
-      marker: {
-        color: "#cccccc",
-        size: 10,
-        line: {
-          color: "Grey",
-          width: 0.5,
-        },
-      },
-      mode: "markers",
-      showlegend: false,
-      hovertemplate: "%{hovertext}<extra></extra>",
-      hovertext: rankPlotInfo.hovertext.filter(
-        (_, i) => !rankPlotInfo.is_feasible[i]
       ),
     },
   ]

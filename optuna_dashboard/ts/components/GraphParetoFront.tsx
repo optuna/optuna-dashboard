@@ -343,6 +343,16 @@ const plotParetoFront = (
       mode
     ),
     makeScatterObject(
+      infeasibleTrials,
+      objectiveXId,
+      objectiveYId,
+      "%{text}<extra>Infeasible Trial</extra>",
+      false,
+      false,
+      false,
+      mode
+    ),
+    makeScatterObject(
       feasibleTrials.filter((t, i) => isDominated[i]),
       objectiveXId,
       objectiveYId,
@@ -361,16 +371,6 @@ const plotParetoFront = (
       "%{text}<extra>Best Trial</extra>",
       false,
       true,
-      false,
-      mode
-    ),
-    makeScatterObject(
-      infeasibleTrials,
-      objectiveXId,
-      objectiveYId,
-      "%{text}<extra>Infeasible Trial</extra>",
-      false,
-      false,
       false,
       mode
     ),

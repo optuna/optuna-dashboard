@@ -245,6 +245,17 @@ const plotSlice = (
   const trace: plotly.Data[] = [
     {
       type: "scatter",
+      x: infeasibleValues,
+      y: infeasibleObjectiveValues,
+      mode: "markers",
+      name: "Infeasible Trial",
+      marker: {
+        color: "#cccccc",
+        reversescale: true,
+      },
+    },
+    {
+      type: "scatter",
       x: feasibleValues,
       y: feasibleObjectiveValues,
       mode: "markers",
@@ -260,17 +271,6 @@ const plotSlice = (
           color: "Grey",
           width: 0.5,
         },
-      },
-    },
-    {
-      type: "scatter",
-      x: infeasibleValues,
-      y: infeasibleObjectiveValues,
-      mode: "markers",
-      name: "Infeasible Trial",
-      marker: {
-        color: "#cccccc",
-        reversescale: true,
       },
     },
   ]
