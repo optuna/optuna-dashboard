@@ -334,6 +334,8 @@ const plotHistory = (
   }
 
   const plotData: Partial<plotly.PlotData>[] = []
+  const feasiblePlotData: Partial<plotly.PlotData>[] = []
+  const bestValuePlotData: Partial<plotly.PlotData>[] = []
   const infeasiblePlotData: Partial<plotly.PlotData>[] = []
   const unselectedPlotData: Partial<plotly.PlotData>[] = []
   for (const h of historyPlotInfos) {
@@ -363,7 +365,7 @@ const plotHistory = (
       infeasibleTrials.length === 0
         ? "%{text}<extra>Trial</extra>"
         : "%{text}<extra>Feasible Trial</extra>"
-    plotData.push({
+    feasiblePlotData.push({
       x: feasibleTrials.map(getAxisX),
       y: feasibleTrials.map(
         (t: Optuna.Trial): number => target.getTargetValue(t) as number
@@ -424,7 +426,7 @@ const plotHistory = (
         xForLinePlot.push(getAxisX(h.trials[h.trials.length - 1]))
         yForLinePlot.push(yForLinePlot[yForLinePlot.length - 1])
       }
-      plotData.push({
+      bestValuePlotData.push({
         x: xForLinePlot,
         y: yForLinePlot,
         name: `Best Value of ${h.study_name}`,
@@ -470,7 +472,10 @@ const plotHistory = (
       showlegend: false,
     })
   }
-  plotData.push(...infeasiblePlotData)
+
   plotData.push(...unselectedPlotData)
+  plotData.push(...infeasiblePlotData)
+  plotData.push(...feasiblePlotData)
+  plotData.push(...bestValuePlotData)
   return plotly.react(plotDomId, plotData, layout)
 }
