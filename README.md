@@ -60,7 +60,7 @@ You can also use [an official Docker image](https://github.com/optuna/optuna-das
 The Docker image only supports SQLite3, MySQL(PyMySQL), and PostgreSQL(Psycopg2).
 
 ```
-$ docker run -it --rm -p 8080:8080 -v `pwd`:/app -w /app \
+$ docker run -it --rm -p 127.0.0.1:8080:8080 -v `pwd`:/app -w /app \
 > ghcr.io/optuna/optuna-dashboard sqlite:///db.sqlite3
 ```
 
@@ -68,7 +68,7 @@ $ docker run -it --rm -p 8080:8080 -v `pwd`:/app -w /app \
 <summary>MySQL (PyMySQL)</summary>
 
 ```
-$ docker run -it --rm -p 8080:8080 ghcr.io/optuna/optuna-dashboard mysql+pymysql://username:password@hostname:3306/dbname
+$ docker run -it --rm -p 127.0.0.1:8080:8080 ghcr.io/optuna/optuna-dashboard mysql+pymysql://username:password@hostname:3306/dbname
 ```
 
 </details>
@@ -77,7 +77,7 @@ $ docker run -it --rm -p 8080:8080 ghcr.io/optuna/optuna-dashboard mysql+pymysql
 <summary>PostgreSQL (Psycopg2)</summary>
 
 ```
-$ docker run -it --rm -p 8080:8080 ghcr.io/optuna/optuna-dashboard postgresql+psycopg2://username:password@hostname:5432/dbname
+$ docker run -it --rm -p 127.0.0.1:8080:8080 ghcr.io/optuna/optuna-dashboard postgresql+psycopg2://username:password@hostname:5432/dbname
 ```
 
 </details>
