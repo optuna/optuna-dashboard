@@ -1,18 +1,18 @@
-TRIAL_FILTERING_PROMPT = """Please write a filtering function for the user query provided in Javascript.
+TRIAL_FILTERING_PROMPT_TEMPLATE = """Please write a filtering function for the user query provided in Javascript.
 The function should take a trial object as input and return True if the trial matches the query, and False otherwise.
 The definitions of the trial and related objects are as follows:
 
 ```typescript
 export type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting";
-export type TrialIntermediateValue = {
+export type TrialIntermediateValue = {{
     step: number;
     value: number;
-};
-export type Attribute = {
+}};
+export type Attribute = {{
     key: string;
     value: string;
-};
-export type Trial = {
+}};
+export type Trial = {{
     trial_id: number;
     study_id: number;
     number: number;
@@ -24,28 +24,28 @@ export type Trial = {
     datetime_start?: Date;
     datetime_complete?: Date;
     constraints: number[];
-};
-export type TrialParam = {
+}};
+export type TrialParam = {{
     name: string;
     param_internal_value: number;
     param_external_value: string;
     param_external_type: string;
     distribution: Distribution;
-};
+}};
 ```
 
 Examples of the filtering function are provided below:
 
 ```javascript
 // Example 1 - query: complete trials with objective value < -10
-function (trial) {
+function (trial) {{
     return trial.state === "Complete" && trial.values[0] < -10;  // Note that trial.values is not available for failed trials
-}
+}}
 
 // Example 2 - query: trials with parameter x = 1
-function filterTrial(trial) {
+function filterTrial(trial) {{
     return trial.params["x"] === 1;
-}
+}}
 ```
 
 Your response will be used as follows:

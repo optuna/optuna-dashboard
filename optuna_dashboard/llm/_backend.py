@@ -3,12 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from bottle import Bottle
-from bottle import BottleAPIView
 from bottle import request
 from bottle import response
 from .._bottle_util import json_api_view
+from .._bottle_util import BottleAPIView
 from ._prompt_templates import TRIAL_FILTERING_FAILURE_MESSAGE_TEMPLATE
-from ._prompt_templates import TRIAL_FILTERING_PROMPT
+from ._prompt_templates import TRIAL_FILTERING_PROMPT_TEMPLATE
 
 if TYPE_CHECKING:
     from typing import TypedDict
@@ -21,7 +21,7 @@ if TYPE_CHECKING:
 
 
 def register_llm_route(app: Bottle, llm_provider: LLMProvider | None) -> None:
-    @app.get("/api/llm/trial_filter_query")
+    @app.post("/api/llm/trial_filter_query")
     @json_api_view
     def get_trial_filtering_func_str() -> BottleAPIView:
         if llm_provider is None:
@@ -46,7 +46,7 @@ def register_llm_route(app: Bottle, llm_provider: LLMProvider | None) -> None:
                 )
             )
 
-        prompt = TRIAL_FILTERING_PROMPT.format(
+        prompt = TRIAL_FILTERING_PROMPT_TEMPLATE.format(
             user_query=user_query,
             trial_filtering_failure_message=trial_filtering_failure_message,
         )
