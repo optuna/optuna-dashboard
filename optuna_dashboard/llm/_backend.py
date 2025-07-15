@@ -6,7 +6,6 @@ from bottle import Bottle
 from bottle import request
 from bottle import response
 from .._bottle_util import json_api_view
-from .._bottle_util import BottleAPIView
 from ._prompt_templates import TRIAL_FILTERING_FAILURE_MESSAGE_TEMPLATE
 from ._prompt_templates import TRIAL_FILTERING_PROMPT_TEMPLATE
 
@@ -23,15 +22,15 @@ if TYPE_CHECKING:
 def register_llm_route(app: Bottle, llm_provider: LLMProvider | None) -> None:
     @app.post("/api/llm/trial_filter_query")
     @json_api_view
-    def get_trial_filtering_func_str() -> BottleAPIView:
+    def get_trial_filtering_func_str() -> dict[str, str]:
         if llm_provider is None:
             response.status = 400  # Bad Request
-            return b"Cannot access to the LLM provider."
+            return {"reason": "No access to the LLM provider."}
 
         user_query = request.json.get("user_query", "")
         if not user_query:
             response.status = 400  # Bad Request
-            return b"No user query provided."
+            return {"reason": "No user query provided."}
 
         res: TrialFilteringFuncResponse | None = request.json.get(
             "filtering_result", None
