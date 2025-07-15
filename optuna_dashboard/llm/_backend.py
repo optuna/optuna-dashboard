@@ -10,7 +10,7 @@ from ._prompt_templates import TRIAL_FILTERING_FAILURE_MESSAGE_TEMPLATE
 from ._prompt_templates import TRIAL_FILTERING_PROMPT
 
 if TYPE_CHECKING:
-    from typing import Any, TypedDict
+    from typing import TypedDict
 
     from .llm.provider import LLMProvider
 
