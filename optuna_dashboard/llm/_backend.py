@@ -32,22 +32,18 @@ def register_llm_route(app: Bottle, llm_provider: LLMProvider | None) -> None:
             response.status = 400  # Bad Request
             return {"reason": "No user query provided."}
 
-        res: TrialFilteringFuncResponse | None = request.json.get(
-            "filtering_result", None
-        )
+        res: TrialFilteringFuncResponse | None = request.json.get("last_response", None)
         if res is None:
             trial_filtering_failure_message = ""
         else:
-            trial_filtering_failure_message = (
-                TRIAL_FILTERING_FAILURE_MESSAGE_TEMPLATE.format(
-                    last_trial_filtering_func_str=res.get("func_str", ""),
-                    trial_flitering_error_message=res.get("error_message", ""),
-                )
+            func_str = res.get("func_str", "")
+            err_msg = res.get("error_message", "")
+            trial_filtering_failure_message = TRIAL_FILTERING_FAILURE_MESSAGE_TEMPLATE.format(
+                last_trial_filtering_func_str=func_str, trial_flitering_error_message=err_msg
             )
 
         prompt = TRIAL_FILTERING_PROMPT_TEMPLATE.format(
-            user_query=user_query,
-            trial_filtering_failure_message=trial_filtering_failure_message,
+            user_query=user_query, trial_filtering_failure_message=trial_filtering_failure_message
         )
         try:
             trial_filtering_func_str = llm_provider.call(prompt)

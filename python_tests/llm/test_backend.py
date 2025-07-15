@@ -61,7 +61,7 @@ def test_get_trial_filtering_func_str_success_with_last_try() -> None:
         "/api/llm/trial_filter_query",
         "POST",
         body=json.dumps(
-            {"user_query": "test query", "filtering_result": last_trial_filtering_response}
+            {"user_query": "test query", "last_response": last_trial_filtering_response}
         ),
         content_type="application/json",
     )
