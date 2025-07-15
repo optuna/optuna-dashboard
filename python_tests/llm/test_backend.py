@@ -1,11 +1,21 @@
 from __future__ import annotations
 
 import json
+import pytest
+from typing import TYPE_CHECKING
 
 import optuna
 from optuna_dashboard._app import create_app
+from optuna_dashboard.llm.provider import InvalidAuthentication
+from optuna_dashboard.llm.provider import RateLimitExceeded
 
 from ..wsgi_client import send_request
+
+
+if TYPE_CHECKING:
+    from typing import Any
+
+    from optuna_dashboard.llm.provider import LLMProvider
 
 
 class LLMProviderMock:
@@ -13,58 +23,67 @@ class LLMProviderMock:
         return "Not Used"
 
 
-def test_get_trial_filtering_func_str_without_llm_provider() -> None:
+class InvalidAuthenticationLLMProviderMock:
+    def call(self, prompt: str) -> str:
+        raise InvalidAuthentication
+
+
+class RateLimitExceededLLMProviderMock:
+    def call(self, prompt: str) -> str:
+        raise RateLimitExceeded
+
+
+def send_trial_filter_query_request(
+    body_params: dict[str, Any], llm_provider: LLMProvider | None = None
+) -> tuple[int, dict[str, Any]]:
     storage = optuna.storages.InMemoryStorage()
-    app = create_app(storage)
-    # app = create_app(storage, llm_provider=LLMProviderMock())
-    status, _, _ = send_request(app, "/api/llm/trial_filter_query", "POST")
+    app = create_app(storage, llm_provider=llm_provider)
+    status, _, body = send_request(
+        app,
+        "/api/llm/trial_filter_query",
+        "POST",
+        body=json.dumps(body_params),
+        content_type="application/json",
+    )
+    response = json.loads(body.decode("utf-8"))
+    return status, response
+
+
+def test_get_trial_filtering_func_str_without_llm_provider() -> None:
+    body_params = {"user_query": "test query"}
+    status, _ = send_trial_filter_query_request(body_params=body_params)
     assert status == 400
 
 
 def test_get_trial_filtering_func_str_without_user_query() -> None:
-    storage = optuna.storages.InMemoryStorage()
-    app = create_app(storage, llm_provider=LLMProviderMock())
-    status, _, _ = send_request(
-        app,
-        "/api/llm/trial_filter_query",
-        "POST",
-        body=json.dumps({}),
-        content_type="application/json",
-    )
+    llm_provider = LLMProviderMock()
+    status, _ = send_trial_filter_query_request(body_params={}, llm_provider=llm_provider)
     assert status == 400
 
 
 def test_get_trial_filtering_func_str_success() -> None:
-    storage = optuna.storages.InMemoryStorage()
-    app = create_app(storage, llm_provider=LLMProviderMock())
-    status, _, body = send_request(
-        app,
-        "/api/llm/trial_filter_query",
-        "POST",
-        body=json.dumps({"user_query": "test query"}),
-        content_type="application/json",
+    body_params = {"user_query": "test query"}
+    llm_provider = LLMProviderMock()
+    status, response = send_trial_filter_query_request(
+        body_params=body_params, llm_provider=llm_provider
     )
     assert status == 200
-    res = json.loads(body.decode("utf-8"))
-    assert res["trial_filtering_func_str"] == LLMProviderMock().call("")
+    assert response["trial_filtering_func_str"] == LLMProviderMock().call("")
 
 
-def test_get_trial_filtering_func_str_success_with_last_try() -> None:
-    storage = optuna.storages.InMemoryStorage()
-    app = create_app(storage, llm_provider=LLMProviderMock())
-    last_trial_filtering_response = {
-        "func_str": "dummy",
-        "error_message": "Some errors",
-    }
-    status, _, body = send_request(
-        app,
-        "/api/llm/trial_filter_query",
-        "POST",
-        body=json.dumps(
-            {"user_query": "test query", "last_response": last_trial_filtering_response}
-        ),
-        content_type="application/json",
+@pytest.mark.parametrize("llm_provider, correct_status", [
+    (LLMProviderMock(), 200),
+    (InvalidAuthenticationLLMProviderMock(), 401),
+    (RateLimitExceededLLMProviderMock(), 429),
+])
+def test_get_trial_filtering_func_str_success_with_last_try(
+    llm_provider: LLMProvider, correct_status: int
+) -> None:
+    last_trial_filtering_response = {"func_str": "dummy", "error_message": "Some errors"}
+    body_params = {"user_query": "test query", "last_response": last_trial_filtering_response}
+    status, response = send_trial_filter_query_request(
+        body_params=body_params, llm_provider=llm_provider
     )
-    assert status == 200
-    res = json.loads(body.decode("utf-8"))
-    assert res["trial_filtering_func_str"] == LLMProviderMock().call("")
+    assert status == correct_status
+    if correct_status == 200:
+        assert response["trial_filtering_func_str"] == LLMProviderMock().call("")

@@ -8,6 +8,8 @@ from bottle import response
 from .._bottle_util import json_api_view
 from ._prompt_templates import TRIAL_FILTERING_FAILURE_MESSAGE_TEMPLATE
 from ._prompt_templates import TRIAL_FILTERING_PROMPT_TEMPLATE
+from .provider import InvalidAuthentication
+from .provider import RateLimitExceeded
 
 if TYPE_CHECKING:
     from typing import TypedDict
@@ -47,6 +49,14 @@ def register_llm_route(app: Bottle, llm_provider: LLMProvider | None) -> None:
         )
         try:
             trial_filtering_func_str = llm_provider.call(prompt)
+        except RateLimitExceeded as e:
+            response.status = 429  # Too Many Requests
+            reason = f"Rate limit exceeded. Try again later. The actual error: {str(e)}"
+            return {"reason": reason}
+        except InvalidAuthentication as e:
+            response.status = 401  # Unauthorized
+            reason = f"Invalid authentication. Check your API key. The actual error: {str(e)}"
+            return {"reason": reason}
         except Exception as e:
             response.status = 500
             return {"reason": str(e)}
