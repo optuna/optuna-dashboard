@@ -34,7 +34,7 @@ class RateLimitExceededLLMProviderMock:
 
 
 def send_trial_filter_query_request(
-    body_params: dict[str, Any], llm_provider: LLMProvider | None = None
+    body_params_to_use: dict[str, Any], llm_provider: LLMProvider | None = None
 ) -> tuple[int, dict[str, Any]]:
     storage = optuna.storages.InMemoryStorage()
     app = create_app(storage, llm_provider=llm_provider)
@@ -42,48 +42,35 @@ def send_trial_filter_query_request(
         app,
         "/api/llm/trial_filter_query",
         "POST",
-        body=json.dumps(body_params),
+        body=json.dumps(body_params_to_use),
         content_type="application/json",
     )
     response = json.loads(body.decode("utf-8"))
     return status, response
 
 
-def test_get_trial_filtering_func_str_without_llm_provider() -> None:
-    body_params = {"user_query": "test query"}
-    status, _ = send_trial_filter_query_request(body_params=body_params)
-    assert status == 400
-
-
 def test_get_trial_filtering_func_str_without_user_query() -> None:
     llm_provider = LLMProviderMock()
-    status, _ = send_trial_filter_query_request(body_params={}, llm_provider=llm_provider)
+    status, _ = send_trial_filter_query_request({}, llm_provider=llm_provider)
     assert status == 400
-
-
-def test_get_trial_filtering_func_str_success() -> None:
-    body_params = {"user_query": "test query"}
-    llm_provider = LLMProviderMock()
-    status, response = send_trial_filter_query_request(
-        body_params=body_params, llm_provider=llm_provider
-    )
-    assert status == 200
-    assert response["trial_filtering_func_str"] == LLMProviderMock().call("")
 
 
 @pytest.mark.parametrize("llm_provider, correct_status", [
     (LLMProviderMock(), 200),
     (InvalidAuthenticationLLMProviderMock(), 401),
     (RateLimitExceededLLMProviderMock(), 429),
+    (None, 400),
 ])
-def test_get_trial_filtering_func_str_success_with_last_try(
-    llm_provider: LLMProvider, correct_status: int
+@pytest.mark.parametrize("body_params", [
+    {"user_query": "test query"},
+    {"user_query": "test query", "last_response": {"func_str": "dummy", "error_message": "error"}},
+])
+def test_get_trial_filtering_func_str(
+    llm_provider: LLMProvider | None,
+    correct_status: int,
+    body_params: dict[str, str],
 ) -> None:
-    last_trial_filtering_response = {"func_str": "dummy", "error_message": "Some errors"}
-    body_params = {"user_query": "test query", "last_response": last_trial_filtering_response}
-    status, response = send_trial_filter_query_request(
-        body_params=body_params, llm_provider=llm_provider
-    )
+    status, response = send_trial_filter_query_request(body_params, llm_provider=llm_provider)
     assert status == correct_status
     if correct_status == 200:
         assert response["trial_filtering_func_str"] == LLMProviderMock().call("")
