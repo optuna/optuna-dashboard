@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from bottle import Bottle
+from bottle import BottleAPIView
 from bottle import request
 from bottle import response
 from .._bottle_util import json_api_view
@@ -22,7 +23,7 @@ if TYPE_CHECKING:
 def register_llm_route(app: Bottle, llm_provider: LLMProvider | None) -> None:
     @app.get("/api/llm/trial_filter_query")
     @json_api_view
-    def get_trial_filtering_func_str() -> dict[str, str] | bytes:
+    def get_trial_filtering_func_str() -> BottleAPIView:
         if llm_provider is None:
             response.status = 400  # Bad Request
             return b"Cannot access to the LLM provider."
