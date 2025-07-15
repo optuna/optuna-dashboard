@@ -22,7 +22,7 @@ if TYPE_CHECKING:
 def register_llm_route(app: Bottle, llm_provider: LLMProvider | None) -> None:
     @app.get("/api/llm/trial_filter_query")
     @json_api_view
-    def get_trial_filtering_func_str() -> dict[str, Any]:
+    def get_trial_filtering_func_str() -> dict[str, str] | bytes:
         if llm_provider is None:
             response.status = 400  # Bad Request
             return b"Cannot access to the LLM provider."
