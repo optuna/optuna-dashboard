@@ -69,7 +69,7 @@ Given the following user query, please return a valid Javascript function code w
 """  # noqa: E501
 
 TRIAL_FILTERING_FAILURE_MESSAGE_TEMPLATE = """
-Please notice that the last trial generated the following function:
+Please notice that the last response generated the following function:
 
 ```javascript
 {last_trial_filtering_func_str}
