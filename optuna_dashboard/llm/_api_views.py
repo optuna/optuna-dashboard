@@ -28,7 +28,7 @@ def register_llm_route(app: Bottle, llm_provider: LLMProvider | None) -> None:
             return {"reason": "No user query provided."}
 
         func_str = request.json.get("last_response", {}).get("func_str")
-        error_msg = request.json.get("last_response", {}).get("error_message")
+        err_msg = request.json.get("last_response", {}).get("error_message")
         prompt = get_trial_filtering_prompt(user_query, func_str, err_msg)
 
         try:
