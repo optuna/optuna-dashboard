@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+
 _TRIAL_DEFINITION_IN_TYPESCRIPT = """```typescript
 export type TrialState = "Running" | "Complete" | "Pruned" | "Fail" | "Waiting";
 export type TrialIntermediateValue = {
