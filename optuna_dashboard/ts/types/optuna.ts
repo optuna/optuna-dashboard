@@ -25,22 +25,11 @@ export type Artifact = {
   encoding: string
 }
 
-export type Trial = {
-  trial_id: number
-  study_id: number
-  number: number
-  state: Optuna.TrialState
-  values?: number[]
-  intermediate_values: Optuna.TrialIntermediateValue[]
-  datetime_start?: Date
-  datetime_complete?: Date
-  params: Optuna.TrialParam[]
+export type Trial = Optuna.Trial & {
   fixed_params: {
     name: string
     param_external_value: string
   }[]
-  user_attrs: Optuna.Attribute[]
-  constraints: number[]
   note: Note
   artifacts: Artifact[]
 }
