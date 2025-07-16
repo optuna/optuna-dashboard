@@ -33,7 +33,7 @@ export type TrialParam = {
 };
 ```"""
 
-_TRIAL_FILTERING_PROMPT_TEMPLATE = """Please write a filtering function for the user query provided in Javascript.
+_TRIAL_FILTERING_PROMPT_TEMPLATE = """Please write a filtering function for the user query provided in JavaScript.
 The function should take a trial object as input and return True if the trial matches the query, and False otherwise.
 The definitions of the trial and related objects are as follows:
 
@@ -63,7 +63,7 @@ Your response will be used as follows:
 ```
 
 Output constraints:
-- Return only a valid Javascript function code without any other texts to evaluate your response as is.
+- Return only a valid JavaScript function code without any other texts to evaluate your response as is.
 - Do not perform any network requests (e.g., fetch, XMLHttpRequest, etc.).
 - Do not manipulate the DOM (e.g., form submissions, element insertion, or removal).
 - Do not perform any external calls or I/O operations.
@@ -72,7 +72,7 @@ Output constraints:
 
 ====== Instructions Finished ======
 
-Given the following user query, please return a valid Javascript function code without any other texts:
+Given the following user query, please return a valid JavaScript function code without any other texts:
 {user_query}
 
 ====== User Query Finished ======
@@ -94,15 +94,20 @@ This function failed with the following error message:
 
 Please consider the error message and generate another code that retains the user query without any errors.
 Remember the same security constraints: no network requests, no DOM manipulation, no external calls, no I/O operations, and no trial modifications.
-Do not forget to return a valid Javascript function code without any other texts."""  # noqa: E501
+Do not forget to return a valid JavaScript function code without any other texts."""  # noqa: E501
 
 
 def get_trial_filtering_prompt(
     user_query: str, last_func_str: str | None = None, last_error_msg: str | None = None
 ) -> str:
-    failure_msg = _TRIAL_FILTERING_FAILURE_MESSAGE_TEMPLATE.format(
-        last_trial_filtering_func_str=last_func_str, trial_flitering_error_message=last_error_msg
-    )
+    if last_func_str is not None and last_error_msg is not None:
+        failure_msg = _TRIAL_FILTERING_FAILURE_MESSAGE_TEMPLATE.format(
+            last_trial_filtering_func_str=last_func_str,
+            trial_flitering_error_message=last_error_msg,
+        )
+    else:
+        failure_msg = ""
+
     return _TRIAL_FILTERING_PROMPT_TEMPLATE.format(
         user_query=user_query,
         trial_filtering_failure_message=failure_msg,
