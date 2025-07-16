@@ -100,10 +100,10 @@ Do not forget to return a valid JavaScript function code without any other texts
 def get_trial_filtering_prompt(
     user_query: str, last_func_str: str | None = None, last_error_msg: str | None = None
 ) -> str:
-    if last_func_str is not None and last_error_msg is not None:
+    if last_func_str is not None:
         failure_msg = _TRIAL_FILTERING_FAILURE_MESSAGE_TEMPLATE.format(
             last_trial_filtering_func_str=last_func_str,
-            trial_flitering_error_message=last_error_msg,
+            trial_flitering_error_message=last_error_msg or "No Error Message Provided.",
         )
     else:
         failure_msg = ""
