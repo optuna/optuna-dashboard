@@ -25,19 +25,12 @@
     "url": "https://github.com/optuna/optuna-dashboard/issues"
   },
   "homepage": "https://github.com/optuna/optuna-dashboard#readme",
-  "dependencies": {
-  },
   "devDependencies": {
-    "@chromatic-com/storybook": "^1.6.1",
+    "@chromatic-com/storybook": "^4.0.1",
     "@optuna/storage": "file:../storage",
     "@optuna/types": "file:../types",
-    "@storybook/addon-essentials": "^8.3.5",
-    "@storybook/addon-interactions": "^8.1.11",
-    "@storybook/addon-links": "^8.1.11",
-    "@storybook/blocks": "^8.3.5",
-    "@storybook/react": "^8.2.9",
-    "@storybook/react-vite": "^8.2.9",
-    "@storybook/test": "^8.1.11",
+    "@storybook/addon-links": "^9.0.17",
+    "@storybook/react-vite": "^9.0.17",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.2.2",
     "@types/plotly.js-dist-min": "^2.3.4",
@@ -45,10 +38,12 @@
     "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react-swc": "^3.5.0",
     "jsdom": "^24.0.0",
-    "storybook": "^8.2.9",
+    "storybook": "^9.0.17",
     "typescript": "^5.7.3",
     "vite": "^5.4.6",
-    "vitest": "^1.4.0"
+    "vitest": "^1.4.0",
+    "eslint-plugin-storybook": "9.0.17",
+    "@storybook/addon-docs": "^9.0.17"
   },
   "peerDependencies": {
     "react": ">=16.0.0",
