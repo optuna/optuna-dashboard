@@ -17,11 +17,11 @@ export default defineConfig({
     deps: {
       optimizer: {
         web: {
-          include: ['react', 'react-dom']
-        }
-      }
+          include: ["react", "react-dom"],
+        },
+      },
     },
-    pool: 'forks'
+    pool: "forks",
   },
   optimizeDeps: {
     exclude: ["@sqlite.org/sqlite-wasm"],

@@ -1,10 +1,10 @@
 import * as Optuna from "@optuna/types"
-import { render, screen } from "@testing-library/react"
+import { act, render, screen } from "@testing-library/react"
 import React from "react"
 import { describe, expect, test } from "vitest"
 import { PlotTimeline } from "../src/components/PlotTimeline"
 
-describe("PlotSlice Tests", async () => {
+describe("PlotTimeline Tests", async () => {
   const setup = ({
     study,
     dataTestId,
@@ -24,9 +24,13 @@ describe("PlotSlice Tests", async () => {
   }
 
   for (const study of window.mockStudies) {
-    test(`PlotSlice (study name: ${study.name})`, () => {
-      setup({ study, dataTestId: `plot-slice-${study.id}` })
-      expect(screen.getByTestId(`plot-slice-${study.id}`)).toBeInTheDocument()
+    test(`PlotTimeline (study name: ${study.name})`, async () => {
+      await act(async () => {
+        setup({ study, dataTestId: `plot-timeline-${study.id}` })
+      })
+      expect(
+        screen.getByTestId(`plot-timeline-${study.id}`)
+      ).toBeInTheDocument()
     })
   }
 })
