@@ -11,8 +11,7 @@ import {
   useTheme,
 } from "@mui/material"
 import CircularProgress from "@mui/material/CircularProgress"
-import blue from "@mui/material/colors/blue"
-import pink from "@mui/material/colors/pink"
+import { blue, pink } from "@mui/material/colors"
 import {
   APIClientProvider,
   App,

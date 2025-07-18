@@ -4,8 +4,8 @@ import {
   Primary,
   Subtitle,
   Title,
-} from "@storybook/blocks"
-import type { Preview } from "@storybook/react"
+} from "@storybook/addon-docs/blocks"
+import type { Preview } from "@storybook/react-vite"
 
 const preview: Preview = {
   parameters: {
