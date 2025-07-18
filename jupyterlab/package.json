@@ -129,6 +129,7 @@
             }
         },
         "extension": true,
+        "webpackConfig": "./webpack.config.js",
         "outputDir": "jupyterlab_optuna/labextension"
     },
     "prettier": {
