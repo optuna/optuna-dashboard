@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom/vitest"
-import { cleanup } from '@testing-library/react'
-import { afterEach } from 'vitest'
-import './setup_studies'
+import { cleanup } from "@testing-library/react"
+import { afterEach } from "vitest"
+import "./setup_studies"
 
 // Cleanup DOM after each test
 afterEach(() => {
@@ -11,7 +11,7 @@ afterEach(() => {
 // Ensure global cleanup of async operations
 afterEach(() => {
   // Cancel any pending timers or intervals
-  if (typeof window !== 'undefined') {
+  if (typeof window !== "undefined") {
     // Clear any pending timeouts/intervals
     const highestTimeoutId = Number(setTimeout(() => {}))
     clearTimeout(highestTimeoutId)

@@ -1,5 +1,5 @@
 import * as Optuna from "@optuna/types"
-import { render, screen } from "@testing-library/react"
+import { act, render, screen } from "@testing-library/react"
 import React from "react"
 import { describe, expect, test } from "vitest"
 import { PlotEdf } from "../src/components/PlotEdf"
@@ -24,8 +24,10 @@ describe("PlotEdf Tests", async () => {
   }
 
   for (const study of window.mockStudies) {
-    test(`PlotEdf (study name: ${study.name})`, () => {
-      setup({ study, dataTestId: `plot-edf-${study.id}` })
+    test(`PlotEdf (study name: ${study.name})`, async () => {
+      await act(async () => {
+        setup({ study, dataTestId: `plot-edf-${study.id}` })
+      })
       expect(screen.getByTestId(`plot-edf-${study.id}`)).toBeInTheDocument()
     })
   }

@@ -1,5 +1,5 @@
 import * as Optuna from "@optuna/types"
-import { render, screen } from "@testing-library/react"
+import { act, render, screen } from "@testing-library/react"
 import React from "react"
 import { describe, expect, test } from "vitest"
 import { PlotImportance } from "../src/components/PlotImportance"
@@ -29,12 +29,14 @@ describe("PlotImportance Tests", async () => {
   }
 
   for (const study of window.mockStudies) {
-    test(`PlotImportance (study name: ${study.name})`, () => {
+    test(`PlotImportance (study name: ${study.name})`, async () => {
       const importance = window.mockImportances[study.name] ?? []
-      setup({
-        study,
-        importance,
-        dataTestId: `plot-importance-${study.id}`,
+      await act(async () => {
+        setup({
+          study,
+          importance,
+          dataTestId: `plot-importance-${study.id}`,
+        })
       })
       expect(
         screen.getByTestId(`plot-importance-${study.id}`)
