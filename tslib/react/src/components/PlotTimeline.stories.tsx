@@ -1,5 +1,5 @@
 import { CssBaseline, ThemeProvider } from "@mui/material"
-import { Meta, StoryObj } from "@storybook/react"
+import { Meta, StoryObj } from "@storybook/react-vite"
 import React from "react"
 import { useMockStudy } from "../MockStudies"
 import { darkTheme } from "../styles/darkTheme"

@@ -1,5 +1,5 @@
 import * as Optuna from "@optuna/types"
-import { render, screen } from "@testing-library/react"
+import { act, render, screen } from "@testing-library/react"
 import React from "react"
 import { describe, expect, test } from "vitest"
 import { PlotSlice } from "../src/components/PlotSlice"
@@ -24,8 +24,10 @@ describe("PlotSlice Tests", async () => {
   }
 
   for (const study of window.mockStudies) {
-    test(`PlotSlice (study name: ${study.name})`, () => {
-      setup({ study, dataTestId: `plot-slice-${study.id}` })
+    test(`PlotSlice (study name: ${study.name})`, async () => {
+      await act(async () => {
+        setup({ study, dataTestId: `plot-slice-${study.id}` })
+      })
       expect(screen.getByTestId(`plot-slice-${study.id}`)).toBeInTheDocument()
     })
   }
