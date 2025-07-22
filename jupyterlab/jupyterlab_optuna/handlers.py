@@ -37,6 +37,19 @@ _base_url = ""
 threading_lock = threading.Lock()
 
 
+def normalize_storage_url(storage_url: str) -> str:
+    if not os.path.isfile(storage_url):
+        return storage_url
+
+    # Convert ./db.sqlite3 to sqlite:///abs/path/to/db.sqlite3
+    sqlite3_header = b"SQLite format 3\x00"
+    with open(storage_url, "rb") as f:
+        header = f.read(len(sqlite3_header))
+    if header != sqlite3_header:
+        return storage_url
+    return "sqlite:///" + os.path.abspath(storage_url)
+
+
 class RouteHandler(APIHandler):
     @tornado.web.authenticated
     def post(self):
@@ -58,7 +71,7 @@ class RouteHandler(APIHandler):
 
         with threading_lock:
             _dashboard_app = wsgi(
-                storage=storage_url,
+                storage=normalize_storage_url(storage_url),
                 artifact_store=artifact_store,
                 jupyterlab_extension_context=JupyterLabExtensionContext(base_url=_base_url),
             )
