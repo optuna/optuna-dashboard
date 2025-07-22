@@ -42,8 +42,7 @@ jupyterlab-extension: tslib
 	cd optuna_dashboard && npm install && npm run build:pkg
 	rm -rf jupyterlab/jupyterlab_optuna/vendor/
 	mkdir -p jupyterlab/jupyterlab_optuna/vendor/
-	cp -r optuna_dashboard jupyterlab/jupyterlab_optuna/vendor/optuna_dashboard
-	rm -rf jupyterlab/jupyterlab_optuna/vendor/optuna_dashboard/node_modules
+	rsync -a --exclude=node_modules optuna_dashboard/ jupyterlab/jupyterlab_optuna/vendor/optuna_dashboard/
 	cd jupyterlab && uv run jlpm install && uv run jlpm run build && uv run python -m build --wheel
 
 .PHONY: python-package
