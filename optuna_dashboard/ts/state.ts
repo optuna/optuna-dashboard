@@ -25,6 +25,8 @@ export const isFileUploading = atom<boolean>(false)
 
 export const artifactIsAvailable = atom<boolean>(false)
 
+export const llmIsAvailable = atom<boolean>(false)
+
 export const plotlypyIsAvailableState = atom<boolean>(false)
 
 export const studySummariesLoadingState = atom<boolean>(false)

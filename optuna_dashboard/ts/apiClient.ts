@@ -15,6 +15,7 @@ import {
 
 export type APIMeta = {
   artifact_is_available: boolean
+  llm_is_available: boolean
   plotlypy_is_available: boolean
   jupyterlab_extension_context?: {
     base_url: string
@@ -135,6 +136,15 @@ export enum PlotType {
 
 export enum CompareStudiesPlotType {
   EDF = "edf",
+}
+
+export type TrialFilterQueryLastResponse = {
+  func_str: string
+  error_message: string
+}
+
+export type TrialFilterQueryResponse = {
+  trial_filtering_func_str: string
 }
 
 export abstract class APIClient {
@@ -258,4 +268,8 @@ export abstract class APIClient {
     studyIds: number[],
     plotType: CompareStudiesPlotType
   ): Promise<PlotResponse>
+  abstract callTrialFilterQuery(
+    user_query: string,
+    last_response?: TrialFilterQueryLastResponse
+  ): Promise<TrialFilterQueryResponse>
 }

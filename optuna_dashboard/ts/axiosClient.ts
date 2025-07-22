@@ -11,6 +11,8 @@ import {
   RenameStudyResponse,
   StudyDetailResponse,
   StudySummariesResponse,
+  TrialFilterQueryLastResponse,
+  TrialFilterQueryResponse,
   UploadArtifactAPIResponse,
 } from "./apiClient"
 import {
@@ -302,4 +304,14 @@ export class AxiosClient extends APIClient {
         params: { study_ids: studyIds },
       })
       .then<PlotResponse>((res) => res.data)
+  callTrialFilterQuery = (
+    user_query: string,
+    last_response?: TrialFilterQueryLastResponse
+  ): Promise<TrialFilterQueryResponse> =>
+    this.axiosInstance
+      .post<TrialFilterQueryResponse>("/api/llm/trial_filter_query", {
+        user_query: user_query,
+        last_response: last_response,
+      })
+      .then<TrialFilterQueryResponse>((res) => res.data)
 }

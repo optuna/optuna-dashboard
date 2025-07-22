@@ -6,6 +6,7 @@ import { getDominatedTrials } from "./dominatedTrials"
 import {
   artifactIsAvailable,
   isFileUploading,
+  llmIsAvailable,
   plotlypyIsAvailableState,
   reloadIntervalState,
   studyDetailLoadingState,
@@ -33,6 +34,7 @@ export const actionCreator = () => {
   const setUploading = useSetAtom(isFileUploading)
   const setTrialsUpdating = useSetAtom(trialsUpdatingState)
   const setArtifactIsAvailable = useSetAtom(artifactIsAvailable)
+  const setLLMIsAvailable = useSetAtom(llmIsAvailable)
   const setPlotlypyIsAvailable = useSetAtom(plotlypyIsAvailableState)
   const setStudySummariesLoading = useSetAtom(studySummariesLoadingState)
   const [studyDetailLoading, setStudyDetailLoading] = useAtom(
@@ -194,6 +196,7 @@ export const actionCreator = () => {
   const updateAPIMeta = () => {
     apiClient.getMetaInfo().then((r) => {
       setArtifactIsAvailable(r.artifact_is_available)
+      setLLMIsAvailable(r.llm_is_available)
       setPlotlypyIsAvailable(r.plotlypy_is_available)
     })
   }
