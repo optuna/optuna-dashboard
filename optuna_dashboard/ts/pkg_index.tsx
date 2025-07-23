@@ -10,9 +10,9 @@ import {
   RenameStudyResponse,
   StudyDetailResponse,
   StudySummariesResponse,
-  TrialResponse,
-  TrialFilterQueryResponse,
   TrialFilterQueryLastResponse,
+  TrialFilterQueryResponse,
+  TrialResponse,
   UploadArtifactAPIResponse,
 } from "./apiClient"
 import { APIClientProvider } from "./apiClientProvider"

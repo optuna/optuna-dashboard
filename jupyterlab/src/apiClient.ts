@@ -13,8 +13,8 @@ import {
   StudySummariesResponse,
   StudySummary,
   Trial,
-  TrialFilterQueryResponse,
   TrialFilterQueryLastResponse,
+  TrialFilterQueryResponse,
   UploadArtifactAPIResponse,
 } from "@optuna/optuna-dashboard"
 import * as Optuna from "@optuna/types"
