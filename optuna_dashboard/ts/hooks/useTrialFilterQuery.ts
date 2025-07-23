@@ -5,10 +5,13 @@ import { useSnackbar } from "notistack"
 import { useEffect } from "react"
 import { useAPIClient } from "../apiClientProvider"
 
-export const useTrialFilterQuery = (
-  user_query: string,
+export const useTrialFilterQuery = ({
+  user_query,
+  last_response
+}: {
+  user_query: string
   last_response?: TrialFilterQueryLastResponse
-) => {
+}) => {
   const { apiClient } = useAPIClient()
   const { enqueueSnackbar } = useSnackbar()
 
