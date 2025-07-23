@@ -163,8 +163,7 @@ The release process(compiling TypeScript files, packaging Python distributions a
 Please install [wasm-bindgen-cli](https://rustwasm.github.io/wasm-bindgen/reference/cli.html) and [wasm-opt](https://docs.rs/wasm-opt/latest/wasm_opt/), and then execute the following command.
 
 ```
-$ cargo install -f wasm-bindgen-cli
-$ cargo install wasm-opt
+$ cargo install wasm-bindgen-cli wasm-opt
 $ make serve-browser-app
 ```
 

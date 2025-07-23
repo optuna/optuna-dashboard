@@ -53,6 +53,16 @@ jobs:
         with:
           node-version: '20'
       
+      - name: Install Rust toolchains
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install wasm-bindgen and wasm-opt
+        run: |
+          cargo install wasm-bindgen-cli
+          cargo install wasm-opt
+      
       - name: Setup tslib
         run: make tslib
       
@@ -64,9 +74,7 @@ jobs:
 
       - name: Build rustlib for standalone_app
         working-directory: rustlib
-        run: |
-          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-          wasm-pack build --target web
+        run: ./build.sh
 
       - name: Type Check standalone_app
         working-directory: standalone_app
@@ -114,11 +122,19 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Install Rust toolchains
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - name: Install wasm-bindgen and wasm-opt
+        run: |
+          cargo install wasm-bindgen-cli
+          cargo install wasm-opt
+
       - name: Build rustlib for standalone_app
         working-directory: rustlib
-        run: |
-          curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-          wasm-pack build --target web
+        run: ./build.sh
 
       - name: Setup tslib
         run: make tslib

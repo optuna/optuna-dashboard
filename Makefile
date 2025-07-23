@@ -10,7 +10,7 @@ RUSTLIB_OUT = rustlib/pkg/optuna_wasm.js rustlib/pkg/optuna_wasm_bg.wasm rustlib
 STANDALONE_SRC := $(shell find ./standalone_app/src -name '*.ts' -o -name '*.tsx')
 
 $(RUSTLIB_OUT): rustlib/src/*.rs rustlib/Cargo.toml
-	cd rustlib && wasm-pack build --target web
+	rustlib/build.sh
 
 vscode/assets/bundle.js: $(RUSTLIB_OUT) $(STANDALONE_SRC) tslib
 	cd standalone_app && npm install && npm run build:vscode
