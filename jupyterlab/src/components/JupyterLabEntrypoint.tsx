@@ -249,10 +249,10 @@ const StartDashboardForm: FC<{
       <Typography sx={{ margin: "8px 0" }}>
         Please enter a storage URL and an artifact path.
         {cwd !== "" && (
-          <span>
+          <>
             {" "}
             Your current working directory is <strong>{cwd}</strong>.
-          </span>
+          </>
         )}
       </Typography>
       <FormControl>
