@@ -11,6 +11,8 @@ import {
   StudyDetailResponse,
   StudySummariesResponse,
   TrialResponse,
+  TrialFilterQueryResponse,
+  TrialFilterQueryLastResponse,
   UploadArtifactAPIResponse,
 } from "./apiClient"
 import { APIClientProvider } from "./apiClientProvider"
@@ -55,6 +57,8 @@ export {
   StudyDetail,
   StudySummary,
   Trial,
+  TrialFilterQueryResponse,
+  TrialFilterQueryLastResponse,
   CompareStudiesPlotType,
   PlotType,
   PlotResponse,
