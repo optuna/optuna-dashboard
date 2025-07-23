@@ -1,13 +1,16 @@
 import { useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
-import { TrialFilterQueryLastResponse, TrialFilterQueryResponse } from "../apiClient"
 import { useSnackbar } from "notistack"
 import { useEffect } from "react"
+import {
+  TrialFilterQueryLastResponse,
+  TrialFilterQueryResponse,
+} from "../apiClient"
 import { useAPIClient } from "../apiClientProvider"
 
 export const useTrialFilterQuery = ({
   user_query,
-  last_response
+  last_response,
 }: {
   user_query: string
   last_response?: TrialFilterQueryLastResponse
@@ -28,12 +31,9 @@ export const useTrialFilterQuery = ({
   useEffect(() => {
     if (error) {
       const reason = error.response?.data.reason
-      enqueueSnackbar(
-        `Failed to filter trials with query (reason=${reason})`,
-        {
-          variant: "error",
-        }
-      )
+      enqueueSnackbar(`Failed to filter trials with query (reason=${reason})`, {
+        variant: "error",
+      })
     }
   }, [error])
 
