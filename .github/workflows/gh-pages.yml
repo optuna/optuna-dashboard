@@ -22,15 +22,19 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Rust toolchains
         uses: dtolnay/rust-toolchain@stable
-      - name: Install wasm-pack
-        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+        with:
+          targets: wasm32-unknown-unknown
+      - name: Install wasm-bindgen and wasm-opt
+        run: |
+          cargo install wasm-bindgen-cli
+          cargo install wasm-opt
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
       - name: Build rustlib
         working-directory: rustlib
-        run: wasm-pack build --target web
+        run: ./build.sh
       - name: Build tslib
         run: make tslib
       - name: Build standalone_app

@@ -12,8 +12,8 @@ RUN npm install -g vsce
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 
-# Install wasm-pack and wasm-opt
-RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+# Install wasm-bindgen-cli and wasm-opt
+RUN cargo install -f wasm-bindgen-cli
 RUN wget https://github.com/WebAssembly/binaryen/releases/download/version_113/binaryen-version_113-x86_64-linux.tar.gz && \
     tar -zxvf binaryen-version_113-x86_64-linux.tar.gz && \
     mv binaryen-version_113/ /root/.binaryen && \
