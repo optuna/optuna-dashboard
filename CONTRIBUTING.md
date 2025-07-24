@@ -178,6 +178,52 @@ $ make vscode-extension
 
 ## Jupyter Lab Extension
 
+### How to build sdist and wheel distributions
+
+For how to build Python distributions (sdist and wheel) of jupyterlab-optuna, please refer to [jupyterlab-tests.yml](.github/workflows/jupyterlab-tests.yml).
+
+```bash
+pushd jupyterlab/
+uv venv
+uv pip install build jupyterlab
+popd
+make jupyterlab-extension
 ```
-$ make jupyterlab-extension
+
+### Development Install
+
+```bash
+cd jupyterlab/
+uv venv
+uv pip install -e .
+
+# Link your development version of the extension with JupyterLab
+uv run jupyter labextension develop . --overwrite
+# Server extension must be manually installed in develop mode
+uv run jupyter server extension enable jupyterlab_optuna
+# Rebuild extension Typescript source after making changes
+uv run jlpm build
+
+# Start Jupyter Lab server
+jupyter lab
 ```
+
+By default, the `jlpm` build command generates the source maps for this extension to make it easier to debug using the browser dev tools.
+To also generate source maps for the JupyterLab core extensions, you can run the following command:
+
+```
+jupyter lab build --minimize=False
+```
+
+### Development Uninstall
+
+```
+# Server extension must be manually disabled in develop mode
+jupyter server extension disable jupyterlab_optuna
+pip uninstall jupyterlab_optuna
+```
+
+In development mode, you will also need to remove the symlink created by `jupyter labextension develop` command.
+To find its location, you can run `jupyter labextension list` to figure out where the labextensions folder is located.
+Then you can remove the symlink named jupyterlab-optuna within that folder.
+
