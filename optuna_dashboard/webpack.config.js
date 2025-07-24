@@ -4,27 +4,6 @@ const mode =
   process.env.NODE_ENV === "production" ? "production" : "development"
 const isDev = mode === "development"
 
-const typeScriptLoader =
-  process.env.TYPESCRIPT_LOADER === "esbuild-loader"
-    ? {
-        test: /\.tsx?$/,
-        exclude: [/node_modules/],
-        loader: "esbuild-loader",
-        options: {
-          loader: "tsx",
-          tsconfigRaw: require("./tsconfig.json"),
-        },
-      }
-    : {
-        test: /\.tsx?$/,
-        exclude: [/node_modules/],
-        loader: "ts-loader",
-        options: {
-          configFile: __dirname + "/tsconfig.json",
-          transpileOnly: isDev,
-          happyPackMode: true,
-        },
-      }
 
 var config = {
   mode,
@@ -36,7 +15,19 @@ var config = {
   },
   module: {
     rules: [
-      { oneOf: [typeScriptLoader] },
+      {
+        oneOf: [
+          {
+            test: /\.tsx?$/,
+            exclude: [/node_modules/],
+            loader: "esbuild-loader",
+            options: {
+              loader: "tsx",
+              tsconfigRaw: require("./tsconfig.json"),
+            },
+          }
+        ]
+      },
       {
         test: /\.css$/,
         use: ["style-loader", "css-loader"],
@@ -70,11 +61,6 @@ if (isDev) {
   }
   console.log("= = = = = = = = = = = = = = = = = = =")
   console.log("DEVELOPMENT BUILD")
-  console.log(
-    process.env.TYPESCRIPT_LOADER === "esbuild-loader"
-      ? "esbuild-loader"
-      : "ts-loader"
-  )
   console.log("= = = = = = = = = = = = = = = = = = =")
 } else {
   const CompressionPlugin = require("compression-webpack-plugin")
