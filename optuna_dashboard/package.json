@@ -6,9 +6,9 @@
   "module": "pkg/pkg_index.js",
   "types": "pkg/pkg_index.d.ts",
   "scripts": {
-    "watch": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack --watch",
+    "watch": "NODE_ENV=development webpack --watch",
     "build": "webpack",
-    "build:dev": "NODE_ENV=development TYPESCRIPT_LOADER=esbuild-loader webpack",
+    "build:dev": "NODE_ENV=development webpack",
     "build:prd": "NODE_ENV=production webpack",
     "build:pkg": "tsc -d --project tsconfig.pkg.json",
     "type-check": "tsc --noEmit"
