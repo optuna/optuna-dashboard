@@ -105,14 +105,19 @@ const JupyterLabStartWidget: FC<{
 }> = ({ showOptunaDashboard }) => {
   const [loading, setLoading] = useState(true)
   const [isInitialized, setIsInitialized] = useState(false)
+  const [cwd, setCwd] = useState("")
 
   useEffect(() => {
     setLoading(true)
-    requestAPI<{ is_initialized: boolean }>("/api/is_initialized", {
-      method: "GET",
-    })
+    requestAPI<{ is_initialized: boolean; cwd_path: string }>(
+      "/api/is_initialized",
+      {
+        method: "GET",
+      }
+    )
       .then((res) => {
         setIsInitialized(res.is_initialized)
+        setCwd(res.cwd_path)
         setLoading(false)
       })
       .catch((err) => {
@@ -184,6 +189,7 @@ const JupyterLabStartWidget: FC<{
   return (
     <StartDashboardForm
       showOptunaDashboard={showOptunaDashboard}
+      cwd={cwd}
       setLoading={setLoading}
     />
   )
@@ -191,8 +197,9 @@ const JupyterLabStartWidget: FC<{
 
 const StartDashboardForm: FC<{
   showOptunaDashboard: () => void
+  cwd: string
   setLoading: Dispatch<SetStateAction<boolean>>
-}> = ({ showOptunaDashboard, setLoading }) => {
+}> = ({ showOptunaDashboard, cwd, setLoading }) => {
   const theme = useTheme()
   const isDarkMode = theme.palette.mode === "dark"
   const [storageURL, setStorageURL] = useState("")
@@ -241,6 +248,12 @@ const StartDashboardForm: FC<{
       <Typography variant="h4">Initialize Dashboard</Typography>
       <Typography sx={{ margin: "8px 0" }}>
         Please enter a storage URL and an artifact path.
+        {cwd !== "" && (
+          <>
+            {" "}
+            Your current working directory is <strong>{cwd}</strong>.
+          </>
+        )}
       </Typography>
       <FormControl>
         <DebouncedInputTextField
@@ -252,7 +265,7 @@ const StartDashboardForm: FC<{
           textFieldProps={{
             autoFocus: true,
             fullWidth: true,
-            label: "Storage URL",
+            label: "Storage URL or File Path (Required)",
             type: "text",
             sx: { margin: "8px 0" },
           }}
