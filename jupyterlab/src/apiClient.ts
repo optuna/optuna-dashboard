@@ -13,6 +13,8 @@ import {
   StudySummariesResponse,
   StudySummary,
   Trial,
+  TrialFilterQueryRequest,
+  TrialFilterQueryResponse,
   UploadArtifactAPIResponse,
 } from "@optuna/optuna-dashboard"
 import * as Optuna from "@optuna/types"
@@ -299,5 +301,12 @@ export class JupyterlabAPIClient extends APIClient {
     return requestAPI<PlotResponse>(`/api/compare-studies/plot/${plotType}`, {
       body: JSON.stringify({ study_ids: studyIds }),
     }).then<PlotResponse>((res) => res)
+  }
+  callTrialFilterQuery(
+    request: TrialFilterQueryRequest
+  ): Promise<TrialFilterQueryResponse> {
+    throw new Error(
+      "Trial filter query is not implemented in JupyterLab API client."
+    )
   }
 }

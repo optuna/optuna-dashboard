@@ -10,6 +10,8 @@ import {
   RenameStudyResponse,
   StudyDetailResponse,
   StudySummariesResponse,
+  TrialFilterQueryRequest,
+  TrialFilterQueryResponse,
   TrialResponse,
   UploadArtifactAPIResponse,
 } from "./apiClient"
@@ -55,6 +57,8 @@ export {
   StudyDetail,
   StudySummary,
   Trial,
+  TrialFilterQueryResponse,
+  TrialFilterQueryRequest,
   CompareStudiesPlotType,
   PlotType,
   PlotResponse,
