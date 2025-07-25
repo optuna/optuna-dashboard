@@ -3,7 +3,7 @@ import { useSnackbar } from "notistack"
 import { useAPIClient } from "../apiClientProvider"
 import { useEvalTrialFilter } from "@optuna/react"
 import { Trial } from "../types/optuna"
-import { ReactNode, useCallback } from "react"
+import { ReactNode, useCallback, useRef } from "react"
 
 export const useTrialFilterQuery = (nRetry: number): [
   (trials: Trial[], filterQueryStr: string) => Promise<Trial[]>,
@@ -12,8 +12,24 @@ export const useTrialFilterQuery = (nRetry: number): [
   const { apiClient } = useAPIClient()
   const { enqueueSnackbar } = useSnackbar()
   const [filterByJSFuncStr, renderIframe] = useEvalTrialFilter<Trial>();
+  
+  // Cache for API responses: userQuery -> trial_filtering_func_str
+  const cacheRef = useRef<Map<string, string>>(new Map())
 
   const filterByUserQuery = useCallback(async (trials: Trial[], userQuery: string): Promise<Trial[]> => {
+    // Check cache first
+    const cached = cacheRef.current.get(userQuery)
+    if (cached) {
+      console.log(`Using cached filter function for query: ${userQuery}`)
+      try {
+        return await filterByJSFuncStr(trials, cached)
+      } catch (evalError: any) {
+        // If cached function fails, remove from cache and proceed with API call
+        console.warn(`Cached filter function failed, removing from cache: ${evalError.message}`)
+        cacheRef.current.delete(userQuery)
+      }
+    }
+
     let lastResponse: { func_str: string; error_message: string } | undefined = undefined;
     for (let attempt = 0; attempt < nRetry; attempt++) {
       let filterFuncStr: string;
@@ -34,7 +50,11 @@ export const useTrialFilterQuery = (nRetry: number): [
 
       // TODO(c-bata): Show the confirmation dialog here.
       try {
-        return await filterByJSFuncStr(trials, filterFuncStr);;
+        const result = await filterByJSFuncStr(trials, filterFuncStr);
+        // Cache the successful function string
+        cacheRef.current.set(userQuery, filterFuncStr);
+        console.log(`Cached filter function for query: ${userQuery}`)
+        return result;
       } catch (evalError: any) {
         const errMsg = evalError.message;
         console.error(`Failed to filter trials (func=${filterFuncStr}, error=${errMsg})`);
