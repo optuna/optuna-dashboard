@@ -3,7 +3,11 @@ import { useSnackbar } from "notistack"
 import { useAPIClient } from "../apiClientProvider"
 import { useEvalTrialFilter } from "@optuna/react"
 import { Trial } from "../types/optuna"
-import { ReactNode, useCallback, useRef } from "react"
+import { ReactNode, useCallback } from "react"
+import { atom, useAtom } from "jotai"
+
+// Cache atom for API responses: userQuery -> trial_filtering_func_str
+const trialFilterCacheAtom = atom<Map<string, string>>(new Map())
 
 export const useTrialFilterQuery = (nRetry: number): [
   (trials: Trial[], filterQueryStr: string) => Promise<Trial[]>,
@@ -12,13 +16,11 @@ export const useTrialFilterQuery = (nRetry: number): [
   const { apiClient } = useAPIClient()
   const { enqueueSnackbar } = useSnackbar()
   const [filterByJSFuncStr, renderIframe] = useEvalTrialFilter<Trial>();
-  
-  // Cache for API responses: userQuery -> trial_filtering_func_str
-  const cacheRef = useRef<Map<string, string>>(new Map())
+  const [cache, setCache] = useAtom(trialFilterCacheAtom)
 
   const filterByUserQuery = useCallback(async (trials: Trial[], userQuery: string): Promise<Trial[]> => {
     // Check cache first
-    const cached = cacheRef.current.get(userQuery)
+    const cached = cache.get(userQuery)
     if (cached) {
       console.log(`Using cached filter function for query: ${userQuery}`)
       try {
@@ -26,7 +28,9 @@ export const useTrialFilterQuery = (nRetry: number): [
       } catch (evalError: any) {
         // If cached function fails, remove from cache and proceed with API call
         console.warn(`Cached filter function failed, removing from cache: ${evalError.message}`)
-        cacheRef.current.delete(userQuery)
+        const newCache = new Map(cache)
+        newCache.delete(userQuery)
+        setCache(newCache)
       }
     }
 
@@ -52,7 +56,9 @@ export const useTrialFilterQuery = (nRetry: number): [
       try {
         const result = await filterByJSFuncStr(trials, filterFuncStr);
         // Cache the successful function string
-        cacheRef.current.set(userQuery, filterFuncStr);
+        const newCache = new Map(cache)
+        newCache.set(userQuery, filterFuncStr)
+        setCache(newCache)
         console.log(`Cached filter function for query: ${userQuery}`)
         return result;
       } catch (evalError: any) {
@@ -73,6 +79,6 @@ export const useTrialFilterQuery = (nRetry: number): [
       }
     }
     throw new Error("Must not reach here.");
-  }, [apiClient, enqueueSnackbar, filterByJSFuncStr, nRetry])
+  }, [apiClient, enqueueSnackbar, filterByJSFuncStr, nRetry, cache, setCache])
   return [filterByUserQuery, renderIframe];
 }
