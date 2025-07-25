@@ -138,9 +138,12 @@ export enum CompareStudiesPlotType {
   EDF = "edf",
 }
 
-export type TrialFilterQueryLastResponse = {
-  func_str: string
-  error_message: string
+export type TrialFilterQueryRequest = {
+  user_query: string
+  last_response?: {
+    func_str: string
+    error_message: string
+  }
 }
 
 export type TrialFilterQueryResponse = {
