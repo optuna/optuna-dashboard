@@ -2,19 +2,10 @@ import { useQuery } from "@tanstack/react-query"
 import { AxiosError } from "axios"
 import { useSnackbar } from "notistack"
 import { useEffect } from "react"
-import {
-  TrialFilterQueryLastResponse,
-  TrialFilterQueryResponse,
-} from "../apiClient"
+import { TrialFilterQueryRequest, TrialFilterQueryResponse } from "../apiClient"
 import { useAPIClient } from "../apiClientProvider"
 
-export const useTrialFilterQuery = ({
-  user_query,
-  last_response,
-}: {
-  user_query: string
-  last_response?: TrialFilterQueryLastResponse
-}) => {
+export const useTrialFilterQuery = (request: TrialFilterQueryRequest) => {
   const { apiClient } = useAPIClient()
   const { enqueueSnackbar } = useSnackbar()
 
@@ -22,8 +13,8 @@ export const useTrialFilterQuery = ({
     TrialFilterQueryResponse,
     AxiosError<{ reason: string }>
   >({
-    queryKey: ["trialFilterQuery", user_query, last_response],
-    queryFn: () => apiClient.callTrialFilterQuery(user_query, last_response),
+    queryKey: ["trialFilterQuery", request],
+    queryFn: () => apiClient.callTrialFilterQuery(request),
     staleTime: Infinity,
     gcTime: 30 * 60 * 1000, // 30 minutes
   })

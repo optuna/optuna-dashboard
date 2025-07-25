@@ -272,7 +272,6 @@ export abstract class APIClient {
     plotType: CompareStudiesPlotType
   ): Promise<PlotResponse>
   abstract callTrialFilterQuery(
-    user_query: string,
-    last_response?: TrialFilterQueryLastResponse
+    request: TrialFilterQueryRequest
   ): Promise<TrialFilterQueryResponse>
 }

@@ -13,7 +13,7 @@ import {
   StudySummariesResponse,
   StudySummary,
   Trial,
-  TrialFilterQueryLastResponse,
+  TrialFilterQueryRequest,
   TrialFilterQueryResponse,
   UploadArtifactAPIResponse,
 } from "@optuna/optuna-dashboard"
@@ -303,8 +303,7 @@ export class JupyterlabAPIClient extends APIClient {
     }).then<PlotResponse>((res) => res)
   }
   callTrialFilterQuery(
-    user_query: string,
-    last_response?: TrialFilterQueryLastResponse
+    request: TrialFilterQueryRequest
   ): Promise<TrialFilterQueryResponse> {
     throw new Error(
       "Trial filter query is not implemented in JupyterLab API client."
