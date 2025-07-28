@@ -78,7 +78,7 @@ export const useTrialFilterQuery = (
           console.error(
             `Failed to filter trials (func=${filterFuncStr}, error=${errMsg})`
           )
-          if (attempt === 4) {
+          if (attempt >= nRetry - 1) {
             enqueueSnackbar(
               `Failed to evaluate trial filtering function after 5 attempts (error=${errMsg})`,
               { variant: "error" }
