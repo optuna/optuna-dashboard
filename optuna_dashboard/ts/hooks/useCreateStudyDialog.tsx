@@ -17,8 +17,8 @@ import * as Optuna from "@optuna/types"
 import { useAtomValue } from "jotai"
 import React, { ReactNode, useState } from "react"
 import { actionCreator } from "../action"
+import { DebouncedInputTextField } from "../components/Debounce"
 import { studySummariesState } from "../state"
-import { DebouncedInputTextField } from "./Debounce"
 
 export const useCreateStudyDialog = (): [() => void, () => ReactNode] => {
   const theme = useTheme()
