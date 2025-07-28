@@ -80,7 +80,7 @@ export const useTrialFilterQuery = (
           )
           if (attempt >= nRetry - 1) {
             enqueueSnackbar(
-              `Failed to evaluate trial filtering function after 5 attempts (error=${errMsg})`,
+              `Failed to evaluate trial filtering function after ${nRetry} attempts (error=${errMsg})`,
               { variant: "error" }
             )
             throw evalError
