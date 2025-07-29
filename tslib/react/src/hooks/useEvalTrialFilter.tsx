@@ -79,8 +79,10 @@ export const useEvalTrialFilter = <T extends Trial>(): [
   const renderIframeSandbox = () => {
     const iframeSrcDoc = `
         <script>
+          // Disable network access in the iframe for security reasons
           window.fetch = () => { throw new Error("Unexpected") }
           window.XMLHttpRequest = () => { throw new Error("Unexpected") }
+
           window.addEventListener('message', (event) => {
             const { data } = event;
             if (typeof data !== 'object' || data.type !== 'filter') return;
