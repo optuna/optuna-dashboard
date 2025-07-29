@@ -28,23 +28,13 @@ def set_objective_names(study: optuna.Study, names: list[str]) -> None:
           set_objective_names(study, ["val_loss", "flops"])
     """
 
-    if hasattr(study, "set_metric_names"):
-        warnings.warn(
-            "`set_objective_names()` function is deprecated."
-            " Please use `study.set_metric_names()` instead."
-            " See https://optuna-dashboard.readthedocs.io/en/latest/errors.html for details.",
-            category=FutureWarning,
-        )
-        study.set_metric_names(names)
-        return
-
-    storage = study._storage
-    study_id = study._study_id
-
-    directions = storage.get_study_directions(study_id)
-    if len(directions) != len(names):
-        raise ValueError("names must be the same length with the number of objectives.")
-    storage.set_study_system_attr(study_id, SYSTEM_ATTR_NAME, names)
+    warnings.warn(
+        "`set_objective_names()` function is deprecated."
+        " Please use `study.set_metric_names()` instead."
+        " See https://optuna-dashboard.readthedocs.io/en/latest/errors.html for details.",
+        category=FutureWarning,
+    )
+    study.set_metric_names(names)
 
 
 def get_objective_names(system_attrs: dict[str, Any]) -> Optional[list[str]]:
