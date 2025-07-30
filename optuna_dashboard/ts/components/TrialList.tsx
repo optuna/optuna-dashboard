@@ -99,7 +99,7 @@ const useTrials = (
   const [filteredTrials, setFilteredTrials] = useState<Trial[]>([])
   useEffect(() => {
     let result = studyDetail !== null ? studyDetail.trials : []
-    if (excludedStates.length === 0) {
+    if (excludedStates.length !== 0) {
       excludedStates.forEach((s) => {
         result = result.filter((t) => t.state !== s)
       })
