@@ -88,7 +88,7 @@ export const useTrialFilterQuery = (
             const newFailedCache = new Set(failedCache)
             newFailedCache.add(userQuery)
             setFailedCache(newFailedCache)
-            
+
             enqueueSnackbar(
               `Failed to evaluate trial filtering function after ${nRetry} attempts (error=${errMsg})`,
               { variant: "error" }
@@ -104,7 +104,16 @@ export const useTrialFilterQuery = (
       }
       throw new Error("Must not reach here.")
     },
-    [apiClient, enqueueSnackbar, filterByJSFuncStr, nRetry, cache, setCache, failedCache, setFailedCache]
+    [
+      apiClient,
+      enqueueSnackbar,
+      filterByJSFuncStr,
+      nRetry,
+      cache,
+      setCache,
+      failedCache,
+      setFailedCache,
+    ]
   )
   return [filterByUserQuery, renderIframe]
 }
