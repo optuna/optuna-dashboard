@@ -1,8 +1,8 @@
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
 import FilterListIcon from "@mui/icons-material/FilterList"
-import StopCircleIcon from "@mui/icons-material/StopCircle"
 import SearchIcon from "@mui/icons-material/Search"
+import StopCircleIcon from "@mui/icons-material/StopCircle"
 
 import {
   Box,
@@ -94,7 +94,7 @@ const useTrials = (
   studyDetail: StudyDetail | null,
   excludedStates: Optuna.TrialState[],
   trialFilter: (trials: Trial[], query: string) => Promise<Trial[]>,
-  trialFilterQuery: string,
+  trialFilterQuery: string
 ): Trial[] => {
   const [filteredTrials, setFilteredTrials] = useState<Trial[]>([])
   useEffect(() => {
@@ -105,7 +105,7 @@ const useTrials = (
       })
     }
     console.log(trialFilterQuery)
-    if (trialFilterQuery != "") {
+    if (trialFilterQuery !== "") {
       trialFilter(result, trialFilterQuery)
         .then((filtered) => {
           console.log("Filtered trials:", filtered)
@@ -445,7 +445,12 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const excludedStates = useExcludedStates(query)
   const [trialFilterQuery, setTrialFilterQuery] = useState<string>("")
   const [trialFilter, renderIframe] = useTrialFilterQuery(5)
-  const trials = useTrials(studyDetail, excludedStates, trialFilter, trialFilterQuery)
+  const trials = useTrials(
+    studyDetail,
+    excludedStates,
+    trialFilter,
+    trialFilterQuery
+  )
   const isBestTrial = useIsBestTrial(studyDetail)
   const queried = useQueriedTrials(trials, query)
   const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
@@ -465,7 +470,8 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
     estimateSize: () => 73.31,
     overscan: 10,
   })
-  const [filterPopoverAnchorEl, setFilterPopoverAnchorEl] = useState<null | HTMLElement>(null)
+  const [filterPopoverAnchorEl, setFilterPopoverAnchorEl] =
+    useState<null | HTMLElement>(null)
   const [filterInput, setFilterInput] = useState(trialFilterQuery)
 
   const trialListWidth = 200
@@ -495,7 +501,9 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
             <Box component="div" sx={{ flexGrow: 1 }} />
             <IconButton
               aria-label="Filter Query"
-              onClick={(e: React.MouseEvent<HTMLButtonElement>) => setFilterPopoverAnchorEl(e.currentTarget)}
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
+                setFilterPopoverAnchorEl(e.currentTarget)
+              }
             >
               <SearchIcon fontSize="small" />
             </IconButton>
@@ -520,7 +528,9 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                   value={filterInput}
                   onChange={(e) => setFilterInput(e.target.value)}
                 />
-                <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
+                <Box
+                  sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}
+                >
                   <Button
                     variant="contained"
                     onClick={() => {
@@ -714,7 +724,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
               ))}
         </Box>
       </Box>
-      { renderIframe() }
+      {renderIframe()}
     </Box>
   )
 }
