@@ -8,6 +8,8 @@ import { Trial } from "../types/optuna"
 
 // Cache atom for API responses: userQuery -> trial_filtering_func_str
 const trialFilterCacheAtom = atom<Map<string, string>>(new Map())
+// Cache atom for failed queries: userQuery -> true (to prevent repeated attempts)
+const failedQueryCacheAtom = atom<Set<string>>(new Set<string>())
 
 export const useTrialFilterQuery = (
   nRetry: number
@@ -19,13 +21,18 @@ export const useTrialFilterQuery = (
   const { enqueueSnackbar } = useSnackbar()
   const [filterByJSFuncStr, renderIframe] = useEvalTrialFilter<Trial>()
   const [cache, setCache] = useAtom(trialFilterCacheAtom)
+  const [failedCache, setFailedCache] = useAtom(failedQueryCacheAtom)
 
   const filterByUserQuery = useCallback(
     async (trials: Trial[], userQuery: string): Promise<Trial[]> => {
+      // Check if this query has already failed nRetry times
+      if (failedCache.has(userQuery)) {
+        return trials // Return unfiltered trials
+      }
+
       // Check cache first
       const cached = cache.get(userQuery)
       if (cached) {
-        console.log(`Using cached filter function for query: ${userQuery}`)
         try {
           return await filterByJSFuncStr(trials, cached)
         } catch (evalError: unknown) {
@@ -70,7 +77,6 @@ export const useTrialFilterQuery = (
           const newCache = new Map(cache)
           newCache.set(userQuery, filterFuncStr)
           setCache(newCache)
-          console.log(`Cached filter function for query: ${userQuery}`)
           return result
         } catch (evalError: unknown) {
           const errMsg =
@@ -79,6 +85,10 @@ export const useTrialFilterQuery = (
             `Failed to filter trials (func=${filterFuncStr}, error=${errMsg})`
           )
           if (attempt >= nRetry - 1) {
+            const newFailedCache = new Set(failedCache)
+            newFailedCache.add(userQuery)
+            setFailedCache(newFailedCache)
+            
             enqueueSnackbar(
               `Failed to evaluate trial filtering function after ${nRetry} attempts (error=${errMsg})`,
               { variant: "error" }
@@ -94,7 +104,7 @@ export const useTrialFilterQuery = (
       }
       throw new Error("Must not reach here.")
     },
-    [apiClient, enqueueSnackbar, filterByJSFuncStr, nRetry, cache, setCache]
+    [apiClient, enqueueSnackbar, filterByJSFuncStr, nRetry, cache, setCache, failedCache, setFailedCache]
   )
   return [filterByUserQuery, renderIframe]
 }
