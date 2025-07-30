@@ -2,6 +2,8 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
 import FilterListIcon from "@mui/icons-material/FilterList"
 import StopCircleIcon from "@mui/icons-material/StopCircle"
+import SearchIcon from "@mui/icons-material/Search"
+
 import {
   Box,
   Button,
@@ -10,7 +12,9 @@ import {
   InputLabel,
   Menu,
   MenuItem,
+  Popover,
   Select,
+  TextField,
   Typography,
   useTheme,
 } from "@mui/material"
@@ -22,7 +26,7 @@ import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
 import * as Optuna from "@optuna/types"
-import React, { FC, ReactNode, useMemo } from "react"
+import React, { FC, ReactNode, useMemo, useState, useEffect } from "react"
 
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useVirtualizer } from "@tanstack/react-virtual"
@@ -31,6 +35,7 @@ import { useNavigate } from "react-router-dom"
 import { FormWidgets, StudyDetail, Trial } from "ts/types/optuna"
 import { actionCreator } from "../action"
 import { useConstants } from "../constantsProvider"
+import { useTrialFilterQuery } from "../hooks/useTrialFilterQuery"
 import { artifactIsAvailable, trialListDurationTimeUnitState } from "../state"
 import { useQuery } from "../urlQuery"
 import { ArtifactCards } from "./Artifact/ArtifactCards"
@@ -87,18 +92,34 @@ const useExcludedStates = (query: URLSearchParams): Optuna.TrialState[] => {
 
 const useTrials = (
   studyDetail: StudyDetail | null,
-  excludedStates: Optuna.TrialState[]
+  excludedStates: Optuna.TrialState[],
+  trialFilter: (trials: Trial[], query: string) => Promise<Trial[]>,
+  trialFilterQuery: string,
 ): Trial[] => {
-  return useMemo(() => {
+  const [filteredTrials, setFilteredTrials] = useState<Trial[]>([])
+  useEffect(() => {
     let result = studyDetail !== null ? studyDetail.trials : []
     if (excludedStates.length === 0) {
-      return result
+      excludedStates.forEach((s) => {
+        result = result.filter((t) => t.state !== s)
+      })
     }
-    excludedStates.forEach((s) => {
-      result = result.filter((t) => t.state !== s)
-    })
-    return result
-  }, [studyDetail, excludedStates])
+    console.log(trialFilterQuery)
+    if (trialFilterQuery != "") {
+      trialFilter(result, trialFilterQuery)
+        .then((filtered) => {
+          console.log("Filtered trials:", filtered)
+          setFilteredTrials(filtered)
+        })
+        .catch((error) => {
+          console.error("Failed to filter trials:", error)
+          setFilteredTrials(result) // Fallback to unfiltered trials on error
+        })
+    } else {
+      setFilteredTrials(result)
+    }
+  }, [studyDetail, excludedStates, trialFilter, trialFilterQuery])
+  return filteredTrials
 }
 
 const useQueriedTrials = (trials: Trial[], query: URLSearchParams): Trial[] => {
@@ -422,7 +443,9 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const query = useQuery()
   const navigate = useNavigate()
   const excludedStates = useExcludedStates(query)
-  const trials = useTrials(studyDetail, excludedStates)
+  const [trialFilterQuery, setTrialFilterQuery] = useState<string>("")
+  const [trialFilter, renderIframe] = useTrialFilterQuery(5)
+  const trials = useTrials(studyDetail, excludedStates, trialFilter, trialFilterQuery)
   const isBestTrial = useIsBestTrial(studyDetail)
   const queried = useQueriedTrials(trials, query)
   const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
@@ -442,6 +465,8 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
     estimateSize: () => 73.31,
     overscan: 10,
   })
+  const [filterPopoverAnchorEl, setFilterPopoverAnchorEl] = useState<null | HTMLElement>(null)
+  const [filterInput, setFilterInput] = useState(trialFilterQuery)
 
   const trialListWidth = 200
 
@@ -468,6 +493,47 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
               {trials.length} Trials
             </Typography>
             <Box component="div" sx={{ flexGrow: 1 }} />
+            <IconButton
+              aria-label="Filter Query"
+              onClick={(e: React.MouseEvent<HTMLButtonElement>) => setFilterPopoverAnchorEl(e.currentTarget)}
+            >
+              <SearchIcon fontSize="small" />
+            </IconButton>
+            <Popover
+              open={Boolean(filterPopoverAnchorEl)}
+              anchorEl={filterPopoverAnchorEl}
+              onClose={() => setFilterPopoverAnchorEl(null)}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "left",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "left",
+              }}
+            >
+              <Box sx={{ p: 2, minWidth: 400 }}>
+                <TextField
+                  fullWidth
+                  variant="outlined"
+                  placeholder="Filter trials..."
+                  value={filterInput}
+                  onChange={(e) => setFilterInput(e.target.value)}
+                />
+                <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 1 }}>
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      setTrialFilterQuery(filterInput)
+                      setFilterPopoverAnchorEl(null)
+                    }}
+                  >
+                    Apply Filter
+                  </Button>
+                </Box>
+              </Box>
+            </Popover>
+
             <IconButton
               aria-label="Filter"
               aria-controls={openFilterMenu ? "filter-trials" : undefined}
@@ -648,6 +714,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
               ))}
         </Box>
       </Box>
+      { renderIframe() }
     </Box>
   )
 }
