@@ -500,7 +500,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
             </Typography>
             <Box component="div" sx={{ flexGrow: 1 }} />
             <IconButton
-              aria-label="Filter Query"
+              aria-label="Trial Filter Query"
               onClick={(e: React.MouseEvent<HTMLButtonElement>) =>
                 setFilterPopoverAnchorEl(e.currentTarget)
               }
