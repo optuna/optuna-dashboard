@@ -67,7 +67,7 @@ def test_preferential_optimization(
     expect(page.get_by_role("heading").filter(has_text=re.compile("Trial"))).to_contain_text(
         "Trial 0 (trial_id=0)"
     )
-    page.get_by_label("Filter").click()
+    page.get_by_label("Filter", exact=True).click()
     # Confirm that all trials are running.
     expect(
         page.get_by_text("Complete (0)Pruned (0)Fail (0)Running (4)Waiting (0)")
@@ -80,7 +80,7 @@ def test_preferential_optimization(
     )
     # This trial is running.
     expect(page.get_by_text("Running", exact=True).nth(4)).to_be_visible()
-    page.get_by_label("Bad").check()
+    page.get_by_label("Bad", exact=True).check()
     page.get_by_role("button", name="Submit").click()
     # This trial is completed and is the best trial.
     expect(page.get_by_text("Complete").nth(1)).to_be_visible()
@@ -94,7 +94,7 @@ def test_preferential_optimization(
     )
     # This trial is running.
     expect(page.get_by_text("Running", exact=True).nth(3)).to_be_visible()
-    page.get_by_label("So-so").check()
+    page.get_by_label("So-so", exact=True).check()
     page.get_by_role("button", name="Submit").click()
     # This trial is completed and is the best trial.
     expect(page.get_by_text("Complete").nth(2)).to_be_visible()
@@ -108,7 +108,7 @@ def test_preferential_optimization(
     )
     # This trial is running.
     expect(page.get_by_text("Running", exact=True).nth(2)).to_be_visible()
-    page.get_by_label("Good").check()
+    page.get_by_label("Good", exact=True).check()
     page.get_by_role("button", name="Submit").click()
     # This trial is completed and is the best trial.
     expect(page.get_by_text("Complete").nth(3)).to_be_visible()
