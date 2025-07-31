@@ -24,7 +24,8 @@ export const useTrialFilterQuery = (
   const [filterByJSFuncStr, renderIframe] = useEvalTrialFilter<Trial>()
   const [cache, setCache] = useAtom(trialFilterCacheAtom)
   const [failedCache, setFailedCache] = useAtom(failedQueryCacheAtom)
-  const [showConfirmationDialog, renderDialog] = useEvalConfirmationDialog(onDenied)
+  const [showConfirmationDialog, renderDialog] =
+    useEvalConfirmationDialog(onDenied)
 
   const filterByUserQuery = useCallback(
     async (trials: Trial[], userQuery: string): Promise<Trial[]> => {
@@ -75,7 +76,7 @@ export const useTrialFilterQuery = (
 
         const userConfirmed = await showConfirmationDialog(
           filterFuncStr,
-          userQuery,
+          userQuery
         )
         if (!userConfirmed) {
           throw new Error("User rejected the execution")

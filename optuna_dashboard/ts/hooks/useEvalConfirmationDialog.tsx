@@ -1,3 +1,5 @@
+import { ExpandLess, ExpandMore } from "@mui/icons-material"
+import ReportProblemIcon from "@mui/icons-material/ReportProblem"
 import {
   Box,
   Button,
@@ -8,18 +10,14 @@ import {
   DialogTitle,
   IconButton,
   Typography,
+  useTheme,
 } from "@mui/material"
-import { ExpandLess, ExpandMore } from "@mui/icons-material"
 import React, { ReactNode, useState } from "react"
 
 export const useEvalConfirmationDialog = (
   onDenied?: () => void
 ): [
-  (
-    filterFuncStr: string,
-    userQuery: string,
-    trialsCount: number
-  ) => Promise<boolean>,
+  (filterFuncStr: string, userQuery: string) => Promise<boolean>,
   () => ReactNode,
 ] => {
   const [openDialog, setOpenDialog] = useState(false)
@@ -35,11 +33,7 @@ export const useEvalConfirmationDialog = (
     return sessionStorage.getItem(ALLOW_ALWAYS_KEY) === "true"
   }
 
-  const showConfirmationDialog = (
-    filterFuncStr: string,
-    userQuery: string,
-    trialsCount: number
-  ): Promise<boolean> => {
+  const showConfirmationDialog = (filterFuncStr: string): Promise<boolean> => {
     // Check if user has allowed always
     if (isAlwaysAllowed()) {
       return Promise.resolve(true)
@@ -54,7 +48,7 @@ export const useEvalConfirmationDialog = (
     })
   }
 
-  const handleConfirm = () => {
+  const handleAllowOnce = () => {
     if (confirmResolve) {
       confirmResolve(true)
     }
@@ -73,7 +67,6 @@ export const useEvalConfirmationDialog = (
     if (confirmResolve) {
       confirmResolve(false)
     }
-    // Call onDenied callback if provided
     if (onDenied) {
       onDenied()
     }
@@ -88,6 +81,8 @@ export const useEvalConfirmationDialog = (
   }
 
   const renderDialog = () => {
+    const theme = useTheme()
+
     return (
       <Dialog
         open={openDialog}
@@ -100,54 +95,88 @@ export const useEvalConfirmationDialog = (
           Allow LLM to evaluate JavaScript function?
         </DialogTitle>
         <DialogContent>
-          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-            <Typography variant="body1" sx={{ flexGrow: 1 }}>
-              This will call eval() function in your web browser
-            </Typography>
-            <IconButton
-              onClick={() => setExpanded(!expanded)}
-              size="small"
-              aria-label={expanded ? "collapse" : "expand"}
-            >
-              {expanded ? <ExpandLess /> : <ExpandMore />}
-            </IconButton>
-          </Box>
-          
-          <Collapse in={expanded}>
+          <Box
+            sx={{
+              backgroundColor:
+                theme.palette.mode === "dark" ? "grey.800" : "grey.100",
+              padding: 2,
+              borderRadius: 1,
+              mb: 2,
+            }}
+          >
             <Box
-              component="pre"
               sx={{
-                backgroundColor: "grey.100",
-                padding: 2,
-                borderRadius: 1,
-                overflow: "auto",
-                maxHeight: "300px",
-                fontFamily: "monospace",
-                fontSize: "0.875rem",
-                whiteSpace: "pre-wrap",
-                wordBreak: "break-word",
-                mb: 2,
+                display: "flex",
+                alignItems: "center",
+                mb: expanded ? 2 : 0,
               }}
             >
-              {pendingFilterStr}
+              <Typography variant="body1" sx={{ flexGrow: 1 }}>
+                This will call eval() function in your web browser
+              </Typography>
+              <IconButton
+                onClick={() => setExpanded(!expanded)}
+                size="small"
+                aria-label={expanded ? "collapse" : "expand"}
+              >
+                {expanded ? <ExpandLess /> : <ExpandMore />}
+              </IconButton>
             </Box>
-          </Collapse>
 
-          <Typography variant="body2" color="warning.main" sx={{ fontWeight: "bold" }}>
-            <strong>Review JavaScript function carefully before approving.</strong>{" "}
-            Optuna Dashboard cannot guarantee the security of evaluating LLM generated content on your Web browser.
-          </Typography>
+            <Collapse in={expanded}>
+              <Box
+                component="pre"
+                sx={{
+                  backgroundColor:
+                    theme.palette.mode === "dark" ? "grey.900" : "grey.200",
+                  color: theme.palette.mode === "dark" ? "grey.100" : "inherit",
+                  padding: 2,
+                  borderRadius: 1,
+                  overflow: "auto",
+                  maxHeight: "300px",
+                  fontFamily: "monospace",
+                  fontSize: "0.875rem",
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                }}
+              >
+                {pendingFilterStr}
+              </Box>
+            </Collapse>
+          </Box>
+
+          <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
+            <ReportProblemIcon
+              color="warning"
+              sx={{ mr: 1, fontSize: "1.2rem" }}
+            />
+            <Typography
+              variant="body2"
+              color="warning.main"
+              sx={{ fontWeight: "bold" }}
+            >
+              <strong>
+                Review JavaScript function carefully before approving.
+              </strong>{" "}
+              Optuna Dashboard cannot guarantee the security of evaluating LLM
+              generated content on your Web browser.
+            </Typography>
+          </Box>
         </DialogContent>
         <DialogActions sx={{ justifyContent: "space-between", px: 3, pb: 2 }}>
           <Box>
-            <Button onClick={handleAllowAlways} color="primary" sx={{ mr: 1 }}>
+            <Button
+              onClick={handleAllowAlways}
+              variant="outlined"
+              sx={{ mr: 1 }}
+            >
               Allow Always
             </Button>
-            <Button onClick={handleConfirm} color="primary" variant="contained">
+            <Button onClick={handleAllowOnce} variant="outlined">
               Allow Once
             </Button>
           </Box>
-          <Button onClick={handleDenied} color="primary">
+          <Button onClick={handleDenied} color="error" variant="contained">
             Deny
           </Button>
         </DialogActions>
