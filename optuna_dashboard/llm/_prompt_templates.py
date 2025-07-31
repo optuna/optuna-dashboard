@@ -35,7 +35,13 @@ export type TrialParam = {
 
 _TRIAL_FILTERING_PROMPT_TEMPLATE = """Please write a filtering function for the user query provided in JavaScript.
 The function should take a trial object as input and return True if the trial matches the query, and False otherwise.
-The definitions of the trial and related objects are as follows:
+The definitions of the trial and related objects are as follows.
+Trial has a field params which is an array of TrialParam objects, where each TrialParam has properties name (string), param_internal_value (number), param_external_value (string), param_external_type (string), and distribution (Distribution).
+Trial properties and trial parameters are distinct: trial properties are accessed directly from the trial object (e.g., trial.number for trial number and trial.state for trial state), whereas parameters are stored within the trial.params array.
+To access parameters, search the trial.params array for a TrialParam object with the matching name property.
+Do not treat numeric trial properties such as 'number', 'state', or similar as parameters found in trial.params.
+Always access these trial properties directly from the trial object, not from trial.params.
+For example, to get the internal value of the parameter named 'x', use trial.params.find(p => p.name === 'x')?.param_internal_value.
 
 {trial_definition_in_typescript}
 
@@ -49,7 +55,7 @@ function (trial) {{
 
 // Example 2 - query: trials with parameter x = 1
 function filterTrial(trial) {{
-    return trial.params["x"] === 1;
+    return trial.params.find(p => p.name === "x")?.param_internal_value === 1;
 }}
 ```
 
@@ -62,17 +68,17 @@ Your response will be used as follows:
 ]
 ```
 
-Output constraints:
-- Return only a valid JavaScript function code without any other texts to evaluate your response as is.
-- Do not perform any network requests (e.g., fetch, XMLHttpRequest, etc.).
-- Do not manipulate the DOM (e.g., form submissions, element insertion, or removal).
-- Do not perform any external calls or I/O operations.
-- Use the input trial for read-only purposes (no modifications).
-- Do not include any code that could potentially harm, mislead, or deceive the user.
+Return only a valid JavaScript function code to evaluate your response as is.
+Do not wrap your output using code blocks such as ```javascript``` or any other code fencing, as this prevents evaluation.
+Do not perform any network requests (e.g., fetch, XMLHttpRequest, etc.).
+Do not manipulate the DOM (e.g., form submissions, element insertion, or removal).
+Do not perform any external calls or I/O operations.
+Use the input trial object for read-only purposes only (do not modify it).
+Do not include any code that could potentially harm, mislead, or deceive the user.
 
 ====== Instructions Finished ======
 
-Given the following user query, please return a valid JavaScript function code without any other texts:
+Given the following user query, please return a valid JavaScript function code as is (note: do not wrap your output using code blocks such as ```javascript``` ):
 {user_query}
 
 ====== User Query Finished ======
