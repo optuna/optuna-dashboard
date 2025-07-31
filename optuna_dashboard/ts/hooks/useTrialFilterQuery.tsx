@@ -13,7 +13,8 @@ const trialFilterCacheAtom = atom<Map<string, string>>(new Map())
 const failedQueryCacheAtom = atom<Set<string>>(new Set<string>())
 
 export const useTrialFilterQuery = (
-  nRetry: number
+  nRetry: number,
+  onDenied?: () => void
 ): [
   (trials: Trial[], filterQueryStr: string) => Promise<Trial[]>,
   () => ReactNode,
@@ -23,7 +24,8 @@ export const useTrialFilterQuery = (
   const [filterByJSFuncStr, renderIframe] = useEvalTrialFilter<Trial>()
   const [cache, setCache] = useAtom(trialFilterCacheAtom)
   const [failedCache, setFailedCache] = useAtom(failedQueryCacheAtom)
-  const [showConfirmationDialog, renderDialog] = useEvalConfirmationDialog()
+  const [showConfirmationDialog, renderDialog] =
+    useEvalConfirmationDialog(onDenied)
 
   const filterByUserQuery = useCallback(
     async (trials: Trial[], userQuery: string): Promise<Trial[]> => {
@@ -74,8 +76,7 @@ export const useTrialFilterQuery = (
 
         const userConfirmed = await showConfirmationDialog(
           filterFuncStr,
-          userQuery,
-          trials.length
+          userQuery
         )
         if (!userConfirmed) {
           throw new Error("User rejected the execution")
