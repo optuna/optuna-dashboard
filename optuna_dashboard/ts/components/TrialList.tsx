@@ -41,7 +41,11 @@ import { FormWidgets, StudyDetail, Trial } from "ts/types/optuna"
 import { actionCreator } from "../action"
 import { useConstants } from "../constantsProvider"
 import { useTrialFilterQuery } from "../hooks/useTrialFilterQuery"
-import { artifactIsAvailable, trialListDurationTimeUnitState } from "../state"
+import {
+  artifactIsAvailable,
+  llmIsAvailable,
+  trialListDurationTimeUnitState,
+} from "../state"
 import { useQuery } from "../urlQuery"
 import { ArtifactCards } from "./Artifact/ArtifactCards"
 import { TrialNote } from "./Note"
@@ -451,6 +455,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const [_trialFilterQuery, setTrialFilterQuery] = useState<string>("")
   const trialFilterQuery = useDeferredValue(_trialFilterQuery)
   const [trialFilter, renderIframe] = useTrialFilterQuery(5)
+  const llmEnabled = useAtomValue(llmIsAvailable)
   const trials = useTrials(
     studyDetail,
     excludedStates,
@@ -492,34 +497,36 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
         height: "100%",
       }}
     >
-      <Box
-        component="div"
-        sx={{
-          height: theme.spacing(8),
-          p: theme.spacing(1),
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-        }}
-      >
-        <TextField
-          id="trial-filter-query"
-          variant="outlined"
-          placeholder="Filter trials. Enter query and press Enter."
-          fullWidth
-          size="small"
+      {llmEnabled && (
+        <Box
+          component="div"
           sx={{
-            maxWidth: "400px",
+            height: theme.spacing(8),
+            p: theme.spacing(1),
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
           }}
-          value={filterInput}
-          onChange={(e) => setFilterInput(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              setTrialFilterQuery(filterInput)
-            }
-          }}
-        />
-      </Box>
+        >
+          <TextField
+            id="trial-filter-query"
+            variant="outlined"
+            placeholder="Filter trials. Enter query and press Enter."
+            fullWidth
+            size="small"
+            sx={{
+              maxWidth: "400px",
+            }}
+            value={filterInput}
+            onChange={(e) => setFilterInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                setTrialFilterQuery(filterInput)
+              }
+            }}
+          />
+        </Box>
+      )}
       <Box
         component="div"
         sx={{ display: "flex", flexDirection: "row", width: "100%" }}
