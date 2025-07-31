@@ -24,7 +24,14 @@ import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
 import * as Optuna from "@optuna/types"
-import React, { FC, ReactNode, useMemo, useState, useEffect } from "react"
+import React, {
+  FC,
+  ReactNode,
+  useMemo,
+  useState,
+  useEffect,
+  useDeferredValue,
+} from "react"
 
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useVirtualizer } from "@tanstack/react-virtual"
@@ -441,7 +448,8 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const query = useQuery()
   const navigate = useNavigate()
   const excludedStates = useExcludedStates(query)
-  const [trialFilterQuery, setTrialFilterQuery] = useState<string>("")
+  const [_trialFilterQuery, setTrialFilterQuery] = useState<string>("")
+  const trialFilterQuery = useDeferredValue(_trialFilterQuery)
   const [trialFilter, renderIframe] = useTrialFilterQuery(5)
   const trials = useTrials(
     studyDetail,
