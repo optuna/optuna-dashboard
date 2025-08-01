@@ -454,7 +454,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const excludedStates = useExcludedStates(query)
   const [_trialFilterQuery, setTrialFilterQuery] = useState<string>("")
   const trialFilterQuery = useDeferredValue(_trialFilterQuery)
-  const [trialFilter, renderIframe] = useTrialFilterQuery(5)
+  const [trialFilter, renderIframe] = useTrialFilterQuery({ nRetry: 5 })
   const llmEnabled = useAtomValue(llmIsAvailable)
   const trials = useTrials(
     studyDetail,

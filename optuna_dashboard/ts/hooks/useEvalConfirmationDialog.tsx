@@ -16,10 +16,7 @@ import React, { ReactNode, useState } from "react"
 
 export const useEvalConfirmationDialog = (
   onDenied?: () => void
-): [
-  (filterFuncStr: string, userQuery: string) => Promise<boolean>,
-  () => ReactNode,
-] => {
+): [(filterFuncStr: string) => Promise<boolean>, () => ReactNode] => {
   const [openDialog, setOpenDialog] = useState(false)
   const [pendingFilterStr, setPendingFilterStr] = useState<string>("")
   const [confirmResolve, setConfirmResolve] = useState<

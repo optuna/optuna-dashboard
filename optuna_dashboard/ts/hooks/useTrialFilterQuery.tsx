@@ -12,10 +12,15 @@ const trialFilterCacheAtom = atom<Map<string, string>>(new Map())
 // Cache atom for failed queries: userQuery -> true (to prevent repeated attempts)
 const failedQueryCacheAtom = atom<Set<string>>(new Set<string>())
 
-export const useTrialFilterQuery = (
-  nRetry: number,
+export const useTrialFilterQuery = ({
+  nRetry,
+  onDenied,
+  onFailed,
+}: {
+  nRetry: number
   onDenied?: () => void
-): [
+  onFailed?: (errorMsg: string) => void
+}): [
   (trials: Trial[], filterQueryStr: string) => Promise<Trial[]>,
   () => ReactNode,
 ] => {
@@ -34,9 +39,14 @@ export const useTrialFilterQuery = (
         return trials // Return unfiltered trials
       }
 
-      // Check cache first
       const cached = cache.get(userQuery)
       if (cached) {
+        // Show confirmation dialog even for cached functions
+        const userConfirmed = await showConfirmationDialog(cached)
+        if (!userConfirmed) {
+          return trials // Return unfiltered trials if user denies
+        }
+
         try {
           return await filterByJSFuncStr(trials, cached)
         } catch (evalError: unknown) {
@@ -71,13 +81,13 @@ export const useTrialFilterQuery = (
           enqueueSnackbar(`API error: (error=${reason})`, {
             variant: "error",
           })
+          if (onFailed) {
+            onFailed(`API error: ${reason}`)
+          }
           throw apiError
         }
 
-        const userConfirmed = await showConfirmationDialog(
-          filterFuncStr,
-          userQuery
-        )
+        const userConfirmed = await showConfirmationDialog(filterFuncStr)
         if (!userConfirmed) {
           throw new Error("User rejected the execution")
         }
@@ -100,10 +110,12 @@ export const useTrialFilterQuery = (
             newFailedCache.add(userQuery)
             setFailedCache(newFailedCache)
 
-            enqueueSnackbar(
-              `Failed to evaluate trial filtering function after ${nRetry} attempts (error=${errMsg})`,
-              { variant: "error" }
-            )
+            const errorMessage = `Failed to evaluate trial filtering function after ${nRetry} attempts (error=${errMsg})`
+            enqueueSnackbar(errorMessage, { variant: "error" })
+
+            if (onFailed) {
+              onFailed(errorMessage)
+            }
             throw evalError
           }
 
@@ -124,6 +136,8 @@ export const useTrialFilterQuery = (
       setCache,
       failedCache,
       setFailedCache,
+      showConfirmationDialog,
+      onFailed,
     ]
   )
 
