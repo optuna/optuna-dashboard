@@ -2,6 +2,7 @@ import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
 import FilterListIcon from "@mui/icons-material/FilterList"
 import StopCircleIcon from "@mui/icons-material/StopCircle"
+
 import {
   Box,
   Button,
@@ -11,6 +12,7 @@ import {
   Menu,
   MenuItem,
   Select,
+  TextField,
   Typography,
   useTheme,
 } from "@mui/material"
@@ -22,7 +24,14 @@ import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
 import * as Optuna from "@optuna/types"
-import React, { FC, ReactNode, useMemo } from "react"
+import React, {
+  FC,
+  ReactNode,
+  useMemo,
+  useState,
+  useEffect,
+  useDeferredValue,
+} from "react"
 
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useVirtualizer } from "@tanstack/react-virtual"
@@ -31,7 +40,12 @@ import { useNavigate } from "react-router-dom"
 import { FormWidgets, StudyDetail, Trial } from "ts/types/optuna"
 import { actionCreator } from "../action"
 import { useConstants } from "../constantsProvider"
-import { artifactIsAvailable, trialListDurationTimeUnitState } from "../state"
+import { useTrialFilterQuery } from "../hooks/useTrialFilterQuery"
+import {
+  artifactIsAvailable,
+  llmIsAvailable,
+  trialListDurationTimeUnitState,
+} from "../state"
 import { useQuery } from "../urlQuery"
 import { ArtifactCards } from "./Artifact/ArtifactCards"
 import { TrialNote } from "./Note"
@@ -87,18 +101,34 @@ const useExcludedStates = (query: URLSearchParams): Optuna.TrialState[] => {
 
 const useTrials = (
   studyDetail: StudyDetail | null,
-  excludedStates: Optuna.TrialState[]
+  excludedStates: Optuna.TrialState[],
+  trialFilter: (trials: Trial[], query: string) => Promise<Trial[]>,
+  trialFilterQuery: string
 ): Trial[] => {
-  return useMemo(() => {
+  const [filteredTrials, setFilteredTrials] = useState<Trial[]>([])
+  useEffect(() => {
     let result = studyDetail !== null ? studyDetail.trials : []
-    if (excludedStates.length === 0) {
-      return result
+    if (excludedStates.length !== 0) {
+      excludedStates.forEach((s) => {
+        result = result.filter((t) => t.state !== s)
+      })
     }
-    excludedStates.forEach((s) => {
-      result = result.filter((t) => t.state !== s)
-    })
-    return result
-  }, [studyDetail, excludedStates])
+    console.log(trialFilterQuery)
+    if (trialFilterQuery !== "") {
+      trialFilter(result, trialFilterQuery)
+        .then((filtered) => {
+          console.log("Filtered trials:", filtered)
+          setFilteredTrials(filtered)
+        })
+        .catch((error) => {
+          console.error("Failed to filter trials:", error)
+          setFilteredTrials(result) // Fallback to unfiltered trials on error
+        })
+    } else {
+      setFilteredTrials(result)
+    }
+  }, [studyDetail, excludedStates, trialFilter, trialFilterQuery])
+  return filteredTrials
 }
 
 const useQueriedTrials = (trials: Trial[], query: URLSearchParams): Trial[] => {
@@ -422,7 +452,16 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const query = useQuery()
   const navigate = useNavigate()
   const excludedStates = useExcludedStates(query)
-  const trials = useTrials(studyDetail, excludedStates)
+  const [_trialFilterQuery, setTrialFilterQuery] = useState<string>("")
+  const trialFilterQuery = useDeferredValue(_trialFilterQuery)
+  const [trialFilter, renderIframe] = useTrialFilterQuery(5)
+  const llmEnabled = useAtomValue(llmIsAvailable)
+  const trials = useTrials(
+    studyDetail,
+    excludedStates,
+    trialFilter,
+    trialFilterQuery
+  )
   const isBestTrial = useIsBestTrial(studyDetail)
   const queried = useQueriedTrials(trials, query)
   const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
@@ -442,6 +481,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
     estimateSize: () => 73.31,
     overscan: 10,
   })
+  const [filterInput, setFilterInput] = useState(trialFilterQuery)
 
   const trialListWidth = 200
 
@@ -450,204 +490,249 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
 
   return (
     <Box
-      component="div"
-      sx={{ display: "flex", flexDirection: "row", width: "100%" }}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        width: "100%",
+        height: "100%",
+      }}
     >
-      <Box
-        component="div"
-        ref={listParentRef}
-        sx={{
-          minWidth: trialListWidth,
-          overflow: "auto",
-          height: `calc(100vh - ${theme.spacing(8)})`,
-        }}
-      >
-        <List sx={{ position: "relative" }}>
-          <ListSubheader sx={{ display: "flex", flexDirection: "row" }}>
-            <Typography sx={{ p: theme.spacing(1, 0) }}>
-              {trials.length} Trials
-            </Typography>
-            <Box component="div" sx={{ flexGrow: 1 }} />
-            <IconButton
-              aria-label="Filter"
-              aria-controls={openFilterMenu ? "filter-trials" : undefined}
-              aria-haspopup="true"
-              aria-expanded={openFilterMenu ? "true" : undefined}
-              onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                setFilterMenuAnchorEl(e.currentTarget)
-              }}
-            >
-              <FilterListIcon fontSize="small" />
-            </IconButton>
-            <Menu
-              anchorEl={filterMenuAnchorEl}
-              id="filter-trials"
-              open={openFilterMenu}
-              onClose={() => {
-                setFilterMenuAnchorEl(null)
-              }}
-            >
-              {states.map((state, i) => (
-                <MenuItem
-                  key={state}
-                  onClick={() => {
-                    if (studyDetail === null) {
-                      return
-                    }
-                    const index = excludedStates.findIndex((s) => s === state)
-                    if (index === -1) {
-                      excludedStates.push(state)
-                    } else {
-                      excludedStates.splice(index, 1)
-                    }
-                    const numbers = selected.map((t) => t.number)
-                    navigate(
-                      getTrialListLink(
-                        studyDetail.id,
-                        excludedStates,
-                        numbers,
-                        url_prefix
-                      )
-                    )
-                  }}
-                  disabled={trialCounts[i] === 0}
-                >
-                  <ListItemIcon>
-                    {excludedStates.find((s) => s === state) !== undefined ? (
-                      <CheckBoxOutlineBlankIcon color="primary" />
-                    ) : (
-                      <CheckBoxIcon color="primary" />
-                    )}
-                  </ListItemIcon>
-                  {state} ({trialCounts[i]})
-                </MenuItem>
-              ))}
-            </Menu>
-          </ListSubheader>
-          <Divider />
+      {llmEnabled && (
+        <>
           <Box
             component="div"
             sx={{
-              width: "100%",
-              height: `${rowVirtualizer.getTotalSize()}px`,
-              position: "relative",
+              height: theme.spacing(8),
+              p: theme.spacing(1),
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
             }}
           >
-            {rowVirtualizer.getVirtualItems().map((virtualItem) => {
-              const trial = trials[virtualItem.index]
-              return (
-                <ListItem
-                  key={trial.trial_id}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "flex-start",
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    transform: `translateY(${virtualItem.start}px)`,
-                  }}
-                  disablePadding
-                >
-                  <ListItemButton
-                    onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-                      if (e.shiftKey) {
-                        let next: number[]
-                        const selectedNumbers = selected.map((t) => t.number)
-                        const alreadySelected =
-                          selectedNumbers.findIndex(
-                            (n) => n === trial.number
-                          ) >= 0
-                        if (alreadySelected) {
-                          next = selectedNumbers.filter(
-                            (n) => n !== trial.number
-                          )
-                        } else {
-                          next = [...selectedNumbers, trial.number]
-                        }
-                        navigate(
-                          getTrialListLink(
-                            trial.study_id,
-                            excludedStates,
-                            next,
-                            url_prefix
-                          )
-                        )
-                      } else {
-                        navigate(
-                          getTrialListLink(
-                            trial.study_id,
-                            excludedStates,
-                            [trial.number],
-                            url_prefix
-                          )
-                        )
-                      }
-                    }}
-                    selected={
-                      selected.findIndex((t) => t.number === trial.number) !==
-                      -1
-                    }
-                    sx={{
-                      width: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-start",
-                    }}
-                  >
-                    <ListItemText primary={`Trial ${trial.number}`} />
-                    <Box component="div">
-                      <Chip
-                        color={getChipColor(trial.state)}
-                        label={trial.state}
-                        sx={{ margin: theme.spacing(0) }}
-                        size="small"
-                        variant="outlined"
-                      />
-                      {isBestTrial(trial.trial_id) ? (
-                        <Chip
-                          label={"Best Trial"}
-                          color="secondary"
-                          sx={{ marginLeft: theme.spacing(1) }}
-                          size="small"
-                          variant="outlined"
-                        />
-                      ) : null}
-                    </Box>
-                  </ListItemButton>
-                </ListItem>
-              )
-            })}
+            <TextField
+              id="trial-filter-query"
+              variant="outlined"
+              placeholder="Filter trials by the natural language query (e.g., param_name > 0)"
+              fullWidth
+              size="small"
+              sx={{
+                maxWidth: "400px",
+              }}
+              value={filterInput}
+              onChange={(e) => setFilterInput(e.target.value)}
+            />
+            <Button
+              variant="contained"
+              sx={{ marginLeft: theme.spacing(1) }}
+              onClick={() => setTrialFilterQuery(filterInput)}
+            >
+              Filter
+            </Button>
           </Box>
-        </List>
-      </Box>
-      <Divider orientation="vertical" flexItem />
+          <Divider />
+        </>
+      )}
       <Box
         component="div"
-        sx={{
-          flexGrow: 1,
-          overflow: "auto",
-          height: `calc(100vh - ${theme.spacing(8)})`,
-        }}
+        sx={{ display: "flex", flexDirection: "row", width: "100%" }}
       >
         <Box
           component="div"
-          sx={{ display: "flex", flexDirection: "row", width: "100%" }}
+          ref={listParentRef}
+          sx={{
+            minWidth: trialListWidth,
+            overflow: "auto",
+            height: `calc(100vh - ${theme.spacing(8)})`,
+          }}
         >
-          {selected.length === 0
-            ? null
-            : selected.map((t) => (
-                <TrialListDetail
-                  key={t.trial_id}
-                  trial={t}
-                  isBestTrial={isBestTrial}
-                  directions={studyDetail?.directions || []}
-                  metricNames={studyDetail?.metric_names || []}
-                  formWidgets={studyDetail?.form_widgets}
-                />
-              ))}
+          <List sx={{ position: "relative" }}>
+            <ListSubheader sx={{ display: "flex", flexDirection: "row" }}>
+              <Typography sx={{ p: theme.spacing(1, 0) }}>
+                {trials.length} Trials
+              </Typography>
+              <Box component="div" sx={{ flexGrow: 1 }} />
+              <IconButton
+                aria-label="Filter"
+                aria-controls={openFilterMenu ? "filter-trials" : undefined}
+                aria-haspopup="true"
+                aria-expanded={openFilterMenu ? "true" : undefined}
+                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                  setFilterMenuAnchorEl(e.currentTarget)
+                }}
+              >
+                <FilterListIcon fontSize="small" />
+              </IconButton>
+              <Menu
+                anchorEl={filterMenuAnchorEl}
+                id="filter-trials"
+                open={openFilterMenu}
+                onClose={() => {
+                  setFilterMenuAnchorEl(null)
+                }}
+              >
+                {states.map((state, i) => (
+                  <MenuItem
+                    key={state}
+                    onClick={() => {
+                      if (studyDetail === null) {
+                        return
+                      }
+                      const index = excludedStates.findIndex((s) => s === state)
+                      if (index === -1) {
+                        excludedStates.push(state)
+                      } else {
+                        excludedStates.splice(index, 1)
+                      }
+                      const numbers = selected.map((t) => t.number)
+                      navigate(
+                        getTrialListLink(
+                          studyDetail.id,
+                          excludedStates,
+                          numbers,
+                          url_prefix
+                        )
+                      )
+                    }}
+                    disabled={trialCounts[i] === 0}
+                  >
+                    <ListItemIcon>
+                      {excludedStates.find((s) => s === state) !== undefined ? (
+                        <CheckBoxOutlineBlankIcon color="primary" />
+                      ) : (
+                        <CheckBoxIcon color="primary" />
+                      )}
+                    </ListItemIcon>
+                    {state} ({trialCounts[i]})
+                  </MenuItem>
+                ))}
+              </Menu>
+            </ListSubheader>
+            <Divider />
+            <Box
+              component="div"
+              sx={{
+                width: "100%",
+                height: `${rowVirtualizer.getTotalSize()}px`,
+                position: "relative",
+              }}
+            >
+              {rowVirtualizer.getVirtualItems().map((virtualItem) => {
+                const trial = trials[virtualItem.index]
+                return (
+                  <ListItem
+                    key={trial.trial_id}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      transform: `translateY(${virtualItem.start}px)`,
+                    }}
+                    disablePadding
+                  >
+                    <ListItemButton
+                      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                        if (e.shiftKey) {
+                          let next: number[]
+                          const selectedNumbers = selected.map((t) => t.number)
+                          const alreadySelected =
+                            selectedNumbers.findIndex(
+                              (n) => n === trial.number
+                            ) >= 0
+                          if (alreadySelected) {
+                            next = selectedNumbers.filter(
+                              (n) => n !== trial.number
+                            )
+                          } else {
+                            next = [...selectedNumbers, trial.number]
+                          }
+                          navigate(
+                            getTrialListLink(
+                              trial.study_id,
+                              excludedStates,
+                              next,
+                              url_prefix
+                            )
+                          )
+                        } else {
+                          navigate(
+                            getTrialListLink(
+                              trial.study_id,
+                              excludedStates,
+                              [trial.number],
+                              url_prefix
+                            )
+                          )
+                        }
+                      }}
+                      selected={
+                        selected.findIndex((t) => t.number === trial.number) !==
+                        -1
+                      }
+                      sx={{
+                        width: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      <ListItemText primary={`Trial ${trial.number}`} />
+                      <Box component="div">
+                        <Chip
+                          color={getChipColor(trial.state)}
+                          label={trial.state}
+                          sx={{ margin: theme.spacing(0) }}
+                          size="small"
+                          variant="outlined"
+                        />
+                        {isBestTrial(trial.trial_id) ? (
+                          <Chip
+                            label={"Best Trial"}
+                            color="secondary"
+                            sx={{ marginLeft: theme.spacing(1) }}
+                            size="small"
+                            variant="outlined"
+                          />
+                        ) : null}
+                      </Box>
+                    </ListItemButton>
+                  </ListItem>
+                )
+              })}
+            </Box>
+          </List>
+        </Box>
+        <Divider orientation="vertical" flexItem />
+        <Box
+          component="div"
+          sx={{
+            flexGrow: 1,
+            overflow: "auto",
+            height: `calc(100vh - ${theme.spacing(8)})`,
+          }}
+        >
+          <Box
+            component="div"
+            sx={{ display: "flex", flexDirection: "row", width: "100%" }}
+          >
+            {selected.length === 0
+              ? null
+              : selected.map((t) => (
+                  <TrialListDetail
+                    key={t.trial_id}
+                    trial={t}
+                    isBestTrial={isBestTrial}
+                    directions={studyDetail?.directions || []}
+                    metricNames={studyDetail?.metric_names || []}
+                    formWidgets={studyDetail?.form_widgets}
+                  />
+                ))}
+          </Box>
         </Box>
       </Box>
+      {renderIframe()}
     </Box>
   )
 }
