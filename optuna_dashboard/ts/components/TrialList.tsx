@@ -511,7 +511,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
           <TextField
             id="trial-filter-query"
             variant="outlined"
-            placeholder="Filter trials. Enter query and press Enter."
+            placeholder="Filter trials by the natural language query (e.g., param_name > 0)"
             fullWidth
             size="small"
             sx={{
