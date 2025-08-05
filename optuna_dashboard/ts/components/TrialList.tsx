@@ -520,12 +520,14 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
               }}
               value={filterInput}
               onChange={(e) => setFilterInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  setTrialFilterQuery(filterInput)
-                }
-              }}
             />
+            <Button
+              variant="contained"
+              sx={{ marginLeft: theme.spacing(1) }}
+              onClick={() => setTrialFilterQuery(filterInput)}
+            >
+              Filter
+            </Button>
           </Box>
           <Divider />
         </>
