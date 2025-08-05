@@ -498,34 +498,37 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
       }}
     >
       {llmEnabled && (
-        <Box
-          component="div"
-          sx={{
-            height: theme.spacing(8),
-            p: theme.spacing(1),
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <TextField
-            id="trial-filter-query"
-            variant="outlined"
-            placeholder="Filter trials by the natural language query (e.g., param_name > 0)"
-            fullWidth
-            size="small"
+        <>
+          <Box
+            component="div"
             sx={{
-              maxWidth: "400px",
+              height: theme.spacing(8),
+              p: theme.spacing(1),
+              display: "flex",
+              flexDirection: "row",
+              alignItems: "center",
             }}
-            value={filterInput}
-            onChange={(e) => setFilterInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                setTrialFilterQuery(filterInput)
-              }
-            }}
-          />
-        </Box>
+          >
+            <TextField
+              id="trial-filter-query"
+              variant="outlined"
+              placeholder="Filter trials by the natural language query (e.g., param_name > 0)"
+              fullWidth
+              size="small"
+              sx={{
+                maxWidth: "400px",
+              }}
+              value={filterInput}
+              onChange={(e) => setFilterInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setTrialFilterQuery(filterInput)
+                }
+              }}
+            />
+          </Box>
+          <Divider />
+        </>
       )}
       <Box
         component="div"
