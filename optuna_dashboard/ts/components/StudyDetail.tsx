@@ -15,7 +15,6 @@ import { Link, useParams } from "react-router-dom"
 
 import { actionCreator } from "../action"
 import { useConstants } from "../constantsProvider"
-import { studyDetailToStudy } from "../graphUtil"
 import {
   reloadIntervalState,
   useStudyDetailValue,
@@ -61,7 +60,6 @@ export const StudyDetail: FC<{
   const reloadInterval = useAtomValue(reloadIntervalState)
   const studyName = useStudyName(studyId)
   const isPreferential = useStudyIsPreferential(studyId)
-  const study = studyDetailToStudy(studyDetail)
 
   const title =
     studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
