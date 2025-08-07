@@ -14,10 +14,12 @@ import {
   useTheme,
 } from "@mui/material"
 import { TrialTable as TsLibTrialTable } from "@optuna/react"
+import { useAtomValue } from "jotai"
 import React, { FC, useState, useCallback } from "react"
 import { Link } from "react-router-dom"
 import { useConstants } from "../constantsProvider"
 import { useTrialFilterQuery } from "../hooks/useTrialFilterQuery"
+import { llmIsAvailable } from "../state"
 import { StudyDetail, Trial } from "../types/optuna"
 
 export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
@@ -30,6 +32,7 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
     undefined
   )
   const [isFiltering, setIsFiltering] = useState(false)
+  const llmEnabled = useAtomValue(llmIsAvailable)
   const theme = useTheme()
 
   const handleFilter = useCallback(async () => {
@@ -75,52 +78,54 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
     >
       <Card sx={{ margin: theme.spacing(2) }}>
         <CardContent>
-          <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
-            <TextField
-              label="Filter query"
-              value={filterQuery}
-              onChange={(e) => setFilterQuery(e.target.value)}
-              placeholder="Enter filter conditions..."
-              fullWidth
-              size="small"
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  handleFilter()
+          {llmEnabled && (
+            <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
+              <TextField
+                label="Filter query"
+                value={filterQuery}
+                onChange={(e) => setFilterQuery(e.target.value)}
+                placeholder="Enter filter conditions..."
+                fullWidth
+                size="small"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleFilter()
+                  }
+                }}
+                slotProps={{
+                  input: {
+                    endAdornment: filterQuery && (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="clear filter"
+                          onClick={handleClearFilter}
+                          edge="end"
+                          size="small"
+                        >
+                          <ClearIcon />
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  },
+                }}
+              />
+              <Button
+                variant="outlined"
+                startIcon={
+                  isFiltering ? (
+                    <CircularProgress size={16} />
+                  ) : (
+                    <FilterListIcon />
+                  )
                 }
-              }}
-              slotProps={{
-                input: {
-                  endAdornment: filterQuery && (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="clear filter"
-                        onClick={handleClearFilter}
-                        edge="end"
-                        size="small"
-                      >
-                        <ClearIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
-            <Button
-              variant="outlined"
-              startIcon={
-                isFiltering ? (
-                  <CircularProgress size={16} />
-                ) : (
-                  <FilterListIcon />
-                )
-              }
-              onClick={handleFilter}
-              disabled={isFiltering}
-              sx={{ minWidth: "120px" }}
-            >
-              {isFiltering ? "Filtering..." : "Filter"}
-            </Button>
-          </Stack>
+                onClick={handleFilter}
+                disabled={isFiltering}
+                sx={{ minWidth: "120px" }}
+              >
+                {isFiltering ? "Filtering..." : "Filter"}
+              </Button>
+            </Stack>
+          )}
           <TsLibTrialTable
             study={{
               ...studyDetail,
@@ -140,7 +145,7 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
           </Button>
         </CardContent>
       </Card>
-      {render()}
+      {llmEnabled && render()}
     </Box>
   )
 }
