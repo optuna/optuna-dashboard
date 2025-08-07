@@ -6,7 +6,6 @@ import {
   Button,
   Card,
   CardContent,
-  CircularProgress,
   IconButton,
   InputAdornment,
   Stack,
@@ -31,9 +30,13 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
   const [filteredTrials, setFilteredTrials] = useState<Trial[] | undefined>(
     undefined
   )
-  const [isFiltering, setIsFiltering] = useState(false)
   const llmEnabled = useAtomValue(llmIsAvailable)
   const theme = useTheme()
+
+  const handleClearFilter = useCallback(() => {
+    setFilterQuery("")
+    setFilteredTrials(undefined)
+  }, [])
 
   const handleFilter = useCallback(async () => {
     if (!filterQuery.trim()) {
@@ -41,33 +44,14 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
       return
     }
 
-    setIsFiltering(true)
     try {
       const result = await trialFilter(studyDetail.trials, filterQuery)
-
-      // Convert back to Optuna.Trial[] for display
-      const filteredOptunaTrials = result.map((filteredTrial) => {
-        // Find the original trial to preserve all properties
-        const originalTrial = studyDetail.trials.find(
-          (t) => t.number === filteredTrial.number
-        )
-        return originalTrial!
-      })
-
-      setFilteredTrials(filteredOptunaTrials)
+      setFilteredTrials(result)
     } catch (error) {
       console.error("Filter failed:", error)
-      // Keep previous filtered trials or undefined
-    } finally {
-      setIsFiltering(false)
+      handleClearFilter()
     }
   }, [filterQuery, trialFilter, studyDetail.trials])
-
-  const handleClearFilter = useCallback(() => {
-    setFilterQuery("")
-    setFilteredTrials(undefined)
-  }, [])
-
   const linkURL = (studyId: number, trialNumber: number) => {
     return url_prefix + `/studies/${studyId}/trials?numbers=${trialNumber}`
   }
@@ -81,17 +65,11 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
           {llmEnabled && (
             <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
               <TextField
-                label="Filter query"
                 value={filterQuery}
                 onChange={(e) => setFilterQuery(e.target.value)}
-                placeholder="Enter filter conditions..."
+                placeholder="Enter filter query (e.g., param_name > 0)"
                 fullWidth
                 size="small"
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleFilter()
-                  }
-                }}
                 slotProps={{
                   input: {
                     endAdornment: filterQuery && (
@@ -111,18 +89,11 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
               />
               <Button
                 variant="outlined"
-                startIcon={
-                  isFiltering ? (
-                    <CircularProgress size={16} />
-                  ) : (
-                    <FilterListIcon />
-                  )
-                }
+                startIcon={<FilterListIcon />}
                 onClick={handleFilter}
-                disabled={isFiltering}
                 sx={{ minWidth: "120px" }}
               >
-                {isFiltering ? "Filtering..." : "Filter"}
+                Filter"
               </Button>
             </Stack>
           )}
