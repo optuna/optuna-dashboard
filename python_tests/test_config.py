@@ -1,8 +1,12 @@
 import tempfile
 
+from optuna.artifacts import FileSystemArtifactStore
 import pytest
 
+from optuna_dashboard._config import create_artifact_store_from_config
+from optuna_dashboard._config import create_llm_provider_from_config
 from optuna_dashboard._config import load_config_from_toml
+from optuna_dashboard.llm.openai import OpenAI
 
 
 def test_load_config() -> None:
@@ -87,3 +91,41 @@ def test_empty_file() -> None:
 
         config = load_config_from_toml(f.name)
         assert config == {}
+
+
+def test_create_artifact_store_from_config() -> None:
+    config_content = """
+[optuna_dashboard]
+storage = "sqlite:///test.db"
+
+[artifact_store.filesystem]
+base_path = "/tmp/artifacts"
+"""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".toml") as f:
+        f.write(config_content)
+        f.flush()
+
+        config = load_config_from_toml(f.name)
+    artifact_store = create_artifact_store_from_config(config)
+    assert isinstance(artifact_store, FileSystemArtifactStore)
+
+
+def test_create_llm_provider_from_config() -> None:
+    config_content = """
+[optuna_dashboard]
+storage = "sqlite:///test.db"
+
+[llm.openai]
+model = "dummy-model"
+
+[llm.openai.client]
+api_key = "sk-dummy"
+base_url = "https://openai.example.com/"
+"""
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".toml") as f:
+        f.write(config_content)
+        f.flush()
+
+        config = load_config_from_toml(f.name)
+    llm_provider = create_llm_provider_from_config(config)
+    assert isinstance(llm_provider, OpenAI)
