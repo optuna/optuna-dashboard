@@ -6,10 +6,7 @@ from typing import Any
 if sys.version_info >= (3, 11):
     import tomllib
 else:
-    try:
-        import tomli as tomllib
-    except ImportError:
-        raise ImportError("tomli is required for Python < 3.11. Install with: pip install tomli")
+    import tomli as tomllib
 
 
 def load_config_from_toml(config_path: str) -> dict[str, Any]:
