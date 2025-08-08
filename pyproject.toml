@@ -30,6 +30,7 @@ dependencies = [
     "bottle>=0.13.0",
     "optuna>=3.6.0",
     "packaging",
+    "tomli; python_version<'3.11'",
 ]
 dynamic = ["version"]
 
