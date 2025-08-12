@@ -139,7 +139,9 @@ def main() -> None:
         config = {}
 
     if args.storage is None:
-        raise ValueError("Storage URL must be specified as the first argument or via --from-config.")
+        raise ValueError(
+            "Storage URL must be specified as the first argument or via --from-config."
+        )
 
     storage: BaseStorage
     storage = get_storage(args.storage, storage_class=args.storage_class)
