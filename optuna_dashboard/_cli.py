@@ -15,6 +15,9 @@ from optuna.storages import RDBStorage
 
 from . import __version__
 from ._app import create_app
+from ._config import create_artifact_store_from_config
+from ._config import create_llm_provider_from_config
+from ._config import load_config_from_toml
 from ._sql_profiler import register_profiler_view
 from ._storage_url import get_storage
 
@@ -85,7 +88,13 @@ def auto_select_server(
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Real-time dashboard for Optuna.")
-    parser.add_argument("storage", help="Storage URL (e.g. sqlite:///example.db)", type=str)
+    parser.add_argument(
+        "storage",
+        help="Storage URL (e.g. sqlite:///example.db)",
+        type=str,
+        default=None,
+        nargs="?",
+    )
     parser.add_argument(
         "--storage-class",
         help="Storage class hint (e.g. JournalFileStorage)",
@@ -107,21 +116,51 @@ def main() -> None:
         help="directory to store artifact files",
         default=None,
     )
+    parser.add_argument(
+        "--from-config",
+        help="configuration file in TOML format",
+        type=str,
+        default=None,
+    )
     parser.add_argument("--version", "-v", action="version", version=__version__)
     parser.add_argument("--quiet", "-q", help="quiet", action="store_true")
     args = parser.parse_args()
+
+    if args.from_config:
+        config = load_config_from_toml(args.from_config)
+        cli_config = config.get("optuna_dashboard", {})
+        args.storage = cli_config.get("storage", args.storage)
+        args.storage_class = cli_config.get("storage_class", args.storage_class)
+        args.port = cli_config.get("port", args.port)
+        args.host = cli_config.get("host", args.host)
+        args.server = cli_config.get("server", args.server)
+        args.artifact_dir = cli_config.get("artifact_dir", args.artifact_dir)
+    else:
+        config = {}
+
+    if args.storage is None:
+        raise ValueError(
+            "Storage URL must be specified as the first argument or via --from-config."
+        )
 
     storage: BaseStorage
     storage = get_storage(args.storage, storage_class=args.storage_class)
 
     artifact_store: ArtifactStore | None
     if args.artifact_dir is None:
-        artifact_store = None
+        artifact_store = create_artifact_store_from_config(config)
     else:
         from optuna.artifacts import FileSystemArtifactStore
 
         artifact_store = FileSystemArtifactStore(args.artifact_dir)
-    app = create_app(storage, artifact_store=artifact_store, debug=DEBUG)
+
+    llm_provider = create_llm_provider_from_config(config)
+    app = create_app(
+        storage,
+        artifact_store=artifact_store,
+        llm_provider=llm_provider,
+        debug=DEBUG,
+    )
 
     if DEBUG and isinstance(storage, RDBStorage):
         app = register_profiler_view(app, storage)
