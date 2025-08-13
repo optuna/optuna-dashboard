@@ -2,18 +2,25 @@ import { useEvalTrialFilter } from "@optuna/react"
 import { isAxiosError } from "axios"
 import { atom, useAtom } from "jotai"
 import { useSnackbar } from "notistack"
-import { ReactNode, useCallback } from "react"
+import React, { ReactNode, useCallback } from "react"
 import { useAPIClient } from "../apiClientProvider"
 import { Trial } from "../types/optuna"
+import { useEvalConfirmationDialog } from "./useEvalConfirmationDialog"
 
 // Cache atom for API responses: userQuery -> trial_filtering_func_str
 const trialFilterCacheAtom = atom<Map<string, string>>(new Map())
 // Cache atom for failed queries: userQuery -> true (to prevent repeated attempts)
 const failedQueryCacheAtom = atom<Set<string>>(new Set<string>())
 
-export const useTrialFilterQuery = (
+export const useTrialFilterQuery = ({
+  nRetry,
+  onDenied,
+  onFailed,
+}: {
   nRetry: number
-): [
+  onDenied?: () => void
+  onFailed?: (errorMsg: string) => void
+}): [
   (trials: Trial[], filterQueryStr: string) => Promise<Trial[]>,
   () => ReactNode,
 ] => {
@@ -22,6 +29,8 @@ export const useTrialFilterQuery = (
   const [filterByJSFuncStr, renderIframe] = useEvalTrialFilter<Trial>()
   const [cache, setCache] = useAtom(trialFilterCacheAtom)
   const [failedCache, setFailedCache] = useAtom(failedQueryCacheAtom)
+  const [showConfirmationDialog, renderDialog] =
+    useEvalConfirmationDialog(onDenied)
 
   const filterByUserQuery = useCallback(
     async (trials: Trial[], userQuery: string): Promise<Trial[]> => {
@@ -30,9 +39,14 @@ export const useTrialFilterQuery = (
         return trials // Return unfiltered trials
       }
 
-      // Check cache first
       const cached = cache.get(userQuery)
       if (cached) {
+        // Show confirmation dialog even for cached functions
+        const userConfirmed = await showConfirmationDialog(cached)
+        if (!userConfirmed) {
+          return trials // Return unfiltered trials if user denies
+        }
+
         try {
           return await filterByJSFuncStr(trials, cached)
         } catch (evalError: unknown) {
@@ -67,10 +81,17 @@ export const useTrialFilterQuery = (
           enqueueSnackbar(`API error: (error=${reason})`, {
             variant: "error",
           })
+          if (onFailed) {
+            onFailed(`API error: ${reason}`)
+          }
           throw apiError
         }
 
-        // TODO(c-bata): Show the confirmation dialog here.
+        const userConfirmed = await showConfirmationDialog(filterFuncStr)
+        if (!userConfirmed) {
+          throw new Error("User rejected the execution")
+        }
+
         try {
           const result = await filterByJSFuncStr(trials, filterFuncStr)
           // Cache the successful function string
@@ -89,10 +110,12 @@ export const useTrialFilterQuery = (
             newFailedCache.add(userQuery)
             setFailedCache(newFailedCache)
 
-            enqueueSnackbar(
-              `Failed to evaluate trial filtering function after ${nRetry} attempts (error=${errMsg})`,
-              { variant: "error" }
-            )
+            const errorMessage = `Failed to evaluate trial filtering function after ${nRetry} attempts (error=${errMsg})`
+            enqueueSnackbar(errorMessage, { variant: "error" })
+
+            if (onFailed) {
+              onFailed(errorMessage)
+            }
             throw evalError
           }
 
@@ -113,7 +136,18 @@ export const useTrialFilterQuery = (
       setCache,
       failedCache,
       setFailedCache,
+      showConfirmationDialog,
+      onFailed,
     ]
   )
-  return [filterByUserQuery, renderIframe]
+
+  const render = () => {
+    return (
+      <>
+        {renderDialog()}
+        {renderIframe()}
+      </>
+    )
+  }
+  return [filterByUserQuery, render]
 }
