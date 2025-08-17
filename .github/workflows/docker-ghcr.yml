@@ -3,9 +3,17 @@ on:
   release:
     types:
       - published
+  pull_request:
+    branches:
+      - main
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       - run: echo "REPO=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
@@ -31,3 +39,4 @@ jobs:
           context: .
           push: true
           tags: ghcr.io/${{ env.REPO }}:latest
+
