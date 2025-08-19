@@ -28,7 +28,6 @@ export const useEvalConfirmationDialog = (
     return sessionStorage.getItem(ALLOW_ALWAYS_KEY) === "true"
   }
 
-
   const cleanup = () => {
     setOpenDialog(false)
     setPendingFilterStr("")
@@ -36,20 +35,23 @@ export const useEvalConfirmationDialog = (
     setExpanded(false)
   }
 
-  const showConfirmationDialog = useCallback((filterFuncStr: string): Promise<boolean> => {
-    // Check if user has allowed always
-    if (isAlwaysAllowed()) {
-      return Promise.resolve(true)
-    }
-
-    return new Promise((resolve) => {
-      setPendingFilterStr(filterFuncStr)
-      confirmResolveRef.current = (confirmed: boolean) => {
-        resolve(confirmed)
+  const showConfirmationDialog = useCallback(
+    (filterFuncStr: string): Promise<boolean> => {
+      // Check if user has allowed always
+      if (isAlwaysAllowed()) {
+        return Promise.resolve(true)
       }
-      setOpenDialog(true)
-    })
-  }, [])
+
+      return new Promise((resolve) => {
+        setPendingFilterStr(filterFuncStr)
+        confirmResolveRef.current = (confirmed: boolean) => {
+          resolve(confirmed)
+        }
+        setOpenDialog(true)
+      })
+    },
+    []
+  )
 
   const handleAllowAlways = () => {
     sessionStorage.setItem(ALLOW_ALWAYS_KEY, "true")
