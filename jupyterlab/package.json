@@ -1,6 +1,6 @@
 {
     "name": "jupyterlab-optuna",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "description": "A JupyterLab extension for Optuna",
     "keywords": [
         "jupyter",
