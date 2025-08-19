@@ -12,16 +12,14 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import React, { ReactNode, useState } from "react"
+import React, { ReactNode, useCallback, useRef, useState } from "react"
 
 export const useEvalConfirmationDialog = (
   onDenied?: () => void
 ): [(filterFuncStr: string) => Promise<boolean>, () => ReactNode] => {
   const [openDialog, setOpenDialog] = useState(false)
   const [pendingFilterStr, setPendingFilterStr] = useState<string>("")
-  const [confirmResolve, setConfirmResolve] = useState<
-    ((confirmed: boolean) => void) | null
-  >(null)
+  const confirmResolveRef = useRef<((confirmed: boolean) => void) | null>(null)
   const [expanded, setExpanded] = useState(false)
 
   const ALLOW_ALWAYS_KEY = "optuna-dashboard-llm-eval-allow-always"
@@ -30,7 +28,15 @@ export const useEvalConfirmationDialog = (
     return sessionStorage.getItem(ALLOW_ALWAYS_KEY) === "true"
   }
 
-  const showConfirmationDialog = (filterFuncStr: string): Promise<boolean> => {
+
+  const cleanup = () => {
+    setOpenDialog(false)
+    setPendingFilterStr("")
+    confirmResolveRef.current = null
+    setExpanded(false)
+  }
+
+  const showConfirmationDialog = useCallback((filterFuncStr: string): Promise<boolean> => {
     // Check if user has allowed always
     if (isAlwaysAllowed()) {
       return Promise.resolve(true)
@@ -38,31 +44,24 @@ export const useEvalConfirmationDialog = (
 
     return new Promise((resolve) => {
       setPendingFilterStr(filterFuncStr)
-      setConfirmResolve(() => (confirmed: boolean) => {
+      confirmResolveRef.current = (confirmed: boolean) => {
         resolve(confirmed)
-      })
+      }
       setOpenDialog(true)
     })
-  }
-
-  const handleAllowOnce = () => {
-    if (confirmResolve) {
-      confirmResolve(true)
-    }
-    cleanup()
-  }
+  }, [])
 
   const handleAllowAlways = () => {
     sessionStorage.setItem(ALLOW_ALWAYS_KEY, "true")
-    if (confirmResolve) {
-      confirmResolve(true)
+    if (confirmResolveRef.current) {
+      confirmResolveRef.current(true)
     }
     cleanup()
   }
 
   const handleDenied = () => {
-    if (confirmResolve) {
-      confirmResolve(false)
+    if (confirmResolveRef.current) {
+      confirmResolveRef.current(false)
     }
     if (onDenied) {
       onDenied()
@@ -70,16 +69,8 @@ export const useEvalConfirmationDialog = (
     cleanup()
   }
 
-  const cleanup = () => {
-    setOpenDialog(false)
-    setPendingFilterStr("")
-    setConfirmResolve(null)
-    setExpanded(false)
-  }
-
   const renderDialog = () => {
     const theme = useTheme()
-
     return (
       <Dialog
         open={openDialog}
@@ -168,9 +159,6 @@ export const useEvalConfirmationDialog = (
               sx={{ mr: 1 }}
             >
               Allow Always
-            </Button>
-            <Button onClick={handleAllowOnce} variant="outlined">
-              Allow Once
             </Button>
           </Box>
           <Button onClick={handleDenied} color="error" variant="contained">
