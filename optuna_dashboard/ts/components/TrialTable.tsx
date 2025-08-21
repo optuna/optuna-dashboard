@@ -26,7 +26,8 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
 }) => {
   const { url_prefix } = useConstants()
   const [trialFilter, render] = useTrialFilterQuery(5)
-  const [filterQuery, setFilterQuery] = useState("")
+  const [_filterQuery, setFilterQuery] = useState("")
+  const filterQuery = useDeferredValue(_filterQuery)
   const [filteredTrials, setFilteredTrials] = useState<Trial[] | undefined>(
     undefined
   )
@@ -93,7 +94,7 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
                 onClick={handleFilter}
                 sx={{ minWidth: "120px" }}
               >
-                Filter"
+                Filter
               </Button>
             </Stack>
           )}
