@@ -25,7 +25,7 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
   studyDetail,
 }) => {
   const { url_prefix } = useConstants()
-  const [trialFilter, render] = useTrialFilterQuery(5)
+  const [trialFilter, render] = useTrialFilterQuery({ nRetry: 5 })
   const [_filterQuery, setFilterQuery] = useState("")
   const filterQuery = useDeferredValue(_filterQuery)
   const [filteredTrials, setFilteredTrials] = useState<Trial[] | undefined>(
