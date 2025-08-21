@@ -206,4 +206,5 @@ jobs:
       - name: Run tslib test for react
         working-directory: tslib/react
         run: |
+          npx playwright install
           npm run test
