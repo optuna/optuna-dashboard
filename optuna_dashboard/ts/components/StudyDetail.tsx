@@ -1,9 +1,7 @@
 import ChevronRightIcon from "@mui/icons-material/ChevronRight"
-import DownloadIcon from "@mui/icons-material/Download"
 import HomeIcon from "@mui/icons-material/Home"
 import {
   Box,
-  Button,
   Card,
   CardContent,
   IconButton,
@@ -15,10 +13,8 @@ import { useAtomValue } from "jotai"
 import React, { FC, useEffect, useMemo } from "react"
 import { Link, useParams } from "react-router-dom"
 
-import { TrialTable } from "@optuna/react"
 import { actionCreator } from "../action"
 import { useConstants } from "../constantsProvider"
-import { studyDetailToStudy } from "../graphUtil"
 import {
   reloadIntervalState,
   useStudyDetailValue,
@@ -39,6 +35,7 @@ import { PreferentialTrials } from "./Preferential/PreferentialTrials"
 import { StudyHistory } from "./StudyHistory"
 import { TrialList } from "./TrialList"
 import { TrialSelection } from "./TrialSelection"
+import { TrialTable } from "./TrialTable"
 
 export const useURLVars = (): number => {
   const { studyId } = useParams<{ studyId: string }>()
@@ -63,7 +60,6 @@ export const StudyDetail: FC<{
   const reloadInterval = useAtomValue(reloadIntervalState)
   const studyName = useStudyName(studyId)
   const isPreferential = useStudyIsPreferential(studyId)
-  const study = studyDetailToStudy(studyDetail)
 
   const title =
     studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
@@ -173,31 +169,8 @@ export const StudyDetail: FC<{
     content = <TrialList studyDetail={studyDetail} />
   } else if (page === "trialSelection") {
     content = <TrialSelection studyDetail={studyDetail} />
-  } else if (page === "trialTable" && study !== null) {
-    const linkURL = (studyId: number, trialNumber: number) => {
-      return url_prefix + `/studies/${studyId}/trials?numbers=${trialNumber}`
-    }
-    content = (
-      <Box
-        component="div"
-        sx={{ display: "flex", width: "100%", flexDirection: "column" }}
-      >
-        <Card sx={{ margin: theme.spacing(2) }}>
-          <CardContent>
-            <TrialTable study={study} linkComponent={Link} linkURL={linkURL} />
-            <Button
-              variant="outlined"
-              startIcon={<DownloadIcon />}
-              download
-              href={`/csv/${studyDetail?.id}`}
-              sx={{ marginRight: theme.spacing(2), minWidth: "120px" }}
-            >
-              Download CSV File
-            </Button>
-          </CardContent>
-        </Card>
-      </Box>
-    )
+  } else if (page === "trialTable" && studyDetail !== null) {
+    content = <TrialTable studyDetail={studyDetail} />
   } else if (page === "note" && studyDetail !== null) {
     content = (
       <Box
