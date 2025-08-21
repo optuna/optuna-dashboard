@@ -14,7 +14,7 @@ import {
 } from "@mui/material"
 import { TrialTable as TsLibTrialTable } from "@optuna/react"
 import { useAtomValue } from "jotai"
-import React, { FC, useState, useCallback } from "react"
+import React, { FC, useState, useCallback, useDeferredValue } from "react"
 import { Link } from "react-router-dom"
 import { useConstants } from "../constantsProvider"
 import { useTrialFilterQuery } from "../hooks/useTrialFilterQuery"
