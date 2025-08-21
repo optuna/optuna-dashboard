@@ -96,6 +96,14 @@ If you are using JournalStorage classes introduced in Optuna v3.1, you can use t
    # JournalRedisStorage
    $ optuna-dashboard redis://localhost:6379
 
+For complex setups with LLM integration or artifact storage, you can use TOML configuration files:
+
+.. code-block:: console
+
+   $ optuna-dashboard --from-config config.toml
+
+See :doc:`./configuration` for detailed configuration options.
+
 
 Using an official Docker image
 ------------------------------

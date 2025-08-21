@@ -13,6 +13,7 @@ Real-time dashboard for `Optuna <https://github.com/optuna/optuna>`_.
    :caption: Contents:
 
    getting-started
+   configuration
    api
    errors
    tutorials/index
