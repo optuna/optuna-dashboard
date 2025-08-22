@@ -134,7 +134,6 @@ def main() -> None:
         args.port = cli_config.get("port", args.port)
         args.host = cli_config.get("host", args.host)
         args.server = cli_config.get("server", args.server)
-        args.artifact_dir = cli_config.get("artifact_dir", args.artifact_dir)
     else:
         config = {}
 
