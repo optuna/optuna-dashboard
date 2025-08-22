@@ -27,7 +27,6 @@ Configuration file settings are overridden by command-line arguments.
     port = 8080
     host = "127.0.0.1"
     server = "auto"
-    artifact_dir = "/path/to/artifacts"
 
 LLM Integration
 ~~~~~~~~~~~~~~~
@@ -40,7 +39,7 @@ OpenAI
 Configure OpenAI or OpenAI-compatible API.
 
 The ``llm.openai`` configuration specifies the model name and API type.
-When ``use_chat_completions_api`` is set to ``true``, the `OpenAI chat completions API <https://platform.openai.com/docs/api-reference/chat>`__ will be used; setting it to ``false`` will use the `Responses API <https://platform.openai.com/docs/api-reference/responses/create>`__.
+When ``use_chat_completions_api`` is set to ``true``, the `OpenAI Chat Completions API <https://platform.openai.com/docs/api-reference/chat>`__ will be used; setting it to ``false`` will use the `Responses API <https://platform.openai.com/docs/api-reference/responses/create>`__.
 
 The ``llm.openai.client`` configuration specifies the OpenAI API key and endpoint, which are passed to the constructor of the `openai.OpenAI <https://github.com/openai/openai-python>`__ class.
 
