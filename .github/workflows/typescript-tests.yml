@@ -203,6 +203,11 @@ jobs:
         run: |
           npm run test
       
+      - name: Install Playwright Browsers
+        working-directory: tslib/react
+        run: |
+          npx playwright install --with-deps
+
       - name: Run tslib test for react
         working-directory: tslib/react
         run: |

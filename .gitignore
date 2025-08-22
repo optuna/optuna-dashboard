@@ -34,6 +34,7 @@ rustlib/pkg/
 .coverage.*
 coverage.xml
 tslib/storage/test/asset/
+tslib/react/test/browser/__screenshots__
 
 # Others
 .envrc
