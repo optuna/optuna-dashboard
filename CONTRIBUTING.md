@@ -102,6 +102,7 @@ $ OPTUNA_DASHBOARD_DEBUG=1 optuna-dashboard sqlite:///db.sqlite3
 #### Running unit tests for `tslib/`
 
 ```
+$ npx playwright install --with-deps
 $ make tslib-test
 ```
 
