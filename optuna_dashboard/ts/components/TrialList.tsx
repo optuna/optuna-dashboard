@@ -1,5 +1,6 @@
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
+import ClearIcon from "@mui/icons-material/Clear"
 import FilterListIcon from "@mui/icons-material/FilterList"
 import StopCircleIcon from "@mui/icons-material/StopCircle"
 
@@ -8,6 +9,7 @@ import {
   Button,
   FormControl,
   IconButton,
+  InputAdornment,
   InputLabel,
   Menu,
   MenuItem,
@@ -27,6 +29,7 @@ import * as Optuna from "@optuna/types"
 import React, {
   FC,
   ReactNode,
+  useCallback,
   useMemo,
   useState,
   useEffect,
@@ -103,7 +106,8 @@ const useTrials = (
   studyDetail: StudyDetail | null,
   excludedStates: Optuna.TrialState[],
   trialFilter: (trials: Trial[], query: string) => Promise<Trial[]>,
-  trialFilterQuery: string
+  trialFilterQuery: string,
+  onFilterError?: () => void
 ): Trial[] => {
   const [filteredTrials, setFilteredTrials] = useState<Trial[]>([])
   useEffect(() => {
@@ -122,6 +126,7 @@ const useTrials = (
         })
         .catch((error) => {
           console.error("Failed to filter trials:", error)
+          onFilterError?.()
           setFilteredTrials(result) // Fallback to unfiltered trials on error
         })
     } else {
@@ -456,11 +461,17 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const trialFilterQuery = useDeferredValue(_trialFilterQuery)
   const [trialFilter, renderIframe] = useTrialFilterQuery({ nRetry: 5 })
   const llmEnabled = useAtomValue(llmIsAvailable)
+  const [filterInput, setFilterInput] = useState(trialFilterQuery)
+  const handleClearFilter = useCallback(() => {
+    setTrialFilterQuery("")
+    setFilterInput("")
+  }, [])
   const trials = useTrials(
     studyDetail,
     excludedStates,
     trialFilter,
-    trialFilterQuery
+    trialFilterQuery,
+    handleClearFilter
   )
   const isBestTrial = useIsBestTrial(studyDetail)
   const queried = useQueriedTrials(trials, query)
@@ -481,7 +492,6 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
     estimateSize: () => 73.31,
     overscan: 10,
   })
-  const [filterInput, setFilterInput] = useState(trialFilterQuery)
 
   const trialListWidth = 200
 
@@ -520,6 +530,22 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
               }}
               value={filterInput}
               onChange={(e) => setFilterInput(e.target.value)}
+              slotProps={{
+                input: {
+                  endAdornment: filterInput && (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="clear filter"
+                        onClick={handleClearFilter}
+                        edge="end"
+                        size="small"
+                      >
+                        <ClearIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
             <Button
               variant="contained"
