@@ -17,6 +17,7 @@ on:
       - 'jupyterlab/pyproject.toml'
       - 'jupyterlab/package.json'
       - 'jupyterlab/yarn.lock'
+      - 'jupyterlab/tsconfig.json'
 jobs:
   test-build:
     name: Test build for JupyterLab extension
