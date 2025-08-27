@@ -19,6 +19,7 @@
       "plotly.js-dist-min": ["node_modules/@types/plotly.js"]
     },
     "rootDir": "src",
+    "skipLibCheck": true,
     "strict": true,
     "strictNullChecks": true,
     "target": "ES2018"
