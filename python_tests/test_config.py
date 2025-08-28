@@ -113,7 +113,7 @@ server = "gunicorn"
 
             test_args = [
                 "--from-config", f.name,
-                "--port", "8080",
+                "--port", "8888",
                 "--host", "127.0.0.1",
                 "--server", "wsgiref",
                 "sqlite:///cli.db"
@@ -126,7 +126,7 @@ server = "gunicorn"
             mock_get_storage.assert_called_once_with("sqlite:///cli.db", storage_class=None)
 
             # Verify run_debug_server was called with CLI values
-            mock_run_debug_server.assert_called_once_with(mock_app, "127.0.0.1", 8080, False)
+            mock_run_debug_server.assert_called_once_with(mock_app, "127.0.0.1", 8888, False)
 
 
 def test_config_file_used_when_no_cli_override() -> None:
