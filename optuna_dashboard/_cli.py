@@ -31,6 +31,10 @@ if TYPE_CHECKING:
 DEBUG = os.environ.get("OPTUNA_DASHBOARD_DEBUG") == "1"
 SERVER_CHOICES = ["auto", "wsgiref", "gunicorn"]
 
+DEFAULT_PORT = 8080
+DEFAULT_HOST = "127.0.0.1"
+DEFAULT_SERVER = "auto"
+
 
 class ThreadedWSGIServer(ThreadingMixIn, WSGIServer):
     pass
@@ -102,13 +106,13 @@ def main() -> None:
         default=None,
     )
     parser.add_argument(
-        "--port", help="port number (default: %(default)s)", type=int, default=8080
+        "--port", help=f"port number (default: {DEFAULT_PORT})", type=int, default=None
     )
-    parser.add_argument("--host", help="hostname (default: %(default)s)", default="127.0.0.1")
+    parser.add_argument("--host", help=f"hostname (default: {DEFAULT_HOST})", default=None)
     parser.add_argument(
         "--server",
-        help="server (default: %(default)s)",
-        default="auto",
+        help=f"server (default: {DEFAULT_SERVER})",
+        default=None,
         choices=SERVER_CHOICES,
     )
     parser.add_argument(
@@ -129,11 +133,11 @@ def main() -> None:
     if args.from_config:
         config = load_config_from_toml(args.from_config)
         cli_config = config.get("optuna_dashboard", {})
-        args.storage = cli_config.get("storage", args.storage)
-        args.storage_class = cli_config.get("storage_class", args.storage_class)
-        args.port = cli_config.get("port", args.port)
-        args.host = cli_config.get("host", args.host)
-        args.server = cli_config.get("server", args.server)
+        args.storage = args.storage if args.storage is not None else cli_config.get("storage")
+        args.storage_class = args.storage_class if args.storage_class is not None else cli_config.get("storage_class")
+        args.port = args.port if args.port is not None else cli_config.get("port", DEFAULT_PORT)
+        args.host = args.host if args.host is not None else cli_config.get("host", DEFAULT_HOST)
+        args.server = args.server if args.server is not None else cli_config.get("server", DEFAULT_SERVER)
     else:
         config = {}
 
