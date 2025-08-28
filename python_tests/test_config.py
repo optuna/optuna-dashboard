@@ -99,11 +99,11 @@ server = "gunicorn"
         f.write(config_content)
         f.flush()
 
-        with patch('optuna_dashboard._cli.get_storage') as mock_get_storage, \
-             patch('optuna_dashboard._cli.create_app') as mock_create_app, \
-             patch('optuna_dashboard._cli.run_debug_server') as mock_run_debug_server, \
-             patch('optuna_dashboard._cli.DEBUG', True):
-
+        with patch("optuna_dashboard._cli.get_storage") as mock_get_storage, patch(
+            "optuna_dashboard._cli.create_app"
+        ) as mock_create_app, patch(
+            "optuna_dashboard._cli.run_debug_server"
+        ) as mock_run_debug_server, patch("optuna_dashboard._cli.DEBUG", True):
             # Setup mocks to prevent actual execution
             mock_storage = MagicMock()
             mock_get_storage.return_value = mock_storage
@@ -112,14 +112,18 @@ server = "gunicorn"
             mock_run_debug_server.return_value = None  # Prevent server startup
 
             test_args = [
-                "--from-config", f.name,
-                "--port", "8888",
-                "--host", "127.0.0.1",
-                "--server", "wsgiref",
-                "sqlite:///cli.db"
+                "--from-config",
+                f.name,
+                "--port",
+                "8888",
+                "--host",
+                "127.0.0.1",
+                "--server",
+                "wsgiref",
+                "sqlite:///cli.db",
             ]
 
-            with patch('sys.argv', ['optuna-dashboard'] + test_args):
+            with patch("sys.argv", ["optuna-dashboard"] + test_args):
                 main()
 
             # Verify CLI args took precedence
@@ -142,11 +146,11 @@ server = "wsgiref"
         f.write(config_content)
         f.flush()
 
-        with patch('optuna_dashboard._cli.get_storage') as mock_get_storage, \
-             patch('optuna_dashboard._cli.create_app') as mock_create_app, \
-             patch('optuna_dashboard._cli.run_debug_server') as mock_run_debug_server, \
-             patch('optuna_dashboard._cli.DEBUG', True):
-
+        with patch("optuna_dashboard._cli.get_storage") as mock_get_storage, patch(
+            "optuna_dashboard._cli.create_app"
+        ) as mock_create_app, patch(
+            "optuna_dashboard._cli.run_debug_server"
+        ) as mock_run_debug_server, patch("optuna_dashboard._cli.DEBUG", True):
             mock_storage = MagicMock()
             mock_get_storage.return_value = mock_storage
             mock_app = MagicMock()
@@ -155,7 +159,7 @@ server = "wsgiref"
 
             test_args = ["--from-config", f.name]
 
-            with patch('sys.argv', ['optuna-dashboard'] + test_args):
+            with patch("sys.argv", ["optuna-dashboard"] + test_args):
                 main()
 
             # Verify config file values were used rather than the default values
@@ -175,11 +179,11 @@ server = "wsgiref"
         f.write(config_content)
         f.flush()
 
-        with patch('optuna_dashboard._cli.get_storage') as mock_get_storage, \
-             patch('optuna_dashboard._cli.create_app') as mock_create_app, \
-             patch('optuna_dashboard._cli.run_debug_server') as mock_run_debug_server, \
-             patch('optuna_dashboard._cli.DEBUG', True):
-
+        with patch("optuna_dashboard._cli.get_storage") as mock_get_storage, patch(
+            "optuna_dashboard._cli.create_app"
+        ) as mock_create_app, patch(
+            "optuna_dashboard._cli.run_debug_server"
+        ) as mock_run_debug_server, patch("optuna_dashboard._cli.DEBUG", True):
             mock_storage = MagicMock()
             mock_get_storage.return_value = mock_storage
             mock_app = MagicMock()
@@ -187,12 +191,9 @@ server = "wsgiref"
             mock_run_debug_server.return_value = None
 
             # Only override port, leave host and server from config
-            test_args = [
-                "--from-config", f.name,
-                "--port", "7777"
-            ]
+            test_args = ["--from-config", f.name, "--port", "7777"]
 
-            with patch('sys.argv', ['optuna-dashboard'] + test_args):
+            with patch("sys.argv", ["optuna-dashboard"] + test_args):
                 main()
 
             # Verify mixed values (storage from config, port from CLI, host from default)

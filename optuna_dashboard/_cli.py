@@ -134,10 +134,16 @@ def main() -> None:
         config = load_config_from_toml(args.from_config)
         cli_config = config.get("optuna_dashboard", {})
         args.storage = args.storage if args.storage is not None else cli_config.get("storage")
-        args.storage_class = args.storage_class if args.storage_class is not None else cli_config.get("storage_class")
+        args.storage_class = (
+            args.storage_class
+            if args.storage_class is not None
+            else cli_config.get("storage_class")
+        )
         args.port = args.port if args.port is not None else cli_config.get("port", DEFAULT_PORT)
         args.host = args.host if args.host is not None else cli_config.get("host", DEFAULT_HOST)
-        args.server = args.server if args.server is not None else cli_config.get("server", DEFAULT_SERVER)
+        args.server = (
+            args.server if args.server is not None else cli_config.get("server", DEFAULT_SERVER)
+        )
     else:
         config = {}
 
