@@ -1,5 +1,6 @@
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
+import ClearIcon from "@mui/icons-material/Clear"
 import FilterListIcon from "@mui/icons-material/FilterList"
 import StopCircleIcon from "@mui/icons-material/StopCircle"
 
@@ -8,6 +9,7 @@ import {
   Button,
   FormControl,
   IconButton,
+  InputAdornment,
   InputLabel,
   Menu,
   MenuItem,
@@ -27,6 +29,7 @@ import * as Optuna from "@optuna/types"
 import React, {
   FC,
   ReactNode,
+  useCallback,
   useMemo,
   useState,
   useEffect,
@@ -454,7 +457,16 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const excludedStates = useExcludedStates(query)
   const [_trialFilterQuery, setTrialFilterQuery] = useState<string>("")
   const trialFilterQuery = useDeferredValue(_trialFilterQuery)
-  const [trialFilter, renderIframe] = useTrialFilterQuery({ nRetry: 5 })
+  const [filterInput, setFilterInput] = useState(trialFilterQuery)
+  const handleClearFilter = useCallback(() => {
+    setTrialFilterQuery("")
+    setFilterInput("")
+  }, [])
+  const [trialFilter, renderIframe] = useTrialFilterQuery({
+    nRetry: 5,
+    onDenied: handleClearFilter,
+    onFailed: handleClearFilter,
+  })
   const llmEnabled = useAtomValue(llmIsAvailable)
   const trials = useTrials(
     studyDetail,
@@ -481,7 +493,6 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
     estimateSize: () => 73.31,
     overscan: 10,
   })
-  const [filterInput, setFilterInput] = useState(trialFilterQuery)
 
   const trialListWidth = 200
 
@@ -520,6 +531,22 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
               }}
               value={filterInput}
               onChange={(e) => setFilterInput(e.target.value)}
+              slotProps={{
+                input: {
+                  endAdornment: filterInput && (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="clear filter"
+                        onClick={handleClearFilter}
+                        edge="end"
+                        size="small"
+                      >
+                        <ClearIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
             />
             <Button
               variant="contained"
