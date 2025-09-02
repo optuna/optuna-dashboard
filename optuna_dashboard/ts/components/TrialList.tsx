@@ -106,8 +106,7 @@ const useTrials = (
   studyDetail: StudyDetail | null,
   excludedStates: Optuna.TrialState[],
   trialFilter: (trials: Trial[], query: string) => Promise<Trial[]>,
-  trialFilterQuery: string,
-  onFilterError?: () => void
+  trialFilterQuery: string
 ): Trial[] => {
   const [filteredTrials, setFilteredTrials] = useState<Trial[]>([])
   useEffect(() => {
@@ -126,7 +125,6 @@ const useTrials = (
         })
         .catch((error) => {
           console.error("Failed to filter trials:", error)
-          onFilterError?.()
           setFilteredTrials(result) // Fallback to unfiltered trials on error
         })
     } else {
@@ -459,19 +457,22 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const excludedStates = useExcludedStates(query)
   const [_trialFilterQuery, setTrialFilterQuery] = useState<string>("")
   const trialFilterQuery = useDeferredValue(_trialFilterQuery)
-  const [trialFilter, renderIframe] = useTrialFilterQuery({ nRetry: 5 })
-  const llmEnabled = useAtomValue(llmIsAvailable)
   const [filterInput, setFilterInput] = useState(trialFilterQuery)
   const handleClearFilter = useCallback(() => {
     setTrialFilterQuery("")
     setFilterInput("")
   }, [])
+  const [trialFilter, renderIframe] = useTrialFilterQuery({
+    nRetry: 5,
+    onDenied: handleClearFilter,
+    onFailed: handleClearFilter,
+  })
+  const llmEnabled = useAtomValue(llmIsAvailable)
   const trials = useTrials(
     studyDetail,
     excludedStates,
     trialFilter,
-    trialFilterQuery,
-    handleClearFilter
+    trialFilterQuery
   )
   const isBestTrial = useIsBestTrial(studyDetail)
   const queried = useQueriedTrials(trials, query)
