@@ -25,7 +25,6 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
   studyDetail,
 }) => {
   const { url_prefix } = useConstants()
-  const [trialFilter, render] = useTrialFilterQuery({ nRetry: 5 })
   const [_filterQuery, setFilterQuery] = useState("")
   const filterQuery = useDeferredValue(_filterQuery)
   const [filteredTrials, setFilteredTrials] = useState<Trial[] | undefined>(
@@ -38,6 +37,14 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
     setFilterQuery("")
     setFilteredTrials(undefined)
   }, [])
+  const [trialFilter, render] = useTrialFilterQuery({
+    nRetry: 5,
+    onDenied: handleClearFilter,
+    onFailed: (errorMsg: string): void => {
+      console.error(errorMsg)
+      handleClearFilter()
+    },
+  })
 
   const handleFilter = useCallback(async () => {
     if (!filterQuery.trim()) {
@@ -49,8 +56,9 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
       const result = await trialFilter(studyDetail.trials, filterQuery)
       setFilteredTrials(result)
     } catch (error) {
-      console.error("Filter failed:", error)
-      handleClearFilter()
+      // eslint-disable-next-line no-empty
+      // Error handling is delegated to onDenied/onFailed callbacks to avoid
+      // emmiting error logs when user denied the execution.
     }
   }, [filterQuery, trialFilter, studyDetail.trials])
   const linkURL = (studyId: number, trialNumber: number) => {
