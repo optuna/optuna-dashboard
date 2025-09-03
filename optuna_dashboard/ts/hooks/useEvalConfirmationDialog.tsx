@@ -28,6 +28,10 @@ export const useEvalConfirmationDialog = (
     return sessionStorage.getItem(ALLOW_ALWAYS_KEY) === "true"
   }
 
+  const isFunctionAllowed = (filterFuncStr: string) => {
+    return sessionStorage.getItem(filterFuncStr) === "true"
+  }
+
   const cleanup = () => {
     setOpenDialog(false)
     setPendingFilterStr("")
@@ -38,7 +42,7 @@ export const useEvalConfirmationDialog = (
   const showConfirmationDialog = useCallback(
     (filterFuncStr: string): Promise<boolean> => {
       // Check if user has allowed always
-      if (isAlwaysAllowed()) {
+      if (isAlwaysAllowed() || isFunctionAllowed(filterFuncStr)) {
         return Promise.resolve(true)
       }
 
@@ -60,6 +64,14 @@ export const useEvalConfirmationDialog = (
     }
     cleanup()
   }
+
+const handleAllowThisFunction = (pendingFilterStr: string) => {
+  sessionStorage.setItem(pendingFilterStr, "true")
+  if (confirmResolveRef.current) {
+    confirmResolveRef.current(true)
+  }
+  cleanup()
+}
 
   const handleDenied = () => {
     if (confirmResolveRef.current) {
@@ -160,7 +172,14 @@ export const useEvalConfirmationDialog = (
               variant="outlined"
               sx={{ mr: 1 }}
             >
-              Allow Always
+              Allow Always (Never Ask Again)
+            </Button>
+            <Button
+              onClick={() => handleAllowThisFunction(pendingFilterStr)}
+              variant="outlined"
+              sx={{ mr: 1 }}
+            >
+              Allow This Function
             </Button>
           </Box>
           <Button onClick={handleDenied} color="error" variant="contained">
