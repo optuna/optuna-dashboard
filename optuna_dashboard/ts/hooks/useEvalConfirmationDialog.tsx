@@ -65,13 +65,13 @@ export const useEvalConfirmationDialog = (
     cleanup()
   }
 
-const handleAllowThisFunction = (pendingFilterStr: string) => {
-  sessionStorage.setItem(pendingFilterStr, "true")
-  if (confirmResolveRef.current) {
-    confirmResolveRef.current(true)
+  const handleAllowThisFunction = (pendingFilterStr: string) => {
+    sessionStorage.setItem(pendingFilterStr, "true")
+    if (confirmResolveRef.current) {
+      confirmResolveRef.current(true)
+    }
+    cleanup()
   }
-  cleanup()
-}
 
   const handleDenied = () => {
     if (confirmResolveRef.current) {
