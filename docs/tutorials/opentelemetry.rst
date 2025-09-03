@@ -112,7 +112,7 @@ Setting Up the Environment
 
    Access Grafana at http://localhost:13000 (default login: admin/admin) to create dashboards:
 
-   To view the prometheus metrics on Grafana, please open "Data sources" > "Prometheus" and enter http://prometheus:9090 in the "Prometheus URL" form, then, you can create the Dashboard
+   To view the prometheus metrics on Grafana, please go to "Data sources" > "Prometheus" and enter http://prometheus:9090 in the "Prometheus URL" form, then, you can create the custom dashboard.
    For details how to create a custom Grafana dashboard, please refer to `Grafana dashboards overview - Grafana Cloud documentation <https://grafana.com/docs/grafana-cloud/introduction/dashboards/>`_.
 
    .. figure:: ./images/opentelemetry/grafana.png
