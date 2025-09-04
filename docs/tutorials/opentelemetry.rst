@@ -39,7 +39,7 @@ Prerequisites
 Getting Started
 ---------------
 
-Clone the repository and navigate to the OpenTelemetry example:
+Clone the optuna-examples repository and navigate to the OpenTelemetry example (GitHub: `dashboard/opentelemetry - optuna/optuna-examples <https://github.com/optuna/optuna-examples/tree/main/dashboard/opentelemetry>`__):
 
 .. code-block:: bash
 
