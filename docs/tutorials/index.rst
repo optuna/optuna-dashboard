@@ -6,3 +6,4 @@ Tutorials
 
     hitl
     preferential-optimization
+    opentelemetry
