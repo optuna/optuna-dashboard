@@ -76,7 +76,7 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
               <TextField
                 value={filterQuery}
                 onChange={(e) => setFilterQuery(e.target.value)}
-                placeholder="Enter filter query (e.g., param_name > 0)"
+                placeholder="Enter filter query (e.g., trial number < 10)"
                 fullWidth
                 size="small"
                 slotProps={{
@@ -97,7 +97,7 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
                 }}
               />
               <Button
-                variant="outlined"
+                variant="contained"
                 startIcon={<FilterListIcon />}
                 onClick={handleFilter}
                 sx={{ minWidth: "120px" }}

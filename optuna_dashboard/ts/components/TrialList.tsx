@@ -523,12 +523,9 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
             <TextField
               id="trial-filter-query"
               variant="outlined"
-              placeholder="Enter filter query (e.g., param_name > 0)"
+              placeholder="Enter filter query (e.g., trial number < 10)"
               fullWidth
               size="small"
-              sx={{
-                maxWidth: "400px",
-              }}
               value={filterInput}
               onChange={(e) => setFilterInput(e.target.value)}
               slotProps={{
@@ -550,8 +547,9 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
             />
             <Button
               variant="contained"
-              sx={{ marginLeft: theme.spacing(1) }}
+              startIcon={<FilterListIcon />}
               onClick={() => setTrialFilterQuery(filterInput)}
+              sx={{ marginLeft: theme.spacing(2), minWidth: "120px" }}
             >
               Filter
             </Button>
