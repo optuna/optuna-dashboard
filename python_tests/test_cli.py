@@ -23,12 +23,12 @@ server = "gunicorn"
         ) as mock_create_app, patch(
             "optuna_dashboard._cli.run_debug_server"
         ) as mock_run_debug_server, patch("optuna_dashboard._cli.DEBUG", True):
-            # Setup mocks to prevent actual execution
+            # Setup mocks to prevent actual execution.
             mock_storage = MagicMock()
             mock_get_storage.return_value = mock_storage
             mock_app = MagicMock()
             mock_create_app.return_value = mock_app
-            mock_run_debug_server.return_value = None  # Prevent server startup
+            mock_run_debug_server.return_value = None  # Prevent server startup.
 
             test_args = [
                 "--from-config",
@@ -45,10 +45,10 @@ server = "gunicorn"
             with patch("sys.argv", ["optuna-dashboard"] + test_args):
                 main()
 
-            # Verify CLI args took precedence
+            # Verify CLI args took precedence.
             mock_get_storage.assert_called_once_with("sqlite:///cli.db", storage_class=None)
 
-            # Verify run_debug_server was called with CLI values
+            # Verify run_debug_server was called with CLI values.
             mock_run_debug_server.assert_called_once_with(mock_app, "127.0.0.1", 8888, False)
 
 
@@ -81,7 +81,7 @@ server = "wsgiref"
             with patch("sys.argv", ["optuna-dashboard"] + test_args):
                 main()
 
-            # Verify config file values were used rather than the default values
+            # Verify config file values were used rather than the default values.
             mock_get_storage.assert_called_once_with("sqlite:///config.db", storage_class=None)
             mock_run_debug_server.assert_called_once_with(mock_app, "0.0.0.0", 9000, False)
 
@@ -109,12 +109,12 @@ server = "wsgiref"
             mock_create_app.return_value = mock_app
             mock_run_debug_server.return_value = None
 
-            # Only override port, leave host and server from config
+            # Only override port, leave host and server from config.
             test_args = ["--from-config", f.name, "--port", "7777"]
 
             with patch("sys.argv", ["optuna-dashboard"] + test_args):
                 main()
 
-            # Verify mixed values (storage from config, port from CLI, host from default)
+            # Verify mixed values (storage from config, port from CLI, host from default).
             mock_get_storage.assert_called_once_with("sqlite:///config.db", storage_class=None)
             mock_run_debug_server.assert_called_once_with(mock_app, "127.0.0.1", 7777, False)
