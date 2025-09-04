@@ -8,7 +8,7 @@ This tutorial shows how to integrate Optuna Dashboard with OpenTelemetry to coll
 Overview
 --------
 
-`OpenTelemetry <https://opentelemetry.io/>`_ is an observability framework that enables easy instrumentation of our applications and systems.
+`OpenTelemetry <https://opentelemetry.io/>`__ is an observability framework that enables easy instrumentation of our applications and systems.
 By integrating Optuna Dashboard with OpenTelemetry, you can:
 
 * Monitor HTTP request metrics (latency, error rates, throughput)
@@ -113,7 +113,7 @@ Setting Up the Environment
    Access Grafana at http://localhost:13000 (default login: admin/admin) to create dashboards:
 
    To view the prometheus metrics on Grafana, please go to "Data sources" > "Prometheus" and enter http://prometheus:9090 in the "Prometheus URL" form, then, you can create the custom dashboard.
-   For details how to create a custom Grafana dashboard, please refer to `Grafana dashboards overview - Grafana Cloud documentation <https://grafana.com/docs/grafana-cloud/introduction/dashboards/>`_.
+   For details how to create a custom Grafana dashboard, please refer to `Grafana dashboards overview - Grafana Cloud documentation <https://grafana.com/docs/grafana-cloud/introduction/dashboards/>`__.
 
    .. figure:: ./images/opentelemetry/grafana.png
       :alt: Grafana Dashboard
@@ -168,7 +168,7 @@ This automatically captures database operation metrics including:
 * Connection pool metrics
 * Database transaction counts
 
-Please refer to the `OpenTelemetry SQLALchemy Instrumentation - OpenTelemetry Python Contrib <https://opentelemetry-python-contrib.readthedocs.io/en/latest/instrumentation/sqlalchemy/sqlalchemy.html>`_ for details.
+Please refer to the `OpenTelemetry SQLALchemy Instrumentation - OpenTelemetry Python Contrib <https://opentelemetry-python-contrib.readthedocs.io/en/latest/instrumentation/sqlalchemy/sqlalchemy.html>`__ for details.
 
 **3. Instrument WSGI for HTTP Metrics**
 
@@ -185,7 +185,7 @@ This captures HTTP metrics such as:
 * Request count by status code
 * Active request count
 
-Please refer to the `WSGI Instrumentation - OpenTelemetry Python Contrib <https://opentelemetry-python-contrib.readthedocs.io/en/latest/instrumentation/wsgi/wsgi.html>`_ for details.
+Please refer to the `WSGI Instrumentation - OpenTelemetry Python Contrib <https://opentelemetry-python-contrib.readthedocs.io/en/latest/instrumentation/wsgi/wsgi.html>`__ for details.
 
 Alternative: Direct Prometheus Export
 -------------------------------------
