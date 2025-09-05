@@ -123,8 +123,7 @@ const useTrials = (
         .then((filtered) => {
           setFilteredTrials(filtered)
         })
-        .catch((error) => {
-          console.error("Failed to filter trials:", error)
+        .catch(() => {
           setFilteredTrials(result) // Fallback to unfiltered trials on error
         })
     } else {
@@ -474,7 +473,10 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
     useTrialFilterQuery({
       nRetry: 5,
       onDenied: handleClearFilter,
-      onFailed: handleClearFilter,
+      onFailed: (errorMsg: string) => {
+        console.error("Failed to filter trials:", errorMsg)
+        handleClearFilter()
+      },
     })
   const llmEnabled = useAtomValue(llmIsAvailable)
   const trials = useTrials(
