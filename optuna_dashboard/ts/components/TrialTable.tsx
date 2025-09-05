@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   CardContent,
+  CircularProgress,
   IconButton,
   InputAdornment,
   Stack,
@@ -37,7 +38,7 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
     setFilterQuery("")
     setFilteredTrials(undefined)
   }, [])
-  const [trialFilter, render] = useTrialFilterQuery({
+  const [trialFilter, render, isTrialFilterProcessing] = useTrialFilterQuery({
     nRetry: 5,
     onDenied: handleClearFilter,
     onFailed: (errorMsg: string): void => {
@@ -47,6 +48,10 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
   })
 
   const handleFilter = useCallback(async () => {
+    if (isTrialFilterProcessing) {
+      return
+    }
+
     if (!filterQuery.trim()) {
       setFilteredTrials(undefined)
       return
@@ -79,6 +84,7 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
                 placeholder="Enter filter query (e.g., trial number < 10)"
                 fullWidth
                 size="small"
+                disabled={isTrialFilterProcessing}
                 slotProps={{
                   input: {
                     endAdornment: filterQuery && (
@@ -88,6 +94,7 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
                           onClick={handleClearFilter}
                           edge="end"
                           size="small"
+                          disabled={isTrialFilterProcessing}
                         >
                           <ClearIcon />
                         </IconButton>
@@ -98,8 +105,15 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
               />
               <Button
                 variant="contained"
-                startIcon={<FilterListIcon />}
+                startIcon={
+                  isTrialFilterProcessing ? (
+                    <CircularProgress size={16} />
+                  ) : (
+                    <FilterListIcon />
+                  )
+                }
                 onClick={handleFilter}
+                disabled={isTrialFilterProcessing}
                 sx={{ minWidth: "120px" }}
               >
                 Filter
