@@ -28,7 +28,7 @@ export const useEvalConfirmationDialog = (
 
   const isFunctionAllowed = (filterFuncStr: string) => {
     if (sessionStorage.getItem(ALLOW_ALWAYS_KEY) === "true") {
-        return true
+      return true
     }
     return sessionStorage.getItem(ALLOW_THIS_FUNC_PREFIX + filterFuncStr) === "true"
   }
