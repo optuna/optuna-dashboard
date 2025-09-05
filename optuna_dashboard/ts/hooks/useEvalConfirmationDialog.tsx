@@ -24,13 +24,13 @@ export const useEvalConfirmationDialog = (
   const [expanded, setExpanded] = useState(false)
 
   const ALLOW_ALWAYS_KEY = "optuna-dashboard-llm-eval-allow-always"
-
-  const isAlwaysAllowed = () => {
-    return sessionStorage.getItem(ALLOW_ALWAYS_KEY) === "true"
-  }
+  const ALLOW_THIS_FUNC_PREFIX = "optuna-dashboard-llm-eval-allow-func:"
 
   const isFunctionAllowed = (filterFuncStr: string) => {
-    return sessionStorage.getItem(filterFuncStr) === "true"
+      if (sessionStorage.getItem(ALLOW_ALWAYS_KEY) === "true") {
+          return true
+      }
+      return sessionStorage.getItem(ALLOW_THIS_FUNC_PREFIX + filterFuncStr) === "true"
   }
 
   const cleanup = () => {
@@ -43,7 +43,7 @@ export const useEvalConfirmationDialog = (
   const showConfirmationDialog = useCallback(
     (filterFuncStr: string): Promise<boolean> => {
       // Check if user has allowed always
-      if (isAlwaysAllowed() || isFunctionAllowed(filterFuncStr)) {
+      if (isFunctionAllowed(filterFuncStr)) {
         return Promise.resolve(true)
       }
 
@@ -67,7 +67,7 @@ export const useEvalConfirmationDialog = (
   }
 
   const handleAllowThisFunction = (pendingFilterStr: string) => {
-    sessionStorage.setItem(pendingFilterStr, "true")
+    sessionStorage.setItem(ALLOW_THIS_FUNC_PREFIX + pendingFilterStr, "true")
     if (confirmResolveRef.current) {
       confirmResolveRef.current(true)
     }
