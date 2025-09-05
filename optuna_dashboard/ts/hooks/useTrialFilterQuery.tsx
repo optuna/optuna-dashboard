@@ -36,6 +36,9 @@ export const useTrialFilterQuery = ({
     async (trials: Trial[], userQuery: string): Promise<Trial[]> => {
       // Check if this query has already failed nRetry times
       if (failedCache.has(userQuery)) {
+        enqueueSnackbar("Warning: This query has already failed multiple times, please change your query.", {
+          variant: "warning",
+        })
         return trials // Return unfiltered trials
       }
 
