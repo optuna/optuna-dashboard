@@ -27,10 +27,10 @@ export const useEvalConfirmationDialog = (
   const ALLOW_THIS_FUNC_PREFIX = "optuna-dashboard-llm-eval-allow-func:"
 
   const isFunctionAllowed = (filterFuncStr: string) => {
-      if (sessionStorage.getItem(ALLOW_ALWAYS_KEY) === "true") {
-          return true
-      }
-      return sessionStorage.getItem(ALLOW_THIS_FUNC_PREFIX + filterFuncStr) === "true"
+    if (sessionStorage.getItem(ALLOW_ALWAYS_KEY) === "true") {
+        return true
+    }
+    return sessionStorage.getItem(ALLOW_THIS_FUNC_PREFIX + filterFuncStr) === "true"
   }
 
   const cleanup = () => {
