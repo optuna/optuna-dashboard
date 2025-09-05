@@ -7,6 +7,7 @@ import StopCircleIcon from "@mui/icons-material/StopCircle"
 import {
   Box,
   Button,
+  CircularProgress,
   FormControl,
   IconButton,
   InputAdornment,
@@ -106,7 +107,8 @@ const useTrials = (
   studyDetail: StudyDetail | null,
   excludedStates: Optuna.TrialState[],
   trialFilter: (trials: Trial[], query: string) => Promise<Trial[]>,
-  trialFilterQuery: string
+  trialFilterQuery: string,
+  isTrialFilterProcessing: boolean
 ): Trial[] => {
   const [filteredTrials, setFilteredTrials] = useState<Trial[]>([])
   useEffect(() => {
@@ -116,11 +118,9 @@ const useTrials = (
         result = result.filter((t) => t.state !== s)
       })
     }
-    console.log(trialFilterQuery)
-    if (trialFilterQuery !== "") {
+    if (trialFilterQuery !== "" && !isTrialFilterProcessing) {
       trialFilter(result, trialFilterQuery)
         .then((filtered) => {
-          console.log("Filtered trials:", filtered)
           setFilteredTrials(filtered)
         })
         .catch((error) => {
@@ -130,7 +130,15 @@ const useTrials = (
     } else {
       setFilteredTrials(result)
     }
-  }, [studyDetail, excludedStates, trialFilter, trialFilterQuery])
+  }, [
+    studyDetail,
+    excludedStates,
+    trialFilter,
+    trialFilterQuery,
+    // Note: isTrialFilterProcessing is intentionally excluded from dependencies
+    // to prevent infinite re-rendering loops. The processing state is only used
+    // as a condition check and doesn't need to trigger re-execution of the effect.
+  ])
   return filteredTrials
 }
 
@@ -462,17 +470,19 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
     setTrialFilterQuery("")
     setFilterInput("")
   }, [])
-  const [trialFilter, renderIframe] = useTrialFilterQuery({
-    nRetry: 5,
-    onDenied: handleClearFilter,
-    onFailed: handleClearFilter,
-  })
+  const [trialFilter, renderIframe, isTrialFilterProcessing] =
+    useTrialFilterQuery({
+      nRetry: 5,
+      onDenied: handleClearFilter,
+      onFailed: handleClearFilter,
+    })
   const llmEnabled = useAtomValue(llmIsAvailable)
   const trials = useTrials(
     studyDetail,
     excludedStates,
     trialFilter,
-    trialFilterQuery
+    trialFilterQuery,
+    isTrialFilterProcessing
   )
   const isBestTrial = useIsBestTrial(studyDetail)
   const queried = useQueriedTrials(trials, query)
@@ -537,6 +547,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                         onClick={handleClearFilter}
                         edge="end"
                         size="small"
+                        disabled={isTrialFilterProcessing}
                       >
                         <ClearIcon />
                       </IconButton>
@@ -547,7 +558,14 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
             />
             <Button
               variant="contained"
-              startIcon={<FilterListIcon />}
+              startIcon={
+                isTrialFilterProcessing ? (
+                  <CircularProgress size={16} />
+                ) : (
+                  <FilterListIcon />
+                )
+              }
+              disabled={isTrialFilterProcessing}
               onClick={() => setTrialFilterQuery(filterInput)}
               sx={{ marginLeft: theme.spacing(2), minWidth: "120px" }}
             >
