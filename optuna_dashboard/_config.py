@@ -54,9 +54,7 @@ class DashboardConfig:
 
     @classmethod
     def build_from_sources(
-        cls,
-        args: argparse.Namespace,
-        toml_config: dict[str, Any] | None = None
+        cls, args: argparse.Namespace, toml_config: dict[str, Any] | None = None
     ) -> "DashboardConfig":
         """Build configuration from multiple sources with proper precedence."""
 
@@ -66,11 +64,21 @@ class DashboardConfig:
 
         config = cls(
             storage=cls._resolve_value("storage", args, toml_dashboard, defaults.storage),
-            storage_class=cls._resolve_value("storage_class", args, toml_dashboard, defaults.storage_class),
+            storage_class=cls._resolve_value(
+                "storage_class",
+                args,
+                toml_dashboard,
+                defaults.storage_class,
+            ),
             port=cls._resolve_value("port", args, toml_dashboard, defaults.port),
             host=cls._resolve_value("host", args, toml_dashboard, defaults.host),
             server=cls._resolve_value("server", args, toml_dashboard, defaults.server),
-            artifact_dir=cls._resolve_value("artifact_dir", args, toml_dashboard, defaults.artifact_dir),
+            artifact_dir=cls._resolve_value(
+                "artifact_dir",
+                args,
+                toml_dashboard,
+                defaults.artifact_dir,
+            ),
             quiet=cls._resolve_value("quiet", args, toml_dashboard, defaults.quiet),
         )
         if config.storage is None:
@@ -80,10 +88,7 @@ class DashboardConfig:
 
     @staticmethod
     def _resolve_value(
-        field_name: str,
-        args: argparse.Namespace,
-        toml_section: dict[str, Any],
-        default: Any
+        field_name: str, args: argparse.Namespace, toml_section: dict[str, Any], default: Any
     ) -> Any:
         """Resolve configuration value using precedence: CLI > TOML > default."""
 
@@ -99,7 +104,6 @@ class DashboardConfig:
 
         # Default value last.
         return default
-
 
 
 def create_llm_provider_from_config(config: dict[str, Any]) -> LLMProvider | None:
