@@ -17,6 +17,7 @@ from . import __version__
 from ._app import create_app
 from ._config import create_artifact_store_from_config
 from ._config import create_llm_provider_from_config
+from ._config import DashboardConfig
 from ._config import load_config_from_toml
 from ._sql_profiler import register_profiler_view
 from ._storage_url import get_storage
@@ -87,6 +88,9 @@ def auto_select_server(
 
 
 def main() -> None:
+    # Get default values for help messages.
+    default_config = DashboardConfig()
+
     parser = argparse.ArgumentParser(description="Real-time dashboard for Optuna.")
     parser.add_argument(
         "storage",
@@ -102,13 +106,13 @@ def main() -> None:
         default=None,
     )
     parser.add_argument(
-        "--port", help="port number (default: %(default)s)", type=int, default=8080
+        "--port", help=f"port number (default: {default_config.port})", type=int
     )
-    parser.add_argument("--host", help="hostname (default: %(default)s)", default="127.0.0.1")
+    parser.add_argument("--host", help=f"hostname (default: {default_config.host})")
     parser.add_argument(
         "--server",
-        help="server (default: %(default)s)",
-        default="auto",
+        help=f"server (default: {default_config.server})",
+        default=None,
         choices=SERVER_CHOICES,
     )
     parser.add_argument(
@@ -126,34 +130,24 @@ def main() -> None:
     parser.add_argument("--quiet", "-q", help="quiet", action="store_true")
     args = parser.parse_args()
 
+    # Load and merge configuration
+    toml_config = None
     if args.from_config:
-        config = load_config_from_toml(args.from_config)
-        cli_config = config.get("optuna_dashboard", {})
-        args.storage = cli_config.get("storage", args.storage)
-        args.storage_class = cli_config.get("storage_class", args.storage_class)
-        args.port = cli_config.get("port", args.port)
-        args.host = cli_config.get("host", args.host)
-        args.server = cli_config.get("server", args.server)
-    else:
-        config = {}
+        toml_config = load_config_from_toml(args.from_config)
 
-    if args.storage is None:
-        raise ValueError(
-            "Storage URL must be specified as the first argument or via --from-config."
-        )
+    config = DashboardConfig.build_from_sources(args, toml_config)
 
-    storage: BaseStorage
-    storage = get_storage(args.storage, storage_class=args.storage_class)
+    storage: BaseStorage = get_storage(config.storage, storage_class=config.storage_class)
 
     artifact_store: ArtifactStore | None
-    if args.artifact_dir is None:
-        artifact_store = create_artifact_store_from_config(config)
+    if config.artifact_dir is None:
+        artifact_store = create_artifact_store_from_config(toml_config or {})
     else:
         from optuna.artifacts import FileSystemArtifactStore
 
-        artifact_store = FileSystemArtifactStore(args.artifact_dir)
+        artifact_store = FileSystemArtifactStore(config.artifact_dir)
 
-    llm_provider = create_llm_provider_from_config(config)
+    llm_provider = create_llm_provider_from_config(toml_config or {})
     app = create_app(
         storage,
         artifact_store=artifact_store,
@@ -164,13 +158,13 @@ def main() -> None:
     if DEBUG and isinstance(storage, RDBStorage):
         app = register_profiler_view(app, storage)
 
-    server = auto_select_server(args.server)
+    server = auto_select_server(config.server)
     if DEBUG:
-        run_debug_server(app, args.host, args.port, args.quiet)
+        run_debug_server(app, config.host, config.port, config.quiet)
     elif server == "wsgiref":
-        run_wsgiref(app, args.host, args.port, args.quiet)
+        run_wsgiref(app, config.host, config.port, config.quiet)
     elif server == "gunicorn":
-        run_gunicorn(app, args.host, args.port, args.quiet)
+        run_gunicorn(app, config.host, config.port, config.quiet)
     else:
         raise Exception("must not reach here")
 
