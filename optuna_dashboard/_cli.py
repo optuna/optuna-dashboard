@@ -137,6 +137,8 @@ def main() -> None:
 
     config = DashboardConfig.build_from_sources(args, toml_config)
 
+    if config.storage is None:
+        raise ValueError("Storage URL is required but not provided.")
     storage: BaseStorage = get_storage(config.storage, storage_class=config.storage_class)
 
     artifact_store: ArtifactStore | None

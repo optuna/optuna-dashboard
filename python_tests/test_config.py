@@ -103,13 +103,13 @@ def test_build_from_sources_cli_priority() -> None:
         server=None,
         quiet=None,
         storage_class=None,
-        artifact_dir=None
+        artifact_dir=None,
     )
     toml_config = {
         "optuna_dashboard": {
             "storage": "mysql://localhost/optuna",
             "port": 8888,
-            "host": "toml-host"
+            "host": "toml-host",
         }
     }
 
@@ -122,14 +122,19 @@ def test_build_from_sources_cli_priority() -> None:
 
 def test_build_from_sources_toml_fallback() -> None:
     args = argparse.Namespace(
-        storage=None, port=None, host=None, server=None,
-        quiet=None, storage_class=None, artifact_dir=None
+        storage=None,
+        port=None,
+        host=None,
+        server=None,
+        quiet=None,
+        storage_class=None,
+        artifact_dir=None,
     )
     toml_config = {
         "optuna_dashboard": {
             "storage": "mysql://localhost/optuna",
             "port": 8888,
-            "server": "gunicorn"
+            "server": "gunicorn",
         }
     }
 
@@ -140,10 +145,15 @@ def test_build_from_sources_toml_fallback() -> None:
     assert config.host == "127.0.0.1"  # default value is used.
 
 
-def test_build_from_sources_defaults():
+def test_build_from_sources_defaults() -> None:
     args = argparse.Namespace(
-        storage="sqlite:///tmp.db", port=None, host=None, server=None,
-        quiet=None, storage_class=None, artifact_dir=None
+        storage="sqlite:///tmp.db",
+        port=None,
+        host=None,
+        server=None,
+        quiet=None,
+        storage_class=None,
+        artifact_dir=None,
     )
 
     config = DashboardConfig.build_from_sources(args, None)
@@ -151,13 +161,3 @@ def test_build_from_sources_defaults():
     assert config.port == 8080
     assert config.host == "127.0.0.1"
     assert config.server == "auto"
-
-
-def test_build_from_sources_empty():
-    args = argparse.Namespace(
-        storage=None, port=None, host=None, server=None,
-        quiet=None, storage_class=None, artifact_dir=None
-    )
-
-    with pytest.raises(ValueError):
-        DashboardConfig.build_from_sources(args, None)

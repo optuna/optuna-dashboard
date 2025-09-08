@@ -81,8 +81,6 @@ class DashboardConfig:
             ),
             quiet=cls._resolve_value("quiet", args, toml_dashboard, defaults.quiet),
         )
-        if config.storage is None:
-            raise ValueError("Storage URL is required but not provided.")
 
         return config
 
