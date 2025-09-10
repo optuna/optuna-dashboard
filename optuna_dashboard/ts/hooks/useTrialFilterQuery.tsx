@@ -40,6 +40,12 @@ export const useTrialFilterQuery = ({
       try {
         // Check if this query has already failed nRetry times
         if (failedCache.has(userQuery)) {
+          enqueueSnackbar(
+            "Error: This query has already failed multiple times, please change your query.",
+            {
+              variant: "error",
+            }
+          )
           return trials // Return unfiltered trials
         }
 
