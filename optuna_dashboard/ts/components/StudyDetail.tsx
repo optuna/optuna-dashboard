@@ -66,7 +66,6 @@ export const StudyDetail: FC<{
 
   useEffect(() => {
     action.updateStudyDetail(studyId)
-    action.updateAPIMeta()
   }, [])
 
   useEffect(() => {

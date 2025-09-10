@@ -11,15 +11,14 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import { useAtomValue } from "jotai"
 import React from "react"
-import { PlotlyColorThemeDark, PlotlyColorThemeLight } from "ts/types/optuna"
+import { usePlotlyPyIsAvailable } from "../hooks/useAPIMeta"
 import {
-  plotlypyIsAvailableState,
   usePlotBackendRendering,
   usePlotlyColorThemeState,
   useShowExperimentalFeature,
 } from "../state"
+import { PlotlyColorThemeDark, PlotlyColorThemeLight } from "../types/optuna"
 
 interface SettingsProps {
   handleClose: () => void
@@ -30,7 +29,7 @@ export const Settings = ({ handleClose }: SettingsProps) => {
   const [plotlyColorTheme, setPlotlyColorTheme] = usePlotlyColorThemeState()
   const [plotBackendRendering, setPlotBackendRendering] =
     usePlotBackendRendering()
-  const plotlypyIsAvailable = useAtomValue(plotlypyIsAvailableState)
+  const plotlypyIsAvailable = usePlotlyPyIsAvailable()
   const [showExperimentalFeature, setShowExperimentalFeature] =
     useShowExperimentalFeature()
 

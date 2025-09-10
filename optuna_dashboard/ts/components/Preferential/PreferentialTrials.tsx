@@ -36,7 +36,7 @@ import {
   Trial,
 } from "ts/types/optuna"
 import { actionCreator } from "../../action"
-import { useArtifactBaseUrlPath } from "../../hooks/useArtifactBaseUrlPath"
+import { useArtifactBaseUrlPath } from "../../hooks/useAPIMeta"
 import { getTrialArtifactUrlPath } from "../Artifact/ArtifactCards"
 import {
   isThreejsArtifact,

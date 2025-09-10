@@ -53,7 +53,8 @@ import remarkMath from "remark-math"
 import { useAtomValue } from "jotai"
 import { Note } from "ts/types/optuna"
 import { actionCreator } from "../action"
-import { artifactIsAvailable, isFileUploading, useArtifacts } from "../state"
+import { useArtifactIsAvailable } from "../hooks/useAPIMeta"
+import { isFileUploading, useArtifacts } from "../state"
 
 const placeholder = `## What is this feature for?
 
@@ -200,7 +201,7 @@ const MarkdownEditorModal: FC<{
   const [curNote, setCurNote] = useState({ version: 0, body: "" })
   const textAreaRef = createRef<HTMLTextAreaElement>()
   const notLatest = latestNote.version > curNote.version
-  const artifactEnabled = useAtomValue(artifactIsAvailable)
+  const artifactEnabled = useArtifactIsAvailable()
 
   const [previewMarkdown, setPreviewMarkdown] = useState<string>("")
   const [preview, setPreview] = useState<boolean>(false)

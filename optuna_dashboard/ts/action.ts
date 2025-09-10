@@ -4,10 +4,7 @@ import { useSnackbar } from "notistack"
 import { useAPIClient } from "./apiClientProvider"
 import { getDominatedTrials } from "./dominatedTrials"
 import {
-  artifactIsAvailable,
   isFileUploading,
-  llmIsAvailable,
-  plotlypyIsAvailableState,
   reloadIntervalState,
   studyDetailLoadingState,
   studyDetailsState,
@@ -33,9 +30,6 @@ export const actionCreator = () => {
   const setReloadInterval = useSetAtom(reloadIntervalState)
   const setUploading = useSetAtom(isFileUploading)
   const setTrialsUpdating = useSetAtom(trialsUpdatingState)
-  const setArtifactIsAvailable = useSetAtom(artifactIsAvailable)
-  const setLLMIsAvailable = useSetAtom(llmIsAvailable)
-  const setPlotlypyIsAvailable = useSetAtom(plotlypyIsAvailableState)
   const setStudySummariesLoading = useSetAtom(studySummariesLoadingState)
   const [studyDetailLoading, setStudyDetailLoading] = useAtom(
     studyDetailLoadingState
@@ -191,14 +185,6 @@ export const actionCreator = () => {
     const newStudy: StudyDetail = Object.assign({}, studyDetails[studyId])
     newStudy.trials = newTrials
     setStudyDetailState(studyId, newStudy)
-  }
-
-  const updateAPIMeta = () => {
-    apiClient.getMetaInfo().then((r) => {
-      setArtifactIsAvailable(r.artifact_is_available)
-      setLLMIsAvailable(r.llm_is_available)
-      setPlotlypyIsAvailable(r.plotlypy_is_available)
-    })
   }
 
   const updateStudySummaries = (successMsg?: string) => {
@@ -699,7 +685,6 @@ export const actionCreator = () => {
   }
 
   return {
-    updateAPIMeta,
     updateStudyDetail,
     updateStudySummaries,
     createNewStudy,

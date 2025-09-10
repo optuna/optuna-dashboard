@@ -24,7 +24,7 @@ import ReactFlow, {
 import "reactflow/dist/style.css"
 
 import { StudyDetail, Trial } from "ts/types/optuna"
-import { useArtifactBaseUrlPath } from "../../hooks/useArtifactBaseUrlPath"
+import { useArtifactBaseUrlPath } from "../../hooks/useAPIMeta"
 import { useStudyDetailValue } from "../../state"
 import { getTrialArtifactUrlPath } from "../Artifact/ArtifactCards"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
