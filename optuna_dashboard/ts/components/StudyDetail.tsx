@@ -239,7 +239,6 @@ export const StudyDetail: FC<{
     <Box component="div" sx={{ display: "flex" }}>
       <AppDrawer
         studyId={studyId}
-        page={page}
         toggleColorMode={toggleColorMode}
         toolbar={toolbar}
       >
