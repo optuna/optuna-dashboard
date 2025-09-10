@@ -79,7 +79,6 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
           {llmEnabled && (
             <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
               <TextField
-                value={filterQuery}
                 onChange={(e) => setFilterQuery(e.target.value)}
                 placeholder="Enter filter query (e.g., trial number < 10)"
                 fullWidth
