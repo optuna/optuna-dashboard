@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import argparse
+from dataclasses import dataclass
+from dataclasses import fields
 import sys
 from typing import Any
 from typing import TYPE_CHECKING
+from typing import Literal
 
 if TYPE_CHECKING:
     from optuna.artifacts._protocol import ArtifactStore
@@ -35,6 +39,55 @@ def load_config_from_toml(config_path: str) -> dict[str, Any]:
         raise ValueError(f"Failed to read configuration file '{config_path}': {e}")
 
     return config
+
+
+@dataclass
+class DashboardConfig:
+    """Configuration for Optuna Dashboard with priority handling."""
+
+    storage: str | None = None
+    storage_class: str | None = None
+    port: int = 8080
+    host: str = "127.0.0.1"
+    server: Literal["auto", "wsgiref", "gunicorn"] = "auto"
+    artifact_dir: str | None = None
+    quiet: bool = False
+
+    @classmethod
+    def build_from_sources(
+        cls, args: argparse.Namespace, toml_config: dict[str, Any] | None = None
+    ) -> "DashboardConfig":
+        """Build configuration from multiple sources with proper precedence."""
+
+        toml_dashboard = toml_config.get("optuna_dashboard", {}) if toml_config else {}
+
+        config = cls(
+            **{
+                field.name: cls._resolve_value(field.name, args, toml_dashboard, field.default)
+                for field in fields(cls)
+            }
+        )
+
+        return config
+
+    @staticmethod
+    def _resolve_value(
+        field_name: str, args: argparse.Namespace, toml_section: dict[str, Any], default: Any
+    ) -> Any:
+        """Resolve configuration value using precedence: CLI > TOML > default."""
+
+        # CLI argument takes priority.
+        cli_val = getattr(args, field_name, None)
+        if cli_val is not None:
+            return cli_val
+
+        # TOML configuration second.
+        toml_val = toml_section.get(field_name)
+        if toml_val is not None:
+            return toml_val
+
+        # Default value last.
+        return default
 
 
 def create_llm_provider_from_config(config: dict[str, Any]) -> LLMProvider | None:
