@@ -132,47 +132,48 @@ const Drawer = styled(MuiDrawer, {
   }),
 }))
 
+const getSxProps = (open: boolean) => {
+  return {
+    styleListItem: {
+      display: "block",
+    },
+    styleListItemButton: {
+      minHeight: 48,
+      justifyContent: open ? "initial" : "center",
+      px: 2.5,
+    },
+    styleListItemIcon: {
+      minWidth: 0,
+      mr: open ? 3 : "auto",
+      justifyContent: "center",
+    },
+    styleListItemText: {
+      opacity: open ? 1 : 0,
+    },
+    styleSwitch: {
+      display: open ? "inherit" : "none",
+    },
+  }
+}
+
 export const AppDrawer: FC<{
   studyId?: number
   toggleColorMode: () => void
   toolbar: React.ReactNode
   children?: React.ReactNode
 }> = ({ studyId, toggleColorMode, toolbar, children }) => {
-  const { color_mode, url_prefix } = useConstants()
+  const { color_mode, environment } = useConstants()
 
   const theme = useTheme()
-  const constants = useConstants()
   const action = actionCreator()
   const [open, setOpen] = useAtom(drawerOpenState)
-  const { pathname } = useLocation()
   const reloadInterval = useAtomValue(reloadIntervalState)
-  const isPreferential =
-    studyId !== undefined ? useStudyIsPreferential(studyId) : null
-  const [showExperimentalFeatures] = useShowExperimentalFeature()
+  const sxProp = getSxProps(open)
 
-  const styleListItem = {
-    display: "block",
-  }
-  const styleListItemButton = {
-    minHeight: 48,
-    justifyContent: open ? "initial" : "center",
-    px: 2.5,
-  }
-  const styleListItemIcon = {
-    minWidth: 0,
-    mr: open ? 3 : "auto",
-    justifyContent: "center",
-  }
-  const styleListItemText = {
-    opacity: open ? 1 : 0,
-  }
-  const styleSwitch = {
-    display: open ? "inherit" : "none",
-  }
   const mainSx: SxProps = {
     flexGrow: 1,
   }
-  if (constants.environment === "jupyterlab") {
+  if (environment === "jupyterlab") {
     // 100vh - (the height of Optuna Dashboard toolbar) - (the height of JupyterLab toolbar)
     mainSx.height = `calc(100vh - ${theme.mixins.toolbar.minHeight}px - 29px)`
     mainSx.overflow = "auto"
@@ -226,201 +227,8 @@ export const AppDrawer: FC<{
           </IconButton>
         </DrawerHeader>
         <Divider />
-        {pathname.startsWith(`${url_prefix}/studies/`) && (
-          <List>
-            <ListItem
-              key="History"
-              disablePadding
-              sx={styleListItem}
-              title={isPreferential ? "Feedback Preference" : "History"}
-            >
-              <ListItemButton
-                component={Link}
-                to={`${url_prefix}/studies/${studyId}`}
-                sx={styleListItemButton}
-                selected={
-                  matchPath(`${url_prefix}/studies/:studyId`, pathname) !== null
-                }
-              >
-                <ListItemIcon sx={styleListItemIcon}>
-                  {isPreferential ? <ThumbUpAltIcon /> : <AutoGraphIcon />}
-                </ListItemIcon>
-                <ListItemText
-                  primary={isPreferential ? "Feedback Preference" : "History"}
-                  sx={styleListItemText}
-                />
-              </ListItemButton>
-            </ListItem>
-            {isPreferential && (
-              <ListItem
-                key="PreferenceHistory"
-                disablePadding
-                sx={styleListItem}
-                title="Preference (History)"
-              >
-                <ListItemButton
-                  component={Link}
-                  to={`${url_prefix}/studies/${studyId}/preference-history`}
-                  sx={styleListItemButton}
-                  selected={
-                    matchPath(
-                      `${url_prefix}/studies/:studyId/preference-history`,
-                      pathname
-                    ) !== null
-                  }
-                >
-                  <ListItemIcon sx={styleListItemIcon}>
-                    <HistoryIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Preferences (History)"
-                    sx={styleListItemText}
-                  />
-                </ListItemButton>
-              </ListItem>
-            )}
-            <ListItem
-              key="Analytics"
-              disablePadding
-              sx={styleListItem}
-              title="Analytics"
-            >
-              <ListItemButton
-                component={Link}
-                to={`${url_prefix}/studies/${studyId}/analytics`}
-                sx={styleListItemButton}
-                selected={
-                  matchPath(
-                    `${url_prefix}/studies/:studyId/analytics`,
-                    pathname
-                  ) !== null
-                }
-              >
-                <ListItemIcon sx={styleListItemIcon}>
-                  <QueryStatsIcon />
-                </ListItemIcon>
-                <ListItemText primary="Analytics" sx={styleListItemText} />
-              </ListItemButton>
-            </ListItem>
-            {isPreferential && (
-              <ListItem
-                key="PreferenceGraph"
-                disablePadding
-                sx={styleListItem}
-                title="Preference (Graph)"
-              >
-                <ListItemButton
-                  component={Link}
-                  to={`${url_prefix}/studies/${studyId}/graph`}
-                  sx={styleListItemButton}
-                  selected={
-                    matchPath(
-                      `${url_prefix}/studies/:studyId/graph`,
-                      pathname
-                    ) !== null
-                  }
-                >
-                  <ListItemIcon sx={styleListItemIcon}>
-                    <LanIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Preferences (Graph)"
-                    sx={styleListItemText}
-                  />
-                </ListItemButton>
-              </ListItem>
-            )}
-            <ListItem
-              key="TableList"
-              disablePadding
-              sx={styleListItem}
-              title="Trials (List)"
-            >
-              <ListItemButton
-                component={Link}
-                to={`${url_prefix}/studies/${studyId}/trials`}
-                sx={styleListItemButton}
-                selected={
-                  matchPath(
-                    `${url_prefix}/studies/:studyId/trials`,
-                    pathname
-                  ) !== null
-                }
-              >
-                <ListItemIcon sx={styleListItemIcon}>
-                  <ViewListIcon />
-                </ListItemIcon>
-                <ListItemText primary="Trials (List)" sx={styleListItemText} />
-              </ListItemButton>
-            </ListItem>
-            <ListItem
-              key="TrialTable"
-              disablePadding
-              sx={styleListItem}
-              title="Trials (Table)"
-            >
-              <ListItemButton
-                component={Link}
-                to={`${url_prefix}/studies/${studyId}/trialTable`}
-                sx={styleListItemButton}
-                selected={
-                  matchPath(
-                    `${url_prefix}/studies/:studyId/trialTable`,
-                    pathname
-                  ) !== null
-                }
-              >
-                <ListItemIcon sx={styleListItemIcon}>
-                  <TableViewIcon />
-                </ListItemIcon>
-                <ListItemText primary="Trials (Table)" sx={styleListItemText} />
-              </ListItemButton>
-            </ListItem>
-            {showExperimentalFeatures && (
-              <ListItem
-                key="TrialSelection"
-                disablePadding
-                sx={styleListItem}
-                title="Trials (Selection)"
-              >
-                <ListItemButton
-                  component={Link}
-                  to={`${url_prefix}/studies/${studyId}/trialSelection`}
-                  sx={styleListItemButton}
-                  selected={
-                    matchPath(
-                      `${url_prefix}/studies/:studyId/trialsSelection`,
-                      pathname
-                    ) !== null
-                  }
-                >
-                  <ListItemIcon sx={styleListItemIcon}>
-                    <RuleIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Trials (Selection)"
-                    sx={styleListItemText}
-                  />
-                </ListItemButton>
-              </ListItem>
-            )}
-            <ListItem key="Note" disablePadding sx={styleListItem} title="Note">
-              <ListItemButton
-                component={Link}
-                to={`${url_prefix}/studies/${studyId}/note`}
-                sx={styleListItemButton}
-                selected={
-                  matchPath(`${url_prefix}/studies/:studyId/note`, pathname) !==
-                  null
-                }
-              >
-                <ListItemIcon sx={styleListItemIcon}>
-                  <RateReviewIcon />
-                </ListItemIcon>
-                <ListItemText primary="Note" sx={styleListItemText} />
-              </ListItemButton>
-            </ListItem>
-          </List>
+        {studyId !== undefined && (
+          <AppDrawerStudyMenuList studyId={studyId} open={open} />
         )}
         <Box component="div" sx={{ flexGrow: 1 }} />
         <Divider />
@@ -429,23 +237,26 @@ export const AppDrawer: FC<{
             <ListItem
               key="LiveUpdate"
               disablePadding
-              sx={styleListItem}
+              sx={sxProp.styleListItem}
               title="Live Update"
             >
               <ListItemButton
-                sx={styleListItemButton}
+                sx={sxProp.styleListItemButton}
                 onClick={() => {
                   action.saveReloadInterval(reloadInterval === -1 ? 10 : -1)
                 }}
               >
-                <ListItemIcon sx={styleListItemIcon}>
+                <ListItemIcon sx={sxProp.styleListItemIcon}>
                   {reloadInterval === -1 ? <SyncDisabledIcon /> : <SyncIcon />}
                 </ListItemIcon>
-                <ListItemText primary="Live Update" sx={styleListItemText} />
+                <ListItemText
+                  primary="Live Update"
+                  sx={sxProp.styleListItemText}
+                />
                 <Switch
                   edge="end"
                   checked={reloadInterval !== -1}
-                  sx={styleSwitch}
+                  sx={sxProp.styleSwitch}
                   inputProps={{
                     "aria-labelledby": "switch-list-label-live-update",
                   }}
@@ -456,17 +267,17 @@ export const AppDrawer: FC<{
           <ListItem
             key="Settings"
             disablePadding
-            sx={styleListItem}
+            sx={sxProp.styleListItem}
             title="Settings"
           >
             <ListItemButton
-              sx={styleListItemButton}
+              sx={sxProp.styleListItemButton}
               onClick={handleSettingOpen}
             >
-              <ListItemIcon sx={styleListItemIcon}>
+              <ListItemIcon sx={sxProp.styleListItemIcon}>
                 <SettingsIcon />
               </ListItemIcon>
-              <ListItemText primary="Settings" sx={styleListItemText} />
+              <ListItemText primary="Settings" sx={sxProp.styleListItemText} />
             </ListItemButton>
             <Modal
               open={settingOpen}
@@ -495,27 +306,30 @@ export const AppDrawer: FC<{
             <ListItem
               key="DarkMode"
               disablePadding
-              sx={styleListItem}
+              sx={sxProp.styleListItem}
               title="Dark Mode"
             >
               <ListItemButton
-                sx={styleListItemButton}
+                sx={sxProp.styleListItemButton}
                 onClick={() => {
                   toggleColorMode()
                 }}
               >
-                <ListItemIcon sx={styleListItemIcon}>
+                <ListItemIcon sx={sxProp.styleListItemIcon}>
                   {theme.palette.mode === "dark" ? (
                     <Brightness4Icon />
                   ) : (
                     <Brightness7Icon />
                   )}
                 </ListItemIcon>
-                <ListItemText primary="Dark Mode" sx={styleListItemText} />
+                <ListItemText
+                  primary="Dark Mode"
+                  sx={sxProp.styleListItemText}
+                />
                 <Switch
                   edge="end"
                   checked={theme.palette.mode === "dark"}
-                  sx={styleSwitch}
+                  sx={sxProp.styleSwitch}
                   inputProps={{
                     "aria-labelledby": "switch-list-label-dark-mode",
                   }}
@@ -527,19 +341,22 @@ export const AppDrawer: FC<{
           <ListItem
             key="Feedback"
             disablePadding
-            sx={styleListItem}
+            sx={sxProp.styleListItem}
             title="Send Feedback"
           >
             <ListItemButton
               target="_blank"
               href="https://github.com/optuna/optuna-dashboard/discussions/new/choose"
-              sx={styleListItemButton}
+              sx={sxProp.styleListItemButton}
             >
-              <ListItemIcon sx={styleListItemIcon}>
+              <ListItemIcon sx={sxProp.styleListItemIcon}>
                 <GitHubIcon />
               </ListItemIcon>
-              <ListItemText primary="Send Feedback" sx={styleListItemText} />
-              <OpenInNewIcon sx={styleSwitch} />
+              <ListItemText
+                primary="Send Feedback"
+                sx={sxProp.styleListItemText}
+              />
+              <OpenInNewIcon sx={sxProp.styleSwitch} />
             </ListItemButton>
           </ListItem>
         </List>
@@ -549,5 +366,213 @@ export const AppDrawer: FC<{
         {children || null}
       </Box>
     </Box>
+  )
+}
+
+const AppDrawerStudyMenuList: FC<{
+  studyId: number
+  open: boolean
+}> = ({ studyId, open }) => {
+  const { url_prefix } = useConstants()
+  const { pathname } = useLocation()
+  const isPreferential =
+    studyId !== undefined ? useStudyIsPreferential(studyId) : null
+  const [showExperimentalFeatures] = useShowExperimentalFeature()
+  const sxProp = getSxProps(open)
+
+  return (
+    <List>
+      <ListItem
+        key="History"
+        disablePadding
+        sx={sxProp.styleListItem}
+        title={isPreferential ? "Feedback Preference" : "History"}
+      >
+        <ListItemButton
+          component={Link}
+          to={`${url_prefix}/studies/${studyId}`}
+          sx={sxProp.styleListItemButton}
+          selected={
+            matchPath(`${url_prefix}/studies/:studyId`, pathname) !== null
+          }
+        >
+          <ListItemIcon sx={sxProp.styleListItemIcon}>
+            {isPreferential ? <ThumbUpAltIcon /> : <AutoGraphIcon />}
+          </ListItemIcon>
+          <ListItemText
+            primary={isPreferential ? "Feedback Preference" : "History"}
+            sx={sxProp.styleListItemText}
+          />
+        </ListItemButton>
+      </ListItem>
+      {isPreferential && (
+        <ListItem
+          key="PreferenceHistory"
+          disablePadding
+          sx={sxProp.styleListItem}
+          title="Preference (History)"
+        >
+          <ListItemButton
+            component={Link}
+            to={`${url_prefix}/studies/${studyId}/preference-history`}
+            sx={sxProp.styleListItemButton}
+            selected={
+              matchPath(
+                `${url_prefix}/studies/:studyId/preference-history`,
+                pathname
+              ) !== null
+            }
+          >
+            <ListItemIcon sx={sxProp.styleListItemIcon}>
+              <HistoryIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="Preferences (History)"
+              sx={sxProp.styleListItemText}
+            />
+          </ListItemButton>
+        </ListItem>
+      )}
+      <ListItem
+        key="Analytics"
+        disablePadding
+        sx={sxProp.styleListItem}
+        title="Analytics"
+      >
+        <ListItemButton
+          component={Link}
+          to={`${url_prefix}/studies/${studyId}/analytics`}
+          sx={sxProp.styleListItemButton}
+          selected={
+            matchPath(`${url_prefix}/studies/:studyId/analytics`, pathname) !==
+            null
+          }
+        >
+          <ListItemIcon sx={sxProp.styleListItemIcon}>
+            <QueryStatsIcon />
+          </ListItemIcon>
+          <ListItemText primary="Analytics" sx={sxProp.styleListItemText} />
+        </ListItemButton>
+      </ListItem>
+      {isPreferential && (
+        <ListItem
+          key="PreferenceGraph"
+          disablePadding
+          sx={sxProp.styleListItem}
+          title="Preference (Graph)"
+        >
+          <ListItemButton
+            component={Link}
+            to={`${url_prefix}/studies/${studyId}/graph`}
+            sx={sxProp.styleListItemButton}
+            selected={
+              matchPath(`${url_prefix}/studies/:studyId/graph`, pathname) !==
+              null
+            }
+          >
+            <ListItemIcon sx={sxProp.styleListItemIcon}>
+              <LanIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="Preferences (Graph)"
+              sx={sxProp.styleListItemText}
+            />
+          </ListItemButton>
+        </ListItem>
+      )}
+      <ListItem
+        key="TableList"
+        disablePadding
+        sx={sxProp.styleListItem}
+        title="Trials (List)"
+      >
+        <ListItemButton
+          component={Link}
+          to={`${url_prefix}/studies/${studyId}/trials`}
+          sx={sxProp.styleListItemButton}
+          selected={
+            matchPath(`${url_prefix}/studies/:studyId/trials`, pathname) !==
+            null
+          }
+        >
+          <ListItemIcon sx={sxProp.styleListItemIcon}>
+            <ViewListIcon />
+          </ListItemIcon>
+          <ListItemText primary="Trials (List)" sx={sxProp.styleListItemText} />
+        </ListItemButton>
+      </ListItem>
+      <ListItem
+        key="TrialTable"
+        disablePadding
+        sx={sxProp.styleListItem}
+        title="Trials (Table)"
+      >
+        <ListItemButton
+          component={Link}
+          to={`${url_prefix}/studies/${studyId}/trialTable`}
+          sx={sxProp.styleListItemButton}
+          selected={
+            matchPath(`${url_prefix}/studies/:studyId/trialTable`, pathname) !==
+            null
+          }
+        >
+          <ListItemIcon sx={sxProp.styleListItemIcon}>
+            <TableViewIcon />
+          </ListItemIcon>
+          <ListItemText
+            primary="Trials (Table)"
+            sx={sxProp.styleListItemText}
+          />
+        </ListItemButton>
+      </ListItem>
+      {showExperimentalFeatures && (
+        <ListItem
+          key="TrialSelection"
+          disablePadding
+          sx={sxProp.styleListItem}
+          title="Trials (Selection)"
+        >
+          <ListItemButton
+            component={Link}
+            to={`${url_prefix}/studies/${studyId}/trialSelection`}
+            sx={sxProp.styleListItemButton}
+            selected={
+              matchPath(
+                `${url_prefix}/studies/:studyId/trialsSelection`,
+                pathname
+              ) !== null
+            }
+          >
+            <ListItemIcon sx={sxProp.styleListItemIcon}>
+              <RuleIcon />
+            </ListItemIcon>
+            <ListItemText
+              primary="Trials (Selection)"
+              sx={sxProp.styleListItemText}
+            />
+          </ListItemButton>
+        </ListItem>
+      )}
+      <ListItem
+        key="Note"
+        disablePadding
+        sx={sxProp.styleListItem}
+        title="Note"
+      >
+        <ListItemButton
+          component={Link}
+          to={`${url_prefix}/studies/${studyId}/note`}
+          sx={sxProp.styleListItemButton}
+          selected={
+            matchPath(`${url_prefix}/studies/:studyId/note`, pathname) !== null
+          }
+        >
+          <ListItemIcon sx={sxProp.styleListItemIcon}>
+            <RateReviewIcon />
+          </ListItemIcon>
+          <ListItemText primary="Note" sx={sxProp.styleListItemText} />
+        </ListItemButton>
+      </ListItem>
+    </List>
   )
 }
