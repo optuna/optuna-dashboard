@@ -14,12 +14,11 @@ import {
   useTheme,
 } from "@mui/material"
 import { TrialTable as TsLibTrialTable } from "@optuna/react"
-import { useAtomValue } from "jotai"
 import React, { FC, useState, useCallback, useDeferredValue } from "react"
 import { Link } from "react-router-dom"
 import { useConstants } from "../constantsProvider"
+import { useLLMIsAvailable } from "../hooks/useAPIMeta"
 import { useTrialFilterQuery } from "../hooks/useTrialFilterQuery"
-import { llmIsAvailable } from "../state"
 import { StudyDetail, Trial } from "../types/optuna"
 
 export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
@@ -31,7 +30,7 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
   const [filteredTrials, setFilteredTrials] = useState<Trial[] | undefined>(
     undefined
   )
-  const llmEnabled = useAtomValue(llmIsAvailable)
+  const llmEnabled = useLLMIsAvailable()
   const theme = useTheme()
 
   const handleClearFilter = useCallback(() => {

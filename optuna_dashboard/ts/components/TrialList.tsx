@@ -39,17 +39,14 @@ import React, {
 
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useVirtualizer } from "@tanstack/react-virtual"
-import { useAtom, useAtomValue } from "jotai"
+import { useAtom } from "jotai"
 import { useNavigate } from "react-router-dom"
 import { FormWidgets, StudyDetail, Trial } from "ts/types/optuna"
 import { actionCreator } from "../action"
 import { useConstants } from "../constantsProvider"
+import { useArtifactIsAvailable, useLLMIsAvailable } from "../hooks/useAPIMeta"
 import { useTrialFilterQuery } from "../hooks/useTrialFilterQuery"
-import {
-  artifactIsAvailable,
-  llmIsAvailable,
-  trialListDurationTimeUnitState,
-} from "../state"
+import { trialListDurationTimeUnitState } from "../state"
 import { useQuery } from "../urlQuery"
 import { ArtifactCards } from "./Artifact/ArtifactCards"
 import { TrialNote } from "./Note"
@@ -174,7 +171,7 @@ export const TrialListDetail: FC<{
 }> = ({ trial, isBestTrial, directions, metricNames, formWidgets }) => {
   const theme = useTheme()
   const action = actionCreator()
-  const artifactEnabled = useAtomValue(artifactIsAvailable)
+  const artifactEnabled = useArtifactIsAvailable()
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
   const [durationTimeUnit, setDurationTimeUnit] = useAtom(
@@ -478,7 +475,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
         handleClearFilter()
       },
     })
-  const llmEnabled = useAtomValue(llmIsAvailable)
+  const llmEnabled = useLLMIsAvailable()
   const trials = useTrials(
     studyDetail,
     excludedStates,

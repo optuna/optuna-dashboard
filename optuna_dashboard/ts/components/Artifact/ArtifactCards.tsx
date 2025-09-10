@@ -20,7 +20,7 @@ import React, {
   useState,
 } from "react"
 import { actionCreator } from "../../action"
-import { useArtifactBaseUrlPath } from "../../hooks/useArtifactBaseUrlPath"
+import { useArtifactBaseUrlPath } from "../../hooks/useAPIMeta"
 import { StudyDetail, Trial } from "../../types/optuna"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"

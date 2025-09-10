@@ -11,7 +11,6 @@ import FormControlLabel from "@mui/material/FormControlLabel"
 import Grid from "@mui/material/Grid"
 import { DataGrid } from "@optuna/react"
 import * as Optuna from "@optuna/types"
-import { useAtomValue } from "jotai"
 import React, { FC, useState } from "react"
 import { Trial } from "ts/types/optuna"
 import {
@@ -19,7 +18,6 @@ import {
   useStudyDirections,
   useStudySummaryValue,
 } from "../state"
-import { artifactIsAvailable } from "../state"
 import { ArtifactCards } from "./Artifact/ArtifactCards"
 import { BestTrialsCard } from "./BestTrialsCard"
 import { GraphHistory } from "./GraphHistory"
@@ -30,6 +28,7 @@ import { GraphTimeline } from "./GraphTimeline"
 import { UserDefinedPlot } from "./UserDefinedPlot"
 
 import { ColumnDef, createColumnHelper } from "@tanstack/react-table"
+import { useArtifactIsAvailable } from "../hooks/useAPIMeta"
 
 export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   const theme = useTheme()
@@ -38,7 +37,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
   const studyDetail = useStudyDetailValue(studyId)
   const [logScale, setLogScale] = useState<boolean>(false)
   const [includePruned, setIncludePruned] = useState<boolean>(true)
-  const artifactEnabled = useAtomValue(artifactIsAvailable)
+  const artifactEnabled = useArtifactIsAvailable()
 
   const handleLogScaleChange = () => {
     setLogScale(!logScale)

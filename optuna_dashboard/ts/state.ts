@@ -2,6 +2,7 @@ import { DarkColorTemplates, LightColorTemplates } from "@optuna/react"
 import * as Optuna from "@optuna/types"
 import { atom, useAtomValue } from "jotai"
 import { useLocalStorage } from "usehooks-ts"
+import { usePlotlyPyIsAvailable } from "./hooks/useAPIMeta"
 import {
   Artifact,
   PlotlyColorTheme,
@@ -22,12 +23,6 @@ export const reloadIntervalState = atom<number>(10)
 export const drawerOpenState = atom<boolean>(false)
 
 export const isFileUploading = atom<boolean>(false)
-
-export const artifactIsAvailable = atom<boolean>(false)
-
-export const llmIsAvailable = atom<boolean>(false)
-
-export const plotlypyIsAvailableState = atom<boolean>(false)
 
 export const studySummariesLoadingState = atom<boolean>(false)
 
@@ -105,9 +100,10 @@ export const usePlotlyColorTheme = (mode: string): Partial<Plotly.Template> => {
   }
 }
 
+// TODO(c-bata): Move this function under the hooks/ directory
 export const useBackendRender = (): boolean => {
   const [plotBackendRendering] = usePlotBackendRendering()
-  const plotlypyIsAvailable = useAtomValue(plotlypyIsAvailableState)
+  const plotlypyIsAvailable = usePlotlyPyIsAvailable()
 
   if (plotBackendRendering) {
     if (plotlypyIsAvailable) {

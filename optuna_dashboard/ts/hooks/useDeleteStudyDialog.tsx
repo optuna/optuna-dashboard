@@ -9,17 +9,16 @@ import {
   DialogTitle,
   FormControlLabel,
 } from "@mui/material"
-import { useAtomValue } from "jotai"
 import React, { ReactNode, useState } from "react"
 import { actionCreator } from "../action"
-import { artifactIsAvailable as artifactIsAvailableState } from "../state"
+import { useArtifactIsAvailable } from "../hooks/useAPIMeta"
 
 export const useDeleteStudyDialog = (): [
   (studyId: number) => void,
   () => ReactNode,
 ] => {
   const action = actionCreator()
-  const artifactIsAvailable = useAtomValue(artifactIsAvailableState)
+  const artifactIsAvailable = useArtifactIsAvailable()
 
   const [openDeleteStudyDialog, setOpenDeleteStudyDialog] = useState(false)
   const [deleteStudyID, setDeleteStudyID] = useState(-1)
