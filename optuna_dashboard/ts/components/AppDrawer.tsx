@@ -31,7 +31,7 @@ import {
 } from "@mui/material/styles"
 import { useAtom, useAtomValue } from "jotai"
 import React, { FC } from "react"
-import { Link } from "react-router-dom"
+import { Link, matchPath, useLocation } from "react-router-dom"
 import {
   drawerOpenState,
   reloadIntervalState,
@@ -135,16 +135,16 @@ const Drawer = styled(MuiDrawer, {
 export const AppDrawer: FC<{
   studyId?: number
   toggleColorMode: () => void
-  page?: PageId
   toolbar: React.ReactNode
   children?: React.ReactNode
-}> = ({ studyId, toggleColorMode, page, toolbar, children }) => {
+}> = ({ studyId, toggleColorMode, toolbar, children }) => {
   const { color_mode, url_prefix } = useConstants()
 
   const theme = useTheme()
   const constants = useConstants()
   const action = actionCreator()
   const [open, setOpen] = useAtom(drawerOpenState)
+  const { pathname } = useLocation()
   const reloadInterval = useAtomValue(reloadIntervalState)
   const isPreferential =
     studyId !== undefined ? useStudyIsPreferential(studyId) : null
@@ -226,10 +226,10 @@ export const AppDrawer: FC<{
           </IconButton>
         </DrawerHeader>
         <Divider />
-        {studyId !== undefined && page && (
+        {pathname.startsWith(`${url_prefix}/studies/`) && (
           <List>
             <ListItem
-              key="Top"
+              key="History"
               disablePadding
               sx={styleListItem}
               title={isPreferential ? "Feedback Preference" : "History"}
@@ -238,7 +238,9 @@ export const AppDrawer: FC<{
                 component={Link}
                 to={`${url_prefix}/studies/${studyId}`}
                 sx={styleListItemButton}
-                selected={page === "top"}
+                selected={
+                  matchPath(`${url_prefix}/studies/:studyId`, pathname) !== null
+                }
               >
                 <ListItemIcon sx={styleListItemIcon}>
                   {isPreferential ? <ThumbUpAltIcon /> : <AutoGraphIcon />}
@@ -260,7 +262,12 @@ export const AppDrawer: FC<{
                   component={Link}
                   to={`${url_prefix}/studies/${studyId}/preference-history`}
                   sx={styleListItemButton}
-                  selected={page === "preferenceHistory"}
+                  selected={
+                    matchPath(
+                      `${url_prefix}/studies/:studyId/preference-history`,
+                      pathname
+                    ) !== null
+                  }
                 >
                   <ListItemIcon sx={styleListItemIcon}>
                     <HistoryIcon />
@@ -282,7 +289,12 @@ export const AppDrawer: FC<{
                 component={Link}
                 to={`${url_prefix}/studies/${studyId}/analytics`}
                 sx={styleListItemButton}
-                selected={page === "analytics"}
+                selected={
+                  matchPath(
+                    `${url_prefix}/studies/:studyId/analytics`,
+                    pathname
+                  ) !== null
+                }
               >
                 <ListItemIcon sx={styleListItemIcon}>
                   <QueryStatsIcon />
@@ -301,7 +313,12 @@ export const AppDrawer: FC<{
                   component={Link}
                   to={`${url_prefix}/studies/${studyId}/graph`}
                   sx={styleListItemButton}
-                  selected={page === "graph"}
+                  selected={
+                    matchPath(
+                      `${url_prefix}/studies/:studyId/graph`,
+                      pathname
+                    ) !== null
+                  }
                 >
                   <ListItemIcon sx={styleListItemIcon}>
                     <LanIcon />
@@ -323,7 +340,12 @@ export const AppDrawer: FC<{
                 component={Link}
                 to={`${url_prefix}/studies/${studyId}/trials`}
                 sx={styleListItemButton}
-                selected={page === "trialList"}
+                selected={
+                  matchPath(
+                    `${url_prefix}/studies/:studyId/trials`,
+                    pathname
+                  ) !== null
+                }
               >
                 <ListItemIcon sx={styleListItemIcon}>
                   <ViewListIcon />
@@ -341,7 +363,12 @@ export const AppDrawer: FC<{
                 component={Link}
                 to={`${url_prefix}/studies/${studyId}/trialTable`}
                 sx={styleListItemButton}
-                selected={page === "trialTable"}
+                selected={
+                  matchPath(
+                    `${url_prefix}/studies/:studyId/trialTable`,
+                    pathname
+                  ) !== null
+                }
               >
                 <ListItemIcon sx={styleListItemIcon}>
                   <TableViewIcon />
@@ -360,7 +387,12 @@ export const AppDrawer: FC<{
                   component={Link}
                   to={`${url_prefix}/studies/${studyId}/trialSelection`}
                   sx={styleListItemButton}
-                  selected={page === "trialSelection"}
+                  selected={
+                    matchPath(
+                      `${url_prefix}/studies/:studyId/trialsSelection`,
+                      pathname
+                    ) !== null
+                  }
                 >
                   <ListItemIcon sx={styleListItemIcon}>
                     <RuleIcon />
@@ -377,7 +409,10 @@ export const AppDrawer: FC<{
                 component={Link}
                 to={`${url_prefix}/studies/${studyId}/note`}
                 sx={styleListItemButton}
-                selected={page === "note"}
+                selected={
+                  matchPath(`${url_prefix}/studies/:studyId/note`, pathname) !==
+                  null
+                }
               >
                 <ListItemIcon sx={styleListItemIcon}>
                   <RateReviewIcon />
