@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 from dataclasses import dataclass
+from dataclasses import fields
 import sys
 from typing import Any
 from typing import TYPE_CHECKING
@@ -60,26 +61,11 @@ class DashboardConfig:
 
         toml_dashboard = toml_config.get("optuna_dashboard", {}) if toml_config else {}
 
-        defaults = cls()
-
         config = cls(
-            storage=cls._resolve_value("storage", args, toml_dashboard, defaults.storage),
-            storage_class=cls._resolve_value(
-                "storage_class",
-                args,
-                toml_dashboard,
-                defaults.storage_class,
-            ),
-            port=cls._resolve_value("port", args, toml_dashboard, defaults.port),
-            host=cls._resolve_value("host", args, toml_dashboard, defaults.host),
-            server=cls._resolve_value("server", args, toml_dashboard, defaults.server),
-            artifact_dir=cls._resolve_value(
-                "artifact_dir",
-                args,
-                toml_dashboard,
-                defaults.artifact_dir,
-            ),
-            quiet=cls._resolve_value("quiet", args, toml_dashboard, defaults.quiet),
+            **{
+                field.name: cls._resolve_value(field.name, args, toml_dashboard, field.default)
+                for field in fields(cls)
+            }
         )
 
         return config
