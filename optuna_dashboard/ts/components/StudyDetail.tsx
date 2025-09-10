@@ -9,18 +9,12 @@ import {
   useTheme,
 } from "@mui/material"
 import Grid from "@mui/material/Grid"
-import { useAtomValue } from "jotai"
-import React, { FC, useEffect, useMemo } from "react"
+import React, { FC, useMemo } from "react"
 import { Link, useParams } from "react-router-dom"
 
-import { actionCreator } from "../action"
 import { useConstants } from "../constantsProvider"
-import {
-  reloadIntervalState,
-  useStudyDetailValue,
-  useStudyIsPreferential,
-  useStudyName,
-} from "../state"
+import { useLatestStudyDetail } from "../hooks/useLatestStudyDetail"
+import { useStudyIsPreferential, useStudyName } from "../state"
 import { AppDrawer, PageId } from "./AppDrawer"
 import { Contour } from "./GraphContour"
 import { GraphEdf } from "./GraphEdf"
@@ -54,45 +48,21 @@ export const StudyDetail: FC<{
   const { url_prefix } = useConstants()
 
   const theme = useTheme()
-  const action = actionCreator()
   const studyId = useURLVars()
-  const studyDetail = useStudyDetailValue(studyId)
-  const reloadInterval = useAtomValue(reloadIntervalState)
   const studyName = useStudyName(studyId)
   const isPreferential = useStudyIsPreferential(studyId)
 
-  const title =
-    studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
-
-  useEffect(() => {
-    action.updateStudyDetail(studyId)
-  }, [])
-
-  useEffect(() => {
-    if (reloadInterval < 0) {
-      return
-    }
-    const nTrials = studyDetail ? studyDetail.trials.length : 0
-    let interval = reloadInterval * 1000
-
+  const studyDetail = useLatestStudyDetail({
+    studyId: studyId,
     // For Human-in-the-loop Optimization, the interval is set to 2 seconds
     // when the number of trials is small, and the page is "trialList" or top page of preferential.
-    if (
+    shortInterval:
       (!isPreferential && page === "trialList") ||
-      (isPreferential && page === "top")
-    ) {
-      if (nTrials < 100) {
-        interval = 2000
-      } else if (nTrials < 500) {
-        interval = 5000
-      }
-    }
+      (!!isPreferential && page === "top"),
+  })
 
-    const intervalId = setInterval(() => {
-      action.updateStudyDetail(studyId)
-    }, interval)
-    return () => clearInterval(intervalId)
-  }, [reloadInterval, studyDetail, page])
+  const title =
+    studyName !== null ? `${studyName} (id=${studyId})` : `Study #${studyId}`
 
   let content = null
   if (page === "top") {
