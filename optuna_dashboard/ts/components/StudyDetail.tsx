@@ -15,7 +15,7 @@ import { Link, useParams } from "react-router-dom"
 import { useConstants } from "../constantsProvider"
 import { useLatestStudyDetail } from "../hooks/useLatestStudyDetail"
 import { useStudyIsPreferential, useStudyName } from "../state"
-import { AppDrawer, PageId } from "./AppDrawer"
+import { AppDrawer } from "./AppDrawer"
 import { Contour } from "./GraphContour"
 import { GraphEdf } from "./GraphEdf"
 import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
@@ -30,6 +30,16 @@ import { StudyHistory } from "./StudyHistory"
 import { TrialList } from "./TrialList"
 import { TrialSelection } from "./TrialSelection"
 import { TrialTable } from "./TrialTable"
+
+type PageId =
+  | "top"
+  | "analytics"
+  | "trialTable"
+  | "trialList"
+  | "trialSelection"
+  | "note"
+  | "preferenceHistory"
+  | "graph"
 
 export const useURLVars = (): number => {
   const { studyId } = useParams<{ studyId: string }>()
