@@ -354,15 +354,15 @@ export const AppDrawer: FC<{
               key="TrialSelection"
               disablePadding
               sx={styleListItem}
-              title="Trials (Selection)"
+              title="Smart Selection"
             >
               <ListItemButton
                 component={Link}
-                to={`${url_prefix}/studies/${studyId}/trialSelection`}
+                to={`${url_prefix}/studies/${studyId}/smartSelection`}
                 sx={styleListItemButton}
                 selected={
                   matchPath(
-                    `${url_prefix}/studies/:studyId/trialsSelection`,
+                    `${url_prefix}/studies/:studyId/smartSelection`,
                     pathname
                   ) !== null
                 }
@@ -371,7 +371,7 @@ export const AppDrawer: FC<{
                   <RuleIcon />
                 </ListItemIcon>
                 <ListItemText
-                  primary="Trials (Selection)"
+                  primary="Smart Selection"
                   sx={styleListItemText}
                 />
               </ListItemButton>
