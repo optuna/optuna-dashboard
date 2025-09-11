@@ -53,16 +53,6 @@ import { useConstants } from "../constantsProvider"
 
 const drawerWidth = 240
 
-export type PageId =
-  | "top"
-  | "analytics"
-  | "trialTable"
-  | "trialList"
-  | "trialSelection"
-  | "note"
-  | "preferenceHistory"
-  | "graph"
-
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
   transition: theme.transitions.create("width", {
