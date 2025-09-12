@@ -13,11 +13,7 @@ import {
 } from "@mui/material"
 import React from "react"
 import { usePlotlyPyIsAvailable } from "../hooks/useAPIMeta"
-import {
-  usePlotBackendRendering,
-  usePlotlyColorThemeState,
-  useShowExperimentalFeature,
-} from "../state"
+import { usePlotBackendRendering, usePlotlyColorThemeState } from "../state"
 import { PlotlyColorThemeDark, PlotlyColorThemeLight } from "../types/optuna"
 
 interface SettingsProps {
@@ -30,8 +26,6 @@ export const Settings = ({ handleClose }: SettingsProps) => {
   const [plotBackendRendering, setPlotBackendRendering] =
     usePlotBackendRendering()
   const plotlypyIsAvailable = usePlotlyPyIsAvailable()
-  const [showExperimentalFeature, setShowExperimentalFeature] =
-    useShowExperimentalFeature()
 
   const handleDarkModeColorChange = (event: SelectChangeEvent) => {
     const dark = event.target.value as PlotlyColorThemeDark
@@ -45,10 +39,6 @@ export const Settings = ({ handleClose }: SettingsProps) => {
 
   const togglePlotBackendRendering = () => {
     setPlotBackendRendering((cur) => !cur)
-  }
-
-  const toggleShowExperimentalFeature = () => {
-    setShowExperimentalFeature((cur) => !cur)
   }
 
   return (
@@ -142,25 +132,6 @@ export const Settings = ({ handleClose }: SettingsProps) => {
             onChange={togglePlotBackendRendering}
             value="enable"
             disabled={!plotlypyIsAvailable}
-          />
-        </Stack>
-
-        <Stack>
-          <Typography
-            variant="h5"
-            sx={{ fontWeight: theme.typography.fontWeightBold }}
-          >
-            Show Experimental Feature
-          </Typography>
-          <Typography color="textSecondary">
-            {
-              'If enabled, show experimental features "Trial (Selection)" in the UI.'
-            }
-          </Typography>
-          <Switch
-            checked={showExperimentalFeature}
-            onChange={toggleShowExperimentalFeature}
-            value="enable"
           />
         </Stack>
       </Stack>

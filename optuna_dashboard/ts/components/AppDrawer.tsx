@@ -8,7 +8,6 @@ import RuleIcon from "@mui/icons-material/Rule"
 import SettingsIcon from "@mui/icons-material/Settings"
 import SyncIcon from "@mui/icons-material/Sync"
 import SyncDisabledIcon from "@mui/icons-material/SyncDisabled"
-import TableViewIcon from "@mui/icons-material/TableView"
 import ViewListIcon from "@mui/icons-material/ViewList"
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar"
 import Box from "@mui/material/Box"
@@ -35,7 +34,6 @@ import { Link, matchPath, useLocation } from "react-router-dom"
 import {
   drawerOpenState,
   reloadIntervalState,
-  useShowExperimentalFeature,
   useStudyIsPreferential,
 } from "../state"
 import { Settings } from "./Settings"
@@ -138,7 +136,6 @@ export const AppDrawer: FC<{
   const reloadInterval = useAtomValue(reloadIntervalState)
   const isPreferential =
     studyId !== undefined ? useStudyIsPreferential(studyId) : null
-  const [showExperimentalFeatures] = useShowExperimentalFeature()
 
   const styleListItem = {
     display: "block",
@@ -344,56 +341,31 @@ export const AppDrawer: FC<{
               </ListItemButton>
             </ListItem>
             <ListItem
-              key="TrialTable"
+              key="TrialSelection"
               disablePadding
               sx={styleListItem}
-              title="Trials (Table)"
+              title="Smart Selection"
             >
               <ListItemButton
                 component={Link}
-                to={`${url_prefix}/studies/${studyId}/trialTable`}
+                to={`${url_prefix}/studies/${studyId}/smartSelection`}
                 sx={styleListItemButton}
                 selected={
                   matchPath(
-                    `${url_prefix}/studies/:studyId/trialTable`,
+                    `${url_prefix}/studies/:studyId/smartSelection`,
                     pathname
                   ) !== null
                 }
               >
                 <ListItemIcon sx={styleListItemIcon}>
-                  <TableViewIcon />
+                  <RuleIcon />
                 </ListItemIcon>
-                <ListItemText primary="Trials (Table)" sx={styleListItemText} />
+                <ListItemText
+                  primary="Smart Selection"
+                  sx={styleListItemText}
+                />
               </ListItemButton>
             </ListItem>
-            {showExperimentalFeatures && (
-              <ListItem
-                key="TrialSelection"
-                disablePadding
-                sx={styleListItem}
-                title="Trials (Selection)"
-              >
-                <ListItemButton
-                  component={Link}
-                  to={`${url_prefix}/studies/${studyId}/trialSelection`}
-                  sx={styleListItemButton}
-                  selected={
-                    matchPath(
-                      `${url_prefix}/studies/:studyId/trialsSelection`,
-                      pathname
-                    ) !== null
-                  }
-                >
-                  <ListItemIcon sx={styleListItemIcon}>
-                    <RuleIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Trials (Selection)"
-                    sx={styleListItemText}
-                  />
-                </ListItemButton>
-              </ListItem>
-            )}
             <ListItem key="Note" disablePadding sx={styleListItem} title="Note">
               <ListItemButton
                 component={Link}

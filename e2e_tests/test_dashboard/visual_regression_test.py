@@ -238,31 +238,6 @@ def test_trial_list(
 
 
 @parameterize_studies
-def test_trial_table(
-    page: Page,
-    storage: optuna.storages.InMemoryStorage,
-    server_url: str,
-    run_study: Callable[[optuna.storages.InMemoryStorage], optuna.Study],
-) -> None:
-    study = run_study(storage)
-    study_id = study._study_id
-    url = f"{server_url}/studies/{study_id}"
-    errors = []
-    page.on(
-        "console", lambda message: errors.append(message.text) if message.type == "error" else None
-    )
-    page.goto(url)
-    page.click(f"a[href='/dashboard/studies/{study_id}/trialTable']")
-
-    # TODO(porink0424): Same as above.
-    import time
-
-    time.sleep(10)
-
-    assert len(errors) == 0
-
-
-@parameterize_studies
 def test_trial_note(
     page: Page,
     storage: optuna.storages.InMemoryStorage,
