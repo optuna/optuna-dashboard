@@ -87,6 +87,7 @@ def create_app(
     llm_provider: LLMProvider | None = None,
     debug: bool = False,
     jupyterlab_extension_context: JupyterLabExtensionContext | None = None,
+    allow_unsafe: bool = False,
 ) -> Bottle:
     app = Bottle()
     app._inmemory_cache = InMemoryCache()
@@ -111,6 +112,7 @@ def create_app(
             "artifact_is_available": artifact_store is not None,
             "llm_is_available": llm_provider is not None,
             "plotlypy_is_available": importlib.util.find_spec("plotly") is not None,
+            "allow_unsafe": allow_unsafe,
         }
         if jupyterlab_extension_context is not None:
             meta["jupyterlab_extension_context"] = {
