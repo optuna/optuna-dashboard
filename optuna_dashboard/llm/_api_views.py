@@ -6,7 +6,7 @@ from bottle import Bottle
 from bottle import request
 from bottle import response
 from .._bottle_util import json_api_view
-from ._prompt_templates import get_trial_filtering_prompt
+from .prompt_templates._trial_filter import get_trial_filtering_prompt
 from .provider import InvalidAuthentication
 from .provider import RateLimitExceeded
 
