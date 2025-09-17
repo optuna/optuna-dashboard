@@ -15,6 +15,7 @@ export { TrialTable } from "./components/TrialTable"
 export { GraphContainer } from "./components/GraphContainer"
 export { useGraphComponentState } from "./hooks/useGraphComponentState"
 export { useEvalTrialFilter } from "./hooks/useEvalTrialFilter"
+export { useEvalGeneratePlotlyGraph } from "./hooks/useEvalGeneratePlotlyGraph"
 export {
   Target,
   useFilteredTrials,
