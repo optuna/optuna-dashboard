@@ -1,0 +1,178 @@
+import { useEvalGeneratePlotlyGraph } from "@optuna/react"
+import { isAxiosError } from "axios"
+import { atom, useAtom } from "jotai"
+import { useSnackbar } from "notistack"
+import * as plotly from "plotly.js-dist-min"
+import { useAPIClient } from "../apiClientProvider"
+import { StudyDetail } from "../types/optuna"
+import { useEvalConfirmationDialog } from "./useEvalConfirmationDialog"
+
+import React, { ReactNode, useCallback, useState } from "react"
+
+// Cache atom for API responses: userQuery -> plotly_graph_func_str
+const generatePlotlyGraphCacheAtom = atom(new Map<string, string>())
+// Cache atom for failed queries: userQuery -> true (to prevent repeated attempts)
+const failedQueryCacheAtom = atom(new Set<string>())
+
+export const useGeneratePlotlyGraphQuery = ({
+  nRetry,
+  onDenied,
+  onFailed,
+}: {
+  nRetry: number
+  onDenied?: () => void
+  onFailed?: (errorMsg: string) => void
+}): [
+  (
+    study: StudyDetail,
+    generatePlotlyGraphQueryStr: string
+  ) => Promise<plotly.PlotData[]>,
+  () => ReactNode,
+  boolean,
+] => {
+  const { apiClient } = useAPIClient()
+  const { enqueueSnackbar } = useSnackbar()
+  const [generatePlotlyGraphByJSFuncStr, renderIframe] =
+    useEvalGeneratePlotlyGraph<StudyDetail>()
+  const [cache, setCache] = useAtom(generatePlotlyGraphCacheAtom)
+  const [failedCache, setFailedCache] = useAtom(failedQueryCacheAtom)
+  const [showConfirmationDialog, renderDialog] =
+    useEvalConfirmationDialog(onDenied)
+  const [isLoading, setIsLoading] = useState(false)
+
+  const generatePlotlyGraphByUserQuery = useCallback(
+    async (
+      study: StudyDetail,
+      userQuery: string
+    ): Promise<plotly.PlotData[]> => {
+      setIsLoading(true)
+      try {
+        // Check if this query has already failed nRetry times
+        if (failedCache.has(userQuery)) {
+          enqueueSnackbar(
+            "Error: This query has already failed multiple times, please change your query.",
+            {
+              variant: "error",
+            }
+          )
+          return [] // Return empty plot data
+        }
+
+        const cached = cache.get(userQuery)
+        if (cached) {
+          // Show confirmation dialog even for cached functions
+          const userConfirmed = await showConfirmationDialog(cached)
+          if (!userConfirmed) {
+            return [] // Return empty plot data if user denies
+          }
+
+          try {
+            return await generatePlotlyGraphByJSFuncStr(study, cached)
+          } catch (e) {
+            const message = e instanceof Error ? e.message : String(e)
+            console.warn(
+              `Cached plotly graph generation function failed: ${message}`
+            )
+            const newCache = new Map(cache)
+            newCache.delete(userQuery)
+            setCache(newCache)
+          }
+        }
+
+        let lastResponse:
+          | { func_str: string; error_message: string }
+          | undefined = undefined
+        for (let attempt = 0; attempt < nRetry; attempt++) {
+          let funcStr: string
+
+          try {
+            const response = await apiClient.callGeneratePlotlyGraphQuery({
+              user_query: userQuery,
+              last_response: lastResponse,
+            })
+            funcStr = response.generate_plotly_graph_func_str
+          } catch (apiError) {
+            const reason = isAxiosError<{ reason: string }>(apiError)
+              ? apiError.response?.data.reason
+              : String(apiError)
+            enqueueSnackbar(`API error: (error=${reason})`, {
+              variant: "error",
+            })
+            if (onFailed) {
+              onFailed(`API error: (error=${reason})`)
+            }
+            throw apiError
+          }
+
+          const userConfirmed = await showConfirmationDialog(funcStr)
+          if (!userConfirmed) {
+            return [] // Return empty plot data if user denies
+          }
+
+          try {
+            const plotData = await generatePlotlyGraphByJSFuncStr(
+              study,
+              funcStr
+            )
+            // Cache the successful function string
+            const newCache = new Map(cache)
+            newCache.set(userQuery, funcStr)
+            setCache(newCache)
+            return plotData
+          } catch (e) {
+            const message = e instanceof Error ? e.message : String(e)
+            console.warn(
+              `Evaluation of plotly graph generation function failed: ${message}`
+            )
+            if (attempt >= nRetry - 1) {
+              const newFailedCache = new Set(failedCache)
+              newFailedCache.add(userQuery)
+              setFailedCache(newFailedCache)
+
+              const errorMessage = `Failed to evaluate plotly graph generation function after ${nRetry} attempts (error=${message})`
+              enqueueSnackbar(errorMessage, {
+                variant: "error",
+              })
+
+              if (onFailed) {
+                onFailed(errorMessage)
+              }
+              throw e
+            }
+
+            lastResponse = {
+              func_str: funcStr,
+              error_message: message,
+            }
+          }
+        }
+        throw new Error("Must not reach here.")
+      } finally {
+        setIsLoading(false)
+      }
+    },
+    [
+      apiClient,
+      cache,
+      enqueueSnackbar,
+      failedCache,
+      generatePlotlyGraphByJSFuncStr,
+      nRetry,
+      onFailed,
+      setCache,
+      setFailedCache,
+      showConfirmationDialog,
+    ]
+  )
+
+  const render = () => {
+    return (
+      <>
+        {renderDialog()}
+        {renderIframe()}
+      </>
+    )
+  }
+
+  return [generatePlotlyGraphByUserQuery, render, isLoading]
+}
