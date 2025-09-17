@@ -101,7 +101,7 @@ If the request is ambiguous, make a reasonable assumption and note it in a code 
 
 ====== User Query Finished ======
 {generate_plotly_graph_failure_message}
-"""
+"""  # noqa: E501
 
 GENERATE_PLOTLY_GRAPH_FAILURE_MESSAGE_TEMPLATE = """
 Please notice that the last response generated the following function:
@@ -118,7 +118,7 @@ This function failed with the following error message:
 
 Please consider the error message and generate another code that retains the user query without any errors.
 Remember the same security constraints: no network requests, no DOM manipulation, no external calls, no I/O operations, and no trial modifications.
-Do not forget to return a valid JavaScript function code without any other texts."""
+Do not forget to return a valid JavaScript function code without any other texts."""  # noqa: E501
 
 
 def get_generate_plotly_graph_prompt(
@@ -127,10 +127,11 @@ def get_generate_plotly_graph_prompt(
     failure_msg = ""
     if last_func_str is not None:
         failure_msg = GENERATE_PLOTLY_GRAPH_FAILURE_MESSAGE_TEMPLATE.format(
-            last_func_str=last_func_str, error_message=last_error_msg or "No Error Message Provided."
+            last_func_str=last_func_str,
+            error_message=last_error_msg or "No Error Message Provided.",
         )
     return _GENERATE_PLOTLY_GRAPH_PROMPT_TEMPLATE.format(
         user_query=user_query,
         generate_plotly_graph_failure_message=failure_msg,
-        study_definition_in_typescript=_STUDY_DEFINITION_IN_TYPESCRIPT
+        study_definition_in_typescript=_STUDY_DEFINITION_IN_TYPESCRIPT,
     )

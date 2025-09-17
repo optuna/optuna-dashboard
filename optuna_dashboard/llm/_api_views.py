@@ -6,7 +6,9 @@ from bottle import Bottle
 from bottle import request
 from bottle import response
 
-from optuna_dashboard.llm.prompt_templates._generate_plotly_graph import get_generate_plotly_graph_prompt
+from optuna_dashboard.llm.prompt_templates._generate_plotly_graph import (
+    get_generate_plotly_graph_prompt,
+)
 from .._bottle_util import json_api_view
 from .prompt_templates._trial_filter import get_trial_filtering_prompt
 from .provider import InvalidAuthentication
@@ -49,7 +51,7 @@ def register_llm_route(app: Bottle, llm_provider: LLMProvider | None) -> None:
 
         response.status = 200
         return {"trial_filtering_func_str": trial_filtering_func_str}
-    
+
     @app.post("/api/llm/generate_plotly_graph_query")
     @json_api_view
     def get_generate_plotly_graph_func_str() -> dict[str, str]:
@@ -79,6 +81,6 @@ def register_llm_route(app: Bottle, llm_provider: LLMProvider | None) -> None:
         except Exception as e:
             response.status = 500
             return {"reason": str(e)}
-        
+
         response.status = 200
         return {"generate_plotly_graph_func_str": generate_plotly_graph_func_str}
