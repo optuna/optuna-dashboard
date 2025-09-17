@@ -103,7 +103,30 @@ def create_app(
     # Accept any following paths for client-side routing
     @app.get("/dashboard<:re:(/.*)?>")
     def dashboard() -> BottleViewReturn:
-        return static_file("index.html", BASE_DIR, mimetype="text/html")
+        if allow_unsafe:
+            headers = {}
+        else:
+            # CSP header
+            if llm_provider is not None:
+                script_src_str = "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+            else:
+                # Parallel coordinate, which uses WebGL, requires unsafe-eval.
+                script_src_str = "script-src 'self' 'unsafe-eval'"
+
+            csp_string = ";".join(
+                [
+                    "default-src 'self'",
+                    "img-src 'self' data: blob:",
+                    "frame-src 'self'",
+                    "object-src 'none'",
+                    "connect-src 'self'",
+                    "style-src 'self' data: 'unsafe-inline'",
+                    script_src_str,
+                ]
+            )
+            headers = {"Content-Security-Policy": csp_string}
+
+        return static_file("index.html", BASE_DIR, mimetype="text/html", headers=headers)
 
     @app.get("/api/meta")
     @json_api_view
