@@ -18,7 +18,6 @@ import { useStudyIsPreferential, useStudyName } from "../state"
 import { AppDrawer } from "./AppDrawer"
 import { Contour } from "./GraphContour"
 import { GraphEdf } from "./GraphEdf"
-import { GraphParallelCoordinate } from "./GraphParallelCoordinate"
 import { GraphRank } from "./GraphRank"
 import { GraphSlice } from "./GraphSlice"
 import { StudyNote } from "./Note"
@@ -29,7 +28,6 @@ import { PreferentialTrials } from "./Preferential/PreferentialTrials"
 import { StudyHistory } from "./StudyHistory"
 import { TrialList } from "./TrialList"
 import { TrialSelection } from "./TrialSelection"
-import { TrialTable } from "./TrialTable"
 
 type PageId =
   | "top"
@@ -106,11 +104,6 @@ export const StudyDetail: FC<{
         </Card>
         <Card sx={{ margin: theme.spacing(2) }}>
           <CardContent>
-            <GraphParallelCoordinate study={studyDetail} />
-          </CardContent>
-        </Card>
-        <Card sx={{ margin: theme.spacing(2) }}>
-          <CardContent>
             <Contour study={studyDetail} />
           </CardContent>
         </Card>
@@ -146,10 +139,8 @@ export const StudyDetail: FC<{
     )
   } else if (page === "trialList") {
     content = <TrialList studyDetail={studyDetail} />
-  } else if (page === "trialSelection") {
+  } else if (page === "trialSelection" && studyDetail !== null) {
     content = <TrialSelection studyDetail={studyDetail} />
-  } else if (page === "trialTable" && studyDetail !== null) {
-    content = <TrialTable studyDetail={studyDetail} />
   } else if (page === "note" && studyDetail !== null) {
     content = (
       <Box
