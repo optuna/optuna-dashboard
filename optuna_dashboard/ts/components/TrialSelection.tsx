@@ -1,4 +1,3 @@
-import ClearIcon from "@mui/icons-material/Clear"
 import DownloadIcon from "@mui/icons-material/Download"
 import FilterListIcon from "@mui/icons-material/FilterList"
 import {
@@ -9,14 +8,11 @@ import {
   CircularProgress,
   FormControl,
   FormControlLabel,
-  IconButton,
-  InputAdornment,
   Switch,
-  TextField,
   useTheme,
 } from "@mui/material"
 import { PlotParallelCoordinate, TrialTable } from "@optuna/react"
-import React, { FC, useState, useDeferredValue, useCallback } from "react"
+import React, { FC, useState, useCallback } from "react"
 import { Link } from "react-router-dom"
 import { useConstants } from "../constantsProvider"
 import { studyDetailToStudy } from "../graphUtil"
@@ -24,6 +20,7 @@ import { useLLMIsAvailable } from "../hooks/useAPIMeta"
 import { useTrialFilterQuery } from "../hooks/useTrialFilterQuery"
 import { StudyDetail, Trial } from "../types/optuna"
 import { SelectedTrialArtifactCards } from "./Artifact/SelectedTrialArtifactCards"
+import { DebouncedInputTextField } from "./Debounce"
 import { GraphHistory } from "./GraphHistory"
 import { GraphParetoFront } from "./GraphParetoFront"
 
@@ -38,8 +35,7 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail }> = ({
   const [includeDominatedTrials, setIncludeDominatedTrials] =
     useState<boolean>(true)
   const [showArtifacts, setShowArtifacts] = useState<boolean>(false)
-  const [_filterQuery, setFilterQuery] = useState("")
-  const filterQuery = useDeferredValue(_filterQuery)
+  const [filterQuery, setFilterQuery] = useState("")
   const [filteredTrials, setFilteredTrials] = useState<Trial[] | undefined>(
     undefined
   )
@@ -125,28 +121,15 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail }> = ({
               alignItems: "center",
             }}
           >
-            <TextField
-              onChange={(e) => setFilterQuery(e.target.value)}
-              placeholder="Enter filter query (e.g., trial number < 10)"
-              fullWidth
-              size="small"
-              disabled={isTrialFilterProcessing}
-              slotProps={{
-                input: {
-                  endAdornment: filterQuery && (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="clear filter"
-                        onClick={handleClearFilter}
-                        edge="end"
-                        size="small"
-                        disabled={isTrialFilterProcessing}
-                      >
-                        <ClearIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
+            <DebouncedInputTextField
+              onChange={(val) => setFilterQuery(val)}
+              delay={500}
+              textFieldProps={{
+                placeholder: "Enter filter query (e.g., trial number < 10)",
+                fullWidth: true,
+                size: "small",
+                disabled: isTrialFilterProcessing,
+                type: "search",
               }}
             />
             <Button
