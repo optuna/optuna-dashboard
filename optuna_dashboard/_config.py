@@ -52,6 +52,7 @@ class DashboardConfig:
     server: Literal["auto", "wsgiref", "gunicorn"] = "auto"
     artifact_dir: str | None = None
     quiet: bool = False
+    allow_unsafe: bool = False
 
     @classmethod
     def build_from_sources(
