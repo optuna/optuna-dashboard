@@ -1,6 +1,7 @@
 import DownloadIcon from "@mui/icons-material/Download"
 import FilterListIcon from "@mui/icons-material/FilterList"
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -101,6 +102,11 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail }> = ({
       component="div"
       sx={{ display: "flex", width: width, flexDirection: "column" }}
     >
+      <Alert severity="info" sx={{ m: theme.spacing(2) }}>
+        {llmEnabled
+          ? "Enter natural language conditions in the text box to filter trials. You can also drag on the parallel coordinate plot, and all views will update accordingly."
+          : "You can drag on the parallel coordinate plot to select trials within a certain range. The filtered trials are then shown consistently in the optimization history and trial table."}
+      </Alert>
       <FormControl
         component="fieldset"
         sx={{
@@ -182,7 +188,7 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail }> = ({
           label="Show Artifacts"
         />
       </FormControl>
-      <Card sx={{ margin: theme.spacing(2) }}>
+      <Card sx={{ margin: theme.spacing(1, 2) }}>
         <CardContent>
           <PlotParallelCoordinate
             study={{
