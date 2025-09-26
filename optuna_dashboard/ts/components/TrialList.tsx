@@ -27,15 +27,7 @@ import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
 import * as Optuna from "@optuna/types"
-import React, {
-  FC,
-  ReactNode,
-  useCallback,
-  useMemo,
-  useState,
-  useEffect,
-  useDeferredValue,
-} from "react"
+import React, { FC, ReactNode, useCallback, useMemo, useState } from "react"
 
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useVirtualizer } from "@tanstack/react-virtual"
@@ -98,44 +90,6 @@ const useExcludedStates = (query: URLSearchParams): Optuna.TrialState[] => {
       .filter((s): s is Optuna.TrialState => s !== undefined)
     return excluded
   }, [query])
-}
-
-const useTrials = (
-  studyDetail: StudyDetail | null,
-  excludedStates: Optuna.TrialState[],
-  trialFilter: (trials: Trial[], query: string) => Promise<Trial[]>,
-  trialFilterQuery: string,
-  isTrialFilterProcessing: boolean
-): Trial[] => {
-  const [filteredTrials, setFilteredTrials] = useState<Trial[]>([])
-  useEffect(() => {
-    let result = studyDetail !== null ? studyDetail.trials : []
-    if (excludedStates.length !== 0) {
-      excludedStates.forEach((s) => {
-        result = result.filter((t) => t.state !== s)
-      })
-    }
-    if (trialFilterQuery !== "" && !isTrialFilterProcessing) {
-      trialFilter(result, trialFilterQuery)
-        .then((filtered) => {
-          setFilteredTrials(filtered)
-        })
-        .catch(() => {
-          setFilteredTrials(result) // Fallback to unfiltered trials on error
-        })
-    } else {
-      setFilteredTrials(result)
-    }
-  }, [
-    studyDetail,
-    excludedStates,
-    trialFilter,
-    trialFilterQuery,
-    // Note: isTrialFilterProcessing is intentionally excluded from dependencies
-    // to prevent infinite re-rendering loops. The processing state is only used
-    // as a condition check and doesn't need to trigger re-execution of the effect.
-  ])
-  return filteredTrials
 }
 
 const useQueriedTrials = (trials: Trial[], query: URLSearchParams): Trial[] => {
@@ -459,12 +413,11 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const query = useQuery()
   const navigate = useNavigate()
   const excludedStates = useExcludedStates(query)
-  const [_trialFilterQuery, setTrialFilterQuery] = useState<string>("")
-  const trialFilterQuery = useDeferredValue(_trialFilterQuery)
-  const [filterInput, setFilterInput] = useState(trialFilterQuery)
+  const [filteredTrials, setFilteredTrials] = useState<Trial[] | undefined>()
+  const [trialFilterQuery, setTrialFilterQuery] = useState<string>("")
   const handleClearFilter = useCallback(() => {
     setTrialFilterQuery("")
-    setFilterInput("")
+    setFilteredTrials(undefined)
   }, [])
   const [trialFilter, renderIframe, isTrialFilterProcessing] =
     useTrialFilterQuery({
@@ -476,13 +429,16 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
       },
     })
   const llmEnabled = useLLMIsAvailable()
-  const trials = useTrials(
-    studyDetail,
-    excludedStates,
-    trialFilter,
-    trialFilterQuery,
-    isTrialFilterProcessing
-  )
+
+  const baseTrials = useMemo(() => {
+    const allTrials = studyDetail?.trials ?? []
+    if (!allTrials) return []
+    if (excludedStates.length === 0) return allTrials
+    const excludedSet = new Set(excludedStates)
+    return allTrials.filter((t) => !excludedSet.has(t.state))
+  }, [studyDetail?.trials, excludedStates])
+
+  const trials = filteredTrials ?? baseTrials
   const isBestTrial = useIsBestTrial(studyDetail)
   const queried = useQueriedTrials(trials, query)
   const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
@@ -535,11 +491,11 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
               placeholder="Enter filter query (e.g., trial number < 10)"
               fullWidth
               size="small"
-              value={filterInput}
-              onChange={(e) => setFilterInput(e.target.value)}
+              value={trialFilterQuery}
+              onChange={(e) => setTrialFilterQuery(e.target.value)}
               slotProps={{
                 input: {
-                  endAdornment: filterInput && (
+                  endAdornment: trialFilterQuery && (
                     <InputAdornment position="end">
                       <IconButton
                         aria-label="clear filter"
@@ -565,7 +521,19 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                 )
               }
               disabled={isTrialFilterProcessing}
-              onClick={() => setTrialFilterQuery(filterInput)}
+              onClick={() => {
+                if (trialFilterQuery !== "" && !isTrialFilterProcessing) {
+                  trialFilter(trials, trialFilterQuery)
+                    .then((filtered) => {
+                      setFilteredTrials(filtered)
+                    })
+                    .catch(() => {
+                      setFilteredTrials(trials) // Fallback to unfiltered trials on error
+                    })
+                } else {
+                  setFilteredTrials(trials)
+                }
+              }}
               sx={{ marginLeft: theme.spacing(2), minWidth: "120px" }}
             >
               Filter
