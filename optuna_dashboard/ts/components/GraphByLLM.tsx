@@ -1,4 +1,5 @@
 import ClearIcon from "@mui/icons-material/Clear"
+import { LoadingButton } from "@mui/lab"
 import {
   Box,
   Card,
@@ -15,7 +16,6 @@ import React, { FC, useEffect, useState } from "react"
 import { useGeneratePlotlyGraphQuery } from "../hooks/useGeneratePlotlyGraphQuery"
 import { usePlotlyColorTheme } from "../state"
 import { StudyDetail } from "../types/optuna"
-import { LoadingButton } from "@mui/lab"
 
 const plotDomId = "graph-by-llm"
 

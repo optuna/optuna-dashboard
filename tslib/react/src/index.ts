@@ -14,8 +14,7 @@ export { PlotParallelCoordinate } from "./components/PlotParallelCoordinate"
 export { TrialTable } from "./components/TrialTable"
 export { GraphContainer } from "./components/GraphContainer"
 export { useGraphComponentState } from "./hooks/useGraphComponentState"
-export { useEvalTrialFilter } from "./hooks/useEvalTrialFilter"
-export { useEvalGeneratePlotlyGraph } from "./hooks/useEvalGeneratePlotlyGraph"
+export { useEvalFunctionInSandbox } from "./hooks/useEvalFunctionInSandbox"
 export {
   Target,
   useFilteredTrials,
