@@ -2,20 +2,20 @@ import { Study, Trial } from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
 import { useCallback, useEffect, useRef } from "react"
 
-type MessageRequestTrialFilter = {
+type MessageRequestTrialFilter<T extends Trial> = {
   type: "trial_filter"
-  trials: Trial[]
+  trials: T[]
   funcStr: string
 }
-type MessageRequestGeneratePlotlyGraph = {
+type MessageRequestGeneratePlotlyGraph<S extends Study> = {
   type: "generate_plotly_graph"
-  study: Study
+  study: S
   funcStr: string
 }
 
-type MessageResponseTrialFilter = {
+type MessageResponseTrialFilter<T extends Trial> = {
   type: "trial_filter_result"
-  filteredTrials: Trial[]
+  filteredTrials: T[]
   error?: Error
 }
 type MessageResponseGeneratePlotlyGraph = {
@@ -24,10 +24,13 @@ type MessageResponseGeneratePlotlyGraph = {
   error?: Error
 }
 
-export const useEvalFunctionInSandbox = () => {
+export const useEvalFunctionInSandbox = <
+  T extends Trial = Trial,
+  S extends Study = Study,
+>() => {
   const iframeRef = useRef<HTMLIFrameElement | null>(null)
   const pendingTrialFilterPromiseRef = useRef<{
-    resolve: (value: Trial[]) => void
+    resolve: (value: T[]) => void
     reject: (reason?: Error) => void
   } | null>(null)
   const pendingGeneratePlotlyGraphPromiseRef = useRef<{
@@ -36,7 +39,7 @@ export const useEvalFunctionInSandbox = () => {
   } | null>(null)
 
   const evalTrialFilter = useCallback(
-    (trials: Trial[], funcStr: string): Promise<Trial[]> => {
+    (trials: T[], funcStr: string): Promise<T[]> => {
       return new Promise((resolve, reject) => {
         // TODO(c-bata): Support concurrent evaluations
         if (!iframeRef.current || !iframeRef.current.contentWindow) {
@@ -46,7 +49,7 @@ export const useEvalFunctionInSandbox = () => {
           reject(new Error("Previous evaluation still running"))
         }
         pendingTrialFilterPromiseRef.current = { resolve, reject }
-        const message: MessageRequestTrialFilter = {
+        const message: MessageRequestTrialFilter<T> = {
           type: "trial_filter",
           trials,
           funcStr,
@@ -58,7 +61,7 @@ export const useEvalFunctionInSandbox = () => {
   )
 
   const evalGeneratePlotlyGraph = useCallback(
-    (study: Study, funcStr: string): Promise<plotly.PlotData[]> => {
+    (study: S, funcStr: string): Promise<plotly.PlotData[]> => {
       return new Promise((resolve, reject) => {
         // TODO(porink0424): Support concurrent evaluations
         if (!iframeRef.current || !iframeRef.current.contentWindow) {
@@ -68,7 +71,7 @@ export const useEvalFunctionInSandbox = () => {
           reject(new Error("Previous evaluation still running"))
         }
         pendingGeneratePlotlyGraphPromiseRef.current = { resolve, reject }
-        const message: MessageRequestGeneratePlotlyGraph = {
+        const message: MessageRequestGeneratePlotlyGraph<S> = {
           type: "generate_plotly_graph",
           study,
           funcStr,
@@ -87,7 +90,7 @@ export const useEvalFunctionInSandbox = () => {
 
       switch (data.type) {
         case "trial_filter_result": {
-          const response = data as MessageResponseTrialFilter
+          const response = data as MessageResponseTrialFilter<T>
           if (pendingTrialFilterPromiseRef.current) {
             if (response.error) {
               pendingTrialFilterPromiseRef.current.reject(response.error)

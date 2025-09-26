@@ -82,10 +82,14 @@ class RouteHandler(APIHandler):
 class InitializedStateHandler(APIHandler):
     @tornado.web.authenticated
     def get(self):
-        self.finish(json.dumps({
-            "is_initialized": _is_initialized,
-            "cwd_path": os.getcwd(),
-        }))
+        self.finish(
+            json.dumps(
+                {
+                    "is_initialized": _is_initialized,
+                    "cwd_path": os.getcwd(),
+                }
+            )
+        )
 
 
 def dashboard_app(env, start_response):
