@@ -160,6 +160,7 @@ export type GeneratePlotlyGraphQueryRequest = {
 
 export type GeneratePlotlyGraphQueryResponse = {
   generate_plotly_graph_func_str: string
+  generate_plotly_graph_title: string
 }
 
 export abstract class APIClient {

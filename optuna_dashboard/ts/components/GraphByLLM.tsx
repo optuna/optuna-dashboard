@@ -7,6 +7,7 @@ import {
   IconButton,
   InputAdornment,
   TextField,
+  Typography,
   useTheme,
 } from "@mui/material"
 import { Stack } from "@mui/system"
@@ -41,8 +42,9 @@ const plotByLLM = (
 }
 
 const GraphByLLMItem: FC<{
+  title: string
   plotData: plotly.PlotData[]
-}> = ({ plotData }) => {
+}> = ({ title, plotData }) => {
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
   const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
@@ -58,6 +60,15 @@ const GraphByLLMItem: FC<{
   return (
     <Card>
       <CardContent>
+        <Typography
+          variant="h6"
+          sx={{
+            margin: theme.spacing(1),
+            fontWeight: theme.typography.fontWeightBold,
+          }}
+        >
+          {title}
+        </Typography>
         <GraphContainer
           plotDomId={plotDomId}
           graphComponentState={graphComponentState}
@@ -75,6 +86,7 @@ export const GraphByLLM: FC<{
     useGeneratePlotlyGraphQuery({
       nRetry: 3,
     })
+  const [title, setTitle] = useState("")
   const [plotData, setPlotData] = useState<plotly.PlotData[]>([])
   const [queryInput, setQueryInput] = useState("")
 
@@ -86,7 +98,9 @@ export const GraphByLLM: FC<{
       }}
     >
       {renderIframe()}
-      {plotData.length > 0 && <GraphByLLMItem plotData={plotData} />}
+      {plotData.length > 0 && (
+        <GraphByLLMItem title={title} plotData={plotData} />
+      )}
       <Box sx={{ display: "flex" }}>
         <TextField
           id="graph-by-llm-query"
@@ -121,7 +135,10 @@ export const GraphByLLM: FC<{
           disabled={queryInput.trim() === ""}
           onClick={() => {
             if (study === null) return
-            generatePlotlyGraph(study, queryInput).then(setPlotData)
+            generatePlotlyGraph(study, queryInput).then((result) => {
+              setTitle(result.graphTitle)
+              setPlotData(result.plotData)
+            })
           }}
         >
           Generate

@@ -8,6 +8,7 @@ from bottle import response
 
 from optuna_dashboard.llm.prompt_templates._generate_plotly_graph import (
     get_generate_plotly_graph_prompt,
+    get_generate_plotly_graph_title_prompt,
 )
 from .._bottle_util import json_api_view
 from .prompt_templates._trial_filter import get_trial_filtering_prompt
@@ -82,5 +83,24 @@ def register_llm_route(app: Bottle, llm_provider: LLMProvider | None) -> None:
             response.status = 500
             return {"reason": str(e)}
 
+        prompt = get_generate_plotly_graph_title_prompt(user_query, generate_plotly_graph_func_str)
+
+        try:
+            generated_plotly_graph_title = llm_provider.call(prompt)
+        except RateLimitExceeded as e:
+            response.status = 429  # Too Many Requests
+            reason = f"Rate limit exceeded. Try again later. The actual error: {str(e)}"
+            return {"reason": reason}
+        except InvalidAuthentication as e:
+            response.status = 401  # Unauthorized
+            reason = f"Invalid authentication. Check your API key. The actual error: {str(e)}"
+            return {"reason": reason}
+        except Exception as e:
+            response.status = 500
+            return {"reason": str(e)}
+
         response.status = 200
-        return {"generate_plotly_graph_func_str": generate_plotly_graph_func_str}
+        return {
+            "generate_plotly_graph_func_str": generate_plotly_graph_func_str,
+            "generate_plotly_graph_title": generated_plotly_graph_title,
+        }

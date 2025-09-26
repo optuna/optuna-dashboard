@@ -10,8 +10,10 @@ import { useEvalConfirmationDialog } from "./useEvalConfirmationDialog"
 
 import React, { ReactNode, useCallback, useState } from "react"
 
-// Cache atom for API responses: userQuery -> plotly_graph_func_str
-const generatePlotlyGraphCacheAtom = atom(new Map<string, string>())
+// Cache atom for API responses: userQuery -> { funcStr, graphTitle }
+const generatePlotlyGraphCacheAtom = atom(
+  new Map<string, { funcStr: string; graphTitle: string }>()
+)
 // Cache atom for failed queries: userQuery -> true (to prevent repeated attempts)
 const failedQueryCacheAtom = atom(new Set<string>())
 
@@ -27,7 +29,10 @@ export const useGeneratePlotlyGraphQuery = ({
   (
     study: StudyDetail,
     generatePlotlyGraphQueryStr: string
-  ) => Promise<plotly.PlotData[]>,
+  ) => Promise<{
+    plotData: plotly.PlotData[]
+    graphTitle: string
+  }>,
   () => ReactNode,
   boolean,
 ] => {
@@ -45,7 +50,10 @@ export const useGeneratePlotlyGraphQuery = ({
     async (
       study: StudyDetail,
       userQuery: string
-    ): Promise<plotly.PlotData[]> => {
+    ): Promise<{
+      plotData: plotly.PlotData[]
+      graphTitle: string
+    }> => {
       setIsLoading(true)
       try {
         // Check if this query has already failed nRetry times
@@ -56,19 +64,22 @@ export const useGeneratePlotlyGraphQuery = ({
               variant: "error",
             }
           )
-          return [] // Return empty plot data
+          return { plotData: [], graphTitle: "" } // Return empty plot data
         }
 
         const cached = cache.get(userQuery)
         if (cached) {
           // Show confirmation dialog even for cached functions
-          const userConfirmed = await showConfirmationDialog(cached)
+          const userConfirmed = await showConfirmationDialog(cached.funcStr)
           if (!userConfirmed) {
-            return [] // Return empty plot data if user denies
+            return { plotData: [], graphTitle: "" } // Return empty plot data if user denies
           }
 
           try {
-            return await evalGeneratePlotlyGraph(study, cached)
+            return {
+              plotData: await evalGeneratePlotlyGraph(study, cached.funcStr),
+              graphTitle: cached.graphTitle,
+            }
           } catch (e) {
             const message = e instanceof Error ? e.message : String(e)
             console.warn(
@@ -85,6 +96,7 @@ export const useGeneratePlotlyGraphQuery = ({
           | undefined = undefined
         for (let attempt = 0; attempt < nRetry; attempt++) {
           let funcStr: string
+          let graphTitle: string
 
           try {
             const response = await apiClient.callGeneratePlotlyGraphQuery({
@@ -92,6 +104,7 @@ export const useGeneratePlotlyGraphQuery = ({
               last_response: lastResponse,
             })
             funcStr = response.generate_plotly_graph_func_str
+            graphTitle = response.generate_plotly_graph_title
           } catch (apiError) {
             const reason = isAxiosError<{ reason: string }>(apiError)
               ? apiError.response?.data.reason
@@ -107,16 +120,16 @@ export const useGeneratePlotlyGraphQuery = ({
 
           const userConfirmed = await showConfirmationDialog(funcStr)
           if (!userConfirmed) {
-            return [] // Return empty plot data if user denies
+            return { plotData: [], graphTitle: "" } // Return empty plot data if user denies
           }
 
           try {
             const plotData = await evalGeneratePlotlyGraph(study, funcStr)
             // Cache the successful function string
             const newCache = new Map(cache)
-            newCache.set(userQuery, funcStr)
+            newCache.set(userQuery, { funcStr, graphTitle })
             setCache(newCache)
-            return plotData
+            return { plotData, graphTitle }
           } catch (e) {
             const message = e instanceof Error ? e.message : String(e)
             console.warn(
