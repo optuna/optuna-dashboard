@@ -7,3 +7,4 @@ Tutorials
     hitl
     preferential-optimization
     opentelemetry
+    llm-integration
