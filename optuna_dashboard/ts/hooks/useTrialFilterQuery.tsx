@@ -1,4 +1,4 @@
-import { useEvalTrialFilter } from "@optuna/react"
+import { useEvalFunctionInSandbox } from "@optuna/react"
 import { isAxiosError } from "axios"
 import { atom, useAtom } from "jotai"
 import { useSnackbar } from "notistack"
@@ -27,7 +27,8 @@ export const useTrialFilterQuery = ({
 ] => {
   const { apiClient } = useAPIClient()
   const { enqueueSnackbar } = useSnackbar()
-  const [filterByJSFuncStr, renderIframe] = useEvalTrialFilter<Trial>()
+  const { evalTrialFilter, renderIframeSandbox } =
+    useEvalFunctionInSandbox<Trial>()
   const [cache, setCache] = useAtom(trialFilterCacheAtom)
   const [failedCache, setFailedCache] = useAtom(failedQueryCacheAtom)
   const [showConfirmationDialog, renderDialog] =
@@ -58,7 +59,7 @@ export const useTrialFilterQuery = ({
           }
 
           try {
-            return await filterByJSFuncStr(trials, cached)
+            return await evalTrialFilter(trials, cached)
           } catch (evalError: unknown) {
             // If cached function fails, remove from cache and proceed with API call
             const message =
@@ -103,7 +104,7 @@ export const useTrialFilterQuery = ({
           }
 
           try {
-            const result = await filterByJSFuncStr(trials, filterFuncStr)
+            const result = await evalTrialFilter(trials, filterFuncStr)
             // Cache the successful function string
             const newCache = new Map(cache)
             newCache.set(userQuery, filterFuncStr)
@@ -143,7 +144,7 @@ export const useTrialFilterQuery = ({
     [
       apiClient,
       enqueueSnackbar,
-      filterByJSFuncStr,
+      evalTrialFilter,
       nRetry,
       cache,
       setCache,
@@ -159,7 +160,7 @@ export const useTrialFilterQuery = ({
     return (
       <>
         {renderDialog()}
-        {renderIframe()}
+        {renderIframeSandbox()}
       </>
     )
   }

@@ -1,4 +1,5 @@
-import { useEvalGeneratePlotlyGraph } from "@optuna/react"
+import { useEvalFunctionInSandbox } from "@optuna/react"
+import * as Optuna from "@optuna/types"
 import { isAxiosError } from "axios"
 import { atom, useAtom } from "jotai"
 import { useSnackbar } from "notistack"
@@ -32,8 +33,8 @@ export const useGeneratePlotlyGraphQuery = ({
 ] => {
   const { apiClient } = useAPIClient()
   const { enqueueSnackbar } = useSnackbar()
-  const [generatePlotlyGraphByJSFuncStr, renderIframe] =
-    useEvalGeneratePlotlyGraph<StudyDetail>()
+  const { evalGeneratePlotlyGraph, renderIframeSandbox } =
+    useEvalFunctionInSandbox<Optuna.Trial, StudyDetail>()
   const [cache, setCache] = useAtom(generatePlotlyGraphCacheAtom)
   const [failedCache, setFailedCache] = useAtom(failedQueryCacheAtom)
   const [showConfirmationDialog, renderDialog] =
@@ -67,7 +68,7 @@ export const useGeneratePlotlyGraphQuery = ({
           }
 
           try {
-            return await generatePlotlyGraphByJSFuncStr(study, cached)
+            return await evalGeneratePlotlyGraph(study, cached)
           } catch (e) {
             const message = e instanceof Error ? e.message : String(e)
             console.warn(
@@ -110,10 +111,7 @@ export const useGeneratePlotlyGraphQuery = ({
           }
 
           try {
-            const plotData = await generatePlotlyGraphByJSFuncStr(
-              study,
-              funcStr
-            )
+            const plotData = await evalGeneratePlotlyGraph(study, funcStr)
             // Cache the successful function string
             const newCache = new Map(cache)
             newCache.set(userQuery, funcStr)
@@ -156,7 +154,7 @@ export const useGeneratePlotlyGraphQuery = ({
       cache,
       enqueueSnackbar,
       failedCache,
-      generatePlotlyGraphByJSFuncStr,
+      evalGeneratePlotlyGraph,
       nRetry,
       onFailed,
       setCache,
@@ -169,7 +167,7 @@ export const useGeneratePlotlyGraphQuery = ({
     return (
       <>
         {renderDialog()}
-        {renderIframe()}
+        {renderIframeSandbox()}
       </>
     )
   }
