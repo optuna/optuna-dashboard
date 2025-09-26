@@ -105,9 +105,7 @@ def main() -> None:
         type=str,
         default=None,
     )
-    parser.add_argument(
-        "--port", help=f"port number (default: {default_config.port})", type=int
-    )
+    parser.add_argument("--port", help=f"port number (default: {default_config.port})", type=int)
     parser.add_argument("--host", help=f"hostname (default: {default_config.host})")
     parser.add_argument(
         "--server",
