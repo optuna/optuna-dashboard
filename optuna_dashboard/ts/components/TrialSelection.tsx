@@ -1,12 +1,10 @@
 import DownloadIcon from "@mui/icons-material/Download"
-import FilterListIcon from "@mui/icons-material/FilterList"
 import {
   Alert,
   Box,
   Button,
   Card,
   CardContent,
-  CircularProgress,
   FormControl,
   FormControlLabel,
   Switch,
@@ -21,9 +19,9 @@ import { useLLMIsAvailable } from "../hooks/useAPIMeta"
 import { useTrialFilterQuery } from "../hooks/useTrialFilterQuery"
 import { StudyDetail, Trial } from "../types/optuna"
 import { SelectedTrialArtifactCards } from "./Artifact/SelectedTrialArtifactCards"
-import { DebouncedInputTextField } from "./Debounce"
 import { GraphHistory } from "./GraphHistory"
 import { GraphParetoFront } from "./GraphParetoFront"
+import { SmartFilteringForm } from "./LLM/SmartFilteringForm"
 
 export const TrialSelection: FC<{ studyDetail: StudyDetail }> = ({
   studyDetail,
@@ -127,32 +125,13 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail }> = ({
               alignItems: "center",
             }}
           >
-            <DebouncedInputTextField
-              onChange={(val) => setFilterQuery(val)}
-              delay={500}
-              textFieldProps={{
-                placeholder: "Enter filter query (e.g., trial number < 10)",
-                fullWidth: true,
-                size: "small",
-                disabled: isTrialFilterProcessing,
-                type: "search",
+            <SmartFilteringForm
+              onQueryChange={(query) => {
+                setFilterQuery(query)
               }}
+              onSubmit={handleFilter}
+              isProcessing={isTrialFilterProcessing}
             />
-            <Button
-              variant="contained"
-              startIcon={
-                isTrialFilterProcessing ? (
-                  <CircularProgress size={16} />
-                ) : (
-                  <FilterListIcon />
-                )
-              }
-              onClick={handleFilter}
-              disabled={isTrialFilterProcessing}
-              sx={{ minWidth: "120px", flexShrink: 0 }}
-            >
-              Filter
-            </Button>
           </Box>
         )}
         <FormControlLabel
