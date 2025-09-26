@@ -18,9 +18,10 @@ import { useGeneratePlotlyGraphQuery } from "../hooks/useGeneratePlotlyGraphQuer
 import { usePlotlyColorTheme } from "../state"
 import { StudyDetail } from "../types/optuna"
 
-const plotDomId = "graph-by-llm"
+const plotDomIdPrefix = "graph-by-llm"
 
 const plotByLLM = (
+  plotDomId: string,
   plotData: plotly.PlotData[],
   colorTheme: Partial<Plotly.Template>
 ) => {
@@ -42,16 +43,18 @@ const plotByLLM = (
 }
 
 const GraphByLLMItem: FC<{
+  plotDomId: string
   title: string
   plotData: plotly.PlotData[]
-}> = ({ title, plotData }) => {
+  onDelete: () => void
+}> = ({ plotDomId, title, plotData, onDelete }) => {
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
   const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
   useEffect(() => {
     if (plotData.length > 0) {
-      plotByLLM(plotData, colorTheme)?.then(notifyGraphDidRender)
+      plotByLLM(plotDomId, plotData, colorTheme)?.then(notifyGraphDidRender)
     }
   }, [plotData])
 
@@ -59,7 +62,19 @@ const GraphByLLMItem: FC<{
 
   return (
     <Card>
-      <CardContent>
+      <CardContent sx={{ position: "relative", padding: theme.spacing(1) }}>
+        <IconButton
+          aria-label="close graph"
+          size="small"
+          onClick={onDelete}
+          sx={{
+            position: "absolute",
+            top: theme.spacing(0.5),
+            right: theme.spacing(0.5),
+          }}
+        >
+          <ClearIcon fontSize="small" />
+        </IconButton>
         <Typography
           variant="h6"
           sx={{
@@ -86,8 +101,9 @@ export const GraphByLLM: FC<{
     useGeneratePlotlyGraphQuery({
       nRetry: 3,
     })
-  const [title, setTitle] = useState("")
-  const [plotData, setPlotData] = useState<plotly.PlotData[]>([])
+  const [graphs, setGraphs] = useState<
+    { id: string; title: string; plotData: plotly.PlotData[] }[]
+  >([])
   const [queryInput, setQueryInput] = useState("")
 
   return (
@@ -98,8 +114,19 @@ export const GraphByLLM: FC<{
       }}
     >
       {renderIframe()}
-      {plotData.length > 0 && (
-        <GraphByLLMItem title={title} plotData={plotData} />
+      {graphs.map(
+        (graph) =>
+          graph.plotData.length > 0 && (
+            <GraphByLLMItem
+              key={graph.id}
+              plotDomId={`${plotDomIdPrefix}-${graph.id}`}
+              title={graph.title}
+              plotData={graph.plotData}
+              onDelete={() =>
+                setGraphs((prev) => prev.filter((g) => g.id !== graph.id))
+              }
+            />
+          )
       )}
       <Box sx={{ display: "flex" }}>
         <TextField
@@ -136,8 +163,14 @@ export const GraphByLLM: FC<{
           onClick={() => {
             if (study === null) return
             generatePlotlyGraph(study, queryInput).then((result) => {
-              setTitle(result.graphTitle)
-              setPlotData(result.plotData)
+              setGraphs((prev) => [
+                ...prev,
+                {
+                  id: String(new Date().getTime()),
+                  title: result.graphTitle,
+                  plotData: result.plotData,
+                },
+              ])
             })
           }}
         >
