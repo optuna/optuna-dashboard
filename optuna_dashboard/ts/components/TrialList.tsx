@@ -1,21 +1,17 @@
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
-import ClearIcon from "@mui/icons-material/Clear"
 import FilterListIcon from "@mui/icons-material/FilterList"
 import StopCircleIcon from "@mui/icons-material/StopCircle"
 
 import {
   Box,
   Button,
-  CircularProgress,
   FormControl,
   IconButton,
-  InputAdornment,
   InputLabel,
   Menu,
   MenuItem,
   Select,
-  TextField,
   Typography,
   useTheme,
 } from "@mui/material"
@@ -41,6 +37,7 @@ import { useTrialFilterQuery } from "../hooks/useTrialFilterQuery"
 import { trialListDurationTimeUnitState } from "../state"
 import { useQuery } from "../urlQuery"
 import { ArtifactCards } from "./Artifact/ArtifactCards"
+import { SmartFilteringForm } from "./LLM/SmartFilteringForm"
 import { TrialNote } from "./Note"
 import { TrialFormWidgets } from "./TrialFormWidgets"
 
@@ -484,48 +481,17 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
             sx={{
               height: theme.spacing(8),
               p: theme.spacing(1),
+              gap: theme.spacing(1),
               display: "flex",
               flexDirection: "row",
               alignItems: "center",
             }}
           >
-            <TextField
-              id="trial-filter-query"
-              variant="outlined"
-              placeholder="Enter filter query (e.g., trial number < 10)"
-              fullWidth
-              size="small"
-              value={trialFilterQuery}
-              onChange={(e) => setTrialFilterQuery(e.target.value)}
-              slotProps={{
-                input: {
-                  endAdornment: trialFilterQuery && (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="clear filter"
-                        onClick={handleClearFilter}
-                        edge="end"
-                        size="small"
-                        disabled={isTrialFilterProcessing}
-                      >
-                        <ClearIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
+            <SmartFilteringForm
+              onQueryChange={(query) => {
+                setTrialFilterQuery(query)
               }}
-            />
-            <Button
-              variant="contained"
-              startIcon={
-                isTrialFilterProcessing ? (
-                  <CircularProgress size={16} />
-                ) : (
-                  <FilterListIcon />
-                )
-              }
-              disabled={isTrialFilterProcessing}
-              onClick={() => {
+              onSubmit={() => {
                 if (trialFilterQuery !== "" && !isTrialFilterProcessing) {
                   trialFilter(allTrials, trialFilterQuery)
                     .then((filtered) => {
@@ -538,10 +504,8 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                   setLlmFilteredTrials(allTrials)
                 }
               }}
-              sx={{ marginLeft: theme.spacing(2), minWidth: "120px" }}
-            >
-              Filter
-            </Button>
+              isProcessing={isTrialFilterProcessing}
+            />
           </Box>
           <Divider />
         </>
