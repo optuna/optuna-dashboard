@@ -413,11 +413,13 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const query = useQuery()
   const navigate = useNavigate()
   const excludedStates = useExcludedStates(query)
-  const [filteredTrials, setFilteredTrials] = useState<Trial[] | undefined>()
+  const [llmFilteredTrials, setLlmFilteredTrials] = useState<
+    Trial[] | undefined
+  >()
   const [trialFilterQuery, setTrialFilterQuery] = useState<string>("")
   const handleClearFilter = useCallback(() => {
     setTrialFilterQuery("")
-    setFilteredTrials(undefined)
+    setLlmFilteredTrials(undefined)
   }, [])
   const [trialFilter, renderIframe, isTrialFilterProcessing] =
     useTrialFilterQuery({
@@ -430,15 +432,18 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
     })
   const llmEnabled = useLLMIsAvailable()
 
-  const baseTrials = useMemo(() => {
-    const allTrials = studyDetail?.trials ?? []
-    if (!allTrials) return []
-    if (excludedStates.length === 0) return allTrials
-    const excludedSet = new Set(excludedStates)
-    return allTrials.filter((t) => !excludedSet.has(t.state))
-  }, [studyDetail?.trials, excludedStates])
+  const allTrials = useMemo(() => {
+    return studyDetail?.trials ?? []
+  }, [studyDetail?.trials])
 
-  const trials = filteredTrials ?? baseTrials
+  const trials = useMemo(() => {
+    // Start with LLM filtered trials if available, otherwise all trials
+    const baseTrials = llmFilteredTrials ?? allTrials
+
+    if (excludedStates.length === 0) return baseTrials
+    const excludedSet = new Set(excludedStates)
+    return baseTrials.filter((t) => !excludedSet.has(t.state))
+  }, [llmFilteredTrials, allTrials, excludedStates])
   const isBestTrial = useIsBestTrial(studyDetail)
   const queried = useQueriedTrials(trials, query)
   const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
@@ -523,15 +528,15 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
               disabled={isTrialFilterProcessing}
               onClick={() => {
                 if (trialFilterQuery !== "" && !isTrialFilterProcessing) {
-                  trialFilter(trials, trialFilterQuery)
+                  trialFilter(allTrials, trialFilterQuery)
                     .then((filtered) => {
-                      setFilteredTrials(filtered)
+                      setLlmFilteredTrials(filtered)
                     })
                     .catch(() => {
-                      setFilteredTrials(trials) // Fallback to unfiltered trials on error
+                      setLlmFilteredTrials(allTrials) // Fallback to all trials on error
                     })
                 } else {
-                  setFilteredTrials(trials)
+                  setLlmFilteredTrials(allTrials)
                 }
               }}
               sx={{ marginLeft: theme.spacing(2), minWidth: "120px" }}
