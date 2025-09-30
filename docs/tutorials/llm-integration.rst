@@ -17,7 +17,7 @@ The LLM integration adds AI-assisted features on top of the existing dashboard e
     - Example query: "Draw a parallel coordinates plot to visualize the relationships between the objective value and the hyperparameters."
     - The model returns a JavaScript function to generate Plotly charts.
 
-Supported providers: OpenAI, Azure OpenAI, and OpenAI-compatible endpoints.
+Supported providers: :class:`~optuna_dashboard.llm.openai.OpenAI`, :class:`~optuna_dashboard.llm.openai.AzureOpenAI`, and OpenAI-compatible endpoints.
 
 Usage
 -----

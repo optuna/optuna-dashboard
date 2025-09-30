@@ -16,6 +16,17 @@ General APIs
    optuna_dashboard.save_plotly_graph_object
    optuna_dashboard.artifact.get_artifact_path
 
+LLM Providers
+-------------
+
+.. autosummary::
+   :toctree: _generated/
+   :nosignatures:
+
+   optuna_dashboard.llm.openai.OpenAI
+   optuna_dashboard.llm.openai.AzureOpenAI
+
+
 Human-in-the-loop
 -----------------
 
