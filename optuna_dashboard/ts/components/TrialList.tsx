@@ -437,12 +437,11 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   }, [studyDetail?.trials])
 
   const trials = useMemo(() => {
-    // Start with LLM filtered trials if available, otherwise all trials
-    const baseTrials = llmFilteredTrials ?? allTrials
+    const trialsBeforeStateFilter = llmFilteredTrials ?? allTrials
 
-    if (excludedStates.length === 0) return baseTrials
+    if (excludedStates.length === 0) return trialsBeforeStateFilter
     const excludedSet = new Set(excludedStates)
-    return baseTrials.filter((t) => !excludedSet.has(t.state))
+    return trialsBeforeStateFilter.filter((t) => !excludedSet.has(t.state))
   }, [llmFilteredTrials, allTrials, excludedStates])
   const isBestTrial = useIsBestTrial(studyDetail)
   const queried = useQueriedTrials(trials, query)
