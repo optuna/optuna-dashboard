@@ -28,6 +28,9 @@ Configuration file settings are overridden by command-line arguments.
     host = "127.0.0.1"
     server = "auto"
 
+
+.. _configuration-llm-integration:
+
 LLM Integration
 ~~~~~~~~~~~~~~~
 
