@@ -5,6 +5,8 @@ import {
   APIMeta,
   CompareStudiesPlotType,
   CreateNewStudyResponse,
+  GeneratePlotlyGraphQueryRequest,
+  GeneratePlotlyGraphQueryResponse,
   ParamImportancesResponse,
   PlotResponse,
   PlotType,
@@ -310,4 +312,13 @@ export class AxiosClient extends APIClient {
     this.axiosInstance
       .post<TrialFilterQueryResponse>("/api/llm/trial_filter_query", request)
       .then<TrialFilterQueryResponse>((res) => res.data)
+  callGeneratePlotlyGraphQuery = (
+    request: GeneratePlotlyGraphQueryRequest
+  ): Promise<GeneratePlotlyGraphQueryResponse> =>
+    this.axiosInstance
+      .post<GeneratePlotlyGraphQueryResponse>(
+        "/api/llm/generate_plotly_graph_query",
+        request
+      )
+      .then<GeneratePlotlyGraphQueryResponse>((res) => res.data)
 }

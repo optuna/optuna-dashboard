@@ -4,6 +4,8 @@ import {
   CompareStudiesPlotType,
   CreateNewStudyResponse,
   FeedbackComponentType,
+  GeneratePlotlyGraphQueryRequest,
+  GeneratePlotlyGraphQueryResponse,
   ParamImportancesResponse,
   PlotResponse,
   PlotType,
@@ -307,6 +309,13 @@ export class JupyterlabAPIClient extends APIClient {
   ): Promise<TrialFilterQueryResponse> {
     throw new Error(
       "Trial filter query is not implemented in JupyterLab API client."
+    )
+  }
+  callGeneratePlotlyGraphQuery(
+    request: GeneratePlotlyGraphQueryRequest
+  ): Promise<GeneratePlotlyGraphQueryResponse> {
+    throw new Error(
+      "Generate plotly graph query is not implemented in JupyterLab API client."
     )
   }
 }
