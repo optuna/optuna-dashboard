@@ -67,26 +67,14 @@ def register_llm_route(app: Bottle, llm_provider: LLMProvider | None) -> None:
 
         func_str = request.json.get("last_response", {}).get("func_str")
         err_msg = request.json.get("last_response", {}).get("error_message")
-        prompt = get_generate_plotly_graph_prompt(user_query, func_str, err_msg)
 
         try:
-            generate_plotly_graph_func_str = llm_provider.call(prompt)
-        except RateLimitExceeded as e:
-            response.status = 429  # Too Many Requests
-            reason = f"Rate limit exceeded. Try again later. The actual error: {str(e)}"
-            return {"reason": reason}
-        except InvalidAuthentication as e:
-            response.status = 401  # Unauthorized
-            reason = f"Invalid authentication. Check your API key. The actual error: {str(e)}"
-            return {"reason": reason}
-        except Exception as e:
-            response.status = 500
-            return {"reason": str(e)}
-
-        prompt = get_generate_plotly_graph_title_prompt(user_query, generate_plotly_graph_func_str)
-
-        try:
-            generated_plotly_graph_title = llm_provider.call(prompt)
+            prompt_for_func = get_generate_plotly_graph_prompt(user_query, func_str, err_msg)
+            generate_plotly_graph_func_str = llm_provider.call(prompt_for_func)
+            prompt_for_title = get_generate_plotly_graph_title_prompt(
+                user_query, generate_plotly_graph_func_str
+            )
+            generated_plotly_graph_title = llm_provider.call(prompt_for_title)
         except RateLimitExceeded as e:
             response.status = 429  # Too Many Requests
             reason = f"Rate limit exceeded. Try again later. The actual error: {str(e)}"
