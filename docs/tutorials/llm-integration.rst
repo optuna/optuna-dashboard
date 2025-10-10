@@ -99,4 +99,12 @@ It also supports multiple conditions combined together, such as:
 Automatic Plotly Charts Generation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-TBD. This feature is under the development; documentation will be added in a future update.
+.. image:: ./images/llm/llm-automatic-plotly-charts.png
+
+This feature enables **automated chart creation** from natural language prompts and is available in the "Analytics" tab.
+Previously, Optuna Dashboard provided a set of predefined visualizations for optimization tasks, such as optimization history plots, Pareto fronts, and contour plots.
+However, supporting custom visualizations tailored to specific tasks—especially those needed only occasionally—was challenging.
+
+With this capability, users can ask the LLM to create custom visualizations by simply describing what they want to see.
+The LLM interprets the request and generates a JavaScript function that uses Plotly.js to render the custom chart.
+This allows users to flexibly create domain- or task-specific charts that go beyond the built-in visualization types, significantly enhancing the analytical capabilities of the dashboard.
