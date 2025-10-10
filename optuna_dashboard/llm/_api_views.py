@@ -86,7 +86,7 @@ def register_llm_route(app: Bottle, llm_provider: LLMProvider | None) -> None:
         except Exception as e:
             response.status = 500
             return {"reason": str(e)}
-        
+
         try:
             # TODO(c-bata): Consider removing the generate_plotly_graph_func_str argument
             # to enable parallel llm provider calls
