@@ -9,6 +9,7 @@ import { StudyDetail } from "../types/optuna"
 import { useEvalConfirmationDialog } from "./useEvalConfirmationDialog"
 
 import React, { ReactNode, useCallback, useState } from "react"
+import { useLLMIsAvailable } from "./useAPIMeta"
 
 // Cache atom for API responses: userQuery -> { funcStr, graphTitle }
 const generatePlotlyGraphCacheAtom = atom(
@@ -38,6 +39,7 @@ export const useGeneratePlotlyGraphQuery = ({
 ] => {
   const { apiClient } = useAPIClient()
   const { enqueueSnackbar } = useSnackbar()
+  const llmEnabled = useLLMIsAvailable()
   const { evalGeneratePlotlyGraph, renderIframeSandbox } =
     useEvalFunctionInSandbox<Optuna.Trial, StudyDetail>()
   const [cache, setCache] = useAtom(generatePlotlyGraphCacheAtom)
@@ -177,6 +179,9 @@ export const useGeneratePlotlyGraphQuery = ({
   )
 
   const render = () => {
+    if (!llmEnabled) {
+      return null
+    }
     return (
       <>
         {renderDialog()}
