@@ -26,11 +26,6 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
-      - name: Install wasm-bindgen and wasm-opt
-        run: |
-          cargo install wasm-bindgen-cli
-          cargo install wasm-opt
-
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -45,9 +40,13 @@ jobs:
         run: |
           uv sync --group test
 
-      - name: Build rustlib
+      - name: Build rustlib for standalone_app
         working-directory: rustlib
-        run: ./build.sh
+        run: |
+          WASM_BINDGEN_VERSION=$(cargo metadata --format-version 1 | jq -r '.packages[] | select(.name == "wasm-bindgen") | .version')
+          cargo install wasm-bindgen-cli --version $WASM_BINDGEN_VERSION
+          cargo install wasm-opt
+          ./build.sh
 
       - name: Build tslib
         run: make tslib

@@ -1,19 +1,23 @@
 import { useEvalFunctionInSandbox } from "@optuna/react"
+import * as Optuna from "@optuna/types"
 import { isAxiosError } from "axios"
 import { atom, useAtom } from "jotai"
 import { useSnackbar } from "notistack"
-import React, { ReactNode, useCallback, useState } from "react"
+import * as plotly from "plotly.js-dist-min"
 import { useAPIClient } from "../apiClientProvider"
-import { Trial } from "../types/optuna"
-import { useLLMIsAvailable } from "./useAPIMeta"
+import { StudyDetail } from "../types/optuna"
 import { useEvalConfirmationDialog } from "./useEvalConfirmationDialog"
 
-// Cache atom for API responses: userQuery -> trial_filtering_func_str
-const trialFilterCacheAtom = atom<Map<string, string>>(new Map())
-// Cache atom for failed queries: userQuery -> true (to prevent repeated attempts)
-const failedQueryCacheAtom = atom<Set<string>>(new Set<string>())
+import React, { ReactNode, useCallback, useState } from "react"
 
-export const useTrialFilterQuery = ({
+// Cache atom for API responses: userQuery -> { funcStr, graphTitle }
+const generatePlotlyGraphCacheAtom = atom(
+  new Map<string, { funcStr: string; graphTitle: string }>()
+)
+// Cache atom for failed queries: userQuery -> true (to prevent repeated attempts)
+const failedQueryCacheAtom = atom(new Set<string>())
+
+export const useGeneratePlotlyGraphQuery = ({
   nRetry,
   onDenied,
   onFailed,
@@ -22,23 +26,34 @@ export const useTrialFilterQuery = ({
   onDenied?: () => void
   onFailed?: (errorMsg: string) => void
 }): [
-  (trials: Trial[], filterQueryStr: string) => Promise<Trial[]>,
+  (
+    study: StudyDetail,
+    generatePlotlyGraphQueryStr: string
+  ) => Promise<{
+    plotData: plotly.PlotData[]
+    graphTitle: string
+  }>,
   () => ReactNode,
   boolean,
 ] => {
   const { apiClient } = useAPIClient()
   const { enqueueSnackbar } = useSnackbar()
-  const llmEnabled = useLLMIsAvailable()
-  const { evalTrialFilter, renderIframeSandbox } =
-    useEvalFunctionInSandbox<Trial>()
-  const [cache, setCache] = useAtom(trialFilterCacheAtom)
+  const { evalGeneratePlotlyGraph, renderIframeSandbox } =
+    useEvalFunctionInSandbox<Optuna.Trial, StudyDetail>()
+  const [cache, setCache] = useAtom(generatePlotlyGraphCacheAtom)
   const [failedCache, setFailedCache] = useAtom(failedQueryCacheAtom)
   const [showConfirmationDialog, renderDialog] =
     useEvalConfirmationDialog(onDenied)
   const [isLoading, setIsLoading] = useState(false)
 
-  const filterByUserQuery = useCallback(
-    async (trials: Trial[], userQuery: string): Promise<Trial[]> => {
+  const generatePlotlyGraphByUserQuery = useCallback(
+    async (
+      study: StudyDetail,
+      userQuery: string
+    ): Promise<{
+      plotData: plotly.PlotData[]
+      graphTitle: string
+    }> => {
       setIsLoading(true)
       try {
         // Check if this query has already failed nRetry times
@@ -49,25 +64,26 @@ export const useTrialFilterQuery = ({
               variant: "error",
             }
           )
-          return trials // Return unfiltered trials
+          return { plotData: [], graphTitle: "" } // Return empty plot data
         }
 
         const cached = cache.get(userQuery)
         if (cached) {
           // Show confirmation dialog even for cached functions
-          const userConfirmed = await showConfirmationDialog(cached)
+          const userConfirmed = await showConfirmationDialog(cached.funcStr)
           if (!userConfirmed) {
-            return trials // Return unfiltered trials if user denies
+            return { plotData: [], graphTitle: "" } // Return empty plot data if user denies
           }
 
           try {
-            return await evalTrialFilter(trials, cached)
-          } catch (evalError: unknown) {
-            // If cached function fails, remove from cache and proceed with API call
-            const message =
-              evalError instanceof Error ? evalError.message : String(evalError)
+            return {
+              plotData: await evalGeneratePlotlyGraph(study, cached.funcStr),
+              graphTitle: cached.graphTitle,
+            }
+          } catch (e) {
+            const message = e instanceof Error ? e.message : String(e)
             console.warn(
-              `Cached filter function failed, removing from cache: ${message}`
+              `Cached plotly graph generation function failed: ${message}`
             )
             const newCache = new Map(cache)
             newCache.delete(userQuery)
@@ -79,62 +95,65 @@ export const useTrialFilterQuery = ({
           | { func_str: string; error_message: string }
           | undefined = undefined
         for (let attempt = 0; attempt < nRetry; attempt++) {
-          let filterFuncStr: string
+          let funcStr: string
+          let graphTitle: string
 
           try {
-            const response = await apiClient.callTrialFilterQuery({
+            const response = await apiClient.callGeneratePlotlyGraphQuery({
               user_query: userQuery,
               last_response: lastResponse,
             })
-            filterFuncStr = response.trial_filtering_func_str
+            funcStr = response.generate_plotly_graph_func_str
+            graphTitle = response.generate_plotly_graph_title
           } catch (apiError) {
             const reason = isAxiosError<{ reason: string }>(apiError)
-              ? apiError.response?.data?.reason
+              ? apiError.response?.data.reason
               : String(apiError)
             enqueueSnackbar(`API error: (error=${reason})`, {
               variant: "error",
             })
             if (onFailed) {
-              onFailed(`API error: ${reason}`)
+              onFailed(`API error: (error=${reason})`)
             }
             throw apiError
           }
 
-          const userConfirmed = await showConfirmationDialog(filterFuncStr)
+          const userConfirmed = await showConfirmationDialog(funcStr)
           if (!userConfirmed) {
-            throw new Error("User rejected the execution")
+            return { plotData: [], graphTitle: "" } // Return empty plot data if user denies
           }
 
           try {
-            const result = await evalTrialFilter(trials, filterFuncStr)
+            const plotData = await evalGeneratePlotlyGraph(study, funcStr)
             // Cache the successful function string
             const newCache = new Map(cache)
-            newCache.set(userQuery, filterFuncStr)
+            newCache.set(userQuery, { funcStr, graphTitle })
             setCache(newCache)
-            return result
-          } catch (evalError: unknown) {
-            const errMsg =
-              evalError instanceof Error ? evalError.message : String(evalError)
-            console.error(
-              `Failed to filter trials (func=${filterFuncStr}, error=${errMsg})`
+            return { plotData, graphTitle }
+          } catch (e) {
+            const message = e instanceof Error ? e.message : String(e)
+            console.warn(
+              `Evaluation of plotly graph generation function failed: ${message}`
             )
             if (attempt >= nRetry - 1) {
               const newFailedCache = new Set(failedCache)
               newFailedCache.add(userQuery)
               setFailedCache(newFailedCache)
 
-              const errorMessage = `Failed to evaluate trial filtering function after ${nRetry} attempts (error=${errMsg})`
-              enqueueSnackbar(errorMessage, { variant: "error" })
+              const errorMessage = `Failed to evaluate plotly graph generation function after ${nRetry} attempts (error=${message})`
+              enqueueSnackbar(errorMessage, {
+                variant: "error",
+              })
 
               if (onFailed) {
                 onFailed(errorMessage)
               }
-              throw evalError
+              throw e
             }
 
             lastResponse = {
-              func_str: filterFuncStr,
-              error_message: errMsg,
+              func_str: funcStr,
+              error_message: message,
             }
           }
         }
@@ -145,23 +164,19 @@ export const useTrialFilterQuery = ({
     },
     [
       apiClient,
-      enqueueSnackbar,
-      evalTrialFilter,
-      nRetry,
       cache,
-      setCache,
+      enqueueSnackbar,
       failedCache,
+      evalGeneratePlotlyGraph,
+      nRetry,
+      onFailed,
+      setCache,
       setFailedCache,
       showConfirmationDialog,
-      onFailed,
-      setIsLoading,
     ]
   )
 
   const render = () => {
-    if (!llmEnabled) {
-      return null
-    }
     return (
       <>
         {renderDialog()}
@@ -169,5 +184,6 @@ export const useTrialFilterQuery = ({
       </>
     )
   }
-  return [filterByUserQuery, render, isLoading]
+
+  return [generatePlotlyGraphByUserQuery, render, isLoading]
 }

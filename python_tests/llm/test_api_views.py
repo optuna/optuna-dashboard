@@ -55,16 +55,25 @@ def test_get_trial_filtering_func_str_without_user_query() -> None:
     assert status == 400
 
 
-@pytest.mark.parametrize("llm_provider, correct_status", [
-    (LLMProviderMock(), 200),
-    (InvalidAuthenticationLLMProviderMock(), 401),
-    (RateLimitExceededLLMProviderMock(), 429),
-    (None, 400),
-])
-@pytest.mark.parametrize("body_params", [
-    {"user_query": "test query"},
-    {"user_query": "test query", "last_response": {"func_str": "dummy", "error_message": "error"}},
-])
+@pytest.mark.parametrize(
+    "llm_provider, correct_status",
+    [
+        (LLMProviderMock(), 200),
+        (InvalidAuthenticationLLMProviderMock(), 401),
+        (RateLimitExceededLLMProviderMock(), 429),
+        (None, 400),
+    ],
+)
+@pytest.mark.parametrize(
+    "body_params",
+    [
+        {"user_query": "test query"},
+        {
+            "user_query": "test query",
+            "last_response": {"func_str": "dummy", "error_message": "error"},
+        },
+    ],
+)
 def test_get_trial_filtering_func_str(
     llm_provider: LLMProvider | None,
     correct_status: int,

@@ -29,7 +29,6 @@ classifiers = [
 dependencies = [
     "bottle>=0.13.0",
     "optuna>=3.6.0",
-    "packaging",
     "tomli; python_version<'3.11'",
 ]
 dynamic = ["version"]
@@ -44,6 +43,7 @@ docs = [
     "boto3",
     "torch; python_version>='3.9'",
     "botorch; python_version>='3.9'",
+    "openai",
     "streamlit",
     "sphinx",
     "sphinx_rtd_theme",
@@ -125,6 +125,7 @@ test = [
     "boto3",
     "coverage",
     "openai",
+    "packaging",
     "plotly",
     "pytest",
     "respx",

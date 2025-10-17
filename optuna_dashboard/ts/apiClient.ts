@@ -151,6 +151,19 @@ export type TrialFilterQueryResponse = {
   trial_filtering_func_str: string
 }
 
+export type GeneratePlotlyGraphQueryRequest = {
+  user_query: string
+  last_response?: {
+    func_str: string
+    error_message: string
+  }
+}
+
+export type GeneratePlotlyGraphQueryResponse = {
+  generate_plotly_graph_func_str: string
+  generate_plotly_graph_title: string
+}
+
 export abstract class APIClient {
   constructor() {}
 
@@ -275,4 +288,7 @@ export abstract class APIClient {
   abstract callTrialFilterQuery(
     request: TrialFilterQueryRequest
   ): Promise<TrialFilterQueryResponse>
+  abstract callGeneratePlotlyGraphQuery(
+    request: GeneratePlotlyGraphQueryRequest
+  ): Promise<GeneratePlotlyGraphQueryResponse>
 }
