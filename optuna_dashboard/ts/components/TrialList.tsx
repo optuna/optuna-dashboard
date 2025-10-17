@@ -774,7 +774,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
           </Box>
         </Box>
       </Box>
-      {llmEnabled && renderIframe()}
+      {renderIframe()}
     </Box>
   )
 }

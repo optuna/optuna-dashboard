@@ -137,7 +137,7 @@ export const TrialTable: FC<{ studyDetail: StudyDetail }> = ({
           </Button>
         </CardContent>
       </Card>
-      {llmEnabled && render()}
+      {render()}
     </Box>
   )
 }
