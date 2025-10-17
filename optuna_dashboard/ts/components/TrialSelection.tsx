@@ -272,7 +272,7 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail }> = ({
           </Card>
         </Box>
       )}
-      {llmEnabled && render()}
+      {render()}
     </Box>
   )
 }

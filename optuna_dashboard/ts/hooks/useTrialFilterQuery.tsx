@@ -5,6 +5,7 @@ import { useSnackbar } from "notistack"
 import React, { ReactNode, useCallback, useState } from "react"
 import { useAPIClient } from "../apiClientProvider"
 import { Trial } from "../types/optuna"
+import { useLLMIsAvailable } from "./useAPIMeta"
 import { useEvalConfirmationDialog } from "./useEvalConfirmationDialog"
 
 // Cache atom for API responses: userQuery -> trial_filtering_func_str
@@ -27,6 +28,7 @@ export const useTrialFilterQuery = ({
 ] => {
   const { apiClient } = useAPIClient()
   const { enqueueSnackbar } = useSnackbar()
+  const llmEnabled = useLLMIsAvailable()
   const { evalTrialFilter, renderIframeSandbox } =
     useEvalFunctionInSandbox<Trial>()
   const [cache, setCache] = useAtom(trialFilterCacheAtom)
@@ -157,6 +159,9 @@ export const useTrialFilterQuery = ({
   )
 
   const render = () => {
+    if (!llmEnabled) {
+      return null
+    }
     return (
       <>
         {renderDialog()}

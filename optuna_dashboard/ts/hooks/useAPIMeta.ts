@@ -53,3 +53,8 @@ export const usePlotlyPyIsAvailable = (): boolean => {
   const { data } = useAPIMeta()
   return data?.plotlypy_is_available ?? false
 }
+
+export const useAllowUnsafe = (): boolean => {
+  const { data } = useAPIMeta()
+  return data?.allow_unsafe ?? false
+}

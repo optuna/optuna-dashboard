@@ -17,6 +17,7 @@ export type APIMeta = {
   artifact_is_available: boolean
   llm_is_available: boolean
   plotlypy_is_available: boolean
+  allow_unsafe: boolean
   jupyterlab_extension_context?: {
     base_url: string
   }
