@@ -126,6 +126,11 @@ def main() -> None:
     )
     parser.add_argument("--version", "-v", action="version", version=__version__)
     parser.add_argument("--quiet", "-q", help="quiet", action="store_true")
+    parser.add_argument(
+        "--allow-unsafe",
+        help="Allow unsafe features such as 'rehypejs/rehype-raw'",
+        action="store_true",
+    )
     args = parser.parse_args()
 
     # Load and merge configuration
@@ -153,6 +158,7 @@ def main() -> None:
         artifact_store=artifact_store,
         llm_provider=llm_provider,
         debug=DEBUG,
+        allow_unsafe=config.allow_unsafe,
     )
 
     if DEBUG and isinstance(storage, RDBStorage):

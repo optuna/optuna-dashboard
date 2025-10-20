@@ -53,7 +53,7 @@ import remarkMath from "remark-math"
 import { useAtomValue } from "jotai"
 import { Note } from "ts/types/optuna"
 import { actionCreator } from "../action"
-import { useArtifactIsAvailable } from "../hooks/useAPIMeta"
+import { useAllowUnsafe, useArtifactIsAvailable } from "../hooks/useAPIMeta"
 import { isFileUploading, useArtifacts } from "../state"
 
 const placeholder = `## What is this feature for?
@@ -170,17 +170,25 @@ const useConfirmCloseDialog = (
   return [openDialog, renderDialog]
 }
 
-export const MarkdownRenderer: FC<{ body: string }> = ({ body }) => (
-  <ReactMarkdown
-    children={body}
-    remarkPlugins={[remarkGfm, remarkMath]}
-    rehypePlugins={[rehypeMathjax, rehypeRaw]}
-    components={{
-      code: CodeBlock,
-      img: (props) => <img {...props} style={{ maxWidth: "100%" }} />,
-    }}
-  />
-)
+export const MarkdownRenderer: FC<{ body: string }> = ({ body }) => {
+  const allowUnsafe = useAllowUnsafe()
+  const rehypePlugins = [rehypeMathjax]
+  if (allowUnsafe) {
+    rehypePlugins.push(rehypeRaw)
+  }
+
+  return (
+    <ReactMarkdown
+      children={body}
+      remarkPlugins={[remarkGfm, remarkMath]}
+      rehypePlugins={rehypePlugins}
+      components={{
+        code: CodeBlock,
+        img: (props) => <img {...props} style={{ maxWidth: "100%" }} />,
+      }}
+    />
+  )
+}
 
 const MarkdownEditorModal: FC<{
   studyId: number

@@ -87,6 +87,7 @@ def create_app(
     llm_provider: LLMProvider | None = None,
     debug: bool = False,
     jupyterlab_extension_context: JupyterLabExtensionContext | None = None,
+    allow_unsafe: bool = False,
 ) -> Bottle:
     app = Bottle()
     app._inmemory_cache = InMemoryCache()
@@ -102,7 +103,30 @@ def create_app(
     # Accept any following paths for client-side routing
     @app.get("/dashboard<:re:(/.*)?>")
     def dashboard() -> BottleViewReturn:
-        return static_file("index.html", BASE_DIR, mimetype="text/html")
+        if allow_unsafe:
+            headers = {}
+        else:
+            # CSP header
+            if llm_provider is not None:
+                script_src_str = "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+            else:
+                # Parallel coordinate, which uses WebGL, requires unsafe-eval.
+                script_src_str = "script-src 'self' 'unsafe-eval'"
+
+            csp_string = ";".join(
+                [
+                    "default-src 'self'",
+                    "img-src 'self' data: blob:",
+                    "frame-src 'self'",
+                    "object-src 'none'",
+                    "connect-src 'self'",
+                    "style-src 'self' data: 'unsafe-inline'",
+                    script_src_str,
+                ]
+            )
+            headers = {"Content-Security-Policy": csp_string}
+
+        return static_file("index.html", BASE_DIR, mimetype="text/html", headers=headers)
 
     @app.get("/api/meta")
     @json_api_view
@@ -111,6 +135,7 @@ def create_app(
             "artifact_is_available": artifact_store is not None,
             "llm_is_available": llm_provider is not None,
             "plotlypy_is_available": importlib.util.find_spec("plotly") is not None,
+            "allow_unsafe": allow_unsafe,
         }
         if jupyterlab_extension_context is not None:
             meta["jupyterlab_extension_context"] = {
