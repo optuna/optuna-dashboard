@@ -1,11 +1,19 @@
 import ClearIcon from "@mui/icons-material/Clear"
+import DeleteIcon from "@mui/icons-material/Delete"
+import EditRoadIcon from "@mui/icons-material/EditRoad"
+import MoreVertIcon from "@mui/icons-material/MoreVert"
 import { LoadingButton } from "@mui/lab"
 import {
   Box,
+  Button,
   Card,
   CardContent,
   IconButton,
   InputAdornment,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
   TextField,
   Typography,
   useTheme,
@@ -43,17 +51,35 @@ const plotByLLM = (
 }
 
 const GraphByLLMItem: FC<{
+  id: string
   plotDomId: string
   title: string
   plotData: plotly.PlotData[]
   onDelete: () => void
-}> = ({ plotDomId, title, plotData, onDelete }) => {
+  reGeneratePlotlyGraph: (reGeneratePlotlyGraphQueryStr: string) => void
+  isReGeneratingPlotlyGraph: boolean
+}> = ({
+  id,
+  plotDomId,
+  title,
+  plotData,
+  onDelete,
+  reGeneratePlotlyGraph,
+  isReGeneratingPlotlyGraph,
+}) => {
   const theme = useTheme()
   const colorTheme = usePlotlyColorTheme(theme.palette.mode)
   const { graphComponentState, notifyGraphDidRender } = useGraphComponentState()
 
+  const [menuAnchorEl, setMenuAnchorEl] = useState<null | HTMLElement>(null)
+  const openMenu = Boolean(menuAnchorEl)
+
+  const [isEditingGraph, setIsEditingGraph] = useState(false)
+  const [queryInput, setQueryInput] = useState("")
+
   useEffect(() => {
     if (plotData.length > 0) {
+      setIsEditingGraph(false)
       plotByLLM(plotDomId, plotData, colorTheme)?.then(notifyGraphDidRender)
     }
   }, [plotData])
@@ -65,16 +91,46 @@ const GraphByLLMItem: FC<{
       <CardContent sx={{ position: "relative", padding: theme.spacing(1) }}>
         <IconButton
           aria-label="close graph"
+          aria-controls={openMenu ? `graph-by-llm-item-menu-${id}` : undefined}
+          aria-haspopup="true"
+          aria-expanded={openMenu ? "true" : undefined}
           size="small"
-          onClick={onDelete}
+          onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+            setMenuAnchorEl(event.currentTarget)
+          }}
           sx={{
             position: "absolute",
             top: theme.spacing(0.5),
             right: theme.spacing(0.5),
           }}
         >
-          <ClearIcon fontSize="small" />
+          <MoreVertIcon fontSize="small" />
         </IconButton>
+        <Menu
+          anchorEl={menuAnchorEl}
+          id={`graph-by-llm-item-menu-${id}`}
+          open={openMenu}
+          onClose={() => setMenuAnchorEl(null)}
+        >
+          <MenuItem onClick={onDelete}>
+            <ListItemIcon>
+              <DeleteIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Delete</ListItemText>
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              setIsEditingGraph(true)
+              setMenuAnchorEl(null)
+            }}
+          >
+            <ListItemIcon>
+              <EditRoadIcon fontSize="small" />
+            </ListItemIcon>
+            <ListItemText>Edit</ListItemText>
+          </MenuItem>
+        </Menu>
+
         <Typography
           variant="h6"
           sx={{
@@ -84,6 +140,59 @@ const GraphByLLMItem: FC<{
         >
           {title}
         </Typography>
+
+        {isEditingGraph && (
+          <Box sx={{ display: "flex" }}>
+            <TextField
+              id={`graph-by-llm-item-query-${id}`}
+              variant="outlined"
+              placeholder="Enter the part you want to edit in the graph"
+              fullWidth
+              size="small"
+              value={queryInput}
+              onChange={(e) => setQueryInput(e.target.value)}
+              slotProps={{
+                input: {
+                  endAdornment: queryInput && (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="clear filter"
+                        onClick={() => setQueryInput("")}
+                        edge="end"
+                        size="small"
+                        disabled={isReGeneratingPlotlyGraph}
+                      >
+                        <ClearIcon />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                },
+              }}
+            />
+            <Button
+              sx={{ marginLeft: theme.spacing(1) }}
+              variant="outlined"
+              onClick={() => {
+                setIsEditingGraph(false)
+                setQueryInput("")
+              }}
+            >
+              Cancel
+            </Button>
+            <LoadingButton
+              sx={{ marginLeft: theme.spacing(1) }}
+              variant="contained"
+              loading={isReGeneratingPlotlyGraph}
+              disabled={queryInput.trim() === ""}
+              onClick={() => {
+                reGeneratePlotlyGraph(queryInput)
+              }}
+            >
+              Regenerate
+            </LoadingButton>
+          </Box>
+        )}
+
         <GraphContainer
           plotDomId={plotDomId}
           graphComponentState={graphComponentState}
@@ -119,12 +228,15 @@ export const GraphByLLM: FC<{
           graph.plotData.length > 0 && (
             <GraphByLLMItem
               key={graph.id}
+              id={graph.id}
               plotDomId={`${plotDomIdPrefix}-${graph.id}`}
               title={graph.title}
               plotData={graph.plotData}
               onDelete={() =>
                 setGraphs((prev) => prev.filter((g) => g.id !== graph.id))
               }
+              reGeneratePlotlyGraph={() => {}}
+              isReGeneratingPlotlyGraph={false}
             />
           )
       )}
