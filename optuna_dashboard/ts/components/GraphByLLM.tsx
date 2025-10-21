@@ -142,7 +142,7 @@ const GraphByLLMItem: FC<{
         </Typography>
 
         {isEditingGraph && (
-          <Box sx={{ display: "flex" }}>
+          <Box sx={{ display: "flex", marginBottom: theme.spacing(2) }}>
             <TextField
               id={`graph-by-llm-item-query-${id}`}
               variant="outlined"
@@ -206,12 +206,22 @@ export const GraphByLLM: FC<{
   study: StudyDetail | null
 }> = ({ study }) => {
   const theme = useTheme()
-  const [generatePlotlyGraph, renderIframe, isProcessing] =
-    useGeneratePlotlyGraphQuery({
-      nRetry: 3,
-    })
+  const {
+    render,
+    generatePlotlyGraph,
+    isGeneratePlotlyGraphLoading: isProcessing,
+    reGeneratePlotlyGraph,
+    isReGeneratePlotlyGraphLoading,
+  } = useGeneratePlotlyGraphQuery({
+    nRetry: 3,
+  })
   const [graphs, setGraphs] = useState<
-    { id: string; title: string; plotData: plotly.PlotData[] }[]
+    {
+      id: string
+      functionStr: string
+      title: string
+      plotData: plotly.PlotData[]
+    }[]
   >([])
   const [queryInput, setQueryInput] = useState("")
 
@@ -222,7 +232,7 @@ export const GraphByLLM: FC<{
         margin: theme.spacing(2),
       }}
     >
-      {renderIframe()}
+      {render()}
       {graphs.map(
         (graph) =>
           graph.plotData.length > 0 && (
@@ -235,8 +245,36 @@ export const GraphByLLM: FC<{
               onDelete={() =>
                 setGraphs((prev) => prev.filter((g) => g.id !== graph.id))
               }
-              reGeneratePlotlyGraph={() => {}}
-              isReGeneratingPlotlyGraph={false}
+              reGeneratePlotlyGraph={(
+                reGeneratePlotlyGraphQueryStr: string
+              ) => {
+                if (study === null) return
+                reGeneratePlotlyGraph(
+                  study,
+                  graph.functionStr,
+                  reGeneratePlotlyGraphQueryStr
+                ).then((result) => {
+                  setGraphs((prev) =>
+                    prev.map((g) => {
+                      if (g.id !== graph.id) return g
+                      if (
+                        result.plotData.length === 0 &&
+                        result.functionStr === ""
+                      ) {
+                        // If the regeneration was cancelled, keep the previous graph
+                        return g
+                      }
+                      return {
+                        id: g.id,
+                        title: g.title,
+                        functionStr: result.functionStr,
+                        plotData: result.plotData,
+                      }
+                    })
+                  )
+                })
+              }}
+              isReGeneratingPlotlyGraph={isReGeneratePlotlyGraphLoading}
             />
           )
       )}
@@ -279,6 +317,7 @@ export const GraphByLLM: FC<{
                 ...prev,
                 {
                   id: String(new Date().getTime()),
+                  functionStr: result.functionStr,
                   title: result.graphTitle,
                   plotData: result.plotData,
                 },
