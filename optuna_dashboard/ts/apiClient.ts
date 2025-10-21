@@ -164,6 +164,19 @@ export type GeneratePlotlyGraphQueryResponse = {
   generate_plotly_graph_title: string
 }
 
+export type ReGeneratePlotlyGraphQueryRequest = {
+  modification_request_query: string
+  previous_function: string
+  last_response?: {
+    func_str: string
+    error_message: string
+  }
+}
+
+export type ReGeneratePlotlyGraphQueryResponse = {
+  re_generated_plotly_graph_func_str: string
+}
+
 export abstract class APIClient {
   constructor() {}
 
@@ -291,4 +304,7 @@ export abstract class APIClient {
   abstract callGeneratePlotlyGraphQuery(
     request: GeneratePlotlyGraphQueryRequest
   ): Promise<GeneratePlotlyGraphQueryResponse>
+  abstract callReGeneratePlotlyGraphQuery(
+    request: ReGeneratePlotlyGraphQueryRequest
+  ): Promise<ReGeneratePlotlyGraphQueryResponse>
 }

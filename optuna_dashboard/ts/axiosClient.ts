@@ -10,6 +10,8 @@ import {
   ParamImportancesResponse,
   PlotResponse,
   PlotType,
+  ReGeneratePlotlyGraphQueryRequest,
+  ReGeneratePlotlyGraphQueryResponse,
   RenameStudyResponse,
   StudyDetailResponse,
   StudySummariesResponse,
@@ -321,4 +323,13 @@ export class AxiosClient extends APIClient {
         request
       )
       .then<GeneratePlotlyGraphQueryResponse>((res) => res.data)
+  callReGeneratePlotlyGraphQuery = (
+    request: ReGeneratePlotlyGraphQueryRequest
+  ): Promise<ReGeneratePlotlyGraphQueryResponse> =>
+    this.axiosInstance
+      .post<ReGeneratePlotlyGraphQueryResponse>(
+        "/api/llm/re_generate_plotly_graph_query",
+        request
+      )
+      .then<ReGeneratePlotlyGraphQueryResponse>((res) => res.data)
 }
