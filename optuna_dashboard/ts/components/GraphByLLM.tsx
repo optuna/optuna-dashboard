@@ -56,7 +56,7 @@ const GraphByLLMItem: FC<{
     if (plotData.length > 0) {
       plotByLLM(plotDomId, plotData, colorTheme)?.then(notifyGraphDidRender)
     }
-  }, [plotData])
+  }, [plotData, colorTheme])
 
   if (plotData.length === 0) return null
 
