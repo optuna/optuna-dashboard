@@ -9,6 +9,8 @@ import {
   ParamImportancesResponse,
   PlotResponse,
   PlotType,
+  ReGeneratePlotlyGraphQueryRequest,
+  ReGeneratePlotlyGraphQueryResponse,
   RenameStudyResponse,
   StudyDetail,
   StudyDetailResponse,
@@ -316,6 +318,13 @@ export class JupyterlabAPIClient extends APIClient {
   ): Promise<GeneratePlotlyGraphQueryResponse> {
     throw new Error(
       "Generate plotly graph query is not implemented in JupyterLab API client."
+    )
+  }
+  callReGeneratePlotlyGraphQuery(
+    request: ReGeneratePlotlyGraphQueryRequest
+  ): Promise<ReGeneratePlotlyGraphQueryResponse> {
+    throw new Error(
+      "Re-generate plotly graph query is not implemented in JupyterLab API client."
     )
   }
 }

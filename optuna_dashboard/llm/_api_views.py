@@ -10,6 +10,7 @@ from bottle import response
 from optuna_dashboard.llm.prompt_templates._generate_plotly_graph import (
     get_generate_plotly_graph_prompt,
     get_generate_plotly_graph_title_prompt,
+    get_re_generate_plotly_graph_prompt,
 )
 from .._bottle_util import json_api_view
 from .prompt_templates._trial_filter import get_trial_filtering_prompt
@@ -103,3 +104,42 @@ def register_llm_route(app: Bottle, llm_provider: LLMProvider | None) -> None:
             "generate_plotly_graph_func_str": generate_plotly_graph_func_str,
             "generate_plotly_graph_title": generated_plotly_graph_title,
         }
+
+    @app.post("/api/llm/re_generate_plotly_graph_query")
+    @json_api_view
+    def get_re_generate_plotly_graph_func_str() -> dict[str, str]:
+        if llm_provider is None:
+            response.status = 400  # Bad Request
+            return {"reason": "No access to the LLM provider."}
+
+        modification_request_query = request.json.get("modification_request_query", "")
+        previous_function = request.json.get("previous_function", "")
+        if not modification_request_query or not previous_function:
+            response.status = 400  # Bad Request
+            return {"reason": "Insufficient data provided."}
+
+        func_str = request.json.get("last_response", {}).get("func_str")
+        err_msg = request.json.get("last_response", {}).get("error_message")
+
+        try:
+            prompt = get_re_generate_plotly_graph_prompt(
+                previous_function,
+                modification_request_query,
+                func_str,
+                err_msg,
+            )
+            re_generated_plotly_graph_func_str = llm_provider.call(prompt)
+        except RateLimitExceeded as e:
+            response.status = 429  # Too Many Requests
+            reason = f"Rate limit exceeded. Try again later. The actual error: {str(e)}"
+            return {"reason": reason}
+        except InvalidAuthentication as e:
+            response.status = 401  # Unauthorized
+            reason = f"Invalid authentication. Check your API key. The actual error: {str(e)}"
+            return {"reason": reason}
+        except Exception as e:
+            response.status = 500
+            return {"reason": str(e)}
+
+        response.status = 200
+        return {"re_generated_plotly_graph_func_str": re_generated_plotly_graph_func_str}
