@@ -1,21 +1,17 @@
 import CheckBoxIcon from "@mui/icons-material/CheckBox"
 import CheckBoxOutlineBlankIcon from "@mui/icons-material/CheckBoxOutlineBlank"
-import ClearIcon from "@mui/icons-material/Clear"
 import FilterListIcon from "@mui/icons-material/FilterList"
 import StopCircleIcon from "@mui/icons-material/StopCircle"
 
 import {
   Box,
   Button,
-  CircularProgress,
   FormControl,
   IconButton,
-  InputAdornment,
   InputLabel,
   Menu,
   MenuItem,
   Select,
-  TextField,
   Typography,
   useTheme,
 } from "@mui/material"
@@ -27,18 +23,18 @@ import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
 import * as Optuna from "@optuna/types"
-import React, { FC, ReactNode, useCallback, useMemo, useState } from "react"
+import React, { FC, ReactNode, useMemo, useState } from "react"
 
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useVirtualizer } from "@tanstack/react-virtual"
 import { useAtom } from "jotai"
 import { useNavigate } from "react-router-dom"
-import { FormWidgets, StudyDetail, Trial } from "ts/types/optuna"
 import { actionCreator } from "../action"
 import { useConstants } from "../constantsProvider"
 import { useArtifactIsAvailable, useLLMIsAvailable } from "../hooks/useAPIMeta"
-import { useTrialFilterQuery } from "../hooks/useTrialFilterQuery"
+import { useSmartFilteringForm } from "../hooks/useSmartFilteringForm"
 import { trialListDurationTimeUnitState } from "../state"
+import { FormWidgets, StudyDetail, Trial } from "../types/optuna"
 import { useQuery } from "../urlQuery"
 import { ArtifactCards } from "./Artifact/ArtifactCards"
 import { TrialNote } from "./Note"
@@ -416,21 +412,22 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const [llmFilteredTrials, setLlmFilteredTrials] = useState<
     Trial[] | undefined
   >()
-  const [trialFilterQuery, setTrialFilterQuery] = useState<string>("")
-  const handleClearFilter = useCallback(() => {
-    setTrialFilterQuery("")
-    setLlmFilteredTrials(undefined)
-  }, [])
-  const [trialFilter, renderIframe, isTrialFilterProcessing] =
-    useTrialFilterQuery({
-      nRetry: 5,
-      onDenied: handleClearFilter,
-      onFailed: (errorMsg: string) => {
-        console.error("Failed to filter trials:", errorMsg)
-        handleClearFilter()
-      },
-    })
   const llmEnabled = useLLMIsAvailable()
+  const [renderSmartFilteringForm] = useSmartFilteringForm(
+    (trialFilterQuery, trialFilter) => {
+      if (trialFilterQuery !== "") {
+        trialFilter(allTrials, trialFilterQuery)
+          .then((filtered) => {
+            setLlmFilteredTrials(filtered)
+          })
+          .catch(() => {
+            setLlmFilteredTrials(allTrials) // Fallback to all trials on error
+          })
+      } else {
+        setLlmFilteredTrials(allTrials)
+      }
+    }
+  )
 
   const allTrials = useMemo(() => {
     return studyDetail?.trials ?? []
@@ -484,64 +481,13 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
             sx={{
               height: theme.spacing(8),
               p: theme.spacing(1),
+              gap: theme.spacing(1),
               display: "flex",
               flexDirection: "row",
               alignItems: "center",
             }}
           >
-            <TextField
-              id="trial-filter-query"
-              variant="outlined"
-              placeholder="Enter filter query (e.g., trial number < 10)"
-              fullWidth
-              size="small"
-              value={trialFilterQuery}
-              onChange={(e) => setTrialFilterQuery(e.target.value)}
-              slotProps={{
-                input: {
-                  endAdornment: trialFilterQuery && (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="clear filter"
-                        onClick={handleClearFilter}
-                        edge="end"
-                        size="small"
-                        disabled={isTrialFilterProcessing}
-                      >
-                        <ClearIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
-              }}
-            />
-            <Button
-              variant="contained"
-              startIcon={
-                isTrialFilterProcessing ? (
-                  <CircularProgress size={16} />
-                ) : (
-                  <FilterListIcon />
-                )
-              }
-              disabled={isTrialFilterProcessing}
-              onClick={() => {
-                if (trialFilterQuery !== "" && !isTrialFilterProcessing) {
-                  trialFilter(allTrials, trialFilterQuery)
-                    .then((filtered) => {
-                      setLlmFilteredTrials(filtered)
-                    })
-                    .catch(() => {
-                      setLlmFilteredTrials(allTrials) // Fallback to all trials on error
-                    })
-                } else {
-                  setLlmFilteredTrials(allTrials)
-                }
-              }}
-              sx={{ marginLeft: theme.spacing(2), minWidth: "120px" }}
-            >
-              Filter
-            </Button>
+            {renderSmartFilteringForm()}
           </Box>
           <Divider />
         </>
@@ -746,7 +692,6 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
           </Box>
         </Box>
       </Box>
-      {renderIframe()}
     </Box>
   )
 }

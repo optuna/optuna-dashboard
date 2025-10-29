@@ -6,7 +6,8 @@ export const DebouncedInputTextField: FC<{
   onChange: (s: string, valid: boolean) => void
   delay: number
   textFieldProps: TextFieldProps
-}> = ({ onChange, delay, textFieldProps }) => {
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void
+}> = ({ onChange, delay, textFieldProps, onKeyDown }) => {
   const [text, setText] = React.useState<string>("")
   const [valid, setValidity] = React.useState<boolean>(true)
   useEffect(() => {
@@ -22,6 +23,15 @@ export const DebouncedInputTextField: FC<{
       onChange={(e) => {
         setText(e.target.value)
         setValidity(e.target.validity.valid)
+      }}
+      onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (onKeyDown === undefined) {
+          return
+        }
+        if (e.key === "Enter") {
+          onChange(text, valid)
+          onKeyDown(e)
+        }
       }}
       {...textFieldProps}
     />

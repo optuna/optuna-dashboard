@@ -1,27 +1,24 @@
 import DownloadIcon from "@mui/icons-material/Download"
-import FilterListIcon from "@mui/icons-material/FilterList"
 import {
   Alert,
   Box,
   Button,
   Card,
   CardContent,
-  CircularProgress,
   FormControl,
   FormControlLabel,
   Switch,
   useTheme,
 } from "@mui/material"
 import { PlotParallelCoordinate, TrialTable } from "@optuna/react"
-import React, { FC, useState, useCallback } from "react"
+import React, { FC, useState } from "react"
 import { Link } from "react-router-dom"
 import { useConstants } from "../constantsProvider"
 import { studyDetailToStudy } from "../graphUtil"
 import { useLLMIsAvailable } from "../hooks/useAPIMeta"
-import { useTrialFilterQuery } from "../hooks/useTrialFilterQuery"
+import { useSmartFilteringForm } from "../hooks/useSmartFilteringForm"
 import { StudyDetail, Trial } from "../types/optuna"
 import { SelectedTrialArtifactCards } from "./Artifact/SelectedTrialArtifactCards"
-import { DebouncedInputTextField } from "./Debounce"
 import { GraphHistory } from "./GraphHistory"
 import { GraphParetoFront } from "./GraphParetoFront"
 
@@ -36,7 +33,6 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail }> = ({
   const [includeDominatedTrials, setIncludeDominatedTrials] =
     useState<boolean>(true)
   const [showArtifacts, setShowArtifacts] = useState<boolean>(false)
-  const [filterQuery, setFilterQuery] = useState("")
   const [filteredTrials, setFilteredTrials] = useState<Trial[] | undefined>(
     undefined
   )
@@ -57,38 +53,24 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail }> = ({
     }
     setIncludeDominatedTrials(!includeDominatedTrials)
   }
-  const handleClearFilter = useCallback(() => {
-    setFilterQuery("")
-    setFilteredTrials(undefined)
-  }, [])
-  const [trialFilter, render, isTrialFilterProcessing] = useTrialFilterQuery({
-    nRetry: 5,
-    onDenied: handleClearFilter,
-    onFailed: (errorMsg: string): void => {
-      console.error(errorMsg)
-      handleClearFilter()
-    },
-  })
-
-  const handleFilter = useCallback(async () => {
-    if (isTrialFilterProcessing) {
-      return
+  const [renderSmartFilteringForm] = useSmartFilteringForm(
+    (trialFilterQuery, trialFilter) => {
+      if (!trialFilterQuery.trim()) {
+        setFilteredTrials(undefined)
+        return
+      }
+      trialFilter(studyDetail.trials, trialFilterQuery)
+        .then((filtered) => {
+          setFilteredTrials(filtered)
+        })
+        .catch(() => {
+          // eslint-disable-next-line no-empty
+          // Error handling is delegated to onDenied/onFailed callbacks to avoid
+          // emmiting error logs when user denied the execution.
+          setFilteredTrials(undefined) // Fallback to all trials on error
+        })
     }
-
-    if (!filterQuery.trim()) {
-      setFilteredTrials(undefined)
-      return
-    }
-
-    try {
-      const result = await trialFilter(studyDetail.trials, filterQuery)
-      setFilteredTrials(result)
-    } catch (error) {
-      // eslint-disable-next-line no-empty
-      // Error handling is delegated to onDenied/onFailed callbacks to avoid
-      // emmiting error logs when user denied the execution.
-    }
-  }, [filterQuery, trialFilter, studyDetail.trials])
+  )
 
   const study = studyDetailToStudy(studyDetail)
   const linkURL = (studyId: number, trialNumber: number) => {
@@ -127,32 +109,7 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail }> = ({
               alignItems: "center",
             }}
           >
-            <DebouncedInputTextField
-              onChange={(val) => setFilterQuery(val)}
-              delay={500}
-              textFieldProps={{
-                placeholder: "Enter filter query (e.g., trial number < 10)",
-                fullWidth: true,
-                size: "small",
-                disabled: isTrialFilterProcessing,
-                type: "search",
-              }}
-            />
-            <Button
-              variant="contained"
-              startIcon={
-                isTrialFilterProcessing ? (
-                  <CircularProgress size={16} />
-                ) : (
-                  <FilterListIcon />
-                )
-              }
-              onClick={handleFilter}
-              disabled={isTrialFilterProcessing}
-              sx={{ minWidth: "120px", flexShrink: 0 }}
-            >
-              Filter
-            </Button>
+            {renderSmartFilteringForm()}
           </Box>
         )}
         <FormControlLabel
@@ -272,7 +229,6 @@ export const TrialSelection: FC<{ studyDetail: StudyDetail }> = ({
           </Card>
         </Box>
       )}
-      {render()}
     </Box>
   )
 }
