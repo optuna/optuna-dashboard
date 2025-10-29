@@ -58,10 +58,13 @@ jobs:
         with:
           targets: wasm32-unknown-unknown
 
-      - name: Install wasm-bindgen and wasm-opt
+      - name: Build rustlib
+        working-directory: rustlib
         run: |
-          cargo install wasm-bindgen-cli
+          WASM_BINDGEN_VERSION=$(cargo metadata --format-version 1 | jq -r '.packages[] | select(.name == "wasm-bindgen") | .version')
+          cargo install wasm-bindgen-cli --version $WASM_BINDGEN_VERSION
           cargo install wasm-opt
+          ./build.sh
       
       - name: Setup tslib
         run: make tslib
