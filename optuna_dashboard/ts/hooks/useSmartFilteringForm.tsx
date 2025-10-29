@@ -1,7 +1,6 @@
 import FilterListIcon from "@mui/icons-material/FilterList"
-import { Button, CircularProgress } from "@mui/material"
+import { Button, CircularProgress, TextField } from "@mui/material"
 import React, { ReactNode, useState, useRef } from "react"
-import { DebouncedInputTextField } from "../components/Debounce"
 import { Trial } from "../types/optuna"
 import { useTrialFilterQuery } from "./useTrialFilterQuery"
 
@@ -11,7 +10,6 @@ export const useSmartFilteringForm = (
     trialFilter: (trials: Trial[], filterQueryStr: string) => Promise<Trial[]>
   ) => void
 ): [() => ReactNode] => {
-  const [trialFilterQuery, setTrialFilterQuery] = useState<string>("")
   const [isComposing, setIsComposing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const handleClearFilter = () => {
@@ -31,35 +29,31 @@ export const useSmartFilteringForm = (
     if (isProcessing) {
       return
     }
-    handleFilter(trialFilterQuery, trialFilter)
+    handleFilter(inputRef.current?.value ?? "", trialFilter)
   }
 
   const render = () => {
     return (
       <>
-        <DebouncedInputTextField
-          onChange={(val) => setTrialFilterQuery(val)}
-          delay={500}
-          onKeyDown={(e) => {
+        <TextField
+          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key === "Enter" && !isComposing) {
               e.preventDefault()
               handleSubmit()
             }
           }}
-          textFieldProps={{
-            placeholder: "Enter filter query (e.g., trial number < 10)",
-            fullWidth: true,
-            size: "small",
-            disabled: isProcessing,
-            type: "search",
-            onCompositionStart: () => {
-              setIsComposing(true)
-            },
-            onCompositionEnd: () => {
-              setIsComposing(false)
-            },
-            inputRef: inputRef,
+          placeholder="Enter filter query (e.g., trial number < 10)"
+          fullWidth={true}
+          size="small"
+          disabled={isProcessing}
+          type="search"
+          onCompositionStart={() => {
+            setIsComposing(true)
           }}
+          onCompositionEnd={() => {
+            setIsComposing(false)
+          }}
+          inputRef={inputRef}
         />
         <Button
           variant="contained"
