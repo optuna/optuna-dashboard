@@ -1,4 +1,3 @@
-import ClearIcon from "@mui/icons-material/Clear"
 import DeleteIcon from "@mui/icons-material/Delete"
 import EditRoadIcon from "@mui/icons-material/EditRoad"
 import MoreVertIcon from "@mui/icons-material/MoreVert"
@@ -9,12 +8,10 @@ import {
   Card,
   CardContent,
   IconButton,
-  InputAdornment,
   ListItemIcon,
   ListItemText,
   Menu,
   MenuItem,
-  TextField,
   Typography,
   useTheme,
 } from "@mui/material"
@@ -25,6 +22,7 @@ import React, { FC, useEffect, useState } from "react"
 import { useGeneratePlotlyGraphQuery } from "../hooks/useGeneratePlotlyGraphQuery"
 import { usePlotlyColorTheme } from "../state"
 import { StudyDetail } from "../types/optuna"
+import { SmartTextField } from "./SmartTextField"
 
 const plotDomIdPrefix = "graph-by-llm"
 
@@ -143,30 +141,17 @@ const GraphByLLMItem: FC<{
 
         {isEditingGraph && (
           <Box sx={{ display: "flex", marginBottom: theme.spacing(2) }}>
-            <TextField
+            <SmartTextField
               id={`graph-by-llm-item-query-${id}`}
+              value={queryInput}
+              setValue={setQueryInput}
               variant="outlined"
               placeholder="Enter the part you want to edit in the graph"
               fullWidth
               size="small"
-              value={queryInput}
-              onChange={(e) => setQueryInput(e.target.value)}
-              slotProps={{
-                input: {
-                  endAdornment: queryInput && (
-                    <InputAdornment position="end">
-                      <IconButton
-                        aria-label="clear filter"
-                        onClick={() => setQueryInput("")}
-                        edge="end"
-                        size="small"
-                        disabled={isReGeneratingPlotlyGraph}
-                      >
-                        <ClearIcon />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                },
+              clearButtonDisabled={isReGeneratingPlotlyGraph}
+              handleSubmit={() => {
+                reGeneratePlotlyGraph(queryInput)
               }}
             />
             <Button
@@ -225,6 +210,21 @@ export const GraphByLLM: FC<{
   >([])
   const [queryInput, setQueryInput] = useState("")
 
+  const handleSubmit = () => {
+    if (study === null) return
+    generatePlotlyGraph(study, queryInput).then((result) => {
+      setGraphs((prev) => [
+        ...prev,
+        {
+          id: String(new Date().getTime()),
+          functionStr: result.functionStr,
+          title: result.graphTitle,
+          plotData: result.plotData,
+        },
+      ])
+    })
+  }
+
   return (
     <Stack
       spacing={2}
@@ -279,51 +279,23 @@ export const GraphByLLM: FC<{
           )
       )}
       <Box sx={{ display: "flex" }}>
-        <TextField
+        <SmartTextField
           id="graph-by-llm-query"
           variant="outlined"
           placeholder="Enter your query to generate a graph, e.g., 'Plot objective value vs trial number'"
           fullWidth
           size="small"
           value={queryInput}
-          onChange={(e) => setQueryInput(e.target.value)}
-          slotProps={{
-            input: {
-              endAdornment: queryInput && (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="clear filter"
-                    onClick={() => setQueryInput("")}
-                    edge="end"
-                    size="small"
-                    disabled={isProcessing}
-                  >
-                    <ClearIcon />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            },
-          }}
+          setValue={setQueryInput}
+          clearButtonDisabled={isProcessing}
+          handleSubmit={handleSubmit}
         />
         <LoadingButton
           sx={{ marginLeft: theme.spacing(2) }}
           variant="contained"
           loading={isProcessing}
           disabled={queryInput.trim() === ""}
-          onClick={() => {
-            if (study === null) return
-            generatePlotlyGraph(study, queryInput).then((result) => {
-              setGraphs((prev) => [
-                ...prev,
-                {
-                  id: String(new Date().getTime()),
-                  functionStr: result.functionStr,
-                  title: result.graphTitle,
-                  plotData: result.plotData,
-                },
-              ])
-            })
-          }}
+          onClick={handleSubmit}
         >
           Generate
         </LoadingButton>
