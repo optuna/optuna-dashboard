@@ -1,6 +1,7 @@
 import FilterListIcon from "@mui/icons-material/FilterList"
-import { Button, CircularProgress, TextField } from "@mui/material"
-import React, { ReactNode, useState, useRef } from "react"
+import { Button, CircularProgress } from "@mui/material"
+import React, { ReactNode, useState } from "react"
+import { SmartTextField } from "../components/SmartTextField"
 import { Trial } from "../types/optuna"
 import { useTrialFilterQuery } from "./useTrialFilterQuery"
 
@@ -10,12 +11,9 @@ export const useSmartFilteringForm = (
     trialFilter: (trials: Trial[], filterQueryStr: string) => Promise<Trial[]>
   ) => void
 ): [() => ReactNode] => {
-  const [isComposing, setIsComposing] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const [value, setValue] = useState("")
   const handleClearFilter = () => {
-    if (inputRef.current) {
-      inputRef.current.value = ""
-    }
+    setValue("")
   }
   const [trialFilter, renderIframe, isProcessing] = useTrialFilterQuery({
     nRetry: 5,
@@ -29,31 +27,21 @@ export const useSmartFilteringForm = (
     if (isProcessing) {
       return
     }
-    handleFilter(inputRef.current?.value ?? "", trialFilter)
+    handleFilter(value, trialFilter)
   }
 
   const render = () => {
     return (
       <>
-        <TextField
-          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === "Enter" && !isComposing) {
-              e.preventDefault()
-              handleSubmit()
-            }
-          }}
+        <SmartTextField
+          handleSubmit={handleSubmit}
+          value={value}
+          setValue={setValue}
+          clearButtonDisabled={isProcessing}
           placeholder="Enter filter query (e.g., trial number < 10)"
           fullWidth={true}
           size="small"
           disabled={isProcessing}
-          type="search"
-          onCompositionStart={() => {
-            setIsComposing(true)
-          }}
-          onCompositionEnd={() => {
-            setIsComposing(false)
-          }}
-          inputRef={inputRef}
         />
         <Button
           variant="contained"
