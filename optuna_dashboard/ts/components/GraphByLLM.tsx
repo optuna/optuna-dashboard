@@ -4,6 +4,7 @@ import EditRoadIcon from "@mui/icons-material/EditRoad"
 import MoreVertIcon from "@mui/icons-material/MoreVert"
 import { LoadingButton } from "@mui/lab"
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -83,8 +84,6 @@ const GraphByLLMItem: FC<{
       plotByLLM(plotDomId, plotData, colorTheme)?.then(notifyGraphDidRender)
     }
   }, [plotData, colorTheme])
-
-  if (plotData.length === 0) return null
 
   return (
     <Card>
@@ -193,10 +192,17 @@ const GraphByLLMItem: FC<{
           </Box>
         )}
 
-        <GraphContainer
-          plotDomId={plotDomId}
-          graphComponentState={graphComponentState}
-        />
+        {plotData.length > 0 ? (
+          <GraphContainer
+            plotDomId={plotDomId}
+            graphComponentState={graphComponentState}
+          />
+        ) : (
+          <Alert severity="warning" sx={{ m: theme.spacing(2) }}>
+            No graph data available. Please try regenerating the graph with a
+            different query.
+          </Alert>
+        )}
       </CardContent>
     </Card>
   )
@@ -233,51 +239,46 @@ export const GraphByLLM: FC<{
       }}
     >
       {render()}
-      {graphs.map(
-        (graph) =>
-          graph.plotData.length > 0 && (
-            <GraphByLLMItem
-              key={graph.id}
-              id={graph.id}
-              plotDomId={`${plotDomIdPrefix}-${graph.id}`}
-              title={graph.title}
-              plotData={graph.plotData}
-              onDelete={() =>
-                setGraphs((prev) => prev.filter((g) => g.id !== graph.id))
-              }
-              reGeneratePlotlyGraph={(
-                reGeneratePlotlyGraphQueryStr: string
-              ) => {
-                if (study === null) return
-                reGeneratePlotlyGraph(
-                  study,
-                  graph.functionStr,
-                  reGeneratePlotlyGraphQueryStr
-                ).then((result) => {
-                  setGraphs((prev) =>
-                    prev.map((g) => {
-                      if (g.id !== graph.id) return g
-                      if (
-                        result.plotData.length === 0 &&
-                        result.functionStr === ""
-                      ) {
-                        // If the regeneration was cancelled, keep the previous graph
-                        return g
-                      }
-                      return {
-                        id: g.id,
-                        title: g.title,
-                        functionStr: result.functionStr,
-                        plotData: result.plotData,
-                      }
-                    })
-                  )
+      {graphs.map((graph) => (
+        <GraphByLLMItem
+          key={graph.id}
+          id={graph.id}
+          plotDomId={`${plotDomIdPrefix}-${graph.id}`}
+          title={graph.title}
+          plotData={graph.plotData}
+          onDelete={() =>
+            setGraphs((prev) => prev.filter((g) => g.id !== graph.id))
+          }
+          reGeneratePlotlyGraph={(reGeneratePlotlyGraphQueryStr: string) => {
+            if (study === null) return
+            reGeneratePlotlyGraph(
+              study,
+              graph.functionStr,
+              reGeneratePlotlyGraphQueryStr
+            ).then((result) => {
+              setGraphs((prev) =>
+                prev.map((g) => {
+                  if (g.id !== graph.id) return g
+                  if (
+                    result.plotData.length === 0 &&
+                    result.functionStr === ""
+                  ) {
+                    // If the regeneration was cancelled, keep the previous graph
+                    return g
+                  }
+                  return {
+                    id: g.id,
+                    title: g.title,
+                    functionStr: result.functionStr,
+                    plotData: result.plotData,
+                  }
                 })
-              }}
-              isReGeneratingPlotlyGraph={isReGeneratePlotlyGraphLoading}
-            />
-          )
-      )}
+              )
+            })
+          }}
+          isReGeneratingPlotlyGraph={isReGeneratePlotlyGraphLoading}
+        />
+      ))}
       <Box sx={{ display: "flex" }}>
         <TextField
           id="graph-by-llm-query"
