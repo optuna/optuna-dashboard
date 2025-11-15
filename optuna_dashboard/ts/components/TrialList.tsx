@@ -23,7 +23,7 @@ import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
 import * as Optuna from "@optuna/types"
-import React, { FC, ReactNode, useMemo, useState } from "react"
+import React, { FC, ReactNode, useMemo, useState, useEffect } from "react"
 
 import ListItemIcon from "@mui/material/ListItemIcon"
 import { useVirtualizer } from "@tanstack/react-virtual"
@@ -382,20 +382,22 @@ const getTrialListLink = (
   studyId: number,
   exclude: Optuna.TrialState[],
   numbers: number[],
-  URL_PREFIX: string
+  URL_PREFIX: string,
+  best?: boolean
 ): string => {
   const base = URL_PREFIX + `/studies/${studyId}/trials`
-  if (exclude.length > 0 && numbers.length > 0) {
-    return (
-      base +
-      `?exclude=${exclude.join(",")}&numbers=${numbers
-        .map((n) => n.toString())
-        .join(",")}`
-    )
-  } else if (exclude.length > 0) {
-    return base + "?exclude=" + exclude.join(",")
-  } else if (numbers.length > 0) {
-    return base + "?numbers=" + numbers.map((n) => n.toString()).join(",")
+  const parts: string[] = []
+  if (exclude.length > 0) {
+    parts.push(`exclude=${exclude.join(",")}`)
+  }
+  if (numbers.length > 0) {
+    parts.push(`numbers=${numbers.map((n) => n.toString()).join(",")}`)
+  }
+  if (best) {
+    parts.push(`best=true`)
+  }
+  if (parts.length > 0) {
+    return base + "?" + parts.join("&")
   }
   return base
 }
@@ -441,7 +443,20 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
     return trialsBeforeStateFilter.filter((t) => !excludedSet.has(t.state))
   }, [llmFilteredTrials, allTrials, excludedStates])
   const isBestTrial = useIsBestTrial(studyDetail)
-  const queried = useQueriedTrials(trials, query)
+  const [onlyBestTrial, setOnlyBestTrial] = useState<boolean>(
+    () => query.get("best") === "true"
+  )
+
+  useEffect(() => {
+    setOnlyBestTrial(query.get("best") === "true")
+  }, [query])
+  const filteredTrials = useMemo(() => {
+    if (!onlyBestTrial) {
+      return trials
+    }
+    return trials.filter((t) => isBestTrial(t.trial_id))
+  }, [onlyBestTrial, trials, isBestTrial])
+  const queried = useQueriedTrials(filteredTrials, query)
   const [filterMenuAnchorEl, setFilterMenuAnchorEl] =
     React.useState<null | HTMLElement>(null)
   const openFilterMenu = Boolean(filterMenuAnchorEl)
@@ -454,7 +469,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const listParentRef = React.useRef(null)
 
   const rowVirtualizer = useVirtualizer({
-    count: trials.length,
+    count: filteredTrials.length,
     getScrollElement: () => listParentRef.current,
     estimateSize: () => 73.31,
     overscan: 10,
@@ -463,7 +478,11 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
   const trialListWidth = 200
 
   const selected =
-    queried.length > 0 ? queried : trials.length > 0 ? [trials[0]] : []
+    queried.length > 0
+      ? queried
+      : filteredTrials.length > 0
+        ? [filteredTrials[0]]
+        : []
 
   return (
     <Box
@@ -549,7 +568,8 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                           studyDetail.id,
                           excludedStates,
                           numbers,
-                          url_prefix
+                          url_prefix,
+                          onlyBestTrial
                         )
                       )
                     }}
@@ -565,6 +585,33 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                     {state} ({trialCounts[i]})
                   </MenuItem>
                 ))}
+                <Divider sx={{ my: 0.5 }} />
+                <MenuItem
+                  onClick={() => {
+                    if (studyDetail === null) return
+                    const next = !onlyBestTrial
+                    setOnlyBestTrial(next)
+                    const numbers = selected.map((t) => t.number)
+                    navigate(
+                      getTrialListLink(
+                        studyDetail.id,
+                        excludedStates,
+                        numbers,
+                        url_prefix,
+                        next
+                      )
+                    )
+                  }}
+                >
+                  <ListItemIcon>
+                    {onlyBestTrial ? (
+                      <CheckBoxIcon color="primary" />
+                    ) : (
+                      <CheckBoxOutlineBlankIcon color="primary" />
+                    )}
+                  </ListItemIcon>
+                  Best Trial
+                </MenuItem>
               </Menu>
             </ListSubheader>
             <Divider />
@@ -577,7 +624,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
               }}
             >
               {rowVirtualizer.getVirtualItems().map((virtualItem) => {
-                const trial = trials[virtualItem.index]
+                const trial = filteredTrials[virtualItem.index]
                 return (
                   <ListItem
                     key={trial.trial_id}
@@ -613,7 +660,8 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                               trial.study_id,
                               excludedStates,
                               next,
-                              url_prefix
+                              url_prefix,
+                              onlyBestTrial
                             )
                           )
                         } else {
@@ -622,7 +670,8 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                               trial.study_id,
                               excludedStates,
                               [trial.number],
-                              url_prefix
+                              url_prefix,
+                              onlyBestTrial
                             )
                           )
                         }
