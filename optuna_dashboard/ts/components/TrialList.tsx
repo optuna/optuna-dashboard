@@ -468,9 +468,8 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
     )
   }, [studyDetail?.trials])
   const bestTrialCount = useMemo(() => {
-    const trialInfos = studyDetail?.trials || []
-    return trialInfos.filter((t) => isBestTrial(t.trial_id)).length
-  }, [studyDetail?.trials, isBestTrial])
+    return filteredTrials.filter((t) => isBestTrial(t.trial_id)).length
+  }, [filteredTrials, isBestTrial])
   const listParentRef = React.useRef(null)
 
   const rowVirtualizer = useVirtualizer({
@@ -619,13 +618,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       disableRipple
                     />
                   </ListItemIcon>
-                  <ListItemText
-                    primary={
-                      bestTrialCount > 0
-                        ? `Best Trial (${bestTrialCount})`
-                        : "Best Trial"
-                    }
-                  />
+                    <ListItemText primary={`Best Trial (${bestTrialCount})`} />
                 </MenuItem>
               </Menu>
             </ListSubheader>
