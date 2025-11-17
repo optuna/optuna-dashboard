@@ -467,9 +467,13 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
       (state) => allTrials.filter((t) => t.state === state).length
     )
   }, [studyDetail?.trials])
-  const bestTrialCount = useMemo(() => {
+  const visibleBestTrialCount = useMemo(() => {
     return filteredTrials.filter((t) => isBestTrial(t.trial_id)).length
   }, [filteredTrials, isBestTrial])
+
+  const totalBestTrialCount = useMemo(() => {
+    return (studyDetail?.best_trials || []).length
+  }, [studyDetail?.best_trials])
   const listParentRef = React.useRef(null)
 
   const rowVirtualizer = useVirtualizer({
@@ -531,7 +535,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
           <List sx={{ position: "relative" }}>
             <ListSubheader sx={{ display: "flex", flexDirection: "row" }}>
               <Typography sx={{ p: theme.spacing(1, 0) }}>
-                {trials.length} Trials
+                {filteredTrials.length} Trials
               </Typography>
               <Box component="div" sx={{ flexGrow: 1 }} />
               <IconButton
@@ -607,7 +611,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       )
                     )
                   }}
-                  disabled={bestTrialCount === 0}
+                  disabled={totalBestTrialCount === 0}
                 >
                   <ListItemIcon>
                     <Checkbox
@@ -618,7 +622,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       disableRipple
                     />
                   </ListItemIcon>
-                    <ListItemText primary={`Best Trial (${bestTrialCount})`} />
+                    <ListItemText primary={`Best Trial (${visibleBestTrialCount})`} />
                 </MenuItem>
               </Menu>
             </ListSubheader>
