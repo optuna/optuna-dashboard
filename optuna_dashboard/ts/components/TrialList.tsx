@@ -15,6 +15,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
+import Checkbox from "@mui/material/Checkbox"
 import Chip from "@mui/material/Chip"
 import Divider from "@mui/material/Divider"
 import List from "@mui/material/List"
@@ -22,7 +23,6 @@ import ListItem from "@mui/material/ListItem"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
-import Checkbox from "@mui/material/Checkbox"
 import * as Optuna from "@optuna/types"
 import React, { FC, ReactNode, useMemo, useState, useEffect } from "react"
 
@@ -622,7 +622,9 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       disableRipple
                     />
                   </ListItemIcon>
-                    <ListItemText primary={`Best Trial (${visibleBestTrialCount})`} />
+                  <ListItemText
+                    primary={`Best Trial (${visibleBestTrialCount})`}
+                  />
                 </MenuItem>
               </Menu>
             </ListSubheader>
