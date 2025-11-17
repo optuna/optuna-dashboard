@@ -22,6 +22,7 @@ import ListItem from "@mui/material/ListItem"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
+import Checkbox from "@mui/material/Checkbox"
 import * as Optuna from "@optuna/types"
 import React, { FC, ReactNode, useMemo, useState, useEffect } from "react"
 
@@ -466,6 +467,10 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
       (state) => allTrials.filter((t) => t.state === state).length
     )
   }, [studyDetail?.trials])
+  const bestTrialCount = useMemo(() => {
+    const trialInfos = studyDetail?.trials || []
+    return trialInfos.filter((t) => isBestTrial(t.trial_id)).length
+  }, [studyDetail?.trials, isBestTrial])
   const listParentRef = React.useRef(null)
 
   const rowVirtualizer = useVirtualizer({
@@ -587,6 +592,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                 ))}
                 <Divider sx={{ my: 0.5 }} />
                 <MenuItem
+                  dense
                   onClick={() => {
                     if (studyDetail === null) return
                     const next = !onlyBestTrial
@@ -602,15 +608,24 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                       )
                     )
                   }}
+                  disabled={bestTrialCount === 0}
                 >
                   <ListItemIcon>
-                    {onlyBestTrial ? (
-                      <CheckBoxIcon color="primary" />
-                    ) : (
-                      <CheckBoxOutlineBlankIcon color="primary" />
-                    )}
+                    <Checkbox
+                      size="small"
+                      checked={onlyBestTrial}
+                      edge="start"
+                      tabIndex={-1}
+                      disableRipple
+                    />
                   </ListItemIcon>
-                  Best Trial
+                  <ListItemText
+                    primary={
+                      bestTrialCount > 0
+                        ? `Best Trial (${bestTrialCount})`
+                        : "Best Trial"
+                    }
+                  />
                 </MenuItem>
               </Menu>
             </ListSubheader>
