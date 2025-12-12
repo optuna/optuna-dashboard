@@ -9,6 +9,7 @@ import {
 } from "@mui/material"
 import FormControlLabel from "@mui/material/FormControlLabel"
 import Grid from "@mui/material/Grid"
+import Masonry from "@mui/lab/Masonry"
 import { DataGrid } from "@optuna/react"
 import * as Optuna from "@optuna/types"
 import React, { FC, useState } from "react"
@@ -123,31 +124,31 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
           />
         </CardContent>
       </Card>
-      <Grid container spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
-        <Grid item xs={6}>
+      <Masonry columns={2} spacing={2} sx={{ padding: theme.spacing(0, 2) }}>
+        <Box>
           <GraphHyperparameterImportance
             studyId={studyId}
             study={studyDetail}
             graphHeight="450px"
           />
-        </Grid>
-        <Grid item xs={6}>
+        </Box>
+        <Box>
           <GraphTimeline study={studyDetail} />
-        </Grid>
+        </Box>
         {studyDetail !== null &&
           studyDetail.plotly_graph_objects.map((go) => (
-            <Grid xs={6} key={go.id}>
+            <Box key={go.id}>
               <Card>
                 <CardContent>
                   <UserDefinedPlot graphObject={go} />
                 </CardContent>
               </Card>
-            </Grid>
+            </Box>
           ))}
-        <Grid item xs={6}>
+        <Box>
           <BestTrialsCard studyDetail={studyDetail} />
-        </Grid>
-        <Grid item xs={6}>
+        </Box>
+        <Box>
           <Card>
             <CardContent
               sx={{
@@ -167,23 +168,23 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
               <DataGrid data={userAttrs} columns={columns} />
             </CardContent>
           </Card>
-        </Grid>
+        </Box>
         {studyDetail !== null &&
         studyDetail.directions.length === 1 &&
         studyDetail.has_intermediate_values ? (
-          <Grid item xs={6}>
+          <Box>
             <GraphIntermediateValues
               trials={trials}
               includePruned={includePruned}
               logScale={logScale}
             />
-          </Grid>
+          </Box>
         ) : null}
-      </Grid>
+      </Masonry>
 
       {artifactEnabled && studyDetail !== null && (
-        <Grid container spacing={2} sx={{ padding: theme.spacing(2) }}>
-          <Grid item xs={6}>
+        <Masonry columns={2} spacing={2} sx={{ padding: theme.spacing(2) }}>
+          <Box>
             <Card>
               <CardContent
                 sx={{
@@ -205,8 +206,8 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
                 />
               </CardContent>
             </Card>
-          </Grid>
-        </Grid>
+          </Box>
+        </Masonry>
       )}
     </Box>
   )
