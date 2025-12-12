@@ -65,7 +65,7 @@ export const PlotIntermediateValues: FC<{
 
     // Get the top K trial numbers
     return new Set(sortedTrials.slice(0, topK).map((t) => t.number))
-  }, [trials, topKEnabled, topK, directions[0]])
+  }, [trials, topKEnabled, topK, directions?.[0]])
 
   useEffect(() => {
     plotIntermediateValue(
