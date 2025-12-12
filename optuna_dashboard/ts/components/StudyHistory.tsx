@@ -176,6 +176,7 @@ export const StudyHistory: FC<{ studyId: number }> = ({ studyId }) => {
               trials={trials}
               includePruned={includePruned}
               logScale={logScale}
+              directions={studyDetail.directions}
             />
           </Grid>
         ) : null}
