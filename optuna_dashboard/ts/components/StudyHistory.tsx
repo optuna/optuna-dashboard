@@ -1,3 +1,4 @@
+import Masonry from "@mui/lab/Masonry"
 import {
   Box,
   Card,
@@ -8,8 +9,6 @@ import {
   useTheme,
 } from "@mui/material"
 import FormControlLabel from "@mui/material/FormControlLabel"
-import Grid from "@mui/material/Grid"
-import Masonry from "@mui/lab/Masonry"
 import { DataGrid } from "@optuna/react"
 import * as Optuna from "@optuna/types"
 import React, { FC, useState } from "react"

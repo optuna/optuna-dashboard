@@ -88,7 +88,8 @@ export const App: FC = () => {
   }, [prefersDarkMode])
 
   const theme = useMemo(() => {
-    const mode = color_mode !== undefined ? color_mode : optunaDashboardColorMode
+    const mode =
+      color_mode !== undefined ? color_mode : optunaDashboardColorMode
     const palette = mode === "dark" ? modernPalette.dark : modernPalette.light
 
     return createTheme({
@@ -171,17 +172,19 @@ export const App: FC = () => {
           styleOverrides: {
             root: {
               borderRadius: 12,
-              border: mode === "dark" ? "1px solid #262626" : "1px solid #e5e5e5",
-              boxShadow: mode === "dark" 
-                ? "0 1px 3px 0 rgb(0 0 0 / 0.3)"
-                : "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+              border:
+                mode === "dark" ? "1px solid #262626" : "1px solid #e5e5e5",
+              boxShadow:
+                mode === "dark"
+                  ? "0 1px 3px 0 rgb(0 0 0 / 0.3)"
+                  : "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
               transition: "all 0.2s ease-in-out",
               backgroundColor: mode === "dark" ? "#111111" : "#ffffff",
               "&:hover": {
-                boxShadow: mode === "dark"
-                  ? "0 4px 12px 0 rgb(0 0 0 / 0.5)"
-                  : "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
-                
+                boxShadow:
+                  mode === "dark"
+                    ? "0 4px 12px 0 rgb(0 0 0 / 0.5)"
+                    : "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
               },
             },
           },
@@ -197,7 +200,8 @@ export const App: FC = () => {
             contained: {
               boxShadow: "0 1px 2px 0 rgb(0 0 0 / 0.05)",
               "&:hover": {
-                boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
+                boxShadow:
+                  "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)",
                 transform: "translateY(-1px)",
               },
             },
@@ -208,7 +212,8 @@ export const App: FC = () => {
             root: {
               backgroundColor: mode === "dark" ? "#0a0a0a" : "#ffffff",
               color: mode === "dark" ? "#f5f5f5" : "#171717",
-              borderBottom: mode === "dark" ? "1px solid #262626" : "1px solid #e5e5e5",
+              borderBottom:
+                mode === "dark" ? "1px solid #262626" : "1px solid #e5e5e5",
               boxShadow: "none",
             },
           },
@@ -217,7 +222,8 @@ export const App: FC = () => {
           styleOverrides: {
             paper: {
               backgroundColor: mode === "dark" ? "#0a0a0a" : "#ffffff",
-              borderRight: mode === "dark" ? "1px solid #262626" : "1px solid #e5e5e5",
+              borderRight:
+                mode === "dark" ? "1px solid #262626" : "1px solid #e5e5e5",
             },
           },
         },
@@ -309,7 +315,8 @@ export const App: FC = () => {
               "& .MuiTableCell-root": {
                 fontWeight: 600,
                 backgroundColor: mode === "dark" ? "#0a0a0a" : "#fafafa",
-                borderBottom: mode === "dark" ? "1px solid #262626" : "1px solid #e5e5e5",
+                borderBottom:
+                  mode === "dark" ? "1px solid #262626" : "1px solid #e5e5e5",
               },
             },
           },
@@ -327,7 +334,8 @@ export const App: FC = () => {
         MuiTableCell: {
           styleOverrides: {
             root: {
-              borderBottom: mode === "dark" ? "1px solid #262626" : "1px solid #e5e5e5",
+              borderBottom:
+                mode === "dark" ? "1px solid #262626" : "1px solid #e5e5e5",
             },
           },
         },
@@ -391,7 +399,7 @@ export const App: FC = () => {
             transition: "background-color 0.2s ease-in-out",
           }}
         >
-          <SnackbarProvider 
+          <SnackbarProvider
             maxSnack={3}
             anchorOrigin={{
               vertical: "bottom",
