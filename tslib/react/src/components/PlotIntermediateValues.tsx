@@ -56,14 +56,16 @@ export const PlotIntermediateValues: FC<{
     // Sort by the first objective value
     const direction = directions[0]
     const sortedTrials = [...completedTrials].sort((a, b) => {
-      const valA = a.values?.[0] ?? (direction === "minimize" ? Infinity : -Infinity)
-      const valB = b.values?.[0] ?? (direction === "minimize" ? Infinity : -Infinity)
+      const valA =
+        a.values?.[0] ?? (direction === "minimize" ? Infinity : -Infinity)
+      const valB =
+        b.values?.[0] ?? (direction === "minimize" ? Infinity : -Infinity)
       return direction === "minimize" ? valA - valB : valB - valA
     })
 
     // Get the top K trial numbers
     return new Set(sortedTrials.slice(0, topK).map((t) => t.number))
-  }, [trials, topKEnabled, topK, directions])
+  }, [trials, topKEnabled, topK, directions[0]])
 
   useEffect(() => {
     plotIntermediateValue(
@@ -116,7 +118,11 @@ export const PlotIntermediateValues: FC<{
                 onChange={(e) => setTopK(Number(e.target.value))}
               >
                 {kOptions.map((k) => (
-                  <MenuItem key={k} value={k} disabled={k > completedTrialsCount}>
+                  <MenuItem
+                    key={k}
+                    value={k}
+                    disabled={k > completedTrialsCount}
+                  >
                     {k}
                   </MenuItem>
                 ))}
@@ -181,8 +187,10 @@ const plotIntermediateValue = (
 
   const plotData: Partial<plotly.PlotData>[] = filteredTrials.map((trial) => {
     const isFeasible = trial.constraints.every((c) => c <= 0)
-    const isTopK = topKTrialNumbers === null || topKTrialNumbers.has(trial.number)
-    const isVisible = topKTrialNumbers === null || isTopK || trial.state === "Running"
+    const isTopK =
+      topKTrialNumbers === null || topKTrialNumbers.has(trial.number)
+    const isVisible =
+      topKTrialNumbers === null || isTopK || trial.state === "Running"
 
     return {
       x: trial.intermediate_values.map((iv) => iv.step),
