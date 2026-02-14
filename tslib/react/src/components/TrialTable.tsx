@@ -127,6 +127,24 @@ export const TrialTable: FC<{
             header: `Param ${s.name}`,
             enableSorting: sortable,
             sortUndefined: "last",
+            sortingFn: (rowA, rowB, columnId) => {
+              const valA = rowA.getValue(columnId) as string | null
+              const valB = rowB.getValue(columnId) as string | null
+              const numA = Number(valA)
+              const numB = Number(valB)
+
+              if (
+                valA !== null &&
+                valB !== null &&
+                !Number.isNaN(numA) &&
+                !Number.isNaN(numB)
+              ) {
+                return numA - numB
+              }
+              return (valA ?? "").localeCompare(valB ?? "", undefined, {
+                numeric: true,
+              })
+            },
             enableColumnFilter: filterChoices !== undefined,
             filterFn: multiValueFilter,
           }
@@ -150,6 +168,24 @@ export const TrialTable: FC<{
             header: `UserAttribute ${attr_spec.key}`,
             enableSorting: attr_spec.sortable,
             sortUndefined: "last",
+            sortingFn: (rowA, rowB, columnId) => {
+              const valA = rowA.getValue(columnId) as string | null
+              const valB = rowB.getValue(columnId) as string | null
+              const numA = Number(valA)
+              const numB = Number(valB)
+
+              if (
+                valA !== null &&
+                valB !== null &&
+                !Number.isNaN(numA) &&
+                !Number.isNaN(numB)
+              ) {
+                return numA - numB
+              }
+              return (valA ?? "").localeCompare(valB ?? "", undefined, {
+                numeric: true,
+              })
+            },
             enableColumnFilter: false,
           }
         )
