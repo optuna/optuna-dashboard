@@ -3,6 +3,6 @@
 uv sync --all-extras --group test --group lint
 
 make tslib
-pushd optuna_dashboard
+cd optuna_dashboard
 npm install
-popd
+cd ..
