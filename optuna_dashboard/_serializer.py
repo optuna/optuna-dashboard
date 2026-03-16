@@ -239,7 +239,9 @@ def serialize_frozen_trial(
             {"name": param_name, "param_external_value": str(fixed_params.get(param_name, None))}
             for param_name in fixed_params
         ],
-        "user_attrs": serialize_attrs(trial.user_attrs),
+        # user_attrs are excluded from bulk responses for performance.
+        # Use GET /api/studies/<id>/trials/<number>/user-attrs to fetch on demand.
+        "user_attrs": [],
         "note": note.get_note_from_system_attrs(study_system_attrs, trial._trial_id),
         "artifacts": list_trial_artifacts(study_system_attrs, trial_system_attrs, trial),
         "constraints": trial_system_attrs.get(CONSTRAINTS_KEY, []),

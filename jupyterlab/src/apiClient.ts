@@ -237,6 +237,13 @@ export class JupyterlabAPIClient extends APIClient {
     })
     return
   }
+  getTrialUserAttrs = (
+    studyId: number,
+    trialNumber: number
+  ): Promise<Optuna.Attribute[]> =>
+    requestAPI<{ user_attrs: Optuna.Attribute[] }>(
+      `/api/studies/${studyId}/trials/${trialNumber}/user-attrs`
+    ).then((res) => res.user_attrs)
   getParamImportances = (
     studyId: number
   ): Promise<Optuna.ParamImportance[][]> =>

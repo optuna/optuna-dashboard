@@ -40,6 +40,7 @@ from ._preferential_history import remove_history
 from ._preferential_history import report_history
 from ._preferential_history import restore_history
 from ._rdb_migration import register_rdb_migration_route
+from ._serializer import serialize_attrs
 from ._serializer import serialize_frozen_study
 from ._serializer import serialize_study_detail
 from ._storage import create_new_study
@@ -292,6 +293,20 @@ def create_app(
             plotly_graph_objects,
             skipped_trial_numbers,
         )
+
+    @app.get("/api/studies/<study_id:int>/trials/<trial_number:int>/user-attrs")
+    @json_api_view
+    def get_trial_user_attrs(study_id: int, trial_number: int) -> dict[str, Any]:
+        study = get_study(storage, study_id)
+        if study is None:
+            response.status = 404
+            return {"reason": f"study_id={study_id} is not found"}
+        trials = get_trials(app._inmemory_cache, storage, study_id)
+        for trial in trials:
+            if trial.number == trial_number:
+                return {"user_attrs": serialize_attrs(trial.user_attrs)}
+        response.status = 404
+        return {"reason": f"trial_number={trial_number} is not found in study_id={study_id}"}
 
     @app.get("/api/studies/<study_id:int>/param_importances")
     @json_api_view

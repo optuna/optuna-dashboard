@@ -269,6 +269,10 @@ export abstract class APIClient {
     trialId: number,
     user_attrs: { [key: string]: number | string }
   ): Promise<void>
+  abstract getTrialUserAttrs(
+    studyId: number,
+    trialNumber: number
+  ): Promise<Optuna.Attribute[]>
   abstract getParamImportances(
     studyId: number
   ): Promise<Optuna.ParamImportance[][]>

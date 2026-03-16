@@ -31,6 +31,7 @@ import { useVirtualizer } from "@tanstack/react-virtual"
 import { useAtom } from "jotai"
 import { useNavigate } from "react-router-dom"
 import { actionCreator } from "../action"
+import { useAPIClient } from "../apiClientProvider"
 import { useConstants } from "../constantsProvider"
 import { useArtifactIsAvailable, useLLMIsAvailable } from "../hooks/useAPIMeta"
 import { useSmartFilteringForm } from "../hooks/useSmartFilteringForm"
@@ -122,7 +123,33 @@ export const TrialListDetail: FC<{
 }> = ({ trial, isBestTrial, directions, metricNames, formWidgets }) => {
   const theme = useTheme()
   const action = actionCreator()
+  const { apiClient } = useAPIClient()
   const artifactEnabled = useArtifactIsAvailable()
+  const [userAttrs, setUserAttrs] = useState<Optuna.Attribute[] | null>(null)
+  const [userAttrsLoading, setUserAttrsLoading] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+    setUserAttrs(null)
+    setUserAttrsLoading(true)
+    apiClient
+      .getTrialUserAttrs(trial.study_id, trial.number)
+      .then((attrs) => {
+        if (!cancelled) {
+          setUserAttrs(attrs)
+          setUserAttrsLoading(false)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setUserAttrs([])
+          setUserAttrsLoading(false)
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [trial.study_id, trial.number])
   const startMs = trial.datetime_start?.getTime()
   const completeMs = trial.datetime_complete?.getTime()
   const [durationTimeUnit, setDurationTimeUnit] = useAtom(
@@ -220,13 +247,17 @@ export const TrialListDetail: FC<{
     [
       "user_attrs",
       "User Attributes",
-      <Box component="div">
-        {trial.user_attrs.map((t) => (
-          <Typography key={t.key}>
-            {t.key} {t.value}
-          </Typography>
-        ))}
-      </Box>,
+      userAttrsLoading ? (
+        <Typography color="text.secondary">Loading...</Typography>
+      ) : userAttrs && userAttrs.length > 0 ? (
+        <Box component="div">
+          {userAttrs.map((t) => (
+            <Typography key={t.key}>
+              {t.key} {t.value}
+            </Typography>
+          ))}
+        </Box>
+      ) : null,
     ],
   ]
   const renderInfo = (

@@ -47,6 +47,76 @@ class APITestCase(TestCase):
         study_summaries = json.loads(body)["study_summaries"]
         self.assertEqual(len(study_summaries), 2)
 
+    def test_get_trial_user_attrs(self) -> None:
+        def objective_with_attrs(trial: optuna.trial.Trial) -> float:
+            x = trial.suggest_float("x", -1, 1)
+            trial.set_user_attr("metric_a", 1.5)
+            trial.set_user_attr("metric_b", "hello")
+            return x
+
+        study = optuna.create_study()
+        study.optimize(objective_with_attrs, n_trials=1)
+        app = create_app(study._storage)
+
+        status, _, body = send_request(
+            app,
+            f"/api/studies/{study._study_id}/trials/0/user-attrs",
+            "GET",
+            content_type="application/json",
+        )
+        self.assertEqual(status, 200)
+        attrs = json.loads(body)["user_attrs"]
+        self.assertEqual(len(attrs), 2)
+        keys = {a["key"] for a in attrs}
+        self.assertIn("metric_a", keys)
+        self.assertIn("metric_b", keys)
+
+    def test_get_trial_user_attrs_not_found(self) -> None:
+        study = optuna.create_study()
+        study.optimize(objective, n_trials=1)
+        app = create_app(study._storage)
+
+        status, _, _ = send_request(
+            app,
+            f"/api/studies/{study._study_id}/trials/999/user-attrs",
+            "GET",
+            content_type="application/json",
+        )
+        self.assertEqual(status, 404)
+
+    def test_get_trial_user_attrs_study_not_found(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        app = create_app(storage)
+
+        status, _, _ = send_request(
+            app,
+            "/api/studies/999/trials/0/user-attrs",
+            "GET",
+            content_type="application/json",
+        )
+        self.assertEqual(status, 404)
+
+    def test_bulk_trials_exclude_user_attrs(self) -> None:
+        def objective_with_attrs(trial: optuna.trial.Trial) -> float:
+            x = trial.suggest_float("x", -1, 1)
+            trial.set_user_attr("metric_a", 1.5)
+            return x
+
+        study = optuna.create_study()
+        study.optimize(objective_with_attrs, n_trials=2)
+        app = create_app(study._storage)
+
+        status, _, body = send_request(
+            app,
+            f"/api/studies/{study._study_id}",
+            "GET",
+            content_type="application/json",
+        )
+        self.assertEqual(status, 200)
+        trials = json.loads(body)["trials"]
+        for trial in trials:
+            self.assertEqual(trial["user_attrs"], [])
+
     def test_get_study_details_without_after_param(self) -> None:
         study = optuna.create_study()
         study_id = study._study_id
