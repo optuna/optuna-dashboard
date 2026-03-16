@@ -354,7 +354,7 @@ class PreferentialGPSampler(optuna.samplers.BaseSampler):
             np.array([trans.transform(trials[t].params) for t in trials_with_preference]),
             dtype=torch.float64,
         )
-        pref_ids = torch.tensor([[ids[b], ids[w]] for b, w in preferences], dtype=torch.int32)
+        pref_ids = torch.tensor([[ids[b], ids[w]] for b, w in preferences], dtype=torch.long)
         with torch.random.fork_rng():
             torch.manual_seed(self._rng.randint(2**32, dtype=np.int64))
 
