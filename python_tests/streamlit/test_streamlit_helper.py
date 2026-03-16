@@ -3,6 +3,10 @@ from __future__ import annotations
 import itertools
 from typing import Sequence
 
+import pytest
+
+streamlit = pytest.importorskip("streamlit")
+
 import optuna
 from optuna_dashboard import ChoiceWidget
 from optuna_dashboard import register_objective_form_widgets
@@ -13,7 +17,6 @@ from optuna_dashboard import TextInputWidget
 from optuna_dashboard.streamlit import render_objective_form_widgets
 from optuna_dashboard.streamlit import render_trial_note
 from optuna_dashboard.streamlit import render_user_attr_form_widgets
-import pytest
 
 
 @pytest.mark.parametrize("note", ["test", ""])
