@@ -118,8 +118,8 @@ markers = [
 
 [dependency-groups]
 test = [
-    "torch; python_version>='3.9'",
-    "botorch; python_version>='3.9'",
+    "torch; python_version>='3.10'",
+    "botorch; python_version>='3.10'",
     "httpx",
     "streamlit; python_version>='3.9'",
     "boto3",
