@@ -3,3 +3,24 @@
 
     https://jupyterlab.readthedocs.io/en/stable/developer/css.html
 */
+
+/* 📱 Responsive fix for small screens */
+@media (max-width: 768px) {
+
+  /* Layout stack (side-by-side → vertical) */
+  .jp-StackPanel,
+  .jp-GridPanel,
+  .row,
+  .container {
+    flex-direction: column !important;
+  }
+
+  /* Charts full width */
+  canvas,
+  .plotly,
+  .chart {
+    width: 100% !important;
+    min-width: unset !important;
+  }
+
+}
