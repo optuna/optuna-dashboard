@@ -49,6 +49,10 @@ docs = [
     "sphinx_rtd_theme",
 ]
 
+[tool.uv]
+exclude-newer = "5 days"
+exclude-newer-package = { torch = false, optuna = false, optuna-integration = false }
+
 [[tool.uv.index]]
 name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
