@@ -20,9 +20,9 @@ import {
   UploadArtifactAPIResponse,
 } from "./apiClient"
 import { APIClientProvider } from "./apiClientProvider"
-import { AxiosClient } from "./axiosClient"
 import { App } from "./components/App"
 import { ConstantsContext } from "./constantsProvider"
+import { FetchAPIClient } from "./fetchAPIClient"
 import {
   Artifact,
   FeedbackComponentType,
@@ -37,7 +37,7 @@ import {
 } from "./types/optuna"
 
 export {
-  AxiosClient,
+  FetchAPIClient,
   APIClientProvider,
   App,
   APIClient,
