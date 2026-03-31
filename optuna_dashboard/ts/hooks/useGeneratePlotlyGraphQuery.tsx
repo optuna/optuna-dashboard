@@ -1,9 +1,9 @@
 import { useEvalFunctionInSandbox } from "@optuna/react"
 import * as Optuna from "@optuna/types"
-import { isAxiosError } from "axios"
 import { atom, useAtom } from "jotai"
 import { useSnackbar } from "notistack"
 import * as plotly from "plotly.js-dist-min"
+import { isFetchAPIClientError } from "../apiClient"
 import { useAPIClient } from "../apiClientProvider"
 import { StudyDetail } from "../types/optuna"
 import { useEvalConfirmationDialog } from "./useEvalConfirmationDialog"
@@ -136,7 +136,7 @@ export const useGeneratePlotlyGraphQuery = ({
             funcStr = response.generate_plotly_graph_func_str
             graphTitle = response.generate_plotly_graph_title
           } catch (apiError) {
-            const reason = isAxiosError<{ reason: string }>(apiError)
+            const reason = isFetchAPIClientError<{ reason: string }>(apiError)
               ? apiError.response?.data.reason
               : String(apiError)
             enqueueSnackbar(`API error: (error=${reason})`, {
@@ -272,7 +272,7 @@ export const useGeneratePlotlyGraphQuery = ({
             })
             funcStr = response.re_generated_plotly_graph_func_str
           } catch (apiError) {
-            const reason = isAxiosError<{ reason: string }>(apiError)
+            const reason = isFetchAPIClientError<{ reason: string }>(apiError)
               ? apiError.response?.data.reason
               : String(apiError)
             enqueueSnackbar(`API error: (error=${reason})`, {

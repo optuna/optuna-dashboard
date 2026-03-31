@@ -1,14 +1,14 @@
 import React, { FC, ReactNode } from "react"
 import ReactDOM from "react-dom/client"
 import { APIClientProvider } from "./apiClientProvider"
-import { AxiosClient } from "./axiosClient"
 import { App } from "./components/App"
 import { ConstantsContext } from "./constantsProvider"
+import { FetchAPIClient } from "./fetchAPIClient"
 
 declare const API_ENDPOINT: string
 declare const URL_PREFIX: string
 
-const axiosAPIClient = new AxiosClient(API_ENDPOINT)
+const fetchAPIClient = new FetchAPIClient(API_ENDPOINT)
 
 const ConstantsProvider: FC<{ children: ReactNode }> = ({ children }) => (
   <ConstantsContext.Provider
@@ -24,7 +24,7 @@ const ConstantsProvider: FC<{ children: ReactNode }> = ({ children }) => (
 
 ReactDOM.createRoot(document.getElementById("dashboard") as HTMLElement).render(
   <React.StrictMode>
-    <APIClientProvider apiClient={axiosAPIClient}>
+    <APIClientProvider apiClient={fetchAPIClient}>
       <ConstantsProvider>
         <App />
       </ConstantsProvider>

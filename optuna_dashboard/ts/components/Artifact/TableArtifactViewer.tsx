@@ -8,8 +8,6 @@ import React, { useState, useEffect, ReactNode } from "react"
 
 import { Artifact } from "ts/types/optuna"
 
-import axios from "axios"
-
 export const isTableArtifact = (artifact: Artifact): boolean => {
   return (
     artifact.filename.endsWith(".csv") || artifact.filename.endsWith(".jsonl")
@@ -155,8 +153,11 @@ const loadCSV = (props: TableArtifactViewerProps): Promise<Data[]> => {
 }
 
 const loadJsonl = async (props: TableArtifactViewerProps): Promise<Data[]> => {
-  const response = await axios.get(props.src, { responseType: "text" })
-  const data = response.data
+  const response = await fetch(props.src)
+  if (!response.ok) {
+    throw new Error(`Failed to load JSONL (${response.status})`)
+  }
+  const data = await response.text()
   try {
     const jsons = data
       .split("\n")

@@ -1,20 +1,19 @@
 import { useQuery } from "@tanstack/react-query"
-import { AxiosError } from "axios"
 import { useSnackbar } from "notistack"
 import { useEffect } from "react"
-import { APIMeta } from "../apiClient"
+import { APIMeta, FetchAPIClientError } from "../apiClient"
 import { useAPIClient } from "../apiClientProvider"
 
 const useAPIMeta = (): {
   data: APIMeta | undefined
   isLoading: boolean
-  error: AxiosError<{ reason: string }> | null
+  error: FetchAPIClientError<{ reason: string }> | null
 } => {
   const { apiClient } = useAPIClient()
   const { enqueueSnackbar } = useSnackbar()
   const { data, isLoading, error } = useQuery<
     APIMeta,
-    AxiosError<{ reason: string }>
+    FetchAPIClientError<{ reason: string }>
   >({
     queryKey: ["apiMeta"],
     queryFn: () => apiClient.getMetaInfo(),
@@ -29,7 +28,7 @@ const useAPIMeta = (): {
         variant: "error",
       })
     }
-  }, [error])
+  }, [enqueueSnackbar, error])
 
   return { data, isLoading, error }
 }

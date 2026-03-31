@@ -1,8 +1,8 @@
 import { useEvalFunctionInSandbox } from "@optuna/react"
-import { isAxiosError } from "axios"
 import { atom, useAtom } from "jotai"
 import { useSnackbar } from "notistack"
 import React, { ReactNode, useCallback, useState } from "react"
+import { isFetchAPIClientError } from "../apiClient"
 import { useAPIClient } from "../apiClientProvider"
 import { Trial } from "../types/optuna"
 import { useLLMIsAvailable } from "./useAPIMeta"
@@ -88,7 +88,7 @@ export const useTrialFilterQuery = ({
             })
             filterFuncStr = response.trial_filtering_func_str
           } catch (apiError) {
-            const reason = isAxiosError<{ reason: string }>(apiError)
+            const reason = isFetchAPIClientError<{ reason: string }>(apiError)
               ? apiError.response?.data?.reason
               : String(apiError)
             enqueueSnackbar(`API error: (error=${reason})`, {

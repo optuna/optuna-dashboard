@@ -1,8 +1,7 @@
 import { useTheme } from "@mui/material"
 import { useQuery } from "@tanstack/react-query"
-import { AxiosError } from "axios"
 import * as plotly from "plotly.js-dist-min"
-import { PlotType } from "../apiClient"
+import { FetchAPIClientError, PlotType } from "../apiClient"
 import { useAPIClient } from "../apiClientProvider"
 import { usePlotlyColorTheme } from "../state"
 
@@ -21,7 +20,7 @@ export const usePlot = ({
   const { apiClient } = useAPIClient()
   const { data, isLoading, error } = useQuery<
     { data: plotly.Data[]; layout: plotly.Layout },
-    AxiosError
+    FetchAPIClientError
   >({
     enabled: studyId !== undefined,
     queryKey: ["plot", studyId, numCompletedTrials, plotType],

@@ -177,6 +177,28 @@ export type ReGeneratePlotlyGraphQueryResponse = {
   re_generated_plotly_graph_func_str: string
 }
 
+export class FetchAPIClientError<T = unknown> extends Error {
+  response?: {
+    status: number
+    data: T
+  }
+
+  constructor(message: string, status?: number, data?: T) {
+    super(message)
+    this.name = "FetchAPIClientError"
+    if (status !== undefined && data !== undefined) {
+      this.response = {
+        status,
+        data,
+      }
+    }
+  }
+}
+
+export const isFetchAPIClientError = <T = unknown>(
+  error: unknown
+): error is FetchAPIClientError<T> => error instanceof FetchAPIClientError
+
 export abstract class APIClient {
   constructor() {}
 
