@@ -40,7 +40,6 @@ import { Settings } from "./Settings"
 
 import GitHubIcon from "@mui/icons-material/GitHub"
 import HistoryIcon from "@mui/icons-material/History"
-import LanIcon from "@mui/icons-material/Lan"
 import MenuIcon from "@mui/icons-material/Menu"
 import OpenInNewIcon from "@mui/icons-material/OpenInNew"
 import QueryStatsIcon from "@mui/icons-material/QueryStats"
@@ -289,34 +288,6 @@ export const AppDrawer: FC<{
                 <ListItemText primary="Analytics" sx={styleListItemText} />
               </ListItemButton>
             </ListItem>
-            {isPreferential && (
-              <ListItem
-                key="PreferenceGraph"
-                disablePadding
-                sx={styleListItem}
-                title="Preference (Graph)"
-              >
-                <ListItemButton
-                  component={Link}
-                  to={`${url_prefix}/studies/${studyId}/graph`}
-                  sx={styleListItemButton}
-                  selected={
-                    matchPath(
-                      `${url_prefix}/studies/:studyId/graph`,
-                      pathname
-                    ) !== null
-                  }
-                >
-                  <ListItemIcon sx={styleListItemIcon}>
-                    <LanIcon />
-                  </ListItemIcon>
-                  <ListItemText
-                    primary="Preferences (Graph)"
-                    sx={styleListItemText}
-                  />
-                </ListItemButton>
-              </ListItem>
-            )}
             <ListItem
               key="TableList"
               disablePadding
