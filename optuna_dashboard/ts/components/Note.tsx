@@ -44,11 +44,8 @@ import {
 } from "react-markdown/lib/ast-to-react"
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter"
 import { darcula } from "react-syntax-highlighter/dist/esm/styles/prism"
-// @ts-ignore
-import rehypeMathjax from "rehype-mathjax"
 import rehypeRaw from "rehype-raw"
 import remarkGfm from "remark-gfm"
-import remarkMath from "remark-math"
 
 import { useAtomValue } from "jotai"
 import { Note } from "ts/types/optuna"
@@ -69,12 +66,6 @@ def objective(trial):
     y = trial.suggest_float("y", -10, 10)
     return (x - 5) ** 2 + (y + 5) ** 2
 \`\`\`
-
-### Formula
-
-$$
-L = \\frac{1}{2} \\rho v^2 S C_L
-$$
 `
 
 const CodeBlock: CodeComponent | ReactMarkdownNames = ({
@@ -172,7 +163,7 @@ const useConfirmCloseDialog = (
 
 export const MarkdownRenderer: FC<{ body: string }> = ({ body }) => {
   const allowUnsafe = useAllowUnsafe()
-  const rehypePlugins = [rehypeMathjax]
+  const rehypePlugins = []
   if (allowUnsafe) {
     rehypePlugins.push(rehypeRaw)
   }
@@ -180,7 +171,7 @@ export const MarkdownRenderer: FC<{ body: string }> = ({ body }) => {
   return (
     <ReactMarkdown
       children={body}
-      remarkPlugins={[remarkGfm, remarkMath]}
+      remarkPlugins={[remarkGfm]}
       rehypePlugins={rehypePlugins}
       components={{
         code: CodeBlock,
