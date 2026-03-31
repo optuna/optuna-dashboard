@@ -22,10 +22,6 @@ import { StudyDetail, Trial } from "ts/types/optuna"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
 import { isTableArtifact, useTableArtifactModal } from "./TableArtifactViewer"
-import {
-  isThreejsArtifact,
-  useThreejsArtifactModal,
-} from "./ThreejsArtifactViewer"
 
 export const SelectedTrialArtifactCards: FC<{
   study: StudyDetail
@@ -34,8 +30,6 @@ export const SelectedTrialArtifactCards: FC<{
   const theme = useTheme()
   const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
     useDeleteArtifactDialog()
-  const [openThreejsArtifactModal, renderThreejsArtifactModal] =
-    useThreejsArtifactModal()
   const [openTableArtifactModal, renderTableArtifactModal] =
     useTableArtifactModal()
   const isArtifactModifiable = (trial: Trial) => {
@@ -158,27 +152,12 @@ export const SelectedTrialArtifactCards: FC<{
                     flexGrow: 1,
                     wordBreak: "break-all",
                     maxWidth: `calc(100% - ${theme.spacing(
-                      4 +
-                        (isThreejsArtifact(artifact) ? 4 : 0) +
-                        (isArtifactModifiable(trial) ? 4 : 0)
+                      4 + (isArtifactModifiable(trial) ? 4 : 0)
                     )})`,
                   }}
                 >
                   {"Trial id: " + trial.number}
                 </Typography>
-                {isThreejsArtifact(artifact) ? (
-                  <IconButton
-                    aria-label="show artifact 3d model"
-                    size="small"
-                    color="inherit"
-                    sx={{ margin: "auto 0" }}
-                    onClick={() => {
-                      openThreejsArtifactModal(urlPath, artifact)
-                    }}
-                  >
-                    <FullscreenIcon />
-                  </IconButton>
-                ) : null}
                 {isTableArtifact(artifact) ? (
                   <IconButton
                     aria-label="show artifact table"
@@ -226,7 +205,6 @@ export const SelectedTrialArtifactCards: FC<{
         })}
       </Box>
       {renderDeleteArtifactDialog()}
-      {renderThreejsArtifactModal()}
       {renderTableArtifactModal()}
     </>
   )
