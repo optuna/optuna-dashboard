@@ -1,5 +1,4 @@
 import ClearIcon from "@mui/icons-material/Clear"
-import FullscreenIcon from "@mui/icons-material/Fullscreen"
 import OpenInFullIcon from "@mui/icons-material/OpenInFull"
 import ReplayIcon from "@mui/icons-material/Replay"
 import SettingsIcon from "@mui/icons-material/Settings"
@@ -28,7 +27,6 @@ import { red } from "@mui/material/colors"
 import React, { FC, useEffect, useState } from "react"
 
 import {
-  Artifact,
   FeedbackComponentArtifact,
   FeedbackComponentNote,
   FeedbackComponentType,
@@ -38,10 +36,6 @@ import {
 import { actionCreator } from "../../action"
 import { useArtifactBaseUrlPath } from "../../hooks/useAPIMeta"
 import { getTrialArtifactUrlPath } from "../Artifact/ArtifactCards"
-import {
-  isThreejsArtifact,
-  useThreejsArtifactModal,
-} from "../Artifact/ThreejsArtifactViewer"
 import { TrialListDetail } from "../TrialList"
 import { PreferentialOutputComponent } from "./PreferentialOutputComponent"
 
@@ -185,15 +179,7 @@ const PreferentialTrial: FC<{
   candidates: number[]
   hideTrial: () => void
   openDetailTrial: () => void
-  openThreejsArtifactModal: (urlPath: string, artifact: Artifact) => void
-}> = ({
-  trial,
-  studyDetail,
-  candidates,
-  hideTrial,
-  openDetailTrial,
-  openThreejsArtifactModal,
-}) => {
+}> = ({ trial, studyDetail, candidates, hideTrial, openDetailTrial }) => {
   const theme = useTheme()
   const artifactBaseUrl = useArtifactBaseUrlPath()
   const action = actionCreator()
@@ -216,10 +202,6 @@ const PreferentialTrial: FC<{
           artifactId
         )
       : ""
-  const is3dModel =
-    componentType.output_type === "artifact" &&
-    artifact !== undefined &&
-    isThreejsArtifact(artifact)
 
   if (trial === undefined) {
     return (
@@ -256,9 +238,7 @@ const PreferentialTrial: FC<{
           component="div"
           sx={{
             margin: theme.spacing(0, 2),
-            maxWidth: `calc(${trialWidth}px - ${
-              is3dModel ? theme.spacing(8) : theme.spacing(4)
-            })`,
+            maxWidth: `calc(${trialWidth}px - ${theme.spacing(4)})`,
             overflow: "hidden",
             display: "flex",
           }}
@@ -276,19 +256,6 @@ const PreferentialTrial: FC<{
             </Typography>
           ) : null}
         </Box>
-        {is3dModel ? (
-          <IconButton
-            aria-label="show artifact 3d model"
-            size="small"
-            color="inherit"
-            sx={{ marginLeft: "auto" }}
-            onClick={() => {
-              openThreejsArtifactModal(urlPath, artifact)
-            }}
-          >
-            <FullscreenIcon />
-          </IconButton>
-        ) : null}
         <IconButton
           sx={{
             marginLeft: "auto",
@@ -413,8 +380,6 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
   const theme = useTheme()
   const action = actionCreator()
   const [undoHistoryFlag, setUndoHistoryFlag] = useState(false)
-  const [openThreejsArtifactModal, renderThreejsArtifactModal] =
-    useThreejsArtifactModal()
   const [displayTrials, setDisplayTrials] = useState<DisplayTrials>({
     display: [],
     clicked: [],
@@ -575,7 +540,6 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
               candidates={candidates}
               hideTrial={() => hideTrial(t)}
               openDetailTrial={() => setDetailTrial(t)}
-              openThreejsArtifactModal={openThreejsArtifactModal}
             />
           )
         })}
@@ -635,7 +599,6 @@ export const PreferentialTrials: FC<{ studyDetail: StudyDetail | null }> = ({
           </Box>
         </Modal>
       )}
-      {renderThreejsArtifactModal()}
     </Box>
   )
 }

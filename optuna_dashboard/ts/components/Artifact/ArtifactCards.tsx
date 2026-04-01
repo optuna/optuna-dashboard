@@ -25,10 +25,6 @@ import { StudyDetail, Trial } from "../../types/optuna"
 import { ArtifactCardMedia } from "./ArtifactCardMedia"
 import { useDeleteArtifactDialog } from "./DeleteArtifactDialog"
 import { isTableArtifact, useTableArtifactModal } from "./TableArtifactViewer"
-import {
-  isThreejsArtifact,
-  useThreejsArtifactModal,
-} from "./ThreejsArtifactViewer"
 
 export const getTrialArtifactUrlPath = (
   baseUrlPath: string,
@@ -58,8 +54,6 @@ export const ArtifactCards: FC<{
   const artifactBaseUrl = useArtifactBaseUrlPath()
   const [openDeleteArtifactDialog, renderDeleteArtifactDialog] =
     useDeleteArtifactDialog()
-  const [openThreejsArtifactModal, renderThreejsArtifactModal] =
-    useThreejsArtifactModal()
   const [openTableArtifactModal, renderTableArtifactModal] =
     useTableArtifactModal()
 
@@ -133,34 +127,15 @@ export const ArtifactCards: FC<{
                     maxWidth:
                       studyOrTrial.type === "trial"
                         ? `calc(100% - ${theme.spacing(
-                            4 +
-                              (isThreejsArtifact(artifact) ? 4 : 0) +
-                              (isArtifactModifiable ? 4 : 0)
+                            4 + (isArtifactModifiable ? 4 : 0)
                           )})`
-                        : `calc(100% - ${
-                            isThreejsArtifact(artifact)
-                              ? theme.spacing(12)
-                              : theme.spacing(8)
-                          })`,
+                        : `calc(100% - ${theme.spacing(8)})`,
                     wordWrap:
                       studyOrTrial.type === "study" ? "break-word" : undefined,
                   }}
                 >
                   {artifact.filename}
                 </Typography>
-                {isThreejsArtifact(artifact) ? (
-                  <IconButton
-                    aria-label="show artifact 3d model"
-                    size="small"
-                    color="inherit"
-                    sx={{ margin: "auto 0" }}
-                    onClick={() => {
-                      openThreejsArtifactModal(urlPath, artifact)
-                    }}
-                  >
-                    <FullscreenIcon />
-                  </IconButton>
-                ) : null}
                 {isTableArtifact(artifact) ? (
                   <IconButton
                     aria-label="show artifact table"
@@ -223,7 +198,6 @@ export const ArtifactCards: FC<{
         )}
       </Box>
       {renderDeleteArtifactDialog()}
-      {renderThreejsArtifactModal()}
       {renderTableArtifactModal()}
     </>
   )

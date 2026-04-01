@@ -146,7 +146,7 @@ export const CompareStudies: FC<{
                 return (
                   <ListItem key={study.study_id} disablePadding>
                     <ListItemButton
-                      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      onClick={(e) => {
                         if (e.shiftKey) {
                           let next: number[]
                           const selectedIds = selected.map((s) => s.study_id)
