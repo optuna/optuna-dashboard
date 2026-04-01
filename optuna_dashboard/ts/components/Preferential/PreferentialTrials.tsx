@@ -1,5 +1,4 @@
 import ClearIcon from "@mui/icons-material/Clear"
-import FullscreenIcon from "@mui/icons-material/Fullscreen"
 import OpenInFullIcon from "@mui/icons-material/OpenInFull"
 import ReplayIcon from "@mui/icons-material/Replay"
 import SettingsIcon from "@mui/icons-material/Settings"
@@ -28,7 +27,6 @@ import { red } from "@mui/material/colors"
 import React, { FC, useEffect, useState } from "react"
 
 import {
-  Artifact,
   FeedbackComponentArtifact,
   FeedbackComponentNote,
   FeedbackComponentType,
@@ -181,13 +179,7 @@ const PreferentialTrial: FC<{
   candidates: number[]
   hideTrial: () => void
   openDetailTrial: () => void
-}> = ({
-  trial,
-  studyDetail,
-  candidates,
-  hideTrial,
-  openDetailTrial,
-}) => {
+}> = ({ trial, studyDetail, candidates, hideTrial, openDetailTrial }) => {
   const theme = useTheme()
   const artifactBaseUrl = useArtifactBaseUrlPath()
   const action = actionCreator()
