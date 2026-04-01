@@ -25,24 +25,24 @@ jobs:
 
     steps:
       - name: Check out code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v8
         with:
-          python-version: '3.11'
+          python-version: '3.13'
       
       - name: Install dependencies
         working-directory: jupyterlab
         run: |
           uv venv
-          uv pip install --upgrade pip setuptools build
-          uv pip install jupyterlab
+          uv pip install --exclude-newer="2 days" --upgrade pip setuptools build
+          uv pip install --exclude-newer="2 days" jupyterlab
       
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
       
       # Without a following step, it will be failed to build the jupyter lab extension by the below error

@@ -8,6 +8,7 @@ dist/
 build/
 optuna_dashboard/public/
 jupyterlab/jupyterlab_optuna/vendor/
+jupyterlab/uv.lock
 
 # JS
 node_modules/
