@@ -26,7 +26,6 @@ import { GraphRank } from "./GraphRank"
 import { GraphSlice } from "./GraphSlice"
 import { StudyNote } from "./Note"
 import { PreferentialAnalytics } from "./Preferential/PreferentialAnalytics"
-import { PreferentialGraph } from "./Preferential/PreferentialGraph"
 import { PreferentialHistory } from "./Preferential/PreferentialHistory"
 import { PreferentialTrials } from "./Preferential/PreferentialTrials"
 import { StudyHistory } from "./StudyHistory"
@@ -41,7 +40,6 @@ type PageId =
   | "trialSelection"
   | "note"
   | "preferenceHistory"
-  | "graph"
 
 export const useURLVars = (): number => {
   const { studyId } = useParams<{ studyId: string }>()
@@ -199,18 +197,6 @@ export const StudyDetail: FC<{
           latestNote={studyDetail.note}
           cardSx={{ flexGrow: 1 }}
         />
-      </Box>
-    )
-  } else if (page === "graph") {
-    content = (
-      <Box
-        component="div"
-        sx={{
-          height: `calc(100vh - ${theme.spacing(8)})`,
-          padding: theme.spacing(2),
-        }}
-      >
-        <PreferentialGraph studyDetail={studyDetail} />
       </Box>
     )
   } else if (page === "preferenceHistory") {
