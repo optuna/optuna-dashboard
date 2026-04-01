@@ -654,7 +654,7 @@ export const TrialList: FC<{ studyDetail: StudyDetail | null }> = ({
                     disablePadding
                   >
                     <ListItemButton
-                      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                      onClick={(e) => {
                         if (e.shiftKey) {
                           let next: number[]
                           const selectedNumbers = selected.map((t) => t.number)
