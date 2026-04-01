@@ -8,7 +8,6 @@
   "types": "types/index.d.ts",
   "scripts": {
     "build": "tsc -d",
-    "storybook": "storybook dev -p 6006",
     "test": "vitest run"
   },
   "files": [
@@ -26,11 +25,8 @@
   },
   "homepage": "https://github.com/optuna/optuna-dashboard#readme",
   "devDependencies": {
-    "@chromatic-com/storybook": "^4.0.1",
     "@optuna/storage": "file:../storage",
     "@optuna/types": "file:../types",
-    "@storybook/addon-links": "^9.0.17",
-    "@storybook/react-vite": "^9.0.17",
     "@testing-library/jest-dom": "^6.4.2",
     "@testing-library/react": "^14.2.2",
     "@types/plotly.js-dist-min": "^2.3.4",
@@ -40,13 +36,10 @@
     "@vitest/browser": "^3.2.4",
     "jsdom": "^26.1.0",
     "playwright": "^1.54.2",
-    "storybook": "^9.0.17",
     "typescript": "^5.7.3",
     "vite": "^7.1.12",
     "vitest": "^3.2.4",
-    "vitest-browser-react": "^1.0.1",
-    "eslint-plugin-storybook": "9.0.17",
-    "@storybook/addon-docs": "^9.0.17"
+    "vitest-browser-react": "^1.0.1"
   },
   "peerDependencies": {
     "react": ">=16.0.0",
