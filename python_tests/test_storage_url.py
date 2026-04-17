@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import tempfile
+import os
+import pytest
 from unittest import TestCase
 import warnings
 
@@ -9,6 +11,7 @@ import optuna.storages
 from optuna.storages import JournalStorage
 from optuna.storages import RDBStorage
 from optuna_dashboard._storage_url import get_storage
+from optuna_dashboard._storage_url import get_rdb_storage
 import sqlalchemy.exc
 
 
@@ -65,3 +68,13 @@ class GetStorageTestCase(TestCase):
         with tempfile.NamedTemporaryFile() as file:
             with self.assertRaises(FileNotFoundError):
                 get_storage(f"sqlite:///{file.name}", storage_class="JournalFileStorage")
+
+    def test_get_rdb_storage_empty_db_exits_cleanly(self) -> None:
+        with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+            empty_db_path = f.name
+        try:
+            with pytest.raises(SystemExit) as exc_info:
+                get_rdb_storage(f"sqlite:///{empty_db_path}")
+            assert exc_info.value.code == 1
+        finally:
+            os.unlink(empty_db_path)
