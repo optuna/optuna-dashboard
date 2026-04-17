@@ -99,7 +99,12 @@ def get_rdb_storage(storage_url: str) -> RDBStorage:
         # instead of a raw SQLAlchemy traceback.
         err_msg = str(e).lower()
         cause_msg = str(e.__cause__).lower() if e.__cause__ else ""
-        if "no such table" in err_msg or "version_info" in err_msg or "no such table" in cause_msg or "version_info" in cause_msg:
+        if (
+            "no such table" in err_msg
+            or "version_info" in err_msg
+            or "no such table" in cause_msg
+            or "version_info" in cause_msg
+        ):
             print(
                 f"Error: The database at '{storage_url}' does not contain an Optuna schema.\n"
                 "Please run an Optuna study first to initialize the database:\n\n"
