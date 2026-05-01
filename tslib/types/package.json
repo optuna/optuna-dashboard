@@ -20,6 +20,7 @@
     "url": "https://github.com/optuna/optuna-dashboard/issues"
   },
   "homepage": "https://github.com/optuna/optuna-dashboard#readme",
+  "packageManager": "pnpm@10.33.2",
   "devDependencies": {
     "typescript": "^5.7.3"
   }
