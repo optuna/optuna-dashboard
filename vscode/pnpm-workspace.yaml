@@ -1,0 +1,10 @@
+packages:
+  - "."
+
+minimumReleaseAge: 1440
+trustPolicy: "no-downgrade"
+strictDepBuilds: true
+blockExoticSubdeps: true
+verifyDepsBeforeRun: error
+allowBuilds:
+  "@playwright/browser-chromium": true
