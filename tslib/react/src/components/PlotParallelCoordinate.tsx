@@ -307,7 +307,7 @@ const plotCoordinate = (
         // @ts-ignore
         colorscale: "Blues",
         colorbar: {
-          title: targets[0].toLabel(study.metric_names),
+          title: { text: targets[0].toLabel(study.metric_names) },
         },
         showscale: true,
         reversescale: reversescale,
