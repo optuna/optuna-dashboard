@@ -8,15 +8,15 @@ on:
       - '**.ts'
       - '**.tsx'
       - 'optuna_dashboard/package.json'
-      - 'optuna_dashboard/package-lock.json'
+      - 'optuna_dashboard/pnpm-lock.yaml'
       - 'vscode/package.json'
-      - 'vscode/package-lock.json'
+      - 'vscode/pnpm-lock.yaml'
       - 'standalone_app/package.json'
-      - 'standalone_app/package-lock.json'
+      - 'standalone_app/pnpm-lock.yaml'
       - 'tslib/react/package.json'
-      - 'tslib/react/package-lock.json'
+      - 'tslib/react/pnpm-lock.yaml'
       - 'tslib/storage/package.json'
-      - 'tslib/storage/package-lock.json'
+      - 'tslib/storage/pnpm-lock.yaml'
       - 'rustlib/Cargo.toml'
       - 'rustlib/Cargo.lock'
       - 'rustlib/**.rs'
@@ -32,13 +32,16 @@ jobs:
       - name: Check out code
         uses: actions/checkout@master
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      
-      - run: npm install
-      - run: npm run lint
+          node-version: '22'
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run lint
 
   type-check:
     name: Type checking on optuna-dashboard & standalone_app
@@ -48,11 +51,14 @@ jobs:
       - name: Check out code
         uses: actions/checkout@master
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      
+          node-version: '22'
+
       - name: Install Rust toolchains
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -65,15 +71,15 @@ jobs:
           cargo install wasm-bindgen-cli --version $WASM_BINDGEN_VERSION
           cargo install wasm-opt
           ./build.sh
-      
+
       - name: Setup tslib
         run: make tslib
-      
+
       - name: Type Check optuna_dashboard
         working-directory: optuna_dashboard
         run: |
-          npm install
-          npm run type-check
+          pnpm install --frozen-lockfile
+          pnpm run type-check
 
       - name: Build rustlib for standalone_app
         working-directory: rustlib
@@ -82,35 +88,38 @@ jobs:
       - name: Type Check standalone_app
         working-directory: standalone_app
         run: |
-          npm install
-          npm run type-check
+          pnpm install --frozen-lockfile
+          pnpm run type-check
 
-  check-package-lock-json:
-    name: Check package-lock.json
+  check-pnpm-lock:
+    name: Check pnpm-lock.yaml
     runs-on: ubuntu-latest
 
     steps:
       - name: Check out code
         uses: actions/checkout@master
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-      
+          node-version: '22'
+
+      # `pnpm install --frozen-lockfile` exits non-zero when package.json and pnpm-lock.yaml drift
       - working-directory: tslib/types
-        run: npm install
+        run: pnpm install --frozen-lockfile
       - working-directory: tslib/storage
-        run: npm install
+        run: pnpm install --frozen-lockfile
       - working-directory: tslib/react
-        run: npm install
+        run: pnpm install --frozen-lockfile
       - working-directory: optuna_dashboard
-        run: npm install
+        run: pnpm install --frozen-lockfile
       - working-directory: standalone_app
-        run: npm install
+        run: pnpm install --frozen-lockfile
       - working-directory: vscode
-        run: npm install
-      - run: git diff --exit-code
+        run: pnpm install --frozen-lockfile
 
   build:
     name: JS build check
@@ -120,10 +129,13 @@ jobs:
       - name: Check out code
         uses: actions/checkout@master
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
 
       - name: Install Rust toolchains
         uses: dtolnay/rust-toolchain@stable
@@ -144,26 +156,26 @@ jobs:
       - name: Build standalone_app for vscode extension
         working-directory: standalone_app
         run: |
-          npm install
-          npm run build:vscode
+          pnpm install --frozen-lockfile
+          pnpm run build:vscode
 
       - name: Build standalone_app for GitHub pages
         working-directory: standalone_app
         run: |
-          npm install
-          npx vite build --out-dir ./gh-pages
+          pnpm install --frozen-lockfile
+          pnpm exec vite build --out-dir ./gh-pages
 
       - name: Build bundle.js
         working-directory: optuna_dashboard
         run: |
-          npm install
-          npm run build:dev
-          npm run build:prd
+          pnpm install --frozen-lockfile
+          pnpm run build:dev
+          pnpm run build:prd
 
       - name: Build optuna_dashboard package (for Jupyter Lab extension)
         working-directory: optuna_dashboard
         run: |
-          npm run build:pkg
+          pnpm run build:pkg
 
   test-tslib:
     name: Run tests
@@ -185,17 +197,19 @@ jobs:
           python -m pip install --upgrade pip setuptools
           pip install optuna
           python generate_assets.py
-      
+
       - name: Generate test asset for react
         working-directory: tslib/react/test/
         run: |
           python generate_assets.py
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: '22'
 
       - name: Build test
         run: make tslib
@@ -203,14 +217,14 @@ jobs:
       - name: Run tslib test for storage
         working-directory: tslib/storage
         run: |
-          npm run test
-      
+          pnpm run test
+
       - name: Install Playwright Browsers
         working-directory: tslib/react
         run: |
-          npx playwright install --with-deps
+          pnpm exec playwright install --with-deps
 
       - name: Run tslib test for react
         working-directory: tslib/react
         run: |
-          npm run test
+          pnpm run test

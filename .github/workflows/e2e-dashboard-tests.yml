@@ -9,11 +9,11 @@ on:
       - 'tslib/**.ts'
       - 'tslib/**.tsx'
       - 'tslib/**/package.json'
-      - 'tslib/**/package-lock.json'
+      - 'tslib/**/pnpm-lock.yaml'
       - 'optuna_dashboard/**.ts'
       - 'optuna_dashboard/**.tsx'
       - 'optuna_dashboard/package.json'
-      - 'optuna_dashboard/package-lock.json'
+      - 'optuna_dashboard/pnpm-lock.yaml'
       - 'optuna_dashboard/tsconfig.json'
 jobs:
   test:
@@ -23,6 +23,9 @@ jobs:
         optuna-version: ['optuna==3.6.0', 'git+https://github.com/optuna/optuna.git']
     steps:
       - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -35,8 +38,8 @@ jobs:
       - name: Build bundle.js
         working-directory: optuna_dashboard
         run: |
-          npm install
-          npm run build:dev
+          pnpm install --frozen-lockfile
+          pnpm run build:dev
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
