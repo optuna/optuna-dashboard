@@ -1,21 +1,27 @@
-FROM node:20 AS front-builder
+FROM node:22 AS front-builder
+
+# pnpm prompts "recreate node_modules?" before wiping the dir. Docker build
+# has no TTY, so the prompt aborts with ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY;
+# CI=true tells pnpm to skip the prompt and proceed.
+ENV CI=true
+RUN corepack enable
 
 WORKDIR /usr/src/tslib/types
 ADD ./tslib/types/ /usr/src/tslib/types/
-RUN npm install && npm run build
+RUN pnpm install --frozen-lockfile && pnpm run build
 
 WORKDIR /usr/src/tslib/storage
 ADD ./tslib/storage/ /usr/src/tslib/storage/
-RUN npm install && npm run build
+RUN pnpm install --frozen-lockfile && pnpm run build
 
 WORKDIR /usr/src/tslib/react
 ADD ./tslib/react/ /usr/src/tslib/react/
-RUN npm install && npm run build
+RUN pnpm install --frozen-lockfile && pnpm run build
 
 WORKDIR /usr/src/optuna_dashboard
 ADD ./optuna_dashboard /usr/src/optuna_dashboard
-RUN npm install
-RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build:prd
+RUN pnpm install --frozen-lockfile
+RUN NODE_OPTIONS="--max-old-space-size=4096" pnpm run build:prd
 
 FROM python:3.12-bookworm AS python-builder
 
@@ -38,4 +44,3 @@ WORKDIR /app
 
 EXPOSE 8080
 ENTRYPOINT ["optuna-dashboard", "--port", "8080", "--host", "0.0.0.0", "--server", "gunicorn"]
-

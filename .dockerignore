@@ -1,0 +1,10 @@
+**/node_modules/
+**/.pnpm-store/
+**/dist/
+.git/
+.github/
+.devcontainer/
+.vscode/
+.claude/
+.codex/
+*.local.*
