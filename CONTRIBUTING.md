@@ -36,12 +36,12 @@ $ make tslib
 
 #### Compiling TypeScript files
 
-Node.js v16 is required to compile TypeScript files.
+Node.js v22 is required to compile TypeScript files.
 
 ```
 $ cd optuna_dashboard/
-$ npm install
-$ npm run build:dev
+$ pnpm install
+$ pnpm run build:dev
 ```
 
 <details>
@@ -49,7 +49,7 @@ $ npm run build:dev
 
 ```
 $ cd optuna_dashboard/
-$ npm run watch
+$ pnpm run watch
 ```
 
 </details>
@@ -59,7 +59,7 @@ $ npm run watch
 
 ```
 $ cd optuna_dashboard/
-$ npm run build:prd
+$ pnpm run build:prd
 ```
 
 </details>
@@ -102,7 +102,7 @@ $ OPTUNA_DASHBOARD_DEBUG=1 optuna-dashboard sqlite:///db.sqlite3
 #### Running unit tests for `tslib/`
 
 ```
-$ npx playwright install --with-deps
+$ (cd tslib/react && pnpm exec playwright install --with-deps)
 $ make tslib-test
 ```
 
@@ -173,7 +173,6 @@ Open http://localhost:5173/
 ## VS Code Extension
 
 ```
-$ npm i -g vsce
 $ make vscode-extension
 ```
 

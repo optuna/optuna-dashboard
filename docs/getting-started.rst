@@ -39,11 +39,11 @@ Please clone the git repository and execute following commands to build sdist pa
 
 .. code-block:: console
 
-   # Node.js v20 is required to compile TypeScript files.
+   # Node.js v22 is required to compile TypeScript files.
    $ make tslib
    $ cd optuna_dashboard
-   $ npm install
-   $ npm run build:prd
+   $ pnpm install
+   $ pnpm run build:prd
    $ cd ..
    $ python -m build --sdist
 

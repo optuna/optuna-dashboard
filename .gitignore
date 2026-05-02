@@ -13,6 +13,7 @@ uv.lock
 # JS
 node_modules/
 pkg/
+.pnpm-store/
 
 # VSCode
 vscode/assets/
@@ -43,4 +44,6 @@ tslib/react/test/browser/__screenshots__
 .vscode/
 .DS_Store
 tmp/
-
+.claude/
+.codex/
+*.local.*
