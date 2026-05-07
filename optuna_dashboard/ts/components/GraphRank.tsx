@@ -387,7 +387,7 @@ const plotRank = (
         ),
         colorscale: "Portland",
         colorbar: {
-          title: "Rank",
+          title: { text: "Rank" },
         },
         size: 10,
         line: {

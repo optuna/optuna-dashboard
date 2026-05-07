@@ -241,7 +241,7 @@ const makeMarker = (
       colorscale: "Blues",
       reversescale: true,
       colorbar: {
-        title: "Trial",
+        title: { text: "Trial" },
       },
     }
   } else if (feasible && !dominated) {
@@ -251,7 +251,7 @@ const makeMarker = (
       color: trials.map((t) => t.number),
       colorscale: "Reds",
       colorbar: {
-        title: "Best Trial",
+        title: { text: "Best Trial" },
         x: 1.1,
         xpad: 80,
       },
