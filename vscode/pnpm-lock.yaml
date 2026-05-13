@@ -222,6 +222,7 @@ packages:
 
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
+    deprecated: Potential CWE-502 - Update to 1.3.1 or higher
 
   '@vscode/test-web@0.0.71':
     resolution: {integrity: sha512-uj9a3A3QD1qBOw1ZL19SKNSG6c6rvP9N4XrMvBVKSeAOkmOQftAZoBERLMJPEaJ8Z5dF7aLmA79drjOBk+VTRg==}
