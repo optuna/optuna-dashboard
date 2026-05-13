@@ -1,8 +1,31 @@
+const path = require("path")
 const webpack = require("webpack")
 
 const mode =
   process.env.NODE_ENV === "production" ? "production" : "development"
 const isDev = mode === "development"
+
+// TODO: Remove these aliases after pnpm workspace migration.
+// Without a shared .pnpm/ store, sibling installs of react/@mui/@emotion
+// become separate module instances at identical versions; alias them to
+// tslib/react's copies to dedupe.
+const tslibReactNodeModules = path.resolve(
+  __dirname,
+  "../tslib/react/node_modules"
+)
+// Only top-level packages need aliasing; transitive deps resolve via .pnpm/.
+const singletonAliases = Object.fromEntries(
+  [
+    "@mui/material",
+    "@mui/system",
+    "@mui/icons-material",
+    "@mui/lab",
+    "@emotion/react",
+    "@emotion/styled",
+    "react",
+    "react-dom",
+  ].map((name) => [name, path.join(tslibReactNodeModules, name)])
+)
 
 
 var config = {
@@ -42,6 +65,7 @@ var config = {
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js"],
+    alias: singletonAliases,
   },
   plugins: [
     new webpack.DefinePlugin({

@@ -13,33 +13,33 @@ $(RUSTLIB_OUT): rustlib/src/*.rs rustlib/Cargo.toml
 	rustlib/build.sh
 
 vscode/assets/bundle.js: $(RUSTLIB_OUT) $(STANDALONE_SRC) tslib
-	cd standalone_app && npm install && npm run build:vscode
+	pnpm --dir standalone_app install --frozen-lockfile && pnpm --dir standalone_app run build:vscode
 
 $(DASHBOARD_TS_OUT): $(DASHBOARD_TS_SRC) tslib
-	cd optuna_dashboard && npm install && npm run build:$(MODE)
+	pnpm --dir optuna_dashboard install --frozen-lockfile && pnpm --dir optuna_dashboard run build:$(MODE)
 
 .PHONY: tslib
 tslib:
-	cd tslib/types && npm i && npm run build
-	cd tslib/storage && npm i && npm run build
-	cd tslib/react && npm i && npm run build
+	pnpm --dir tslib/types install --frozen-lockfile && pnpm --dir tslib/types run build
+	pnpm --dir tslib/storage install --frozen-lockfile && pnpm --dir tslib/storage run build
+	pnpm --dir tslib/react install --frozen-lockfile && pnpm --dir tslib/react run build
 
 .PHONY: tslib-test
 tslib-test: tslib
-	cd tslib/react/test && python generate_assets.py && npm run test
-	cd tslib/storage/test && python generate_assets.py && npm run test
+	cd tslib/react/test && python generate_assets.py && pnpm --dir .. run test
+	cd tslib/storage/test && python generate_assets.py && pnpm --dir .. run test
 
 .PHONY: serve-browser-app
 serve-browser-app: tslib $(RUSTLIB_OUT)
-	cd standalone_app && npm i && npm run watch
+	pnpm --dir standalone_app install && pnpm --dir standalone_app run watch
 
 .PHONY: vscode-extension
 vscode-extension: vscode/assets/bundle.js
-	cd vscode && npm i && npm run vscode:prepublish && vsce package
+	pnpm --dir vscode install --frozen-lockfile && pnpm --dir vscode run vscode:prepublish && cd vscode && pnpm dlx @vscode/vsce package --no-dependencies
 
 .PHONY: jupyterlab-extension
 jupyterlab-extension: tslib
-	cd optuna_dashboard && npm install && npm run build:pkg
+	pnpm --dir optuna_dashboard install --frozen-lockfile && pnpm --dir optuna_dashboard run build:pkg
 	rm -rf jupyterlab/jupyterlab_optuna/vendor/
 	mkdir -p jupyterlab/jupyterlab_optuna/vendor/
 	rsync -a --exclude=node_modules --exclude=pkg --exclude=ts --exclude=types --exclude=public optuna_dashboard/ jupyterlab/jupyterlab_optuna/vendor/optuna_dashboard/
@@ -47,7 +47,7 @@ jupyterlab-extension: tslib
 
 .PHONY: python-package
 python-package: pyproject.toml tslib
-	cd optuna_dashboard && npm i && npm run build:prd
+	pnpm --dir optuna_dashboard install --frozen-lockfile && pnpm --dir optuna_dashboard run build:prd
 	uv build
 
 .PHONY: docs
@@ -56,7 +56,7 @@ docs: docs/conf.py $(RST_FILES)
 
 .PHONY: fmt
 fmt:
-	npm run fmt
+	pnpm run fmt
 	uv run ruff format ./optuna_dashboard/ ./python_tests/ ./e2e_tests/ ./jupyterlab/
 	uv run ruff check --fix ./optuna_dashboard/ ./python_tests/ ./e2e_tests/ ./jupyterlab/
 

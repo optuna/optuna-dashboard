@@ -265,7 +265,7 @@ const plotSlice = (
         colorscale: "Blues",
         reversescale: true,
         colorbar: {
-          title: "Trial",
+          title: { text: "Trial" },
         },
         line: {
           color: "Grey",

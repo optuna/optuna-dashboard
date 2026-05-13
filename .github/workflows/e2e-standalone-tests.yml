@@ -8,11 +8,11 @@ on:
       - 'tslib/**.ts'
       - 'tslib/**.tsx'
       - 'tslib/**/package.json'
-      - 'tslib/**/package-lock.json'
+      - 'tslib/**/pnpm-lock.yaml'
       - 'standalone_app/**.ts'
       - 'standalone_app/**.tsx'
       - 'standalone_app/package.json'
-      - 'standalone_app/package-lock.json'
+      - 'standalone_app/pnpm-lock.yaml'
       - 'standalone_app/tsconfig.json'
       - 'standalone_app/vite.config.js'
 jobs:
@@ -25,6 +25,9 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -54,8 +57,8 @@ jobs:
       - name: Build standalone_app
         working-directory: standalone_app
         run: |
-          npm install
-          npx vite build --outDir dist
+          pnpm install --frozen-lockfile
+          pnpm exec vite build --outDir dist
 
       - name: Install the required browsers
         run: uv run playwright install

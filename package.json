@@ -1,10 +1,11 @@
 {
   "scripts": {
     "fmt": "biome check . --apply",
-    "lint": "npm run lint:eslint && npm run lint:biome",
+    "lint": "pnpm run lint:eslint && pnpm run lint:biome",
     "lint:eslint": "eslint . --ext .ts,.tsx --max-warnings 0",
     "lint:biome": "biome ci ."
   },
+  "packageManager": "pnpm@10.33.2",
   "devDependencies": {
     "@biomejs/biome": "1.5.3",
     "@typescript-eslint/eslint-plugin": "^6.19.1",

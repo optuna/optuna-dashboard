@@ -3,6 +3,4 @@
 uv sync --all-extras --group test --group lint
 
 make tslib
-cd optuna_dashboard
-npm install
-cd ..
+pnpm --dir optuna_dashboard install --frozen-lockfile

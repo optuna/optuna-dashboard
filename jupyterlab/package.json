@@ -1,6 +1,7 @@
 {
     "name": "jupyterlab-optuna",
     "version": "0.2.4",
+    "packageManager": "yarn@1.22.22",
     "description": "A JupyterLab extension for Optuna",
     "keywords": [
         "jupyter",

@@ -1,0 +1,11 @@
+packages:
+  - "."
+
+minimumReleaseAge: 1440
+trustPolicy: "no-downgrade"
+trustPolicyIgnoreAfter: 525600
+strictDepBuilds: true
+blockExoticSubdeps: true
+verifyDepsBeforeRun: error
+allowBuilds:
+  "@biomejs/biome": true

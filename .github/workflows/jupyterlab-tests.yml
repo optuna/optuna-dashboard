@@ -9,11 +9,11 @@ on:
       - '**.ts'
       - '**.tsx'
       - 'optuna_dashboard/package.json'
-      - 'optuna_dashboard/package-lock.json'
+      - 'optuna_dashboard/pnpm-lock.yaml'
       - 'tslib/react/package.json'
-      - 'tslib/react/package-lock.json'
+      - 'tslib/react/pnpm-lock.yaml'
       - 'tslib/storage/package.json'
-      - 'tslib/storage/package-lock.json'
+      - 'tslib/storage/pnpm-lock.yaml'
       - 'jupyterlab/pyproject.toml'
       - 'jupyterlab/package.json'
       - 'jupyterlab/yarn.lock'
@@ -39,12 +39,14 @@ jobs:
           uv pip install --exclude-newer="2 days" --upgrade pip setuptools build
           uv pip install --exclude-newer="2 days" jupyterlab
       
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Set up Node
         uses: actions/setup-node@v6
         with:
           node-version: '24'
-          cache: 'npm'
-      
+
       # Without a following step, it will be failed to build the jupyter lab extension by the below error
       # Type Error Cannot read properties of undefined (reading .../jupyterlab/.pnp.cjs)
       - name: Mysterious hack to fix the build error

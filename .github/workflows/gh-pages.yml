@@ -24,6 +24,8 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-unknown-unknown
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -40,8 +42,8 @@ jobs:
       - name: Build standalone_app
         working-directory: standalone_app
         run: |
-          npm install
-          npx vite build --base=/optuna-dashboard/ --outDir ./gh-pages
+          pnpm install --frozen-lockfile
+          pnpm exec vite build --base=/optuna-dashboard/ --outDir ./gh-pages
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

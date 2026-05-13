@@ -1,3 +1,3 @@
-export { JournalFileStorage } from "./journal"
-export { SQLite3Storage } from "./sqlite"
-export type { OptunaStorage } from "./storage"
+export { JournalFileStorage } from "./journal.js"
+export { SQLite3Storage } from "./sqlite.js"
+export type { OptunaStorage } from "./storage.js"
