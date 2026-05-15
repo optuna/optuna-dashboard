@@ -54,7 +54,6 @@
     "lint": "eslint src --ext ts",
     "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. ."
   },
-  "packageManager": "pnpm@10.33.2",
   "devDependencies": {
     "@types/vscode": "^1.78.0",
     "@types/assert": "^1.5.11",
@@ -63,7 +62,7 @@
     "@typescript-eslint/eslint-plugin": "^5.59.1",
     "@typescript-eslint/parser": "^5.59.1",
     "mocha": "^10.8.2",
-    "typescript": "^5.0.4",
+    "typescript": "catalog:",
     "@vscode/test-web": "^0.0.71",
     "ts-loader": "^9.4.2",
     "webpack": "^5.94.0",
