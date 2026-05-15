@@ -9,12 +9,12 @@ on:
       - 'tslib/**.ts'
       - 'tslib/**.tsx'
       - 'tslib/**/package.json'
-      - 'tslib/**/pnpm-lock.yaml'
       - 'optuna_dashboard/**.ts'
       - 'optuna_dashboard/**.tsx'
       - 'optuna_dashboard/package.json'
-      - 'optuna_dashboard/pnpm-lock.yaml'
       - 'optuna_dashboard/tsconfig.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -36,10 +36,7 @@ jobs:
         run: make tslib
 
       - name: Build bundle.js
-        working-directory: optuna_dashboard
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm run build:dev
+        run: pnpm --filter @optuna/optuna-dashboard run build:dev
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6

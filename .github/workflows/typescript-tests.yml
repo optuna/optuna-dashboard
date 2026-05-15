@@ -7,16 +7,15 @@ on:
       - 'biome.json'
       - '**.ts'
       - '**.tsx'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
       - 'optuna_dashboard/package.json'
-      - 'optuna_dashboard/pnpm-lock.yaml'
       - 'vscode/package.json'
-      - 'vscode/pnpm-lock.yaml'
       - 'standalone_app/package.json'
-      - 'standalone_app/pnpm-lock.yaml'
       - 'tslib/react/package.json'
-      - 'tslib/react/pnpm-lock.yaml'
       - 'tslib/storage/package.json'
-      - 'tslib/storage/pnpm-lock.yaml'
+      - 'tslib/types/package.json'
       - 'rustlib/Cargo.toml'
       - 'rustlib/Cargo.lock'
       - 'rustlib/**.rs'
@@ -76,20 +75,14 @@ jobs:
         run: make tslib
 
       - name: Type Check optuna_dashboard
-        working-directory: optuna_dashboard
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm run type-check
+        run: pnpm --filter @optuna/optuna-dashboard run type-check
 
       - name: Build rustlib for standalone_app
         working-directory: rustlib
         run: ./build.sh
 
       - name: Type Check standalone_app
-        working-directory: standalone_app
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm run type-check
+        run: pnpm --filter optuna-dashboard-wasm run type-check
 
   check-pnpm-lock:
     name: Check pnpm-lock.yaml
@@ -108,18 +101,7 @@ jobs:
           node-version: '22'
 
       # `pnpm install --frozen-lockfile` exits non-zero when package.json and pnpm-lock.yaml drift
-      - working-directory: tslib/types
-        run: pnpm install --frozen-lockfile
-      - working-directory: tslib/storage
-        run: pnpm install --frozen-lockfile
-      - working-directory: tslib/react
-        run: pnpm install --frozen-lockfile
-      - working-directory: optuna_dashboard
-        run: pnpm install --frozen-lockfile
-      - working-directory: standalone_app
-        run: pnpm install --frozen-lockfile
-      - working-directory: vscode
-        run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile
 
   build:
     name: JS build check
@@ -154,28 +136,19 @@ jobs:
         run: make tslib
 
       - name: Build standalone_app for vscode extension
-        working-directory: standalone_app
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm run build:vscode
+        run: pnpm --filter optuna-dashboard-wasm run build:vscode
 
       - name: Build standalone_app for GitHub pages
         working-directory: standalone_app
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm exec vite build --out-dir ./gh-pages
+        run: pnpm exec vite build --out-dir ./gh-pages
 
       - name: Build bundle.js
-        working-directory: optuna_dashboard
         run: |
-          pnpm install --frozen-lockfile
-          pnpm run build:dev
-          pnpm run build:prd
+          pnpm --filter @optuna/optuna-dashboard run build:dev
+          pnpm --filter @optuna/optuna-dashboard run build:prd
 
       - name: Build optuna_dashboard package (for Jupyter Lab extension)
-        working-directory: optuna_dashboard
-        run: |
-          pnpm run build:pkg
+        run: pnpm --filter @optuna/optuna-dashboard run build:pkg
 
   test-tslib:
     name: Run tests
@@ -215,16 +188,11 @@ jobs:
         run: make tslib
 
       - name: Run tslib test for storage
-        working-directory: tslib/storage
-        run: |
-          pnpm run test
+        run: pnpm --filter @optuna/storage run test
 
       - name: Install Playwright Browsers
         working-directory: tslib/react
-        run: |
-          pnpm exec playwright install --with-deps
+        run: pnpm exec playwright install --with-deps
 
       - name: Run tslib test for react
-        working-directory: tslib/react
-        run: |
-          pnpm run test
+        run: pnpm --filter @optuna/react run test
