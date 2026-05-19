@@ -2,28 +2,6 @@ const webpack = require('webpack');
 const path = require('path');
 const CompressionPlugin = require("compression-webpack-plugin");
 
-// TODO: Remove these aliases after pnpm workspace migration.
-// Without a shared .pnpm/ store, sibling installs of react/@mui/@emotion
-// become separate module instances at identical versions; alias them to
-// tslib/react's copies to dedupe.
-const tslibReactNodeModules = path.resolve(
-    __dirname,
-    '../tslib/react/node_modules'
-);
-// Only top-level packages need aliasing; transitive deps resolve via .pnpm/.
-const singletonAliases = Object.fromEntries(
-    [
-        '@mui/material',
-        '@mui/system',
-        '@mui/icons-material',
-        '@mui/lab',
-        '@emotion/react',
-        '@emotion/styled',
-        'react',
-        'react-dom',
-    ].map((name) => [name, path.join(tslibReactNodeModules, name)])
-);
-
 module.exports = {
     mode: "production",
     devtool: 'source-map',
@@ -67,8 +45,7 @@ module.exports = {
         ]
     },
     resolve: {
-        extensions: ['.ts', '.tsx', '.js'],
-        alias: singletonAliases
+        extensions: ['.ts', '.tsx', '.js']
     },
     plugins: [
         new webpack.DefinePlugin({ 'IS_VSCODE': JSON.stringify(true) }),

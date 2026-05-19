@@ -22,12 +22,11 @@
     "url": "https://github.com/optuna/optuna-dashboard/issues"
   },
   "homepage": "https://github.com/optuna/optuna-dashboard#readme",
-  "packageManager": "pnpm@10.33.2",
   "dependencies": {
     "@sqlite.org/sqlite-wasm": "^3.45.1-build1"
   },
   "devDependencies": {
-    "@optuna/types": "../types/",
-    "typescript": "^5.7.3"
+    "@optuna/types": "workspace:*",
+    "typescript": "catalog:"
   }
 }

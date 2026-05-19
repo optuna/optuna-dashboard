@@ -13,33 +13,42 @@ $(RUSTLIB_OUT): rustlib/src/*.rs rustlib/Cargo.toml
 	rustlib/build.sh
 
 vscode/assets/bundle.js: $(RUSTLIB_OUT) $(STANDALONE_SRC) tslib
-	pnpm --dir standalone_app install --frozen-lockfile && pnpm --dir standalone_app run build:vscode
+	pnpm install --frozen-lockfile
+	pnpm --filter optuna-dashboard-wasm run build:vscode
 
 $(DASHBOARD_TS_OUT): $(DASHBOARD_TS_SRC) tslib
-	pnpm --dir optuna_dashboard install --frozen-lockfile && pnpm --dir optuna_dashboard run build:$(MODE)
+	pnpm install --frozen-lockfile
+	pnpm --filter @optuna/optuna-dashboard run build:$(MODE)
 
 .PHONY: tslib
 tslib:
-	pnpm --dir tslib/types install --frozen-lockfile && pnpm --dir tslib/types run build
-	pnpm --dir tslib/storage install --frozen-lockfile && pnpm --dir tslib/storage run build
-	pnpm --dir tslib/react install --frozen-lockfile && pnpm --dir tslib/react run build
+	pnpm install --frozen-lockfile
+	pnpm --filter @optuna/types run build
+	pnpm --filter @optuna/storage run build
+	pnpm --filter @optuna/react run build
 
 .PHONY: tslib-test
 tslib-test: tslib
-	cd tslib/react/test && python generate_assets.py && pnpm --dir .. run test
-	cd tslib/storage/test && python generate_assets.py && pnpm --dir .. run test
+	cd tslib/react/test && python generate_assets.py
+	pnpm --filter @optuna/react run test
+	cd tslib/storage/test && python generate_assets.py
+	pnpm --filter @optuna/storage run test
 
 .PHONY: serve-browser-app
 serve-browser-app: tslib $(RUSTLIB_OUT)
-	pnpm --dir standalone_app install && pnpm --dir standalone_app run watch
+	pnpm install
+	pnpm --filter optuna-dashboard-wasm run watch
 
 .PHONY: vscode-extension
 vscode-extension: vscode/assets/bundle.js
-	pnpm --dir vscode install --frozen-lockfile && pnpm --dir vscode run vscode:prepublish && cd vscode && pnpm dlx @vscode/vsce package --no-dependencies
+	pnpm install --frozen-lockfile
+	pnpm --filter optuna-dashboard run vscode:prepublish
+	cd vscode && pnpm dlx @vscode/vsce package --no-dependencies
 
 .PHONY: jupyterlab-extension
 jupyterlab-extension: tslib
-	pnpm --dir optuna_dashboard install --frozen-lockfile && pnpm --dir optuna_dashboard run build:pkg
+	pnpm install --frozen-lockfile
+	pnpm --filter @optuna/optuna-dashboard run build:pkg
 	rm -rf jupyterlab/jupyterlab_optuna/vendor/
 	mkdir -p jupyterlab/jupyterlab_optuna/vendor/
 	rsync -a --exclude=node_modules --exclude=pkg --exclude=ts --exclude=types --exclude=public optuna_dashboard/ jupyterlab/jupyterlab_optuna/vendor/optuna_dashboard/
@@ -47,7 +56,8 @@ jupyterlab-extension: tslib
 
 .PHONY: python-package
 python-package: pyproject.toml tslib
-	pnpm --dir optuna_dashboard install --frozen-lockfile && pnpm --dir optuna_dashboard run build:prd
+	pnpm install --frozen-lockfile
+	pnpm --filter @optuna/optuna-dashboard run build:prd
 	uv build
 
 .PHONY: docs

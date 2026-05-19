@@ -8,13 +8,13 @@ on:
       - 'tslib/**.ts'
       - 'tslib/**.tsx'
       - 'tslib/**/package.json'
-      - 'tslib/**/pnpm-lock.yaml'
       - 'standalone_app/**.ts'
       - 'standalone_app/**.tsx'
       - 'standalone_app/package.json'
-      - 'standalone_app/pnpm-lock.yaml'
       - 'standalone_app/tsconfig.json'
       - 'standalone_app/vite.config.js'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -56,9 +56,7 @@ jobs:
 
       - name: Build standalone_app
         working-directory: standalone_app
-        run: |
-          pnpm install --frozen-lockfile
-          pnpm exec vite build --outDir dist
+        run: pnpm exec vite build --outDir dist
 
       - name: Install the required browsers
         run: uv run playwright install
