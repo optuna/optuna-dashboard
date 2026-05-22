@@ -160,7 +160,7 @@ const loadJsonl = async (props: TableArtifactViewerProps): Promise<Data[]> => {
       })
       .filter(Boolean) as Data[]
     return jsons
-  } catch (error) {
+  } catch {
     throw new Error("JSONL parse error")
   }
 }
