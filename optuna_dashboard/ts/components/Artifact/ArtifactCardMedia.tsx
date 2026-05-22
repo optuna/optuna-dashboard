@@ -2,7 +2,6 @@ import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 import { Box, CardMedia } from "@mui/material"
 import React, { FC } from "react"
 import { Artifact } from "ts/types/optuna"
-import { WaveSurferArtifactViewer } from "./WaveSurferArtifactViewer"
 
 export const ArtifactCardMedia: FC<{
   artifact: Artifact
@@ -11,15 +10,26 @@ export const ArtifactCardMedia: FC<{
 }> = ({ artifact, urlPath, height }) => {
   if (artifact.mimetype.startsWith("video")) {
     return (
-      <video
-        controls
+      <Box
+        component="div"
         style={{
           width: "100%",
-          height: "auto",
+          height: height,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <source src={urlPath} type={artifact.mimetype} />
-      </video>
+        <video
+          controls
+          style={{
+            maxWidth: "100%",
+            maxHeight: "100%",
+          }}
+        >
+          <source src={urlPath} type={artifact.mimetype} />
+        </video>
+      </Box>
     )
   } else if (artifact.mimetype.startsWith("audio")) {
     return (
@@ -30,28 +40,55 @@ export const ArtifactCardMedia: FC<{
           height: height,
           display: "flex",
           alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <WaveSurferArtifactViewer
-          height={100}
-          waveColor="rgb(200, 0, 200)"
-          progressColor="rgb(100, 0, 100)"
-          url={urlPath}
-        />
+        <audio
+          controls
+          preload="metadata"
+          style={{ width: "calc(100% - 16px)" }}
+        >
+          <source src={urlPath} type={artifact.mimetype} />
+        </audio>
       </Box>
     )
   } else if (artifact.mimetype.startsWith("image")) {
     return (
-      <CardMedia
-        component="img"
-        height={height}
-        image={urlPath}
-        alt={artifact.filename}
+      <Box
+        component="div"
         style={{
-          objectFit: "contain",
+          width: "100%",
+          height: height,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
         }}
-      />
+      >
+        <CardMedia
+          component="img"
+          image={urlPath}
+          alt={artifact.filename}
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+          }}
+        />
+      </Box>
     )
   }
-  return <InsertDriveFileIcon sx={{ fontSize: 80, flexGrow: 1 }} />
+  return (
+    <Box
+      component="div"
+      style={{
+        width: "100%",
+        height: height,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <InsertDriveFileIcon sx={{ fontSize: 80 }} />
+    </Box>
+  )
 }

@@ -127,10 +127,11 @@ export const SelectedTrialArtifactCards: FC<{
               sx={{
                 marginBottom: theme.spacing(2),
                 width: width,
+                minHeight: `calc(${height} + ${theme.spacing(6)})`,
                 margin: theme.spacing(0, 1, 1, 0),
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "center",
+                alignItems: "stretch",
                 border: border,
               }}
             >
@@ -143,17 +144,19 @@ export const SelectedTrialArtifactCards: FC<{
                 sx={{
                   display: "flex",
                   flexDirection: "row",
+                  alignItems: "center",
+                  boxSizing: "border-box",
+                  mt: "auto",
                   padding: `${theme.spacing(1)} !important`,
+                  width: "100%",
                 }}
               >
                 <Typography
                   sx={{
                     p: theme.spacing(0.5, 0),
                     flexGrow: 1,
-                    wordBreak: "break-all",
-                    maxWidth: `calc(100% - ${theme.spacing(
-                      4 + (isArtifactModifiable(trial) ? 4 : 0)
-                    )})`,
+                    minWidth: 0,
+                    overflowWrap: "anywhere",
                   }}
                 >
                   {"Trial id: " + trial.number}
@@ -163,7 +166,7 @@ export const SelectedTrialArtifactCards: FC<{
                     aria-label="show artifact table"
                     size="small"
                     color="inherit"
-                    sx={{ margin: "auto 0" }}
+                    sx={{ flexShrink: 0 }}
                     onClick={() => {
                       openTableArtifactModal(urlPath, artifact)
                     }}
@@ -176,7 +179,7 @@ export const SelectedTrialArtifactCards: FC<{
                     aria-label="delete artifact"
                     size="small"
                     color="inherit"
-                    sx={{ margin: "auto 0" }}
+                    sx={{ flexShrink: 0 }}
                     onClick={() => {
                       openDeleteArtifactDialog({
                         type: "trial",
@@ -194,7 +197,7 @@ export const SelectedTrialArtifactCards: FC<{
                   size="small"
                   color="inherit"
                   download={artifact.filename}
-                  sx={{ margin: "auto 0" }}
+                  sx={{ flexShrink: 0 }}
                   href={urlPath}
                 >
                   <DownloadIcon />

@@ -170,9 +170,6 @@ importers:
       usehooks-ts:
         specifier: ^3.1.0
         version: 3.1.1(react@18.3.1)
-      wavesurfer.js:
-        specifier: ^7.7.15
-        version: 7.12.7
       webpack:
         specifier: ^5.105.1
         version: 5.106.2(postcss@8.5.14)(webpack-cli@5.1.4)
@@ -4044,9 +4041,6 @@ packages:
   watchpack@2.5.1:
     resolution: {integrity: sha512-Zn5uXdcFNIA1+1Ei5McRd+iRzfhENPCe7LeABkJtNulSxjma+l7ltNx55BWZkRlwRnpOgHqxnjyaDgJnNXnqzg==}
     engines: {node: '>=10.13.0'}
-
-  wavesurfer.js@7.12.7:
-    resolution: {integrity: sha512-TIe7hB6OCZysNOZ2cn2NR8Qpko22POWel6rauNcqOammFoH65NYQUM35unNLLMIlUMVYvjJ6w/TTl/G/m+w0nA==}
 
   web-namespaces@2.0.1:
     resolution: {integrity: sha512-bKr1DkiNa2krS7qxNtdrtHAmzuYGFQLiQ13TsorsdT6ULTkPLKuu5+GsFpDlg6JFjUTwX2DyhMPG2be8uPrqsQ==}
@@ -8217,8 +8211,6 @@ snapshots:
     dependencies:
       glob-to-regexp: 0.4.1
       graceful-fs: 4.2.11
-
-  wavesurfer.js@7.12.7: {}
 
   web-namespaces@2.0.1: {}
 

@@ -5284,11 +5284,6 @@ watchpack@^2.5.1:
     glob-to-regexp "^0.4.1"
     graceful-fs "^4.1.2"
 
-wavesurfer.js@^7.7.0:
-  version "7.12.5"
-  resolved "https://registry.yarnpkg.com/wavesurfer.js/-/wavesurfer.js-7.12.5.tgz#09f435b62e2171e9a5520c4f18c75a56a874b888"
-  integrity sha512-MSZcA13R9ZlxgYpzfakaSYf8dz5tCdZKYbjtN1qnKbCi+UoyfaTuhvjlXHrITi/fgeO3qWfsH7U3BP1AKnwRNg==
-
 web-namespaces@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/web-namespaces/-/web-namespaces-2.0.1.tgz#1010ff7c650eccb2592cebeeaf9a1b253fd40692"
