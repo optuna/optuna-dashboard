@@ -94,12 +94,11 @@ export const ArtifactCards: FC<{
               sx={{
                 marginBottom: theme.spacing(2),
                 width: width,
+                minHeight: `calc(${height} + ${theme.spacing(6)})`,
                 margin: theme.spacing(0, 1, 1, 0),
-                display: studyOrTrial.type === "trial" ? "flex" : undefined,
-                flexDirection:
-                  studyOrTrial.type === "trial" ? "column" : undefined,
-                alignItems:
-                  studyOrTrial.type === "trial" ? "center" : undefined,
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "stretch",
                 border:
                   studyOrTrial.type === "study"
                     ? `1px solid ${theme.palette.divider}`
@@ -115,23 +114,19 @@ export const ArtifactCards: FC<{
                 sx={{
                   display: "flex",
                   flexDirection: "row",
+                  alignItems: "center",
+                  boxSizing: "border-box",
+                  mt: "auto",
                   padding: `${theme.spacing(1)} !important`,
+                  width: "100%",
                 }}
               >
                 <Typography
                   sx={{
                     p: theme.spacing(0.5, 0),
                     flexGrow: 1,
-                    wordBreak:
-                      studyOrTrial.type === "trial" ? "break-all" : undefined,
-                    maxWidth:
-                      studyOrTrial.type === "trial"
-                        ? `calc(100% - ${theme.spacing(
-                            4 + (isArtifactModifiable ? 4 : 0)
-                          )})`
-                        : `calc(100% - ${theme.spacing(8)})`,
-                    wordWrap:
-                      studyOrTrial.type === "study" ? "break-word" : undefined,
+                    minWidth: 0,
+                    overflowWrap: "anywhere",
                   }}
                 >
                   {artifact.filename}
@@ -141,7 +136,7 @@ export const ArtifactCards: FC<{
                     aria-label="show artifact table"
                     size="small"
                     color="inherit"
-                    sx={{ margin: "auto 0" }}
+                    sx={{ flexShrink: 0 }}
                     onClick={() => {
                       openTableArtifactModal(urlPath, artifact)
                     }}
@@ -154,7 +149,7 @@ export const ArtifactCards: FC<{
                     aria-label="delete artifact"
                     size="small"
                     color="inherit"
-                    sx={{ margin: "auto 0" }}
+                    sx={{ flexShrink: 0 }}
                     onClick={() => {
                       openDeleteArtifactDialog(
                         studyOrTrial.type === "study"
@@ -180,7 +175,7 @@ export const ArtifactCards: FC<{
                   size="small"
                   color="inherit"
                   download={artifact.filename}
-                  sx={{ margin: "auto 0" }}
+                  sx={{ flexShrink: 0 }}
                   href={urlPath}
                 >
                   <DownloadIcon />
