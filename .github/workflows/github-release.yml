@@ -5,6 +5,9 @@ on:
     tags:
       - v*.*.*
 
+permissions:
+  contents: write
+
 jobs:
   github-release:
     name: Build and publish Python distributions to TestPyPI and PyPI

@@ -7,6 +7,10 @@ on:
       - '.github/workflows/python-tests.yml'
       - '**.py'
       - 'pyproject.toml'
+
+permissions:
+  contents: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest
