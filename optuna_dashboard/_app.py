@@ -174,7 +174,7 @@ def create_app(
             study_id = create_new_study(storage, study_name, directions)
         except DuplicatedStudyError:
             response.status = 400  # Bad request
-            return {"reason": f"'{study_name}' already exists"}
+            return {"reason": "Study name already exists."}
 
         study = get_study(storage, study_id)
         if study is None:
@@ -208,7 +208,7 @@ def create_app(
             note.copy_notes(storage, src_study, dst_study)
         except DuplicatedStudyError:
             response.status = 400  # Bad request
-            return {"reason": f"study_name={dst_study_name} is duplicaated"}
+            return {"reason": "Study name already exists."}
         except Exception as e:
             logger.exception("Unexpected error:")
             response.status = 500
