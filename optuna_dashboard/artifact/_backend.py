@@ -207,9 +207,9 @@ def register_artifact_route(
             return {"reason": "Cannot access to the artifacts."}
         try:
             artifact_store.remove(artifact_id)
-        except ArtifactNotFound as e:
+        except ArtifactNotFound:
             response.status = 404
-            return {"reason": str(e)}
+            return {"reason": "Artifact is not found."}
 
         # The artifact's metadata is stored in one of the following two locations:
         storage.set_study_system_attr(
@@ -232,9 +232,9 @@ def register_artifact_route(
             return {"reason": "Cannot access to the artifacts."}
         try:
             artifact_store.remove(artifact_id)
-        except ArtifactNotFound as e:
+        except ArtifactNotFound:
             response.status = 404
-            return {"reason": str(e)}
+            return {"reason": "Artifact is not found."}
 
         storage.set_study_system_attr(
             study_id, ARTIFACTS_ATTR_PREFIX + artifact_id, json.dumps(None)

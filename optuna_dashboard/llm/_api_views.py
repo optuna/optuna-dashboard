@@ -43,17 +43,20 @@ def register_llm_route(app: Bottle, llm_provider: LLMProvider | None) -> None:
 
         try:
             trial_filtering_func_str = llm_provider.call(prompt)
-        except RateLimitExceeded as e:
+        except RateLimitExceeded:
+            _logger.warning("Rate limit exceeded while calling the LLM provider.", exc_info=True)
             response.status = 429  # Too Many Requests
-            reason = f"Rate limit exceeded. Try again later. The actual error: {str(e)}"
-            return {"reason": reason}
-        except InvalidAuthentication as e:
+            return {"reason": "Rate limit exceeded. Try again later."}
+        except InvalidAuthentication:
+            _logger.warning(
+                "Invalid authentication while calling the LLM provider.", exc_info=True
+            )
             response.status = 401  # Unauthorized
-            reason = f"Invalid authentication. Check your API key. The actual error: {str(e)}"
-            return {"reason": reason}
-        except Exception as e:
+            return {"reason": "Invalid authentication. Check your API key."}
+        except Exception:
+            _logger.exception("Failed to call the LLM provider.")
             response.status = 500
-            return {"reason": str(e)}
+            return {"reason": "Failed to call the LLM provider."}
 
         response.status = 200
         return {"trial_filtering_func_str": trial_filtering_func_str}
@@ -76,17 +79,20 @@ def register_llm_route(app: Bottle, llm_provider: LLMProvider | None) -> None:
         try:
             prompt_for_func = get_generate_plotly_graph_prompt(user_query, func_str, err_msg)
             generate_plotly_graph_func_str = llm_provider.call(prompt_for_func)
-        except RateLimitExceeded as e:
+        except RateLimitExceeded:
+            _logger.warning("Rate limit exceeded while calling the LLM provider.", exc_info=True)
             response.status = 429  # Too Many Requests
-            reason = f"Rate limit exceeded. Try again later. The actual error: {str(e)}"
-            return {"reason": reason}
-        except InvalidAuthentication as e:
+            return {"reason": "Rate limit exceeded. Try again later."}
+        except InvalidAuthentication:
+            _logger.warning(
+                "Invalid authentication while calling the LLM provider.", exc_info=True
+            )
             response.status = 401  # Unauthorized
-            reason = f"Invalid authentication. Check your API key. The actual error: {str(e)}"
-            return {"reason": reason}
-        except Exception as e:
+            return {"reason": "Invalid authentication. Check your API key."}
+        except Exception:
+            _logger.exception("Failed to call the LLM provider.")
             response.status = 500
-            return {"reason": str(e)}
+            return {"reason": "Failed to call the LLM provider."}
 
         try:
             # TODO(c-bata): Consider removing the generate_plotly_graph_func_str argument
@@ -129,17 +135,20 @@ def register_llm_route(app: Bottle, llm_provider: LLMProvider | None) -> None:
                 err_msg,
             )
             re_generated_plotly_graph_func_str = llm_provider.call(prompt)
-        except RateLimitExceeded as e:
+        except RateLimitExceeded:
+            _logger.warning("Rate limit exceeded while calling the LLM provider.", exc_info=True)
             response.status = 429  # Too Many Requests
-            reason = f"Rate limit exceeded. Try again later. The actual error: {str(e)}"
-            return {"reason": reason}
-        except InvalidAuthentication as e:
+            return {"reason": "Rate limit exceeded. Try again later."}
+        except InvalidAuthentication:
+            _logger.warning(
+                "Invalid authentication while calling the LLM provider.", exc_info=True
+            )
             response.status = 401  # Unauthorized
-            reason = f"Invalid authentication. Check your API key. The actual error: {str(e)}"
-            return {"reason": reason}
-        except Exception as e:
+            return {"reason": "Invalid authentication. Check your API key."}
+        except Exception:
+            _logger.exception("Failed to call the LLM provider.")
             response.status = 500
-            return {"reason": str(e)}
+            return {"reason": "Failed to call the LLM provider."}
 
         response.status = 200
         return {"re_generated_plotly_graph_func_str": re_generated_plotly_graph_func_str}
