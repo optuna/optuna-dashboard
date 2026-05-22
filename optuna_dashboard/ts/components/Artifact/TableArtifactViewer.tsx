@@ -3,10 +3,10 @@ import { Box, Modal, useTheme } from "@mui/material"
 import IconButton from "@mui/material/IconButton"
 import { DataGrid } from "@optuna/react"
 import { useSnackbar } from "notistack"
-import Papa from "papaparse"
 import React, { useState, useEffect, ReactNode } from "react"
 
 import { Artifact } from "ts/types/optuna"
+import { parseCSVWithHeader } from "./csvArtifactParser"
 
 export const isTableArtifact = (artifact: Artifact): boolean => {
   return (
@@ -42,7 +42,7 @@ export const TableArtifactViewer: React.FC<TableArtifactViewerProps> = (
       }
     }
     handleFileChange()
-  }, [props])
+  }, [props.filetype, props.src, enqueueSnackbar])
 
   const columns = React.useMemo(() => {
     const unionSet: Set<string> = new Set()
@@ -136,20 +136,13 @@ const loadData = (props: TableArtifactViewerProps): Promise<Data[]> => {
   }
 }
 
-const loadCSV = (props: TableArtifactViewerProps): Promise<Data[]> => {
-  return new Promise((resolve, reject) => {
-    Papa.parse(props.src, {
-      header: true,
-      download: true,
-      skipEmptyLines: true,
-      complete: (results: Papa.ParseResult<Data>) => {
-        resolve(results?.data)
-      },
-      error: () => {
-        reject(new Error("CSV parse error"))
-      },
-    })
-  })
+const loadCSV = async (props: TableArtifactViewerProps): Promise<Data[]> => {
+  const response = await fetch(props.src)
+  if (!response.ok) {
+    throw new Error(`Failed to load CSV (${response.status})`)
+  }
+  const data = await response.text()
+  return parseCSVWithHeader(data)
 }
 
 const loadJsonl = async (props: TableArtifactViewerProps): Promise<Data[]> => {

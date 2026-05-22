@@ -107,9 +107,6 @@ importers:
       '@types/node':
         specifier: '>=22.8.0'
         version: 25.7.0
-      '@types/papaparse':
-        specifier: ^5.3.14
-        version: 5.5.2
       '@types/plotly.js':
         specifier: 'catalog:'
         version: 2.35.14
@@ -137,9 +134,6 @@ importers:
       notistack:
         specifier: ^3.0.1
         version: 3.0.2(csstype@3.2.3)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      papaparse:
-        specifier: ^5.4.1
-        version: 5.5.3
       plotly.js-dist-min:
         specifier: 'catalog:'
         version: 2.35.3
@@ -1795,9 +1789,6 @@ packages:
   '@types/node@25.7.0':
     resolution: {integrity: sha512-z+pdZyxE+RTQE9AcboAZCb4otwcrvgHD+GlBpPgn0emDVt0ohrTMhAwlr2Wd9nZ+nihhYFxO2pThz3C5qSu2Eg==}
 
-  '@types/papaparse@5.5.2':
-    resolution: {integrity: sha512-gFnFp/JMzLHCwRf7tQHrNnfhN4eYBVYYI897CGX4MY1tzY9l2aLkVyx2IlKZ/SAqDbB3I1AOZW5gTMGGsqWliA==}
-
   '@types/parse-json@4.0.2':
     resolution: {integrity: sha512-dISoDXWWQwUquiKsyZ4Ng+HX2KsPL7LyHKHQwgGFEA3IaKac4Obd+h2a/a6waisAoepJlBcx9paWqjA8/HVjCw==}
 
@@ -3342,9 +3333,6 @@ packages:
   p-try@2.2.0:
     resolution: {integrity: sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==}
     engines: {node: '>=6'}
-
-  papaparse@5.5.3:
-    resolution: {integrity: sha512-5QvjGxYVjxO59MGU2lHVYpRWBBtKHnlIAcSe1uNFCkkptUh63NFRj0FJQm7nR67puEruUci/ZkjmEFrjCAyP4A==}
 
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
@@ -5626,10 +5614,6 @@ snapshots:
     dependencies:
       undici-types: 7.21.0
 
-  '@types/papaparse@5.5.2':
-    dependencies:
-      '@types/node': 25.7.0
-
   '@types/parse-json@4.0.2': {}
 
   '@types/plotly.js-dist-min@2.3.4':
@@ -7542,8 +7526,6 @@ snapshots:
       p-limit: 3.1.0
 
   p-try@2.2.0: {}
-
-  papaparse@5.5.3: {}
 
   parent-module@1.0.1:
     dependencies:
