@@ -94,7 +94,6 @@
         "source-map-loader": "^1.0.2",
         "style-loader": "^3.3.3",
         "typescript": "^5.7.3",
-        "usehooks-ts": "^3.0.2",
         "yjs": "^13.5.0"
     },
     "resolutions": {

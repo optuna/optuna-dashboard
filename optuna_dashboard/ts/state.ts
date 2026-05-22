@@ -1,8 +1,8 @@
 import { DarkColorTemplates, LightColorTemplates } from "@optuna/react"
 import * as Optuna from "@optuna/types"
 import { atom, useAtomValue } from "jotai"
-import { useLocalStorage } from "usehooks-ts"
 import { usePlotlyPyIsAvailable } from "./hooks/useAPIMeta"
+import { useLocalStorage } from "./hooks/useLocalStorage"
 import {
   Artifact,
   PlotlyColorTheme,
