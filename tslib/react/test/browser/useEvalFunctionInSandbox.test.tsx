@@ -111,6 +111,48 @@ describe("useEvalFunctionInSandbox Tests", async () => {
     )
   })
 
+  test("evalTrialFilter ignores messages not sent from the sandbox iframe", async () => {
+    let filteredTrials: Trial[] | null = null
+    const TestComponent = () => {
+      const { evalTrialFilter, renderIframeSandbox } =
+        useEvalFunctionInSandbox()
+      return (
+        <>
+          {renderIframeSandbox()}
+          <button
+            type="button"
+            onClick={async () => {
+              const promise = evalTrialFilter(mockTrials, "() => false")
+              window.dispatchEvent(
+                new MessageEvent("message", {
+                  data: {
+                    type: "trial_filter_result",
+                    filteredTrials: mockTrials,
+                  },
+                  source: window,
+                })
+              )
+              filteredTrials = await promise
+            }}
+          >
+            Run
+          </button>
+        </>
+      )
+    }
+
+    const { container } = render(<TestComponent />)
+    const iframe = container.querySelector("iframe")
+    const button = container.querySelector("button")
+    await expect.element(iframe).toBeInTheDocument()
+    await expect.element(button).toBeInTheDocument()
+    if (button) await userEvent.click(button)
+    await vi.waitFor(() => {
+      expect(filteredTrials).not.toBeNull()
+    })
+    expect(filteredTrials).toHaveLength(0)
+  })
+
   test("evalTrialFilter handles invalid function strings", async () => {
     let error: unknown | null = null
     const TestComponent = ({ funcStr }: { funcStr: string }) => {
