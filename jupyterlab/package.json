@@ -95,7 +95,6 @@
         "style-loader": "^3.3.3",
         "typescript": "^5.7.3",
         "usehooks-ts": "^3.0.2",
-        "wavesurfer.js": "^7.7.0",
         "yjs": "^13.5.0"
     },
     "resolutions": {

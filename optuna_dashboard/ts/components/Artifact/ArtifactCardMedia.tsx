@@ -2,7 +2,6 @@ import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 import { Box, CardMedia } from "@mui/material"
 import React, { FC } from "react"
 import { Artifact } from "ts/types/optuna"
-import { WaveSurferArtifactViewer } from "./WaveSurferArtifactViewer"
 
 export const ArtifactCardMedia: FC<{
   artifact: Artifact
@@ -30,14 +29,12 @@ export const ArtifactCardMedia: FC<{
           height: height,
           display: "flex",
           alignItems: "center",
+          justifyContent: "center",
         }}
       >
-        <WaveSurferArtifactViewer
-          height={100}
-          waveColor="rgb(200, 0, 200)"
-          progressColor="rgb(100, 0, 100)"
-          url={urlPath}
-        />
+        <audio controls preload="metadata" style={{ width: "100%" }}>
+          <source src={urlPath} type={artifact.mimetype} />
+        </audio>
       </Box>
     )
   } else if (artifact.mimetype.startsWith("image")) {
