@@ -9,9 +9,12 @@ from optuna_dashboard import wsgi
 import pytest
 
 
+TEST_SERVER_HOST = "127.0.0.1"
+
+
 def get_free_port() -> int:
     tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    tcp.bind(("", 0))
+    tcp.bind((TEST_SERVER_HOST, 0))
     _, port = tcp.getsockname()
     tcp.close()
     return port
@@ -20,7 +23,7 @@ def get_free_port() -> int:
 def make_test_server(
     request: pytest.FixtureRequest, storage: optuna.storages.InMemoryStorage
 ) -> str:
-    addr = "127.0.0.1"
+    addr = TEST_SERVER_HOST
     port = get_free_port()
     app = wsgi(storage)
     httpd = make_server(addr, port, app)
@@ -39,13 +42,13 @@ def make_test_server(
 
 
 def make_standalone_server(request: pytest.FixtureRequest) -> str:
-    addr = "127.0.0.1"
+    addr = TEST_SERVER_HOST
     port = get_free_port()
     directory = "./standalone_app/dist/"
 
     Handler = http.server.SimpleHTTPRequestHandler
     httpd = socketserver.TCPServer(
-        ("", port), lambda *args, **kwargs: Handler(*args, directory=directory, **kwargs)
+        (addr, port), lambda *args, **kwargs: Handler(*args, directory=directory, **kwargs)
     )
 
     def serve_httpd():
