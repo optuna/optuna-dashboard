@@ -3,7 +3,7 @@
         "isolatedModules": true,
         "skipLibCheck": true,
         "strictNullChecks": true,
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         "noUnusedLocals": true,
         "noImplicitThis": true,
         "alwaysStrict": true,
@@ -14,7 +14,7 @@
         "rootDir": "./src",
         "outDir": "./pkg",
         "allowSyntheticDefaultImports": true,
-        "target": "es5",
+        "target": "es2015",
         "sourceMap": true,
         "declaration": true,
         "strict": true

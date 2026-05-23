@@ -1,14 +1,14 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
     "strictNullChecks": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noUnusedLocals": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
     "outDir": "./public/",
     "paths": {
-      "plotly.js-dist-min": ["node_modules/@types/plotly.js"]
+      "plotly.js-dist-min": ["./node_modules/@types/plotly.js"],
+      "ts/*": ["./ts/*"]
     },
     "noImplicitAny": true,
     "lib": ["dom", "esnext"],
