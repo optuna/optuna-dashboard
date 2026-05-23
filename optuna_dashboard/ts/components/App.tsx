@@ -8,7 +8,7 @@ import {
 import blue from "@mui/material/colors/blue"
 import pink from "@mui/material/colors/pink"
 import { SnackbarProvider } from "notistack"
-import React, { useMemo, useState, useEffect, FC } from "react"
+import { FC, useEffect, useMemo, useState } from "react"
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom"
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query"

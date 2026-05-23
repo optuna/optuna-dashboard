@@ -11,7 +11,7 @@ import {
   useTheme,
 } from "@mui/material"
 import { PlotParallelCoordinate, TrialTable } from "@optuna/react"
-import React, { FC, useState } from "react"
+import { FC, useState } from "react"
 import { Link } from "react-router-dom"
 import { useConstants } from "../constantsProvider"
 import { studyDetailToStudy } from "../graphUtil"

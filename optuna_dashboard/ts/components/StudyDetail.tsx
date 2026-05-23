@@ -11,7 +11,7 @@ import {
   useTheme,
 } from "@mui/material"
 import Grid from "@mui/material/Grid"
-import React, { FC, useMemo } from "react"
+import { FC, useMemo } from "react"
 import { Link, useParams } from "react-router-dom"
 
 import { useConstants } from "../constantsProvider"

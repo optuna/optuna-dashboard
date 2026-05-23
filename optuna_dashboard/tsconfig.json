@@ -16,7 +16,7 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "target": "es6",
-    "jsx": "react",
+    "jsx": "react-jsx",
     "sourceMap": true,
     "strict": true
   },

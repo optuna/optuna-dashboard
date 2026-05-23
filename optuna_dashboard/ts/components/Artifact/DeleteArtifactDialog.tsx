@@ -8,7 +8,7 @@ import {
   DialogTitle,
   useTheme,
 } from "@mui/material"
-import React, { ReactNode, useState, FC } from "react"
+import { FC, ReactNode, useState } from "react"
 import { Artifact } from "ts/types/optuna"
 import { actionCreator } from "../../action"
 

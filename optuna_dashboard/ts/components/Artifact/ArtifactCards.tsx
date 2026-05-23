@@ -11,7 +11,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import React, {
+import {
   ChangeEventHandler,
   DragEventHandler,
   FC,

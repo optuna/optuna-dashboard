@@ -1,6 +1,6 @@
 import { Box, Card, CardContent, useTheme } from "@mui/material"
 import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect } from "react"
+import { FC, useEffect } from "react"
 
 import { PlotImportance } from "@optuna/react"
 import { StudyDetail } from "ts/types/optuna"

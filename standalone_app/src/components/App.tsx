@@ -8,7 +8,7 @@ import {
 import blue from "@mui/material/colors/blue"
 import pink from "@mui/material/colors/pink"
 import { SnackbarProvider } from "notistack"
-import React, { FC, useMemo, useState, useEffect } from "react"
+import { FC, useEffect, useMemo, useState } from "react"
 import { HashRouter as Router, Route, Routes } from "react-router-dom"
 
 import { StudyDetail } from "./StudyDetail"

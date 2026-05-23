@@ -1,7 +1,7 @@
 import { useEvalFunctionInSandbox } from "@optuna/react"
 import { atom, useAtom } from "jotai"
 import { useSnackbar } from "notistack"
-import React, { ReactNode, useCallback, useState } from "react"
+import { ReactNode, useCallback, useState } from "react"
 import { isFetchAPIClientError } from "../apiClient"
 import { useAPIClient } from "../apiClientProvider"
 import { Trial } from "../types/optuna"

@@ -21,7 +21,7 @@ import {
 } from "@optuna/react"
 import * as Optuna from "@optuna/types"
 import init, { wasm_fanova_calculate } from "optuna"
-import React, { FC, useContext, useState, useEffect } from "react"
+import { FC, useContext, useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 import { StorageContext } from "./StorageProvider"
 

@@ -11,7 +11,6 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import React from "react"
 import { usePlotlyPyIsAvailable } from "../hooks/useAPIMeta"
 import { usePlotBackendRendering, usePlotlyColorThemeState } from "../state"
 import { PlotlyColorThemeDark, PlotlyColorThemeLight } from "../types/optuna"

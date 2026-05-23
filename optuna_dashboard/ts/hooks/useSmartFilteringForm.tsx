@@ -1,6 +1,6 @@
 import FilterListIcon from "@mui/icons-material/FilterList"
 import { Button, CircularProgress } from "@mui/material"
-import React, { ReactNode, useState } from "react"
+import { ReactNode, useState } from "react"
 import { SmartTextField } from "../components/SmartTextField"
 import { Trial } from "../types/optuna"
 import { useTrialFilterQuery } from "./useTrialFilterQuery"

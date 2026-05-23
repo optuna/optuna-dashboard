@@ -1,7 +1,7 @@
 import { useTheme } from "@mui/material"
 import { GraphContainer, PlotEdf, useGraphComponentState } from "@optuna/react"
 import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect } from "react"
+import { FC, useEffect } from "react"
 import { StudyDetail } from "ts/types/optuna"
 import { CompareStudiesPlotType } from "../apiClient"
 import { useAPIClient } from "../apiClientProvider"

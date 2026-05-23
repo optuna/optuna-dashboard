@@ -1,6 +1,6 @@
 import { useTheme } from "@mui/material"
 import { PlotHistory } from "@optuna/react"
-import React, { FC } from "react"
+import { FC } from "react"
 import { useNavigate } from "react-router-dom"
 import { StudyDetail } from "ts/types/optuna"
 import { useConstants } from "../constantsProvider"

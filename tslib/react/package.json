@@ -5,7 +5,7 @@
   "type": "module",
   "description": "UI packages for Optuna-Dashboard",
   "main": "pkg/index.js",
-  "types": "types/index.d.ts",
+  "types": "src/index.ts",
   "scripts": {
     "build": "tsc -d",
     "test": "vitest run"

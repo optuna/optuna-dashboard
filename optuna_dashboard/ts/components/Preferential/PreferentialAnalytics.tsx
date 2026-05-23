@@ -9,7 +9,7 @@ import {
 import Grid from "@mui/material/Grid"
 import { DataGrid } from "@optuna/react"
 import * as Optuna from "@optuna/types"
-import React, { FC } from "react"
+import { FC } from "react"
 import { useStudyDetailValue, useStudySummaryValue } from "../../state"
 import { BestTrialsCard } from "../BestTrialsCard"
 import { Contour } from "../GraphContour"

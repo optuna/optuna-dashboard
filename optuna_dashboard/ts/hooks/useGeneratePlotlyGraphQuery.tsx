@@ -8,7 +8,7 @@ import { useAPIClient } from "../apiClientProvider"
 import { StudyDetail } from "../types/optuna"
 import { useEvalConfirmationDialog } from "./useEvalConfirmationDialog"
 
-import React, { useCallback, useState } from "react"
+import { useCallback, useState } from "react"
 import { useLLMIsAvailable } from "./useAPIMeta"
 
 // Cache atom for API responses: userQuery -> { funcStr, graphTitle }
