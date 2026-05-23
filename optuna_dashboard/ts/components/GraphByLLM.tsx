@@ -1,7 +1,6 @@
 import DeleteIcon from "@mui/icons-material/Delete"
 import EditRoadIcon from "@mui/icons-material/EditRoad"
 import MoreVertIcon from "@mui/icons-material/MoreVert"
-import { LoadingButton } from "@mui/lab"
 import {
   Alert,
   Box,
@@ -163,7 +162,7 @@ const GraphByLLMItem: FC<{
             >
               Cancel
             </Button>
-            <LoadingButton
+            <Button
               sx={{ marginLeft: theme.spacing(1) }}
               variant="contained"
               loading={isReGeneratingPlotlyGraph}
@@ -173,7 +172,7 @@ const GraphByLLMItem: FC<{
               }}
             >
               Regenerate
-            </LoadingButton>
+            </Button>
           </Box>
         )}
 
@@ -291,7 +290,7 @@ export const GraphByLLM: FC<{
           clearButtonDisabled={isProcessing}
           handleSubmit={handleSubmit}
         />
-        <LoadingButton
+        <Button
           sx={{ marginLeft: theme.spacing(2) }}
           variant="contained"
           loading={isProcessing}
@@ -299,7 +298,7 @@ export const GraphByLLM: FC<{
           onClick={handleSubmit}
         >
           Generate
-        </LoadingButton>
+        </Button>
       </Box>
     </Stack>
   )
