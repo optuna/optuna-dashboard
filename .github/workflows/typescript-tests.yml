@@ -22,6 +22,10 @@ on:
       - 'optuna_dashboard/tsconfig.json'
       - 'optuna_dashboard/tsconfig.pkg.json'
       - 'optuna_dashboard/webpack.config.js'
+
+permissions:
+  contents: read
+
 jobs:
   lint:
     name: Lint checking on Ubuntu

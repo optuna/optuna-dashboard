@@ -17,6 +17,10 @@ on:
       - 'jupyterlab/package.json'
       - 'jupyterlab/yarn.lock'
       - 'jupyterlab/tsconfig.json'
+
+permissions:
+  contents: read
+
 jobs:
   test-build:
     name: Test build for JupyterLab extension
