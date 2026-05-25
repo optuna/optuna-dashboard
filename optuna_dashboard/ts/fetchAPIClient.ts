@@ -28,12 +28,20 @@ import {
 
 const JSON_HEADERS = { "Content-Type": "application/json" }
 
+const trimTrailingSlashes = (value: string): string => {
+  let end = value.length
+  while (end > 0 && value.charCodeAt(end - 1) === 47) {
+    end -= 1
+  }
+  return value.slice(0, end)
+}
+
 export class FetchAPIClient extends APIClient {
   private baseURL: string
 
   constructor(apiEndpoint: string | undefined) {
     super()
-    this.baseURL = (apiEndpoint ?? "").replace(/\/+$/, "")
+    this.baseURL = trimTrailingSlashes(apiEndpoint ?? "")
   }
 
   private async handleResponse<T>(response: Response): Promise<T> {

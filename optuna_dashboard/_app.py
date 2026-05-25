@@ -174,7 +174,7 @@ def create_app(
             study_id = create_new_study(storage, study_name, directions)
         except DuplicatedStudyError:
             response.status = 400  # Bad request
-            return {"reason": f"'{study_name}' already exists"}
+            return {"reason": "Study name already exists."}
 
         study = get_study(storage, study_id)
         if study is None:
@@ -208,12 +208,12 @@ def create_app(
             note.copy_notes(storage, src_study, dst_study)
         except DuplicatedStudyError:
             response.status = 400  # Bad request
-            return {"reason": f"study_name={dst_study_name} is duplicaated"}
-        except Exception as e:
+            return {"reason": "Study name already exists."}
+        except Exception:
             logger.exception("Unexpected error:")
             response.status = 500
             storage.delete_study(dst_study._study_id)
-            return {"reason": str(e)}
+            return {"reason": "Failed to rename study."}
         new_study = get_study(storage, dst_study._study_id)
         if new_study is None:
             response.status = 500
@@ -316,8 +316,9 @@ def create_app(
             ]
             return {"param_importances": importances}
         except ValueError as e:
+            logger.warning("Failed to calculate parameter importances: %s", e)
             response.status = 400  # Bad request
-            return {"reason": str(e)}
+            return {"reason": "Failed to calculate parameter importances."}
 
     @app.get("/api/studies/<study_id:int>/plot/<plot_type>")
     @json_api_view

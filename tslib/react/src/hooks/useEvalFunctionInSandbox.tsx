@@ -84,6 +84,17 @@ export const useEvalFunctionInSandbox = <
 
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
+      const sandboxWindow = iframeRef.current?.contentWindow
+      // The sandboxed srcdoc iframe has an opaque origin, which serializes to
+      // "null". Use WindowProxy identity as the sender check, and keep the
+      // origin check as a guard against messages from non-sandboxed frames.
+      if (
+        !sandboxWindow ||
+        event.source !== sandboxWindow ||
+        event.origin !== "null"
+      )
+        return
+
       const { data } = event
 
       if (typeof data !== "object") return
@@ -134,8 +145,13 @@ export const useEvalFunctionInSandbox = <
           window.XMLHttpRequest = () => { throw new Error("Unexpected") }
 
           window.addEventListener('message', (event) => {
+            if (event.source !== parent) return;
+
             const { data } = event;
             if (typeof data !== 'object') return;
+            const sendResponse = (response) => {
+              event.source.postMessage(response, event.origin);
+            };
 
             switch (data.type) {
               case 'trial_filter': {
@@ -143,9 +159,9 @@ export const useEvalFunctionInSandbox = <
                 try {
                   const filterFunc = eval('(' + funcStr + ')');
                   const result = trials.filter(filterFunc);
-                  parent.postMessage({ type: 'trial_filter_result', filteredTrials: result }, '*');
+                  sendResponse({ type: 'trial_filter_result', filteredTrials: result });
                 } catch (e) {
-                  parent.postMessage({ type: 'trial_filter_result', filteredTrials: [], error: String(e) }, '*');
+                  sendResponse({ type: 'trial_filter_result', filteredTrials: [], error: String(e) });
                 }
                 break;
               }
@@ -154,9 +170,9 @@ export const useEvalFunctionInSandbox = <
                 try {
                   const plotlyFunc = eval('(' + funcStr + ')');
                   const result = plotlyFunc(study);
-                  parent.postMessage({ type: 'generate_plotly_graph_result', plotlyData: result }, '*');
+                  sendResponse({ type: 'generate_plotly_graph_result', plotlyData: result });
                 } catch (e) {
-                  parent.postMessage({ type: 'generate_plotly_graph_result', plotlyData: null, error: String(e) }, '*');
+                  sendResponse({ type: 'generate_plotly_graph_result', plotlyData: null, error: String(e) });
                 }
                 break;
               }
