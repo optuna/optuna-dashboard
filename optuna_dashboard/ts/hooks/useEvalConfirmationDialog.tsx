@@ -13,7 +13,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import React, { ReactNode, useCallback, useRef, useState } from "react"
+import { ReactNode, useCallback, useRef, useState } from "react"
 
 export const useEvalConfirmationDialog = (
   onDenied?: () => void

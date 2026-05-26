@@ -3,7 +3,7 @@
     "isolatedModules": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "noUnusedLocals": true,
     "noImplicitThis": true,
     "alwaysStrict": true,

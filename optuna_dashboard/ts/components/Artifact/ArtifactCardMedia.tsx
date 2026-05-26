@@ -1,6 +1,6 @@
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile"
 import { Box, CardMedia } from "@mui/material"
-import React, { FC } from "react"
+import { FC } from "react"
 import { Artifact } from "ts/types/optuna"
 
 export const ArtifactCardMedia: FC<{

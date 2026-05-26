@@ -9,7 +9,7 @@ import {
   DialogTitle,
   FormControlLabel,
 } from "@mui/material"
-import React, { ReactNode, useState } from "react"
+import { ReactNode, useState } from "react"
 import { actionCreator } from "../action"
 import { useArtifactIsAvailable } from "../hooks/useAPIMeta"
 

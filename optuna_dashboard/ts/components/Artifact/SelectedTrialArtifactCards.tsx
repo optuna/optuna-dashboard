@@ -15,7 +15,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import React, { FC, useMemo, useState } from "react"
+import { FC, useMemo, useState } from "react"
 
 import { StudyDirection } from "@optuna/types"
 import { StudyDetail, Trial } from "ts/types/optuna"

@@ -22,7 +22,7 @@ import ListSubheader from "@mui/material/ListSubheader"
 import * as Optuna from "@optuna/types"
 import { useAtomValue } from "jotai"
 import { useSnackbar } from "notistack"
-import React, { FC, useEffect, useMemo, useState } from "react"
+import { FC, useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 
 import { useNavigate } from "react-router-dom"

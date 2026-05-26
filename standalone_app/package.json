@@ -26,7 +26,6 @@
     "@emotion/react": "catalog:",
     "@emotion/styled": "catalog:",
     "@mui/icons-material": "catalog:",
-    "@mui/lab": "catalog:",
     "@mui/material": "catalog:",
     "@mui/system": "catalog:",
     "@optuna/react": "workspace:*",

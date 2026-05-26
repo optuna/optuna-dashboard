@@ -6,14 +6,14 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import React, {
+import {
   ChangeEvent,
   DragEventHandler,
   FC,
   MouseEventHandler,
+  useContext,
   useRef,
   useState,
-  useContext,
 } from "react"
 import { StorageContext, getStorage } from "./StorageProvider"
 

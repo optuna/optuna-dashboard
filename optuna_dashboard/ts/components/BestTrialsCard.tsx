@@ -12,7 +12,7 @@ import {
   Typography,
   useTheme,
 } from "@mui/material"
-import React, { FC, ReactNode, useMemo } from "react"
+import { FC, ReactNode, useMemo } from "react"
 import { Link } from "react-router-dom"
 import { StudyDetail, Trial } from "ts/types/optuna"
 import { useConstants } from "../constantsProvider"

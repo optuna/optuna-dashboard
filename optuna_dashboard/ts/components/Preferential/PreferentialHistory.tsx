@@ -13,7 +13,7 @@ import {
 import IconButton from "@mui/material/IconButton"
 import Modal from "@mui/material/Modal"
 import { red } from "@mui/material/colors"
-import React, { FC, useState } from "react"
+import { FC, useState } from "react"
 
 import { PreferenceHistory, StudyDetail, Trial } from "ts/types/optuna"
 import { actionCreator } from "../../action"

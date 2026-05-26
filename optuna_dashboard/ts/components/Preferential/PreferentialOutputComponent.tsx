@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from "react"
+import { FC, useMemo } from "react"
 import { Artifact, FeedbackComponentType, Trial } from "ts/types/optuna"
 import { ArtifactCardMedia } from "../Artifact/ArtifactCardMedia"
 import { MarkdownRenderer } from "../Note"

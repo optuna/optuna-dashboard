@@ -2,22 +2,21 @@
   "compilerOptions": {
     "isolatedModules": true,
     "skipLibCheck": true,
-    "baseUrl": ".",
     "strictNullChecks": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "noUnusedLocals": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
     "paths": {
-      "plotly.js-dist-min": ["node_modules/@types/plotly.js"]
+      "plotly.js-dist-min": ["./node_modules/@types/plotly.js"]
     },
     "noImplicitAny": true,
     "lib": ["dom", "esnext"],
     "module": "esnext",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es5",
-    "jsx": "react",
+    "target": "es2015",
+    "jsx": "react-jsx",
     "sourceMap": true,
     "strict": true
   },

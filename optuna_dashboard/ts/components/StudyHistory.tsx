@@ -11,7 +11,7 @@ import FormControlLabel from "@mui/material/FormControlLabel"
 import Grid from "@mui/material/Grid"
 import { DataGrid } from "@optuna/react"
 import * as Optuna from "@optuna/types"
-import React, { FC, useState } from "react"
+import { FC, useState } from "react"
 import { Trial } from "ts/types/optuna"
 import {
   useStudyDetailValue,

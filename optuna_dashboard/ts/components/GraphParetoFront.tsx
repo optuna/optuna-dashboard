@@ -12,7 +12,7 @@ import {
 import { getFeasibleTrials, getIsDominated, makeHovertext } from "@optuna/react"
 import { StudyDirection, Trial } from "@optuna/types"
 import * as plotly from "plotly.js-dist-min"
-import React, { FC, useEffect, useState } from "react"
+import { FC, useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { StudyDetail } from "ts/types/optuna"
 import { PlotType } from "../apiClient"

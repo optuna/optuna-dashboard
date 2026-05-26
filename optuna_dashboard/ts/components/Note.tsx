@@ -4,7 +4,6 @@ import HtmlIcon from "@mui/icons-material/Html"
 import ModeEditIcon from "@mui/icons-material/ModeEdit"
 import SaveIcon from "@mui/icons-material/Save"
 import UploadFileIcon from "@mui/icons-material/UploadFile"
-import LoadingButton from "@mui/lab/LoadingButton"
 import {
   Box,
   Button,
@@ -394,7 +393,7 @@ const MarkdownEditorModal: FC<{
         >
           Close
         </Button>
-        <LoadingButton
+        <Button
           onClick={handleSave}
           loading={saving}
           loadingPosition="start"
@@ -404,7 +403,7 @@ const MarkdownEditorModal: FC<{
           sx={{ marginLeft: theme.spacing(1) }}
         >
           Save
-        </LoadingButton>
+        </Button>
       </Box>
       {renderConfirmCloseDialog()}
     </Card>
@@ -482,7 +481,7 @@ const ArtifactUploader: FC<{
       >
         Image
       </Typography>
-      <LoadingButton
+      <Button
         loading={uploading}
         loadingPosition="start"
         startIcon={<UploadFileIcon />}
@@ -490,7 +489,7 @@ const ArtifactUploader: FC<{
         variant="outlined"
       >
         Upload
-      </LoadingButton>
+      </Button>
       <input
         type="file"
         ref={inputRef}

@@ -7,7 +7,7 @@ import {
   DialogTitle,
   useTheme,
 } from "@mui/material"
-import React, { ReactNode, useState } from "react"
+import { ReactNode, useState } from "react"
 import { actionCreator } from "../action"
 import { DebouncedInputTextField } from "../components/Debounce"
 import { StudySummary } from "../types/optuna"

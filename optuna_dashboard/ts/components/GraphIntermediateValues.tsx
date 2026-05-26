@@ -1,6 +1,6 @@
 import { Card, CardContent, useTheme } from "@mui/material"
 import { PlotIntermediateValues } from "@optuna/react"
-import React, { FC } from "react"
+import { FC } from "react"
 import { Trial } from "ts/types/optuna"
 import { usePlotlyColorTheme } from "../state"
 
