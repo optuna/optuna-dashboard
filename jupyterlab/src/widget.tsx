@@ -8,7 +8,7 @@ export class OptunaDashboardWidget extends ReactWidget {
     this.addClass("jp-react-widget")
   }
 
-  render(): JSX.Element {
+  render(): React.ReactElement {
     return <JupyterLabEntrypoint />
   }
 }

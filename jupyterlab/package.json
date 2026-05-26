@@ -1,7 +1,7 @@
 {
     "name": "jupyterlab-optuna",
     "version": "0.2.4",
-    "packageManager": "yarn@1.22.22",
+    "packageManager": "yarn@3.5.0",
     "description": "A JupyterLab extension for Optuna",
     "keywords": [
         "jupyter",
@@ -59,10 +59,9 @@
         "@jupyterlab/coreutils": "^6.4.4",
         "@jupyterlab/launcher": "^4.4.4",
         "@jupyterlab/services": "^7.4.4",
-        "@mui/icons-material": "^6.1.1",
-        "@mui/lab": "^6.0.0-beta.14",
-        "@mui/material": "^6.1.4",
-        "@mui/system": "^6.1.4",
+        "@mui/icons-material": "^6.5.0",
+        "@mui/material": "^6.5.0",
+        "@mui/system": "^6.5.0",
         "@optuna/types": "link:../tslib/types",
         "@tanstack/react-query": "^5.18.1",
         "@tanstack/react-table": "^8.17.3",
@@ -71,8 +70,8 @@
         "@types/json-schema": "^7.0.11",
         "@types/plotly.js": "^2.12.11",
         "@types/plotly.js-dist-min": "^2.3.4",
-        "@types/react": "^18.3.12",
-        "@types/react-dom": "^18.3.1",
+        "@types/react": "^19.2.15",
+        "@types/react-dom": "^19.2.3",
         "@types/react-syntax-highlighter": "^15.5.5",
         "@types/signals": "^1.0.2",
         "css-loader": "^6.8.1",
@@ -83,8 +82,8 @@
         "npm-run-all": "^4.1.5",
         "plotly.js-dist-min": "^2.28.0",
         "prettier": "^2.8.7",
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
+        "react": "^19.2.6",
+        "react-dom": "^19.2.6",
         "react-markdown": "^9.0.1",
         "react-router-dom": "^6.21.3",
         "react-syntax-highlighter": "^16.1.1",
@@ -97,7 +96,7 @@
         "yjs": "^13.5.0"
     },
     "resolutions": {
-        "@types/react": "^18.3.12"
+        "@types/react": "^19.2.15"
     },
     "sideEffects": [
         "style/*.css",

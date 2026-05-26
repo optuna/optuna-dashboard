@@ -46,12 +46,9 @@ jobs:
         with:
           node-version: '24'
 
-      # Without a following step, it will be failed to build the jupyter lab extension by the below error
-      # Type Error Cannot read properties of undefined (reading .../jupyterlab/.pnp.cjs)
-      - name: Mysterious hack to fix the build error
+      # Prime JupyterLab's Yarn environment before the extension build.
+      - name: Install JupyterLab frontend dependencies
         working-directory: jupyterlab
-        run: yarn install
+        run: uv run jlpm install --immutable
       
       - run: make jupyterlab-extension
-        env:
-          YARN_ENABLE_IMMUTABLE_INSTALLS: false
