@@ -8,6 +8,7 @@ on:
 jobs:
   pypi:
     name: Build and publish Python distributions to PyPI
+    if: ${{ startsWith(github.event.release.tag_name, 'v') && !startsWith(github.event.release.tag_name, 'jupyterlab-v') }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
