@@ -49,6 +49,6 @@ jobs:
       # Prime JupyterLab's Yarn environment before the extension build.
       - name: Install JupyterLab frontend dependencies
         working-directory: jupyterlab
-        run: uv run jlpm install --immutable
+        run: uv run --no-sync jlpm install --immutable
       
       - run: make jupyterlab-extension
