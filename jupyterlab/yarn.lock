@@ -1076,10 +1076,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@remix-run/router@npm:1.23.2":
-  version: 1.23.2
-  resolution: "@remix-run/router@npm:1.23.2"
-  checksum: 0f046e480372be17d14f88684435cd6af4c05ce842bd6094a549605dd5b8f0ab1e9a1e9d9e2faec9e4d5cd370d02179b456189192f06415e461bce44c28295d8
+"@remix-run/router@npm:1.23.3":
+  version: 1.23.3
+  resolution: "@remix-run/router@npm:1.23.3"
+  checksum: 95bfe4c8ef1f1f7e614ceacfcc7ae42a66325284fa1397fe5358197cfba1618bc0832979a42a0fdeca292f015baeacfd82a5395b1f13f86f8ea0f236420bcb3d
   languageName: node
   linkType: hard
 
@@ -4035,7 +4035,7 @@ __metadata:
     react: ^19.2.6
     react-dom: ^19.2.6
     react-markdown: ^9.0.1
-    react-router-dom: ^6.21.3
+    react-router-dom: ^6.30.4
     react-syntax-highlighter: ^16.1.1
     rehype-raw: ^7.0.0
     remark-gfm: ^4.0.0
@@ -5621,27 +5621,27 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-router-dom@npm:^6.21.3":
-  version: 6.30.3
-  resolution: "react-router-dom@npm:6.30.3"
+"react-router-dom@npm:^6.30.4":
+  version: 6.30.4
+  resolution: "react-router-dom@npm:6.30.4"
   dependencies:
-    "@remix-run/router": 1.23.2
-    react-router: 6.30.3
+    "@remix-run/router": 1.23.3
+    react-router: 6.30.4
   peerDependencies:
     react: ">=16.8"
     react-dom: ">=16.8"
-  checksum: 1f43ce47dd8cfc1bc728ea7b0cf10136416416491136726cda500aaea74da3c5dbcfcec24781bc390f6e8a4383ff72b8331b53887485e79dcb75387ffe5508c3
+  checksum: 98f58ee14a71c392fa7c05b3e2dc7cdc54928b6d679c2cce891e26a51fe42c64d67af4ba0721dff51debd9bfbd03d738d3079e9c19533585f8c2b7cf653a437f
   languageName: node
   linkType: hard
 
-"react-router@npm:6.30.3":
-  version: 6.30.3
-  resolution: "react-router@npm:6.30.3"
+"react-router@npm:6.30.4":
+  version: 6.30.4
+  resolution: "react-router@npm:6.30.4"
   dependencies:
-    "@remix-run/router": 1.23.2
+    "@remix-run/router": 1.23.3
   peerDependencies:
     react: ">=16.8"
-  checksum: b61e1a456b72ed35907dadc261d8572a65dd4caae008f7a85a6b09b437b1a4b90034fc7df0e418f1f01b73c2b8a8f6755d7fc0108b1ec3f2ed37f03a1e248513
+  checksum: a9c1d03dd22cc824515dd603eae5dc49f8ed973496eabf404771ad3cfacfd239ccdc7d8cb7e2c6adab6889501cafdcc8abefdf6a061676bfa02a9247cf9d6c50
   languageName: node
   linkType: hard
 

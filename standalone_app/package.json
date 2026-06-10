@@ -36,7 +36,7 @@
     "plotly.js-dist-min": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
-    "react-router-dom": "^6.28.1"
+    "react-router-dom": "^6.30.4"
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "^4.13.2"
