@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import logging
 import threading
+import warnings
+from collections.abc import Callable
 from typing import TYPE_CHECKING
 
 from optuna.importance import get_param_importances
 from optuna.importance import PedAnovaImportanceEvaluator
 from optuna.storages import BaseStorage
 from optuna.study import Study
+from optuna.study import StudyDirection
 from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
 from optuna_dashboard._inmemory_cache import get_cached_extra_study_property
@@ -67,9 +70,21 @@ def get_param_importance_from_trials_cache(
         study = StudyWrapper(storage, study_id, trials)
         # TODO(nabenabe0928): We might want to pass baseline_quantile
         #                     as an argument in the future.
-        importance = get_param_importances(
-            study, target=lambda t: t.values[objective_id], evaluator=PedAnovaImportanceEvaluator()
-        )
+        with warnings.catch_warnings():
+            # Optuna v4 warns whenever target is passed to PED-ANOVA, even though
+            # optuna-dashboard already adjusts target for maximize directions. Keep this
+            # suppression while optuna-dashboard supports Optuna v4.x.
+            # https://github.com/optuna/optuna/blob/v4.9.0/optuna/importance/_ped_anova/evaluator.py#L179-L199
+            warnings.filterwarnings(
+                "ignore",
+                message="PedAnovaImportanceEvaluator computes the importances of params to "
+                "achieve low `target` values.*",
+            )
+            importance = get_param_importances(
+                study,
+                target=_get_importance_target(study, objective_id),
+                evaluator=PedAnovaImportanceEvaluator(),
+            )
         if not importance:
             _, union_search_space, _, _ = get_cached_extra_study_property(
                 inmemory_cache, study_id, trials
@@ -81,6 +96,12 @@ def get_param_importance_from_trials_cache(
         converted = convert_to_importance_type(importance, trials)
         param_importance_cache[cache_key] = (n_completed_trials, converted)
     return converted
+
+
+def _get_importance_target(study: Study, objective_id: int) -> Callable[[FrozenTrial], float]:
+    if study.directions[objective_id] == StudyDirection.MAXIMIZE:
+        return lambda t: -t.values[objective_id]
+    return lambda t: t.values[objective_id]
 
 
 def convert_to_importance_type(
