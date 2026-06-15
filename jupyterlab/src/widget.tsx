@@ -1,7 +1,7 @@
 import { Message } from "@lumino/messaging"
 import { Widget } from "@lumino/widgets"
 import React from "react"
-import { createRoot, Root } from "react-dom/client"
+import { Root, createRoot } from "react-dom/client"
 import { JupyterLabEntrypoint } from "./components/JupyterLabEntrypoint"
 
 export class OptunaDashboardWidget extends Widget {
