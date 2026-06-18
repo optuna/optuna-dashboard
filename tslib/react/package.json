@@ -47,7 +47,7 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "typescript": "catalog:",
-    "vite": "^7.1.12",
+    "vite": "^7.3.5",
     "vitest": "^3.2.6",
     "vitest-browser-react": "^1.0.1"
   },
