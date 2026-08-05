@@ -17,7 +17,7 @@ export const PlotImportance: FC<{
     colorTheme ??
     (theme.palette.mode === "dark" ? DarkColorTemplates.default : {})
   const objectiveNames: string[] = study
-    ? study.directions.map((_d, i) => `Objective ${i}`)
+    ? study.directions.map((_d, i) => study.metric_names?.[i] ?? `Objective ${i}`)
     : []
   useEffect(() => {
     if (study !== null && importance !== undefined && importance.length > 0) {
