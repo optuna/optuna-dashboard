@@ -65,6 +65,7 @@ jobs:
       - name: Install Rust toolchains
         uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9  # v1
         with:
+          toolchain: stable
           targets: wasm32-unknown-unknown
 
       - name: Build rustlib
@@ -126,6 +127,7 @@ jobs:
       - name: Install Rust toolchains
         uses: dtolnay/rust-toolchain@e97e2d8cc328f1b50210efc529dca0028893a2d9  # v1
         with:
+          toolchain: stable
           targets: wasm32-unknown-unknown
 
       - name: Build rustlib for standalone_app
