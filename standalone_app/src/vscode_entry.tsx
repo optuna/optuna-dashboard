@@ -8,37 +8,40 @@ import {
 } from "./components/StorageProvider"
 import "./index.css"
 
+type WebviewMessage = {
+  type: "optunaStorage"
+  content: Uint8Array
+}
+
 export const AppWrapper: FC = () => {
   const { setStorage } = useContext(StorageContext)
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
-    window.addEventListener("message", (event) => {
-      const message = event.data
-      let fileContentBase64: string
-      let binaryString: string
-      let len: number
-      let bytes: Uint8Array
-      let arrayBuffer: ArrayBuffer
+    const handleMessage = (event: MessageEvent) => {
+      const message = event.data as WebviewMessage
 
       switch (message.type) {
         case "optunaStorage":
-          fileContentBase64 = message.content
-          binaryString = atob(fileContentBase64)
-          len = binaryString.length
-          bytes = new Uint8Array(len)
-          for (let i = 0; i < len; i++) {
-            bytes[i] = binaryString.charCodeAt(i)
-          }
-          // TODO(c-bata): Remove the following ts-ignore comment
-          // @ts-ignore
-          arrayBuffer = bytes.buffer
-          setStorage(getStorage(arrayBuffer))
+          setStorage(getStorage(toArrayBuffer(message.content)))
           break
       }
-    })
+    }
+    window.addEventListener("message", handleMessage)
+    return () => window.removeEventListener("message", handleMessage)
   }, [])
   return <App />
+}
+
+const toArrayBuffer = (content: Uint8Array): ArrayBuffer => {
+  if (
+    content.buffer instanceof ArrayBuffer &&
+    content.byteOffset === 0 &&
+    content.byteLength === content.buffer.byteLength
+  ) {
+    return content.buffer
+  }
+  return content.slice().buffer as ArrayBuffer
 }
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
