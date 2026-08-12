@@ -26,10 +26,15 @@ export function activate(context: vscode.ExtensionContext) {
         "assets",
         "bundle.js"
       )
+      const storageWorkerJsUri = vscode.Uri.joinPath(
+        context.extensionUri,
+        "assets",
+        "storage-worker.js"
+      )
 
       const appPath = panel.webview.asWebviewUri(indexJsUri)
 
-      panel.webview.html = getWebviewContent(appPath)
+      panel.webview.html = getWebviewContent(appPath, panel.webview.cspSource)
       const handleMessage = async (message: { type: string }) => {
         switch (message.type) {
           case "webviewDidLoad": {
@@ -37,6 +42,9 @@ export function activate(context: vscode.ExtensionContext) {
             await panel.webview.postMessage({
               type: "optunaStorage",
               content,
+              workerUri: panel.webview
+                .asWebviewUri(storageWorkerJsUri)
+                .toString(),
             })
             break
           }
@@ -54,14 +62,16 @@ async function readFile(uri: vscode.Uri): Promise<Uint8Array> {
   return vscode.workspace.fs.readFile(uri)
 }
 
-function getWebviewContent(indexJsUri: vscode.Uri): string {
+function getWebviewContent(indexJsUri: vscode.Uri, cspSource: string): string {
+  const nonce = getNonce()
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <title>Optuna Dashboard (Wasm ver.)</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src ${cspSource} 'nonce-${nonce}'; worker-src blob:; connect-src ${cspSource}; style-src ${cspSource} 'unsafe-inline';">
   <script type="module" crossorigin src="${indexJsUri}"></script>
-  <script>
+  <script nonce="${nonce}">
     (function() {
       const vscodeApi = acquireVsCodeApi();
       window.addEventListener('DOMContentLoaded', (event) => {
@@ -75,6 +85,16 @@ function getWebviewContent(indexJsUri: vscode.Uri): string {
 </body>
 </html>
 `
+}
+
+function getNonce(): string {
+  const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+  let nonce = ""
+  for (let index = 0; index < 32; index++) {
+    nonce += characters.charAt(Math.floor(Math.random() * characters.length))
+  }
+  return nonce
 }
 
 export function deactivate() {}

@@ -1,36 +1,58 @@
-import React, { FC, useEffect, useContext } from "react"
+import type { StorageWorkerFactory } from "@optuna/storage"
+import React, { FC, useContext, useEffect } from "react"
 import ReactDOM from "react-dom/client"
 import { App } from "./components/App"
-import {
-  StorageContext,
-  StorageProvider,
-  getStorage,
-} from "./components/StorageProvider"
+import { StorageContext, StorageProvider } from "./components/StorageProvider"
 import "./index.css"
 
 type WebviewMessage = {
   type: "optunaStorage"
   content: Uint8Array
+  workerUri: string
 }
 
 export const AppWrapper: FC = () => {
-  const { setStorage } = useContext(StorageContext)
+  const { loadStorage } = useContext(StorageContext)
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       const message = event.data as WebviewMessage
 
       switch (message.type) {
         case "optunaStorage":
-          setStorage(getStorage(toArrayBuffer(message.content)))
+          void loadStorage(
+            toArrayBuffer(message.content),
+            createWebviewWorkerFactory(message.workerUri)
+          )
           break
       }
     }
     window.addEventListener("message", handleMessage)
     return () => window.removeEventListener("message", handleMessage)
-  }, [])
+  }, [loadStorage])
   return <App />
+}
+
+const createWebviewWorkerFactory = (
+  workerUri: string
+): StorageWorkerFactory => {
+  return async () => {
+    const response = await fetch(workerUri)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch storage worker: ${response.status}`)
+    }
+    const blobUrl = URL.createObjectURL(await response.blob())
+    try {
+      const worker = new Worker(blobUrl)
+      return {
+        worker,
+        dispose: () => URL.revokeObjectURL(blobUrl),
+      }
+    } catch (error) {
+      URL.revokeObjectURL(blobUrl)
+      throw error
+    }
+  }
 }
 
 const toArrayBuffer = (content: Uint8Array): ArrayBuffer => {

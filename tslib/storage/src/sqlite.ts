@@ -45,6 +45,7 @@ type SQLite3DB = {
 export class SQLite3Storage implements OptunaStorage {
   db: Promise<SQLite3DB>
   summaries_cache: Optuna.StudySummary[] | null
+  private closed = false
   constructor(arrayBuffer: ArrayBuffer) {
     this.db = this.initDB(arrayBuffer)
     this.summaries_cache = null
@@ -73,12 +74,18 @@ export class SQLite3Storage implements OptunaStorage {
   }
 
   getStudies = async (): Promise<Optuna.StudySummary[]> => {
+    if (this.closed) {
+      throw new Error("Storage is closed")
+    }
     const db = await this.db
     this.summaries_cache = getStudySummaries(db)
     return this.summaries_cache
   }
 
   getStudy = async (studyId: number): Promise<Optuna.Study | null> => {
+    if (this.closed) {
+      throw new Error("Storage is closed")
+    }
     const db = await this.db
     const schemaVersion = getSchemaVersion(db)
     if (!isSupportedSchema(schemaVersion)) {
@@ -94,6 +101,15 @@ export class SQLite3Storage implements OptunaStorage {
       return null
     }
     return getStudy(db, schemaVersion, summary)
+  }
+
+  close = async (): Promise<void> => {
+    if (this.closed) {
+      return
+    }
+    this.closed = true
+    const db = await this.db
+    db.close()
   }
 }
 

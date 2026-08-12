@@ -15,11 +15,19 @@ module.exports = {
             config: [__filename],
         }
     },
-    entry: [__dirname + '/src/vscode_entry.tsx'],
+    entry: {
+        bundle: __dirname + '/src/vscode_entry.tsx',
+        'storage-worker': path.resolve(__dirname, '../tslib/storage/src/journal_worker.ts'),
+    },
     output: {
         path: path.resolve(__dirname, '../vscode/assets/'),
-        filename: 'bundle.js',
-        publicPath: '/'
+        filename: '[name].js',
+        publicPath: '/',
+        clean: true,
+    },
+    optimization: {
+        splitChunks: false,
+        runtimeChunk: false,
     },
     module: {
         rules: [

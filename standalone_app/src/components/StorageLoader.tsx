@@ -15,35 +15,33 @@ import {
   useRef,
   useState,
 } from "react"
-import { StorageContext, getStorage } from "./StorageProvider"
+import { StorageContext } from "./StorageProvider"
 
 export const StorageLoader: FC = () => {
   const theme = useTheme()
   const [dragOver, setDragOver] = useState<boolean>(false)
-  const { setStorage } = useContext(StorageContext)
+  const { loadStorage, loading, error } = useContext(StorageContext)
 
   const inputRef = useRef<HTMLInputElement>(null)
 
-  const loadStorageFromFile = (file: File): void => {
-    const r = new FileReader()
-    r.addEventListener("load", () => {
-      const arrayBuffer = r.result as ArrayBuffer | null
-      if (arrayBuffer !== null) {
-        const s = getStorage(arrayBuffer)
-        setStorage(s)
-      }
-    })
-    r.readAsArrayBuffer(file)
+  const loadStorageFromFile = async (file: File): Promise<void> => {
+    await loadStorage(await file.arrayBuffer())
   }
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+    if (loading) {
+      return
+    }
     const f = e.target.files?.[0]
     if (!f) {
       return
     }
-    loadStorageFromFile(f)
+    void loadStorageFromFile(f)
   }
   const handleClick: MouseEventHandler = () => {
+    if (loading) {
+      return
+    }
     if (!inputRef || !inputRef.current) {
       return
     }
@@ -52,12 +50,15 @@ export const StorageLoader: FC = () => {
   const handleDrop: DragEventHandler = (e) => {
     e.stopPropagation()
     e.preventDefault()
+    if (loading) {
+      return
+    }
     const file = e.dataTransfer.files?.[0]
     setDragOver(false)
     if (!file) {
       return
     }
-    loadStorageFromFile(file)
+    void loadStorageFromFile(file)
   }
   const handleDragOver: DragEventHandler = (e) => {
     e.stopPropagation()
@@ -84,7 +85,7 @@ export const StorageLoader: FC = () => {
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      <CardActionArea onClick={handleClick}>
+      <CardActionArea onClick={handleClick} disabled={loading}>
         <CardContent
           sx={{
             display: "flex",
@@ -104,12 +105,17 @@ export const StorageLoader: FC = () => {
             onChange={handleFileChange}
             style={{ display: "none" }}
           />
-          <Typography>Load an Optuna Storage</Typography>
+          <Typography>
+            {loading ? "Loading an Optuna Storage" : "Load an Optuna Storage"}
+          </Typography>
           <Typography
             sx={{ textAlign: "center", color: theme.palette.grey.A400 }}
           >
             Drag your SQLite3/JournalStorage file here or click to browse.
           </Typography>
+          {error !== null && (
+            <Typography color="error">{error.message}</Typography>
+          )}
         </CardContent>
       </CardActionArea>
     </Card>

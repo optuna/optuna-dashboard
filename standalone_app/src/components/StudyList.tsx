@@ -43,14 +43,20 @@ export const StudyList: FC<{
   const [sortBy, setSortBy] = useState<"id-asc" | "id-desc">("id-asc")
   const studyFilterText = useDeferredValue(_studyFilterText)
   useEffect(() => {
+    let active = true
     const fetchStudies = async () => {
       if (storage === null) {
         return
       }
       const studies = await storage.getStudies()
-      setStudies(studies)
+      if (active) {
+        setStudies(studies)
+      }
     }
-    fetchStudies()
+    void fetchStudies()
+    return () => {
+      active = false
+    }
   }, [storage])
   const filteredStudies = useMemo(() => {
     const studyFilter = (row: Optuna.StudySummary): boolean => {
@@ -203,7 +209,7 @@ export const StudyList: FC<{
             </Card>
           ))}
         </Box>
-        {!IS_VSCODE && <StorageLoader />}
+        {!IS_VSCODE && storage === null && <StorageLoader />}
       </Container>
     </div>
   )

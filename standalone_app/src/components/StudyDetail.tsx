@@ -35,14 +35,20 @@ export const StudyDetail: FC<{
   const { storage } = useContext(StorageContext)
   const [study, setStudy] = useState<Optuna.Study | null>(null)
   useEffect(() => {
+    let active = true
     const fetchStudy = async () => {
       if (storage === null) {
         return
       }
       const study = await storage.getStudy(studyIdNumber)
-      setStudy(study)
+      if (active) {
+        setStudy(study)
+      }
     }
-    fetchStudy()
+    void fetchStudy()
+    return () => {
+      active = false
+    }
   }, [storage, studyIdNumber])
 
   const [importance, setImportance] = useState<Optuna.ParamImportance[][]>([])
