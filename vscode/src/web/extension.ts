@@ -30,36 +30,28 @@ export function activate(context: vscode.ExtensionContext) {
       const appPath = panel.webview.asWebviewUri(indexJsUri)
 
       panel.webview.html = getWebviewContent(appPath)
-      // biome-ignore lint/suspicious/noExplicitAny: <explanation>`
-      panel.webview.onDidReceiveMessage(async (message: any) => {
+      const handleMessage = async (message: { type: string }) => {
         switch (message.type) {
           case "webviewDidLoad": {
-            const storageContentBase64 = await readFileAsBase64(fileUri)
-            panel.webview.postMessage({
+            const content = await readFile(fileUri)
+            await panel.webview.postMessage({
               type: "optunaStorage",
-              content: storageContentBase64,
+              content,
             })
             break
           }
         }
-      })
+      }
+      const messageDisposable = panel.webview.onDidReceiveMessage(handleMessage)
+      panel.onDidDispose(() => messageDisposable.dispose())
     }
   )
 
   context.subscriptions.push(disposable)
 }
 
-async function readFileAsBase64(uri: vscode.Uri): Promise<string> {
-  const uint8Array = await vscode.workspace.fs.readFile(uri)
-  const base64 = uint8ArrayToBase64(uint8Array)
-  return base64
-}
-
-function uint8ArrayToBase64(uint8Array: Uint8Array): string {
-  const binString = Array.prototype.map
-    .call(uint8Array, (ch) => String.fromCharCode(ch))
-    .join("")
-  return btoa(binString)
+async function readFile(uri: vscode.Uri): Promise<Uint8Array> {
+  return vscode.workspace.fs.readFile(uri)
 }
 
 function getWebviewContent(indexJsUri: vscode.Uri): string {

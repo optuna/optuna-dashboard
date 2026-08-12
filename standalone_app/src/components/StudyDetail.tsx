@@ -29,8 +29,8 @@ export const StudyDetail: FC<{
   toggleColorMode: () => void
 }> = ({ toggleColorMode }) => {
   const theme = useTheme()
-  const { idx } = useParams<{ idx: string }>()
-  const idxNumber = parseInt(idx || "", 10)
+  const { studyId } = useParams<{ studyId: string }>()
+  const studyIdNumber = Number(studyId)
 
   const { storage } = useContext(StorageContext)
   const [study, setStudy] = useState<Optuna.Study | null>(null)
@@ -39,11 +39,11 @@ export const StudyDetail: FC<{
       if (storage === null) {
         return
       }
-      const study = await storage.getStudy(idxNumber)
+      const study = await storage.getStudy(studyIdNumber)
       setStudy(study)
     }
     fetchStudy()
-  }, [storage, idxNumber])
+  }, [storage, studyIdNumber])
 
   const [importance, setImportance] = useState<Optuna.ParamImportance[][]>([])
   const filterFunc = (trial: Optuna.Trial, objectiveId: number): boolean => {

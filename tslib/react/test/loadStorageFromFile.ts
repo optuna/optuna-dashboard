@@ -25,7 +25,7 @@ const loadStudiesFromStorage = async (
   const studySummaries = await storage.getStudies()
   const studies = (
     await Promise.all(
-      studySummaries.map((_summary, index) => storage.getStudy(index))
+      studySummaries.map((summary) => storage.getStudy(summary.id))
     )
   ).filter((s) => s !== null) as Optuna.Study[]
   setter((prev) => [...prev, ...studies])

@@ -519,8 +519,8 @@ export class JournalFileStorage implements OptunaStorage {
   getStudies = async (): Promise<Optuna.StudySummary[]> => {
     return this.studies
   }
-  getStudy = async (idx: number): Promise<Optuna.Study | null> => {
-    return this.studies[idx] || null
+  getStudy = async (studyId: number): Promise<Optuna.Study | null> => {
+    return this.studies.find((study) => study.id === studyId) || null
   }
   getErrors = (): { log: string; message: string }[] => {
     return this.errors

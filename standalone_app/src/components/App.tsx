@@ -49,7 +49,7 @@ export const App: FC = () => {
                 element={<StudyList toggleColorMode={toggleColorMode} />}
               />
               <Route
-                path=":idx"
+                path="study/:studyId"
                 element={<StudyDetail toggleColorMode={toggleColorMode} />}
               />
             </Routes>

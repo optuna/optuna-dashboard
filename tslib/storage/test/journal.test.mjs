@@ -13,8 +13,46 @@ describe("Test Journal File Storage", async () => {
   const storage = new mut.JournalFileStorage(buf)
   const studySummaries = await storage.getStudies()
   const studies = await Promise.all(
-    studySummaries.map((_summary, index) => storage.getStudy(index))
+    studySummaries.map((summary) => storage.getStudy(summary.id))
   )
+
+  it("loads a study by its ID instead of its position", async () => {
+    const journal = [
+      {
+        op_code: 0,
+        workor_id: "0000",
+        study_name: "study-0",
+        directions: [1],
+      },
+      {
+        op_code: 0,
+        workor_id: "0000",
+        study_name: "study-1",
+        directions: [1],
+      },
+      { op_code: 1, workor_id: "0000", study_id: 1 },
+      {
+        op_code: 0,
+        workor_id: "0000",
+        study_name: "study-2",
+        directions: [1],
+      },
+    ]
+      .map((operation) => JSON.stringify(operation))
+      .join("\n")
+    const storage = new mut.JournalFileStorage(
+      new TextEncoder().encode(journal).buffer
+    )
+    const summaries = await storage.getStudies()
+
+    assert.deepStrictEqual(
+      summaries.map((summary) => summary.id),
+      [0, 2]
+    )
+    assert.strictEqual(await storage.getStudy(1), null)
+    const study = await storage.getStudy(2)
+    assert.strictEqual(study?.name, "study-2")
+  })
 
   it("Check the study with dynamic search space", () => {
     const study = studies.find((s) => s.name === "single-objective-dynamic")
