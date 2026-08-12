@@ -42,8 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
       }
-      const messageDisposable =
-        panel.webview.onDidReceiveMessage(handleMessage)
+      const messageDisposable = panel.webview.onDidReceiveMessage(handleMessage)
       panel.onDidDispose(() => messageDisposable.dispose())
     }
   )
