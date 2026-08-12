@@ -36,7 +36,7 @@ export const StudyList: FC<{
   toggleColorMode: () => void
 }> = ({ toggleColorMode }) => {
   const theme = useTheme()
-  const { storage } = useContext(StorageContext)
+  const { storage, reportError } = useContext(StorageContext)
   const [studies, setStudies] = useState<Optuna.StudySummary[]>([])
 
   const [_studyFilterText, setStudyFilterText] = useState<string>("")
@@ -48,16 +48,22 @@ export const StudyList: FC<{
       if (storage === null) {
         return
       }
-      const studies = await storage.getStudies()
-      if (active) {
-        setStudies(studies)
+      try {
+        const studies = await storage.getStudies()
+        if (active) {
+          setStudies(studies)
+        }
+      } catch (error) {
+        if (active) {
+          reportError(error)
+        }
       }
     }
     void fetchStudies()
     return () => {
       active = false
     }
-  }, [storage])
+  }, [reportError, storage])
   const filteredStudies = useMemo(() => {
     const studyFilter = (row: Optuna.StudySummary): boolean => {
       const keywords = studyFilterText.split(" ")

@@ -19,12 +19,14 @@ export const StorageContext = createContext<{
   closeStorage: () => Promise<void>
   loading: boolean
   error: Error | null
+  reportError: (error: unknown) => void
 }>({
   storage: null,
   loadStorage: async () => {},
   closeStorage: async () => {},
   loading: false,
   error: null,
+  reportError: () => {},
 })
 
 export const getStorage = async (
@@ -51,60 +53,106 @@ export const StorageProvider: FC<{
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
   const storageRef = useRef<OptunaStorage | null>(null)
+  const loadingRef = useRef(false)
+  const generationRef = useRef(0)
+  const mountedRef = useRef(true)
 
-  const closeStorage = useCallback(async () => {
-    const currentStorage = storageRef.current
-    storageRef.current = null
-    setStorage(null)
-    if (currentStorage !== null) {
-      await currentStorage.close()
+  const reportError = useCallback((loadError: unknown) => {
+    const normalizedError =
+      loadError instanceof Error
+        ? loadError
+        : new Error("Storage request failed")
+    if (mountedRef.current) {
+      setError(normalizedError)
     }
   }, [])
+
+  const closeStorage = useCallback(async () => {
+    generationRef.current += 1
+    const currentStorage = storageRef.current
+    storageRef.current = null
+    if (mountedRef.current) {
+      setStorage(null)
+      setLoading(false)
+    }
+    if (currentStorage !== null) {
+      try {
+        await currentStorage.close()
+      } catch (closeError) {
+        reportError(closeError)
+      }
+    }
+  }, [reportError])
 
   const loadStorage = useCallback(
     async (
       arrayBuffer: ArrayBuffer,
       overrideWorkerFactory?: StorageWorkerFactory
     ) => {
+      if (!mountedRef.current || loadingRef.current) {
+        return
+      }
+      if (storageRef.current !== null) {
+        reportError(new Error("Storage is already open"))
+        return
+      }
+
+      loadingRef.current = true
+      const generation = ++generationRef.current
       setLoading(true)
       setError(null)
       try {
-        if (storageRef.current !== null) {
-          throw new Error("Storage is already open")
-        }
         const factory = overrideWorkerFactory ?? workerFactory
         if (factory === undefined) {
           throw new Error("A storage worker factory is required")
         }
         const nextStorage = await getStorage(arrayBuffer, factory)
+
+        if (!mountedRef.current || generation !== generationRef.current) {
+          await nextStorage.close()
+          return
+        }
+
         storageRef.current = nextStorage
         setStorage(nextStorage)
       } catch (loadError) {
-        const normalizedError =
-          loadError instanceof Error
-            ? loadError
-            : new Error("Failed to load storage")
-        setError(normalizedError)
+        if (mountedRef.current && generation === generationRef.current) {
+          reportError(loadError)
+        }
       } finally {
-        setLoading(false)
+        loadingRef.current = false
+        if (mountedRef.current && generation === generationRef.current) {
+          setLoading(false)
+        }
       }
     },
-    [workerFactory]
+    [reportError, workerFactory]
   )
 
   useEffect(() => {
+    mountedRef.current = true
     return () => {
+      mountedRef.current = false
+      generationRef.current += 1
+      loadingRef.current = false
       const currentStorage = storageRef.current
       storageRef.current = null
       if (currentStorage !== null) {
-        void currentStorage.close()
+        void currentStorage.close().catch(() => {})
       }
     }
   }, [])
 
   return (
     <StorageContext.Provider
-      value={{ storage, loadStorage, closeStorage, loading, error }}
+      value={{
+        storage,
+        loadStorage,
+        closeStorage,
+        loading,
+        error,
+        reportError,
+      }}
     >
       {children}
     </StorageContext.Provider>

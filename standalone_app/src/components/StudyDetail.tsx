@@ -32,7 +32,7 @@ export const StudyDetail: FC<{
   const { studyId } = useParams<{ studyId: string }>()
   const studyIdNumber = Number(studyId)
 
-  const { storage } = useContext(StorageContext)
+  const { storage, reportError } = useContext(StorageContext)
   const [study, setStudy] = useState<Optuna.Study | null>(null)
   useEffect(() => {
     let active = true
@@ -40,16 +40,22 @@ export const StudyDetail: FC<{
       if (storage === null) {
         return
       }
-      const study = await storage.getStudy(studyIdNumber)
-      if (active) {
-        setStudy(study)
+      try {
+        const study = await storage.getStudy(studyIdNumber)
+        if (active) {
+          setStudy(study)
+        }
+      } catch (error) {
+        if (active) {
+          reportError(error)
+        }
       }
     }
     void fetchStudy()
     return () => {
       active = false
     }
-  }, [storage, studyIdNumber])
+  }, [reportError, storage, studyIdNumber])
 
   const [importance, setImportance] = useState<Optuna.ParamImportance[][]>([])
   const filterFunc = (trial: Optuna.Trial, objectiveId: number): boolean => {
