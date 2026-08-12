@@ -78,7 +78,7 @@ export class SQLite3Storage implements OptunaStorage {
     return this.summaries_cache
   }
 
-  getStudy = async (idx: number): Promise<Optuna.Study | null> => {
+  getStudy = async (studyId: number): Promise<Optuna.Study | null> => {
     const db = await this.db
     const schemaVersion = getSchemaVersion(db)
     if (!isSupportedSchema(schemaVersion)) {
@@ -87,7 +87,9 @@ export class SQLite3Storage implements OptunaStorage {
     if (this.summaries_cache === null) {
       this.summaries_cache = getStudySummaries(db)
     }
-    const summary = this.summaries_cache[idx]
+    const summary = this.summaries_cache.find(
+      (summary) => summary.id === studyId
+    )
     if (summary === undefined) {
       return null
     }

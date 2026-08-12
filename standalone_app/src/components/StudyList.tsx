@@ -179,12 +179,12 @@ export const StudyList: FC<{
           </CardContent>
         </Card>
         <Box sx={{ display: "flex", flexWrap: "wrap" }}>
-          {filteredStudies.map((study, idx) => (
+          {filteredStudies.map((study) => (
             <Card
               key={study.id}
               sx={{ margin: theme.spacing(2), width: "500px" }}
             >
-              <CardActionArea component={Link} to={`/${idx}`}>
+              <CardActionArea component={Link} to={`/study/${study.id}`}>
                 <CardContent>
                   <Typography variant="h5" sx={{ wordBreak: "break-all" }}>
                     {study.id}. {study.name}
