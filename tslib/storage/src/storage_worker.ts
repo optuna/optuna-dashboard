@@ -117,6 +117,12 @@ workerScope.onmessage = async (event) => {
             "Storage is already open"
           )
         }
+        // Neither format can say anything about a file with no bytes, and
+        // creating a storage does leave one behind, so name that case rather
+        // than opening it as a storage with nothing in it.
+        if (request.buffer.byteLength === 0) {
+          throw new WorkerRequestError("empty_file", "This file is empty")
+        }
         if (isSQLiteFile(request.buffer)) {
           if (
             request.sqliteWasmUrl === undefined &&
@@ -133,6 +139,12 @@ workerScope.onmessage = async (event) => {
           })
           try {
             await sqliteStorage.waitUntilReady()
+            if (!(await sqliteStorage.hasOptunaSchema())) {
+              throw new WorkerRequestError(
+                "unsupported_format",
+                "Not an Optuna storage: this SQLite database has no Optuna tables"
+              )
+            }
           } catch (error) {
             await sqliteStorage.close()
             throw error
@@ -146,10 +158,23 @@ workerScope.onmessage = async (event) => {
         }
 
         const journalStorage = new JournalFileStorage(request.buffer)
+        const warnings = journalStorage.getErrors()
+        // A Journal file is read line by line, and a line that cannot be read is
+        // collected as a warning rather than raised, which is what keeps a
+        // partially written file usable. A file that is not a storage at all
+        // would then open as an empty one, so require at least one record. A
+        // Journal storage whose studies were all deleted still has records.
+        if (journalStorage.appliedRecords === 0) {
+          throw new WorkerRequestError(
+            "unsupported_format",
+            "Not an Optuna storage: no SQLite header and no Journal record",
+            { unreadableLines: warnings.length }
+          )
+        }
         storage = journalStorage
         postResult(request.id, "open", {
           format: "journal",
-          warnings: journalStorage.getErrors(),
+          warnings,
         })
         break
       }
