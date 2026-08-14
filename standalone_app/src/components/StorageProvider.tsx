@@ -14,12 +14,16 @@ import React, {
 } from "react"
 
 export type StorageOpenOptions = {
+  // Shown next to the button that closes this storage, so that the UI can say
+  // which file it is holding.
+  name?: string
   workerFactory?: StorageWorkerFactory
   sqliteWasm?: SQLiteWasmSource
 }
 
 export const StorageContext = createContext<{
   storage: OptunaStorage | null
+  storageName: string | null
   loadStorage: (
     arrayBuffer: ArrayBuffer,
     options?: StorageOpenOptions
@@ -35,6 +39,7 @@ export const StorageContext = createContext<{
   setStorage: (storage: OptunaStorage) => void
 }>({
   storage: null,
+  storageName: null,
   loadStorage: async () => {},
   closeStorage: async () => {},
   loading: false,
@@ -62,6 +67,7 @@ export const StorageProvider: FC<{
   sqliteWasm?: SQLiteWasmSource
 }> = ({ children, workerFactory, sqliteWasm }) => {
   const [storage, setActiveStorage] = useState<OptunaStorage | null>(null)
+  const [storageName, setStorageName] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<Error | null>(null)
   const sessionRef = useRef<StorageSession>({
@@ -87,6 +93,7 @@ export const StorageProvider: FC<{
     const currentStorage = session.storage
     session.storage = null
     setActiveStorage(null)
+    setStorageName(null)
     setLoading(false)
     setError(null)
     if (currentStorage !== null) {
@@ -131,6 +138,7 @@ export const StorageProvider: FC<{
 
         session.storage = nextStorage
         setActiveStorage(nextStorage)
+        setStorageName(options.name ?? null)
       } catch (loadError) {
         if (generation === session.generation) {
           reportError(loadError)
@@ -151,6 +159,7 @@ export const StorageProvider: FC<{
     const currentStorage = session.storage
     session.storage = nextStorage
     setActiveStorage(nextStorage)
+    setStorageName(null)
     setError(null)
     if (currentStorage !== null) {
       void currentStorage.close().catch(() => {})
@@ -174,6 +183,7 @@ export const StorageProvider: FC<{
     <StorageContext.Provider
       value={{
         storage,
+        storageName,
         loadStorage,
         closeStorage,
         loading,

@@ -25,7 +25,7 @@ export const StorageLoader: FC = () => {
   const inputRef = useRef<HTMLInputElement>(null)
 
   const loadStorageFromFile = async (file: File): Promise<void> => {
-    await loadStorage(await file.arrayBuffer())
+    await loadStorage(await file.arrayBuffer(), { name: file.name })
   }
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
