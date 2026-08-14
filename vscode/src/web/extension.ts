@@ -33,10 +33,9 @@ export function activate(context: vscode.ExtensionContext) {
       const handleMessage = async (message: { type: string }) => {
         switch (message.type) {
           case "webviewDidLoad": {
-            const content = await readFile(fileUri)
             await panel.webview.postMessage({
               type: "optunaStorage",
-              content,
+              content: toArrayBuffer(await readFile(fileUri)),
             })
             break
           }
@@ -52,6 +51,26 @@ export function activate(context: vscode.ExtensionContext) {
 
 async function readFile(uri: vscode.Uri): Promise<Uint8Array> {
   return vscode.workspace.fs.readFile(uri)
+}
+
+// workspace.fs.readFile() hands back a Node Buffer in the desktop extension
+// host. The Webview message serializer recognizes a typed array by its exact
+// constructor name and passes those bytes out of band, but Buffer is not one of
+// the names it knows: it falls through to JSON.stringify(), which turns the
+// bytes into an object keyed by index. An ArrayBuffer is recognized whatever it
+// came from, so send one.
+function toArrayBuffer(content: Uint8Array): ArrayBuffer {
+  const buffer = content.buffer as ArrayBuffer
+  if (content.byteOffset === 0 && content.byteLength === buffer.byteLength) {
+    return buffer
+  }
+  // A Buffer can be a window onto a larger pooled allocation, so copy out the
+  // bytes that belong to this file. Note that Buffer.slice() would not: unlike
+  // Uint8Array.slice() it returns a view.
+  return buffer.slice(
+    content.byteOffset,
+    content.byteOffset + content.byteLength
+  )
 }
 
 function getWebviewContent(indexJsUri: vscode.Uri): string {
