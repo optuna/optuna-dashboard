@@ -8,7 +8,7 @@ import "./index.css"
 
 type WebviewMessage = {
   type: "optunaStorage"
-  content: Uint8Array
+  content: unknown
 }
 
 export const AppWrapper: FC = () => {
@@ -44,15 +44,31 @@ const getStorage = (arrayBuffer: ArrayBuffer): OptunaStorage => {
   return new JournalFileStorage(arrayBuffer)
 }
 
-const toArrayBuffer = (content: Uint8Array): ArrayBuffer => {
-  if (
-    content.buffer instanceof ArrayBuffer &&
-    content.byteOffset === 0 &&
-    content.byteLength === content.buffer.byteLength
-  ) {
-    return content.buffer
+// The extension sends an ArrayBuffer. A typed array is accepted as well, since
+// that is what the Webview message serializer produces for one, but anything
+// else is named rather than left to fail as a missing method on an object of an
+// unexpected shape.
+const toArrayBuffer = (content: unknown): ArrayBuffer => {
+  if (content instanceof ArrayBuffer) {
+    return content
   }
-  return content.slice().buffer as ArrayBuffer
+  if (ArrayBuffer.isView(content)) {
+    const buffer = content.buffer as ArrayBuffer
+    if (content.byteOffset === 0 && content.byteLength === buffer.byteLength) {
+      return buffer
+    }
+    return buffer.slice(
+      content.byteOffset,
+      content.byteOffset + content.byteLength
+    )
+  }
+  const received =
+    content === null || typeof content !== "object"
+      ? typeof content
+      : content.constructor?.name ?? "object"
+  throw new TypeError(
+    `Storage content arrived as ${received}, expected an ArrayBuffer`
+  )
 }
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
