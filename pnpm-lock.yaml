@@ -222,24 +222,12 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^4.3.4
         version: 4.7.0(vite@7.3.5(@types/node@25.7.0)(terser@5.47.1))
-      compression-webpack-plugin:
-        specifier: ^12.0.0
-        version: 12.0.0(webpack@5.106.2)
-      esbuild-loader:
-        specifier: ^4.2.2
-        version: 4.4.3(webpack@5.106.2)
       typescript:
         specifier: 'catalog:'
         version: 6.0.3
       vite:
         specifier: ^7.3.5
         version: 7.3.5(@types/node@25.7.0)(terser@5.47.1)
-      webpack:
-        specifier: ^5.97.1
-        version: 5.106.2(webpack-cli@5.1.4)
-      webpack-cli:
-        specifier: ^5.1.4
-        version: 5.1.4(webpack@5.106.2)
     optionalDependencies:
       '@rollup/rollup-linux-x64-gnu':
         specifier: ^4.13.2
@@ -326,7 +314,7 @@ importers:
   tslib/storage:
     dependencies:
       '@sqlite.org/sqlite-wasm':
-        specifier: 3.45.1-build1
+        specifier: ^3.45.1-build1
         version: 3.45.1-build1
     devDependencies:
       '@optuna/types':

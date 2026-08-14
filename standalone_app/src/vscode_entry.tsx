@@ -96,7 +96,9 @@ const createWebviewWorkerFactory = (
     }
     const blobUrl = URL.createObjectURL(await response.blob())
     try {
-      const worker = new Worker(blobUrl)
+      // A module Worker: the bundle is one file with no import, so nothing has
+      // to be resolved relative to the blob: URL it is started from.
+      const worker = new Worker(blobUrl, { type: "module" })
       return {
         worker,
         dispose: () => URL.revokeObjectURL(blobUrl),

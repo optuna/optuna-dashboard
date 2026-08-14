@@ -5,7 +5,7 @@
   "description": "",
   "scripts": {
     "watch": "vite",
-    "build:vscode": "webpack",
+    "build:vscode": "vite build -c vite.vscode.config.js && vite build -c vite.storage-worker.config.js",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
@@ -15,12 +15,8 @@
     "@types/react-dom": "catalog:",
     "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^4.3.4",
-    "compression-webpack-plugin": "^12.0.0",
-    "esbuild-loader": "^4.2.2",
     "typescript": "catalog:",
-    "vite": "^7.3.5",
-    "webpack": "^5.97.1",
-    "webpack-cli": "^5.1.4"
+    "vite": "^7.3.5"
   },
   "dependencies": {
     "@emotion/react": "catalog:",
