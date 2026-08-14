@@ -1,7 +1,30 @@
 import * as Optuna from "@optuna/types"
-// @ts-ignore
-import sqlite3InitModule from "@sqlite.org/sqlite-wasm"
+import sqlite3InitModule from "./sqlite_init.js"
 import { OptunaStorage } from "./storage"
+
+// Where to take sqlite3.wasm from.
+//
+// sqlite-wasm normally derives that URL from its own script URL, which stops
+// working once this backend runs inside a Worker: a Worker started from a blob:
+// URL, which is how a VS Code Webview has to start one, cannot resolve anything
+// relative to itself. The caller therefore says where the wasm is.
+//
+//   - `sqliteWasmUrl`: sqlite-wasm fetches it. Used where the bundler emits
+//     sqlite3.wasm next to the app and the Worker may fetch it.
+//   - `sqliteWasmBuffer`: the bytes, fetched by the caller. A VS Code Webview
+//     needs this: extension assets are served by the Webview's service worker,
+//     which does not answer requests coming from a blob: URL Worker, so the
+//     document fetches the asset and transfers it.
+//
+// A third option is to inline the wasm into the JavaScript as base64, which is
+// what the VS Code build has done so far. It keeps distribution simple, but it
+// turns 931KB into roughly 1.24MB of JavaScript source that has to be parsed on
+// every load, and it rules out WebAssembly.instantiateStreaming() as well as
+// caching the wasm separately from the bundle.
+export type SQLiteWasmOptions = {
+  sqliteWasmUrl?: string
+  sqliteWasmBuffer?: ArrayBuffer
+}
 
 // TODO(porink0424): Refactor to common function with journal.ts (current workaround duplicates code due to missing file extensions in tsc build output).
 const isDistributionEqual = (
@@ -45,40 +68,87 @@ type SQLite3DB = {
 export class SQLite3Storage implements OptunaStorage {
   db: Promise<SQLite3DB>
   summaries_cache: Optuna.StudySummary[] | null
-  constructor(arrayBuffer: ArrayBuffer) {
-    this.db = this.initDB(arrayBuffer)
+  private closed = false
+  constructor(arrayBuffer: ArrayBuffer, options: SQLiteWasmOptions = {}) {
+    this.db = this.initDB(arrayBuffer, options)
+    // A failed open is closed without ever being queried, so keep a rejection
+    // handler attached to avoid an unhandled rejection in the meantime.
+    this.db.catch(() => {})
     this.summaries_cache = null
   }
 
-  async initDB(arrayBuffer: ArrayBuffer): Promise<SQLite3DB> {
-    return sqlite3InitModule({
+  async initDB(
+    arrayBuffer: ArrayBuffer,
+    options: SQLiteWasmOptions
+  ): Promise<SQLite3DB> {
+    const initOptions: Parameters<typeof sqlite3InitModule>[0] & {
+      wasmBinary?: ArrayBuffer
+    } = {
       print: console.log,
       printErr: console.log,
-      // @ts-ignore
-    }).then((sqlite3) => {
+    }
+    // Without locateFile, sqlite-wasm resolves sqlite3.wasm as `new
+    // URL("sqlite3.wasm", import.meta.url).href`. A bundler rewrites that to the
+    // asset it emitted, which is what makes the default work on the main thread,
+    // so locateFile is only set when this call actually knows better. Setting it
+    // unconditionally would replace that rewritten URL with a bare relative path
+    // that resolves against the page instead.
+    if (options.sqliteWasmBuffer !== undefined) {
+      initOptions.wasmBinary = options.sqliteWasmBuffer
+      // The binary is already here. locateFile only keeps sqlite-wasm from
+      // evaluating the fallback above, which throws in a Worker started from a
+      // blob: URL because nothing resolves relative to it. What it returns is
+      // never fetched.
+      initOptions.locateFile = (path: string) => path
+    } else if (options.sqliteWasmUrl !== undefined) {
+      initOptions.locateFile = (path: string) =>
+        path === "sqlite3.wasm" ? (options.sqliteWasmUrl as string) : path
+    }
+
+    const sqlite3 = await sqlite3InitModule(initOptions)
+    let db: SQLite3DB | null = null
+    try {
       const p = sqlite3.wasm.allocFromTypedArray(arrayBuffer)
-      const db = new sqlite3.oo1.DB()
+      const sqliteDb = new sqlite3.oo1.DB()
+      db = sqliteDb
       const rc = sqlite3.capi.sqlite3_deserialize(
         // @ts-ignore
-        db.pointer,
+        sqliteDb.pointer,
         "main",
         p,
         arrayBuffer.byteLength,
         arrayBuffer.byteLength,
         sqlite3.capi.SQLITE_DESERIALIZE_FREEONCLOSE
       )
-      db.checkRc(rc)
-      return db
-    })
+      sqliteDb.checkRc(rc)
+      return sqliteDb
+    } catch (error) {
+      try {
+        db?.close()
+      } catch {
+        // Preserve the initialization error.
+      }
+      throw error
+    }
+  }
+
+  async waitUntilReady(): Promise<void> {
+    await this.db
   }
 
   getStudies = async (): Promise<Optuna.StudySummary[]> => {
+    if (this.closed) {
+      throw new Error("Storage is closed")
+    }
     const db = await this.db
     this.summaries_cache = getStudySummaries(db)
     return this.summaries_cache
   }
 
   getStudy = async (studyId: number): Promise<Optuna.Study | null> => {
+    if (this.closed) {
+      throw new Error("Storage is closed")
+    }
     const db = await this.db
     const schemaVersion = getSchemaVersion(db)
     if (!isSupportedSchema(schemaVersion)) {
@@ -94,6 +164,20 @@ export class SQLite3Storage implements OptunaStorage {
       return null
     }
     return getStudy(db, schemaVersion, summary)
+  }
+
+  close = async (): Promise<void> => {
+    if (this.closed) {
+      return
+    }
+    this.closed = true
+    try {
+      const db = await this.db
+      db.close()
+    } catch {
+      // close() is idempotent and never fails. An initialization failure was
+      // already handed to whoever awaited the storage.
+    }
   }
 }
 

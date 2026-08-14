@@ -5,6 +5,16 @@
   "version": "0.0.1",
   "description": "Loaders for Optuna storages",
   "main": "pkg/index.js",
+  "exports": {
+    ".": {
+      "types": "./pkg/index.d.ts",
+      "import": "./pkg/index.js"
+    },
+    "./worker-client": {
+      "types": "./pkg/worker_client.d.ts",
+      "import": "./pkg/worker_client.js"
+    }
+  },
   "scripts": {
     "build": "tsc -d",
     "test": "node --test"
