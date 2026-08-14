@@ -525,4 +525,5 @@ export class JournalFileStorage implements OptunaStorage {
   getErrors = (): { log: string; message: string }[] => {
     return this.errors
   }
+  close = async (): Promise<void> => {}
 }
