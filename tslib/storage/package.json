@@ -37,7 +37,7 @@
   },
   "homepage": "https://github.com/optuna/optuna-dashboard#readme",
   "dependencies": {
-    "@sqlite.org/sqlite-wasm": "^3.45.1-build1"
+    "@sqlite.org/sqlite-wasm": "3.45.1-build1"
   },
   "devDependencies": {
     "@optuna/types": "workspace:*",

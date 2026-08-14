@@ -326,7 +326,7 @@ importers:
   tslib/storage:
     dependencies:
       '@sqlite.org/sqlite-wasm':
-        specifier: ^3.45.1-build1
+        specifier: 3.45.1-build1
         version: 3.45.1-build1
     devDependencies:
       '@optuna/types':
