@@ -87,16 +87,22 @@ export class SQLite3Storage implements OptunaStorage {
       print: console.log,
       printErr: console.log,
     }
-    // locateFile is always set, even when the wasm binary is passed in directly.
-    // Without it sqlite-wasm falls back to `new URL("sqlite3.wasm",
-    // import.meta.url).href`, which throws when this module runs in a Worker that
-    // was started from a VS Code blob: URL.
-    initOptions.locateFile = (path: string) =>
-      path === "sqlite3.wasm" && options.sqliteWasmUrl !== undefined
-        ? options.sqliteWasmUrl
-        : path
+    // Without locateFile, sqlite-wasm resolves sqlite3.wasm as `new
+    // URL("sqlite3.wasm", import.meta.url).href`. A bundler rewrites that to the
+    // asset it emitted, which is what makes the default work on the main thread,
+    // so locateFile is only set when this call actually knows better. Setting it
+    // unconditionally would replace that rewritten URL with a bare relative path
+    // that resolves against the page instead.
     if (options.sqliteWasmBuffer !== undefined) {
       initOptions.wasmBinary = options.sqliteWasmBuffer
+      // The binary is already here. locateFile only keeps sqlite-wasm from
+      // evaluating the fallback above, which throws in a Worker started from a
+      // blob: URL because nothing resolves relative to it. What it returns is
+      // never fetched.
+      initOptions.locateFile = (path: string) => path
+    } else if (options.sqliteWasmUrl !== undefined) {
+      initOptions.locateFile = (path: string) =>
+        path === "sqlite3.wasm" ? (options.sqliteWasmUrl as string) : path
     }
 
     const sqlite3 = await sqlite3InitModule(initOptions)
