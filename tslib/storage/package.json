@@ -13,6 +13,10 @@
     "./worker-client": {
       "types": "./pkg/worker_client.d.ts",
       "import": "./pkg/worker_client.js"
+    },
+    "./sqlite-wasm": {
+      "types": "./pkg/sqlite_wasm.d.ts",
+      "import": "./pkg/sqlite_wasm.js"
     }
   },
   "scripts": {

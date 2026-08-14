@@ -408,12 +408,14 @@ const loadJournalStorage = (
 ): {
   studies: Optuna.Study[]
   errors: { log: string; message: string }[]
+  appliedRecords: number
 } => {
   const decoder = new TextDecoder("utf-8")
   const logs = decoder.decode(arrayBuffer).split("\n")
 
   const journalStorage = new JournalStorage()
   const errors: { log: string; message: string }[] = []
+  let appliedRecords = 0
 
   for (const log of logs) {
     if (log === "") {
@@ -455,6 +457,12 @@ const loadJournalStorage = (
 
     if (parsedLog === undefined) {
       continue
+    }
+
+    // Counted so that a caller can tell a storage with no study from a file
+    // that is not a storage at all.
+    if (parsedLog.op_code in JournalOperation) {
+      appliedRecords++
     }
 
     switch (parsedLog.op_code) {
@@ -504,17 +512,25 @@ const loadJournalStorage = (
   return {
     studies: journalStorage.getStudies(),
     errors,
+    appliedRecords,
   }
 }
 
 export class JournalFileStorage implements OptunaStorage {
   studies: Optuna.Study[]
   errors: { log: string; message: string }[]
+  // How many lines were understood as Journal records, whether or not they left
+  // a study behind. Zero means this file is not a Journal storage.
+  appliedRecords: number
   constructor(arrayBuffer: ArrayBuffer) {
-    const { studies: studiesFromStorage, errors: errorsFromStorage } =
-      loadJournalStorage(arrayBuffer)
+    const {
+      studies: studiesFromStorage,
+      errors: errorsFromStorage,
+      appliedRecords,
+    } = loadJournalStorage(arrayBuffer)
     this.studies = studiesFromStorage
     this.errors = errorsFromStorage
+    this.appliedRecords = appliedRecords
   }
   getStudies = async (): Promise<Optuna.StudySummary[]> => {
     return this.studies

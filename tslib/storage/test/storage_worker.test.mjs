@@ -61,6 +61,25 @@ const readAsset = async (url) => {
   return Uint8Array.from(bytes).buffer
 }
 
+// A SQLite database that Optuna never wrote, built with the same library the
+// backend uses so that it is a real one, header and page layout included.
+const createForeignSQLiteFile = async () => {
+  const { default: sqlite3InitModule } = await import("../pkg/sqlite_init.js")
+  const sqlite3 = await sqlite3InitModule({
+    print: () => {},
+    printErr: () => {},
+    wasmBinary: await readAsset(sqliteWasmUrl),
+    locateFile: (path) => path,
+  })
+  const db = new sqlite3.oo1.DB()
+  try {
+    db.exec("CREATE TABLE unrelated (a)")
+    return sqlite3.capi.sqlite3_js_db_export(db.pointer).slice().buffer
+  } finally {
+    db.close()
+  }
+}
+
 describe("storage worker", () => {
   it("opens Journal storage in the common worker", async () => {
     const storage = await StorageWorkerClient.open(
@@ -91,6 +110,63 @@ describe("storage worker", () => {
       const study = await storage.getStudy(studies[0].id)
       assert.ok(study)
       assert.equal(study.name, studies[0].name)
+    } finally {
+      await storage.close()
+    }
+  })
+
+  it("rejects a file that is neither SQLite nor a Journal", async () => {
+    for (const [label, content] of [
+      [
+        "pretty printed JSON",
+        '{\n  "formatter": {\n    "indentWidth": 2\n  }\n}\n',
+      ],
+      ["JSON on one line", '{"formatter":{"indentWidth":2}}\n'],
+      ["plain text", "hello\n"],
+    ]) {
+      await assert.rejects(
+        StorageWorkerClient.open(
+          new TextEncoder().encode(content).buffer,
+          createWorkerFactory()
+        ),
+        { code: "unsupported_format" },
+        label
+      )
+    }
+  })
+
+  it("rejects an empty file", async () => {
+    await assert.rejects(
+      StorageWorkerClient.open(new ArrayBuffer(0), createWorkerFactory()),
+      { code: "empty_file" }
+    )
+  })
+
+  it("rejects a SQLite database that Optuna never wrote", async () => {
+    await assert.rejects(
+      StorageWorkerClient.open(
+        await createForeignSQLiteFile(),
+        createWorkerFactory(),
+        { buffer: await readAsset(sqliteWasmUrl) }
+      ),
+      { code: "unsupported_format" }
+    )
+  })
+
+  it("opens a Journal storage that has no study left", async () => {
+    // Creating and deleting a study leaves records but no study, which is a
+    // storage with nothing in it rather than a file of the wrong format.
+    const content = [
+      '{"op_code": 0, "workder_id": "0", "study_name": "gone", "directions": [1]}',
+      '{"op_code": 1, "workder_id": "0", "study_id": 0}',
+      "",
+    ].join("\n")
+    const storage = await StorageWorkerClient.open(
+      new TextEncoder().encode(content).buffer,
+      createWorkerFactory()
+    )
+    try {
+      assert.deepEqual(await storage.getStudies(), [])
     } finally {
       await storage.close()
     }

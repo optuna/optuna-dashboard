@@ -8,6 +8,7 @@ import {
   Card,
   CardActionArea,
   CardContent,
+  Chip,
   Container,
   IconButton,
   InputAdornment,
@@ -15,6 +16,7 @@ import {
   SvgIcon,
   TextField,
   Toolbar,
+  Tooltip,
   Typography,
   useTheme,
 } from "@mui/material"
@@ -36,22 +38,36 @@ export const StudyList: FC<{
   toggleColorMode: () => void
 }> = ({ toggleColorMode }) => {
   const theme = useTheme()
-  const { storage } = useContext(StorageContext)
+  const { storage, storageName, closeStorage, reportError } =
+    useContext(StorageContext)
   const [studies, setStudies] = useState<Optuna.StudySummary[]>([])
 
   const [_studyFilterText, setStudyFilterText] = useState<string>("")
   const [sortBy, setSortBy] = useState<"id-asc" | "id-desc">("id-asc")
   const studyFilterText = useDeferredValue(_studyFilterText)
   useEffect(() => {
+    let active = true
     const fetchStudies = async () => {
       if (storage === null) {
+        setStudies([])
         return
       }
-      const studies = await storage.getStudies()
-      setStudies(studies)
+      try {
+        const studies = await storage.getStudies()
+        if (active) {
+          setStudies(studies)
+        }
+      } catch (error) {
+        if (active) {
+          reportError(error)
+        }
+      }
     }
-    fetchStudies()
-  }, [storage])
+    void fetchStudies()
+    return () => {
+      active = false
+    }
+  }, [reportError, storage])
   const filteredStudies = useMemo(() => {
     const studyFilter = (row: Optuna.StudySummary): boolean => {
       const keywords = studyFilterText.split(" ")
@@ -124,6 +140,30 @@ export const StudyList: FC<{
           <Toolbar>
             <Typography variant="h6">Optuna Dashboard (Wasm ver.)</Typography>
             <Box sx={{ flexGrow: 1 }} />
+            {!IS_VSCODE && storageName !== null && (
+              // Says which file the studies below come from, and closing it is
+              // how another file is opened: the loader comes back with it.
+              <Tooltip title="Close this file">
+                <Chip
+                  label={storageName}
+                  variant="outlined"
+                  onDelete={() => {
+                    void closeStorage()
+                  }}
+                  sx={{
+                    marginRight: theme.spacing(1),
+                    maxWidth: "16rem",
+                    color: "inherit",
+                    borderColor: "currentColor",
+                    "& .MuiChip-deleteIcon": {
+                      color: "inherit",
+                      opacity: 0.7,
+                      "&:hover": { opacity: 1 },
+                    },
+                  }}
+                />
+              </Tooltip>
+            )}
             <IconButton
               onClick={() => {
                 toggleColorMode()
@@ -203,7 +243,7 @@ export const StudyList: FC<{
             </Card>
           ))}
         </Box>
-        {!IS_VSCODE && <StorageLoader />}
+        {!IS_VSCODE && storage === null && <StorageLoader />}
       </Container>
     </div>
   )

@@ -136,6 +136,23 @@ export class SQLite3Storage implements OptunaStorage {
     await this.db
   }
 
+  // Whether this database is an Optuna storage at all. Any SQLite file
+  // deserializes, so a database that Optuna never wrote would open here and only
+  // fail on the first query.
+  hasOptunaSchema = async (): Promise<boolean> => {
+    const db = await this.db
+    let tables = 0
+    db.exec({
+      sql:
+        "SELECT name FROM sqlite_master WHERE type = 'table'" +
+        " AND name IN ('studies', 'alembic_version')",
+      callback: () => {
+        tables++
+      },
+    })
+    return tables === 2
+  }
+
   getStudies = async (): Promise<Optuna.StudySummary[]> => {
     if (this.closed) {
       throw new Error("Storage is closed")
