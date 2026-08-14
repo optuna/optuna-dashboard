@@ -1,6 +1,7 @@
 import { Search } from "@mui/icons-material"
 import Brightness4Icon from "@mui/icons-material/Brightness4"
 import Brightness7Icon from "@mui/icons-material/Brightness7"
+import CloseIcon from "@mui/icons-material/Close"
 import SortIcon from "@mui/icons-material/Sort"
 import {
   AppBar,
@@ -36,22 +37,35 @@ export const StudyList: FC<{
   toggleColorMode: () => void
 }> = ({ toggleColorMode }) => {
   const theme = useTheme()
-  const { storage } = useContext(StorageContext)
+  const { storage, closeStorage, reportError } = useContext(StorageContext)
   const [studies, setStudies] = useState<Optuna.StudySummary[]>([])
 
   const [_studyFilterText, setStudyFilterText] = useState<string>("")
   const [sortBy, setSortBy] = useState<"id-asc" | "id-desc">("id-asc")
   const studyFilterText = useDeferredValue(_studyFilterText)
   useEffect(() => {
+    let active = true
     const fetchStudies = async () => {
       if (storage === null) {
+        setStudies([])
         return
       }
-      const studies = await storage.getStudies()
-      setStudies(studies)
+      try {
+        const studies = await storage.getStudies()
+        if (active) {
+          setStudies(studies)
+        }
+      } catch (error) {
+        if (active) {
+          reportError(error)
+        }
+      }
     }
-    fetchStudies()
-  }, [storage])
+    void fetchStudies()
+    return () => {
+      active = false
+    }
+  }, [reportError, storage])
   const filteredStudies = useMemo(() => {
     const studyFilter = (row: Optuna.StudySummary): boolean => {
       const keywords = studyFilterText.split(" ")
@@ -124,6 +138,17 @@ export const StudyList: FC<{
           <Toolbar>
             <Typography variant="h6">Optuna Dashboard (Wasm ver.)</Typography>
             <Box sx={{ flexGrow: 1 }} />
+            {!IS_VSCODE && storage !== null && (
+              <IconButton
+                onClick={() => {
+                  void closeStorage()
+                }}
+                color="inherit"
+                title="Close the current storage file"
+              >
+                <CloseIcon />
+              </IconButton>
+            )}
             <IconButton
               onClick={() => {
                 toggleColorMode()
@@ -203,7 +228,7 @@ export const StudyList: FC<{
             </Card>
           ))}
         </Box>
-        {!IS_VSCODE && <StorageLoader />}
+        {!IS_VSCODE && storage === null && <StorageLoader />}
       </Container>
     </div>
   )

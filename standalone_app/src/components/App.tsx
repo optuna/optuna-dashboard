@@ -11,6 +11,7 @@ import { SnackbarProvider } from "notistack"
 import { FC, useEffect, useMemo, useState } from "react"
 import { HashRouter as Router, Route, Routes } from "react-router-dom"
 
+import { StorageErrorNotifier } from "./StorageErrorNotifier"
 import { StudyDetail } from "./StudyDetail"
 import { StudyList } from "./StudyList"
 
@@ -42,6 +43,7 @@ export const App: FC = () => {
       <CssBaseline />
       <Box>
         <SnackbarProvider maxSnack={3}>
+          <StorageErrorNotifier />
           <Router>
             <Routes>
               <Route
