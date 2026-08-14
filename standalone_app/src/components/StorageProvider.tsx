@@ -32,11 +32,6 @@ export const StorageContext = createContext<{
   loading: boolean
   error: Error | null
   reportError: (error: unknown) => void
-  // Transitional: the VS Code Webview still builds a backend on the UI thread
-  // and hands it over, because its Worker needs asset plumbing that the Webview
-  // build does not have yet. It goes away once the Webview opens storages the
-  // way the standalone app now does.
-  setStorage: (storage: OptunaStorage) => void
 }>({
   storage: null,
   storageName: null,
@@ -45,7 +40,6 @@ export const StorageContext = createContext<{
   loading: false,
   error: null,
   reportError: () => {},
-  setStorage: () => {},
 })
 
 // A viewer owns at most one storage session at a time. The session is kept in a
@@ -153,19 +147,6 @@ export const StorageProvider: FC<{
     [reportError, sqliteWasm, workerFactory]
   )
 
-  const setStorage = useCallback((nextStorage: OptunaStorage) => {
-    const session = sessionRef.current
-    session.generation += 1
-    const currentStorage = session.storage
-    session.storage = nextStorage
-    setActiveStorage(nextStorage)
-    setStorageName(null)
-    setError(null)
-    if (currentStorage !== null) {
-      void currentStorage.close().catch(() => {})
-    }
-  }, [])
-
   useEffect(() => {
     const session = sessionRef.current
     return () => {
@@ -189,7 +170,6 @@ export const StorageProvider: FC<{
         loading,
         error,
         reportError,
-        setStorage,
       }}
     >
       {children}

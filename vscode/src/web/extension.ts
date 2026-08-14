@@ -21,28 +21,35 @@ export function activate(context: vscode.ExtensionContext) {
         }
       )
 
-      const indexJsUri = vscode.Uri.joinPath(
-        context.extensionUri,
-        "assets",
-        "bundle.js"
-      )
+      const asset = (name: string) =>
+        panel.webview.asWebviewUri(
+          vscode.Uri.joinPath(context.extensionUri, "assets", name)
+        )
 
-      const appPath = panel.webview.asWebviewUri(indexJsUri)
-
-      panel.webview.html = getWebviewContent(appPath)
       const handleMessage = async (message: { type: string }) => {
         switch (message.type) {
           case "webviewDidLoad": {
-            await panel.webview.postMessage({
-              type: "optunaStorage",
-              content: toArrayBuffer(await readFile(fileUri)),
-            })
+            try {
+              await panel.webview.postMessage({
+                type: "optunaStorage",
+                content: toArrayBuffer(await readFile(fileUri)),
+                // The Webview starts the Worker and loads the wasm from these,
+                // since it may not hand an extension path to a Worker.
+                workerUri: asset("storage-worker.js").toString(),
+                sqliteWasmUri: asset("sqlite3.wasm").toString(),
+              })
+            } catch (error: unknown) {
+              console.error("Failed to load Optuna storage", error)
+            }
             break
           }
         }
       }
       const messageDisposable = panel.webview.onDidReceiveMessage(handleMessage)
       panel.onDidDispose(() => messageDisposable.dispose())
+      // Last: the Webview asks for the storage as soon as it has loaded, and the
+      // listener above has to be in place by then.
+      panel.webview.html = getWebviewContent(asset("bundle.js"))
     }
   )
 
@@ -73,6 +80,9 @@ function toArrayBuffer(content: Uint8Array): ArrayBuffer {
   )
 }
 
+// 'webviewDidLoad' is posted by the bundle once it listens for messages, rather
+// than from an inline script on DOMContentLoaded: React schedules the effect that
+// installs that listener, so it can run after the event and miss the answer.
 function getWebviewContent(indexJsUri: vscode.Uri): string {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -80,14 +90,6 @@ function getWebviewContent(indexJsUri: vscode.Uri): string {
   <meta charset="utf-8" />
   <title>Optuna Dashboard (Wasm ver.)</title>
   <script type="module" crossorigin src="${indexJsUri}"></script>
-  <script>
-    (function() {
-      const vscodeApi = acquireVsCodeApi();
-      window.addEventListener('DOMContentLoaded', (event) => {
-        vscodeApi.postMessage({ type: 'webviewDidLoad' })
-      })
-    }())
-  </script>
 </head>
 <body>
   <div id="root"></div>
