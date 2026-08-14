@@ -12,6 +12,3 @@ pnpm-lock.yaml
 **/.eslintrc.json
 **/*.map
 **/*.ts
-# The Webview does not negotiate content-encoding, so the gzipped copies that
-# CompressionPlugin writes next to the assets are dead weight in the package.
-assets/**/*.gz
