@@ -2,6 +2,25 @@ import * as Optuna from "@optuna/types"
 import sqlite3InitModule from "./sqlite_init.js"
 import { OptunaStorage } from "./storage"
 
+// Where to take sqlite3.wasm from.
+//
+// sqlite-wasm normally derives that URL from its own script URL, which stops
+// working once this backend runs inside a Worker: a Worker started from a blob:
+// URL, which is how a VS Code Webview has to start one, cannot resolve anything
+// relative to itself. The caller therefore says where the wasm is.
+//
+//   - `sqliteWasmUrl`: sqlite-wasm fetches it. Used where the bundler emits
+//     sqlite3.wasm next to the app and the Worker may fetch it.
+//   - `sqliteWasmBuffer`: the bytes, fetched by the caller. A VS Code Webview
+//     needs this: extension assets are served by the Webview's service worker,
+//     which does not answer requests coming from a blob: URL Worker, so the
+//     document fetches the asset and transfers it.
+//
+// A third option is to inline the wasm into the JavaScript as base64, which is
+// what the VS Code build has done so far. It keeps distribution simple, but it
+// turns 931KB into roughly 1.24MB of JavaScript source that has to be parsed on
+// every load, and it rules out WebAssembly.instantiateStreaming() as well as
+// caching the wasm separately from the bundle.
 export type SQLiteWasmOptions = {
   sqliteWasmUrl?: string
   sqliteWasmBuffer?: ArrayBuffer

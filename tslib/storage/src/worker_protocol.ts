@@ -10,7 +10,7 @@ export type OpenStorageResult = {
   warnings: StorageWarning[]
 }
 
-export type StorageWorkerRequestWithoutId =
+export type StorageWorkerRequestBody =
   | {
       type: "open"
       buffer: ArrayBuffer
@@ -21,14 +21,13 @@ export type StorageWorkerRequestWithoutId =
   | { type: "getStudy"; studyId: number }
   | { type: "close" }
 
-export type StorageWorkerRequest = StorageWorkerRequestWithoutId & {
+// The body plus its correlation ID. The two are separate types because Omit<>
+// over a discriminated union collapses it into a single object type.
+export type StorageWorkerRequest = StorageWorkerRequestBody & {
   id: number
 }
 
-export type StorageWorkerRequestType = StorageWorkerRequestWithoutId["type"]
-
-export type StorageWorkerRequestOf<K extends StorageWorkerRequestType> =
-  Extract<StorageWorkerRequestWithoutId, { type: K }>
+export type StorageWorkerRequestType = StorageWorkerRequestBody["type"]
 
 // The result each request answers with. Both ends derive their types from this
 // map, so adding a request type cannot leave the two sides disagreeing.
