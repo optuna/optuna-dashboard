@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import sys
+import optuna
 import os.path
 from pathlib import Path
 import re
@@ -80,7 +82,40 @@ def guess_storage_from_url(storage_url: str) -> BaseStorage:
 
 
 def get_rdb_storage(storage_url: str) -> RDBStorage:
-    return RDBStorage(storage_url, skip_compatibility_check=True, skip_table_creation=True)
+    """Create an RDBStorage instance for the dashboard (read-only viewer).
+
+    Raises SystemExit with a clear message if the database schema has not been
+    initialized (i.e., no Optuna study has ever been run against this storage).
+    """
+    try:
+        return RDBStorage(
+            storage_url,
+            skip_compatibility_check=True,
+            skip_table_creation=True,
+        )
+    except optuna.exceptions.StorageInternalError as e:
+        # This typically happens when the database exists but has no Optuna schema
+        # (e.g., a brand-new empty SQLite file). Provide a human-readable error
+        # instead of a raw SQLAlchemy traceback.
+        err_msg = str(e).lower()
+        cause_msg = str(e.__cause__).lower() if e.__cause__ else ""
+        if (
+            "no such table" in err_msg
+            or "version_info" in err_msg
+            or "no such table" in cause_msg
+            or "version_info" in cause_msg
+        ):
+            print(
+                f"Error: The database at '{storage_url}' does not contain an Optuna schema.\n"
+                "Please run an Optuna study first to initialize the database:\n\n"
+                "    import optuna\n"
+                "    study = optuna.create_study(storage='<your-storage-url>')\n"
+                "    study.optimize(objective, n_trials=1)\n\n"
+                "Then re-run optuna-dashboard.",
+                file=sys.stderr,
+            )
+            sys.exit(1)
+        raise  # Re-raise unexpected StorageInternalError variants unchanged
 
 
 def get_journal_file_storage(file_path: str) -> JournalStorage:
