@@ -11,4 +11,4 @@ js-sys = "0.3.77"
 serde-wasm-bindgen = "0.6"
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]

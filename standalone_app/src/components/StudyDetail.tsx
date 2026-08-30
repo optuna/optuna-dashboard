@@ -65,14 +65,18 @@ export const StudyDetail: FC<{
     if (trial.values === undefined) {
       return false
     }
+    // fANOVA has no variance to attribute to a non-finite objective, so such a
+    // trial is skipped here rather than rejected by the WASM module later. NaN
+    // used to slip through the two Infinity comparisons this replaces.
     return (
       trial.values.length > objectiveId &&
-      trial.values[objectiveId] !== Infinity &&
-      trial.values[objectiveId] !== -Infinity
+      Number.isFinite(trial.values[objectiveId])
     )
   }
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
+    let active = true
+
     async function run_wasm() {
       if (study === null) {
         return
@@ -95,17 +99,22 @@ export const StudyDetail: FC<{
           }
 
           const features = study.intersection_search_space.map((s) =>
-            filteredTrials
-              .map(
-                (t) =>
-                  t.params.find((p) => p.name === s.name) as Optuna.TrialParam
-              )
-              .map((p) => p.param_internal_value)
+            filteredTrials.map((t) => {
+              const param = t.params.find((p) => p.name === s.name)
+              if (param === undefined) {
+                // The intersection search space should guarantee this, so a
+                // miss means the study is inconsistent: say so instead of
+                // reading param_internal_value off undefined.
+                throw new Error(
+                  `Trial ${t.number} has no value for the parameter "${s.name}"`
+                )
+              }
+              return param.param_internal_value
+            })
           )
           const values = filteredTrials.map(
             (t) => t.values?.[objectiveId] as number
           )
-          // TODO: handle errors thrown by wasm_fanova_calculate
           const importance = wasm_fanova_calculate(features, values)
           return study.intersection_search_space.map((s, i) => ({
             name: s.name,
@@ -113,11 +122,33 @@ export const StudyDetail: FC<{
           }))
         }
       )
-      setImportance(x)
+      if (active) {
+        setImportance(x)
+      }
     }
 
-    run_wasm()
-  }, [study])
+    // init() rejects when the WASM module cannot be loaded, and
+    // wasm_fanova_calculate() throws when the module rejects the trials it was
+    // given. Neither was handled, so a failure left the panel empty with the
+    // reason visible only in the console.
+    run_wasm().catch((e: unknown) => {
+      if (!active) {
+        return
+      }
+      setImportance([])
+      reportError(
+        new Error(
+          `Failed to calculate hyperparameter importance: ${
+            e instanceof Error ? e.message : String(e)
+          }`
+        )
+      )
+    })
+
+    return () => {
+      active = false
+    }
+  }, [study, reportError])
 
   return (
     <>

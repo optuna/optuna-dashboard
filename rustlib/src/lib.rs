@@ -1,31 +1,31 @@
-use fanova::{FanovaOptions, RandomForestOptions};
+mod importance;
+
+use importance::{calculate_importance, ImportanceError};
 use js_sys::Array;
 use serde_wasm_bindgen::from_value;
 use wasm_bindgen::prelude::*;
 
+/// Calculates the fANOVA importance of each hyperparameter.
+///
+/// `features` is an array of parameters, each an array holding that parameter's
+/// internal value for every trial; `targets` holds one objective value per
+/// trial. Throws a JavaScript `Error` describing the offending index when the
+/// input is malformed.
 #[wasm_bindgen]
 pub fn wasm_fanova_calculate(features: Array, targets: Array) -> Result<Vec<f64>, JsError> {
-    let features_vec: Vec<Vec<f64>> = features
+    let features_vec = features
         .iter()
-        .map(|x| from_value::<Vec<f64>>(x))
-        .collect::<Result<_, _>>()
-        .map_err(|_| JsError::new("features must be of type number[][]"))?;
-    let targets_vec: Vec<f64> = targets
+        .enumerate()
+        .map(|(feature, x)| {
+            from_value::<Vec<f64>>(x)
+                .map_err(|_| ImportanceError::FeatureNotNumberArray { feature })
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    let targets_vec = targets
         .iter()
-        .map(|x| x.as_f64())
-        .collect::<Option<_>>()
-        .ok_or(JsError::new("targets must be of type number[]"))?;
+        .enumerate()
+        .map(|(trial, x)| x.as_f64().ok_or(ImportanceError::TargetNotNumber { trial }))
+        .collect::<Result<Vec<_>, _>>()?;
 
-    let mut fanova = FanovaOptions::new()
-        .random_forest(RandomForestOptions::new().seed(0))
-        .fit(
-            features_vec.iter().map(|x| x.as_slice()).collect(),
-            &targets_vec,
-        )
-        .map_err(|e| JsError::new(&format!("failed to build fANOVA model: {}", e)))?;
-    let importances = (0..features_vec.len())
-        .map(|i| fanova.quantify_importance(&[i]).mean)
-        .collect::<Vec<_>>();
-
-    Ok(importances)
+    Ok(calculate_importance(&features_vec, &targets_vec)?)
 }
