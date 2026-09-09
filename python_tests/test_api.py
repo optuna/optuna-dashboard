@@ -326,9 +326,10 @@ class APITestCase(TestCase):
             note_ver_key(trial_id=0): expected_request_body["version"],
             f"{note_str_key_prefix(trial_id=0)}{0}": expected_request_body["body"],
         }
+        system_attrs = study._storage.get_study_system_attrs(study._study_id)
         for k, v in expected_system_attrs.items():
-            assert k in study.system_attrs
-            assert study.system_attrs[k] == v
+            assert k in system_attrs
+            assert system_attrs[k] == v
 
     def test_save_trial_note(self) -> None:
         request_body: dict[str, int | str] = {"body": "Test note.", "version": 1}
@@ -338,20 +339,23 @@ class APITestCase(TestCase):
             note_ver_key(0): request_body["version"],
             f"{note_str_key_prefix(0)}{0}": request_body["body"],
         }
+        system_attrs = study._storage.get_study_system_attrs(study._study_id)
         for k, v in expected_system_attrs.items():
-            assert k in study.system_attrs
-            assert study.system_attrs[k] == v
+            assert k in system_attrs
+            assert system_attrs[k] == v
 
     def test_save_trial_note_with_wrong_version(self) -> None:
         request_body: dict[str, int | str] = {"body": "Test note.", "version": 0}
         status, study = self._save_trial_note(request_body)
         assert status == 409
-        assert note_ver_key(0) not in study.system_attrs
+        system_attrs = study._storage.get_study_system_attrs(study._study_id)
+        assert note_ver_key(0) not in system_attrs
 
     def test_save_trial_note_empty(self) -> None:
         status, study = self._save_trial_note(request_body={})
         assert status == 400
-        assert note_ver_key(0) not in study.system_attrs
+        system_attrs = study._storage.get_study_system_attrs(study._study_id)
+        assert note_ver_key(0) not in system_attrs
 
     @pytest.mark.skipif(not botorch_is_available, reason="botorch is not installed")
     @pytest.mark.skipif(

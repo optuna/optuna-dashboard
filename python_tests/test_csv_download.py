@@ -7,6 +7,7 @@ import optuna
 from optuna.trial import TrialState
 from optuna_dashboard._app import create_app
 import pytest
+from optuna.study import StudyDirection
 
 from .wsgi_client import send_request
 
@@ -91,7 +92,11 @@ def test_download_csv_multi_obj(is_multi_obj: bool) -> None:
         return x**2 + y
 
     storage = optuna.storages.InMemoryStorage()
-    directions = ["minimize", "minimize"] if is_multi_obj else ["minimize"]
+    directions: list[StudyDirection] = (
+        [StudyDirection.MINIMIZE, StudyDirection.MINIMIZE]
+        if is_multi_obj
+        else [StudyDirection.MINIMIZE]
+    )
     study = optuna.create_study(storage=storage, directions=directions)
     optuna.logging.set_verbosity(optuna.logging.ERROR)
     study.optimize(objective, n_trials=10)
