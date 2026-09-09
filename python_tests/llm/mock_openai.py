@@ -28,17 +28,13 @@ class MockOpenAITransport:
         self._response_json: Any = None
         self._expected_url_path: str | None = None
 
-    def set_response(
-        self, status_code: int, response_json: Any, expected_url_path: str
-    ) -> None:
+    def set_response(self, status_code: int, response_json: Any, expected_url_path: str) -> None:
         self._status_code = status_code
         self._response_json = response_json
         self._expected_url_path = expected_url_path
 
     def create_client(self) -> Any:
-        return self._httpx.Client(
-            transport=self._httpx.MockTransport(self._handle_request)
-        )
+        return self._httpx.Client(transport=self._httpx.MockTransport(self._handle_request))
 
     def _handle_request(self, request: Any) -> Any:
         assert request.url.path == self._expected_url_path
