@@ -1,7 +1,6 @@
 import {
   APIClient,
   APIMeta,
-  CompareStudiesPlotType,
   CreateNewStudyResponse,
   FeedbackComponentType,
   GeneratePlotlyGraphQueryRequest,
@@ -298,14 +297,6 @@ export class JupyterlabAPIClient extends APIClient {
     requestAPI<PlotResponse>(
       `/api/studies/${studyId}/plot/${plotType}`
     ).then<PlotResponse>((res) => res)
-  getCompareStudiesPlot = (
-    studyIds: number[],
-    plotType: CompareStudiesPlotType
-  ): Promise<PlotResponse> => {
-    return requestAPI<PlotResponse>(`/api/compare-studies/plot/${plotType}`, {
-      body: JSON.stringify({ study_ids: studyIds }),
-    }).then<PlotResponse>((res) => res)
-  }
   callTrialFilterQuery(
     request: TrialFilterQueryRequest
   ): Promise<TrialFilterQueryResponse> {

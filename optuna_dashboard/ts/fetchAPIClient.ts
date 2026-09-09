@@ -2,7 +2,6 @@ import * as Optuna from "@optuna/types"
 import {
   APIClient,
   APIMeta,
-  CompareStudiesPlotType,
   CreateNewStudyResponse,
   FetchAPIClientError,
   GeneratePlotlyGraphQueryRequest,
@@ -373,18 +372,6 @@ export class FetchAPIClient extends APIClient {
   ): Promise<PlotResponse> => {
     const res = await fetch(
       `${this.baseURL}/api/studies/${studyId}/plot/${plotType}`
-    )
-    return this.handleResponse<PlotResponse>(res)
-  }
-
-  getCompareStudiesPlot = async (
-    studyIds: number[],
-    plotType: CompareStudiesPlotType
-  ): Promise<PlotResponse> => {
-    const params = new URLSearchParams()
-    studyIds.forEach((id) => params.append("study_ids", String(id)))
-    const res = await fetch(
-      `${this.baseURL}/api/compare-studies/plot/${plotType}?${params}`
     )
     return this.handleResponse<PlotResponse>(res)
   }

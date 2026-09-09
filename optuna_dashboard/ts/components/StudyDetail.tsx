@@ -11,17 +11,21 @@ import {
   useTheme,
 } from "@mui/material"
 import Grid from "@mui/material/Grid"
+import { PlotEdf } from "@optuna/react"
 import { FC, useMemo } from "react"
 import { Link, useParams } from "react-router-dom"
 
 import { useConstants } from "../constantsProvider"
 import { useLLMIsAvailable } from "../hooks/useAPIMeta"
 import { useLatestStudyDetail } from "../hooks/useLatestStudyDetail"
-import { useStudyIsPreferential, useStudyName } from "../state"
+import {
+  usePlotlyColorTheme,
+  useStudyIsPreferential,
+  useStudyName,
+} from "../state"
 import { AppDrawer } from "./AppDrawer"
 import { GraphByLLM } from "./GraphByLLM"
 import { Contour } from "./GraphContour"
-import { GraphEdf } from "./GraphEdf"
 import { GraphRank } from "./GraphRank"
 import { GraphSlice } from "./GraphSlice"
 import { StudyNote } from "./Note"
@@ -62,6 +66,7 @@ export const StudyDetail: FC<{
   const studyId = useURLVars()
   const studyName = useStudyName(studyId)
   const isPreferential = useStudyIsPreferential(studyId)
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
 
   const studyDetail = useLatestStudyDetail({
     studyId: studyId,
@@ -131,7 +136,11 @@ export const StudyDetail: FC<{
                 <Grid item xs={6} key={i}>
                   <Card>
                     <CardContent>
-                      <GraphEdf studies={[studyDetail]} objectiveId={i} />
+                      <PlotEdf
+                        studies={[studyDetail]}
+                        objectiveId={i}
+                        colorTheme={colorTheme}
+                      />
                     </CardContent>
                   </Card>
                 </Grid>
