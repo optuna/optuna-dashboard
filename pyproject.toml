@@ -9,7 +9,7 @@ readme = "README.md"
 authors = [
     { name = "Masashi Shibata", "email" = "mshibata@preferred.jp" }
 ]
-requires-python = ">=3.8"
+requires-python = ">=3.10"
 license = {text = "MIT License"}
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -17,8 +17,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -41,9 +39,9 @@ preferential = [
 # This field is referrenced by .readthedocs.yaml.
 docs = [
     "boto3",
-    "torch; python_version>='3.9'",
-    "botorch; python_version>='3.9'",
-    "openai<3.0.0",
+    "torch",
+    "botorch",
+    "openai>=3.0.0",
     "streamlit",
     "sphinx",
     "sphinx_rtd_theme",
@@ -84,7 +82,7 @@ exclude = ["optuna_dashboard.node_modules*", "optuna_dashboard.ts*"]
 
 [tool.ruff]
 line-length = 99
-target-version = "py38"
+target-version = "py310"
 exclude = [
     ".eggs",
     ".git",
@@ -122,17 +120,16 @@ markers = [
 
 [dependency-groups]
 test = [
-    "torch; python_version>='3.9'",
-    "botorch; python_version>='3.9'",
+    "torch",
+    "botorch",
     "httpx",
     "streamlit",
     "boto3",
     "coverage",
-    "openai<3.0.0",
+    "openai>=3.0.0",
     "packaging",
     "plotly",
     "pytest",
-    "respx",
     "streamlit",
     "scikit-learn",
     "moto[s3]",
@@ -142,5 +139,6 @@ lint = [
     "ruff",
     "mypy",
     "mypy-boto3-s3",
-    "openai<3.0.0",
+    "openai>=3.0.0",
 ]
+
