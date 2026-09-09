@@ -19,6 +19,7 @@ import ListItem from "@mui/material/ListItem"
 import ListItemButton from "@mui/material/ListItemButton"
 import ListItemText from "@mui/material/ListItemText"
 import ListSubheader from "@mui/material/ListSubheader"
+import { PlotEdf } from "@optuna/react"
 import * as Optuna from "@optuna/types"
 import { useAtomValue } from "jotai"
 import { useSnackbar } from "notistack"
@@ -30,9 +31,9 @@ import { StudySummary } from "ts/types/optuna"
 import { actionCreator } from "../action"
 import { useConstants } from "../constantsProvider"
 import { studyDetailsState, studySummariesState } from "../state"
+import { usePlotlyColorTheme } from "../state"
 import { useQuery } from "../urlQuery"
 import { AppDrawer } from "./AppDrawer"
-import { GraphEdf } from "./GraphEdf"
 import { GraphHistory } from "./GraphHistory"
 
 const useQueriedStudies = (
@@ -272,6 +273,7 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
   const studyDetails = useAtomValue(studyDetailsState)
   const [logScale, setLogScale] = useState<boolean>(false)
   const [includePruned, setIncludePruned] = useState<boolean>(true)
+  const colorTheme = usePlotlyColorTheme(theme.palette.mode)
 
   const handleLogScaleChange = () => {
     setLogScale(!logScale)
@@ -349,7 +351,11 @@ const StudiesGraph: FC<{ studies: StudySummary[] }> = ({ studies }) => {
               <Grid item xs={6} key={i}>
                 <Card>
                   <CardContent>
-                    <GraphEdf studies={showStudyDetails} objectiveId={i} />
+                    <PlotEdf
+                      studies={showStudyDetails}
+                      objectiveId={i}
+                      colorTheme={colorTheme}
+                    />
                   </CardContent>
                 </Card>
               </Grid>

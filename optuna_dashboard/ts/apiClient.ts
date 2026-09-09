@@ -134,10 +134,6 @@ export enum PlotType {
   ParetoFront = "pareto_front",
 }
 
-export enum CompareStudiesPlotType {
-  EDF = "edf",
-}
-
 export type TrialFilterQueryRequest = {
   user_query: string
   last_response?: {
@@ -315,10 +311,6 @@ export abstract class APIClient {
     component_type: FeedbackComponentType
   ): Promise<void>
   abstract getPlot(studyId: number, plotType: PlotType): Promise<PlotResponse>
-  abstract getCompareStudiesPlot(
-    studyIds: number[],
-    plotType: CompareStudiesPlotType
-  ): Promise<PlotResponse>
   abstract callTrialFilterQuery(
     request: TrialFilterQueryRequest
   ): Promise<TrialFilterQueryResponse>
