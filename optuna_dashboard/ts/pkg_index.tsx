@@ -1,7 +1,6 @@
 import {
   APIClient,
   APIMeta,
-  CompareStudiesPlotType,
   CreateNewStudyResponse,
   GeneratePlotlyGraphQueryRequest,
   GeneratePlotlyGraphQueryResponse,
@@ -67,7 +66,6 @@ export {
   GeneratePlotlyGraphQueryResponse,
   ReGeneratePlotlyGraphQueryRequest,
   ReGeneratePlotlyGraphQueryResponse,
-  CompareStudiesPlotType,
   PlotType,
   PlotResponse,
 }
