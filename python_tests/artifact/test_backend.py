@@ -50,7 +50,7 @@ def init_storage_with_artifact_meta() -> BaseStorage:
         "baz": "baz",
     }
     for key, value in study_system_attrs.items():
-        study.set_system_attr(key, value)
+        storage.set_study_system_attr(study._study_id, key, value)
 
     trial_system_attrs = {
         "artifacts:id2": '{"artifact_id": "id2", "filename": "baz.txt"}',
@@ -58,7 +58,7 @@ def init_storage_with_artifact_meta() -> BaseStorage:
     }
     for key, value in trial_system_attrs.items():
         trial = study.ask()
-        trial.set_system_attr(key, value)
+        storage.set_trial_system_attr(trial._trial_id, key, value)
         study.tell(trial, 0.0)
 
     return storage

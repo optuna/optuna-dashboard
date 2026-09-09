@@ -31,7 +31,8 @@ def render_trial_note(study: optuna.Study, trial: FrozenTrial) -> None:
         trial: The optuna trial object to get note.
     """
 
-    note = get_note_from_system_attrs(study.system_attrs, trial._trial_id)
+    system_attrs = study._storage.get_study_system_attrs(study._study_id)
+    note = get_note_from_system_attrs(system_attrs, trial._trial_id)
     st.markdown(note["body"], unsafe_allow_html=True)
 
 
@@ -107,7 +108,8 @@ def render_user_attr_form_widgets(
         ValueError: If 'output_type' of form widgets is not 'user_attr'.
     """
 
-    form_widgets_dict = get_form_widgets_json(study.system_attrs)
+    system_attrs = study._storage.get_study_system_attrs(study._study_id)
+    form_widgets_dict = get_form_widgets_json(system_attrs)
     if form_widgets_dict is None:
         raise ValueError("No form widgets registered.")
     if form_widgets_dict["output_type"] != "user_attr":
@@ -154,7 +156,8 @@ def render_objective_form_widgets(
         ValueError: If any submitted values cannot be converted to float.
     """
 
-    form_widgets_dict = get_form_widgets_json(study.system_attrs)
+    system_attrs = study._storage.get_study_system_attrs(study._study_id)
+    form_widgets_dict = get_form_widgets_json(system_attrs)
     if form_widgets_dict is None:
         raise ValueError("No form widgets registered.")
     if form_widgets_dict["output_type"] != "objective":
