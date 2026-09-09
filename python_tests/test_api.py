@@ -112,6 +112,30 @@ class APITestCase(TestCase):
         )
         self.assertEqual(status, 400)
 
+    def test_get_plots_of_multi_objective_study(self) -> None:
+        storage = optuna.storages.InMemoryStorage()
+        study = optuna.create_study(
+            storage=storage,
+            directions=[StudyDirection.MINIMIZE, StudyDirection.MAXIMIZE],
+        )
+
+        def multi_objective(trial: optuna.trial.Trial) -> tuple[float, float]:
+            x = trial.suggest_float("x", 0, 1)
+            return x, 1 - x
+
+        study.optimize(multi_objective, n_trials=5)
+        app = create_app(storage)
+
+        for plot_type in ["contour", "slice", "parallel_coordinate", "rank", "edf"]:
+            with self.subTest(plot_type=plot_type):
+                status, _, _ = send_request(
+                    app,
+                    f"/api/studies/{study._study_id}/plot/{plot_type}",
+                    "GET",
+                    content_type="application/json",
+                )
+                self.assertEqual(status, 200)
+
     @pytest.mark.skipif(not botorch_is_available, reason="botorch is not installed")
     @pytest.mark.skipif(
         version.parse(optuna.__version__) < version.parse("3.2.0"),

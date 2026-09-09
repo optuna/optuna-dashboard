@@ -23,6 +23,7 @@ import optuna
 from optuna.exceptions import DuplicatedStudyError
 from optuna.storages import BaseStorage
 from optuna.study import StudyDirection
+from optuna.trial import FrozenTrial
 from optuna.trial import TrialState
 
 from . import _note as note
@@ -326,20 +327,32 @@ def create_app(
         study = optuna.load_study(
             study_name=storage.get_study_name_from_id(study_id), storage=storage
         )
+
+        if len(study.directions) == 1:
+            target = None
+        else:
+            # TODO: Allow callers to select which objective is used for multi-objective plots.
+            def target(trial: FrozenTrial) -> float:
+                assert trial.values is not None
+                return trial.values[0]
+
+        target_name = "Objective 0" if target is not None else "Objective Value"
         if plot_type == "contour":
-            fig = optuna.visualization.plot_contour(study)
+            fig = optuna.visualization.plot_contour(study, target=target, target_name=target_name)
         elif plot_type == "slice":
-            fig = optuna.visualization.plot_slice(study)
+            fig = optuna.visualization.plot_slice(study, target=target, target_name=target_name)
             # Note: Optuna's implementation forces a minimum width.
             # We override it to prevent the figure from going beyond the screen width.
             # https://github.com/optuna/optuna/blob/2abd0ae81eaf3683ce1dd580429904c8a705300d/optuna/visualization/_slice.py#L237-L239
             fig.update_layout(width=None)
         elif plot_type == "parallel_coordinate":
-            fig = optuna.visualization.plot_parallel_coordinate(study)
+            fig = optuna.visualization.plot_parallel_coordinate(
+                study, target=target, target_name=target_name
+            )
         elif plot_type == "rank":
-            fig = optuna.visualization.plot_rank(study)
+            fig = optuna.visualization.plot_rank(study, target=target, target_name=target_name)
         elif plot_type == "edf":
-            fig = optuna.visualization.plot_edf(study)
+            fig = optuna.visualization.plot_edf(study, target=target, target_name=target_name)
         elif plot_type == "timeline":
             fig = optuna.visualization.plot_timeline(study)
         elif plot_type == "pareto_front":
