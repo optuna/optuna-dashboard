@@ -14,7 +14,7 @@ Installation
 Prerequisite
 ~~~~~~~~~~~~
 
-Optuna Dashboard supports Python 3.8 or newer.
+Optuna Dashboard supports Python 3.10 or newer.
 
 
 Installing from PyPI
@@ -232,4 +232,3 @@ or install the code-server extension via `Open VSX <https://open-vsx.org/extensi
 
 To use, right-click the SQLite3 files (``*.db`` or ``*.sqlite3``) in the file explorer and select the "Open in Optuna Dashboard" from the dropdown menu.
 This extension leverages the browser-only version of Optuna Dashboard, so the same limitations apply.
-
