@@ -49,7 +49,7 @@ docs = [
 
 [tool.uv]
 exclude-newer = "5 days"
-exclude-newer-package = { torch = false, optuna = false, optuna-integration = false }
+exclude-newer-package = { torch = false, optuna = false, rustuna = false, optuna-integration = false }
 
 [[tool.uv.index]]
 name = "pytorch-cpu"
@@ -140,5 +140,6 @@ lint = [
     "mypy",
     "mypy-boto3-s3",
     "openai>=3.0.0",
+    "rustuna; python_version >= '3.11'",
 ]
 

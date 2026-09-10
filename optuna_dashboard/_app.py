@@ -62,6 +62,7 @@ if typing.TYPE_CHECKING:
     from typing import Any
     from typing import Literal
 
+    from rustuna.storages import StorageProtocol
     from _typeshed.wsgi import WSGIApplication
     from optuna.artifacts._protocol import ArtifactStore
     from optuna_dashboard.artifact.protocol import ArtifactBackend
@@ -641,7 +642,7 @@ def create_app(
 
 
 def run_server(
-    storage: str | BaseStorage,
+    storage: str | BaseStorage | StorageProtocol,
     host: str = "localhost",
     port: int = 8080,
     artifact_store: ArtifactStore | ArtifactBackend | None = None,
@@ -682,7 +683,7 @@ def run_server(
 
 
 def wsgi(
-    storage: str | BaseStorage,
+    storage: str | BaseStorage | StorageProtocol,
     artifact_store: ArtifactBackend | ArtifactStore | None = None,
     *,
     artifact_backend: ArtifactBackend | None = None,
