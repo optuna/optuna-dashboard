@@ -4,13 +4,20 @@ import os.path
 from pathlib import Path
 import re
 from typing import TYPE_CHECKING
+from types import ModuleType
 
 from optuna.storages import BaseStorage
 from optuna.storages import RDBStorage
 
+rustuna: ModuleType | None
+try:
+    import rustuna
+except ImportError:
+    rustuna = None
 
 if TYPE_CHECKING:
     from optuna.storages import JournalStorage
+    from rustuna.storages import StorageProtocol
 
 
 # The code to declare `rfc1738_pattern` variable is quoted from the source code
@@ -36,20 +43,30 @@ rfc1738_pattern = re.compile(
 )
 
 
-def get_storage(storage: str | BaseStorage, storage_class: str | None = None) -> BaseStorage:
+def get_storage(
+    storage: str | BaseStorage | StorageProtocol, storage_class: str | None = None
+) -> BaseStorage:
     if isinstance(storage, BaseStorage):
         return storage
 
-    if storage_class:
-        if storage_class == "RDBStorage":
-            return get_rdb_storage(storage)
-        if storage_class == "JournalRedisStorage":
-            return get_journal_redis_storage(storage)
-        if storage_class == "JournalFileStorage":
-            return get_journal_file_storage(storage)
-        raise ValueError("Unexpected storage_class")
+    if isinstance(storage, str):
+        if storage_class:
+            if storage_class == "RDBStorage":
+                return get_rdb_storage(storage)
+            if storage_class == "JournalRedisStorage":
+                return get_journal_redis_storage(storage)
+            if storage_class == "JournalFileStorage":
+                return get_journal_file_storage(storage)
+            raise ValueError("Unexpected storage_class")
+        return guess_storage_from_url(storage)
 
-    return guess_storage_from_url(storage)
+    if rustuna is not None:
+        from rustuna.converter import ToOptunaStorage
+
+        if storage.may_omit_trials():
+            raise ValueError("apply_discard option is not supported.")
+        return ToOptunaStorage(storage)
+    raise ValueError("No storage matched.")
 
 
 def _has_sqlite_header(storage_url: str) -> bool:
