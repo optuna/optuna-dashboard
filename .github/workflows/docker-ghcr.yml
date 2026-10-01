@@ -17,7 +17,7 @@ jobs:
       - run: echo "REPO=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
       - run: echo "TAG=${GITHUB_REF##*/}" >> $GITHUB_ENV
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8  # v4.2.0
+        uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1  # v4.4.0
         with:
           # Multi-platform manifest digest for tonistiigi/binfmt:latest (2026/08/12).
           image: docker.io/tonistiigi/binfmt@sha256:400a4873b838d1b89194d982c45e5fb3cda4593fbfd7e08a02e76b03b21166f0
