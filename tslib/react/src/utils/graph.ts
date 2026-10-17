@@ -19,12 +19,18 @@ const unique = (array: any[]) => {
   return Array.from(knownElements.keys())
 }
 
+// Plotly hides a hover label that is taller than the figure, so we limit the
+// number of parameters shown in the hover text.
+// See https://github.com/optuna/optuna-dashboard/issues/1275
+export const MAX_PARAMS_IN_HOVERTEXT = 10
+
 export const makeHovertext = (trial: Optuna.Trial): string => {
-  return JSON.stringify(
+  const shownParams = trial.params.slice(0, MAX_PARAMS_IN_HOVERTEXT)
+  const hovertext = JSON.stringify(
     {
       number: trial.number,
       values: trial.values,
-      params: trial.params.reduce<{
+      params: shownParams.reduce<{
         [key: string]: string
       }>((obj, p) => {
         obj[p.name] = p.param_external_value
@@ -34,6 +40,11 @@ export const makeHovertext = (trial: Optuna.Trial): string => {
     undefined,
     "  "
   ).replace(/\n/g, "<br>")
+  const nHiddenParams = trial.params.length - shownParams.length
+  if (nHiddenParams > 0) {
+    return `${hovertext}<br>... and ${nHiddenParams} more params`
+  }
+  return hovertext
 }
 
 export const getAxisInfo = (
