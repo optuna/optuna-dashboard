@@ -16,7 +16,7 @@
     "@types/react-router-dom": "^5.3.3",
     "@vitejs/plugin-react": "^4.3.4",
     "typescript": "catalog:",
-    "vite": "^7.3.5"
+    "vite": "^7.3.7"
   },
   "dependencies": {
     "@emotion/react": "catalog:",
