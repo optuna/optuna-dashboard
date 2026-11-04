@@ -249,8 +249,8 @@ const plotContour = (
     })
   }
 
-  const xAxis = getAxisInfo(trials, xParam)
-  const yAxis = getAxisInfo(trials, yParam)
+  const xAxis = getAxisInfo(filteredTrials, xParam)
+  const yAxis = getAxisInfo(filteredTrials, yParam)
   const xIndices = xAxis.indices
   const yIndices = yAxis.indices
 
