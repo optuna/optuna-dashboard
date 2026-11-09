@@ -27,21 +27,30 @@ const makeTrial = (nParams: number): Optuna.Trial => ({
 })
 
 describe("makeHovertext", () => {
-  test("shows all params when there are only a few", () => {
-    const hovertext = makeHovertext(makeTrial(3))
-    for (let i = 0; i < 3; i++) {
-      expect(hovertext).toContain(`"param_${i}"`)
+  test.each([0, 3, MAX_PARAMS_IN_HOVERTEXT])(
+    "shows all params when there are %i params",
+    (nParams) => {
+      const trial = makeTrial(nParams)
+      const hovertext = makeHovertext(trial)
+      expect(hovertext).toContain('"number": 0')
+      expect(hovertext).toContain('"values": [<br>    1<br>  ]')
+      for (let i = 0; i < nParams; i++) {
+        expect(hovertext).toContain(`"param_${i}"`)
+      }
+      expect(hovertext).not.toContain("more params")
     }
-    expect(hovertext).not.toContain("more params")
-  })
+  )
 
-  test("limits the number of params shown", () => {
-    const nParams = MAX_PARAMS_IN_HOVERTEXT + 20
-    const hovertext = makeHovertext(makeTrial(nParams))
+  test.each([1, 20])("summarizes %i hidden params", (nHiddenParams) => {
+    const nParams = MAX_PARAMS_IN_HOVERTEXT + nHiddenParams
+    const trial = makeTrial(nParams)
+    const originalParams = structuredClone(trial.params)
+    const hovertext = makeHovertext(trial)
     for (let i = 0; i < MAX_PARAMS_IN_HOVERTEXT; i++) {
       expect(hovertext).toContain(`"param_${i}"`)
     }
     expect(hovertext).not.toContain(`"param_${MAX_PARAMS_IN_HOVERTEXT}"`)
-    expect(hovertext).toContain("... and 20 more params")
+    expect(hovertext).toContain(`... and ${nHiddenParams} more params`)
+    expect(trial.params).toEqual(originalParams)
   })
 })
