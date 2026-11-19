@@ -275,7 +275,7 @@ The function ``start_optimization`` defines our loop for HITL optimization to ge
 
 In the ``main`` function, at first, the locations of the Artifact Store is set.
 
-* At #1, the `FileSystemArtifactStore <https://optuna.readthedocs.io/en/stable/reference/generated/optuna.artifacts.FileSystemArtifactStore.html>`_ is created, which is one of the Artifact Store options used in the Optuna. Artifact Store is used to store artifacts (data, files, etc.) generated during Optuna trials. For more information, please refer to the API Reference.
+* At #1, the `FileSystemArtifactStore <https://optuna.readthedocs.io/en/stable/reference/artifacts.html#optuna.artifacts.FileSystemArtifactStore>`_ is created, which is one of the Artifact Store options used in the Optuna. Artifact Store is used to store artifacts (data, files, etc.) generated during Optuna trials. For more information, please refer to the API Reference.
 * At #2, `start_optimization()` function, which is described above, is called.
 
 After that, two folders are created, artifact and tmp, and then ``start_optimization`` function is called to start the HITL optimization using Optuna.

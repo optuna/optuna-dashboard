@@ -42,7 +42,7 @@ Please use `study.set_metric_names() <https://optuna.readthedocs.io/en/latest/re
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``upload_artifact`` function has been ported to Optuna.
-Please use `optuna.artifacts.upload_artifact <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.upload_artifact.html>`_ function instead.
+Please use `optuna.artifacts.upload_artifact <https://optuna.readthedocs.io/en/latest/reference/artifacts.html#optuna.artifacts.upload_artifact>`_ function instead.
 
 .. list-table::
 
@@ -58,7 +58,7 @@ Please note that the order of arguments is different between the deprecated and 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``FileSystemBackend`` class has been ported to Optuna.
-Please use `FileSystemArtifactStore <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.FileSystemArtifactStore.html>`_ class instead.
+Please use `FileSystemArtifactStore <https://optuna.readthedocs.io/en/latest/reference/artifacts.html#optuna.artifacts.FileSystemArtifactStore>`_ class instead.
 
 .. list-table::
 
@@ -72,7 +72,7 @@ Please use `FileSystemArtifactStore <https://optuna.readthedocs.io/en/latest/ref
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``Boto3Backend`` class has been ported to Optuna.
-Please use `Boto3ArtifactStore <https://optuna.readthedocs.io/en/latest/reference/generated/optuna.artifacts.Boto3ArtifactStore.html>`_ class instead.
+Please use `Boto3ArtifactStore <https://optuna.readthedocs.io/en/latest/reference/artifacts.html#optuna.artifacts.Boto3ArtifactStore>`_ class instead.
 
 .. list-table::
 
